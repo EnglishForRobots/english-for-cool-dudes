@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Routines - English Adventure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            height: 100%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .lesson-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideUp 0.5s forwards;
+        }
+
+        @keyframes slideUp {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .timer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ff4757;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+            animation: pulse 1s infinite;
+            z-index: 1000;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .question-container {
+            margin: 20px 0;
+        }
+
+        .question {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .options {
+            display: grid;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .option {
+            background: #f8f9ff;
+            border: 2px solid #e1e8ff;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .option:hover:not(.disabled) {
+            background: #e8f0ff;
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .option.correct {
+            background: #d4edda !important;
+            border-color: #4CAF50 !important;
+            color: #155724;
+        }
+
+        .option.incorrect {
+            background: #f8d7da !important;
+            border-color: #dc3545 !important;
+            color: #721c24;
+        }
+        
+        .option.selected {
+            background: #e8f0ff;
+            border-color: #667eea;
+            font-weight: bold;
+        }
+
+        .option.disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .reading-text {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .reading-text strong {
+            font-style: normal;
+            color: #667eea;
+        }
+
+        .achievement {
+            background: linear-gradient(135deg, #ffd700, #ffed4a);
+            color: #333;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+            animation: achievementPop 0.5s ease;
+        }
+
+        @keyframes achievementPop {
+            0% { transform: scale(0.8) rotate(-5deg); opacity: 0; }
+            50% { transform: scale(1.1) rotate(2deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .sticker {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 5rem;
+            opacity: 0;
+            animation: stickerPop 1s forwards;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes stickerPop {
+            0% { transform: translate(-50%, -50%) scale(0.5) rotate(-20deg); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.2) rotate(10deg); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 0; }
+        }
+
+        .gap-fill-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .gap-sentence {
+            font-size: 18px;
+            line-height: 1.8;
+            padding: 10px 0;
+        }
+
+        .gap-fill-drop-zone {
+            display: inline-block;
+            border-bottom: 3px solid #667eea;
+            min-width: 80px;
+            text-align: center;
+            padding: 8px 15px;
+            font-size: 16px;
+            margin: 0 8px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            color: #667eea;
+            min-height: 30px;
+        }
+
+        .gap-fill-drop-zone.filled {
+            background: #e8f0ff;
+            border-radius: 5px;
+            cursor: pointer;
+            color: transparent;
+            position: relative;
+        }
+        
+        .gap-fill-drop-zone.filled-answer {
+            background: #d4edda;
+            border-color: #4CAF50;
+            color: #155724;
+        }
+
+        .gap-fill-drop-zone.incorrect-answer {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        
+        .gap-fill-drop-zone.filled .filled-word {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: block;
+            width: 100%;
+        }
+
+        .word-bank-drag {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 15px;
+            border: 2px dashed #667eea;
+        }
+
+        .word-bank-title {
+            width: 100%;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .word-item-drag, .filled-word {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: grab;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            text-align: center;
+        }
+
+        .word-item-drag:hover:not(.used) {
+            background: linear-gradient(135deg, #764ba2, #667eea);
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .word-item-drag:active {
+            cursor: grabbing;
+        }
+
+        .word-item-drag.used {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: scale(0.9);
+            opacity: 0.5;
+            box-shadow: none;
+        }
+        
+        .filled-word {
+            cursor: pointer;
+        }
+
+        .sortable-list {
+            list-style: none;
+            padding: 0;
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .sortable-item {
+            background: white;
+            border: 2px solid #e1e8ff;
+            padding: 15px 20px;
+            margin: 10px 0;
+            border-radius: 10px;
+            cursor: move;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .sortable-item:hover {
+            background: #e8f0ff;
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .sortable-list.correct-order .sortable-item {
+            background: #d4edda;
+            border-color: #4CAF50;
+            color: #155724;
+        }
+
+        .sortable-list.incorrect-order .sortable-item {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .matching-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        .matching-column h4 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .match-item {
+            background: white;
+            border: 2px solid #e1e8ff;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .match-item:hover:not(.correct):not(.disabled) {
+            background: #e8f0ff;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .match-item.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .match-item.correct {
+            background: #4CAF50 !important;
+            color: white !important;
+            border-color: #4CAF50 !important;
+            cursor: not-allowed;
+        }
+
+        .match-item.incorrect {
+            background: #dc3545;
+            color: white;
+            border-color: #dc3545;
+            animation: shake 0.5s;
+        }
+
+        .match-item.disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .match-score {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .level-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .points-animation {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #4CAF50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 1000;
+            animation: pointsFloat 2s ease-out forwards;
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+        }
+
+        @keyframes pointsFloat {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            30% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -80px) scale(1); }
+        }
+
+        .activity-instructions {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border-left: 4px solid #2196f3;
+            font-weight: 500;
+        }
+
+        .feedback-message {
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+            font-size: 16px;
+        }
+
+        .feedback-correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #4CAF50;
+        }
+
+        .feedback-incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+
+        .next-activity-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            margin-top: 20px;
+            display: none;
+        }
+
+        .try-again-btn {
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            margin-top: 20px;
+            display: none;
+        }
+
+        .check-btn {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🌟 English Adventure: Daily Routines 🌟</h1>
+            <div class="level-badge">Level <span id="currentLevel">1</span></div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="totalPoints">0</div>
+                <div>Points</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="streak">0</div>
+                <div>Streak</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="timeLeft">--</div>
+                <div>Time</div>
+            </div>
+        </div>
+
+        <div class="timer" id="timer">⏰ 30s</div>
+        <div class="achievement" id="achievement"></div>
+
+        <div class="lesson-card" id="activity1">
+            <h2>🎯 Activity 1: Vocabulary Matching Game</h2>
+            <div class="activity-instructions">
+                Match the daily routine activities with their meanings. Click on a word from the left column, then click on its matching definition from the right column!
+            </div>
+            
+            <div class="matching-container">
+                <div class="matching-column">
+                    <h4>🔵 Activities</h4>
+                    <div class="match-item vocabulary" data-match="1">get up</div>
+                    <div class="match-item vocabulary" data-match="2">brush teeth</div>
+                    <div class="match-item vocabulary" data-match="3">take a shower</div>
+                    <div class="match-item vocabulary" data-match="4">have breakfast</div>
+                    <div class="match-item vocabulary" data-match="5">go to school</div>
+                    <div class="match-item vocabulary" data-match="6">do homework</div>
+                    <div class="match-item vocabulary" data-match="7">have dinner</div>
+                    <div class="match-item vocabulary" data-match="8">go to sleep</div>
+                </div>
+                
+                <div class="matching-column">
+                    <h4>🟡 Meanings</h4>
+                    <div class="match-item definition" data-match="3">wash your body</div>
+                    <div class="match-item definition" data-match="1">get out of bed</div>
+                    <div class="match-item definition" data-match="7">eat evening meal</div>
+                    <div class="match-item definition" data-match="2">clean your teeth</div>
+                    <div class="match-item definition" data-match="8">go to bed</div>
+                    <div class="match-item definition" data-match="4">eat morning meal</div>
+                    <div class="match-item definition" data-match="6">complete school work</div>
+                    <div class="match-item definition" data-match="5">travel to school</div>
+                </div>
+            </div>
+            
+            <div class="match-score">
+                <span id="matchScore">Matches: 0/8</span>
+            </div>
+            
+            <div class="feedback-message" id="matching-feedback"></div>
+            <button class="btn next-activity-btn" id="matching-next" onclick="nextActivity()">Continue to Next Activity ➡️</button>
+        </div>
+
+        <div class="lesson-card hidden" id="activity2">
+            <h2>📖 Activity 2: Reading Comprehension</h2>
+            <div class="activity-instructions">
+                Read about Sarah's daily routine, then answer the questions below.
+            </div>
+            
+            <div class="reading-text">
+                <strong>Sarah's Daily Routine</strong><br><br>
+                Sarah <strong>gets up at 7:00 AM</strong> every morning. First, she <strong>brushes her teeth</strong> and <strong>takes a shower</strong>. Then she <strong>has breakfast</strong> with her family. She usually eats cereal and <strong>drinks orange juice</strong>. After breakfast, she <strong>goes to school</strong> by bus. School starts at 8:30 AM. In the afternoon, she comes home and <strong>does her homework</strong>. She <strong>has dinner</strong> at 6:00 PM. Before bed, she <strong>reads a book</strong> and <strong>goes to sleep</strong> at 10:00 PM.
+            </div>
+
+            <div class="question-container" id="reading-q1">
+                <div class="question">1. What time does Sarah get up?</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong">8:00 AM</div>
+                    <div class="option" data-answer="correct">7:00 AM</div>
+                    <div class="option" data-answer="wrong">6:30 AM</div>
+                </div>
+            </div>
+            
+            <div class="question-container" id="reading-q2">
+                <div class="question">2. Sarah has breakfast before she brushes her teeth.</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong">True</div>
+                    <div class="option" data-answer="correct">False</div>
+                </div>
+            </div>
+
+            <div class="question-container" id="reading-q3">
+                <div class="question">3. What does Sarah drink at breakfast?</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong">Coffee</div>
+                    <div class="option" data-answer="correct">Orange juice</div>
+                    <div class="option" data-answer="wrong">Water</div>
+                </div>
+            </div>
+            
+            <div class="feedback-message" id="reading-feedback"></div>
+            <button class="btn check-btn" id="reading-check-btn" onclick="checkReadingAnswers()">Check Answers ✔</button>
+            <button class="btn next-activity-btn" id="reading-next" onclick="nextActivity()">Continue to Next Activity ➡️</button>
+            <button class="btn try-again-btn" id="reading-retry" onclick="retryActivity(2)">Try Again 🔄</button>
+        </div>
+
+        <div class="lesson-card hidden" id="activity3">
+            <h2>⚡ Activity 3: 30-Second Speed Challenge!</h2>
+            <div class="activity-instructions">
+                How many daily routine activities can you identify? You have 30 seconds to select ALL the correct daily routine activities. Wrong answers will reduce your score!
+            </div>
+            
+            <button class="btn" id="speed-start-btn" onclick="startSpeedChallenge()">🚀 START CHALLENGE</button>
+            
+            <div id="speedChallenge" class="hidden">
+                <div class="question">Select all DAILY ROUTINE activities:</div>
+                <div class="options" id="speedOptions">
+                    <div class="option" data-speed="correct">wake up</div>
+                    <div class="option" data-speed="correct">brush teeth</div>
+                    <div class="option" data-speed="wrong">climb mountains</div>
+                    <div class="option" data-speed="correct">have breakfast</div>
+                    <div class="option" data-speed="wrong">fly to space</div>
+                    <div class="option" data-speed="correct">go to school</div>
+                    <div class="option" data-speed="wrong">build robots</div>
+                    <div class="option" data-speed="correct">do homework</div>
+                    <div class="option" data-speed="correct">have dinner</div>
+                    <div class="option" data-speed="wrong">become invisible</div>
+                </div>
+                <button class="btn check-btn" id="speed-check-btn" onclick="checkSpeedAnswers()">Check Answers ✔</button>
+            </div>
+
+            <div class="feedback-message" id="speed-feedback"></div>
+            <button class="btn next-activity-btn" id="speed-next" onclick="nextActivity()">Continue to Next Activity ➡️</button>
+            <button class="btn try-again-btn" id="speed-retry" onclick="retryActivity(3)">Try Again 🔄</button>
+        </div>
+
+        <div class="lesson-card hidden" id="activity4">
+            <h2>🎯 Activity 4: Drag and Drop - Fill in the Gaps</h2>
+            <div class="activity-instructions">
+                Drag the words from the word bank to the correct empty spaces to complete the sentences about Sarah's routine.
+            </div>
+            
+            <div class="word-bank-drag" id="wordBankGap">
+                <div class="word-bank-title">📝 Word Bank - Drag these words:</div>
+                <span class="word-item-drag" data-word="wakes" draggable="true">wakes</span>
+                <span class="word-item-drag" data-word="brushes" draggable="true">brushes</span>
+                <span class="word-item-drag" data-word="has" draggable="true">has</span>
+                <span class="word-item-drag" data-word="goes" draggable="true">goes</span>
+                <span class="word-item-drag" data-word="reads" draggable="true">reads</span>
+            </div>
+            
+            <div class="gap-fill-container">
+                <div class="gap-sentence">Sarah <span class="gap-fill-drop-zone" data-correct="wakes"></span> up at 7:00 AM.</div>
+                <div class="gap-sentence">She <span class="gap-fill-drop-zone" data-correct="brushes"></span> her teeth.</div>
+                <div class="gap-sentence">Then she <span class="gap-fill-drop-zone" data-correct="has"></span> breakfast.</div>
+                <div class="gap-sentence">She <span class="gap-fill-drop-zone" data-correct="goes"></span> to school by bus.</div>
+                <div class="gap-sentence">Before bed, she <span class="gap-fill-drop-zone" data-correct="reads"></span> a book.</div>
+            </div>
+            
+            <button class="btn check-btn" id="gap-check-btn" onclick="checkGapFill()">Check Answers ✔</button>
+            <div class="feedback-message" id="gap-feedback"></div>
+            <button class="btn next-activity-btn" id="gap-next" onclick="nextActivity()">Continue to Next Activity ➡️</button>
+            <button class="btn try-again-btn" id="gap-retry" onclick="retryActivity(4)">Try Again 🔄</button>
+        </div>
+
+        <div class="lesson-card hidden" id="activity5">
+            <h2>🔄 Activity 5: Put Words in Order</h2>
+            <div class="activity-instructions">
+                Put the words in the correct order to form a sentence.
+            </div>
+            
+            <ul class="sortable-list" id="wordOrder">
+                <li class="sortable-item" draggable="true">breakfast</li>
+                <li class="sortable-item" draggable="true">has</li>
+                <li class="sortable-item" draggable="true">Sarah</li>
+                <li class="sortable-item" draggable="true">family</li>
+                <li class="sortable-item" draggable="true">with</li>
+                <li class="sortable-item" draggable="true">her</li>
+            </ul>
+            
+            <button class="btn check-btn" id="order-check-btn" onclick="checkWordOrder()">Check Order ✔</button>
+            <div class="feedback-message" id="order-feedback"></div>
+            <button class="btn next-activity-btn" id="order-next" onclick="nextActivity()">Continue to Next Activity ➡️</button>
+            <button class="btn try-again-btn" id="order-retry" onclick="retryActivity(5)">Try Again 🔄</button>
+        </div>
+
+        <div class="lesson-card hidden" id="activity6">
+            <h2>📚 Activity 6: Grammar Challenge</h2>
+            <div class="activity-instructions">
+                Choose the correct verb form for third person singular (she/he/it).
+            </div>
+            
+            <div class="question-container" id="grammar-q1">
+                <div class="question">1. Choose the correct form: "She _____ her homework every day."</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong">do</div>
+                    <div class="option" data-answer="correct">does</div>
+                    <div class="option" data-answer="wrong">doing</div>
+                </div>
+            </div>
+            
+            <div class="question-container" id="grammar-q2">
+                <div class="question">2. Choose the correct form: "He _____ to school at 8 AM."</div>
+                <div class="options">
+                    <div class="option" data-answer="correct">goes</div>
+                    <div class="option" data-answer="wrong">go</div>
+                    <div class="option" data-answer="wrong">went</div>
+                </div>
+            </div>
+            
+            <div class="question-container" id="grammar-q3">
+                <div class="question">3. Choose the correct form: "It _____ a lot in winter."</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong">snow</div>
+                    <div class="option" data-answer="correct">snows</div>
+                    <div class="option" data-answer="wrong">snowing</div>
+                </div>
+            </div>
+            
+            <div class="feedback-message" id="grammar-feedback"></div>
+            <button class="btn check-btn" id="grammar-check-btn" onclick="checkGrammar()">Check Answers ✔</button>
+            <button class="btn next-activity-btn" id="grammar-next" onclick="nextActivity()">Continue to Final Results ➡️</button>
+            <button class="btn try-again-btn" id="grammar-retry" onclick="retryActivity(6)">Try Again 🔄</button>
+        </div>
+
+        <div class="lesson-card hidden" id="finalResults">
+            <h2>🏆 Congratulations! You have completed the English Adventure!</h2>
+            <div class="activity-instructions" id="final-stats-instructions">
+                Here are your final stats:
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="finalPoints">0</div>
+                    <div>Total Points</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="finalStreak">0</div>
+                    <div>Highest Streak</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="finalTime">--</div>
+                    <div>Total Time</div>
+                </div>
+            </div>
+            <div class="feedback-message feedback-correct" id="final-feedback">
+                You are a grammar master! Fantastic work!
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+    <script>
+        // --- Global Variables ---
+        let totalPoints = 0;
+        let streak = 0;
+        let currentActivity = 1;
+        let timerId;
+        let startTime;
+        let elapsedMilliseconds = 0;
+        let draggedItem = null;
+
+        const allActivities = 6;
+        const grammarQuestions = ['grammar-q1', 'grammar-q2', 'grammar-q3'];
+
+        // --- Utility Functions ---
+        function updateStats() {
+            document.getElementById('totalPoints').textContent = totalPoints;
+            document.getElementById('streak').textContent = streak;
+            document.getElementById('currentLevel').textContent = currentActivity;
+            
+            const progress = (currentActivity - 1) / allActivities;
+            document.getElementById('progressFill').style.width = (progress * 100) + '%';
+        }
+
+        function showFeedback(activityId, isCorrect, message, points = 0) {
+            const feedbackEl = document.getElementById(activityId + '-feedback');
+            feedbackEl.textContent = message;
+            feedbackEl.className = 'feedback-message';
+            feedbackEl.classList.add(isCorrect ? 'feedback-correct' : 'feedback-incorrect');
+            feedbackEl.style.display = 'block';
+
+            if (points > 0) {
+                showPointsAnimation(points);
+            }
+        }
+
+        function showPointsAnimation(points) {
+            const pointsEl = document.createElement('div');
+            pointsEl.classList.add('points-animation');
+            pointsEl.textContent = `+${points} POINTS!`;
+            document.body.appendChild(pointsEl);
+
+            pointsEl.addEventListener('animationend', () => {
+                pointsEl.remove();
+            });
+        }
+
+        function showSticker(type) {
+            const stickerEl = document.createElement('div');
+            stickerEl.classList.add('sticker');
+            if (type === 'great') {
+                stickerEl.textContent = '🎉';
+            } else if (type === 'oops') {
+                stickerEl.textContent = '😅';
+            }
+            document.body.appendChild(stickerEl);
+            stickerEl.addEventListener('animationend', () => {
+                stickerEl.remove();
+            });
+        }
+
+        function showAchievement(message) {
+            const achievementEl = document.getElementById('achievement');
+            achievementEl.textContent = message;
+            achievementEl.style.display = 'block';
+            setTimeout(() => {
+                achievementEl.style.display = 'none';
+            }, 3000);
+        }
+
+        function showResults() {
+            const finalPointsEl = document.getElementById('finalPoints');
+            const finalStreakEl = document.getElementById('finalStreak');
+            const finalTimeEl = document.getElementById('finalTime');
+            currentActivity = allActivities;
+            updateStats();
+
+            finalPointsEl.textContent = totalPoints;
+            finalStreakEl.textContent = streak;
+            
+            const totalSeconds = Math.round(elapsedMilliseconds / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            finalTimeEl.textContent = `${minutes}m ${seconds}s`;
+
+            document.getElementById('activity' + (currentActivity)).classList.add('hidden');
+            document.getElementById('finalResults').classList.remove('hidden');
+            showSticker('great');
+            window.scrollTo({ top: document.getElementById('finalResults').offsetTop - 50, behavior: 'smooth' });
+        }
+
+        function startTimer() {
+            if (timerId) clearInterval(timerId);
+            startTime = Date.now();
+            document.getElementById('timer').style.display = 'block';
+
+            timerId = setInterval(() => {
+                const now = Date.now();
+                const timePassed = Math.floor((now - startTime) / 1000);
+                const timeLeft = 30 - timePassed;
+                document.getElementById('timeLeft').textContent = `${timeLeft}s`;
+                document.getElementById('timer').textContent = `⏰ ${timeLeft}s`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    endSpeedChallenge();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerId);
+            elapsedMilliseconds += Date.now() - startTime;
+            document.getElementById('timer').style.display = 'none';
+        }
+        
+        function nextActivity() {
+            document.getElementById('activity' + currentActivity).classList.add('hidden');
+            currentActivity++;
+            if (currentActivity <= allActivities) {
+                setTimeout(() => {
+                    const nextActivityEl = document.getElementById('activity' + currentActivity);
+                    nextActivityEl.classList.remove('hidden');
+                    window.scrollTo({ top: nextActivityEl.offsetTop - 50, behavior: 'smooth' });
+                    if (currentActivity === 1) initializeMatchingGame();
+                    if (currentActivity === 2) initializeReadingActivity();
+                    if (currentActivity === 3) resetSpeedChallenge();
+                    if (currentActivity === 4) initializeGapFillActivity();
+                    if (currentActivity === 5) initializeWordOrderActivity();
+                    if (currentActivity === 6) initializeGrammarActivity();
+                }, 300);
+            } else {
+                showResults();
+            }
+        }
+        
+        function retryActivity(activityNumber) {
+            document.getElementById('activity' + activityNumber).classList.add('hidden');
+            if (activityNumber === 2) {
+                document.querySelectorAll('#activity2 .option').forEach(option => {
+                    option.classList.remove('selected', 'correct', 'incorrect', 'disabled');
+                });
+                document.getElementById('reading-feedback').style.display = 'none';
+                document.getElementById('reading-next').style.display = 'none';
+                document.getElementById('reading-retry').style.display = 'none';
+                document.getElementById('reading-check-btn').style.display = 'inline-block';
+            } else if (activityNumber === 3) {
+                resetSpeedChallenge();
+            } else if (activityNumber === 4) {
+                resetGapFill();
+            } else if (activityNumber === 5) {
+                resetWordOrder();
+            } else if (activityNumber === 6) {
+                resetGrammar();
+            }
+            streak = 0;
+            updateStats();
+            setTimeout(() => {
+                const retryActivityEl = document.getElementById('activity' + activityNumber);
+                retryActivityEl.classList.remove('hidden');
+                window.scrollTo({ top: retryActivityEl.offsetTop - 50, behavior: 'smooth' });
+            }, 300);
+        }
+
+        // --- Activity Logic ---
+        function initializeMatchingGame() {
+            const vocabularyItems = document.querySelectorAll('.vocabulary');
+            const definitionItems = document.querySelectorAll('.definition');
+            let selectedVocab = null;
+            let selectedDef = null;
+            let matchesFound = 0;
+
+            function checkMatch() {
+                if (selectedVocab && selectedDef) {
+                    const vocabMatchId = selectedVocab.getAttribute('data-match');
+                    const defMatchId = selectedDef.getAttribute('data-match');
+
+                    if (vocabMatchId === defMatchId) {
+                        selectedVocab.classList.add('correct', 'disabled');
+                        selectedDef.classList.add('correct', 'disabled');
+                        totalPoints += 50;
+                        streak++;
+                        matchesFound++;
+                        showPointsAnimation(50);
+                        showSticker('great');
+
+                        if (streak % 3 === 0) {
+                            showAchievement('🔥 Triple Match!');
+                        }
+                    } else {
+                        selectedVocab.classList.add('incorrect');
+                        selectedDef.classList.add('incorrect');
+                        streak = 0;
+                        showSticker('oops');
+                        
+                        setTimeout(() => {
+                            selectedVocab.classList.remove('selected', 'incorrect');
+                            selectedDef.classList.remove('selected', 'incorrect');
+                        }, 800);
+                    }
+
+                    selectedVocab.classList.remove('selected');
+                    selectedDef.classList.remove('selected');
+                    selectedVocab = null;
+                    selectedDef = null;
+                    updateStats();
+                    document.getElementById('matchScore').textContent = `Matches: ${matchesFound}/8`;
+
+                    if (matchesFound === 8) {
+                        showFeedback('matching', true, '🎉 You matched all the vocabulary words correctly! Fantastic!', 200);
+                        document.getElementById('matching-next').style.display = 'block';
+                    }
+                }
+            }
+
+            vocabularyItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    if (item.classList.contains('disabled')) return;
+                    if (selectedVocab) selectedVocab.classList.remove('selected');
+                    selectedVocab = item;
+                    selectedVocab.classList.add('selected');
+                    checkMatch();
+                });
+            });
+
+            definitionItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    if (item.classList.contains('disabled')) return;
+                    if (selectedDef) selectedDef.classList.remove('selected');
+                    selectedDef = item;
+                    selectedDef.classList.add('selected');
+                    checkMatch();
+                });
+            });
+        }
+
+        function checkReadingAnswers() {
+            const questions = ['reading-q1', 'reading-q2', 'reading-q3'];
+            let correctCount = 0;
+            let allCorrect = true;
+
+            questions.forEach(qId => {
+                const questionContainer = document.getElementById(qId);
+                const selectedOption = questionContainer.querySelector('.option.selected');
+                
+                if (selectedOption) {
+                    if (selectedOption.dataset.answer === 'correct') {
+                        selectedOption.classList.add('correct');
+                        correctCount++;
+                        totalPoints += 10;
+                        streak++;
+                    } else {
+                        selectedOption.classList.add('incorrect');
+                        allCorrect = false;
+                        streak = 0;
+                    }
+                    selectedOption.classList.add('disabled');
+                    questionContainer.querySelectorAll('.option').forEach(opt => {
+                        if (opt.dataset.answer === 'correct') {
+                            opt.classList.add('correct');
+                        }
+                        opt.classList.add('disabled');
+                    });
+                } else {
+                    allCorrect = false;
+                    streak = 0;
+                }
+            });
+
+            if (allCorrect) {
+                showFeedback('reading', true, '✅ You answered all questions correctly! Awesome!', 50);
+                showSticker('great');
+                document.getElementById('reading-next').style.display = 'block';
+            } else {
+                showFeedback('reading', false, `❌ You got ${correctCount}/${questions.length} correct. The correct answers are highlighted in green.`);
+                showSticker('oops');
+                document.getElementById('reading-retry').style.display = 'block';
+            }
+            document.getElementById('reading-check-btn').style.display = 'none';
+            updateStats();
+        }
+
+        function initializeReadingActivity() {
+            document.querySelectorAll('#activity2 .options .option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const parent = this.closest('.options');
+                    parent.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
+        }
+
+        let speedChallengeInterval;
+        let speedCorrectSelections = 0;
+        let speedIncorrectSelections = 0;
+
+        function startSpeedChallenge() {
+            document.getElementById('speed-start-btn').classList.add('hidden');
+            document.getElementById('speedChallenge').classList.remove('hidden');
+            document.querySelectorAll('#speedOptions .option').forEach(option => {
+                option.classList.remove('correct', 'incorrect', 'disabled');
+                option.addEventListener('click', handleSpeedSelection, { once: true });
+            });
+            startTimer();
+        }
+
+        function handleSpeedSelection(event) {
+            const option = event.target;
+            if (option.dataset.speed === 'correct') {
+                option.classList.add('correct');
+                speedCorrectSelections++;
+                totalPoints += 5;
+                streak++;
+                showPointsAnimation(5);
+            } else {
+                option.classList.add('incorrect');
+                speedIncorrectSelections++;
+                totalPoints = Math.max(0, totalPoints - 5);
+                streak = 0;
+            }
+            updateStats();
+        }
+
+        function endSpeedChallenge() {
+            document.getElementById('speed-check-btn').click();
+        }
+
+        function checkSpeedAnswers() {
+            stopTimer();
+            document.querySelectorAll('#speedOptions .option').forEach(option => {
+                option.classList.add('disabled');
+            });
+            
+            const totalPossible = document.querySelectorAll('#speedOptions .option[data-speed="correct"]').length;
+            const finalScore = speedCorrectSelections - speedIncorrectSelections;
+
+            if (speedCorrectSelections === totalPossible && speedIncorrectSelections === 0) {
+                showFeedback('speed', true, '⚡ Perfect! You got them all correctly!', 100);
+                showSticker('great');
+                document.getElementById('speed-next').style.display = 'block';
+            } else {
+                showFeedback('speed', false, `You got ${speedCorrectSelections} correct but ${speedIncorrectSelections} incorrect. Final Score: ${finalScore}`);
+                showSticker('oops');
+                document.getElementById('speed-retry').style.display = 'block';
+            }
+            document.getElementById('speed-check-btn').style.display = 'none';
+        }
+
+        function resetSpeedChallenge() {
+            speedCorrectSelections = 0;
+            speedIncorrectSelections = 0;
+            document.getElementById('speed-start-btn').classList.remove('hidden');
+            document.getElementById('speedChallenge').classList.add('hidden');
+            document.getElementById('speed-feedback').style.display = 'none';
+            document.getElementById('speed-next').style.display = 'none';
+            document.getElementById('speed-retry').style.display = 'none';
+            document.getElementById('speed-check-btn').style.display = 'inline-block';
+            document.getElementById('timeLeft').textContent = '--';
+            document.getElementById('timer').textContent = '⏰ 30s';
+        }
+
+        function shuffleWordBank() {
+            const wordBank = document.getElementById('wordBankGap');
+            const words = Array.from(wordBank.querySelectorAll('.word-item-drag'));
+            words.sort(() => Math.random() - 0.5);
+            words.forEach(word => wordBank.appendChild(word));
+        }
+        
+        function initializeGapFillActivity() {
+            resetGapFill();
+            document.querySelectorAll('.word-item-drag').forEach(item => {
+                item.addEventListener('dragstart', (e) => {
+                    if (item.classList.contains('used')) {
+                        e.preventDefault();
+                        return;
+                    }
+                    draggedItem = e.target;
+                    e.dataTransfer.setData('text/plain', draggedItem.dataset.word);
+                });
+
+                item.addEventListener('dragend', () => {
+                    draggedItem = null;
+                });
+            });
+
+            document.querySelectorAll('.gap-fill-drop-zone').forEach(dropZone => {
+                dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                });
+                
+                dropZone.addEventListener('dragenter', (e) => {
+                    e.preventDefault();
+                    if (!dropZone.textContent.trim()) {
+                        dropZone.style.backgroundColor = '#e8f0ff';
+                    }
+                });
+                
+                dropZone.addEventListener('dragleave', (e) => {
+                    dropZone.style.backgroundColor = '';
+                });
+                
+                dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropZone.style.backgroundColor = '';
+                    
+                    if (!draggedItem) return;
+                    
+                    const word = draggedItem.dataset.word;
+                    
+                    if (!dropZone.querySelector('.filled-word')) {
+                        const wordClone = draggedItem.cloneNode(true);
+                        wordClone.classList.remove('word-item-drag');
+                        wordClone.classList.add('filled-word');
+                        wordClone.draggable = false;
+                        
+                        dropZone.appendChild(wordClone);
+                        dropZone.classList.add('filled');
+                        draggedItem.classList.add('used');
+                    }
+                });
+
+                dropZone.addEventListener('click', () => {
+                    if (dropZone.classList.contains('filled')) {
+                        const wordEl = dropZone.querySelector('.filled-word');
+                        if (wordEl) {
+                            const word = wordEl.dataset.word;
+                            const wordItem = document.querySelector(`.word-item-drag[data-word="${word}"]`);
+                            if (wordItem) {
+                                wordItem.classList.remove('used');
+                                wordItem.draggable = true;
+                            }
+                            wordEl.remove();
+                            dropZone.classList.remove('filled');
+                            dropZone.classList.remove('filled-answer', 'incorrect-answer');
+                        }
+                    }
+                });
+            });
+        }
+
+        function checkGapFill() {
+            const dropZones = document.querySelectorAll('.gap-fill-drop-zone');
+            let correctCount = 0;
+            let allCorrect = true;
+
+            dropZones.forEach(zone => {
+                const filledWordEl = zone.querySelector('.filled-word');
+                if (filledWordEl) {
+                    const isCorrect = filledWordEl.dataset.word === zone.dataset.correct;
+                    if (isCorrect) {
+                        zone.classList.add('filled-answer');
+                        correctCount++;
+                        totalPoints += 20;
+                        streak++;
+                    } else {
+                        zone.classList.add('incorrect-answer');
+                        allCorrect = false;
+                        streak = 0;
+                    }
+                } else {
+                    allCorrect = false;
+                    streak = 0;
+                }
+            });
+
+            if (allCorrect) {
+                showFeedback('gap', true, '✅ All gaps filled correctly! Great job!', 100);
+                showSticker('great');
+                document.getElementById('gap-next').style.display = 'block';
+            } else {
+                showFeedback('gap', false, `❌ You got ${correctCount}/${dropZones.length} correct. The correct answers are now highlighted.`);
+                showSticker('oops');
+                document.getElementById('gap-retry').style.display = 'block';
+            }
+            
+            document.getElementById('gap-check-btn').style.display = 'none';
+            updateStats();
+        }
+
+        function resetGapFill() {
+            document.querySelectorAll('.gap-fill-drop-zone').forEach(zone => {
+                zone.innerHTML = '';
+                zone.classList.remove('filled', 'filled-answer', 'incorrect-answer');
+            });
+            document.querySelectorAll('.word-item-drag').forEach(item => {
+                item.classList.remove('used');
+                item.draggable = true;
+            });
+            document.getElementById('gap-feedback').style.display = 'none';
+            document.getElementById('gap-next').style.display = 'none';
+            document.getElementById('gap-retry').style.display = 'none';
+            document.getElementById('gap-check-btn').style.display = 'inline-block';
+            shuffleWordBank();
+        }
+
+        let wordOrder;
+        function initializeWordOrderActivity() {
+            resetWordOrder();
+            wordOrder = new Sortable(document.getElementById('wordOrder'), {
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                onEnd: function (evt) {
+                }
+            });
+        }
+
+        function checkWordOrder() {
+            const correctOrder = ['Sarah', 'has', 'breakfast', 'with', 'her', 'family'];
+            const currentOrder = Array.from(document.querySelectorAll('#wordOrder .sortable-item')).map(item => item.textContent);
+
+            const isCorrect = JSON.stringify(currentOrder) === JSON.stringify(correctOrder);
+
+            if (isCorrect) {
+                document.getElementById('wordOrder').classList.add('correct-order');
+                showFeedback('order', true, '✅ Perfect order! The sentence is correct!', 100);
+                showSticker('great');
+                totalPoints += 50;
+                streak++;
+                document.getElementById('order-next').style.display = 'block';
+            } else {
+                document.getElementById('wordOrder').classList.add('incorrect-order');
+                showFeedback('order', false, '❌ Incorrect order. Try again!');
+                showSticker('oops');
+                streak = 0;
+                document.getElementById('order-retry').style.display = 'block';
+            }
+            
+            document.getElementById('order-check-btn').style.display = 'none';
+            updateStats();
+        }
+
+        function resetWordOrder() {
+            const wordOrderEl = document.getElementById('wordOrder');
+            const items = Array.from(wordOrderEl.children);
+            items.sort(() => Math.random() - 0.5);
+            items.forEach(item => wordOrderEl.appendChild(item));
+            wordOrderEl.classList.remove('correct-order', 'incorrect-order');
+            document.getElementById('order-feedback').style.display = 'none';
+            document.getElementById('order-next').style.display = 'none';
+            document.getElementById('order-retry').style.display = 'none';
+            document.getElementById('order-check-btn').style.display = 'inline-block';
+        }
+
+        let correctGrammarAnswers = 0;
+        let answeredGrammarQuestions = 0;
+
+        function initializeGrammarActivity() {
+            resetGrammar();
+            document.querySelectorAll('#activity6 .option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const parentOptions = this.closest('.options');
+                    if (parentOptions.dataset.answered) return;
+                    
+                    parentOptions.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
+        }
+
+        function checkGrammar() {
+            let allAnswered = true;
+            correctGrammarAnswers = 0;
+            answeredGrammarQuestions = 0;
+
+            grammarQuestions.forEach(qId => {
+                const questionContainer = document.getElementById(qId);
+                const selectedOption = questionContainer.querySelector('.option.selected');
+                
+                if (selectedOption) {
+                    answeredGrammarQuestions++;
+                    const isCorrect = selectedOption.dataset.answer === 'correct';
+                    if (isCorrect) {
+                        selectedOption.classList.add('correct');
+                        correctGrammarAnswers++;
+                        totalPoints += 25;
+                        streak++;
+                    } else {
+                        selectedOption.classList.add('incorrect');
+                        streak = 0;
+                    }
+
+                    questionContainer.querySelectorAll('.option').forEach(opt => {
+                        if (opt.dataset.answer === 'correct') {
+                            opt.classList.add('correct');
+                        }
+                        opt.classList.add('disabled');
+                    });
+                    selectedOption.closest('.options').dataset.answered = 'true';
+                } else {
+                    allAnswered = false;
+                }
+            });
+
+            updateStats();
+            
+            if (!allAnswered) {
+                showFeedback('grammar', false, 'Please answer all questions before checking!');
+                return;
+            }
+
+            if (correctGrammarAnswers === grammarQuestions.length) {
+                showFeedback('grammar', true, '✅ All answers are correct! Great job!', 100);
+                showSticker('great');
+                document.getElementById('grammar-next').style.display = 'block';
+            } else {
+                showFeedback('grammar', false, `❌ You got ${correctGrammarAnswers}/${grammarQuestions.length} correct. The correct answers are highlighted in green.`);
+                showSticker('oops');
+                document.getElementById('grammar-retry').style.display = 'block';
+            }
+            document.getElementById('grammar-check-btn').style.display = 'none';
+        }
+
+        function resetGrammar() {
+            document.querySelectorAll('#activity6 .option').forEach(option => {
+                option.classList.remove('selected', 'correct', 'incorrect', 'disabled');
+            });
+            document.querySelectorAll('#activity6 .options').forEach(options => {
+                delete options.dataset.answered;
+            });
+            document.getElementById('grammar-feedback').style.display = 'none';
+            document.getElementById('grammar-next').style.display = 'none';
+            document.getElementById('grammar-retry').style.display = 'none';
+            document.getElementById('grammar-check-btn').style.display = 'inline-block';
+        }
+        
+        // --- Initialization ---
+        function initializeGame() {
+            updateStats();
+            initializeMatchingGame();
+            initializeReadingActivity();
+            resetSpeedChallenge();
+            initializeGapFillActivity();
+            initializeWordOrderActivity();
+            initializeGrammarActivity();
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeGame);
+    </script>
+</body>
+</html>
