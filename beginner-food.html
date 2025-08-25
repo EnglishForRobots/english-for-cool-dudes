@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food & Restaurant Experiences - English Adventure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff9a56 0%, #ff6b95 50%, #c44569 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .game-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 25px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A, #CDDC39);
+            height: 100%;
+            transition: width 0.8s ease;
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(255,255,255,0.95);
+            padding: 20px;
+            border-radius: 20px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ff9a56, #ff6b95);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .lesson-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 25px;
+            padding: 35px;
+            margin: 25px 0;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideUp 0.6s forwards;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        @keyframes slideUp {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .timer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ff4757, #ff3742);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 20px;
+            font-weight: bold;
+            display: none;
+            animation: timerPulse 1.5s infinite;
+            z-index: 1000;
+            box-shadow: 0 8px 25px rgba(255, 71, 87, 0.4);
+        }
+
+        @keyframes timerPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 8px 25px rgba(255, 71, 87, 0.4); }
+            50% { transform: scale(1.08); box-shadow: 0 12px 35px rgba(255, 71, 87, 0.6); }
+        }
+
+        .question-container {
+            margin: 25px 0;
+        }
+
+        .question {
+            font-size: 19px;
+            margin-bottom: 18px;
+            color: #333;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: grid;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .option {
+            background: linear-gradient(135deg, #f8f9ff, #e8f0ff);
+            border: 3px solid #e1e8ff;
+            padding: 18px 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            user-select: none;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            transition: left 0.5s;
+        }
+
+        .option:hover:not(.disabled)::before {
+            left: 100%;
+        }
+
+        .option:hover:not(.disabled) {
+            background: linear-gradient(135deg, #e8f0ff, #d4e7ff);
+            border-color: #ff9a56;
+            transform: translateX(8px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(255, 154, 86, 0.3);
+        }
+
+        .option.correct {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb) !important;
+            border-color: #4CAF50 !important;
+            color: #155724;
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+        }
+
+        .option.incorrect {
+            background: linear-gradient(135deg, #f8d7da, #f1aeb5) !important;
+            border-color: #dc3545 !important;
+            color: #721c24;
+            animation: errorShake 0.5s;
+        }
+        
+        @keyframes errorShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        
+        .option.selected {
+            background: linear-gradient(135deg, #ff9a56, #ff6b95);
+            border-color: #ff9a56;
+            color: white;
+            font-weight: bold;
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(255, 154, 86, 0.4);
+        }
+
+        .option.disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ff9a56 0%, #ff6b95 100%);
+            color: white;
+            border: none;
+            padding: 18px 35px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: bold;
+            transition: all 0.4s ease;
+            margin: 12px 8px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(255, 154, 86, 0.3);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover:not(:disabled)::before {
+            left: 100%;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(255, 154, 86, 0.5);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .reading-text {
+            background: linear-gradient(135deg, #f8f9ff, #e8f0ff);
+            padding: 25px;
+            border-radius: 20px;
+            margin: 25px 0;
+            border-left: 6px solid #ff9a56;
+            line-height: 1.8;
+            font-style: italic;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .reading-text strong {
+            font-style: normal;
+            color: #ff6b95;
+            font-weight: 700;
+        }
+
+        .achievement {
+            background: linear-gradient(135deg, #ffd700, #ffed4a, #f39c12);
+            color: #333;
+            padding: 20px;
+            border-radius: 20px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+            animation: achievementBounce 0.8s ease;
+            box-shadow: 0 10px 30px rgba(243, 156, 18, 0.4);
+        }
+
+        @keyframes achievementBounce {
+            0% { transform: scale(0.7) rotate(-10deg); opacity: 0; }
+            50% { transform: scale(1.15) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .sticker {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 6rem;
+            opacity: 0;
+            animation: stickerBurst 1.2s forwards;
+            pointer-events: none;
+            z-index: 1000;
+            text-shadow: 0 0 20px rgba(255,255,255,0.8);
+        }
+
+        @keyframes stickerBurst {
+            0% { transform: translate(-50%, -50%) scale(0.3) rotate(-30deg); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.3) rotate(15deg); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 0; }
+        }
+
+        .vocabulary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .vocab-card {
+            background: white;
+            border: 3px solid #e1e8ff;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .vocab-card:hover:not(.matched) {
+            transform: translateY(-5px) scale(1.03);
+            border-color: #ff9a56;
+            box-shadow: 0 10px 25px rgba(255, 154, 86, 0.3);
+        }
+
+        .vocab-card.selected {
+            background: linear-gradient(135deg, #ff9a56, #ff6b95);
+            color: white;
+            border-color: #ff9a56;
+            transform: scale(1.05);
+        }
+
+        .vocab-card.matched {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .vocab-card .emoji {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .vocab-card .word {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .conversation-container {
+            background: #f8f9ff;
+            border-radius: 20px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .conversation-line {
+            margin: 15px 0;
+            padding: 15px 20px;
+            border-radius: 15px;
+            font-weight: 500;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .customer {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-left: 5px solid #2196f3;
+            margin-right: 50px;
+        }
+
+        .waiter {
+            background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+            border-left: 5px solid #9c27b0;
+            margin-left: 50px;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .grammar-explanation {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            border: 2px solid #ff9800;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .grammar-title {
+            color: #f57c00;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .grammar-example {
+            background: rgba(255,255,255,0.7);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #ff9800;
+            font-style: italic;
+        }
+
+        .drag-drop-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .sentence-builder {
+            background: #f8f9ff;
+            border: 2px dashed #ff9a56;
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .sentence-builder.drag-over {
+            background: #e8f5e8;
+            border-color: #4CAF50;
+            transform: scale(1.02);
+        }
+
+        .word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: rgba(255,255,255,0.9);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #e1e8ff;
+        }
+
+        .draggable-word {
+            background: linear-gradient(135deg, #ff9a56, #ff6b95);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: grab;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            user-select: none;
+            box-shadow: 0 5px 15px rgba(255, 154, 86, 0.3);
+        }
+
+        .draggable-word:hover:not(.used) {
+            background: linear-gradient(135deg, #ff6b95, #ff9a56);
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 154, 86, 0.4);
+        }
+
+        .draggable-word:active {
+            cursor: grabbing;
+        }
+
+        .draggable-word.used {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: scale(0.9);
+            opacity: 0.6;
+        }
+
+        .boss-battle {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .boss-battle::before {
+            content: '👨‍🍳';
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 150px;
+            opacity: 0.15;
+        }
+
+        .boss-health {
+            background: rgba(255,255,255,0.2);
+            height: 35px;
+            border-radius: 20px;
+            margin: 25px 0;
+            overflow: hidden;
+        }
+
+        .boss-health-fill {
+            background: linear-gradient(90deg, #ff4757, #ff3742, #ff6b6b);
+            height: 100%;
+            transition: width 0.8s ease;
+            border-radius: 20px;
+            position: relative;
+        }
+
+        .boss-health-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: healthShimmer 2s infinite;
+        }
+
+        @keyframes healthShimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .boss-stats {
+            color: white;
+            text-align: center;
+            margin: 20px 0;
+            font-weight: bold;
+            font-size: 18px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .level-badge {
+            background: linear-gradient(135deg, #ff9a56, #ff6b95);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(255, 154, 86, 0.3);
+        }
+
+        .points-animation {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 30px;
+            font-size: 28px;
+            font-weight: bold;
+            z-index: 1000;
+            animation: pointsFloat 2.5s ease-out forwards;
+            box-shadow: 0 10px 30px rgba(76, 175, 80, 0.5);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        @keyframes pointsFloat {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5) rotate(-10deg); }
+            30% { opacity: 1; transform: translate(-50%, -50%) scale(1.3) rotate(5deg); }
+            100% { opacity: 0; transform: translate(-50%, -100px) scale(1) rotate(0deg); }
+        }
+
+        .activity-instructions {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border-left: 5px solid #2196f3;
+            font-weight: 500;
+            line-height: 1.6;
+        }
+
+        .feedback-message {
+            padding: 25px;
+            border-radius: 20px;
+            margin: 25px 0;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+            font-size: 17px;
+            line-height: 1.5;
+        }
+
+        .feedback-correct {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            border: 3px solid #4CAF50;
+        }
+
+        .feedback-incorrect {
+            background: linear-gradient(135deg, #f8d7da, #f1aeb5);
+            color: #721c24;
+            border: 3px solid #dc3545;
+        }
+
+        .next-activity-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            margin-top: 20px;
+            display: none;
+        }
+
+        .try-again-btn {
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            margin-top: 20px;
+            display: none;
+        }
+
+        .check-btn {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+        }
+
+        .comparative-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .comparison-card {
+            background: white;
+            border: 3px solid #e1e8ff;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .restaurant-emoji {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        .restaurant-name {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .restaurant-description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .word-dropped {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 15px;
+            margin: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🍕 English Adventure: Food & Restaurant Experiences 🍽️</h1>
+            <div class="level-badge">Pre-Intermediate Level <span id="currentLevel">1</span></div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="totalPoints">0</div>
+                <div>Points</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="streak">0</div>
+                <div>Streak</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="timeLeft">--</div>
+                <div>Time</div>
+            </div>
+        </div>
+
+        <div class="timer" id="timer">⏰ 45s</div>
+        <div class="achievement" id="achievement"></div>
+
+        <div class="lesson-card" id="activity1">
+            <h2>🎯 Activity 1: Food Vocabulary Challenge</h2>
+            <div class="activity-instructions">
+                Match the food items with their descriptions. Click on a food card, then click on its matching description card!
+            </div>
+            
+            <div class="vocabulary-grid" id="vocabGrid">
+                <div class="vocab-card food-item" data-match="1">
+                    <div class="emoji">🥗</div>
+                    <div class="word">Caesar Salad</div>
+                </div>
+                <div class="vocab-card food-item" data-match="2">
+                    <div class="emoji">🍝</div>
+                    <div class="word">Spaghetti Carbonara</div>
+                </div>
+                <div class="vocab-card food-item" data-match="3">
+                    <div class="emoji">🍤</div>
+                    <div class="word">Grilled Shrimp</div>
+                </div>
+                <div class="vocab-card food-item" data-match="4">
+                    <div class="emoji">🥩</div>
+                    <div class="word">Medium-rare Steak</div>
+                </div>
+                <div class="vocab-card description" data-match="3">Fresh seafood cooked on the grill</div>
+                <div class="vocab-card description" data-match="1">Mixed greens with parmesan and croutons</div>
+                <div class="vocab-card description" data-match="4">Beef cooked pink in the middle</div>
+                <div class="vocab-card description" data-match="2">Italian pasta with cream and bacon</div>
+            </div>
+            
+            <div class="feedback-message" id="vocab-feedback"></div>
+            <button class="btn next-activity-btn" id="vocab-next" onclick="nextActivity()">Continue to Reading 📖</button>
+        </div>
+
+        <div class="lesson-card hidden" id="activity2">
+            <h2>📖 Activity 2: Restaurant Review Comprehension</h2>
+            <div class="activity-instructions">
+                Read Marco's restaurant review and answer the questions using the present perfect tense and comparative forms.
+            </div>
+            
+            <div class="reading-text">
+                <strong>Marco's Food Blog: "The Best Restaurant Experience Ever!"</strong><br><br>
+                I <strong>have visited</strong> over 200 restaurants in my career, but last night's dinner at "La Bella Vista" was absolutely incredible. I <strong>have never tasted</strong> such amazing pasta before! The chef <strong>has worked</strong> in Italy for 15 years, and it really shows in every dish.<br><br>
+                
+                The service was <strong>much better than</strong> other restaurants I <strong>have been to</strong> recently. Our waiter was <strong>more attentive than</strong> expected and <strong>friendlier than</strong> most servers in the city. The atmosphere was also <strong>more romantic than</strong> I had imagined.<br><br>
+                
+                The prices were reasonable - not <strong>as expensive as</strong> fine dining places, but <strong>more expensive than</strong> casual restaurants. However, the quality <strong>has improved significantly</strong> since my last visit two years ago. I <strong>have already made</strong> a reservation for next week!
+            </div>
+
+            <div class="question-container">
+                <div class="question">1. According to Marco, how does La Bella Vista compare to other restaurants he has visited recently?</div>
+                <div class="options">
+                    <div class="option" data-answer="correct">The service is much better than other restaurants</div>
+                    <div class="option" data-answer="wrong">The service is worse than other restaurants</div>
+                    <div class="option" data-answer="wrong">The service is the same as other restaurants</div>
+                </div>
+            </div>
+            
+            <div class="question-container">
+                <div class="question">2. What experience does Marco express with the present perfect tense?</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong">He visited the restaurant yesterday</div>
+                    <div class="option" data-answer="correct">He has never tasted such amazing pasta before</div>
+                    <div class="option" data-answer="wrong">He will visit the restaurant next week</div>
+                </div>
+            </div>
+
+            <div class="question-container">
+                <div class="question">3. How does Marco describe the price comparison?</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong">More expensive than fine dining places</div>
+                    <div class="option" data-answer="correct">Not as expensive as fine dining, but more expensive than casual restaurants</div>
+                    <div class="option" data-answer="wrong">Cheaper than all other restaurants</div>
+                </div>
+            </div>
+            
+            <div class="feedback-message" id="reading-feedback"></div>
+            <button class="btn check-btn" id="reading-check" onclick="checkReadingAnswers()">Check Answers ✓</button>
+            <button class="btn next-activity-btn" id="reading-next" onclick="nextActivity()">Continue to Grammar 📚</button>
+            <button class="btn try-again-btn" id="reading-retry" onclick="retryActivity(2)">Try Again 🔄</button>
+        </div>
+
+        <div class="lesson-card hidden" id="activity3">
+            <h2>⚡ Activity 3: Grammar Speed Challenge!</h2>
+            <div class="activity-instructions">
+                You have 45 seconds! Select whether each sentence uses Present Perfect (have/has + past participle) or Past Simple (past tense). Choose quickly but carefully!
+            </div>
+            
+            <div class="grammar-explanation">
+                <div class="grammar-title">🎯 Quick Grammar Reminder:</div>
+                <div class="grammar-example">Present Perfect: "I have eaten sushi" (experience, no specific time)</div>
+                <div class="grammar-example">Past Simple: "I ate sushi yesterday" (specific time in the past)</div>
+            </div>
+            
+            <button class="btn" id="speed-start-btn" onclick="startGrammarSpeed()">🚀 START CHALLENGE</button>
+            
+            <div id="grammarSpeedChallenge" class="hidden">
+                <div class="question-container">
+                    <div class="question" id="speedQuestion"></div>
+                    <div class="options">
+                        <div class="option speed-option" data-speed="pp">Present Perfect</div>
+                        <div class="option speed-option" data-speed="ps">Past Simple</div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin: 20px 0;">
+                    <span id="speedScore">Question <span id="currentQ">1</span> of 8 | Score: <span id="currentScore">0</span></span>
+                </div>
+            </div>
+            
+            <div class="feedback-message" id="speed-feedback"></div>
+            <button class="btn next-activity-btn" id="speed-next" onclick="nextActivity()">Continue to Restaurant Dialogue 🗣️</button>
+            <button class="btn try-again-btn" id="speed-retry" onclick="retryActivity(3)">Try Again 🔄</button>
+        </div>
+
+        <div class="lesson-card hidden" id="activity4">
+            <h2>🗣️ Activity 4: Restaurant Conversation</h2>
+            <div class="activity-instructions">
+                Complete this restaurant conversation by choosing the most appropriate responses. Pay attention to polite language and restaurant vocabulary!
+            </div>
+            
+            <div class="conversation-container">
+                <div class="conversation-line waiter">
+                    <strong>Waiter:</strong> Good evening! Welcome to Bella Vista. Do you have a reservation?
+                </div>
+                <div class="conversation-line customer">
+                    <strong>Customer:</strong> <span id="response1">_______</span>
+                </div>
+                <div class="conversation-line waiter">
+                    <strong>Waiter:</strong> Perfect! Right this way, please. Here's your table by the window.
+                </div>
+                <div class="conversation-line customer">
+                    <strong>Customer:</strong> <span id="response2">_______</span>
+                </div>
+                <div class="conversation-line waiter">
+                    <strong>Waiter:</strong> You're welcome! Here are your menus. Can I get you something to drink while you decide?
+                </div>
+                <div class="conversation-line customer">
+                    <strong>Customer:</strong> <span id="response3">_______</span>
+                </div>
+            </div>
+
+            <div class="question-container" id="conv-q1">
+                <div class="question">1. Choose the best response for the customer when asked about a reservation:</div>
+                <div class="options">
+                    <div class="option" data-conv="wrong" data-response="1">Yes, I'm hungry.</div>
+                    <div class="option" data-conv="correct" data-response="1">Yes, I have a table for two under Smith.</div>
+                    <div class="option" data-conv="wrong" data-response="1">No, I don't like reservations.</div>
+                </div>
+            </div>
+
+            <div class="question-container hidden" id="conv-q2">
+                <div class="question">2. What should the customer say about the table location?</div>
+                <div class="options">
+                    <div class="option" data-conv="wrong" data-response="2">This table is too expensive.</div>
+                    <div class="option" data-conv="correct" data-response="2">Thank you, this is perfect!</div>
+                    <div class="option" data-conv="wrong" data-response="2">I don't want to sit here.</div>
+                </div>
+            </div>
+
+            <div class="question-container hidden" id="conv-q3">
+                <div class="question">3. How should the customer respond to the drink offer?</div>
+                <div class="options">
+                    <div class="option" data-conv="wrong" data-response="3">I never drink anything.</div>
+                    <div class="option" data-conv="wrong" data-response="3">Drinks are too expensive here.</div>
+                    <div class="option" data-conv="correct" data-response="3">I'd like a glass of sparkling water, please.</div>
+                </div>
+            </div>
+            
+            <div class="feedback-message" id="conv-feedback"></div>
+            <button class="btn next-activity-btn" id="conv-next" onclick="nextActivity()">Continue to Comparative Challenge 📊</button>
+        </div>
+
+        <div class="lesson-card hidden" id="activity5">
+            <h2>📊 Activity 5: Restaurant Comparison Challenge</h2>
+            <div class="activity-instructions">
+                Look at the restaurant descriptions. Drag and drop the words into the correct sentences to make accurate comparisons using comparatives and superlatives.
+            </div>
+            
+            <div class="comparative-container">
+                <div class="comparison-card">
+                    <div class="restaurant-emoji">🍔</div>
+                    <div class="restaurant-name">The Burger Shack</div>
+                    <div class="restaurant-description">
+                        Small and fast, but the food isn't high quality. Prices are very low.
+                    </div>
+                </div>
+                <div class="comparison-card">
+                    <div class="restaurant-emoji">🍝</div>
+                    <div class="restaurant-name">Pasta Palace</div>
+                    <div class="restaurant-description">
+                        A cozy place with good food and friendly service. Prices are average.
+                    </div>
+                </div>
+                <div class="comparison-card">
+                    <div class="restaurant-emoji">🍷</div>
+                    <div class="restaurant-name">Le Grand Chef</div>
+                    <div class="restaurant-description">
+                        A very elegant restaurant with amazing food and beautiful decor. Prices are very high.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="drag-drop-container">
+                <div class="word-bank" id="wordBank">
+    
+                    <div class="draggable-word" draggable="true" data-word="the most">the most</div>
+                    <div class="draggable-word" draggable="true" data-word="more expensive">more expensive</div>
+                    <div class="draggable-word" draggable="true" data-word="the cheapest">the cheapest</div>
+                    <div class="draggable-word" draggable="true" data-word="more comfortable">more comfortable</div>
+                </div>
+                
+                <div class="sentence-builder" data-correct="The Burger Shack is the cheapest of the three restaurants.">
+                    <p>The Burger Shack is <span class="drop-target"></span> of the three restaurants.</p>
+                </div>
+                <div class="sentence-builder" data-correct="Le Grand Chef is more expensive than Pasta Palace.">
+                    <p>Le Grand Chef is <span class="drop-target"></span> than Pasta Palace.</p>
+                </div>
+                <div class="sentence-builder" data-correct="Pasta Palace is more comfortable than The Burger Shack.">
+                    <p>Pasta Palace is <span class="drop-target"></span> than The Burger Shack.</p>
+                </div>
+                <div class="sentence-builder" data-correct="Le Grand Chef is the most elegant restaurant.">
+                    <p>Le Grand Chef is <span class="drop-target"></span> elegant restaurant.</p>
+                </div>
+            </div>
+            
+            <div class="feedback-message" id="drag-drop-feedback"></div>
+            <button class="btn check-btn" id="drag-drop-check" onclick="checkDragDrop()">Check Answers ✓</button>
+            <button class="btn next-activity-btn" id="drag-drop-next" onclick="nextActivity()">Continue to Final Screen 🎉</button>
+            <button class="btn try-again-btn" id="drag-drop-retry" onclick="retryDragDrop()">Try Again 🔄</button>
+        </div>
+        
+        <div class="lesson-card hidden" id="finalScreen">
+            <h2 style="text-align: center; color: #4CAF50;">🎉 Congratulations! You did it! 🎉</h2>
+            <p style="text-align: center; font-size: 1.2rem; margin-top: 20px;">You have successfully completed the Food & Restaurant Experiences lesson. You've mastered key vocabulary, reading comprehension, grammar, and conversation skills. Great job!</p>
+            <div style="text-align: center; margin-top: 30px;">
+                <div class="stat-value" id="finalPoints">0</div>
+                <div>Final Points</div>
+            </div>
+            <div class="achievement" style="display: block; animation: none; margin-top: 30px;">
+                🏆 You've earned the Master Chef Badge! 🏆
+            </div>
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn" onclick="location.reload()">Start Over</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="sticker hidden" id="sticker-correct">✔️</div>
+    <div class="sticker hidden" id="sticker-incorrect">❌</div>
+    <div class="points-animation hidden" id="points-animation">+100 Points</div>
+
+    <script>
+        const activities = [
+            'activity1', 'activity2', 'activity3', 'activity4', 'activity5', 'finalScreen'
+        ];
+        let currentActivityIndex = 0;
+        let totalPoints = 0;
+        let streak = 0;
+        let selectedCards = [];
+        let readingQuestionsAnswered = 0;
+        const readingAnswers = {};
+        const convResponses = {
+            1: "Yes, I have a table for two under Smith.",
+            2: "Thank you, this is perfect!",
+            3: "I'd like a glass of sparkling water, please."
+        };
+
+        const speedQuestions = [
+            { q: "He has never tried Indian food before.", a: "pp" },
+            { q: "We went to a new café yesterday.", a: "ps" },
+            { q: "Have you ever made your own pasta?", a: "pp" },
+            { q: "I ate dinner at home last night.", a: "ps" },
+            { q: "They have already paid the bill.", a: "pp" },
+            { q: "She cooked a big meal for her family last Sunday.", a: "ps" },
+            { q: "The restaurant has closed down.", a: "pp" },
+            { q: "My parents visited Italy in 2010.", a: "ps" },
+        ];
+        let speedQuestionIndex = 0;
+        let speedScore = 0;
+        let timerInterval;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            showActivity(1);
+            document.querySelectorAll('.vocab-card').forEach(card => {
+                card.addEventListener('click', handleVocabMatch);
+            });
+            document.querySelectorAll('#activity2 .option').forEach(option => {
+                option.addEventListener('click', handleReadingQuestion);
+            });
+            document.querySelectorAll('#activity4 .option').forEach(option => {
+                option.addEventListener('click', handleConversationQuestion);
+            });
+            document.querySelectorAll('.draggable-word').forEach(word => {
+                word.addEventListener('dragstart', handleDragStart);
+            });
+            document.querySelectorAll('.sentence-builder').forEach(builder => {
+                builder.addEventListener('dragover', handleDragOver);
+                builder.addEventListener('dragleave', handleDragLeave);
+                builder.addEventListener('drop', handleDrop);
+            });
+        });
+
+        function showActivity(activityNumber) {
+            const allCards = document.querySelectorAll('.lesson-card');
+            allCards.forEach(card => card.classList.add('hidden'));
+            document.getElementById(activities[activityNumber - 1]).classList.remove('hidden');
+            document.getElementById('currentLevel').textContent = activityNumber;
+            updateProgressBar();
+        }
+
+        function nextActivity() {
+            currentActivityIndex++;
+            if (currentActivityIndex < activities.length) {
+                showActivity(currentActivityIndex + 1);
+            } else {
+                showFinalScreen();
+            }
+        }
+
+        function updateStats(pointsToAdd = 0, isCorrect = true) {
+            if (isCorrect) {
+                totalPoints += pointsToAdd;
+                streak++;
+                showPointsAnimation(pointsToAdd);
+            } else {
+                streak = 0;
+                showSticker('❌');
+            }
+            document.getElementById('totalPoints').textContent = totalPoints;
+            document.getElementById('streak').textContent = streak;
+        }
+
+        function updateProgressBar() {
+            const progress = (currentActivityIndex / activities.length) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+        }
+        
+        function showPointsAnimation(points) {
+            const animation = document.getElementById('points-animation');
+            animation.textContent = `+${points} Points!`;
+            animation.classList.remove('hidden');
+            animation.classList.add('animate');
+            setTimeout(() => {
+                animation.classList.add('hidden');
+            }, 2500);
+        }
+
+        function showSticker(emoji) {
+            const sticker = document.getElementById(emoji === '✔️' ? 'sticker-correct' : 'sticker-incorrect');
+            sticker.textContent = emoji;
+            sticker.classList.remove('hidden');
+            setTimeout(() => {
+                sticker.classList.add('hidden');
+            }, 1200);
+        }
+
+        function handleVocabMatch(e) {
+            const card = e.currentTarget;
+            if (card.classList.contains('matched') || card.classList.contains('selected')) {
+                return;
+            }
+
+            selectedCards.push(card);
+            card.classList.add('selected');
+
+            if (selectedCards.length === 2) {
+                const [card1, card2] = selectedCards;
+                const match1 = card1.dataset.match;
+                const match2 = card2.dataset.match;
+
+                if (match1 === match2) {
+                    updateStats(200);
+                    card1.classList.add('matched');
+                    card2.classList.add('matched');
+                    card1.classList.remove('selected');
+                    card2.classList.remove('selected');
+                    showFeedback('vocab-feedback', 'Correct! Great match!', 'correct');
+                    showSticker('✔️');
+                } else {
+                    updateStats(0, false);
+                    card1.classList.add('incorrect');
+                    card2.classList.add('incorrect');
+                    showFeedback('vocab-feedback', 'Incorrect. Try again.', 'incorrect');
+                    setTimeout(() => {
+                        card1.classList.remove('selected', 'incorrect');
+                        card2.classList.remove('selected', 'incorrect');
+                    }, 800);
+                }
+                selectedCards = [];
+            }
+
+            checkAllVocabMatched();
+        }
+
+        function checkAllVocabMatched() {
+            const matchedCards = document.querySelectorAll('#vocabGrid .vocab-card.matched');
+            if (matchedCards.length === 8) {
+                document.getElementById('vocab-next').style.display = 'block';
+                showAchievement('🏆 Vocabulary Master! You matched all the words!');
+            }
+        }
+
+        function handleReadingQuestion(e) {
+            const option = e.currentTarget;
+            const questionContainer = option.closest('.question-container');
+            const options = questionContainer.querySelectorAll('.option');
+
+            if (questionContainer.dataset.answered) return;
+
+            options.forEach(opt => opt.classList.add('disabled'));
+            questionContainer.dataset.answered = true;
+
+            const isCorrect = option.dataset.answer === 'correct';
+            if (isCorrect) {
+                option.classList.add('correct');
+                updateStats(100);
+                showSticker('✔️');
+            } else {
+                option.classList.add('incorrect');
+                updateStats(0, false);
+                questionContainer.querySelector('[data-answer="correct"]').classList.add('correct');
+            }
+            
+            readingQuestionsAnswered++;
+            if (readingQuestionsAnswered === 3) {
+                checkReadingAnswers();
+            }
+        }
+
+        function checkReadingAnswers() {
+            const correctAnswers = document.querySelectorAll('#activity2 .option.correct').length;
+            const feedbackEl = document.getElementById('reading-feedback');
+            const checkBtn = document.getElementById('reading-check');
+            const nextBtn = document.getElementById('reading-next');
+            const retryBtn = document.getElementById('reading-retry');
+            
+            checkBtn.classList.add('hidden');
+            if (correctAnswers === 3) {
+                showFeedback('reading-feedback', 'Excellent! You answered all questions correctly.', 'correct');
+                nextBtn.style.display = 'block';
+                showAchievement('🧠 Reading Pro! You understood the review perfectly.');
+            } else {
+                showFeedback('reading-feedback', `You got ${correctAnswers} out of 3 correct. Read the text again and try to find the answers.`, 'incorrect');
+                retryBtn.style.display = 'block';
+            }
+        }
+        
+        function retryActivity(activityIndex) {
+            const currentActivity = document.getElementById(activities[activityIndex - 1]);
+            const feedbackEl = currentActivity.querySelector('.feedback-message');
+            const retryBtn = currentActivity.querySelector('.try-again-btn');
+            const checkBtn = currentActivity.querySelector('.check-btn');
+
+            feedbackEl.style.display = 'none';
+            retryBtn.style.display = 'none';
+            if (checkBtn) {
+                checkBtn.style.display = 'inline-block';
+            }
+
+            if (activityIndex === 2) {
+                readingQuestionsAnswered = 0;
+                document.querySelectorAll('#activity2 .option').forEach(option => {
+                    option.classList.remove('selected', 'correct', 'incorrect', 'disabled');
+                });
+                document.querySelectorAll('#activity2 .question-container').forEach(q => delete q.dataset.answered);
+            } else if (activityIndex === 3) {
+                document.getElementById('speed-start-btn').classList.remove('hidden');
+                document.getElementById('grammarSpeedChallenge').classList.add('hidden');
+                document.getElementById('timer').style.display = 'none';
+                speedScore = 0;
+                speedQuestionIndex = 0;
+                clearTimeout(timerInterval);
+            } else if (activityIndex === 5) {
+                retryDragDrop();
+            }
+        }
+        
+        function showAchievement(message) {
+            const achievement = document.getElementById('achievement');
+            achievement.textContent = message;
+            achievement.style.display = 'block';
+            setTimeout(() => {
+                achievement.style.display = 'none';
+            }, 3000);
+        }
+
+        function showFeedback(elementId, message, type) {
+            const feedbackEl = document.getElementById(elementId);
+            feedbackEl.textContent = message;
+            feedbackEl.classList.remove('feedback-correct', 'feedback-incorrect');
+            feedbackEl.classList.add(`feedback-${type}`);
+            feedbackEl.style.display = 'block';
+        }
+
+        // Activity 3: Grammar Speed Challenge
+        function startGrammarSpeed() {
+            document.getElementById('speed-start-btn').classList.add('hidden');
+            document.getElementById('grammarSpeedChallenge').classList.remove('hidden');
+            document.getElementById('timer').style.display = 'block';
+            
+            speedScore = 0;
+            speedQuestionIndex = 0;
+            updateSpeedDisplay();
+            
+            let timeLeft = 45;
+            document.getElementById('timeLeft').textContent = timeLeft;
+            document.getElementById('timer').textContent = `⏰ ${timeLeft}s`;
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timeLeft').textContent = timeLeft;
+                document.getElementById('timer').textContent = `⏰ ${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    endGrammarSpeed();
+                }
+            }, 1000);
+
+            document.querySelectorAll('.speed-option').forEach(option => {
+                option.addEventListener('click', handleSpeedQuestion);
+            });
+        }
+        
+        function updateSpeedDisplay() {
+            if (speedQuestionIndex < speedQuestions.length) {
+                const q = speedQuestions[speedQuestionIndex];
+                document.getElementById('speedQuestion').textContent = q.q;
+            } else {
+                endGrammarSpeed();
+            }
+            document.getElementById('currentQ').textContent = speedQuestionIndex + 1;
+            document.getElementById('currentScore').textContent = speedScore;
+        }
+
+        function handleSpeedQuestion(e) {
+            const option = e.currentTarget;
+            const correctType = speedQuestions[speedQuestionIndex].a;
+            const isCorrect = option.dataset.speed === correctType;
+            
+            if (isCorrect) {
+                option.classList.add('correct');
+                speedScore += 1;
+                updateStats(50);
+                showSticker('✔️');
+            } else {
+                option.classList.add('incorrect');
+                updateStats(0, false);
+                document.querySelector(`.speed-option[data-speed="${correctType}"]`).classList.add('correct');
+            }
+            
+            document.querySelectorAll('.speed-option').forEach(opt => opt.classList.add('disabled'));
+            
+            setTimeout(() => {
+                document.querySelectorAll('.speed-option').forEach(opt => opt.classList.remove('correct', 'incorrect', 'disabled'));
+                speedQuestionIndex++;
+                if (speedQuestionIndex < speedQuestions.length) {
+                    updateSpeedDisplay();
+                } else {
+                    endGrammarSpeed();
+                }
+            }, 800);
+        }
+
+        function endGrammarSpeed() {
+            clearInterval(timerInterval);
+            document.getElementById('timer').style.display = 'none';
+            document.getElementById('grammarSpeedChallenge').classList.add('hidden');
+            
+            const feedbackEl = document.getElementById('speed-feedback');
+            const nextBtn = document.getElementById('speed-next');
+            const retryBtn = document.getElementById('speed-retry');
+            
+            if (speedScore >= 6) {
+                showFeedback('speed-feedback', `Time's up! You scored ${speedScore} out of 8. Fantastic!`, 'correct');
+                nextBtn.style.display = 'block';
+                showAchievement('⏱️ Grammar Speedster! You aced the challenge.');
+            } else {
+                showFeedback('speed-feedback', `Time's up! You scored ${speedScore} out of 8. Try again to improve!`, 'incorrect');
+                retryBtn.style.display = 'block';
+            }
+        }
+
+        // Activity 4: Conversation
+        function handleConversationQuestion(e) {
+            const option = e.currentTarget;
+            const isCorrect = option.dataset.conv === 'correct';
+            const responseId = option.dataset.response;
+            const responseSpan = document.getElementById(`response${responseId}`);
+            
+            if (isCorrect) {
+                option.classList.add('correct');
+                updateStats(100);
+                showSticker('✔️');
+            } else {
+                option.classList.add('incorrect');
+                updateStats(0, false);
+                document.querySelector(`[data-conv="correct"][data-response="${responseId}"]`).classList.add('correct');
+            }
+            
+            responseSpan.textContent = convResponses[responseId];
+            
+            const optionsContainer = option.closest('.options');
+            optionsContainer.querySelectorAll('.option').forEach(o => o.classList.add('disabled'));
+
+            const nextQuestionContainer = document.getElementById(`conv-q${parseInt(responseId) + 1}`);
+            if (nextQuestionContainer) {
+                setTimeout(() => nextQuestionContainer.classList.remove('hidden'), 1000);
+            } else {
+                setTimeout(() => {
+                    document.getElementById('conv-next').style.display = 'block';
+                    showAchievement('🗣️ Conversation Ace! You can order like a pro.');
+                }, 1000);
+            }
+        }
+
+        // Activity 5: Drag & Drop
+        let draggedWord = null;
+
+        function handleDragStart(e) {
+            draggedWord = e.target;
+            e.dataTransfer.setData('text/plain', draggedWord.dataset.word);
+            setTimeout(() => {
+                draggedWord.style.opacity = '0.5';
+            }, 0);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            
+            const dropzone = e.currentTarget;
+            if (dropzone.querySelector('.word-dropped')) {
+                return; // Only allow one drop per sentence
+            }
+            
+            const data = e.dataTransfer.getData('text/plain');
+            const wordElement = document.createElement('span');
+            wordElement.textContent = data;
+            wordElement.classList.add('word-dropped');
+            
+            dropzone.querySelector('.drop-target').replaceWith(wordElement);
+            
+            draggedWord.classList.add('used');
+            draggedWord.style.opacity = '0.6';
+
+            checkDragDropCompletion();
+        }
+
+        function checkDragDropCompletion() {
+            const allDropzones = document.querySelectorAll('.sentence-builder');
+            const allDropped = document.querySelectorAll('.word-dropped').length;
+
+            if (allDropped === allDropzones.length) {
+                document.getElementById('drag-drop-check').style.display = 'inline-block';
+            }
+        }
+
+        function checkDragDrop() {
+            const allSentences = document.querySelectorAll('.sentence-builder');
+            let correctCount = 0;
+            allSentences.forEach(sentence => {
+                const droppedWord = sentence.querySelector('.word-dropped').textContent;
+                const correctSentence = sentence.dataset.correct;
+                
+                if (correctSentence.includes(droppedWord)) {
+                    sentence.style.borderColor = '#4CAF50';
+                    correctCount++;
+                } else {
+                    sentence.style.borderColor = '#dc3545';
+                }
+            });
+            
+            const feedbackEl = document.getElementById('drag-drop-feedback');
+            const nextBtn = document.getElementById('drag-drop-next');
+            const retryBtn = document.getElementById('drag-drop-retry');
+            const checkBtn = document.getElementById('drag-drop-check');
+
+            checkBtn.style.display = 'none';
+
+            if (correctCount === allSentences.length) {
+                updateStats(300);
+                showSticker('✔️');
+                showFeedback('drag-drop-feedback', 'You did it! All sentences are perfect.', 'correct');
+                nextBtn.style.display = 'block';
+                showAchievement('🥇 Comparison Champion! You are a master of comparisons.');
+            } else {
+                updateStats(0, false);
+                showFeedback('drag-drop-feedback', `You got ${correctCount} out of ${allSentences.length} correct. Take a moment to think and try again.`, 'incorrect');
+                retryBtn.style.display = 'block';
+            }
+        }
+
+        function retryDragDrop() {
+            const allSentences = document.querySelectorAll('.sentence-builder');
+            allSentences.forEach(sentence => {
+                const droppedWord = sentence.querySelector('.word-dropped');
+                if (droppedWord) {
+                    const wordToMove = document.querySelector(`.draggable-word[data-word="${droppedWord.textContent}"]`);
+                    if (wordToMove) {
+                        wordToMove.classList.remove('used');
+                        wordToMove.style.opacity = '1';
+                    }
+                    const sentenceHTML = sentence.dataset.correct.replace(droppedWord.textContent, '<span class="drop-target"></span>');
+                    sentence.querySelector('p').innerHTML = sentenceHTML;
+                }
+                sentence.style.borderColor = '#ff9a56';
+            });
+            
+            document.getElementById('drag-drop-check').style.display = 'none';
+            document.getElementById('drag-drop-retry').style.display = 'none';
+            document.getElementById('drag-drop-feedback').style.display = 'none';
+        }
+        
+        function showFinalScreen() {
+             document.getElementById('finalScreen').classList.remove('hidden');
+             document.getElementById('finalPoints').textContent = "LOTS AND LOTS OF POINTS, COOL DUDE!, WELL DONE!!!!😉";
+             document.getElementById('activity5').classList.add('hidden');
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+    </script>
+</body>
+</html>
