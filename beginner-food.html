@@ -1408,35 +1408,66 @@
         }
 
         function retryDragDrop() {
-            const allSentences = document.querySelectorAll('.sentence-builder');
-            allSentences.forEach(sentence => {
-                const droppedWord = sentence.querySelector('.word-dropped');
-                if (droppedWord) {
-                    const wordToMove = document.querySelector(`.draggable-word[data-word="${droppedWord.textContent}"]`);
-                    if (wordToMove) {
-                        wordToMove.classList.remove('used');
-                        wordToMove.style.opacity = '1';
-                    }
-                    const sentenceHTML = sentence.dataset.correct.replace(droppedWord.textContent, '<span class="drop-target"></span>');
-                    sentence.querySelector('p').innerHTML = sentenceHTML;
-                }
-                sentence.style.borderColor = '#ff9a56';
-            });
-            
-            document.getElementById('drag-drop-check').style.display = 'none';
-            document.getElementById('drag-drop-retry').style.display = 'none';
-            document.getElementById('drag-drop-feedback').style.display = 'none';
+    // Get all the sentences and the word container
+    const allSentences = document.querySelectorAll('.sentence-builder');
+    const wordContainer = document.querySelector('.word-pool');
+
+    allSentences.forEach(sentence => {
+        // Find the dropped word and put it back in the word pool
+        const droppedWord = sentence.querySelector('.word-dropped');
+        if (droppedWord) {
+            const wordToMove = document.querySelector(`.draggable-word[data-word="${droppedWord.textContent}"]`);
+            if (wordToMove) {
+                // Ensure the word is visible and available again
+                wordToMove.classList.remove('used');
+                wordToMove.style.opacity = '1';
+            }
         }
         
+        // Reset the sentence to its original state with empty drop zones
+        const correctSentence = sentence.dataset.correct;
+        const sentenceWords = correctSentence.split(' ');
+        let resetSentenceHTML = '';
+        
+        sentenceWords.forEach(word => {
+            if (word.startsWith('_')) {
+                resetSentenceHTML += '<span class="drop-target"></span> ';
+            } else {
+                resetSentenceHTML += word + ' ';
+            }
+        });
+
+        sentence.querySelector('p').innerHTML = resetSentenceHTML.trim();
+        sentence.style.borderColor = '#ccc'; // Reset the border color
+    });
+    
+    // Hide the check, retry, and feedback elements
+    document.getElementById('drag-drop-check').style.display = 'none';
+    document.getElementById('drag-drop-retry').style.display = 'none';
+    document.getElementById('drag-drop-feedback').style.display = 'none';
+}
+        
         function showFinalScreen() {
-    document.getElementById('finalScreen').classList.remove('hidden');
-    document.getElementById('finalPoints').textContent = totalPoints;
-    const messageEl = document.createElement('div');
-    messageEl.innerHTML = "LOTS AND LOTS OF POINTS, COOL DUDE!, WELL DONE!!!!😉";
-    document.getElementById('finalScreen').appendChild(messageEl);
+    const finalScreen = document.getElementById('finalScreen');
+    const finalMessage = "LOTS AND LOTS OF POINTS, COOL DUDE!, WELL DONE!!!! 😉 🎉";
+    
+    // Clear the existing content of the final screen
+    finalScreen.innerHTML = '';
+    
+    // Create a new element for your message
+    const messageElement = document.createElement('h2');
+    messageElement.textContent = finalMessage;
+    
+    // Add a class for styling, if you want
+    messageElement.classList.add('final-message');
+    
+    // Append the message to the final screen
+    finalScreen.appendChild(messageElement);
+    
+    // Show the final screen and hide the last activity
+    finalScreen.classList.remove('hidden');
     document.getElementById('activity5').classList.add('hidden');
 }
-
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
