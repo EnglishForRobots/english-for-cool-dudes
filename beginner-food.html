@@ -1351,27 +1351,24 @@
             e.currentTarget.classList.remove('drag-over');
         }
 
-        function handleDrop(e) {
-            e.preventDefault();
-            e.currentTarget.classList.remove('drag-over');
-            
-            const dropzone = e.currentTarget;
-            if (dropzone.querySelector('.word-dropped')) {
-                return; // Only allow one drop per sentence
-            }
-            
-            const data = e.dataTransfer.getData('text/plain');
-            const wordElement = document.createElement('span');
-            wordElement.textContent = data;
-            wordElement.classList.add('word-dropped');
-            
-            dropzone.querySelector('.drop-target').replaceWith(wordElement);
-            
-            draggedWord.classList.add('used');
-            draggedWord.style.opacity = '0.6';
+        function handleDrop(event) {
+    event.preventDefault();
+    const wordData = event.dataTransfer.getData('text/plain');
+    const wordElement = document.querySelector(`.draggable-word[data-word="${wordData}"]`);
+    const dropTarget = event.target.closest('.drop-target');
 
-            checkDragDropCompletion();
-        }
+    if (dropTarget) { // The crucial check to ensure the target exists
+        const droppedWord = document.createElement('span');
+        droppedWord.classList.add('word-dropped');
+        droppedWord.textContent = wordData;
+
+        dropTarget.replaceWith(droppedWord);
+        wordElement.style.opacity = '0';
+        wordElement.classList.add('used');
+    }
+
+    checkAllSentencesFilled();
+}
 
         function checkDragDropCompletion() {
             const allDropzones = document.querySelectorAll('.sentence-builder');
