@@ -1403,25 +1403,35 @@
         }
 
         function retryDragDrop() {
-            const allSentences = document.querySelectorAll('.sentence-builder');
-            allSentences.forEach(sentence => {
-                const droppedWord = sentence.querySelector('.word-dropped');
-                if (droppedWord) {
-                    const wordToMove = document.querySelector(`.draggable-word[data-word="${droppedWord.textContent}"]`);
-                    if (wordToMove) {
-                        wordToMove.classList.remove('used');
-                        wordToMove.style.opacity = '1';
-                    }
-                    const sentenceHTML = sentence.dataset.correct.replace(droppedWord.textContent, '<span class="drop-target"></span>');
-                    sentence.querySelector('p').innerHTML = sentenceHTML;
-                }
-                sentence.style.borderColor = '#ff9a56';
-            });
+    const allSentences = document.querySelectorAll('.sentence-builder');
+    const wordBank = document.getElementById('wordBank');
+    
+    // Reset each sentence builder
+    allSentences.forEach(sentence => {
+        const droppedWordEl = sentence.querySelector('.word-dropped');
+        if (droppedWordEl) {
+            // Get the word text and move the element back to the word bank
+            const wordText = droppedWordEl.textContent;
+            const originalWordEl = document.querySelector(`.draggable-word[data-word="${wordText}"]`);
             
-            document.getElementById('drag-drop-check').style.display = 'none';
-            document.getElementById('drag-drop-retry').style.display = 'none';
-            document.getElementById('drag-drop-feedback').style.display = 'none';
+            // Put the original word element back in the word bank and reset its state
+            wordBank.appendChild(originalWordEl);
+            originalWordEl.classList.remove('used');
+            originalWordEl.style.opacity = '1';
+            
+            // Create a new drop-target span and replace the dropped word element with it
+            const newDropTarget = document.createElement('span');
+            newDropTarget.classList.add('drop-target');
+            droppedWordEl.replaceWith(newDropTarget);
         }
+        sentence.style.borderColor = ''; // Reset border color
+    });
+    
+    // Hide buttons and feedback
+    document.getElementById('drag-drop-check').style.display = 'inline-block';
+    document.getElementById('drag-drop-retry').style.display = 'none';
+    document.getElementById('drag-drop-feedback').style.display = 'none';
+}
         
         function showFinalScreen() {
              document.getElementById('finalScreen').classList.remove('hidden');
