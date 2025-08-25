@@ -721,8 +721,8 @@
                     <div class="word">Grilled Shrimp</div>
                 </div>
                 <div class="vocab-card food-item" data-match="4">
-                    <div class="emoji">🍔</div>
-                    <div class="word">Medium-rare</div>
+                    <div class="emoji">🥩</div>
+                    <div class="word">Medium-rare Steak</div>
                 </div>
                 <div class="vocab-card description" data-match="3">Fresh seafood cooked on the grill</div>
                 <div class="vocab-card description" data-match="1">Mixed greens with parmesan and croutons</div>
@@ -1034,14 +1034,9 @@
         }
 
         function updateProgressBar() {
-    let progress;
-    if (currentActivityIndex >= activities.length - 1) {
-        progress = 100;
-    } else {
-        progress = (currentActivityIndex / (activities.length - 1)) * 100;
-    }
-    document.getElementById('progressFill').style.width = `${progress}%`;
-}
+            const progress = (currentActivityIndex / activities.length) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+        }
         
         function showPointsAnimation(points) {
             const animation = document.getElementById('points-animation');
@@ -1154,44 +1149,34 @@
         }
         
         function retryActivity(activityIndex) {
-    const currentActivity = document.getElementById(activities[activityIndex - 1]);
-    const feedbackEl = currentActivity.querySelector('.feedback-message');
-    const retryBtn = currentActivity.querySelector('.try-again-btn');
-    const checkBtn = currentActivity.querySelector('.check-btn');
+            const currentActivity = document.getElementById(activities[activityIndex - 1]);
+            const feedbackEl = currentActivity.querySelector('.feedback-message');
+            const retryBtn = currentActivity.querySelector('.try-again-btn');
+            const checkBtn = currentActivity.querySelector('.check-btn');
 
-    feedbackEl.style.display = 'none';
-    retryBtn.style.display = 'none';
-    if (checkBtn) {
-        checkBtn.style.display = 'inline-block';
-    }
+            feedbackEl.style.display = 'none';
+            retryBtn.style.display = 'none';
+            if (checkBtn) {
+                checkBtn.style.display = 'inline-block';
+            }
 
-    if (activityIndex === 2) {
-        readingQuestionsAnswered = 0;
-        document.querySelectorAll('#activity2 .option').forEach(option => {
-            option.classList.remove('selected', 'correct', 'incorrect', 'disabled');
-        });
-        document.querySelectorAll('#activity2 .question-container').forEach(q => delete q.dataset.answered);
-    } else if (activityIndex === 3) {
-        document.getElementById('speed-start-btn').classList.remove('hidden');
-        document.getElementById('grammarSpeedChallenge').classList.add('hidden');
-        document.getElementById('timer').style.display = 'none';
-        speedScore = 0;
-        speedQuestionIndex = 0;
-        clearTimeout(timerInterval);
-    } else if (activityIndex === 4) { // This is the new code you need
-        document.getElementById('response1').textContent = "_______";
-        document.getElementById('response2').textContent = "_______";
-        document.getElementById('response3').textContent = "_______";
-        document.getElementById('conv-q2').classList.add('hidden');
-        document.getElementById('conv-q3').classList.add('hidden');
-        document.getElementById('conv-next').style.display = 'none';
-        document.querySelectorAll('#activity4 .option').forEach(option => {
-            option.classList.remove('correct', 'incorrect', 'disabled');
-        });
-    } else if (activityIndex === 5) {
-        retryDragDrop();
-    }
-}
+            if (activityIndex === 2) {
+                readingQuestionsAnswered = 0;
+                document.querySelectorAll('#activity2 .option').forEach(option => {
+                    option.classList.remove('selected', 'correct', 'incorrect', 'disabled');
+                });
+                document.querySelectorAll('#activity2 .question-container').forEach(q => delete q.dataset.answered);
+            } else if (activityIndex === 3) {
+                document.getElementById('speed-start-btn').classList.remove('hidden');
+                document.getElementById('grammarSpeedChallenge').classList.add('hidden');
+                document.getElementById('timer').style.display = 'none';
+                speedScore = 0;
+                speedQuestionIndex = 0;
+                clearTimeout(timerInterval);
+            } else if (activityIndex === 5) {
+                retryDragDrop();
+            }
+        }
         
         function showAchievement(message) {
             const achievement = document.getElementById('achievement');
@@ -1351,24 +1336,27 @@
             e.currentTarget.classList.remove('drag-over');
         }
 
-        function handleDrop(event) {
-    event.preventDefault();
-    const wordData = event.dataTransfer.getData('text/plain');
-    const wordElement = document.querySelector(`.draggable-word[data-word="${wordData}"]`);
-    const dropTarget = event.target.closest('.drop-target');
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            
+            const dropzone = e.currentTarget;
+            if (dropzone.querySelector('.word-dropped')) {
+                return; // Only allow one drop per sentence
+            }
+            
+            const data = e.dataTransfer.getData('text/plain');
+            const wordElement = document.createElement('span');
+            wordElement.textContent = data;
+            wordElement.classList.add('word-dropped');
+            
+            dropzone.querySelector('.drop-target').replaceWith(wordElement);
+            
+            draggedWord.classList.add('used');
+            draggedWord.style.opacity = '0.6';
 
-    if (dropTarget) { // The crucial check to ensure the target exists
-        const droppedWord = document.createElement('span');
-        droppedWord.classList.add('word-dropped');
-        droppedWord.textContent = wordData;
-
-        dropTarget.replaceWith(droppedWord);
-        wordElement.style.opacity = '0';
-        wordElement.classList.add('used');
-    }
-
-    checkAllSentencesFilled();
-}
+            checkDragDropCompletion();
+        }
 
         function checkDragDropCompletion() {
             const allDropzones = document.querySelectorAll('.sentence-builder');
@@ -1415,66 +1403,32 @@
         }
 
         function retryDragDrop() {
-    // Get all the sentences and the word container
-    const allSentences = document.querySelectorAll('.sentence-builder');
-    const wordContainer = document.querySelector('.word-pool');
-
-    allSentences.forEach(sentence => {
-        // Find the dropped word and put it back in the word pool
-        const droppedWord = sentence.querySelector('.word-dropped');
-        if (droppedWord) {
-            const wordToMove = document.querySelector(`.draggable-word[data-word="${droppedWord.textContent}"]`);
-            if (wordToMove) {
-                // Ensure the word is visible and available again
-                wordToMove.classList.remove('used');
-                wordToMove.style.opacity = '1';
-            }
+            const allSentences = document.querySelectorAll('.sentence-builder');
+            allSentences.forEach(sentence => {
+                const droppedWord = sentence.querySelector('.word-dropped');
+                if (droppedWord) {
+                    const wordToMove = document.querySelector(`.draggable-word[data-word="${droppedWord.textContent}"]`);
+                    if (wordToMove) {
+                        wordToMove.classList.remove('used');
+                        wordToMove.style.opacity = '1';
+                    }
+                    const sentenceHTML = sentence.dataset.correct.replace(droppedWord.textContent, '<span class="drop-target"></span>');
+                    sentence.querySelector('p').innerHTML = sentenceHTML;
+                }
+                sentence.style.borderColor = '#ff9a56';
+            });
+            
+            document.getElementById('drag-drop-check').style.display = 'none';
+            document.getElementById('drag-drop-retry').style.display = 'none';
+            document.getElementById('drag-drop-feedback').style.display = 'none';
         }
         
-        // Reset the sentence to its original state with empty drop zones
-        const correctSentence = sentence.dataset.correct;
-        const sentenceWords = correctSentence.split(' ');
-        let resetSentenceHTML = '';
-        
-        sentenceWords.forEach(word => {
-            if (word.startsWith('_')) {
-                resetSentenceHTML += '<span class="drop-target"></span> ';
-            } else {
-                resetSentenceHTML += word + ' ';
-            }
-        });
-
-        sentence.querySelector('p').innerHTML = resetSentenceHTML.trim();
-        sentence.style.borderColor = '#ccc'; // Reset the border color
-    });
-    
-    // Hide the check, retry, and feedback elements
-    document.getElementById('drag-drop-check').style.display = 'none';
-    document.getElementById('drag-drop-retry').style.display = 'none';
-    document.getElementById('drag-drop-feedback').style.display = 'none';
-}
-        
         function showFinalScreen() {
-    const finalScreen = document.getElementById('finalScreen');
-    const finalMessage = "LOTS AND LOTS OF POINTS, COOL DUDE!, WELL DONE!!!! 😉 🎉";
-    
-    // Clear the existing content of the final screen
-    finalScreen.innerHTML = '';
-    
-    // Create a new element for your message
-    const messageElement = document.createElement('h2');
-    messageElement.textContent = finalMessage;
-    
-    // Add a class for styling, if you want
-    messageElement.classList.add('final-message');
-    
-    // Append the message to the final screen
-    finalScreen.appendChild(messageElement);
-    
-    // Show the final screen and hide the last activity
-    finalScreen.classList.remove('hidden');
-    document.getElementById('activity5').classList.add('hidden');
-}
+             document.getElementById('finalScreen').classList.remove('hidden');
+             document.getElementById('finalPoints').textContent = "LOTS AND LOTS OF POINTS, COOL DUDE!, WELL DONE!!!!😉";
+             document.getElementById('activity5').classList.add('hidden');
+        }
+
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
