@@ -210,11 +210,16 @@
             border-color: #42A5F5;
             transform: translateX(5px);
         }
-        .quiz-option.correct {
-            background: #66BB6A !important;
-            color: white !important;
-            border-color: #4CAF50 !important;
-        }
+        .quiz-option.correct, .btn.correct {
+    background: #66BB6A !important;
+    color: white !important;
+    border-color: #4CAF50 !important;
+}
+.quiz-option.incorrect, .btn.incorrect {
+    background: #EF5350 !important;
+    color: white !important;
+    border-color: #f44336 !important;
+}
         .quiz-option.incorrect {
             background: #EF5350 !important;
             color: white !important;
@@ -792,12 +797,15 @@
         }
 
         function loadSpeedQuestion() {
-            if (currentSpeedQuestionIndex >= speedQuestions.length) {
-                currentSpeedQuestionIndex = 0;
-            }
-            const q = speedQuestions[currentSpeedQuestionIndex];
-            document.getElementById('speedQuestion').textContent = q.question;
-            document.getElementById('speedOptions').innerHTML = '';
+            // Check if all questions have been answered
+    if (currentSpeedQuestionIndex >= speedQuestions.length) {
+        endSpeedChallenge(true); // Call end function with a 'success' flag
+        return; // Exit the function to prevent further execution
+    }
+
+    const q = speedQuestions[currentSpeedQuestionIndex];
+    document.getElementById('speedQuestion').textContent = q.question;
+    document.getElementById('speedOptions').innerHTML = '';
             
             shuffleArray(q.options).forEach(option => {
                 const button = document.createElement('button');
@@ -808,29 +816,60 @@
             });
         }
 
-        function checkSpeedAnswer(selected, correct) {
-            if (selected === correct) {
-                updateStats(10);
-                showFeedback(document.querySelector('.speed-challenge'), true, 'Correct!');
-            } else {
-                const randomMessage = funnyIncorrectMessages[Math.floor(Math.random() * funnyIncorrectMessages.length)];
-                showFeedback(document.querySelector('.speed-challenge'), false, randomMessage);
-            }
-            currentSpeedQuestionIndex++;
-            loadSpeedQuestion();
-        }
+        function checkSpeedAnswer(selectedOption, correctAnswer) {
+    const isCorrect = selectedOption === correctAnswer;
+    const allOptions = document.querySelectorAll('#speedOptions .btn');
 
-        function endSpeedChallenge() {
-            clearInterval(speedChallengeInterval);
-            document.getElementById('speedQuestion').textContent = 'Time\'s up! Challenge over.';
-            document.getElementById('speedOptions').innerHTML = '<button class="btn" id="restartButton">Restart</button>';
-            document.getElementById('restartButton').addEventListener('click', () => {
-                timeLeft = 30;
-                currentSpeedQuestionIndex = 0;
-                document.getElementById('speedTimer').textContent = timeLeft;
-                startSpeedChallenge();
-            });
+    // Find the button that was clicked to apply the color
+    let clickedButton = null;
+    allOptions.forEach(button => {
+        if (button.textContent === selectedOption) {
+            clickedButton = button;
         }
+        // Disable all buttons to prevent double-clicking
+        button.disabled = true;
+    });
+
+    // Apply the correct color feedback
+    if (isCorrect) {
+        updateStats(10);
+        if (clickedButton) {
+            clickedButton.classList.add('correct');
+        }
+    } else {
+        // If incorrect, mark the user's choice as wrong and find the correct one to mark as right
+        if (clickedButton) {
+            clickedButton.classList.add('incorrect');
+        }
+        allOptions.forEach(button => {
+            if (button.textContent === correctAnswer) {
+                button.classList.add('correct');
+            }
+        });
+    }
+
+    // After a brief delay, load the next question
+    setTimeout(() => {
+        currentSpeedQuestionIndex++;
+        loadSpeedQuestion();
+    }, 500); // 500 milliseconds delay
+}
+
+
+        function endSpeedChallenge(completed = false) {
+    clearInterval(speedChallengeInterval);
+    document.getElementById('speedTimer').textContent = completed ? '🏁 Finished!' : 'Time\'s Up!';
+    document.getElementById('speedQuestion').textContent = completed ? 'You answered all questions in time! 🎉' : 'Challenge Over!';
+    document.getElementById('speedOptions').innerHTML = '<button class="btn" id="startButton">⚡ Try Again?</button>';
+    document.getElementById('startButton').addEventListener('click', () => {
+        // Reset the challenge state
+        timeLeft = 30;
+        currentSpeedQuestionIndex = 0;
+        document.getElementById('speedTimer').textContent = '30';
+        document.getElementById('speedQuestion').textContent = 'Press \'Start\' to begin!';
+        startSpeedChallenge();
+    });
+}
         
         // General Quiz Function for comprehension, true/false, and reported speech
         function setupQuizzes(selector, points) {
