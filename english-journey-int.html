@@ -809,9 +809,9 @@
                 <div class="quiz-container" data-correct-answer="It's not very good, but I'm being polite">
                     <div class="quiz-question">An English person says: "It's not bad." What do they likely mean?</div>
                     <div class="quiz-options">
-                        <div class="quiz-option">It's not very good, but I'm being polite</div>
-                        <div class="quiz-option">It's absolutely terrible</div>
                         <div class="quiz-option">It's excellent and I love it</div>
+                        <div class="quiz-option">It's absolutely terrible</div>
+                        <div class="quiz-option">It's not very good, but I'm being polite</div>
                         <div class="quiz-option">It's exactly average quality</div>
                     </div>
                 </div>
@@ -819,8 +819,8 @@
                 <div class="quiz-container" data-correct-answer="I completely disagree with you">
                     <div class="quiz-question">Someone says: "I'm not sure I entirely agree with that." What are they expressing?</div>
                     <div class="quiz-options">
-                        <div class="quiz-option">I completely disagree with you</div>
                         <div class="quiz-option">I need more time to think</div>
+                        <div class="quiz-option">I completely disagree with you</div>
                         <div class="quiz-option">I partially agree with you</div>
                         <div class="quiz-option">I'm confused about the topic</div>
                     </div>
@@ -829,10 +829,10 @@
                 <div class="quiz-container" data-correct-answer="This is urgent and important">
                     <div class="quiz-question">In a work context, "When you have a moment" usually means:</div>
                     <div class="quiz-options">
-                        <div class="quiz-option">This is urgent and important</div>
+                        <div class="quiz-option">This is just a casual suggestion</div>
                         <div class="quiz-option">This can wait until next week</div>
                         <div class="quiz-option">This is completely optional</div>
-                        <div class="quiz-option">This is just a casual suggestion</div>
+                        <div class="quiz-option">This is urgent and important</div>
                     </div>
                 </div>
             </div>
@@ -991,7 +991,7 @@
             return array;
         }
 
-        function setupPronunciationMatch() {
+       function setupPronunciationMatch() {
             const matches = [
                 { spelling: 'Greenwich', pronunciation: 'Grenitch' },
                 { spelling: 'Leicester', pronunciation: 'Lesta' },
@@ -1015,6 +1015,7 @@
                 div.className = 'match-item';
                 div.textContent = item.spelling;
                 div.dataset.match = item.spelling;
+                div.dataset.matched = 'false';
                 spellingColumn.appendChild(div);
             });
 
@@ -1023,49 +1024,84 @@
                 div.className = 'match-item';
                 div.textContent = item.pronunciation;
                 div.dataset.match = item.spelling;
+                div.dataset.matched = 'false';
                 pronunciationColumn.appendChild(div);
             });
 
-            let firstSelection = null;
+            let selectedItem = null;
 
             document.querySelectorAll('.match-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    if (item.classList.contains('correct') || item.classList.contains('incorrect')) {
-                        return;
-                    }
-
-                    if (!firstSelection) {
-                        firstSelection = item;
-                        item.classList.add('selected');
-                    } else {
-                        const secondSelection = item;
-                        firstSelection.classList.remove('selected');
-                        
-                        if (firstSelection.dataset.match === secondSelection.dataset.match) {
-                            firstSelection.classList.add('correct');
-                            secondSelection.classList.add('correct');
-                            updateStats(20);
-                            showFeedback(document.querySelector('.pronunciation'), true, 'That\'s a perfect match!');
-                            
-                            // Check if all pairs are matched
-                            const unmatchedItems = document.querySelectorAll('.match-item:not(.correct)');
-                            if (unmatchedItems.length === 0) {
-                                showAchievement('Master of English Pronunciation! 🗣️');
-                            }
-                        } else {
-                            firstSelection.classList.add('incorrect');
-                            secondSelection.classList.add('incorrect');
-                            updateStats(0, true);
-                            showFeedback(document.querySelector('.pronunciation'), false, 'Not a match. Try again!');
-                            setTimeout(() => {
-                                firstSelection.classList.remove('incorrect');
-                                secondSelection.classList.remove('incorrect');
-                            }, 1000);
-                        }
-                        firstSelection = null;
-                    }
+                // Add touch support for mobile devices
+                item.addEventListener('click', handleMatchClick);
+                item.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    handleMatchClick(e);
                 });
             });
+
+            function handleMatchClick(e) {
+                const item = e.target || e.currentTarget;
+                
+                // Skip if already correctly matched
+                if (item.dataset.matched === 'true') {
+                    return;
+                }
+
+                // Clear all visual states first
+                document.querySelectorAll('.match-item').forEach(matchItem => {
+                    if (matchItem.dataset.matched !== 'true') {
+                        matchItem.classList.remove('selected', 'incorrect');
+                    }
+                });
+
+                // If clicking the same item, deselect it
+                if (selectedItem === item) {
+                    selectedItem = null;
+                    return;
+                }
+
+                // If no item was selected, select this one
+                if (!selectedItem) {
+                    selectedItem = item;
+                    item.classList.add('selected');
+                    return;
+                }
+
+                // Two items selected - check if they match
+                if (selectedItem.dataset.match === item.dataset.match) {
+                    // Correct match
+                    selectedItem.classList.remove('selected');
+                    selectedItem.classList.add('correct');
+                    item.classList.add('correct');
+                    selectedItem.dataset.matched = 'true';
+                    item.dataset.matched = 'true';
+                    
+                    updateStats(20);
+                    showFeedback(document.querySelector('.pronunciation'), true, 'That\'s a perfect match!');
+                    
+                    // Check if all pairs are matched
+                    const unmatchedItems = document.querySelectorAll('.match-item[data-matched="false"]');
+                    if (unmatchedItems.length === 0) {
+                        showAchievement('Master of English Pronunciation! 🗣️');
+                    }
+                } else {
+                    // Incorrect match - show briefly then clear
+                    selectedItem.classList.remove('selected');
+                    selectedItem.classList.add('incorrect');
+                    item.classList.add('incorrect');
+                    
+                    updateStats(0, true);
+                    showFeedback(document.querySelector('.pronunciation'), false, 'Not a match. Try again!');
+                    
+                    // Clear everything quickly and reset
+                    setTimeout(() => {
+                        selectedItem.classList.remove('incorrect');
+                        item.classList.remove('incorrect');
+                    }, 600);
+                }
+                
+                selectedItem = null;
+            }
         }
 
 
