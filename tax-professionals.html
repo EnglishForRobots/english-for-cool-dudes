@@ -175,6 +175,43 @@
             border-color: #c0392b;
         }
         
+        /* Gap-fill Word Bank */
+        .word-bank {
+            background: #e3f2fd;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border: 2px solid #2196F3;
+        }
+
+        .word-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .word-option {
+            background: white;
+            border: 2px solid #2196F3;
+            padding: 8px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .word-option:hover {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .word-option.used {
+            background: #bdc3c7;
+            color: #7f8c8d;
+            border-color: #95a5a6;
+            cursor: default;
+        }
+
         /* Gap-fill */
         .gap-fill-text {
             line-height: 2.5;
@@ -189,6 +226,7 @@
             width: 150px;
             padding: 2px;
             text-align: center;
+            cursor: pointer;
         }
 
         .gap-fill-text input:focus {
@@ -196,12 +234,18 @@
             border-bottom-color: #3498db;
         }
 
+        .gap-fill-text input.active {
+            border-bottom-color: #2980b9;
+        }
+
         .gap-fill-text input.correct {
             border-bottom-color: #27ae60;
+            background-color: #e8f5e8;
         }
         
         .gap-fill-text input.incorrect {
             border-bottom-color: #e74c3c;
+            background-color: #ffebee;
         }
         
         /* Discussion Questions */
@@ -362,13 +406,28 @@
 
         <div class="exercise">
             <h2>3. Gap-Fill Exercise</h2>
-            <p class="exercise-instructions">Complete the sentences with the correct tax term.</p>
+            <p class="exercise-instructions">Select a blank space, then click the correct word from the word bank to fill it.</p>
+            
+            <div class="word-bank">
+                <h4>Word Bank:</h4>
+                <div class="word-options" id="gap-fill-options">
+                    <span class="word-option">refund</span>
+                    <span class="word-option">capital gains</span>
+                    <span class="word-option">taxable income</span>
+                    <span class="word-option">exemptions</span>
+                    <span class="word-option">income tax</span>
+                    <span class="word-option">liability</span>
+                    <span class="word-option">deduction</span>
+                    <span class="word-option">tax return</span>
+                </div>
+            </div>
+
             <div class="gap-fill-text">
-                <p>1. The government requires all citizens to file an annual <input type="text" id="gap1"> to determine their tax liability.</p>
-                <p>2. A common <input type="text" id="gap2"> for homeowners is the interest paid on their mortgage.</p>
-                <p>3. If you sell a property for more than you paid for it, you will have to pay <input type="text" id="gap3"> on the profit.</p>
-                <p>4. Not all of your salary is considered <input type="text" id="gap4"> because some portions might be excluded by law.</p>
-                <p>5. The money you pay to the government based on your earnings is called <input type="text" id="gap5">.</p>
+                <p>1. The government requires all citizens to file an annual <input type="text" id="gap1" readonly>.</p>
+                <p>2. A common <input type="text" id="gap2" readonly> for homeowners is the interest paid on their mortgage.</p>
+                <p>3. If you sell a property for more than you paid for it, you will have to pay <input type="text" id="gap3" readonly> on the profit.</p>
+                <p>4. Not all of your salary is considered <input type="text" id="gap4" readonly> because some portions might be excluded by law.</p>
+                <p>5. The money you pay to the government based on your earnings is called <input type="text" id="gap5" readonly>.</p>
             </div>
             <div class="button-group">
                 <button class="check-button" onclick="checkGaps()">Check Answers</button>
@@ -390,6 +449,14 @@
     </div>
 
     <script>
+        // Helper function to shuffle an array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
         // Vocabulary Match Logic
         let selectedTerm = null;
         let selectedDefinition = null;
@@ -417,7 +484,6 @@
         }
 
         function checkVocabMatch() {
-            const resultDiv = document.getElementById('vocab-result');
             if (selectedTerm && selectedDefinition) {
                 if (selectedTerm.dataset.term === selectedDefinition.dataset.def) {
                     selectedTerm.classList.remove('selected');
@@ -518,6 +584,40 @@
         }
 
         // Gap-Fill Logic
+        let activeInput = null;
+
+        function initGaps() {
+            const wordOptionsContainer = document.getElementById('gap-fill-options');
+            const options = Array.from(wordOptionsContainer.children);
+            shuffleArray(options);
+            options.forEach(option => wordOptionsContainer.appendChild(option));
+            
+            document.querySelectorAll('.gap-fill-text input').forEach(input => {
+                input.addEventListener('click', () => setActiveInput(input));
+            });
+            
+            document.querySelectorAll('.word-option').forEach(word => {
+                word.addEventListener('click', () => insertWord(word));
+            });
+        }
+        
+        function setActiveInput(input) {
+            document.querySelectorAll('.gap-fill-text input').forEach(inp => {
+                inp.classList.remove('active');
+            });
+            input.classList.add('active');
+            activeInput = input;
+        }
+
+        function insertWord(wordElement) {
+            if (activeInput && !wordElement.classList.contains('used')) {
+                activeInput.value = wordElement.textContent;
+                activeInput.classList.remove('active');
+                wordElement.classList.add('used');
+                activeInput = null;
+            }
+        }
+
         const gapAnswers = {
             'gap1': 'tax return',
             'gap2': 'deduction',
@@ -551,7 +651,7 @@
                 resultDiv.classList.remove('incorrect');
                 resultDiv.classList.add('correct');
             } else {
-                resultDiv.textContent = `You got ${correctCount} out of ${inputs.length} correct. Check your spelling and try again!`;
+                resultDiv.textContent = `You got ${correctCount} out of ${inputs.length} correct. Check your answers and try again!`;
                 resultDiv.classList.remove('correct');
                 resultDiv.classList.add('incorrect');
             }
@@ -561,15 +661,20 @@
         function resetGaps() {
             document.querySelectorAll('.gap-fill-text input').forEach(input => {
                 input.value = '';
-                input.classList.remove('correct', 'incorrect');
+                input.classList.remove('correct', 'incorrect', 'active');
+            });
+            document.querySelectorAll('.word-option').forEach(word => {
+                word.classList.remove('used');
             });
             document.getElementById('gap-result').style.display = 'none';
+            initGaps(); // Reshuffle and re-initialize
         }
 
         // Initialise all exercises
         document.addEventListener('DOMContentLoaded', () => {
             initVocab();
             initComprehension();
+            initGaps();
         });
     </script>
 </body>
