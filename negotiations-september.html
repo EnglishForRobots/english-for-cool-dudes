@@ -184,6 +184,7 @@
 
         const conversationBlanksData = ['same page', 'bottom line', 'BATNA', 'hammer out'];
         let userConversationWords = new Array(conversationBlanksData.length).fill(null);
+        let selectedBlankIndex = null;
         
         const totalActivities = 4; // Reading Quiz, T/F, Idioms, Conversation
 
@@ -377,7 +378,7 @@
                 const button = document.createElement('button');
                 button.textContent = word;
                 button.className = 'fill-in-box interactive-element bg-gray-600 hover:bg-gray-500 rounded-lg p-2 font-semibold shadow-md';
-                button.onclick = () => handleConversationWordClick(word);
+                button.onclick = () => handleWordBankClick(button, word);
                 wordBankEl.appendChild(button);
             });
             
@@ -390,22 +391,55 @@
                 <p><span class="font-bold text-yellow-400">Sarah:</span> Well, we've done our research and we have a very strong <span class="conversation-fill-box interactive-element" data-word-index="2"></span>. We can always seek another supplier if we can't reach a mutual agreement.</p>
                 <p><span class="font-bold text-yellow-400">James:</span> I see. I don't think we'll need that. Our team is flexible. Perhaps we can meet in the middle and <span class="conversation-fill-box interactive-element" data-word-index="3"></span> a good compromise.</p>
             `;
+            
+            // Add click handlers for the blank boxes
+            document.querySelectorAll('.conversation-fill-box').forEach(blank => {
+                blank.onclick = () => handleBlankClick(blank);
+            });
         }
         
         /**
-         * Handles clicks on the word bank buttons for the conversation.
-         * @param {string} word - The word that was clicked.
+         * Handles clicks on the word bank buttons.
+         * @param {HTMLElement} button - The button element that was clicked.
+         * @param {string} word - The word on the button.
          */
-        function handleConversationWordClick(word) {
-            const nextBlankIndex = userConversationWords.findIndex(w => w === null);
-            if (nextBlankIndex !== -1) {
-                userConversationWords[nextBlankIndex] = word;
-                const blankEl = document.querySelector(`#conversation-text [data-word-index="${nextBlankIndex}"]`);
+        function handleWordBankClick(button, word) {
+            if (selectedBlankIndex !== null) {
+                userConversationWords[selectedBlankIndex] = word;
+                const blankEl = document.querySelector(`#conversation-text [data-word-index="${selectedBlankIndex}"]`);
                 blankEl.textContent = word;
                 blankEl.classList.add('bg-gray-500');
-                // Disable the clicked word in the bank
-                const clickedButton = Array.from(document.getElementById('conversation-word-bank').children).find(btn => btn.textContent === word && !btn.disabled);
-                if (clickedButton) clickedButton.disabled = true;
+                button.disabled = true;
+                selectedBlankIndex = null; // Deselect the blank
+                document.querySelectorAll('.conversation-fill-box').forEach(b => b.classList.remove('bg-blue-600'));
+            }
+        }
+
+        /**
+         * Handles clicks on the blank boxes.
+         * @param {HTMLElement} blank - The blank element that was clicked.
+         */
+        function handleBlankClick(blank) {
+            const word = blank.textContent;
+            if (word && word !== '') {
+                const wordIndex = parseInt(blank.dataset.wordIndex);
+                userConversationWords[wordIndex] = null;
+                blank.textContent = '';
+                blank.classList.remove('bg-gray-500');
+
+                // Re-enable the corresponding button in the word bank
+                const wordBankButtons = document.querySelectorAll('#conversation-word-bank button');
+                const correspondingButton = Array.from(wordBankButtons).find(btn => btn.textContent === word);
+                if (correspondingButton) {
+                    correspondingButton.disabled = false;
+                }
+            } else {
+                // Deselect any currently selected blank
+                document.querySelectorAll('.conversation-fill-box').forEach(b => b.classList.remove('bg-blue-600'));
+
+                // Select this blank
+                selectedBlankIndex = parseInt(blank.dataset.wordIndex);
+                blank.classList.add('bg-blue-600');
             }
         }
 
