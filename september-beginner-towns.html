@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pre-Intermediate English Lesson 3</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #ff6b6b, #ee5a6f);
+            height: 100%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .lesson-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideUp 0.5s forwards;
+        }
+
+        @keyframes slideUp {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .timer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ff4757;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+            animation: pulse 1s infinite;
+            z-index: 1000;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .question-container {
+            margin: 20px 0;
+        }
+
+        .question {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .options {
+            display: grid;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .option {
+            background: #f8f9ff;
+            border: 2px solid #e1e8ff;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .option:hover:not(.disabled) {
+            background: #e8f0ff;
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .option.correct {
+            background: #d4edda !important;
+            border-color: #667eea !important;
+            color: #155724;
+        }
+
+        .option.incorrect {
+            background: #f8d7da !important;
+            border-color: #dc3545 !important;
+            color: #721c24;
+        }
+        
+        .option.selected {
+            background: #e8f0ff;
+            border-color: #667eea;
+            font-weight: bold;
+        }
+
+        .option.disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .reading-text {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .reading-text strong {
+            font-style: normal;
+            color: #667eea;
+        }
+
+        .achievement {
+            background: linear-gradient(135deg, #ffd700, #ffed4a);
+            color: #333;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+            animation: achievementPop 0.5s ease;
+        }
+
+        @keyframes achievementPop {
+            0% { transform: scale(0.8) rotate(-5deg); opacity: 0; }
+            50% { transform: scale(1.1) rotate(2deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .sticker {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 5rem;
+            opacity: 0;
+            animation: stickerPop 1s forwards;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes stickerPop {
+            0% { transform: translate(-50%, -50%) scale(0.5) rotate(-20deg); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.2) rotate(10deg); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 0; }
+        }
+
+        .country-card {
+            background: white;
+            border: 2px solid #e1e8ff;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .country-card:hover:not(.disabled) {
+            border-color: #667eea;
+            transform: translateX(5px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .country-card.selected {
+            border-color: #667eea;
+            background: #e8f0ff;
+            transform: translateX(5px);
+        }
+
+        .country-card.correct {
+            border-color: #51cf66;
+            background: #d4edda;
+        }
+
+        .country-card.incorrect {
+            border-color: #ff6b6b;
+            background: #f8d7da;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .gap-fill-container {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+        }
+
+        .gap-sentence {
+            font-size: 18px;
+            line-height: 2;
+            margin: 15px 0;
+        }
+
+        .gap-fill-drop-zone {
+            display: inline-block;
+            border-bottom: 3px solid #667eea;
+            min-width: 100px;
+            text-align: center;
+            padding: 8px 15px;
+            font-size: 16px;
+            margin: 0 8px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            color: #667eea;
+            min-height: 30px;
+        }
+
+        .gap-fill-drop-zone.filled {
+            background: #e8f0ff;
+            border-radius: 5px;
+        }
+        
+        .gap-fill-drop-zone.correct-answer {
+            background: #d4edda;
+            border-color: #51cf66;
+            color: #155724;
+        }
+
+        .gap-fill-drop-zone.incorrect-answer {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .word-bank-drag {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 15px;
+            border: 2px dashed #667eea;
+        }
+
+        .word-bank-title {
+            width: 100%;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .word-item-drag {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: grab;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .word-item-drag:hover:not(.used) {
+            background: linear-gradient(135deg, #764ba2, #667eea);
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .word-item-drag:active {
+            cursor: grabbing;
+        }
+
+        .word-item-drag.used {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: scale(0.9);
+            opacity: 0.5;
+            box-shadow: none;
+        }
+
+        .matching-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        .matching-column h4 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .match-item {
+            background: white;
+            border: 2px solid #e1e8ff;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .match-item:hover:not(.correct):not(.disabled) {
+            background: #e8f0ff;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .match-item.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .match-item.correct {
+            background: #51cf66 !important;
+            color: white !important;
+            border-color: #51cf66 !important;
+            cursor: not-allowed;
+        }
+
+        .match-item.incorrect {
+            background: #dc3545;
+            color: white;
+            border-color: #dc3545;
+            animation: shake 0.5s;
+        }
+
+        .match-item.disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .match-score {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .level-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .points-animation {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ff6b6b;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 1000;
+            animation: pointsFloat 2s ease-out forwards;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        @keyframes pointsFloat {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            30% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -80px) scale(1); }
+        }
+
+        .activity-instructions {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border-left: 4px solid #2196f3;
+            font-weight: 500;
+        }
+
+        .feedback-message {
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+            font-size: 16px;
+        }
+
+        .feedback-correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #51cf66;
+        }
+
+        .feedback-incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+
+        .next-activity-btn {
+            background: linear-gradient(135deg, #51cf66, #40c057);
+            margin-top: 20px;
+            display: none;
+        }
+
+        .try-again-btn {
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            margin-top: 20px;
+            display: none;
+        }
+
+        .check-btn {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            margin: 20px 0;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+        }
+
+        .video-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .video-link a {
+            display: inline-block;
+            background: #ff0000;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+        
+        .video-link a:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255,0,0,0.3);
+        }
+
+        .conversation-container {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #2196f3;
+            line-height: 1.6;
+        }
+
+        .language-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .language-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .language-card:hover:not(.disabled) {
+            transform: scale(1.05) translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .language-card.selected {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            transform: scale(1.05);
+        }
+
+        .language-card.correct {
+            background: linear-gradient(135deg, #51cf66, #40c057) !important;
+        }
+
+        .language-card.incorrect {
+            background: linear-gradient(135deg, #ff6b6b, #fa5252) !important;
+            animation: shake 0.5s;
+        }
+        
+        .completion-card {
+            text-align: center;
+            padding: 40px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            animation: slideUp 0.5s forwards;
+        }
+        
+        .completion-card h2 {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 10px;
+            animation: pulse 1s infinite;
+        }
+        
+        .completion-card p {
+            font-size: 1.2rem;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        
+        .completion-card .btn {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            font-size: 18px;
+        }
+
+        .speed-challenge {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        .place-card {
+            background: white;
+            border: 2px solid #e1e8ff;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .place-card:hover:not(.disabled) {
+            border-color: #667eea;
+            transform: translateX(5px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .place-card.selected {
+            border-color: #667eea;
+            background: #e8f0ff;
+            transform: translateX(5px);
+        }
+
+        .place-card.correct {
+            border-color: #51cf66;
+            background: #d4edda;
+        }
+
+        .place-card.incorrect {
+            border-color: #ff6b6b;
+            background: #f8d7da;
+            animation: shake 0.5s;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🏙️ English Adventure: What is in your town? 🏙️</h1>
+            <div class="level-badge">Lesson 3 - Level <span id="currentLevel">1</span></div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="totalPoints">0</div>
+                <div>Points</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="streak">0</div>
+                <div>Streak</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="timeLeft">--</div>
+                <div>Time</div>
+            </div>
+        </div>
+
+        <div class="timer" id="timer">⏰ 30s</div>
+        <div class="achievement" id="achievement"></div>
+
+        <div class="lesson-card" id="activity1">
+            <h2>🏢 Activity 1: Match Places with Descriptions</h2>
+            <div class="activity-instructions">
+                Match each place in a town with its correct description. Click on a place, then click on the matching description!
+            </div>
+            
+            <div class="matching-container">
+                <div class="matching-column">
+                    <h4>🏪 Places</h4>
+                    <div class="match-item vocabulary" data-match="1">Train station</div>
+                    <div class="match-item vocabulary" data-match="2">Cinema</div>
+                    <div class="match-item vocabulary" data-match="3">University</div>
+                    <div class="match-item vocabulary" data-match="4">Beach</div>
+                    <div class="match-item vocabulary" data-match="5">Market</div>
+                    <div class="match-item vocabulary" data-match="6">Football stadium</div>
+                </div>
+                
+                <div class="matching-column">
+                    <h4>📝 Descriptions</h4>
+                    <div class="match-item definition" data-match="4">Where people swim and relax by the sea</div>
+                    <div class="match-item definition" data-match="1">Where trains arrive and depart</div>
+                    <div class="match-item definition" data-match="3">Where students study for degrees</div>
+                    <div class="match-item definition" data-match="2">Where people watch movies</div>
+                    <div class="match-item definition" data-match="6">Where football matches are played</div>
+                    <div class="match-item definition" data-match="5">Where people buy fresh food and goods</div>
+                </div>
+            </div>
+            
+            <div class="match-score">
+                <span id="matching-score">Matches: 0/6</span>
+            </div>
+            
+            <div class="feedback-message" id="matching-feedback"></div>
+            <button class="btn next-activity-btn" id="matching-next" onclick="nextActivity()">Continue to Next Activity ➡️</button>
+        </div>
+
+        <div class="lesson-card hidden" id="activity2">
+            <h2>📖 Activity 2: Reading - Talking About Towns</h2>
+            <div class="activity-instructions">
+                Read the conversation between three people talking about their towns, then answer the questions.
+            </div>
+            
+            <div class="reading-text">
+                <strong>Three Friends Discuss Their Towns</strong><br><br>
+                **Sarah:** Hi everyone! So, where do you all live?<br>
+                **Mike:** I live in Brighton. It's a lovely seaside town in England.<br>
+                **Sarah:** That sounds nice! What is there in Brighton?<br>
+                **Mike:** Well, there's a beautiful beach where I swim every morning. There's also a university, a train station, and a football stadium. Oh, and there are lots of shops and restaurants too.<br>
+                **Lisa:** That's great! I'm from a small town called Petworth. It's much smaller than Brighton.<br>
+                **Sarah:** What is there in Petworth?<br>
+                **Lisa:** There's a school, a lovely park, and a market that opens on Saturdays. There are some nice restaurants and shops, and there are lots of beautiful houses. But there isn't a train station, which can be inconvenient.<br>
+                **Sarah:** Both your towns sound interesting. I live in London, so there's everything you can imagine - museums, theatres, the London Eye, Buckingham Palace... The list goes on!<br>
+                **Mike:** Is there anything you don't like about living in such a big city?<br>
+                **Sarah:** Sometimes I miss the quiet atmosphere of smaller towns. But I love all the opportunities London offers!
+            </div>
+
+            <div class="question-container" id="reading-q1">
+                <div class="question">1. What does Mike do at the beach every morning?</div>
+                <div class="options">
+                    <div class="option" data-answer="correct">He swims</div>
+                    <div class="option" data-answer="wrong">He runs</div>
+                    <div class="option" data-answer="wrong">He walks</div>
+                </div>
+            </div>
+            
+            <div class="question-container" id="reading-q2">
+                <div class="question">2. What doesn't Petworth have?</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong">A market</div>
+                    <div class="option" data-answer="correct">A train station</div>
+                    <div class="option" data-answer="wrong">Restaurants</div>
+                </div>
+            </div>
+
+            <div class="question-container" id="reading-q3">
+                <div class="question">3. What does Sarah miss about smaller towns?</div>
+                <div class="options">
+                    <div class="option" data-answer="correct">The quiet atmosphere</div>
+                    <div class="option" data-answer="wrong">The beaches</div>
+                    <div class="option" data-answer="wrong">The markets</div>
+                </div>
+            </div>
+            
+            <div class="feedback-message" id="reading-feedback"></div>
+            <button class="btn check-btn" id="reading-check-btn" onclick="checkReadingAnswers()">Check Answers ✓</button>
+            <button class="btn next-activity-btn" id="reading-next" onclick="nextActivity()">Continue to Next Activity ➡️</button>
+            <button class="btn try-again-btn" id="conversation-retry" onclick="retryActivity('conversation')">Try Again 🔄</button>
+        </div>
+
+        <div class="lesson-card hidden" id="activity4">
+            <h2>▶️ Watch and Learn!</h2>
+            <div class="activity-instructions">
+                Watch this BBC Learning English video about talking about your town and learn useful expressions.
+            </div>
+            <div class="video-container">
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/on_1sS6Ii8M?si=p6XQIaUefd1rg2a6" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+            <div class="video-link">
+                <a href="https://www.youtube.com/watch?v=on_1sS6Ii8M" target="_blank">Watch on YouTube ↗️</a>
+            </div>
+            <button class="btn next-activity-btn" id="video-next" style="display:inline-block;" onclick="nextActivity()">Continue to Next Activity ➡️</button>
+        </div>
+
+        <div class="lesson-card hidden" id="activity5">
+            <h2>🎥 Activity 5: Video Comprehension</h2>
+            <div class="activity-instructions">
+                Based on the BBC video you just watched, answer these questions about the conversations in different towns.
+            </div>
+            
+            <div class="question-container" id="video-q1">
+                <div class="question">1. According to the video, what does Brighton have that Petworth doesn't?</div>
+                <div class="options">
+                    <div class="option" data-answer="correct">A train station</div>
+                    <div class="option" data-answer="wrong">A market</div>
+                    <div class="option" data-answer="wrong">Restaurants</div>
+                </div>
+            </div>
+            
+            <div class="question-container" id="video-q2">
+                <div class="question">2. How many cinemas are there in Brighton according to the video?</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong">One</div>
+                    <div class="option" data-answer="wrong">Two</div>
+                    <div class="option" data-answer="correct">Three</div>
+                </div>
+            </div>
+
+            <div class="question-container" id="video-q3">
+                <div class="question">3. What famous landmarks are mentioned in London?</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong">Big Ben and Tower Bridge</div>
+                    <div class="option" data-answer="correct">London Eye and Buckingham Palace</div>
+                    <div class="option" data-answer="wrong">Westminster Abbey and St Paul's Cathedral</div>
+                </div>
+            </div>
+            
+            <div class="feedback-message" id="video-feedback"></div>
+            <button class="btn check-btn" id="video-check-btn" onclick="checkVideoAnswers()">Check Answers ✓</button>
+            <button class="btn next-activity-btn" id="video-next-activity5" onclick="nextActivity()">Continue to Next Activity ➡️</button>
+            <button class="btn try-again-btn" id="video-retry" onclick="retryActivity('video')">Try Again 🔄</button>
+        </div>
+
+        <div class="lesson-card hidden" id="activity6">
+            <h2>⏱️ Activity 6: Grammar Speed Challenge</h2>
+            <div class="speed-challenge">
+                🚀 SPEED CHALLENGE: 30 SECONDS! 🚀<br>
+                Choose the grammatically CORRECT sentence using "There is/There are"!
+            </div>
+            <div class="activity-instructions">
+                You have 30 seconds to choose the **correct** sentence in each question. Pay attention to singular vs plural!
+            </div>
+            
+            <div class="question-container" id="speed-q1">
+                <div class="question">1. Which sentence is grammatically correct?</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong">There are a cinema in my town.</div>
+                    <div class="option" data-answer="correct">There is a cinema in my town.</div>
+                    <div class="option" data-answer="wrong">There is cinemas in my town.</div>
+                </div>
+            </div>
+            
+            <div class="question-container" id="speed-q2">
+                <div class="question">2. Which sentence is grammatically correct?</div>
+                <div class="options">
+                    <div class="option" data-answer="correct">There are lots of shops here.</div>
+                    <div class="option" data-answer="wrong">There is lots of shops here.</div>
+                    <div class="option" data-answer="wrong">There are a lot shop here.</div>
+                </div>
+            </div>
+
+            <div class="question-container" id="speed-q3">
+                <div class="question">3. Which sentence is grammatically correct?</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong">Is there any restaurants near here?</div>
+                    <div class="option" data-answer="correct">Are there any restaurants near here?</div>
+                    <div class="option" data-answer="wrong">There are any restaurants near here?</div>
+                </div>
+            </div>
+            
+            <div class="feedback-message" id="speed-feedback"></div>
+            <button class="btn check-btn" id="speed-check-btn" onclick="checkSpeedAnswers()">Check Answers ✓</button>
+            <button class="btn next-activity-btn" id="speed-next" onclick="nextActivity()">Continue to Next Activity ➡️</button>
+            <button class="btn try-again-btn" id="speed-retry" onclick="retryActivity('speed')">Try Again 🔄</button>
+        </div>
+
+        <div class="lesson-card hidden" id="activity7">
+            <h2>🏪 Activity 7: Places and Functions</h2>
+            <div class="activity-instructions">
+                Match each place with what people typically do there. Think about the main function of each location!
+            </div>
+            
+            <div class="matching-container">
+                <div class="matching-column">
+                    <h4>🏢 Places</h4>
+                    <div class="match-item vocabulary" data-match="1">Library</div>
+                    <div class="match-item vocabulary" data-match="2">Hospital</div>
+                    <div class="match-item vocabulary" data-match="3">Gym</div>
+                    <div class="match-item vocabulary" data-match="4">Theatre</div>
+                    <div class="match-item vocabulary" data-match="5">Bank</div>
+                    <div class="match-item vocabulary" data-match="6">Post Office</div>
+                </div>
+                
+                <div class="matching-column">
+                    <h4>⚡ Functions</h4>
+                    <div class="match-item definition" data-match="3">Exercise and work out</div>
+                    <div class="match-item definition" data-match="6">Send letters and packages</div>
+                    <div class="match-item definition" data-match="1">Read books and study</div>
+                    <div class="match-item definition" data-match="4">Watch plays and performances</div>
+                    <div class="match-item definition" data-match="5">Handle money and accounts</div>
+                    <div class="match-item definition" data-match="2">Receive medical treatment</div>
+                </div>
+            </div>
+            
+            <div class="match-score">
+                <span id="places-score">Matches: 0/6</span>
+            </div>
+            
+            <div class="feedback-message" id="places-feedback"></div>
+            <button class="btn next-activity-btn" id="places-next" onclick="nextActivity()">Continue to Next Activity ➡️</button>
+        </div>
+
+        <div class="lesson-card hidden" id="activity8">
+            <h2>🎯 Activity 8: Complete the Town Description</h2>
+            <div class="activity-instructions">
+                Drag the correct phrases to complete this description of Cambridge from the video.
+            </div>
+            
+            <div class="word-bank-drag" id="wordBankTown">
+                <div class="word-bank-title">📝 Word Bank - Drag these phrases:</div>
+                <span class="word-item-drag" data-word="two universities" draggable="true">two universities</span>
+                <span class="word-item-drag" data-word="lots of" draggable="true">lots of</span>
+                <span class="word-item-drag" data-word="a river" draggable="true">a river</span>
+                <span class="word-item-drag" data-word="some museums" draggable="true">some museums</span>
+                <span class="word-item-drag" data-word="a market" draggable="true">a market</span>
+            </div>
+            
+            <div class="conversation-container">
+                <div class="gap-sentence">Cambridge has <span class="gap-fill-drop-zone" data-correct="a river"></span>, which is very beautiful.</div>
+                <div class="gap-sentence">There's <span class="gap-fill-drop-zone" data-correct="a market"></span> where people buy fresh food.</div>
+                <div class="gap-sentence">Cambridge is famous because there are <span class="gap-fill-drop-zone" data-correct="two universities"></span> there.</div>
+                <div class="gap-sentence">There are <span class="gap-fill-drop-zone" data-correct="lots of"></span> churches and libraries in the city.</div>
+                <div class="gap-sentence">You can also find <span class="gap-fill-drop-zone" data-correct="some museums"></span> and bookshops there.</div>
+            </div>
+            
+            <button class="btn check-btn" id="town-check-btn" onclick="checkTownFill()">Check Answers ✓</button>
+            
+            <div class="feedback-message" id="town-feedback"></div>
+            <button class="btn next-activity-btn" id="town-next" onclick="nextActivity()">Continue to Next Activity ➡️</button>
+            <button class="btn try-again-btn" id="town-retry" onclick="retryActivity('town')">Try Again 🔄</button>
+        </div>
+
+        <div class="lesson-card hidden" id="activity9">
+            <h2>⚡ Final Speed Challenge: Yes/No Questions!</h2>
+            <div class="speed-challenge">
+                🏁 FINAL CHALLENGE: 30 SECONDS! 🏁<br>
+                Answer questions about towns as fast as you can!
+            </div>
+            <div class="activity-instructions">
+                This is your final test! You have 30 seconds to answer questions about what's in different towns based on the video.
+            </div>
+            
+            <div class="question-container" id="final-q1">
+                <div class="question">1. Is there an airport in Brighton?</div>
+                <div class="options">
+                    <div class="option" data-answer="correct">No, there isn't</div>
+                    <div class="option" data-answer="wrong">Yes, there is</div>
+                </div>
+            </div>
+            
+            <div class="question-container" id="final-q2">
+                <div class="question">2. Is there a train station in Petworth?</div>
+                <div class="options">
+                    <div class="option" data-answer="correct">No, there isn't</div>
+                    <div class="option" data-answer="wrong">Yes, there is</div>
+                </div>
+            </div>
+
+            <div class="question-container" id="final-q3">
+                <div class="question">3. Are there universities in Cambridge?</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong">No, there aren't</div>
+                    <div class="option" data-answer="correct">Yes, there are two</div>
+                </div>
+            </div>
+
+            <div class="question-container" id="final-q4">
+                <div class="question">4. Is there a beach in London?</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong">Yes, there is</div>
+                    <div class="option" data-answer="correct">No, there isn't</div>
+                </div>
+            </div>
+
+            <div class="question-container" id="final-q5">
+                <div class="question">5. Is there a cathedral in Oxford?</div>
+                <div class="options">
+                    <div class="option" data-answer="correct">Yes, there is</div>
+                    <div class="option" data-answer="wrong">No, there isn't</div>
+                </div>
+            </div>
+            
+            <div class="feedback-message" id="final-feedback"></div>
+            <button class="btn check-btn" id="final-check-btn" onclick="checkFinalAnswers()">Check Answers ✓</button>
+            <button class="btn next-activity-btn" id="final-next" onclick="nextActivity()">Complete Lesson ➡️</button>
+            <button class="btn try-again-btn" id="final-retry" onclick="retryActivity('final')">Try Again 🔄</button>
+        </div>
+
+        <div class="lesson-card hidden" id="completion-card">
+            <div class="completion-card">
+                <h2>Lesson Complete! 🎉</h2>
+                <p>Congratulations! You have finished Lesson 3.</p>
+                <div class="stat-item">
+                    <div class="stat-value" id="finalPoints">0</div>
+                    <div>Final Points</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let currentActivityIndex = 1;
+            const totalActivities = 9;
+            let totalPoints = 0;
+            let streak = 0;
+            let timerInterval;
+            let timeRemaining = 30;
+
+            const lessonActivities = [
+                'activity1', 'activity2', 'activity3', 'activity4', 'activity5', 'activity6', 'activity7', 'activity8', 'activity9'
+            ];
+            
+            function showActivity(index) {
+                document.querySelectorAll('.lesson-card').forEach(card => card.classList.add('hidden'));
+                if (index > 0 && index <= totalActivities) {
+                    const activityId = lessonActivities[index - 1];
+                    document.getElementById(activityId).classList.remove('hidden');
+                    updateProgress();
+                    startTimer();
+                    setupActivityEventListeners(index);
+                } else if (index > totalActivities) {
+                    showCompletionScreen();
+                    stopTimer();
+                }
+            }
+
+            function setupActivityEventListeners(index) {
+                if (index === 1) {
+                    setupMatchingActivity('activity1', 'matching');
+                } else if (index === 2) {
+                    setupQuizActivity('activity2', 'reading');
+                } else if (index === 3) {
+                    setupDragAndDropActivity('activity3', 'conversation');
+                } else if (index === 4) {
+                    // No specific setup needed for video activity
+                } else if (index === 5) {
+                    setupQuizActivity('activity5', 'video');
+                } else if (index === 6) {
+                    setupQuizActivity('activity6', 'speed');
+                } else if (index === 7) {
+                    setupMatchingActivity('activity7', 'places');
+                } else if (index === 8) {
+                    setupDragAndDropActivity('activity8', 'town');
+                } else if (index === 9) {
+                    setupQuizActivity('activity9', 'final');
+                }
+            }
+
+            function updateProgress() {
+                const progressPercentage = (currentActivityIndex / totalActivities) * 100;
+                document.getElementById('progressFill').style.width = `${progressPercentage}%`;
+                document.getElementById('currentLevel').textContent = currentActivityIndex;
+            }
+
+            function updateStats(points) {
+                totalPoints += points;
+                document.getElementById('totalPoints').textContent = totalPoints;
+            }
+
+            function showFeedback(feedbackId, message, isCorrect) {
+                const feedbackDiv = document.getElementById(`${feedbackId}-feedback`);
+                feedbackDiv.textContent = message;
+                feedbackDiv.style.display = 'block';
+                feedbackDiv.className = `feedback-message ${isCorrect ? 'feedback-correct' : 'feedback-incorrect'}`;
+                
+                let nextBtnId = `${feedbackId}-next`;
+                if (feedbackId === 'video') {
+                    nextBtnId = 'video-next-activity5';
+                }
+
+                const nextBtn = document.getElementById(nextBtnId);
+                const checkBtn = document.getElementById(`${feedbackId}-check-btn`);
+                const retryBtn = document.getElementById(`${feedbackId}-retry`);
+
+                if (isCorrect) {
+                    if(nextBtn) nextBtn.style.display = 'inline-block';
+                    if(checkBtn) checkBtn.style.display = 'none';
+                    if(retryBtn) retryBtn.style.display = 'none';
+                } else {
+                    if(retryBtn) retryBtn.style.display = 'inline-block';
+                    if(checkBtn) checkBtn.style.display = 'none';
+                    if(nextBtn) nextBtn.style.display = 'none';
+                }
+            }
+
+            function resetQuizButtons(feedbackId) {
+                const checkBtn = document.getElementById(`${feedbackId}-check-btn`);
+                const nextBtn = document.getElementById(`${feedbackId}-next`);
+                const retryBtn = document.getElementById(`${feedbackId}-retry`);
+                const feedbackDiv = document.getElementById(`${feedbackId}-feedback`);
+
+                if (checkBtn) checkBtn.style.display = 'inline-block';
+                if (nextBtn) nextBtn.style.display = 'none';
+                if (retryBtn) retryBtn.style.display = 'none';
+                if (feedbackDiv) feedbackDiv.style.display = 'none';
+            }
+
+            window.retryActivity = function(feedbackId) {
+                const activityMap = {
+                    'reading': 'activity2',
+                    'video': 'activity5', 
+                    'speed': 'activity6',
+                    'conversation': 'activity3',
+                    'town': 'activity8',
+                    'final': 'activity9'
+                };
+                
+                const activityId = activityMap[feedbackId];
+                const activityCard = document.getElementById(activityId);
+                
+                resetQuizButtons(feedbackId);
+
+                if (['reading', 'video', 'speed', 'final'].includes(feedbackId)) {
+                    activityCard.querySelectorAll('.option').forEach(el => {
+                        el.classList.remove('incorrect', 'selected', 'correct', 'disabled');
+                        el.style.pointerEvents = 'auto';
+                    });
+                }
+                
+                if (['conversation', 'town'].includes(feedbackId)) {
+                    activityCard.querySelectorAll('.word-item-drag').forEach(el => {
+                        el.classList.remove('used');
+                        el.draggable = true;
+                        el.style.pointerEvents = 'auto';
+                    });
+                    
+                    activityCard.querySelectorAll('.gap-fill-drop-zone').forEach(el => {
+                        el.textContent = '';
+                        el.classList.remove('filled', 'correct-answer', 'incorrect-answer');
+                    });
+                }
+
+                if (['matching', 'places'].includes(feedbackId)) {
+                    const scoreElement = document.getElementById(`${feedbackId}-score`);
+                    if (scoreElement) {
+                        scoreElement.textContent = 'Matches: 0/6';
+                    }
+                    activityCard.querySelectorAll('.match-item').forEach(el => {
+                        el.classList.remove('selected', 'correct', 'incorrect', 'disabled');
+                        el.style.pointerEvents = 'auto';
+                    });
+                    if (feedbackId === 'matching') {
+                        window.matchesMadeActivity1 = 0;
+                    } else if (feedbackId === 'places') {
+                        window.matchesMadeActivity7 = 0;
+                    }
+                }
+                
+                streak = 0;
+                document.getElementById('streak').textContent = streak;
+                startTimer();
+            }
+
+            function showCompletionScreen() {
+                const completionCard = document.getElementById('completion-card');
+                completionCard.classList.remove('hidden');
+                document.getElementById('finalPoints').textContent = totalPoints;
+                updateProgress();
+            }
+
+            function startTimer() {
+                clearInterval(timerInterval);
+                const timerElement = document.getElementById('timer');
+                const activityId = lessonActivities[currentActivityIndex - 1];
+
+                if (activityId === 'activity6' || activityId === 'activity9') {
+                    timerElement.style.display = 'block';
+                    timeRemaining = 30;
+                    document.getElementById('timeLeft').textContent = timeRemaining;
+                    timerElement.textContent = `⏰ ${timeRemaining}s`;
+
+                    timerInterval = setInterval(() => {
+                        timeRemaining--;
+                        document.getElementById('timeLeft').textContent = timeRemaining;
+                        timerElement.textContent = `⏰ ${timeRemaining}s`;
+
+                        if (timeRemaining <= 0) {
+                            clearInterval(timerInterval);
+                            timerElement.textContent = `⏰ Time's Up!`;
+                            const feedbackType = activityId === 'activity6' ? 'speed' : 'final';
+                            showFeedback(feedbackType, "Time's up! You can try again.", false);
+                        }
+                    }, 1000);
+                } else {
+                    stopTimer();
+                }
+            }
+
+            function stopTimer() {
+                clearInterval(timerInterval);
+                document.getElementById('timer').style.display = 'none';
+                document.getElementById('timeLeft').textContent = '--';
+            }
+
+            window.nextActivity = function() {
+                stopTimer();
+                currentActivityIndex++;
+                showActivity(currentActivityIndex);
+            }
+
+            window.matchesMadeActivity1 = 0;
+            window.matchesMadeActivity7 = 0;
+
+            function setupMatchingActivity(activityId, feedbackId) {
+                const activityElement = document.getElementById(activityId);
+                const matchingItems = activityElement.querySelectorAll('.match-item');
+                const totalMatches = 6;
+                const scoreElement = document.getElementById(`${feedbackId}-score`);
+
+                let matchesMade = 0;
+                if (feedbackId === 'matching') {
+                    window.matchesMadeActivity1 = 0;
+                    matchesMade = window.matchesMadeActivity1;
+                } else if (feedbackId === 'places') {
+                    window.matchesMadeActivity7 = 0;
+                    matchesMade = window.matchesMadeActivity7;
+                }
+
+                matchingItems.forEach(item => {
+                    item.addEventListener('click', () => {
+                        if (item.classList.contains('disabled')) return;
+                        
+                        item.classList.toggle('selected');
+                        
+                        const currentlySelected = activityElement.querySelectorAll('.match-item.selected');
+                        if (currentlySelected.length === 2) {
+                            const [item1, item2] = currentlySelected;
+                            if (item1.dataset.match === item2.dataset.match) {
+                                item1.classList.add('correct', 'disabled');
+                                item2.classList.add('correct', 'disabled');
+                                item1.classList.remove('selected');
+                                item2.classList.remove('selected');
+                                
+                                if (feedbackId === 'matching') {
+                                    window.matchesMadeActivity1++;
+                                    matchesMade = window.matchesMadeActivity1;
+                                } else if (feedbackId === 'places') {
+                                    window.matchesMadeActivity7++;
+                                    matchesMade = window.matchesMadeActivity7;
+                                }
+                                
+                                updateStats(10);
+                                streak++;
+                            } else {
+                                item1.classList.add('incorrect');
+                                item2.classList.add('incorrect');
+                                streak = 0;
+                                setTimeout(() => {
+                                    item1.classList.remove('incorrect', 'selected');
+                                    item2.classList.remove('incorrect', 'selected');
+                                }, 500);
+                            }
+                            if (scoreElement) scoreElement.textContent = `Matches: ${matchesMade}/${totalMatches}`;
+                            document.getElementById('streak').textContent = streak;
+
+                            if (matchesMade === totalMatches) {
+                                showFeedback(feedbackId, 'Great job! You matched all of them!', true);
+                                stopTimer();
+                            }
+                        } else if (currentlySelected.length > 2) {
+                             currentlySelected.forEach(el => el.classList.remove('selected'));
+                             item.classList.add('selected');
+                        }
+                    });
+                });
+            }
+
+            function setupQuizActivity(activityId, feedbackId) {
+                const activityElement = document.getElementById(activityId);
+                const options = activityElement.querySelectorAll('.option');
+
+                resetQuizButtons(feedbackId);
+
+                options.forEach(option => {
+                    option.addEventListener('click', () => {
+                        if (option.classList.contains('disabled')) return;
+                        const questionContainer = option.closest('.question-container');
+                        questionContainer.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                        option.classList.add('selected');
+                    });
+                });
+
+                window[`check${feedbackId.charAt(0).toUpperCase() + feedbackId.slice(1)}Answers`] = function() {
+                    const questions = activityElement.querySelectorAll('.question-container');
+                    let allCorrect = true;
+                    let answeredQuestions = 0;
+                    
+                    questions.forEach(q => {
+                        const selected = q.querySelector('.option.selected');
+                        if (selected) {
+                            answeredQuestions++;
+                            if (selected.dataset.answer === 'correct') {
+                                selected.classList.add('correct');
+                                updateStats(10);
+                                streak++;
+                            } else {
+                                selected.classList.add('incorrect');
+                                const correctOption = q.querySelector('[data-answer="correct"]');
+                                if (correctOption) correctOption.classList.add('correct');
+                                allCorrect = false;
+                                streak = 0;
+                            }
+                            q.querySelectorAll('.option').forEach(opt => opt.classList.add('disabled'));
+                        } else {
+                            allCorrect = false;
+                        }
+                    });
+                    
+                    document.getElementById('streak').textContent = streak;
+                    
+                    if (answeredQuestions === 0) {
+                        showFeedback(feedbackId, 'Please select answers for all questions!', false);
+                    } else if (allCorrect && answeredQuestions === questions.length) {
+                        showFeedback(feedbackId, 'Excellent! You answered all questions correctly!', true);
+                        stopTimer();
+                    } else {
+                        showFeedback(feedbackId, 'Some answers are incorrect. Try again!', false);
+                        stopTimer();
+                    }
+                }
+            }
+
+            function setupDragAndDropActivity(activityId, feedbackId) {
+                const activityElement = document.getElementById(activityId);
+                const wordBank = activityElement.querySelector('.word-bank-drag');
+                const dropZones = activityElement.querySelectorAll('.gap-fill-drop-zone');
+                
+                resetQuizButtons(feedbackId);
+
+                wordBank.addEventListener('dragstart', (e) => {
+                    if (e.target.classList.contains('word-item-drag') && !e.target.classList.contains('used')) {
+                        e.dataTransfer.setData('text/plain', e.target.dataset.word);
+                        e.dataTransfer.effectAllowed = 'move';
+                    }
+                });
+
+                dropZones.forEach(zone => {
+                    zone.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
+                    });
+                    
+                    zone.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        const droppedWord = e.dataTransfer.getData('text/plain');
+                        const wordElement = activityElement.querySelector(`[data-word="${droppedWord}"]`);
+
+                        if (zone.textContent === '' && wordElement && !wordElement.classList.contains('used')) {
+                            zone.textContent = droppedWord;
+                            zone.classList.add('filled');
+                            wordElement.classList.add('used');
+                            wordElement.draggable = false;
+                        }
+                    });
+                });
+
+                window[`check${feedbackId.charAt(0).toUpperCase() + feedbackId.slice(1)}Fill`] = function() {
+                    let allCorrect = true;
+                    let filledZones = 0;
+                    
+                    dropZones.forEach(zone => {
+                        if (zone.textContent.trim() !== '') {
+                            filledZones++;
+                            if (zone.textContent.trim() === zone.dataset.correct) {
+                                zone.classList.add('correct-answer');
+                                updateStats(10);
+                                streak++;
+                            } else {
+                                zone.classList.add('incorrect-answer');
+                                allCorrect = false;
+                                streak = 0;
+                            }
+                        } else {
+                            allCorrect = false;
+                        }
+                    });
+                    
+                    document.getElementById('streak').textContent = streak;
+
+                    if (filledZones === 0) {
+                        showFeedback(feedbackId, 'Please fill in all the blanks!', false);
+                    } else if (allCorrect && filledZones === dropZones.length) {
+                        showFeedback(feedbackId, 'Perfect! You completed the description.', true);
+                        stopTimer();
+                    } else {
+                        showFeedback(feedbackId, 'Some words are incorrect. Try again!', false);
+                        stopTimer();
+                    }
+                }
+            }
+
+            showActivity(currentActivityIndex);
+        });
+    </script>
+</body>
+</html" id="reading-retry" onclick="retryActivity('reading')">Try Again 🔄</button>
+        </div>
+
+        <div class="lesson-card hidden" id="activity3">
+            <h2>💬 Activity 3: Complete the Conversation</h2>
+            <div class="activity-instructions">
+                Drag the correct words from the word bank to complete this conversation about what's in different towns.
+            </div>
+            
+            <div class="word-bank-drag" id="wordBankConversation">
+                <div class="word-bank-title">📝 Word Bank - Drag these words:</div>
+                <span class="word-item-drag" data-word="there's" draggable="true">there's</span>
+                <span class="word-item-drag" data-word="there are" draggable="true">there are</span>
+                <span class="word-item-drag" data-word="isn't" draggable="true">isn't</span>
+                <span class="word-item-drag" data-word="else" draggable="true">else</span>
+                <span class="word-item-drag" data-word="lots of" draggable="true">lots of</span>
+            </div>
+            
+            <div class="conversation-container">
+                <div class="gap-sentence">**A:** What is there in your town?</div>
+                <div class="gap-sentence">**B:** Well, <span class="gap-fill-drop-zone" data-correct="there's"></span> a cinema and a university.</div>
+                <div class="gap-sentence">**A:** What <span class="gap-fill-drop-zone" data-correct="else"></span> is there?</div>
+                <div class="gap-sentence">**B:** <span class="gap-fill-drop-zone" data-correct="there are"></span> <span class="gap-fill-drop-zone" data-correct="lots of"></span> shops and restaurants too.</div>
+                <div class="gap-sentence">**A:** Is there an airport? **B:** No, there <span class="gap-fill-drop-zone" data-correct="isn't"></span>.</div>
+            </div>
+            
+            <button class="btn check-btn" id="conversation-check-btn" onclick="checkConversationFill()">Check Answers ✓</button>
+            
+            <div class="feedback-message" id="conversation-feedback"></div>
+            <button class="btn next-activity-btn" id="conversation-next" onclick="nextActivity()">Continue to Next Activity ➡️</button>
+            <button class="btn try-again-btn
