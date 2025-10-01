@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dutch Herring: Interactive English Lesson</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .section {
+            padding: 40px;
+            border-bottom: 3px dashed #e0e0e0;
+        }
+        
+        .section:last-child {
+            border-bottom: none;
+        }
+        
+        .section-title {
+            font-size: 2em;
+            color: #667eea;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-number {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .discussion-questions {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .discussion-questions li {
+            margin: 15px 0;
+            font-size: 1.1em;
+            line-height: 1.6;
+            padding-left: 10px;
+        }
+        
+        .vocab-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .vocab-column {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+        }
+        
+        .vocab-column h3 {
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+        
+        .vocab-item {
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+            font-size: 1.05em;
+            user-select: none;
+        }
+        
+        .vocab-item:hover:not(.matched) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .vocab-item.selected {
+            border-color: #ffd700;
+            background: #fffbea;
+            transform: scale(1.02);
+        }
+        
+        .vocab-item.matched {
+            cursor: default;
+            animation: match-success 0.5s;
+        }
+        
+        .vocab-item.matched-1 { background: #ffccbc; border-color: #ff7043; }
+        .vocab-item.matched-2 { background: #c8e6c9; border-color: #66bb6a; }
+        .vocab-item.matched-3 { background: #b3e5fc; border-color: #29b6f6; }
+        .vocab-item.matched-4 { background: #f8bbd0; border-color: #ec407a; }
+        .vocab-item.matched-5 { background: #fff9c4; border-color: #ffeb3b; }
+        .vocab-item.matched-6 { background: #e1bee7; border-color: #ab47bc; }
+        .vocab-item.matched-7 { background: #ffccbc; border-color: #ffa726; }
+        .vocab-item.matched-8 { background: #c5e1a5; border-color: #9ccc65; }
+        
+        @keyframes match-success {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes flash-red {
+            0%, 100% { background-color: white; border-color: transparent; }
+            50% { background-color: #ff4444; color: white; border-color: #ff4444; }
+        }
+        
+        .vocab-item.wrong {
+            animation: flash-red 0.5s;
+        }
+        
+        .reading-text {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            line-height: 1.8;
+            font-size: 1.1em;
+        }
+        
+        .reading-text p {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+        
+        .reading-text p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .question-box {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s;
+        }
+        
+        .question-box.correct {
+            background: #c8e6c9;
+            border-left-color: #4caf50;
+        }
+        
+        .question-box.incorrect {
+            background: #ffcdd2;
+            border-left-color: #f44336;
+        }
+        
+        .question-box label {
+            display: block;
+            margin: 10px 0;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background 0.3s;
+            user-select: none;
+        }
+        
+        .question-box label:hover {
+            background: #f0f0f0;
+        }
+        
+        .question-box input[type="radio"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .true-false-item {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border: 3px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+        
+        .true-false-item.correct {
+            background: #c8e6c9;
+            border-color: #4caf50;
+        }
+        
+        .true-false-item.incorrect {
+            background: #ffcdd2;
+            border-color: #f44336;
+        }
+        
+        .tf-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .tf-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .tf-btn.true-btn {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .tf-btn.false-btn {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .tf-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+        }
+        
+        .tf-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .tf-btn.selected {
+            box-shadow: 0 0 0 3px #ffd700;
+        }
+        
+        .tf-feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .wordbank {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+        
+        .word-chip {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            user-select: none;
+        }
+        
+        .word-chip:hover:not(.used) {
+            transform: scale(1.1);
+        }
+        
+        .word-chip.used {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        
+        .word-chip.selected-chip {
+            transform: scale(1.15);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+        }
+        
+        .gap-fill-text {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            line-height: 2.2;
+            font-size: 1.1em;
+        }
+        
+        .gap {
+            display: inline-block;
+            min-width: 120px;
+            padding: 5px 10px;
+            border-bottom: 2px solid #667eea;
+            margin: 0 5px;
+            cursor: pointer;
+            background: #f0f0f0;
+            border-radius: 5px;
+            transition: all 0.3s;
+            user-select: none;
+            text-align: center;
+        }
+        
+        .gap:hover:not(.filled) {
+            background: #e0e0e0;
+        }
+        
+        .gap.filled {
+            background: #fff3cd;
+            cursor: default;
+            font-weight: bold;
+        }
+        
+        .gap.correct-gap {
+            background: #c8e6c9;
+            border-bottom-color: #4caf50;
+        }
+        
+        .gap.incorrect-gap {
+            background: #ffcdd2;
+            border-bottom-color: #f44336;
+        }
+        
+        .grammar-box {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        
+        .grammar-box h3 {
+            color: #c62828;
+            margin-bottom: 15px;
+        }
+        
+        .grammar-box p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        
+        .grammar-examples {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        
+        .grammar-examples h3 {
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+        
+        .word-formation-item {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+        
+        .word-formation-item.correct {
+            background: #c8e6c9;
+            border-color: #4caf50;
+        }
+        
+        .word-formation-item.incorrect {
+            background: #ffcdd2;
+            border-color: #f44336;
+        }
+        
+        .word-formation-item input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        
+        .score-display {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 50px;
+            font-size: 1.5em;
+            font-weight: bold;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+        
+        .score-display.pulse {
+            animation: pulse 0.5s;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .feedback {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .feedback.correct {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+        
+        .feedback.incorrect {
+            background: #ffcdd2;
+            color: #c62828;
+        }
+
+        .idiom-match-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .idiom-column {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .idiom-column h3 {
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+        
+        .idiom-item {
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+            user-select: none;
+            font-size: 1.05em;
+        }
+        
+        .idiom-item:hover:not(.matched) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .idiom-item.selected {
+            border-color: #ffd700;
+            background: #fffbea;
+            transform: scale(1.02);
+        }
+        
+        .idiom-item.matched {
+            cursor: default;
+            animation: match-success 0.5s;
+        }
+        
+        .idiom-item.matched-1 { background: #ffccbc; border-color: #ff7043; }
+        .idiom-item.matched-2 { background: #c8e6c9; border-color: #66bb6a; }
+        .idiom-item.matched-3 { background: #b3e5fc; border-color: #29b6f6; }
+        .idiom-item.matched-4 { background: #f8bbd0; border-color: #ec407a; }
+        .idiom-item.matched-5 { background: #fff9c4; border-color: #ffeb3b; }
+        
+        .idiom-item.wrong {
+            animation: flash-red 0.5s;
+        }
+
+        .completion-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.3em;
+            animation: slideIn 0.5s;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="score-display" id="scoreDisplay">🎯 Score: 0</div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🐟 The Dutch Herring Experience 🐟</h1>
+            <p>An Interactive English Lesson</p>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="section-number">1</div>
+                <span>Warm-Up Discussion</span>
+            </div>
+            <div class="discussion-questions">
+                <ul>
+                    <li>🍴 What is a traditional street food in your country? Describe it.</li>
+                    <li>🐟 Have you ever tried raw fish? What was your experience?</li>
+                    <li>🎉 Are there any seasonal foods that people celebrate in your culture?</li>
+                    <li>🤔 Would you be willing to try Dutch herring? Why or why not?</li>
+                    <li>👨‍🍳 Do you think street food can be healthy? Give examples.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="section-number">2</div>
+                <span>Vocabulary Matching Game</span>
+            </div>
+            <p style="margin-bottom: 20px;">Match the words with their definitions by clicking on them:</p>
+            <div class="vocab-grid">
+                <div class="vocab-column">
+                    <h3>Words</h3>
+                    <div class="vocab-item" data-word="monger">monger</div>
+                    <div class="vocab-item" data-word="dorsal">dorsal</div>
+                    <div class="vocab-item" data-word="buzzing">buzzing</div>
+                    <div class="vocab-item" data-word="squeamish">squeamish</div>
+                    <div class="vocab-item" data-word="cured">cured</div>
+                    <div class="vocab-item" data-word="renowned">renowned</div>
+                    <div class="vocab-item" data-word="hooked">hooked</div>
+                    <div class="vocab-item" data-word="booze">booze</div>
+                </div>
+                <div class="vocab-column">
+                    <h3>Definitions</h3>
+                    <div class="vocab-item" data-def="hooked">addicted to something</div>
+                    <div class="vocab-item" data-def="renowned">famous and respected</div>
+                    <div class="vocab-item" data-def="booze">alcoholic drinks (informal)</div>
+                    <div class="vocab-item" data-def="dorsal">relating to the back or upper side</div>
+                    <div class="vocab-item" data-def="monger">a person who sells a specific type of goods</div>
+                    <div class="vocab-item" data-def="buzzing">full of activity and excitement</div>
+                    <div class="vocab-item" data-def="cured">preserved with salt or smoke</div>
+                    <div class="vocab-item" data-def="squeamish">easily disgusted or nauseated</div>
+                </div>
+            </div>
+            <div id="vocabFeedback"></div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="section-number">3</div>
+                <span>Reading: The Story of Dutch Herring</span>
+            </div>
+            <div class="reading-text">
+                <p>Herring is not just a fish in the Netherlands—it's a cultural icon. Every year in mid-June, the Dutch celebrate the arrival of "nieuwe haring" (new herring), marking what locals call the "fifth season." This tradition has been part of Dutch culture for centuries.</p>
+                
+                <p>Jack, a fishmonger who has worked at his father-in-law's fish shop for around 25 years, starts every day with a herring breakfast. "I have been everywhere, in the best hotels in the world," he says. "Breakfast is always great, but everywhere I miss my herring!"</p>
+                
+                <p>The preparation of herring is an art form. After being caught, the fish is cured in salt for a few days. Then comes the cleaning process: removing the guts, dorsal fins, skin, head, and bones. Jack and his team clean about 500 fish a day. According to Jack, the best way to eat herring is "fresh from the knife"—immediately after it's been cleaned.</p>
+                
+                <p>The Dutch have strong opinions about how to enjoy their herring. Purists eat the first herrings of the season without pickles or onions because they want to taste the pure flavor. Later in the year, when the fish becomes stronger, people add pickles and onions to enhance the taste. Some fans believe herring has hangover-curing properties and even makes you smarter, though these claims are not scientifically proven!</p>
+                
+                <p>Herring is traditionally paired with jenever (Dutch gin) or corenwyn, an aged gin stored in oak barrels. Even Queen Beatrix was known to be a fan. While herring faces competition from other Dutch street foods like kip (broiled chicken), frikandel, poffertjes (little pancakes), and stroopwafels, it remains the undisputed champion of Dutch street food culture.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="section-number">4</div>
+                <span>Reading Comprehension</span>
+            </div>
+            
+            <div class="question-box" data-question="1">
+                <strong>1. What is the "fifth season" in the Netherlands?</strong>
+                <label><input type="radio" name="q1" value="a"> Spring</label>
+                <label><input type="radio" name="q1" value="b"> The arrival of new herring in mid-June</label>
+                <label><input type="radio" name="q1" value="c"> Christmas time</label>
+                <label><input type="radio" name="q1" value="d"> Autumn harvest</label>
+            </div>
+
+            <div class="question-box" data-question="2">
+                <strong>2. How long has Jack worked at the fish shop?</strong>
+                <label><input type="radio" name="q2" value="a"> Around 25 years</label>
+                <label><input type="radio" name="q2" value="b"> Around 15 years</label>
+                <label><input type="radio" name="q2" value="c"> 10 years</label>
+                <label><input type="radio" name="q2" value="d"> 30 years</label>
+            </div>
+
+            <div class="question-box" data-question="3">
+                <strong>3. According to Jack, when is the best time to eat herring?</strong>
+                <label><input type="radio" name="q3" value="a"> After it's been frozen</label>
+                <label><input type="radio" name="q3" value="b"> The next day</label>
+                <label><input type="radio" name="q3" value="c"> Fresh from the knife, right after cleaning</label>
+                <label><input type="radio" name="q3" value="d"> After marinating overnight</label>
+            </div>
+
+            <div class="question-box" data-question="4">
+                <strong>4. Why do people add pickles and onions later in the year?</strong>
+                <label><input type="radio" name="q4" value="a"> Because they're cheaper</label>
+                <label><input type="radio" name="q4" value="b"> It's a traditional recipe</label>
+                <label><input type="radio" name="q4" value="c"> To enhance the taste when the fish becomes stronger</label>
+                <label><input type="radio" name="q4" value="d"> To preserve the fish longer</label>
+            </div>
+
+            <button class="btn" onclick="checkReadingAnswers()">Check Answers</button>
+            <div id="readingFeedback"></div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="section-number">5</div>
+                <span>Watch the Video</span>
+            </div>
+            <div class="video-container">
+                <iframe src="https://www.youtube.com/embed/amQXvSTtfOo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="section-number">6</div>
+                <span>Video Comprehension: True or False</span>
+            </div>
+
+            <div class="true-false-item" data-question="1" data-correct="true">
+                <p><strong>1. Jack's father-in-law started the fish shop.</strong></p>
+                <div class="tf-buttons">
+                    <button class="tf-btn true-btn" data-answer="true" onclick="checkTrueFalse(1, 'true')">TRUE</button>
+                    <button class="tf-btn false-btn" data-answer="false" onclick="checkTrueFalse(1, 'false')">FALSE</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="true-false-item" data-question="2" data-correct="false">
+                <p><strong>2. Herring season begins in December.</strong></p>
+                <div class="tf-buttons">
+                    <button class="tf-btn true-btn" data-answer="true" onclick="checkTrueFalse(2, 'true')">TRUE</button>
+                    <button class="tf-btn false-btn" data-answer="false" onclick="checkTrueFalse(2, 'false')">FALSE</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="true-false-item" data-question="3" data-correct="true">
+                <p><strong>3. Jack cleans about 500 fish a day.</strong></p>
+                <div class="tf-buttons">
+                    <button class="tf-btn true-btn" data-answer="true" onclick="checkTrueFalse(3, 'true')">TRUE</button>
+                    <button class="tf-btn false-btn" data-answer="false" onclick="checkTrueFalse(3, 'false')">FALSE</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="true-false-item" data-question="4" data-correct="false">
+                <p><strong>4. Herring is typically eaten with a fork and knife.</strong></p>
+                <div class="tf-buttons">
+                    <button class="tf-btn true-btn" data-answer="true" onclick="checkTrueFalse(4, 'true')">TRUE</button>
+                    <button class="tf-btn false-btn" data-answer="false" onclick="checkTrueFalse(4, 'false')">FALSE</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+
+            <div class="true-false-item" data-question="5" data-correct="true">
+                <p><strong>5. Queen Beatrix was known to enjoy herring.</strong></p>
+                <div class="tf-buttons">
+                    <button class="tf-btn true-btn" data-answer="true" onclick="checkTrueFalse(5, 'true')">TRUE</button>
+                    <button class="tf-btn false-btn" data-answer="false" onclick="checkTrueFalse(5, 'false')">FALSE</button>
+                </div>
+                <div class="tf-feedback"></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="section-number">7</div>
+                <span>Gap Fill Activity</span>
+            </div>
+            <p style="margin-bottom: 10px;"><strong>Instructions:</strong> Click on a word from the word bank, then click on a gap to fill it:</p>
+            
+            <div class="wordbank" id="wordbank">
+                <div class="word-chip" data-word="celebrated">celebrated</div>
+                <div class="word-chip" data-word="preparation">preparation</div>
+                <div class="word-chip" data-word="traditional">traditional</div>
+                <div class="word-chip" data-word="immediately">immediately</div>
+                <div class="word-chip" data-word="preserved">preserved</div>
+                <div class="word-chip" data-word="competition">competition</div>
+                <div class="word-chip" data-word="accompanied">accompanied</div>
+                <div class="word-chip" data-word="cultural">cultural</div>
+            </div>
+
+            <div class="gap-fill-text">
+                <p>Dutch herring is a <span class="gap" data-answer="traditional" data-gap="1">_______</span> street food that is <span class="gap" data-answer="celebrated" data-gap="2">_______</span> throughout the Netherlands. The <span class="gap" data-answer="preparation" data-gap="3">_______</span> of herring involves curing it in salt. After being <span class="gap" data-answer="preserved" data-gap="4">_______</span>, it must be eaten <span class="gap" data-answer="immediately" data-gap="5">_______</span> after cleaning for the best taste. Although herring faces <span class="gap" data-answer="competition" data-gap="6">_______</span> from other street foods, it remains a <span class="gap" data-answer="cultural" data-gap="7">_______</span> icon. It is typically <span class="gap" data-answer="accompanied" data-gap="8">_______</span> by Dutch gin.</p>
+            </div>
+
+            <button class="btn" onclick="checkGapFill()">Check Answers</button>
+            <div id="gapFillFeedback"></div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="section-number">8</div>
+                <span>Grammar Focus: Present Perfect vs Past Simple</span>
+            </div>
+
+            <div class="grammar-box">
+                <h3>📚 Quick Explanation:</h3>
+                <p><strong>Present Perfect:</strong> We use it for experiences, actions that started in the past and continue now, or recent actions with present relevance.</p>
+                <p><strong>Formula:</strong> have/has + past participle</p>
+                <p><strong>Example from the video:</strong> "I have been everywhere, in the best hotels in the world!"</p>
+                
+                <p style="margin-top: 15px;"><strong>Past Simple:</strong> We use it for completed actions at a specific time in the past.</p>
+                <p><strong>Formula:</strong> verb + -ed (regular) or irregular form</p>
+                <p><strong>Example from the video:</strong> "My mum and I came here like ten years ago."</p>
+            </div>
+
+            <div class="grammar-examples">
+                <h3>Choose the correct form:</h3>
+                
+                <div class="question-box" data-grammar="1">
+                    <p><strong>1. Jack __________ (work) at the fish shop for 25 years.</strong></p>
+                    <label><input type="radio" name="g1" value="a"> worked</label>
+                    <label><input type="radio" name="g1" value="b"> has worked</label>
+                </div>
+
+                <div class="question-box" data-grammar="2">
+                    <p><strong>2. We __________ (eat) six herrings when we visited last year.</strong></p>
+                    <label><input type="radio" name="g2" value="a"> ate</label>
+                    <label><input type="radio" name="g2" value="b"> have eaten</label>
+                </div>
+
+                <div class="question-box" data-grammar="3">
+                    <p><strong>3. I __________ (never try) raw fish before.</strong></p>
+                    <label><input type="radio" name="g3" value="a"> never tried</label>
+                    <label><input type="radio" name="g3" value="b"> have never tried</label>
+                </div>
+
+                <div class="question-box" data-grammar="4">
+                    <p><strong>4. The herring season __________ (begin) in mid-June last year.</strong></p>
+                    <label><input type="radio" name="g4" value="a"> began</label>
+                    <label><input type="radio" name="g4" value="b"> has begun</label>
+                </div>
+
+                <button class="btn" onclick="checkGrammar()">Check Grammar</button>
+                <div id="grammarFeedback"></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="section-number">9</div>
+                <span>Word Formation</span>
+            </div>
+            <p>Change the form of the word in brackets where necessary to complete each sentence:</p>
+
+            <div class="word-formation-item">
+                <p><strong>1. Herring is a __________ (TRADITION) Dutch street food.</strong></p>
+                <input type="text" id="wf1" data-answer="traditional">
+            </div>
+
+            <div class="word-formation-item">
+                <p><strong>2. The __________ (PREPARE) of herring requires skill and experience.</strong></p>
+                <input type="text" id="wf2" data-answer="preparation">
+            </div>
+
+            <div class="word-formation-item">
+                <p><strong>3. Many tourists are __________ (SURPRISE) by the taste of raw herring.</strong></p>
+                <input type="text" id="wf3" data-answer="surprised">
+            </div>
+
+            <div class="word-formation-item">
+                <p><strong>4. The fish monger works __________ (EFFICIENT) to clean 500 fish daily.</strong></p>
+                <input type="text" id="wf4" data-answer="efficiently">
+            </div>
+
+            <div class="word-formation-item">
+                <p><strong>5. Herring is known for its __________ (HEALTH) benefits.</strong></p>
+                <input type="text" id="wf5" data-answer="health">
+            </div>
+
+            <div class="word-formation-item">
+                <p><strong>6. The __________ (ARRIVE) of nieuwe haring is celebrated every June.</strong></p>
+                <input type="text" id="wf6" data-answer="arrival">
+            </div>
+
+            <button class="btn" onclick="checkWordFormation()">Check Answers</button>
+            <div id="wordFormationFeedback"></div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="section-number">10</div>
+                <span>Food Idioms Matching</span>
+            </div>
+            <p style="margin-bottom: 20px;">Match these food idioms with their meanings:</p>
+            <div class="idiom-match-grid">
+                <div class="idiom-column">
+                    <h3>Idioms</h3>
+                    <div class="idiom-item" data-idiom="fish">There are plenty more fish in the sea</div>
+                    <div class="idiom-item" data-idiom="cake">A piece of cake</div>
+                    <div class="idiom-item" data-idiom="salt">Take it with a pinch of salt</div>
+                    <div class="idiom-item" data-idiom="pickle">In a pickle</div>
+                    <div class="idiom-item" data-idiom="butter">Bread and butter</div>
+                </div>
+                <div class="idiom-column">
+                    <h3>Meanings</h3>
+                    <div class="idiom-item" data-meaning="cake">Something very easy to do</div>
+                    <div class="idiom-item" data-meaning="butter">Basic income or livelihood</div>
+                    <div class="idiom-item" data-meaning="pickle">In a difficult situation</div>
+                    <div class="idiom-item" data-meaning="fish">There are other opportunities available</div>
+                    <div class="idiom-item" data-meaning="salt">Don't believe everything completely</div>
+                </div>
+            </div>
+            <div id="idiomFeedback"></div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="section-number">11</div>
+                <span>Writing Task</span>
+            </div>
+            <div class="discussion-questions">
+                <p><strong>Choose one of these topics and write 150-200 words:</strong></p>
+                <ul>
+                    <li>🍽️ Describe a traditional food from your country. How is it prepared? When do people eat it? Why is it important?</li>
+                    <li>🌍 Compare street food culture in your country with Dutch herring culture. What are the similarities and differences?</li>
+                    <li>💭 Write a review of a street food you've tried. Describe the taste, texture, and your overall experience.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let score = 0;
+        let selectedWord = null;
+        let selectedDef = null;
+        let selectedChip = null;
+        let selectedIdiom = null;
+        let selectedMeaning = null;
+
+        const correctAnswers = {
+            reading: { q1: 'b', q2: 'a', q3: 'c', q4: 'c' },
+            grammar: { g1: 'b', g2: 'a', g3: 'b', g4: 'a' }
+        };
+        
+        // Custom function to update score and provide temporary feedback
+        function updateScoreAndFeedback(points, message, feedbackElementId) {
+            score += points;
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            scoreDisplay.textContent = `🎯 Score: ${score}`;
+            scoreDisplay.classList.add('pulse');
+            setTimeout(() => scoreDisplay.classList.remove('pulse'), 500);
+
+            const feedbackElement = document.getElementById(feedbackElementId);
+            if (message) {
+                feedbackElement.innerHTML = message;
+                setTimeout(() => {
+                    // Only clear the feedback if the entire section isn't complete (to avoid clearing the final "Perfect" message)
+                    const allMatched = document.querySelectorAll(`#${feedbackElementId}`).closest('.section').querySelectorAll('.idiom-item:not(.matched)').length === 0;
+                    if (!allMatched) {
+                        feedbackElement.innerHTML = '';
+                    }
+                }, 1500); // Clear message after 1.5 seconds
+            }
+        }
+        
+        // Replaced original simple updateScore function
+        function updateScore(points) {
+            updateScoreAndFeedback(points, null, 'scoreDisplay'); // Use the new function without message
+        }
+
+
+        // =========================================================================
+        // Section 2: Vocabulary Matching - Updated with emoji and immediate deselect logic
+        // =========================================================================
+        let vocabMatchCounter = 0;
+        document.querySelectorAll('.vocab-item').forEach(item => {
+            item.addEventListener('click', function() {
+                if (this.classList.contains('matched')) return;
+
+                const isWord = this.hasAttribute('data-word');
+                const isDef = this.hasAttribute('data-def');
+
+                if (isWord) {
+                    document.querySelectorAll('[data-word]').forEach(w => w.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedWord = this.getAttribute('data-word');
+                } else if (isDef) {
+                    document.querySelectorAll('[data-def]').forEach(d => d.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedDef = this.getAttribute('data-def');
+                }
+
+                if (selectedWord && selectedDef) {
+                    const wordEl = document.querySelector(`[data-word="${selectedWord}"].selected`);
+                    const defEl = document.querySelector(`[data-def="${selectedDef}"].selected`);
+                    
+                    if (selectedWord === selectedDef) {
+                        // Correct Match
+                        vocabMatchCounter++;
+                        [wordEl, defEl].forEach(el => {
+                            el.classList.remove('selected');
+                            el.classList.add('matched', `matched-${vocabMatchCounter}`);
+                        });
+                        updateScoreAndFeedback(10, '<div class="feedback correct">🎉 Correct Match! 🐟</div>', 'vocabFeedback');
+                        
+                        const allMatched = document.querySelectorAll('.vocab-item:not(.matched)').length === 0;
+                        if (allMatched) {
+                            document.getElementById('vocabFeedback').innerHTML = 
+                                '<div class="feedback correct">🎉 Perfect! All vocabulary matched correctly!</div>';
+                        }
+                    } else {
+                        // Incorrect Match - Flash red and deselect
+                        [wordEl, defEl].forEach(el => {
+                            if (el) {
+                                el.classList.add('wrong');
+                                setTimeout(() => el.classList.remove('wrong', 'selected'), 500);
+                            }
+                        });
+                        updateScoreAndFeedback(0, '<div class="feedback incorrect">✗ Try again!</div>', 'vocabFeedback');
+                    }
+                    selectedWord = null;
+                    selectedDef = null;
+                }
+            });
+        });
+
+        // Reading Comprehension
+        function checkReadingAnswers() {
+            let correct = 0;
+            const feedback = document.getElementById('readingFeedback');
+            
+            for (let i = 1; i <= 4; i++) {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                const questionBox = document.querySelector(`.question-box[data-question="${i}"]`);
+                
+                if (selected) {
+                    if (selected.value === correctAnswers.reading[`q${i}`]) {
+                        correct++;
+                        questionBox.classList.add('correct');
+                        questionBox.classList.remove('incorrect');
+                    } else {
+                        questionBox.classList.add('incorrect');
+                        questionBox.classList.remove('correct');
+                    }
+                }
+            }
+            
+            updateScore(correct * 10);
+            feedback.innerHTML = `<div class="feedback ${correct === 4 ? 'correct' : 'incorrect'}">
+                You got ${correct} out of 4 correct! ${correct === 4 ? '🎉 Perfect score!' : ''}
+            </div>`;
+        }
+
+        // True/False Questions
+        function checkTrueFalse(questionNum, answer) {
+            const item = document.querySelector(`.true-false-item[data-question="${questionNum}"]`);
+            const correct = item.getAttribute('data-correct');
+            const feedback = item.querySelector('.tf-feedback');
+            const buttons = item.querySelectorAll('.tf-btn');
+            
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if (btn.getAttribute('data-answer') === answer) {
+                    btn.classList.add('selected');
+                }
+            });
+            
+            if (answer === correct) {
+                item.classList.add('correct');
+                feedback.innerHTML = '<div style="color: #2e7d32;">✓ Correct!</div>';
+                updateScore(10);
+            } else {
+                item.classList.add('incorrect');
+                feedback.innerHTML = '<div style="color: #c62828;">✗ Incorrect. The correct answer is ' + 
+                    (correct === 'true' ? 'TRUE' : 'FALSE') + '</div>';
+            }
+        }
+
+        // Gap Fill Activity
+        document.querySelectorAll('.word-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                if (this.classList.contains('used')) return;
+                
+                // If clicking the already selected chip, deselect it
+                if (this.classList.contains('selected-chip')) {
+                    this.classList.remove('selected-chip');
+                    selectedChip = null;
+                    return;
+                }
+                
+                document.querySelectorAll('.word-chip').forEach(c => c.classList.remove('selected-chip'));
+                this.classList.add('selected-chip');
+                selectedChip = this;
+            });
+        });
+
+        document.querySelectorAll('.gap').forEach(gap => {
+            gap.addEventListener('click', function() {
+                // If clicking a filled gap, unfill it and return the word to the bank
+                if (this.classList.contains('filled')) {
+                    const word = this.getAttribute('data-filled');
+                    const chip = document.querySelector(`.word-chip[data-word="${word}"]`);
+                    
+                    if (chip) {
+                        chip.classList.remove('used');
+                    }
+                    
+                    this.textContent = '_______';
+                    this.classList.remove('filled', 'correct-gap', 'incorrect-gap');
+                    this.removeAttribute('data-filled');
+                    return;
+                }
+                
+                if (!selectedChip) return;
+                
+                const word = selectedChip.getAttribute('data-word');
+                this.textContent = word;
+                this.classList.add('filled');
+                this.setAttribute('data-filled', word);
+                
+                selectedChip.classList.add('used');
+                selectedChip.classList.remove('selected-chip');
+                selectedChip = null;
+            });
+        });
+
+        function checkGapFill() {
+            let correct = 0;
+            const gaps = document.querySelectorAll('.gap');
+            
+            gaps.forEach(gap => {
+                const answer = gap.getAttribute('data-answer');
+                const filled = gap.getAttribute('data-filled');
+                
+                if (filled === answer) {
+                    gap.classList.add('correct-gap');
+                    gap.classList.remove('incorrect-gap');
+                    correct++;
+                } else {
+                    gap.classList.add('incorrect-gap');
+                    gap.classList.remove('correct-gap');
+                }
+            });
+            
+            updateScore(correct * 10);
+            document.getElementById('gapFillFeedback').innerHTML = 
+                `<div class="feedback ${correct === gaps.length ? 'correct' : 'incorrect'}">
+                    You got ${correct} out of ${gaps.length} correct! 
+                    ${correct === gaps.length ? '🎉 Excellent work!' : ''}
+                </div>`;
+        }
+
+        // Grammar Check
+        function checkGrammar() {
+            let correct = 0;
+            const feedback = document.getElementById('grammarFeedback');
+            
+            for (let i = 1; i <= 4; i++) {
+                const selected = document.querySelector(`input[name="g${i}"]:checked`);
+                const questionBox = document.querySelector(`.question-box[data-grammar="${i}"]`);
+                
+                if (selected) {
+                    if (selected.value === correctAnswers.grammar[`g${i}`]) {
+                        correct++;
+                        questionBox.classList.add('correct');
+                        questionBox.classList.remove('incorrect');
+                    } else {
+                        questionBox.classList.add('incorrect');
+                        questionBox.classList.remove('correct');
+                    }
+                }
+            }
+            
+            updateScore(correct * 10);
+            feedback.innerHTML = `<div class="feedback ${correct === 4 ? 'correct' : 'incorrect'}">
+                You got ${correct} out of 4 correct! ${correct === 4 ? '🎉 Grammar master!' : ''}
+            </div>`;
+        }
+
+        // Word Formation
+        function checkWordFormation() {
+            let correct = 0;
+            const feedback = document.getElementById('wordFormationFeedback');
+            
+            for (let i = 1; i <= 6; i++) {
+                const input = document.getElementById(`wf${i}`);
+                const item = input.parentElement;
+                const answer = input.getAttribute('data-answer').toLowerCase();
+                const userAnswer = input.value.trim().toLowerCase();
+                
+                if (userAnswer === answer) {
+                    item.classList.add('correct');
+                    item.classList.remove('incorrect');
+                    correct++;
+                } else {
+                    item.classList.add('incorrect');
+                    item.classList.remove('correct');
+                }
+            }
+            
+            updateScore(correct * 10);
+            feedback.innerHTML = `<div class="feedback ${correct === 6 ? 'correct' : 'incorrect'}">
+                You got ${correct} out of 6 correct! ${correct === 6 ? '🎉 Perfect!' : ''}
+            </div>`;
+        }
+
+        // =========================================================================
+        // Section 10: Idioms Matching - Updated with emoji and immediate deselect logic
+        // =========================================================================
+        let idiomMatchCounter = 0;
+        document.querySelectorAll('.idiom-item').forEach(item => {
+            item.addEventListener('click', function() {
+                if (this.classList.contains('matched')) return;
+
+                const isIdiom = this.hasAttribute('data-idiom');
+                const isMeaning = this.hasAttribute('data-meaning');
+
+                if (isIdiom) {
+                    document.querySelectorAll('[data-idiom]').forEach(i => i.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedIdiom = this.getAttribute('data-idiom');
+                } else if (isMeaning) {
+                    document.querySelectorAll('[data-meaning]').forEach(m => m.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedMeaning = this.getAttribute('data-meaning');
+                }
+
+                if (selectedIdiom && selectedMeaning) {
+                    const idiomEl = document.querySelector(`[data-idiom="${selectedIdiom}"].selected`);
+                    const meaningEl = document.querySelector(`[data-meaning="${selectedMeaning}"].selected`);
+
+                    if (selectedIdiom === selectedMeaning) {
+                        // Correct Match
+                        idiomMatchCounter++;
+                        [idiomEl, meaningEl].forEach(el => {
+                            el.classList.remove('selected');
+                            el.classList.add('matched', `matched-${idiomMatchCounter}`);
+                        });
+                        updateScoreAndFeedback(10, '<div class="feedback correct">🎉 Correct Match! 🐟</div>', 'idiomFeedback');
+
+                        const allMatched = document.querySelectorAll('.idiom-item:not(.matched)').length === 0;
+                        if (allMatched) {
+                            document.getElementById('idiomFeedback').innerHTML = 
+                                '<div class="feedback correct">🎉 Excellent! You know your idioms!</div>';
+                        }
+                    } else {
+                        // Incorrect Match - Flash red and deselect
+                        [idiomEl, meaningEl].forEach(el => {
+                            if (el) {
+                                el.classList.add('wrong');
+                                setTimeout(() => el.classList.remove('wrong', 'selected'), 500);
+                            }
+                        });
+                        updateScoreAndFeedback(0, '<div class="feedback incorrect">✗ Try again!</div>', 'idiomFeedback');
+                    }
+                    selectedIdiom = null;
+                    selectedMeaning = null;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
