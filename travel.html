@@ -132,7 +132,7 @@
         }
         
         /* True/False & Gap Fill Buttons (Matching Shopping Lesson) */
-        .tf-btn, .gap-fill-btn, .mc-btn {
+        .tf-btn, .gap-fill-btn, .mc-btn, .reveal-btn {
             background: #FFFFFF;
             color: #2C3E50;
             border: 2px solid #E5E9F2;
@@ -146,6 +146,19 @@
             border-color: #1ABC9C; /* Teal hover */
         }
         
+        /* Specific style for the reveal button */
+        .reveal-btn {
+            background-color: #FFC300; /* Yellow/Gold */
+            border-color: #FFC300;
+            color: #1A202C;
+            padding: 8px 12px;
+            font-size: 0.9em;
+        }
+        .reveal-btn:hover {
+            background-color: #FFB300;
+            border-color: #FFB300;
+        }
+
         /* Gap Fill Input */
         .gap-fill-item input {
             padding: 8px;
@@ -263,7 +276,7 @@
 <body>
 
     <header class="header">
-        <a href="intermediate.html" class="header-content">
+        <a href="intermediate-landing-page.html" class="header-content">
             <div class="logo">😎</div>
             <span class="site-title">English For Cool Dudes - Intermediate</span>
         </a>
@@ -394,34 +407,38 @@
                 <div class="gap-fill-exercise space-y-4">
                     <div class="gap-fill-item flex items-center gap-2">
                         <span class="font-semibold">1. My suitcase has been</span>
-                        <input type="text" id="gap1" class="gap-input">
+                        <input type="text" id="gap1" class="gap-input" data-answer="lost">
                         <span class="font-semibold">. Where is the baggage office?</span>
                         <span class="gap-hint">(First letter: L)</span>
                         <button class="gap-fill-btn" onclick="checkGapFill('gap1', 'lost')">Check</button>
+                        <button class="reveal-btn" onclick="revealAnswer('gap1', 'lost')">Reveal</button>
                         <span class="feedback text-sm ml-2"></span>
                     </div>
                     <div class="gap-fill-item flex items-center gap-2">
                         <span class="font-semibold">2. I would like to make a</span>
-                        <input type="text" id="gap2" class="gap-input">
+                        <input type="text" id="gap2" class="gap-input" data-answer="reservation">
                         <span class="font-semibold">for a single room.</span>
                         <span class="gap-hint">(Anagram: n o t a e v e r i s r)</span>
                         <button class="gap-fill-btn" onclick="checkGapFill('gap2', 'reservation')">Check</button>
+                        <button class="reveal-btn" onclick="revealAnswer('gap2', 'reservation')">Reveal</button>
                         <span class="feedback text-sm ml-2"></span>
                     </div>
                     <div class="gap-fill-item flex items-center gap-2">
                         <span class="font-semibold">3. My air conditioning is</span>
-                        <input type="text" id="gap3" class="gap-input">
+                        <input type="text" id="gap3" class="gap-input" data-answer="broken">
                         <span class="font-semibold">. Could someone please look at it?</span>
                         <span class="gap-hint">(First letter: B)</span>
                         <button class="gap-fill-btn" onclick="checkGapFill('gap3', 'broken')">Check</button>
+                        <button class="reveal-btn" onclick="revealAnswer('gap3', 'broken')">Reveal</button>
                         <span class="feedback text-sm ml-2"></span>
                     </div>
                     <div class="gap-fill-item flex items-center gap-2">
                         <span class="font-semibold">4. We are transferring to a</span>
-                        <input type="text" id="gap4" class="gap-input">
+                        <input type="text" id="gap4" class="gap-input" data-answer="connecting">
                         <span class="font-semibold">flight in Paris.</span>
-                        <span class="gap-hint">(Anagram: c o t n c g n t n i e)</span>
+                        <span class="gap-hint">(Anagram: c o t n c g n n i e)</span>
                         <button class="gap-fill-btn" onclick="checkGapFill('gap4', 'connecting')">Check</button>
+                        <button class="reveal-btn" onclick="revealAnswer('gap4', 'connecting')">Reveal</button>
                         <span class="feedback text-sm ml-2"></span>
                     </div>
                 </div>
@@ -728,6 +745,44 @@
         }
     };
     
+    // --- REVEAL ANSWER FUNCTION ---
+    window.revealAnswer = function(inputId, answer) {
+        const input = document.getElementById(inputId);
+        const checkButton = input.parentNode.querySelector('.gap-fill-btn');
+        const revealButton = input.parentNode.querySelector('.reveal-btn');
+        const feedbackSpan = input.parentNode.querySelector('.feedback');
+        
+        if (input.dataset.answered === 'true') return;
+
+        // Fill the input field and visually mark it as correct
+        input.value = answer;
+        input.classList.add('correct-answer');
+        input.readOnly = true; // Disable further input
+
+        // Disable the Check and Reveal buttons
+        checkButton.disabled = true;
+        checkButton.style.opacity = 0.5;
+        revealButton.disabled = true;
+        revealButton.style.opacity = 0.5;
+
+        // Update feedback
+        feedbackSpan.textContent = 'Answer revealed.';
+        feedbackSpan.style.color = '#FFC300';
+
+        // Mark as answered (without adding points) and update progress
+        if (input.dataset.answered !== 'true') {
+            input.dataset.answered = 'true';
+            gapFillQuestionsCompleted++;
+        }
+        
+        // Check if the entire section is complete
+        if (gapFillQuestionsCompleted === totalGapFillQuestions) {
+            document.getElementById('success-message-gap').style.display = 'block';
+            gapFillDone = true;
+            updateProgress();
+        }
+    };
+
 </script>
 
 </body>
