@@ -1,17 +1,18 @@
 // =========================================================
-// SERVICE WORKER: cool-dudes-lessons-cache-v7
-// FIX: Aggressive Fallback for Offline PWA Launch
+// SERVICE WORKER: cool-dudes-lessons-cache-v8
+// FIX: Separated Runtime Caching for Google Fonts
 // =========================================================
 
-const CACHE_NAME = 'cool-dudes-lessons-cache-v7'; // *** BUMPED TO V7 ***
+const CACHE_NAME = 'cool-dudes-lessons-cache-v8'; // *** BUMPED TO V8 ***
+const FONT_CACHE_NAME = 'cool-dudes-font-cache'; // Separate cache for external fonts
+
 const urlsToCache = [
   '/', 
   '/index.html', // Essential for PWA offline launch
   
-  // External Resources - MUST be cached for styling to work offline
+  // External CSS (The browser will request the fonts from fonts.gstatic.com)
   'https://cdn.tailwindcss.com', 
   'https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap', 
-  'https://fonts.gstatic.com', // Needed by Google Fonts
   
   // ALL LESSON & TOPIC PAGES
   '/drhammond/',
@@ -46,27 +47,48 @@ const urlsToCache = [
 ];
 
 
-// --- INSTALL EVENT: Skip waiting and cache all files ---
+// --- INSTALL EVENT: Skip waiting and cache all internal files ---
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('[Service Worker] Caching app shell (V7)');
+        console.log('[Service Worker] Caching app shell (V8)');
         return cache.addAll(urlsToCache).catch((error) => {
           console.error('[Service Worker] Failed to cache resource:', error);
         });
       })
-      // FIX 1: Immediately skip the waiting phase and activate
       .then(() => self.skipWaiting()) 
   );
 });
 
-// ------------------------------------------------------------------
-// *** NEW FETCH EVENT: The Definitive Offline Navigation Fix ***
-// This uses an asynchronous fetch with a try/catch to force the index.html fallback
-// ------------------------------------------------------------------
+
+// --- FETCH EVENT: Handles all requests ---
 self.addEventListener('fetch', (event) => {
-  // Check if the request is a navigation request (i.e., loading a new HTML page)
+  const requestURL = new URL(event.request.url);
+
+  // 1. EXTERNAL FONT CACHING (RUNTIME CACHING)
+  if (requestURL.origin === 'https://fonts.gstatic.com') {
+    event.respondWith(
+      caches.open(FONT_CACHE_NAME).then((cache) => {
+        return cache.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+
+          return fetch(event.request).then((networkResponse) => {
+            cache.put(event.request, networkResponse.clone());
+            return networkResponse;
+          }).catch(() => {
+            return null; 
+          });
+        });
+      })
+    );
+    return;
+  }
+
+
+  // 2. INTERNAL NAVIGATION/ASSET CACHING (OFFLINE-FIRST)
   const isNavigation = (event.request.mode === 'navigate' || 
                         (event.request.method === 'GET' && event.request.headers.get('accept').includes('text/html')));
   
@@ -75,30 +97,27 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       (async () => {
         try {
-          // 1. Try to get the fresh page from the network first.
+          // Try network for fresh page first (standard practice)
           const networkResponse = await fetch(event.request);
           return networkResponse;
         } catch (error) {
-          // 2. If the network fails (offline), serve the cached index.html
-          // Use ignoreSearch: true to ensure the match works regardless of query strings
+          // Network failed (offline). Return the cached index.html
+          // CRITICAL FIX: ignoreSearch: true handles PWA launch query strings
           const cachedIndex = await caches.match('/index.html', { ignoreSearch: true });
           
           if (cachedIndex) {
              return cachedIndex;
           }
-          // Fallback to the original request cache match as a last resort
           return caches.match(event.request, { ignoreSearch: true });
         }
       })()
     );
     
   } else {
-    // For non-navigation requests (images, CSS, JS, etc.), use the standard cache-first strategy
+    // For non-HTML assets (CSS, JS, images, non-font external assets)
     event.respondWith(
-      // FIX 3: Still use ignoreSearch: true for general assets to handle cache key differences
       caches.match(event.request, { ignoreSearch: true }) 
         .then((response) => {
-          // Cache-First Strategy
           if (response) {
             return response;
           }
@@ -108,21 +127,18 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
+
 // --- ACTIVATE EVENT: Cleaning up old caches and claiming clients ---
 self.addEventListener('activate', (event) => {
-  // FIX 2: Immediately take control of existing tabs/windows
-  event.waitUntil(
-    self.clients.claim()
-  );
-
-  // Clean up old caches
-  const cacheWhitelist = [CACHE_NAME];
+  self.clients.claim(); // FIX: Immediately take control
+  
+  // Clean up old caches (both main and font caches)
+  const cacheWhitelist = [CACHE_NAME, FONT_CACHE_NAME];
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            // Delete old, unused caches
+          if (!cacheWhitelist.includes(cacheName)) {
             console.log(`[Service Worker] Deleting old cache: ${cacheName}`);
             return caches.delete(cacheName);
           }
