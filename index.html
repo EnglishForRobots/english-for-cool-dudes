@@ -516,19 +516,30 @@
     </footer>
 
     <script>
-        // Check if the browser supports Service Workers
-        if ('serviceWorker' in navigator) {
-          window.addEventListener('load', () => {
-            // Register the service-worker.js file, located in the root directory
-            navigator.serviceWorker.register('/sw-v9.js')
-              .then((reg) => {
-                console.log('Service Worker registered! Scope: ', reg.scope);
-              })
-              .catch((err) => {
-                console.error('Service Worker registration failed: ', err);
-              });
-          });
-        }
-    </script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            // *** TEMPORARY FIX: Aggressively unregister all old workers ***
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    // Check if the service worker is *not* the one we want to keep
+                    if (registration.scope !== window.location.origin + '/') {
+                        console.log('Found and unregistered old service worker:', registration.scope);
+                        registration.unregister();
+                    }
+                }
+            }).finally(() => {
+                // Now register the correct, fixed worker (sw-v10.js)
+                navigator.serviceWorker.register('/sw-v10.js')
+                    .then(function(registration) {
+                        console.log('Service Worker v10 registration successful with scope: ', registration.scope);
+                    })
+                    .catch(function(err) {
+                        console.log('Service Worker registration failed: ', err);
+                    });
+            });
+            // *** END TEMPORARY FIX ***
+        });
+    }
+</script>
 </body>
 </html>
