@@ -1,72 +1,105 @@
 // =========================================================
 // SERVICE WORKER: cool-dudes-lessons-cache-v12
-// FIX: Path Normalization with SYNTAX CORRECTION
+// Optimized for GitHub Pages structure
 // =========================================================
 
-const CACHE_NAME = 'cool-dudes-lessons-cache-v12'; // *** BUMPED TO V12 ***
-const FONT_CACHE_NAME = 'cool-dudes-font-cache'; 
+const CACHE_NAME = 'cool-dudes-lessons-cache-v12';
+const FONT_CACHE_NAME = 'cool-dudes-font-cache-v2';
 
 const urlsToCache = [
-  '/', 
-  '/index.html', 
+  '/',
+  '/index.html',
   
-  // External CSS
-  'https://cdn.tailwindcss.com', 
-  'https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap', 
+  // External CSS (these will be cached on first visit)
+  'https://cdn.tailwindcss.com',
+  'https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap',
   
-  // ALL LESSON & TOPIC PAGES
-  '/drhammond/',
-  '/shopping/',
-  '/towns/',
-  '/nationality/',
-  '/greetings/',
-  '/germany/',
+  // ALL LESSON PAGES - Cache both the directory AND index.html
   '/business/',
+  '/business/index.html',
+  '/drhammond/',
+  '/drhammond/index.html',
+  '/shopping/',
+  '/shopping/index.html',
+  '/towns/',
+  '/towns/index.html',
+  '/nationality/',
+  '/nationality/index.html',
+  '/greetings/',
+  '/greetings/index.html',
+  '/germany/',
+  '/germany/index.html',
   '/projectmanagement/',
+  '/projectmanagement/index.html',
   '/agilework/',
+  '/agilework/index.html',
   '/negotiations/',
+  '/negotiations/index.html',
   '/businessnew/',
+  '/businessnew/index.html',
   '/fintech/',
+  '/fintech/index.html',
   '/cbcr/',
+  '/cbcr/index.html',
   '/taxavoidance/',
+  '/taxavoidance/index.html',
   '/selfassessment/',
+  '/selfassessment/index.html',
   '/iplaw/',
+  '/iplaw/index.html',
   '/legalpros/',
+  '/legalpros/index.html',
   '/legalcontracts/',
+  '/legalcontracts/index.html',
   '/travel/',
+  '/travel/index.html',
   '/presentperfectpastsimple/',
+  '/presentperfectpastsimple/index.html',
   '/tax/',
+  '/tax/index.html',
   '/legal/',
+  '/legal/index.html',
   '/beginner/',
+  '/beginner/index.html',
   '/intermediate/',
+  '/intermediate/index.html',
   '/advanced/',
+  '/advanced/index.html',
+  '/chat-landing-page.html',
   
   // Essential files
-  '/styles.css',
-  '/favicon.png'
+  '/favicon.png',
+  '/manifest.json'
 ];
 
-
-// --- INSTALL EVENT: Skip waiting and cache all internal files ---
+// --- INSTALL EVENT ---
 self.addEventListener('install', (event) => {
+  console.log('[SW v12] Installing...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('[Service Worker] Caching app shell (V12)');
-        return cache.addAll(urlsToCache).catch((error) => {
-          console.error('[Service Worker] Failed to cache resource:', error);
-        });
+        console.log('[SW v12] Caching app shell');
+        // Cache files one by one to see which ones fail
+        return Promise.all(
+          urlsToCache.map(url => {
+            return cache.add(url).catch(err => {
+              console.warn('[SW v12] Failed to cache:', url, err);
+            });
+          })
+        );
       })
-      .then(() => self.skipWaiting()) 
+      .then(() => {
+        console.log('[SW v12] Skip waiting');
+        return self.skipWaiting();
+      })
   );
 });
 
-
-// --- FETCH EVENT: Handles all requests (with Path Normalization Fix) ---
+// --- FETCH EVENT ---
 self.addEventListener('fetch', (event) => {
   const requestURL = new URL(event.request.url);
 
-  // 1. EXTERNAL FONT CACHING (RUNTIME CACHING)
+  // 1. EXTERNAL FONT CACHING
   if (requestURL.origin === 'https://fonts.gstatic.com') {
     event.respondWith(
       caches.open(FONT_CACHE_NAME).then((cache) => {
@@ -74,93 +107,121 @@ self.addEventListener('fetch', (event) => {
           if (cachedResponse) {
             return cachedResponse;
           }
-
           return fetch(event.request).then((networkResponse) => {
             cache.put(event.request, networkResponse.clone());
             return networkResponse;
-          }).catch(() => {
-            return null; 
-          });
+          }).catch(() => null);
         });
       })
     );
     return;
   }
 
+  // 2. HANDLE NAVIGATION REQUESTS (HTML pages)
+  const isNavigation = event.request.mode === 'navigate' || 
+                       (event.request.method === 'GET' && 
+                        event.request.headers.get('accept') && 
+                        event.request.headers.get('accept').includes('text/html'));
 
-  // 2. INTERNAL NAVIGATION/ASSET CACHING (OFFLINE-FIRST)
-  const isNavigation = (event.request.mode === 'navigate' || 
-                        (event.request.method === 'GET' && event.request.headers.get('accept').includes('text/html')));
-  
   if (isNavigation) {
-    
     event.respondWith(
       (async () => {
         try {
-          // Try network for fresh page first
+          // Try network first
+          console.log('[SW v12] Fetching from network:', requestURL.pathname);
           const networkResponse = await fetch(event.request);
+          
+          // Cache successful response
+          const cache = await caches.open(CACHE_NAME);
+          cache.put(event.request, networkResponse.clone());
+          
           return networkResponse;
         } catch (error) {
-          // Network failed (offline).
+          // OFFLINE - try cache with multiple path variations
+          console.log('[SW v12] OFFLINE - Checking cache for:', requestURL.pathname);
           
           let path = requestURL.pathname;
           
-          // *** FIX: PATH NORMALIZATION (SYNTAX CORRECTED) ***
-          if (path.endsWith('/') && path !== '/') {
-              path += 'index.html'; 
-          } // <--- CORRECTED BRACE IS HERE
+          // Try different path combinations
+          const pathsToTry = [
+            path,                                          // e.g., /business/
+            path + 'index.html',                          // e.g., /business/index.html
+            path.replace(/\/$/, '') + '/index.html',      // e.g., /business/index.html
+            path.replace(/\/$/, ''),                      // e.g., /business
+            '/index.html'                                 // fallback to home
+          ];
           
-          // 1. Try to match the normalized path (e.g., /business/index.html)
-          const cachedFile = await caches.match(path, { ignoreSearch: true });
-
-          if (cachedFile) {
-             return cachedFile;
+          // Remove duplicates
+          const uniquePaths = [...new Set(pathsToTry)];
+          
+          for (const tryPath of uniquePaths) {
+            console.log('[SW v12] Trying cache path:', tryPath);
+            const cached = await caches.match(tryPath, { ignoreSearch: true });
+            if (cached) {
+              console.log('[SW v12] ✓ Cache HIT:', tryPath);
+              return cached;
+            }
           }
           
-          // 2. Fallback to the root index.html if the specific page wasn't found
-          const cachedRootIndex = await caches.match('/index.html', { ignoreSearch: true });
-          
-          if (cachedRootIndex) {
-             return cachedRootIndex;
+          // Last resort - return home page
+          console.log('[SW v12] Returning fallback: /index.html');
+          const fallback = await caches.match('/index.html');
+          if (fallback) {
+            return fallback;
           }
-
-          // Fallback to original request as last resort
-          return caches.match(event.request, { ignoreSearch: true });
+          
+          // If even that fails, show an error
+          return new Response('Offline - Page not cached', {
+            status: 503,
+            statusText: 'Service Unavailable',
+            headers: new Headers({
+              'Content-Type': 'text/plain'
+            })
+          });
         }
       })()
     );
-    
   } else {
-    // For non-HTML assets (CSS, JS, etc.)
+    // 3. HANDLE STATIC ASSETS (CSS, JS, images, etc.)
     event.respondWith(
-      caches.match(event.request, { ignoreSearch: true }) 
+      caches.match(event.request, { ignoreSearch: true })
         .then((response) => {
           if (response) {
             return response;
           }
-          return fetch(event.request);
+          // Not in cache, try network
+          return fetch(event.request).then((networkResponse) => {
+            // Cache successful responses
+            if (event.request.method === 'GET' && networkResponse.status === 200) {
+              caches.open(CACHE_NAME).then(cache => {
+                cache.put(event.request, networkResponse.clone());
+              });
+            }
+            return networkResponse;
+          });
         })
     );
   }
 });
 
-
-// --- ACTIVATE EVENT: Cleaning up old caches and claiming clients ---
+// --- ACTIVATE EVENT ---
 self.addEventListener('activate', (event) => {
-  self.clients.claim(); 
-  
-  // Clean up old caches (both main and font caches)
+  console.log('[SW v12] Activating...');
   const cacheWhitelist = [CACHE_NAME, FONT_CACHE_NAME];
+  
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (!cacheWhitelist.includes(cacheName)) {
-            console.log(`[Service Worker] Deleting old cache: ${cacheName}`);
+            console.log('[SW v12] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
+    }).then(() => {
+      console.log('[SW v12] Claiming clients');
+      return self.clients.claim();
     })
   );
 });
