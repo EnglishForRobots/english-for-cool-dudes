@@ -1,9 +1,9 @@
 // =========================================================
-// SERVICE WORKER: cool-dudes-lessons-cache-v10
+// SERVICE WORKER: cool-dudes-lessons-cache-v11
 // FIX: Aggressive Fallback, Runtime Caching, and PATH NORMALIZATION
 // =========================================================
 
-const CACHE_NAME = 'cool-dudes-lessons-cache-v10'; // *** BUMPED TO V10 ***
+const CACHE_NAME = 'cool-dudes-lessons-cache-v11'; // *** BUMPED TO V11 ***
 const FONT_CACHE_NAME = 'cool-dudes-font-cache'; 
 
 const urlsToCache = [
@@ -15,7 +15,6 @@ const urlsToCache = [
   'https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap', 
   
   // ALL LESSON & TOPIC PAGES
-  // The Service Worker will now automatically look for index.html inside these folders
   '/drhammond/',
   '/shopping/',
   '/towns/',
@@ -53,7 +52,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('[Service Worker] Caching app shell (V10)');
+        console.log('[Service Worker] Caching app shell (V11)');
         return cache.addAll(urlsToCache).catch((error) => {
           console.error('[Service Worker] Failed to cache resource:', error);
         });
@@ -63,7 +62,7 @@ self.addEventListener('install', (event) => {
 });
 
 
-// --- FETCH EVENT: Handles all requests ---
+// --- FETCH EVENT: Handles all requests (with Path Normalization Fix) ---
 self.addEventListener('fetch', (event) => {
   const requestURL = new URL(event.request.url);
 
@@ -106,8 +105,7 @@ self.addEventListener('fetch', (event) => {
           
           let path = requestURL.pathname;
           
-          // *** FIX 4: PATH NORMALIZATION *** // If the request ends in a slash (e.g., /business/), rewrite it to look for /business/index.html
-          if (path.endsWith('/') && path !== '/') {
+          // *** FIX: PATH NORMALIZATION *** if (path.endsWith('/') && path !== '/') {
               path += 'index.html'; 
           }
           
@@ -148,7 +146,7 @@ self.addEventListener('fetch', (event) => {
 
 // --- ACTIVATE EVENT: Cleaning up old caches and claiming clients ---
 self.addEventListener('activate', (event) => {
-  self.clients.claim(); // FIX: Immediately take control
+  self.clients.claim(); 
   
   // Clean up old caches (both main and font caches)
   const cacheWhitelist = [CACHE_NAME, FONT_CACHE_NAME];
