@@ -1,20 +1,21 @@
 // =========================================================
-// SERVICE WORKER: cool-dudes-lessons-cache-v9
-// FIX: Aggressive Fallback, Runtime Caching, and NEW FILENAME
+// SERVICE WORKER: cool-dudes-lessons-cache-v10
+// FIX: Aggressive Fallback, Runtime Caching, and PATH NORMALIZATION
 // =========================================================
 
-const CACHE_NAME = 'cool-dudes-lessons-cache-v9'; // *** BUMPED TO V9 ***
-const FONT_CACHE_NAME = 'cool-dudes-font-cache'; // Separate cache for external fonts
+const CACHE_NAME = 'cool-dudes-lessons-cache-v10'; // *** BUMPED TO V10 ***
+const FONT_CACHE_NAME = 'cool-dudes-font-cache'; 
 
 const urlsToCache = [
   '/', 
-  '/index.html', // Essential for PWA offline launch
+  '/index.html', 
   
   // External CSS
   'https://cdn.tailwindcss.com', 
   'https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap', 
   
   // ALL LESSON & TOPIC PAGES
+  // The Service Worker will now automatically look for index.html inside these folders
   '/drhammond/',
   '/shopping/',
   '/towns/',
@@ -52,7 +53,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('[Service Worker] Caching app shell (V9)');
+        console.log('[Service Worker] Caching app shell (V10)');
         return cache.addAll(urlsToCache).catch((error) => {
           console.error('[Service Worker] Failed to cache resource:', error);
         });
@@ -97,24 +98,41 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       (async () => {
         try {
-          // Try network for fresh page first (standard practice)
+          // Try network for fresh page first
           const networkResponse = await fetch(event.request);
           return networkResponse;
         } catch (error) {
-          // Network failed (offline). Return the cached index.html
-          // CRITICAL FIX: ignoreSearch: true handles PWA launch query strings
-          const cachedIndex = await caches.match('/index.html', { ignoreSearch: true });
+          // Network failed (offline).
           
-          if (cachedIndex) {
-             return cachedIndex;
+          let path = requestURL.pathname;
+          
+          // *** FIX 4: PATH NORMALIZATION *** // If the request ends in a slash (e.g., /business/), rewrite it to look for /business/index.html
+          if (path.endsWith('/') && path !== '/') {
+              path += 'index.html'; 
           }
+          
+          // 1. Try to match the normalized path (e.g., /business/index.html)
+          const cachedFile = await caches.match(path, { ignoreSearch: true });
+
+          if (cachedFile) {
+             return cachedFile;
+          }
+          
+          // 2. Fallback to the root index.html if the specific page wasn't found
+          const cachedRootIndex = await caches.match('/index.html', { ignoreSearch: true });
+          
+          if (cachedRootIndex) {
+             return cachedRootIndex;
+          }
+
+          // Fallback to original request as last resort
           return caches.match(event.request, { ignoreSearch: true });
         }
       })()
     );
     
   } else {
-    // For non-HTML assets (CSS, JS, images, non-font external assets)
+    // For non-HTML assets (CSS, JS, etc.)
     event.respondWith(
       caches.match(event.request, { ignoreSearch: true }) 
         .then((response) => {
