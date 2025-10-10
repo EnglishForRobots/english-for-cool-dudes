@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -298,6 +297,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
+            min-height: 50px; /* Ensure space even when empty */
         }
 
         .word-option {
@@ -316,10 +316,12 @@
             background-color: var(--color-primary-blue); 
         }
         
+        /* Changed selection color from green to primary blue */
         .word-option.selected {
-            background-color: #2ECC71 !important; /* Bright green selection */
+            background-color: var(--color-primary-blue) !important; /* Primary blue selection */
             transform: scale(1.05);
-            box-shadow: 0 0 0 4px #2ECC71 !important;
+            /* Less intrusive, but clear, box-shadow for selection */
+            box-shadow: 0 0 0 4px var(--color-primary-blue) !important; 
         }
 
         .word-option.used {
@@ -434,10 +436,42 @@
         .reset-button:hover {
             background: #7f8c8d;
         }
+        
+        /* --- NEW POPUP STYLES (Activity 1) --- */
+        #match-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            padding: 25px 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            font-size: 1.5em;
+            font-weight: 800;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
+            text-align: center;
+        }
+
+        #match-popup.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1.05);
+        }
+        
+        #match-popup.correct-match {
+            background-color: #2ECC71; /* Emerald Green */
+            color: white;
+        }
 
     </style>
 </head>
 <body>
+    
+    <div id="match-popup"></div>
+
     <header class="header"> 
         <a href="/legal/" class="header-content"> 
             <div class="logo">😎</div> 
@@ -512,18 +546,12 @@
 
             <section id="exercise-3" class="lesson-section shadow-lg">
                 <h2 class="section-title">📝 3. Gap-Fill Exercise</h2>
-                <p class="text-gray-600 mb-6">Click a **Word** in the bank to select it (it turns green), then click the blank space (<span class="gap-input"></span>) where you want to place it. Click a filled space to clear it and return the word to the bank.</p>
+                <p class="text-gray-600 mb-6">Click a **Word** in the bank to select it (it turns blue), then click the blank space (<span class="gap-input"></span>) where you want to place it. Click a filled space to clear it and return the word to the bank.</p>
                 
                 <div class="word-bank p-4 mb-6">
                     <h4 class="font-bold text-gray-700 mb-3">Word Bank:</h4>
                     <div class="word-options" id="gap-fill-options">
-                        <span class="word-option">copyright</span>
-                        <span class="word-option">infringement</span>
-                        <span class="word-option">patent</span>
-                        <span class="word-option">trademark</span>
-                        <span class="word-option">licensing</span>
-                        <span class="word-option">royalty</span>
-                    </div>
+                        </div>
                 </div>
 
                 <div class="gap-fill-text text-lg">
@@ -562,6 +590,20 @@
                 const j = Math.floor(Math.random() * (i + 1));
                 [array[i], array[j]] = [array[j], array[i]];
             }
+        }
+        
+        // --- NEW POPUP LOGIC (Used by Vocab Match) ---
+        const popup = document.getElementById('match-popup');
+
+        function showPopup(message, type = 'correct-match') {
+            popup.textContent = message;
+            popup.className = ''; // Reset classes
+            popup.classList.add(type, 'show');
+            
+            // Auto-hide after 1 second
+            setTimeout(() => {
+                popup.classList.remove('show');
+            }, 1000);
         }
 
         // --- Exercise 1: Vocab Match Logic (MOBILE OPTIMIZED) ---
@@ -619,7 +661,7 @@
         function handleMatchClick(type, card) {
             if (card.classList.contains('matched')) return;
 
-            const messageDiv = document.getElementById('vocab-result');
+            // Using vocab-result for final score only
             
             let currentSelection = type === 'uk-term' ? selectedUKTerm : selectedEnglishDef;
             
@@ -632,7 +674,6 @@
             if (currentSelection === card) {
                 if (type === 'uk-term') selectedUKTerm = null;
                 else selectedEnglishDef = null;
-                messageDiv.style.display = 'none';
                 return;
             }
             
@@ -660,19 +701,21 @@
 
                         matchedPairs++;
                         updateVocabResult();
-                        messageDiv.classList.remove('incorrect');
-                        messageDiv.classList.add('correct');
-                        messageDiv.textContent = '✅ Match Found!';
-                        messageDiv.style.display = 'block';
-
+                        
+                        // NEW POPUP CALL
+                        showPopup('✅ Correct Match!'); 
+                        
                         selectedUKTerm = null;
                         selectedEnglishDef = null;
                     } else {
                         // Mismatch - brief feedback and auto-deselect 
-                        messageDiv.classList.remove('correct');
-                        messageDiv.classList.add('incorrect');
-                        messageDiv.textContent = '❌ Incorrect Pair. Try again.';
-                        messageDiv.style.display = 'block';
+                        
+                        // Briefly show mismatch in the general result box 
+                        const resultDiv = document.getElementById('vocab-result');
+                        resultDiv.classList.remove('correct');
+                        resultDiv.classList.add('incorrect');
+                        resultDiv.textContent = '❌ Incorrect Pair. Try again.';
+                        resultDiv.style.display = 'block';
                         
                         // Briefly remove the selected state
                         const mismatchedTerm = selectedUKTerm;
@@ -682,35 +725,19 @@
                             // Deselect
                             mismatchedTerm.classList.remove('selected');
                             mismatchedDef.classList.remove('selected');
-                            messageDiv.style.display = 'none';
+                            resultDiv.style.display = 'none';
                         }, 800);
 
                         selectedUKTerm = null;
                         selectedEnglishDef = null;
                     }
                 } else {
-                    // Logic to reset if two terms or two definitions were selected (this is mostly defensive)
-                    const tempTerm = selectedUKTerm;
-                    const tempDef = selectedEnglishDef;
-
-                    tempTerm.classList.remove('selected');
-                    tempDef.classList.remove('selected');
-
+                    // This case should be rare but handles if logic somehow selected two of the same type
+                    selectedUKTerm.classList.remove('selected');
+                    selectedEnglishDef.classList.remove('selected');
                     selectedUKTerm = null;
                     selectedEnglishDef = null;
-                    
-                    messageDiv.classList.remove('correct');
-                    messageDiv.classList.add('incorrect');
-                    messageDiv.textContent = '❌ Please select one Term (Blue) and one Definition (Gray).';
-                    messageDiv.style.display = 'block';
-                    
-                    // Allow re-selection immediately
-                    setTimeout(() => {
-                         messageDiv.style.display = 'none';
-                    }, 800);
                 }
-            } else {
-                 messageDiv.style.display = 'none';
             }
         }
 
@@ -722,6 +749,8 @@
                 resultDiv.classList.remove('incorrect');
                 resultDiv.classList.add('correct');
                 resultDiv.style.display = 'block';
+            } else {
+                resultDiv.style.display = 'none';
             }
         }
 
@@ -805,25 +834,29 @@
         let selectedGapWord = null; // Stores the currently selected word *element* from the bank
 
         
+        // initGaps now only handles the dynamic word bank and content reset, not blank listeners.
         function initGaps() {
             const wordOptionsContainer = document.getElementById('gap-fill-options');
-            const options = Array.from(wordOptionsContainer.children);
-            shuffleArray(options);
-            options.forEach(option => {
-                wordOptionsContainer.appendChild(option);
-                option.classList.remove('used', 'selected'); // Ensure all options are active and unselected
+            wordOptionsContainer.innerHTML = ''; // Clear existing content for robust reset
+
+            const shuffledWords = [...gapAnswers]; // Copy array
+            shuffleArray(shuffledWords);
+            
+            shuffledWords.forEach(wordText => {
+                const wordElement = document.createElement('span');
+                wordElement.className = 'word-option';
+                wordElement.textContent = wordText;
+                
+                // Attach listener directly to the newly created word element
+                wordElement.addEventListener('click', handleGapWordClick);
+                
+                wordOptionsContainer.appendChild(wordElement);
             });
             
+            // Only reset content and styling on the blanks (listeners remain untouched)
             document.querySelectorAll('.gap-input').forEach(blank => {
                 blank.textContent = '';
                 blank.classList.remove('correct', 'incorrect', 'selected');
-                blank.removeEventListener('click', handleGapBlankClick); // Remove previous listener if any
-                blank.addEventListener('click', () => handleGapBlankClick(blank));
-            });
-            
-            document.querySelectorAll('.word-option').forEach(word => {
-                word.removeEventListener('click', handleGapWordClick); // Remove previous listener if any
-                word.addEventListener('click', () => handleGapWordClick(word));
             });
             
             userGapWords = new Array(gapAnswers.length).fill(null);
@@ -876,7 +909,9 @@
         }
         
         // HANDLES CLICK ON A WORD OPTION (THE FIRST STEP IN WORD -> GAP)
-        function handleGapWordClick(wordElement) {
+        function handleGapWordClick(event) {
+            const wordElement = event.currentTarget;
+
             if (wordElement.classList.contains('used')) return;
 
             // Deselect the previously selected word element
@@ -899,9 +934,13 @@
             let correctCount = 0;
             const blanks = document.querySelectorAll('.gap-input');
             
-            blanks.forEach((blank, index) => {
-                const word = blank.textContent;
-                const isCorrect = word && word.toLowerCase() === gapAnswers[index].toLowerCase();
+            blanks.forEach(blank => {
+                // FIX: Use data-word-index for explicit answer matching and trim the content
+                const blankIndex = parseInt(blank.dataset.wordIndex);
+                const word = blank.textContent.trim();
+                
+                const isCorrect = word && word.toLowerCase() === gapAnswers[blankIndex].toLowerCase();
+                
                 if (isCorrect) {
                     blank.classList.remove('incorrect');
                     blank.classList.add('correct');
@@ -925,17 +964,8 @@
             resultDiv.style.display = 'block';
         }
 
+        // resetGaps only calls initGaps, which safely rebuilds the word bank and clears blanks.
         function resetGaps() {
-            document.querySelectorAll('.gap-input').forEach(blank => {
-                blank.textContent = '';
-                blank.classList.remove('correct', 'incorrect', 'selected');
-            });
-            document.querySelectorAll('.word-option').forEach(word => {
-                word.classList.remove('used', 'selected');
-            });
-            document.getElementById('gap-result').style.display = 'none';
-            userGapWords = new Array(gapAnswers.length).fill(null);
-            selectedGapWord = null;
             initGaps(); 
         }
 
@@ -943,7 +973,14 @@
         document.addEventListener('DOMContentLoaded', () => {
             initVocab();
             initComprehension();
-            initGaps();
+            
+            // Attach Gap-Fill BLANK listeners ONLY ONCE on initial load
+            document.querySelectorAll('.gap-input').forEach(blank => {
+                // Pass the blank element to the handler function
+                blank.addEventListener('click', () => handleGapBlankClick(blank));
+            });
+
+            initGaps(); // This builds the word bank initially
         });
     </script>
 </body>
