@@ -1,9 +1,9 @@
 // =========================================================
-// SERVICE WORKER: cool-dudes-lessons-cache-v11
-// FIX: Aggressive Fallback, Runtime Caching, and PATH NORMALIZATION
+// SERVICE WORKER: cool-dudes-lessons-cache-v12
+// FIX: Path Normalization with SYNTAX CORRECTION
 // =========================================================
 
-const CACHE_NAME = 'cool-dudes-lessons-cache-v11'; // *** BUMPED TO V11 ***
+const CACHE_NAME = 'cool-dudes-lessons-cache-v12'; // *** BUMPED TO V12 ***
 const FONT_CACHE_NAME = 'cool-dudes-font-cache'; 
 
 const urlsToCache = [
@@ -52,7 +52,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('[Service Worker] Caching app shell (V11)');
+        console.log('[Service Worker] Caching app shell (V12)');
         return cache.addAll(urlsToCache).catch((error) => {
           console.error('[Service Worker] Failed to cache resource:', error);
         });
@@ -105,9 +105,10 @@ self.addEventListener('fetch', (event) => {
           
           let path = requestURL.pathname;
           
-          // *** FIX: PATH NORMALIZATION *** if (path.endsWith('/') && path !== '/') {
+          // *** FIX: PATH NORMALIZATION (SYNTAX CORRECTED) ***
+          if (path.endsWith('/') && path !== '/') {
               path += 'index.html'; 
-          }
+          } // <--- CORRECTED BRACE IS HERE
           
           // 1. Try to match the normalized path (e.g., /business/index.html)
           const cachedFile = await caches.match(path, { ignoreSearch: true });
