@@ -1,16 +1,16 @@
 // =========================================================
-// SERVICE WORKER: cool-dudes-lessons-cache-v8
-// FIX: Separated Runtime Caching for Google Fonts
+// SERVICE WORKER: cool-dudes-lessons-cache-v9
+// FIX: Aggressive Fallback, Runtime Caching, and NEW FILENAME
 // =========================================================
 
-const CACHE_NAME = 'cool-dudes-lessons-cache-v8'; // *** BUMPED TO V8 ***
+const CACHE_NAME = 'cool-dudes-lessons-cache-v9'; // *** BUMPED TO V9 ***
 const FONT_CACHE_NAME = 'cool-dudes-font-cache'; // Separate cache for external fonts
 
 const urlsToCache = [
   '/', 
   '/index.html', // Essential for PWA offline launch
   
-  // External CSS (The browser will request the fonts from fonts.gstatic.com)
+  // External CSS
   'https://cdn.tailwindcss.com', 
   'https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap', 
   
@@ -52,7 +52,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('[Service Worker] Caching app shell (V8)');
+        console.log('[Service Worker] Caching app shell (V9)');
         return cache.addAll(urlsToCache).catch((error) => {
           console.error('[Service Worker] Failed to cache resource:', error);
         });
