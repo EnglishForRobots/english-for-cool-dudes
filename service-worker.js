@@ -1,12 +1,17 @@
-const CACHE_NAME = 'cool-dudes-lessons-cache-v5'; // BUMP THIS TO V5
+// =========================================================
+// SERVICE WORKER: cool-dudes-lessons-cache-v6
+// FIXES: Forced Update, Immediate Activation, Offline Launch
+// =========================================================
+
+const CACHE_NAME = 'cool-dudes-lessons-cache-v6'; // *** BUMPED TO V6 ***
 const urlsToCache = [
   '/', 
-  '/index.html', 
+  '/index.html', // Essential for PWA offline launch
   
   // External Resources - MUST be cached for styling to work offline
-  'https://cdn.tailwindcss.com', // Tailwind CSS Framework
-  'https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap', // Nunito Font CSS Link
-  'https://fonts.gstatic.com', // Needed by Google Fonts to load the font files themselves
+  'https://cdn.tailwindcss.com', 
+  'https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap', 
+  'https://fonts.gstatic.com', // Needed by Google Fonts
   
   // ALL LESSON & TOPIC PAGES
   '/drhammond/',
@@ -40,34 +45,27 @@ const urlsToCache = [
   '/favicon.png'
 ];
 
-// --- CONFIGURATION ---
-const CACHE_NAME = 'cool-dudes-lessons-cache-v5'; // *** BUMPED TO V5 ***
-const urlsToCache = [
-  '/', 
-  '/index.html', // Explicitly listing the starting file is crucial for PWAs
-  // Add all your other core HTML, CSS, JS, and font files here
-];
 
-
-// --- INSTALL EVENT: Saving all the core files ---
+// --- INSTALL EVENT: Skip waiting and cache all files ---
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('[Service Worker] Caching app shell');
+        console.log('[Service Worker] Caching app shell (V6)');
         return cache.addAll(urlsToCache).catch((error) => {
           console.error('[Service Worker] Failed to cache resource:', error);
         });
       })
-      // *** FIX 1: Immediately skip the waiting phase and activate ***
+      // FIX 1: Immediately skip the waiting phase and activate
       .then(() => self.skipWaiting()) 
   );
 });
 
-// --- FETCH EVENT: Serving the cached files first ---
+// --- FETCH EVENT: Serving the cached files first (with ignoreSearch fix) ---
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request)
+    // *** FIX 3: Ignore query strings (like ?pwa=1) for cache matching. ***
+    caches.match(event.request, { ignoreSearch: true }) 
       .then((response) => {
         // Cache-First Strategy
         if (response) {
@@ -80,7 +78,7 @@ self.addEventListener('fetch', (event) => {
 
 // --- ACTIVATE EVENT: Cleaning up old caches and claiming clients ---
 self.addEventListener('activate', (event) => {
-  // *** FIX 2: Immediately take control of existing tabs/windows ***
+  // FIX 2: Immediately take control of existing tabs/windows
   event.waitUntil(
     self.clients.claim()
   );
