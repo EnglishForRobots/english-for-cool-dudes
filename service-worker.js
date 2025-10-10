@@ -1,35 +1,43 @@
-const CACHE_NAME = 'cool-dudes-lessons-cache-v2'; // Bumped version to v2
+const CACHE_NAME = 'cool-dudes-lessons-cache-v4'; // *** IMPORTANT: BUMPED TO V4 ***
 const urlsToCache = [
   '/', 
   '/index.html', 
-  '/drhammond/',         // Dr Hammond
-  '/shopping/',        // Shopping
-  '/towns/',        // Towns
-  '/nationality/',    // Nationality
-  '/greetings/',    // Greetings
-  '/germany/',          // Germany
-  '/business/',           // Business Page
-  '/projectmanagement/',  // Project Management
-  '/agilework/',          // Agile Work
-  '/negotiations/',      // Negotiations
-  '/businessnew/',      // Communication
-  '/fintech/',      // FinTech
-  '/cbcr/',      // CbCR
-  '/taxavoidance/',  // Tax Avoidance
-  '/selfassessment/',  // Self Assessment
-  '/iplaw/',    // IP Law
-  '/legalpros/',    // Legal Pros
-  '/legalcontracts/',    // Legal Contracts
-  '/travel/',     // Travel
-  '/presentperfectpastsimple/',  // Present Perfect Past Simple
-  '/tax/',    // Tax
-  '/legal/',  // Legal
-  '/beginner/',  // Beginner
-  '/intermediate/',  // Intermediate
-  '/advanced/',  // Advanced
-  // Add other essential files below
-  '/styles.css',             // If you use a single main CSS file
-  '/favicon.png'             // Essential icon
+  
+  // External Resources - MUST be cached for styling to work offline
+  'https://cdn.tailwindcss.com', // Tailwind CSS Framework
+  'https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap', // Nunito Font CSS Link
+  'https://fonts.gstatic.com', // Needed by Google Fonts to load the font files themselves
+  
+  // ALL LESSON & TOPIC PAGES
+  '/drhammond/',
+  '/shopping/',
+  '/towns/',
+  '/nationality/',
+  '/greetings/',
+  '/germany/',
+  '/business/',
+  '/projectmanagement/',
+  '/agilework/',
+  '/negotiations/',
+  '/businessnew/',
+  '/fintech/',
+  '/cbcr/',
+  '/taxavoidance/',
+  '/selfassessment/',
+  '/iplaw/',
+  '/legalpros/',
+  '/legalcontracts/',
+  '/travel/',
+  '/presentperfectpastsimple/',
+  '/tax/',
+  '/legal/',
+  '/beginner/',
+  '/intermediate/',
+  '/advanced/',
+  
+  // Essential files
+  '/styles.css',
+  '/favicon.png'
 ];
 
 // --- INSTALL EVENT: Saving all the core files ---
@@ -38,7 +46,6 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('[Service Worker] Caching app shell');
-        // This caches all your key HTML files and assets for offline use
         return cache.addAll(urlsToCache).catch((error) => {
           console.error('[Service Worker] Failed to cache resource:', error);
         });
@@ -51,11 +58,9 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Return the cached file if it exists
         if (response) {
           return response;
         }
-        // If not in cache, go to the network
         return fetch(event.request);
       })
   );
