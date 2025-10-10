@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cool-dudes-lessons-cache-v4'; // *** IMPORTANT: BUMPED TO V4 ***
+const CACHE_NAME = 'cool-dudes-lessons-cache-v5'; // BUMP THIS TO V5
 const urlsToCache = [
   '/', 
   '/index.html', 
@@ -40,6 +40,15 @@ const urlsToCache = [
   '/favicon.png'
 ];
 
+// --- CONFIGURATION ---
+const CACHE_NAME = 'cool-dudes-lessons-cache-v5'; // *** BUMPED TO V5 ***
+const urlsToCache = [
+  '/', 
+  '/index.html', // Explicitly listing the starting file is crucial for PWAs
+  // Add all your other core HTML, CSS, JS, and font files here
+];
+
+
 // --- INSTALL EVENT: Saving all the core files ---
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -50,6 +59,8 @@ self.addEventListener('install', (event) => {
           console.error('[Service Worker] Failed to cache resource:', error);
         });
       })
+      // *** FIX 1: Immediately skip the waiting phase and activate ***
+      .then(() => self.skipWaiting()) 
   );
 });
 
@@ -58,6 +69,7 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
+        // Cache-First Strategy
         if (response) {
           return response;
         }
@@ -66,8 +78,14 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// --- ACTIVATE EVENT: Cleaning up old caches (important for updates) ---
+// --- ACTIVATE EVENT: Cleaning up old caches and claiming clients ---
 self.addEventListener('activate', (event) => {
+  // *** FIX 2: Immediately take control of existing tabs/windows ***
+  event.waitUntil(
+    self.clients.claim()
+  );
+
+  // Clean up old caches
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -75,6 +93,7 @@ self.addEventListener('activate', (event) => {
         cacheNames.map((cacheName) => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
             // Delete old, unused caches
+            console.log(`[Service Worker] Deleting old cache: ${cacheName}`);
             return caches.delete(cacheName);
           }
         })
