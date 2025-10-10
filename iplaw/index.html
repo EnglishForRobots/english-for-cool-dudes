@@ -833,6 +833,9 @@
         let userGapWords = new Array(gapAnswers.length).fill(null);
         let selectedGapWord = null; // Stores the currently selected word *element* from the bank
 
+        // FIX START: Define the definitive total number of questions (which is 6)
+        const totalGaps = gapAnswers.length; 
+        // FIX END
         
         // initGaps now only handles the dynamic word bank and content reset, not blank listeners.
         function initGaps() {
@@ -935,8 +938,11 @@
             const blanks = document.querySelectorAll('.gap-input');
             
             blanks.forEach(blank => {
-                // FIX: Use data-word-index for explicit answer matching and trim the content
                 const blankIndex = parseInt(blank.dataset.wordIndex);
+                
+                // FIX: Ignore rogue blanks (those with an index greater than or equal to totalGaps)
+                if (blankIndex >= totalGaps || isNaN(blankIndex)) return; 
+                
                 const word = blank.textContent.trim();
                 
                 const isCorrect = word && word.toLowerCase() === gapAnswers[blankIndex].toLowerCase();
@@ -952,12 +958,14 @@
             });
 
             const resultDiv = document.getElementById('gap-result');
-            if (correctCount === blanks.length) {
+            // FIX: Use totalGaps (6) for the final count comparison and the message
+            if (correctCount === totalGaps) { 
                 resultDiv.textContent = '🎉 Perfect! All answers are correct.';
                 resultDiv.classList.remove('incorrect');
                 resultDiv.classList.add('correct');
             } else {
-                resultDiv.textContent = `You got ${correctCount} out of ${blanks.length} correct. Check the red highlighted gaps and try again!`;
+                // FIX: Use totalGaps (6) in the message
+                resultDiv.textContent = `You got ${correctCount} out of ${totalGaps} correct. Check the red highlighted gaps and try again!`;
                 resultDiv.classList.remove('correct');
                 resultDiv.classList.add('incorrect');
             }
