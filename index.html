@@ -518,27 +518,17 @@
 <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
-            console.log('--- STARTING NUCLEAR SERVICE WORKER CLEANUP ---');
-
-            // *** NEW FIX: AGGRESSIVELY UNREGISTER ALL WORKERS ***
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                for(let registration of registrations) {
-                    console.log('Unregistering Service Worker:', registration.scope);
-                    registration.unregister();
-                }
-            }).finally(() => {
-                // Now register the correct, fixed worker (sw-v14.js)
-                // We add a random query string to the file path to bypass aggressive network caching.
-                const cacheBuster = `?v=${Date.now()}`;
-                navigator.serviceWorker.register('/sw-v14.js' + cacheBuster)
-                    .then(function(registration) {
-                        console.log('Service Worker v14 registration successful.');
-                    })
-                    .catch(function(err) {
-                        console.log('Service Worker registration failed: ', err);
+            navigator.serviceWorker.register('/sw-v18.js')
+                .then(function(registration) {
+                    console.log('✓ Service Worker v18 registered successfully');
+                    
+                    registration.addEventListener('updatefound', function() {
+                        console.log('New service worker version found, updating...');
                     });
-            });
-            // *** END NUCLEAR FIX ***
+                })
+                .catch(function(err) {
+                    console.error('✗ Service Worker registration failed:', err);
+                });
         });
     }
 </script>
