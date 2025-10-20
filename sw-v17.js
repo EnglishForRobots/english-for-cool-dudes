@@ -1,9 +1,9 @@
 // =========================================================
-// SERVICE WORKER: cool-dudes-lessons-cache-v16
+// SERVICE WORKER: cool-dudes-lessons-cache-v17
 // Pre-caches ALL pages on first visit for full offline access
 // =========================================================
 
-const CACHE_NAME = 'cool-dudes-lessons-cache-v16';
+const CACHE_NAME = 'cool-dudes-lessons-cache-v17';
 const FONT_CACHE_NAME = 'cool-dudes-font-cache-v2';
 
 // List of all HTML pages to pre-cache
@@ -35,7 +35,8 @@ const htmlPages = [
   '/intermediate/',
   '/advanced/',
   '/chat-landing-page.html',
-  '/fortunecookies/'
+  '/fortunecookies/',
+  '/undeclaredwork/'
 ];
 
 // Essential assets
@@ -52,23 +53,23 @@ const essentialAssets = [
 
 // --- INSTALL EVENT: Pre-cache everything ---
 self.addEventListener('install', (event) => {
-  console.log('[SW v16] Installing and pre-caching ALL pages...');
+  console.log('[SW v17] Installing and pre-caching ALL pages...');
   
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(async (cache) => {
         // First, cache essential assets
-        console.log('[SW v16] Caching essential assets...');
+        console.log('[SW v17] Caching essential assets...');
         await Promise.all(
           essentialAssets.map(url => 
             cache.add(url).catch(err => 
-              console.warn('[SW v16] Failed to cache:', url, err)
+              console.warn('[SW v17] Failed to cache:', url, err)
             )
           )
         );
         
         // Then, cache all HTML pages
-        console.log('[SW v16] Pre-caching all lesson pages...');
+        console.log('[SW v17] Pre-caching all lesson pages...');
         let successCount = 0;
         let failCount = 0;
         
@@ -85,18 +86,18 @@ self.addEventListener('install', (event) => {
               }
               
               successCount++;
-              console.log(`[SW v16] ✓ Cached: ${page} (${successCount}/${htmlPages.length})`);
+              console.log(`[SW v17] ✓ Cached: ${page} (${successCount}/${htmlPages.length})`);
             }
           } catch (err) {
             failCount++;
-            console.warn(`[SW v16] ✗ Failed: ${page}`, err);
+            console.warn(`[SW v17] ✗ Failed: ${page}`, err);
           }
         }
         
-        console.log(`[SW v16] Pre-caching complete: ${successCount} success, ${failCount} failed`);
+        console.log(`[SW v17] Pre-caching complete: ${successCount} success, ${failCount} failed`);
       })
       .then(() => {
-        console.log('[SW v16] Installation complete, taking control...');
+        console.log('[SW v17] Installation complete, taking control...');
         return self.skipWaiting();
       })
   );
@@ -150,7 +151,7 @@ self.addEventListener('fetch', (event) => {
         for (const tryPath of uniquePaths) {
           const cached = await caches.match(tryPath, { ignoreSearch: true });
           if (cached) {
-            console.log('[SW v16] Serving from cache:', tryPath);
+            console.log('[SW v17] Serving from cache:', tryPath);
             
             // Update cache in background (stale-while-revalidate)
             fetch(event.request)
@@ -169,7 +170,7 @@ self.addEventListener('fetch', (event) => {
         
         // Not in cache, try network
         try {
-          console.log('[SW v16] Fetching from network:', path);
+          console.log('[SW v17] Fetching from network:', path);
           const networkResponse = await fetch(event.request);
           
           if (networkResponse.ok) {
@@ -179,7 +180,7 @@ self.addEventListener('fetch', (event) => {
           
           return networkResponse;
         } catch (error) {
-          console.log('[SW v16] Network failed, no cache available');
+          console.log('[SW v17] Network failed, no cache available');
           return new Response('Offline - Page not available', {
             status: 503,
             statusText: 'Service Unavailable',
@@ -213,7 +214,7 @@ self.addEventListener('fetch', (event) => {
 
 // --- ACTIVATE EVENT ---
 self.addEventListener('activate', (event) => {
-  console.log('[SW v16] Activating...');
+  console.log('[SW v17] Activating...');
   const cacheWhitelist = [CACHE_NAME, FONT_CACHE_NAME];
   
   event.waitUntil(
@@ -221,13 +222,13 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (!cacheWhitelist.includes(cacheName)) {
-            console.log('[SW v16] Deleting old cache:', cacheName);
+            console.log('[SW v17] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     }).then(() => {
-      console.log('[SW v16] Claiming clients');
+      console.log('[SW v17] Claiming clients');
       return self.clients.claim();
     })
   );
