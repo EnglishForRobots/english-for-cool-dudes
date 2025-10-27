@@ -287,7 +287,89 @@
             margin: 0;
             line-height: 1.6;
         }
+        
+        /* --- Ticker/Latest Updates Pop-up --- */
+        #latest-updates-ticker {
+            position: fixed;
+            top: 20px; 
+            right: 50%; /* Align with screen center */
+            margin-right: -580px; /* Push it 580px right: (1200px/2) - 20px padding */
+            z-index: 1000; /* Above everything else */
+            cursor: pointer;
+        }
 
+        .ticker-badge {
+            background: #FFC107; /* Amber/Accent color */
+            color: #92400E; /* Dark brown text for contrast */
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 800;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, background-color 0.2s;
+            border: 2px solid #F59E0B;
+            animation: pulse 2s infinite ease-in-out; /* Add pulse animation */
+        }
+        
+        /* Keyframe animation for pulse */
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
+            50% { transform: scale(1.03); box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.6); } /* Soft yellow ring glow */
+            100% { transform: scale(1); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
+        }
+
+        .ticker-badge:hover {
+            background: #FFD54F;
+            transform: scale(1.05);
+            animation: none; /* Stop pulsing on hover */
+        }
+
+        .ticker-popup {
+            position: absolute;
+            right: 0;
+            top: 50px; /* Position below the badge */
+            width: 280px;
+            background: #FFFFFF;
+            border: 1px solid #E5E9F2;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
+        }
+
+        #latest-updates-ticker:hover .ticker-popup {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .popup-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #667EEA;
+            margin-bottom: 8px;
+            border-bottom: 1px dashed #E5E9F2;
+            padding-bottom: 5px;
+        }
+
+        .popup-link {
+            display: block;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1A5E7F; /* Dark blue/Primary color */
+            text-decoration: none;
+            padding: 5px 0;
+            transition: color 0.1s;
+        }
+
+        .popup-link:hover {
+            color: #2980B9;
+            text-decoration: underline;
+        }
+        
         /* Footer */
         .footer {
             background: #FFFFFF;
@@ -329,6 +411,14 @@
             }
         }
 
+        /* NEW: Fallback for screens where content is not max-width centered (1240px = 1200px content + 2*20px padding) */
+        @media (max-width: 1240px) {
+            #latest-updates-ticker {
+                right: 20px; /* Fall back to fixed 20px from viewport edge */
+                margin-right: 0; 
+            }
+        }
+
         @media (max-width: 480px) {
             .header-content {
                 gap: 10px;
@@ -350,11 +440,22 @@
             .course-body {
                 padding: 20px;
             }
+            
+            #latest-updates-ticker {
+                top: 10px;
+                right: 10px;
+            }
+            .ticker-badge {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+            .ticker-popup {
+                width: 250px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <header class="header">
         <div class="header-content">
             <span class="logo">😎</span>
@@ -362,16 +463,29 @@
         </div>
     </header>
 
-    <!-- Main Content -->
+    <div id="latest-updates-ticker">
+        <div 
+            class="ticker-badge"
+            data-text-a="✨ NEW!" 
+            data-text-b="😎 Change Management"
+        >
+            ✨ NEW!
+        </div>
+        <div class="ticker-popup">
+            <p class="popup-title">Latest Lesson Added</p>
+            <a href="/crocs/" class="popup-link">
+                🐊 Crocs' China Strategy: A Marketing Masterclass
+            </a>
+        </div>
+    </div>
+
     <main class="container">
         
 
-        <!-- Info Box -->
         <div class="info-box">
             <p>💡 All courses work great on smartphones! Learn anytime, anywhere.</p>
         </div>
 
-        <!-- Specialized English Section -->
         <section class="section">
             <div class="section-header">
                 <span class="section-icon">💼</span>
@@ -431,7 +545,6 @@
             </div>
         </section>
 
-        <!-- General English Section -->
         <section class="section">
             <div class="section-header">
                 <span class="section-icon">📖</span>
@@ -491,7 +604,6 @@
             </div>
         </section>
 
-        <!-- Quick Links -->
         <section class="section">
             <div class="section-header">
                 <span class="section-icon">⚡</span>
@@ -511,7 +623,6 @@
         </section>
     </main>
 
-    <!-- Footer -->
     <footer class="footer">
         <p class="footer-text">© 2025 English For Cool Dudes - Learn British English effectively</p>
     </footer>
@@ -542,6 +653,40 @@
         console.log('💡 Install prompt is ready!');
         // Here you could show a custom "Install App" button
     });
+    
+    // NEW: Ticker Flashing/Text Switch Logic
+    function startTickerAnimation() {
+        const badge = document.querySelector('.ticker-badge');
+        if (!badge) return;
+
+        const textA = badge.getAttribute('data-text-a');
+        const textB = badge.getAttribute('data-text-b');
+        let isTextA = true;
+
+        // Set the badge to pulse between the two texts every 3.5 seconds
+        setInterval(() => {
+            // Use a quick fade transition for smooth swapping
+            badge.style.transition = 'opacity 0.1s, transform 0.2s, background-color 0.2s';
+            badge.style.opacity = 0; 
+
+            setTimeout(() => {
+                badge.textContent = isTextA ? textB : textA;
+                isTextA = !isTextA;
+                badge.style.opacity = 1; 
+            }, 100); // Wait for fade out, then swap text and fade in
+        }, 3500); // Switch every 3.5 seconds
+        
+        // Ensure the pulse animation is removed when the user hovers to read the title
+        badge.addEventListener('mouseenter', () => {
+            badge.style.animation = 'none';
+        });
+        badge.addEventListener('mouseleave', () => {
+            badge.style.animation = 'pulse 2s infinite ease-in-out';
+        });
+    }
+
+    // Call this function when the DOM is loaded
+    document.addEventListener('DOMContentLoaded', startTickerAnimation);
 </script>
 </body>
 </html>
