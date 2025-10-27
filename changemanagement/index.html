@@ -12,8 +12,9 @@
         /* --- BRANDING & LAYOUT STYLES --- */
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
         :root {
-            --color-primary: #1A5E7F; /* Deep Blue (Main Branding) */
-            --color-secondary: #28A745; /* Success Green/Teal (Success) */
+            --color-primary: #1A5E7F; /* Deep Blue (Words/Main Branding) */
+            --color-secondary: #28A745; /* Success Green/Teal (Success Feedback) */
+            --color-tertiary: #667EEA; /* Indigo/Violet (Definitions - Matches Logo) */
             --color-accent: #FFC107; /* Amber/Highlight (Selection) */
             --color-background: #F8F9FB; /* Light Gray-Blue */
             --color-text: #2C3E50; /* Dark Blue-Gray */
@@ -112,20 +113,32 @@
         
         /* --- MATCHING STYLES --- */
         .matching-item, .matching-target {
-            padding: 0.75rem 1rem;
-            margin: 0.5rem 0;
+            padding: 0.9rem 1.2rem; 
+            margin: 0.6rem 0;
             cursor: pointer;
-            border-radius: 0.375rem;
+            border-radius: 10px; 
             transition: all 0.2s;
             border: 2px solid #E0E0E0;
-            font-weight: 600;
+            font-weight: 700; 
             user-select: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+            text-align: left;
+            display: flex;
+            align-items: center;
         }
-        .matching-item { background-color: #f0f8ff; border-left: 5px solid var(--color-primary); }
-        .matching-target { background-color: #f7fff5; border-right: 5px solid var(--color-secondary); text-align: left; }
+        .matching-item { 
+            background-color: #e6f1f8; 
+            border: 2px solid #99c2da; 
+            border-left: 6px solid var(--color-primary); 
+        }
+        .matching-target { 
+            background-color: #edeaff; 
+            border: 2px solid #c0c9ff; 
+            border-right: 6px solid var(--color-tertiary); 
+        }
         .selected-item, .selected-target { 
-            box-shadow: 0 0 0 3px var(--color-accent); 
-            transform: translateY(-2px); 
+            box-shadow: 0 0 0 4px var(--color-accent); 
+            transform: translateY(-2px) scale(1.01); 
             border-color: var(--color-accent) !important; 
         }
         .incorrect-flash {
@@ -155,6 +168,62 @@
         .matched-color-4 { background-color: #fffbeb !important; color: #b45309 !important; border-color: #f59e0b !important; }
         .matched-color-4.matching-item { border-left: 5px solid #f59e0b !important; border-right: 2px solid #f59e0b !important; }
         .matched-color-4.matching-target { border-right: 5px solid #f59e0b !important; border-left: 2px solid #f59e0b !important; }
+        /* Added more colors for Activity D (7 pairs) */
+        .matched-color-5 { background-color: #c3e6cb !important; color: #28a745 !important; border-color: #28a745 !important; }
+        .matched-color-5.matching-item { border-left: 5px solid #28a745 !important; border-right: 2px solid #28a745 !important; }
+        .matched-color-5.matching-target { border-right: 5px solid #28a745 !important; border-left: 2px solid #28a745 !important; }
+        .matched-color-6 { background-color: #e0f2fe !important; color: #0c4a6e !important; border-color: #38bdf8 !important; }
+        .matched-color-6.matching-item { border-left: 5px solid #38bdf8 !important; border-right: 2px solid #38bdf8 !important; }
+        .matched-color-6.matching-target { border-right: 5px solid #38bdf8 !important; border-left: 2px solid #38bdf8 !important; }
+
+
+        /* --- DICTIONARY STYLES (UPDATED) --- */
+        .dict-word {
+            text-decoration: none; /* Remove dotted underline */
+            cursor: pointer;
+            font-weight: 800; /* Make them bold */
+            color: #0F4C6B; /* Darker blue color for clarity */
+            transition: color 0.1s;
+        }
+        .dict-word:hover {
+            color: var(--color-primary); /* Use primary blue on hover */
+        }
+
+        #dictionary-popup {
+            position: absolute;
+            z-index: 1010;
+            background-color: white;
+            border: 2px solid var(--color-tertiary);
+            border-radius: 8px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            max-width: 300px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+        }
+        #dictionary-popup.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        #dict-close {
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            cursor: pointer;
+            font-weight: 900;
+            color: #c0392b;
+            font-size: 1.2em;
+        }
+        #dict-word-title {
+            font-weight: 800;
+            color: var(--color-tertiary);
+            margin-bottom: 5px;
+            text-transform: capitalize;
+            border-bottom: 1px dashed #E5E9F2;
+            padding-bottom: 3px;
+        }
+
 
         /* --- MULTIPLE CHOICE STYLES --- */
         .mc-option {
@@ -245,6 +314,13 @@
 </header>
 
 <div class="container-main">
+    
+    <div id="dictionary-popup" class="text-sm">
+        <div id="dict-close">✖</div>
+        <div id="dict-word-title"></div>
+        <div id="dict-definition"></div>
+    </div>
+
 
     <header class="text-center pb-8 border-b border-gray-200">
         <p class="text-lg font-medium text-gray-500 mb-2">Essential Business English for Organizational Success</p>
@@ -255,35 +331,22 @@
 
     <section class="mt-8">
         <h2 class="text-2xl font-bold section-title mb-4">Exercise A: Core Terminology (Matching)</h2>
-        <p class="mb-4 text-gray-600">Match the key term to its correct definition. (6 Pairs)</p>
-        <div id="matching-a" class="lesson-section p-6 rounded-lg grid grid-cols-2 gap-6 shadow-md">
-            <div id="terms-list-a" class="space-y-4">
-                <div class="matching-item" data-term="Business case" data-match-group="A">Business case</div>
-                <div class="matching-item" data-term="Stakeholder" data-match-group="A">Stakeholder</div>
-                <div class="matching-item" data-term="Resistance" data-match-group="A">Resistance</div>
-                <div class="matching-item" data-term="Disruption" data-match-group="A">Disruption</div>
-                <div class="matching-item" data-term="Reinforcement" data-match-group="A">Reinforcement</div>
-                <div class="matching-item" data-term="Sustainable" data-match-group="A">Sustainable</div>
-            </div>
-            <div id="definitions-list-a" class="space-y-4">
-                <div class="matching-target" data-answer="Reinforcement" data-match-group="A">The action of strengthening or encouraging an idea, behavior, or belief.</div>
-                <div class="matching-target" data-answer="Business case" data-match-group="A">A document outlining the justification for a proposed project on the basis of its expected commercial benefit.</div>
-                <div class="matching-target" data-answer="Sustainable" data-match-group="A">Able to be maintained at a certain rate or level; the long-term goal of the Refreeze stage.</div>
-                <div class="matching-target" data-answer="Stakeholder" data-match-group="A">Any person or group that has an interest in or can be affected by the organization's actions.</div>
-                <div class="matching-target" data-answer="Disruption" data-match-group="A">A major break or disturbance to the continuity of a process or activity.</div>
-                <div class="matching-target" data-answer="Resistance" data-match-group="A">Opposition or refusal to accept something new or different, often encountered in the unfreeze stage.</div>
-            </div>
+        <p class="mb-4 text-gray-600">Match the key term to its correct definition. **Words** are highlighted in **blue**; **Definitions** are highlighted in **indigo**.</p>
+        <div id="matching-a" class="lesson-section p-6 rounded-lg shadow-md">
+            <div id="mixed-list-a" class="flex flex-col gap-3">
+                </div>
         </div>
         <div id="matching-a-feedback" class="mt-4 p-3 rounded-lg text-center font-semibold hidden"></div>
     </section>
 
     <section class="mt-8">
         <h2 class="text-2xl font-bold section-title mb-4">Reading: Lewin's Three Phases of Change</h2>
-        <div class="lesson-section p-6 rounded-lg shadow-md">
-            <p class="mb-4 text-gray-700">Change management is a structured approach for ensuring that changes are implemented smoothly and successfully within an organization. A classic model for understanding change is Kurt Lewin's Three-Step Model: **Unfreeze**, **Change**, and **Refreeze**.</p>
-            <p class="mb-4 text-gray-700">The **Unfreeze** stage involves preparing people for change by communicating why the change is necessary and dissolving old habits or ways of thinking. This often requires addressing employee <span>resistance</span> and building a strong <span>business case</span> for the transition.</p>
-            <p class="mb-4 text-gray-700">The **Change** stage is the implementation phase itself, where the new processes, systems, or structures are introduced. Effective <span>communication</span> and <span>stakeholder</span> engagement are crucial here. Training and support systems must be robust to mitigate <span>disruption</span>.</p>
-            <p class="mb-4 text-gray-700">The **Refreeze** stage solidifies the change into the organizational culture. This includes reinforcing the new behaviors through positive <span>reinforcement</span> and celebrating small wins, ensuring the change is <span>sustainable</span>.</p>
+        <p class="mb-4 text-gray-600 font-semibold">💡 Tap or click the <strong style="color: #0F4C6B;">bolded words</strong> in the text below to reveal definitions.</p>
+        <div id="reading-text" class="lesson-section p-6 rounded-lg shadow-md">
+            <p class="mb-4 text-gray-700">Change management is a <span class="dict-word" data-word="structured approach">structured approach</span> for ensuring that changes are implemented <span class="dict-word" data-word="smoothly">smoothly</span> and successfully within an organization. A classic model for understanding change is Kurt Lewin's Three-Step Model: **Unfreeze**, **Change**, and **Refreeze**.</p>
+            <p class="mb-4 text-gray-700">The **Unfreeze** stage involves preparing people for change by communicating why the change is necessary and <span class="dict-word" data-word="dissolving">dissolving</span> old <span class="dict-word" data-word="habits">habits</span> or ways of thinking. This often requires addressing employee <span>resistance</span> and building a strong <span>business case</span> for the transition.</p>
+            <p class="mb-4 text-gray-700">The **Change** stage is the implementation phase itself, where the new processes, systems, or structures are introduced. Effective <span>communication</span> and <span>stakeholder</span> engagement are <span class="dict-word" data-word="crucial">crucial</span> here. Training and support systems must be robust to <span class="dict-word" data-word="mitigate">mitigate</span> <span>disruption</span>.</p>
+            <p class="mb-4 text-gray-700">The **Refreeze** stage solidifies the change into the organizational culture. This includes <span class="dict-word" data-word="reinforcing">reinforcing</span> the new behaviors through positive <span>reinforcement</span> and celebrating small wins, ensuring the change is <span>sustainable</span>.</p>
         </div>
     </section>
 
@@ -316,25 +379,9 @@
     <section class="mt-8">
         <h2 class="text-2xl font-bold section-title mb-4">Exercise D: Change Management Idioms (Definitions)</h2>
         <p class="mb-4 text-gray-600">Match these common idioms and phrases used when discussing change to their meanings. (7 Pairs)</p>
-        <div id="matching-d" class="lesson-section p-6 rounded-lg grid grid-cols-2 gap-6 shadow-md">
-            <div id="terms-list-d" class="space-y-4">
-                <div class="matching-item" data-term="buy-in" data-match-group="D">Buy-in</div>
-                <div class="matching-item" data-term="on board" data-match-group="D">On board</div>
-                <div class="matching-item" data-term="take the plunge" data-match-group="D">Take the plunge</div>
-                <div class="matching-item" data-term="quick win" data-match-group="D">Quick win</div>
-                <div class="matching-item" data-term="move the goalposts" data-match-group="D">Move the goalposts</div>
-                <div class="matching-item" data-term="heavy lifting" data-match-group="D">Heavy lifting</div>
-                <div class="matching-item" data-term="sea change" data-match-group="D">Sea change</div>
-            </div>
-            <div id="definitions-list-d" class="space-y-4">
-                <div class="matching-target" data-answer="heavy lifting" data-match-group="D">The most difficult or demanding part of a task or project.</div>
-                <div class="matching-target" data-answer="quick win" data-match-group="D">A small, easily achievable success that builds morale and confidence.</div>
-                <div class="matching-target" data-answer="sea change" data-match-group="D">A fundamental, far-reaching shift in perspective or attitude.</div>
-                <div class="matching-target" data-answer="on board" data-match-group="D">Fully involved, supportive, or in agreement.</div>
-                <div class="matching-target" data-answer="move the goalposts" data-match-group="D">To unfairly change the rules or criteria of a process while it is still in progress.</div>
-                <div class="matching-target" data-answer="buy-in" data-match-group="D">Agreement or acceptance of a decision or plan.</div>
-                <div class="matching-target" data-answer="take the plunge" data-match-group="D">To decide to do something difficult or important after thinking about it for a long time.</div>
-            </div>
+        <div id="matching-d" class="lesson-section p-6 rounded-lg shadow-md">
+            <div id="mixed-list-d" class="flex flex-col gap-3">
+                </div>
         </div>
         <div id="matching-d-feedback" class="mt-4 p-3 rounded-lg text-center font-semibold hidden"></div>
     </section>
@@ -342,7 +389,7 @@
     <section class="mt-8">
         <h2 class="text-2xl font-bold section-title mb-4">Exercise E: Conversation Practice (Using Idioms)</h2>
         <p class="mb-4 text-gray-600">Select the best idiom or phrase to fill the gaps in the following conversation. (7 Gaps, 7 Words)</p>
-         
+         
         <div id="conversation-options-e" class="flex flex-wrap gap-2 mb-6 p-4 bg-gray-200 rounded-lg shadow-inner">
             <div class="conversation-option" data-word="move the goalposts">move the goalposts</div>
             <div class="conversation-option" data-word="take the plunge">take the plunge</div>
@@ -350,17 +397,17 @@
             <div class="conversation-option" data-word="buy-in">buy-in</div>
             <div class="conversation-option" data-word="quick win">quick win</div>
             <div class="conversation-option" data-word="on board">on board</div>
-            <div class="conversation-option" data-word="heavy lifting">heavy lifting</div>
+            <div class="conversation-option" data-word="the heavy lifting">the heavy lifting</div>
             
         </div>
 
         <div class="lesson-section p-6 rounded-lg text-lg shadow-md">
             <div class="gap-fill-text">
-                <p class="mb-4"><strong style="color: var(--color-primary);">PM:</strong> To get full <span class="gap" data-answer="buy-in" data-word-bank="conversation-options-e"></span> from the team, we need to show them the new system is an actual improvement.</p>
+                <p class="mb-4"><strong style="color: var(--color-primary);">Mary:</strong> To get full <span class="gap" data-answer="buy-in" data-word-bank="conversation-options-e"></span> from the team, we need to show them the new system is an actual improvement.</p>
                 <p class="mb-4"><strong style="color: #E74C3C;">Sarah:</strong> I agree. We need to make sure everyone is <span class="gap" data-answer="on board" data-word-bank="conversation-options-e"></span> before we <span class="gap" data-answer="take the plunge" data-word-bank="conversation-options-e"></span> and launch the new software.</p>
-                <p class="mb-4"><strong style="color: var(--color-primary);">PM:</strong> Also, let's focus on a <span class="gap" data-answer="quick win" data-word-bank="conversation-options-e"></span> first—a small, visible success to build momentum.</p>
+                <p class="mb-4"><strong style="color: var(--color-primary);">Mary:</strong> Also, let's focus on a <span class="gap" data-answer="quick win" data-word-bank="conversation-options-e"></span> first—a small, visible success to build momentum.</p>
                 <p class="mb-4"><strong style="color: #E74C3C;">Sarah:</strong> Good idea. But what if the client tries to <span class="gap" data-answer="move the goalposts" data-word-bank="conversation-options-e"></span> again after we start?</p>
-                <p class="mb-4"><strong style="color: var(--color-primary);">PM:</strong> We have to manage scope carefully. Our biggest challenge is doing the <span class="gap" data-answer="heavy lifting" data-word-bank="conversation-options-e"></span>—the core structural changes.</p>
+                <p class="mb-4"><strong style="color: var(--color-primary);">Mary:</strong> We have to manage this carefully. Our biggest challenge is doing <span class="gap" data-answer="the heavy lifting" data-word-bank="conversation-options-e"></span>—the core structural changes.</p>
                 <p class="mb-4"><strong style="color: #E74C3C;">Sarah:</strong> Well, if we succeed, this will represent a <span class="gap" data-answer="sea change" data-word-bank="conversation-options-e"></span> in how we operate.</p>
             </div>
         </div>
@@ -380,6 +427,15 @@
 <div id="fixed-popup" class="fixed-popup"></div>
 
 <script>
+    // --- UTILITY: Shuffle function ---
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+    
     // --- CENTRALIZED POPUP FEEDBACK (User specified messages) ---
     function showPopup(isCorrect, messageOverride = null) {
         const popup = document.getElementById('fixed-popup');
@@ -388,107 +444,228 @@
         popup.classList.remove('success', 'error', 'show');
 
         if (isCorrect) {
-            popup.textContent = messageOverride || "Don't Change! Correct! ⏰";
+            popup.textContent = messageOverride || "Don't Change! Correct! 🎉";
             popup.classList.add('success');
         } else {
-            popup.textContent = messageOverride || "Incorrect! Change! Adapt! Go Again! ⏰";
+            popup.textContent = messageOverride || "Incorrect! Change! Adapt! Go Again! ❌";
             popup.classList.add('error');
         }
         
         popup.classList.add('show');
         
+        // **UPDATED DURATION: 2.5 SECONDS**
         setTimeout(() => {
             popup.classList.remove('show');
-        }, 1500);
+        }, 2500); // Increased from 1500ms
     }
 
-    // --- MATCHING LOGIC ---
-    const MATCHING_COLORS = ['matched-color-0', 'matched-color-1', 'matched-color-2', 'matched-color-3', 'matched-color-4', 'matched-color-5'];
-    let colorIndex = 0;
+    // --- DICTIONARY DATA ---
+    const DICTIONARY_WORDS = {
+        'structured approach': 'A method or strategy that is carefully organized, planned, and systematically executed.',
+        'smoothly': 'Happening without any problems, delays, or difficulties; fluidly.',
+        'dissolving': 'Breaking up, melting away, or bringing something (like old processes or habits) to an end.',
+        'habits': 'Settled ways of behaving that a person or group regularly follows, often subconsciously.',
+        'crucial': 'Extremely important or necessary; vital.',
+        'mitigate': 'To make a negative situation less severe, serious, or painful; to lessen the impact of.',
+        'reinforcing': 'The act of strengthening or encouraging an idea, behavior, or belief, making it more certain or effective.'
+    };
+    
+    function initializeDictionary() {
+        const popup = document.getElementById('dictionary-popup');
+        const readingArea = document.getElementById('reading-text');
+        
+        if (!readingArea) return;
 
-    function setupMatching(containerId) {
-        const container = document.getElementById(containerId);
-        let selectedItem = null;
-        let selectedTarget = null;
-        const items = container.querySelectorAll('.matching-item, .matching-target');
+        // Hide pop-up when clicking anywhere else
+        document.addEventListener('click', (event) => {
+            if (!popup.contains(event.target) && !event.target.classList.contains('dict-word')) {
+                popup.classList.remove('visible');
+            }
+        });
+        
+        // Close button functionality
+        document.getElementById('dict-close').addEventListener('click', () => {
+            popup.classList.remove('visible');
+        });
 
-        items.forEach(item => {
-            item.addEventListener('click', () => {
-                if (item.classList.contains('matched')) return;
+        // Add click listeners to all dictionary words
+        readingArea.querySelectorAll('.dict-word').forEach(wordSpan => {
+            wordSpan.addEventListener('click', (event) => {
+                event.stopPropagation(); // Prevent document click listener from immediately hiding it
+                const word = event.target.dataset.word;
+                const definition = DICTIONARY_WORDS[word];
+                
+                if (definition) {
+                    document.getElementById('dict-word-title').textContent = word;
+                    document.getElementById('dict-definition').textContent = definition;
+                    
+                    // Positioning logic
+                    const rect = event.target.getBoundingClientRect();
+                    const containerRect = document.querySelector('.container-main').getBoundingClientRect();
+                    
+                    // Calculate position relative to the main container
+                    let top = (rect.top - containerRect.top) + rect.height + 10;
+                    let left = (rect.left - containerRect.left);
 
-                const isItem = item.classList.contains('matching-item');
-                const isTarget = item.classList.contains('matching-target');
-
-                // Deselect logic
-                if (isItem && item === selectedItem) {
-                    item.classList.remove('selected-item');
-                    selectedItem = null;
-                    return;
-                }
-                if (isTarget && item === selectedTarget) {
-                    item.classList.remove('selected-target');
-                    selectedTarget = null;
-                    return;
-                }
-
-                // Selection logic
-                if (isItem) {
-                    if (selectedItem) selectedItem.classList.remove('selected-item');
-                    selectedItem = item;
-                    item.classList.add('selected-item');
-                } else if (isTarget) {
-                    if (selectedTarget) selectedTarget.classList.remove('selected-target');
-                    selectedTarget = item;
-                    item.classList.add('selected-target');
-                }
-
-                // Check for match
-                if (selectedItem && selectedTarget) {
-                    const term = selectedItem.dataset.term;
-                    const answer = selectedTarget.dataset.answer;
-                    const groupA = selectedItem.dataset.matchGroup;
-                    const groupB = selectedTarget.dataset.matchGroup;
-
-                    if (groupA !== groupB) {
-                        selectedItem.classList.remove('selected-item');
-                        selectedTarget.classList.remove('selected-target');
-                        selectedItem = null;
-                        selectedTarget = null;
-                        return;
+                    // Basic viewport boundary check (preventing it from going off the right side)
+                    if (left + popup.offsetWidth > containerRect.width - 20) {
+                        left = containerRect.width - popup.offsetWidth - 20;
+                    }
+                    if (left < 10) {
+                        left = 10;
                     }
 
-                    if (term === answer) {
-                        // Correct Match
-                        const colorClass = MATCHING_COLORS[colorIndex % MATCHING_COLORS.length];
-                        
-                        selectedItem.classList.remove('selected-item');
-                        selectedTarget.classList.remove('selected-target');
+                    popup.style.top = `${top}px`;
+                    popup.style.left = `${left}px`;
+                    popup.classList.add('visible');
 
-                        selectedItem.classList.add('matched', colorClass);
-                        selectedTarget.classList.add('matched', colorClass);
-                        
-                        showPopup(true);
-
-                        selectedItem = null;
-                        selectedTarget = null;
-                        colorIndex++;
-                        
-                    } else {
-                        // Incorrect Match 
-                        selectedItem.classList.add('incorrect-flash');
-                        selectedTarget.classList.add('incorrect-flash');
-
-                        showPopup(false); 
-
-                        setTimeout(() => {
-                            selectedItem.classList.remove('selected-item', 'incorrect-flash');
-                            selectedTarget.classList.remove('selected-target', 'incorrect-flash');
-                            selectedItem = null; 
-                            selectedTarget = null;
-                        }, 500); 
-                    }
+                } else {
+                    popup.classList.remove('visible');
                 }
             });
+        });
+    }
+
+    // --- MATCHING DATA & LOGIC ---
+    const MATCHING_COLORS = ['matched-color-0', 'matched-color-1', 'matched-color-2', 'matched-color-3', 'matched-color-4', 'matched-color-5', 'matched-color-6'];
+    
+    const VOCAB_PAIRS_A = [
+        { id: 1, type: 'item', text: 'Business case', answer: 'A document outlining the justification for a proposed project on the basis of its expected commercial benefit.' },
+        { id: 2, type: 'item', text: 'Stakeholder', answer: 'Any person or group that has an interest in or can be affected by the organization\'s actions.' },
+        { id: 3, type: 'item', text: 'Resistance', answer: 'Opposition or refusal to accept something new or different, often encountered in the unfreeze stage.' },
+        { id: 4, type: 'item', text: 'Disruption', answer: 'A major break or disturbance to the continuity of a process or activity.' },
+        { id: 5, type: 'item', text: 'Reinforcement', answer: 'The action of strengthening or encouraging an idea, behavior, or belief.' },
+        { id: 6, type: 'item', text: 'Sustainable', answer: 'Able to be maintained at a certain rate or level; the long-term goal of the Refreeze stage.' }
+    ];
+
+    const VOCAB_PAIRS_D = [
+        { id: 7, type: 'item', text: 'buy-in', answer: 'Agreement or acceptance of a decision or plan.' },
+        { id: 8, type: 'item', text: 'on board', answer: 'Fully involved, supportive, or in agreement.' },
+        { id: 9, type: 'item', text: 'take the plunge', answer: 'To decide to do something difficult or important after thinking about it for a long time.' },
+        { id: 10, type: 'item', text: 'quick win', answer: 'A small, easily achievable success that builds morale and confidence.' },
+        { id: 11, type: 'item', text: 'move the goalposts', answer: 'To unfairly change the rules or criteria of a process while it is still in progress.' },
+        { id: 12, type: 'item', text: 'the heavy lifting', answer: 'The most difficult or demanding part of a task or project.' },
+        { id: 13, type: 'item', text: 'sea change', answer: 'A fundamental, far-reaching shift in perspective or attitude.' }
+    ];
+
+    // NEW: Define the total pairs for each activity based on the data arrays
+    const TOTAL_PAIRS = {
+        'matching-a': VOCAB_PAIRS_A.length, 
+        'matching-d': VOCAB_PAIRS_D.length  
+    };
+
+    let selectedItem = null; // Used by both A and D for selection state
+
+    // NEW MATCHING LOGIC FOR MIXED SCROLL (Activity A and D) with completion check
+    function handleMatchAttempt(currentItem) {
+        if (currentItem.classList.contains('matched')) return;
+
+        const currentType = currentItem.dataset.type;
+        const container = currentItem.closest('.lesson-section').querySelector('.flex.flex-col.gap-3');
+        const containerId = container.id;
+        const totalPairs = TOTAL_PAIRS[containerId.replace('mixed-list', 'matching')];
+
+        if (selectedItem) {
+            // Check 1: Ensure the selectedItem is from the same activity container
+            if (selectedItem.closest('.flex.flex-col.gap-3').id !== containerId) {
+                // If it's not, clear the selection and process the current item as the first selection
+                selectedItem.classList.remove('selected-item', 'selected-target');
+                selectedItem = null;
+                // Re-call the function to process the current item as the first selection (start new selection)
+                handleMatchAttempt(currentItem);
+                return;
+            }
+
+            const selectedType = selectedItem.dataset.type;
+            
+            // Case 1: Same type selected (Deselect old, Select new)
+            if (selectedType === currentType) {
+                selectedItem.classList.remove('selected-item', 'selected-target');
+                selectedItem = currentItem;
+                selectedItem.classList.add(selectedType === 'item' ? 'selected-item' : 'selected-target');
+                return;
+            }
+
+            const selectedId = selectedItem.dataset.matchId;
+            const currentId = currentItem.dataset.matchId;
+
+            // Remove selection visual from both before outcome check
+            selectedItem.classList.remove('selected-item', 'selected-target');
+            currentItem.classList.remove('selected-item', 'selected-target');
+
+            // Case 2: Different types selected (Ready for Match Check)
+            if (selectedId === currentId) {
+                // Calculate the number of *existing* pairs matched in this container for correct color indexing
+                const currentMatchedPairsCount = container.querySelectorAll('.matched').length / 2;
+                const colorClass = MATCHING_COLORS[currentMatchedPairsCount % MATCHING_COLORS.length];
+                
+                selectedItem.classList.add('matched', colorClass);
+                currentItem.classList.add('matched', colorClass);
+                
+                showPopup(true, '🎉 Matched! Excellent work.'); 
+                
+                // Check for completion AFTER the current match is applied
+                const newMatchedCount = container.querySelectorAll('.matched').length / 2;
+
+                if (newMatchedCount === totalPairs) {
+                    // COMPLETED MESSAGE 
+                    const activityLetter = containerId.slice(-1).toUpperCase();
+                    
+                    // Disable all future clicks on this activity once complete
+                    container.closest('.lesson-section').style.pointerEvents = 'none';
+                    
+                    // Call final completion pop-up
+                    setTimeout(() => { 
+                         showPopup(true, `✅ Activity ${activityLetter} Complete! All Pairs Found!`);
+                    }, 500);
+                }
+                
+            } else {
+                // Case 3: Incorrect Match (Flash red and deselect both)
+                [selectedItem, currentItem].forEach(el => {
+                    el.classList.add('incorrect-flash');
+                    setTimeout(() => el.classList.remove('incorrect-flash'), 500);
+                });
+                showPopup(false, '❌ Incorrect pair. Try again!');
+            }
+            
+            selectedItem = null; // Reset selection state
+
+        } else {
+            // Case 4: First item selected
+            selectedItem = currentItem;
+            selectedItem.classList.add(currentType === 'item' ? 'selected-item' : 'selected-target');
+        }
+    }
+
+
+    // Initialization for a single, mixed-scroll list
+    function initializeMatching(containerId, dataPairs) {
+        const container = document.getElementById(containerId);
+        if (!container) return; 
+        
+        let allItems = [];
+        dataPairs.forEach(pair => {
+            // Add the 'word' (item)
+            allItems.push({ type: 'item', id: pair.id, text: pair.text });
+            // Add the 'definition' (target)
+            allItems.push({ type: 'target', id: pair.id, text: pair.answer });
+        });
+
+        shuffleArray(allItems);
+
+        allItems.forEach(item => {
+            const div = document.createElement('div');
+            div.textContent = item.text;
+            div.setAttribute('data-match-id', item.id);
+            div.setAttribute('data-type', item.type);
+            
+            div.classList.add('matching-item', item.type === 'item' ? 'matching-item' : 'matching-target');
+
+            div.addEventListener('click', (event) => {
+                handleMatchAttempt(event.target);
+            });
+            container.appendChild(div);
         });
     }
 
@@ -513,7 +690,7 @@
         const correctValue = container.dataset.correctAnswer;
         
         if (!selectedOption) {
-            showPopup(false, "Please select an option before checking. ⏰");
+            showPopup(false, "Please select an option before checking. ❌");
             return;
         }
         
@@ -606,7 +783,7 @@
         });
 
         if (filledCount < gaps.length) {
-            showPopup(false, `Please fill all ${gaps.length} gaps before checking. ⏰`);
+            showPopup(false, `Please fill all ${gaps.length} gaps before checking. ❌`);
             return;
         }
 
@@ -623,8 +800,15 @@
     
     // --- Initialization ---
     document.addEventListener('DOMContentLoaded', () => {
-        setupMatching('matching-a');
-        setupMatching('matching-d');
+        // Initialize Dictionary first
+        initializeDictionary();
+
+        // Initialize the new mixed-scroll matching activity for A
+        initializeMatching('mixed-list-a', VOCAB_PAIRS_A);
+        
+        // Initialize the idioms matching activity for D 
+        initializeMatching('mixed-list-d', VOCAB_PAIRS_D);
+
 
         setupMultipleChoice('mcq-b');
         setupMultipleChoice('tf-c');
