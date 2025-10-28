@@ -288,7 +288,7 @@
             line-height: 1.6;
         }
         
-        /* --- Ticker/Latest Updates Pop-up --- */
+        /* --- Ticker/Latest Updates Link (Now a single element) --- */
         #latest-updates-ticker {
             position: fixed;
             top: 20px; 
@@ -296,9 +296,8 @@
             margin-right: -580px; /* Push it 580px right: (1200px/2) - 20px padding */
             z-index: 1000; /* Above everything else */
             cursor: pointer;
-        }
-
-        .ticker-badge {
+            
+            /* Ticker Badge Styles from the old .ticker-badge */
             background: #FFC107; /* Amber/Accent color */
             color: #92400E; /* Dark brown text for contrast */
             padding: 8px 15px;
@@ -306,9 +305,15 @@
             font-size: 14px;
             font-weight: 800;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s, background-color 0.2s;
+            transition: transform 0.2s, background-color 0.2s, opacity 0.2s; /* Added opacity for JS fade */
             border: 2px solid #F59E0B;
             animation: pulse 2s infinite ease-in-out; /* Add pulse animation */
+            text-decoration: none; /* Make sure the link doesn't have an underline */
+            white-space: nowrap; /* Prevent long titles from wrapping */
+            max-width: 300px; /* Constrain width for long titles */
+            text-overflow: ellipsis;
+            overflow: hidden;
+            display: inline-block;
         }
         
         /* Keyframe animation for pulse */
@@ -318,70 +323,10 @@
             100% { transform: scale(1); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
         }
 
-        .ticker-badge:hover {
+        #latest-updates-ticker:hover {
             background: #FFD54F;
             transform: scale(1.05);
             animation: none; /* Stop pulsing on hover */
-        }
-
-        .ticker-popup {
-            position: absolute;
-            right: 0;
-            top: 50px; /* Position below the badge */
-            width: 280px;
-            background: #FFFFFF;
-            border: 1px solid #E5E9F2;
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
-        }
-
-        #latest-updates-ticker:hover .ticker-popup {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .popup-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: #667EEA;
-            margin-bottom: 8px;
-            border-bottom: 1px dashed #E5E9F2;
-            padding-bottom: 5px;
-        }
-
-        .popup-link {
-            display: block;
-            font-size: 15px;
-            font-weight: 600;
-            color: #1A5E7F; /* Dark blue/Primary color */
-            text-decoration: none;
-            padding: 5px 0;
-            transition: color 0.1s;
-            margin-bottom: 5px; /* Added spacing */
-            line-height: 1.3;
-        }
-        
-        .popup-link:last-child {
-            margin-bottom: 0;
-        }
-
-        .popup-link:hover {
-            color: #2980B9;
-            text-decoration: underline;
-        }
-        
-        /* Highlight the newest item */
-        .popup-link.newest {
-            color: #DD4B39; /* Reddish highlight */
-            font-weight: 700;
-            padding-left: 5px;
-            border-left: 3px solid #FFC107;
         }
         
         /* Footer */
@@ -459,12 +404,10 @@
                 top: 10px;
                 right: 10px;
             }
-            .ticker-badge {
+            /* Adjust size for small screens */
+            #latest-updates-ticker {
                 font-size: 12px;
                 padding: 6px 12px;
-            }
-            .ticker-popup {
-                width: 250px;
             }
         }
     </style>
@@ -477,30 +420,9 @@
         </div>
     </header>
 
-    <div id="latest-updates-ticker">
-        <div 
-            class="ticker-badge"
-            data-text-a="😎 NEW!" 
-            data-text-b="🐊 Crocs' China Strategy"
-        >
-            😎 NEW!
-        </div>
-        <div class="ticker-popup">
-            <p class="popup-title">Latest 3 Lessons</p>
-            
-            <a href="/crocs/" class="popup-link">
-                🐊 <strong style="color: #1A5E7F;">ADVANCED</strong> - Crocs' China Strategy: A Marketing Masterclass
-            </a>
-            
-            <a href="/changemanagement/" class="popup-link">
-                🧭 <strong style="color: #1A5E7F;">BUSINESS</strong> - Change Management: Navigating Resistance
-            </a>
-            
-            <a href="/internationaltaxation/" class="popup-link">
-                🌍 <strong style="color: #1A5E7F;">TAX</strong> - International Tax Essentials
-            </a>
-        </div>
-    </div>
+    <a href="#" id="latest-updates-ticker">
+        ✨ NEW!
+    </a>
 
     <main class="container">
         
@@ -655,9 +577,9 @@
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
             // REMEMBER TO UPDATE THIS FILENAME IF YOU HAVE INDEX.HTML CACHED!
-            navigator.serviceWorker.register('/sw-v26.js') 
+            navigator.serviceWorker.register('/sw-v24.js') 
                 .then(function(registration) {
-                    console.log('✓ Service Worker v26 registered successfully');
+                    console.log('✓ Service Worker v24 registered successfully');
                     
                     registration.addEventListener('updatefound', function() {
                         console.log('New service worker version found, updating...');
@@ -678,34 +600,56 @@
         // Here you could show a custom "Install App" button
     });
     
-    // NEW: Ticker Flashing/Text Switch Logic
+    // NEW: Ticker Flashing/Text Switch Logic for a single, cycling link
     function startTickerAnimation() {
-        const badge = document.querySelector('.ticker-badge');
-        if (!badge) return;
+        const ticker = document.getElementById('latest-updates-ticker');
+        if (!ticker) return;
 
-        const textA = badge.getAttribute('data-text-a');
-        const textB = badge.getAttribute('data-text-b');
-        let isTextA = true;
+        // The list of content and links to cycle through
+        const LESSON_STATES = [
+            // State 1: New! (General state, link to main index or #)
+            { text: "😎 NEW!", href: "#" },
+            // State 2: ADVANCED
+            { text: "ADVANCED: Crocs' China Strategy 🐊", href: "/crocs/" },
+            // State 3: BUSINESS
+            { text: "BUSINESS: Change Management 🧭", href: "/changemanagement/" },
+            // State 4: TAX
+            { text: "TAX: International Tax Essentials 🌎", href: "/internationaltaxation/" }
+        ];
 
-        // Set the badge to pulse between the two texts every 3.5 seconds
-        setInterval(() => {
-            // Use a quick fade transition for smooth swapping
-            badge.style.transition = 'opacity 0.1s, transform 0.2s, background-color 0.2s';
-            badge.style.opacity = 0; 
+        let currentStateIndex = 0;
+
+        function updateTicker() {
+            // Move to the next state, cycling back to 0 if it exceeds the array length
+            currentStateIndex = (currentStateIndex + 1) % LESSON_STATES.length;
+            const newState = LESSON_STATES[currentStateIndex];
+
+            // 1. Fade out (by setting opacity to 0)
+            ticker.style.opacity = 0;
 
             setTimeout(() => {
-                badge.textContent = isTextA ? textB : textA;
-                isTextA = !isTextA;
-                badge.style.opacity = 1; 
-            }, 100); // Wait for fade out, then swap text and fade in
-        }, 3500); // Switch every 3.5 seconds
+                // 2. Update content and link destination
+                ticker.textContent = newState.text;
+                ticker.href = newState.href;
+                
+                // 3. Fade in (by setting opacity back to 1)
+                ticker.style.opacity = 1;
+            }, 200); // 200ms delay to cover the fade out/in transition duration
+        }
+
+        // Initialize the ticker with the first state
+        ticker.textContent = LESSON_STATES[0].text;
+        ticker.href = LESSON_STATES[0].href;
+
+        // Start the interval (cycles every 4000 milliseconds)
+        setInterval(updateTicker, 4000);
         
-        // Ensure the pulse animation is removed when the user hovers to read the title
-        badge.addEventListener('mouseenter', () => {
-            badge.style.animation = 'none';
+        // Ensure the pulse animation is managed correctly on hover
+        ticker.addEventListener('mouseenter', () => {
+            ticker.style.animation = 'none';
         });
-        badge.addEventListener('mouseleave', () => {
-            badge.style.animation = 'pulse 2s infinite ease-in-out';
+        ticker.addEventListener('mouseleave', () => {
+            ticker.style.animation = 'pulse 2s infinite ease-in-out';
         });
     }
 
