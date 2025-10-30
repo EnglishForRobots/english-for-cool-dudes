@@ -1,9 +1,9 @@
 // =========================================================
-// SERVICE WORKER: cool-dudes-lessons-cache-v33
+// SERVICE WORKER: cool-dudes-lessons-cache-v34
 // Pre-caches ALL pages on first visit for full offline access
 // =========================================================
 
-const CACHE_NAME = 'cool-dudes-lessons-cache-v33';
+const CACHE_NAME = 'cool-dudes-lessons-cache-v34';
 const FONT_CACHE_NAME = 'cool-dudes-font-cache-v3';
 
 // List of all HTML pages to pre-cache
@@ -47,7 +47,8 @@ const htmlPages = [
   '/herring/',
   '/weirdeurofoods/',
   '/slicedbread/',
-  '/be/'
+  '/be/',
+  '/timeandnumbers/'
 ];
 
 // Essential assets
@@ -64,23 +65,23 @@ const essentialAssets = [
 
 // --- INSTALL EVENT: Pre-cache everything ---
 self.addEventListener('install', (event) => {
-  console.log('[SW v33] Installing and pre-caching ALL pages...');
+  console.log('[SW v34] Installing and pre-caching ALL pages...');
   
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(async (cache) => {
         // First, cache essential assets
-        console.log('[SW v33] Caching essential assets...');
+        console.log('[SW v34] Caching essential assets...');
         await Promise.all(
           essentialAssets.map(url => 
             cache.add(url).catch(err => 
-              console.warn('[SW v33] Failed to cache:', url, err)
+              console.warn('[SW v34] Failed to cache:', url, err)
             )
           )
         );
         
         // Then, cache all HTML pages
-        console.log('[SW v33] Pre-caching all lesson pages...');
+        console.log('[SW v34] Pre-caching all lesson pages...');
         let successCount = 0;
         let failCount = 0;
         
@@ -97,18 +98,18 @@ self.addEventListener('install', (event) => {
               }
               
               successCount++;
-              console.log(`[SW v33] ✓ Cached: ${page} (${successCount}/${htmlPages.length})`);
+              console.log(`[SW v34] ✓ Cached: ${page} (${successCount}/${htmlPages.length})`);
             }
           } catch (err) {
             failCount++;
-            console.warn(`[SW v33] ✗ Failed: ${page}`, err);
+            console.warn(`[SW v34] ✗ Failed: ${page}`, err);
           }
         }
         
-        console.log(`[SW v33] Pre-caching complete: ${successCount} success, ${failCount} failed`);
+        console.log(`[SW v34] Pre-caching complete: ${successCount} success, ${failCount} failed`);
       })
       .then(() => {
-        console.log('[SW v33] Installation complete, taking control...');
+        console.log('[SW v34] Installation complete, taking control...');
         return self.skipWaiting();
       })
   );
@@ -142,15 +143,15 @@ self.addEventListener('fetch', (event) => {
       caches.open(FONT_CACHE_NAME).then((cache) => {
         return cache.match(event.request).then((cachedResponse) => {
           if (cachedResponse) {
-            console.log('[SW v33] Serving Google Fonts CSS from cache');
+            console.log('[SW v34] Serving Google Fonts CSS from cache');
             return cachedResponse;
           }
           return fetch(event.request).then((networkResponse) => {
-            console.log('[SW v33] Caching Google Fonts CSS');
+            console.log('[SW v34] Caching Google Fonts CSS');
             cache.put(event.request, networkResponse.clone());
             return networkResponse;
           }).catch(() => {
-            console.warn('[SW v33] Failed to fetch Google Fonts CSS');
+            console.warn('[SW v34] Failed to fetch Google Fonts CSS');
             return null;
           });
         });
@@ -185,7 +186,7 @@ self.addEventListener('fetch', (event) => {
         for (const tryPath of uniquePaths) {
           const cached = await caches.match(tryPath, { ignoreSearch: true });
           if (cached) {
-            console.log('[SW v33] Serving from cache:', tryPath);
+            console.log('[SW v34] Serving from cache:', tryPath);
             
             // Update cache in background (stale-while-revalidate)
             fetch(event.request)
@@ -204,7 +205,7 @@ self.addEventListener('fetch', (event) => {
         
         // Not in cache, try network
         try {
-          console.log('[SW v33] Fetching from network:', path);
+          console.log('[SW v34] Fetching from network:', path);
           const networkResponse = await fetch(event.request);
           
           if (networkResponse.ok) {
@@ -214,7 +215,7 @@ self.addEventListener('fetch', (event) => {
           
           return networkResponse;
         } catch (error) {
-          console.log('[SW v33] Network failed, no cache available for:', path);
+          console.log('[SW v34] Network failed, no cache available for:', path);
           
           // Return a more helpful offline page
           return new Response(
@@ -294,7 +295,7 @@ self.addEventListener('fetch', (event) => {
             return networkResponse;
           }).catch(() => {
             // Return null for failed asset requests
-            console.warn('[SW v33] Failed to fetch asset:', event.request.url);
+            console.warn('[SW v34] Failed to fetch asset:', event.request.url);
             return new Response('', { status: 404 });
           });
         })
@@ -304,7 +305,7 @@ self.addEventListener('fetch', (event) => {
 
 // --- ACTIVATE EVENT ---
 self.addEventListener('activate', (event) => {
-  console.log('[SW v33] Activating...');
+  console.log('[SW v34] Activating...');
   const cacheWhitelist = [CACHE_NAME, FONT_CACHE_NAME];
   
   event.waitUntil(
@@ -312,13 +313,13 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (!cacheWhitelist.includes(cacheName)) {
-            console.log('[SW v33] Deleting old cache:', cacheName);
+            console.log('[SW v34] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     }).then(() => {
-      console.log('[SW v33] Claiming clients');
+      console.log('[SW v34] Claiming clients');
       return self.clients.claim();
     })
   );
