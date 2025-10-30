@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -364,12 +365,12 @@
                 </div>
                 
                 <div class="gap-fill-text text-lg text-gray-700">
-                    <p>1. The small sweet taste is a nice <span class="gap-input" data-index="0" data-exercise="vocab" title="reward"></span> after a big meal.</p>
-                    <p>2. Her fortune said she should not worry about her <span class="gap-input" data-index="1" data-exercise="vocab" title="destiny"></span>.</p>
-                    <p>3. With great <span class="gap-input" data-index="2" data-exercise="vocab" title="optimism"></span>, he believed the predictions.</p>
-                    <p>4. Reading the note creates a strong feeling of <span class="gap-input" data-index="3" data-exercise="vocab" title="anticipation"></span>.</p>
-                    <p>5. The messages often contain sound <span class="gap-input" data-index="4" data-exercise="vocab" title="advice"></span>, even if they are very general.</p>
-                    <p>6. It is a modern <span class="gap-input" data-index="5" data-exercise="vocab" title="tradition"></span> to eat these cookies in the US.</p>
+                    <p>1. The small sweet taste is a nice <span class="gap-input" data-index="0" data-exercise="vocab" data-correct="reward" title=""></span> after a big meal.</p>
+                    <p>2. Her fortune said she should not worry about her <span class="gap-input" data-index="1" data-exercise="vocab" data-correct="destiny" title=""></span>.</p>
+                    <p>3. With great <span class="gap-input" data-index="2" data-exercise="vocab" data-correct="optimism" title=""></span>, he believed the predictions.</p>
+                    <p>4. Reading the note creates a strong feeling of <span class="gap-input" data-index="3" data-exercise="vocab" data-correct="anticipation" title=""></span>.</p>
+                    <p>5. The messages often contain sound <span class="gap-input" data-index="4" data-exercise="vocab" data-correct="advice" title=""></span>, even if they are very general.</p>
+                    <p>6. It is a modern <span class="gap-input" data-index="5" data-exercise="vocab" data-correct="tradition" title=""></span> to eat these cookies in the US.</p>
                 </div>
                 
                 <div class="button-group">
@@ -454,10 +455,10 @@
                 </div>
                 
                 <div class="gap-fill-text text-lg text-gray-700">
-                    <p>1. Good luck with the performance tonight; I hope you <span class="gap-input" data-index="0" data-exercise="idiom" title="break a leg"></span>!</p>
-                    <p>2. My car broke down last night, but, <span class="gap-input" data-index="1" data-exercise="idiom" title="every cloud has a silver lining"></span>, I met a very nice young man who gave me a lift home.</p>
-                    <p>3. If you get the new job you might have to move to Munich, but you can <span class="gap-input" data-index="2" data-exercise="idiom" title="cross that bridge when you come to it"></span>.</p>
-                    <p>4. My friend's stopped spending money on coffee because she says <span class="gap-input" data-index="3" data-exercise="idiom" title="a penny saved is a penny earned"></span>.</p>
+                    <p>1. Good luck with the performance tonight; I hope you <span class="gap-input" data-index="0" data-exercise="idiom" data-correct="break a leg" title=""></span>!</p>
+                    <p>2. My car broke down last night, but, <span class="gap-input" data-index="1" data-exercise="idiom" data-correct="every cloud has a silver lining" title=""></span>, I met a very nice young man who gave me a lift home.</p>
+                    <p>3. If you get the new job you might have to move to Munich, but you can <span class="gap-input" data-index="2" data-exercise="idiom" data-correct="cross that bridge when you come to it" title=""></span>.</p>
+                    <p>4. My friend's stopped spending money on coffee because she says <span class="gap-input" data-index="3" data-exercise="idiom" data-correct="a penny saved is a penny earned" title=""></span>.</p>
                 </div>
                 
                 <div class="button-group">
@@ -838,41 +839,39 @@
             document.getElementById('idiom-gap-result').style.display = 'none';
         }
 
-        function checkGaps(exercise) {
-            let correctCount = 0;
-            const blanks = document.querySelectorAll(`.gap-input[data-exercise="${exercise}"]`);
-            const answers = (exercise === 'vocab') ? vocabGapWords : idiomGapWords;
-            const resultDiv = document.getElementById(`${exercise}-gap-result`);
-            const totalGaps = answers.length;
-            
-            blanks.forEach((blank, index) => {
-                blank.classList.remove('correct', 'incorrect');
-                const extractedWord = blank.textContent.trim();
-                const expectedWord = answers[index];
-                
-                if (extractedWord === '') return; 
+        // Function to check Gap Fill exercises
+window.checkGaps = (exercise) => {
+    let allCorrect = true;
+    const gaps = document.querySelectorAll(`.gap-input[data-exercise="${exercise}"]`);
+    const resultEl = document.getElementById(`${exercise}-gap-result`);
 
-                const isCorrect = extractedWord.toLowerCase() === expectedWord.toLowerCase();
+    gaps.forEach(gap => {
+        const userAnswer = gap.textContent.trim().toLowerCase();
+        // **FIXED LINE: Reads from the new, secure data-correct attribute**
+        const correctAnswer = gap.getAttribute('data-correct').toLowerCase(); 
+        
+        gap.classList.remove('correct', 'incorrect');
 
-                if (isCorrect) {
-                    blank.classList.add('correct');
-                    correctCount++;
-                } else { 
-                    blank.classList.add('incorrect');
-                }
-            });
-
-            if (correctCount === totalGaps) {
-                resultDiv.textContent = `🎉 Perfect! All ${totalGaps} answers are correct.`;
-                resultDiv.classList.remove('incorrect');
-                resultDiv.classList.add('correct');
-            } else {
-                resultDiv.textContent = `You got ${correctCount} out of ${totalGaps} correct. Check the red highlighted gaps and try again!`;
-                resultDiv.classList.remove('correct');
-                resultDiv.classList.add('incorrect');
-            }
-            resultDiv.style.display = 'block';
+        if (userAnswer === correctAnswer) {
+            gap.classList.add('correct');
+        } else {
+            gap.classList.add('incorrect');
+            allCorrect = false;
         }
+    });
+
+    // Display results
+    if (allCorrect) {
+        resultEl.classList.remove('incorrect');
+        resultEl.classList.add('correct');
+        resultEl.textContent = "Excellent! All gaps are correct. Well done!";
+    } else {
+        resultEl.classList.remove('correct');
+        resultEl.classList.add('incorrect');
+        resultEl.textContent = "Not quite right. Please review the answers and try again!";
+    }
+    resultEl.style.display = 'block';
+}
 
         function resetGaps(exercise) {
             const blanks = document.querySelectorAll(`.gap-input[data-exercise="${exercise}"]`);
