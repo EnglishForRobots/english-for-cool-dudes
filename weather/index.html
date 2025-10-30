@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -371,12 +372,12 @@
                 </div>
                 
                 <div class="gap-fill-text text-lg text-gray-700">
-                    <p>1. In autumn, the weather is usually quite <span class="gap-input" data-index="0" data-exercise="vocab" title="mild"></span>—not too hot or cold.</p>
-                    <p>2. I think the rain will <span class="gap-input" data-index="1" data-exercise="vocab" title="clear up"></span> and we can go out later.</p>
-                    <p>3. The whole sky is grey and <span class="gap-input" data-index="2" data-exercise="vocab" title="overcast"></span> today.</p>
-                    <p>4. There was a sudden heavy <span class="gap-input" data-index="3" data-exercise="vocab" title="downpour"></span> and everyone ran inside.</p>
-                    <p>5. Please put on a jumper; it is a little <span class="gap-input" data-index="4" data-exercise="vocab" title="chilly"></span> this evening.</p>
-                    <p>6. Early in the morning, the grass was white and <span class="gap-input" data-index="5" data-exercise="vocab" title="frosty"></span>.</p>
+                    <p>1. In autumn, the weather is usually quite <span class="gap-input" data-index="0" data-exercise="vocab" data-correct="mild" title=""></span>—not too hot or cold.</p>
+                    <p>2. I think the rain will <span class="gap-input" data-index="1" data-exercise="vocab" data-correct="clear up" title=""></span> and we can go out later.</p>
+                    <p>3. The whole sky is grey and <span class="gap-input" data-index="2" data-exercise="vocab" data-correct="overcast" title=""></span> today.</p>
+                    <p>4. There was a sudden heavy <span class="gap-input" data-index="3" data-exercise="vocab" data-correct="downpour" title=""></span> and everyone ran inside.</p>
+                    <p>5. Please put on a jumper; it is a little <span class="gap-input" data-index="4" data-exercise="vocab" data-correct="chilly" title=""></span> this evening.</p>
+                    <p>6. Early in the morning, the grass was white and <span class="gap-input" data-index="5" data-exercise="vocab" data-correct="frosty" title=""></span>.</p>
                 </div>
                 
                 <div class="button-group">
@@ -500,10 +501,10 @@
                 </div>
                 
                 <div class="gap-fill-text text-lg text-gray-700">
-                    <p>1. My friend is always happy. She has <span class="gap-input" data-index="0" data-exercise="idiom" title="a sunny disposition"></span>.</p>
-                    <p>2. We will go to the market <span class="gap-input" data-index="1" data-exercise="idiom" title="come rain or shine"></span>.</p>
-                    <p>3. I passed my exam! I am <span class="gap-input" data-index="2" data-exercise="idiom" title="on cloud nine"></span>!</p>
-                    <p>4. I introduced myself to <span class="gap-input" data-index="3" data-exercise="idiom" title="break the ice"></span> with the new group.</p>
+                    <p>1. My friend is always happy. She has <span class="gap-input" data-index="0" data-exercise="idiom" data-correct="a sunny disposition" title=""></span>.</p>
+                    <p>2. We will go to the market <span class="gap-input" data-index="1" data-exercise="idiom" data-correct="come rain or shine" title=""></span>.</p>
+                    <p>3. I passed my exam! I am <span class="gap-input" data-index="2" data-exercise="idiom" data-correct="on cloud nine" title=""></span>!</p>
+                    <p>4. I introduced myself to <span class="gap-input" data-index="3" data-exercise="idiom" data-correct="break the ice" title=""></span> with the new group.</p>
                 </div>
                 
                 <div class="button-group">
@@ -854,44 +855,39 @@
             document.getElementById('idiom-gap-result').style.display = 'none';
         }
 
-        function checkGaps(exercise) {
-            let correctCount = 0;
-            const blanks = document.querySelectorAll(`.gap-input[data-exercise="${exercise}"]`);
-            const answers = (exercise === 'vocab') ? vocabGapWords : idiomGapWords;
-            const resultDiv = document.getElementById(`${exercise}-gap-result`);
-            const totalGaps = answers.length;
-            
-            blanks.forEach((blank, index) => {
-                blank.classList.remove('correct', 'incorrect');
-                const extractedWord = blank.textContent.trim();
-                const expectedWord = blank.title; 
-                
-                if (extractedWord === '') return; 
+        // Function to check Gap Fill exercises
+window.checkGaps = (exercise) => {
+    let allCorrect = true;
+    const gaps = document.querySelectorAll(`.gap-input[data-exercise="${exercise}"]`);
+    const resultEl = document.getElementById(`${exercise}-gap-result`);
 
-                const isCorrect = extractedWord.toLowerCase() === expectedWord.toLowerCase();
+    gaps.forEach(gap => {
+        const userAnswer = gap.textContent.trim().toLowerCase();
+        // **FIXED LINE: Reads from the new, secure data-correct attribute**
+        const correctAnswer = gap.getAttribute('data-correct').toLowerCase(); 
+        
+        gap.classList.remove('correct', 'incorrect');
 
-                if (isCorrect) {
-                    blank.classList.add('correct');
-                    correctCount++;
-                } else { 
-                    blank.classList.add('incorrect');
-                }
-            });
-            
-            const allCorrect = correctCount === totalGaps;
-            showCustomFeedback(allCorrect);
-
-            if (allCorrect) {
-                resultDiv.textContent = `🎉 Sunny Delight! Perfect score: ${totalGaps}/${totalGaps}!`;
-                resultDiv.classList.remove('incorrect');
-                resultDiv.classList.add('correct');
-            } else {
-                resultDiv.textContent = `☔ Rainy Day! You got ${correctCount} out of ${totalGaps} correct. Check the blue/red highlights and try again!`;
-                resultDiv.classList.remove('correct');
-                resultDiv.classList.add('incorrect');
-            }
-            resultDiv.style.display = 'block';
+        if (userAnswer === correctAnswer) {
+            gap.classList.add('correct');
+        } else {
+            gap.classList.add('incorrect');
+            allCorrect = false;
         }
+    });
+
+    // Display results
+    if (allCorrect) {
+        resultEl.classList.remove('incorrect');
+        resultEl.classList.add('correct');
+        resultEl.textContent = "Excellent! All gaps are correct. Well done!";
+    } else {
+        resultEl.classList.remove('correct');
+        resultEl.classList.add('incorrect');
+        resultEl.textContent = "Not quite right. Please review the answers and try again!";
+    }
+    resultEl.style.display = 'block';
+}
 
         function resetGaps(exercise) {
             const blanks = document.querySelectorAll(`.gap-input[data-exercise="${exercise}"]`);
