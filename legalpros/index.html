@@ -594,11 +594,11 @@
                 </div>
                 
                 <div class="gap-fill-text text-lg text-gray-700">
-                    <p>In civil litigation, the party initiating the lawsuit is called the <span class="gap-input" data-index="0" title="Plaintiff"></span>, while the party being sued is the <span class="gap-input" data-index="1" title="Defendant"></span>. 
+                    <p>In civil litigation, the party initiating the lawsuit is called the <span class="gap-input" data-index="0" data-correct="Plaintiff" title=""></span>, while the party being sued is the <span class="gap-input" data-index="1" title="Defendant"></span>. 
                     </p>
-                    <p>Legal rulings are often dictated by a <span class="gap-input" data-index="2" title="Statute"></span> (a written law passed by a legislative body) or guided by <span class="gap-input" data-index="3" title="Precedent"></span> (a previous court decision). 
+                    <p>Legal rulings are often dictated by a <span class="gap-input" data-index="2" data-correct="Statute" title=""></span> (a written law passed by a legislative body) or guided by <span class="gap-input" data-index="3" title="Precedent"></span> (a previous court decision). 
                     </p>
-                    <p>A failure to perform a contractual duty is termed a <span class="gap-input" data-index="4" title="Breach"></span> of contract. Every party to a contract has a contractual <span class="gap-input" data-index="5" title="Obligation"></span> to fulfill the agreed terms.</p>
+                    <p>A failure to perform a contractual duty is termed a <span class="gap-input" data-index="4" data-correct="Breach" title=""></span> of contract. Every party to a contract has a contractual <span class="gap-input" data-index="5" title="Obligation"></span> to fulfill the agreed terms.</p>
                 </div>
                 
                 <div class="button-group">
@@ -961,41 +961,38 @@
             document.getElementById('gap-result').style.display = 'none';
         }
 
-        function checkGaps() {
-            let correctCount = 0;
-            const blanks = document.querySelectorAll('.gap-input');
-            const totalGaps = gapAnswers.length;
-            
-            blanks.forEach((blank, index) => {
-                blank.classList.remove('correct', 'incorrect');
-                const extractedWord = blank.textContent.trim();
-                const expectedWord = gapAnswers[index];
-                
-                // Skip check if the gap is empty
-                if (extractedWord === '') return; 
+      // Function to check Gap Fill exercises
+window.checkGaps = (exercise) => {
+    let allCorrect = true;
+    const gaps = document.querySelectorAll(`.gap-input[data-exercise="${exercise}"]`);
+    const resultEl = document.getElementById(`${exercise}-gap-result`);
 
-                const isCorrect = extractedWord.toLowerCase() === expectedWord.toLowerCase();
+    gaps.forEach(gap => {
+        const userAnswer = gap.textContent.trim().toLowerCase();
+        // **FIXED LINE: Reads from the new, secure data-correct attribute**
+        const correctAnswer = gap.getAttribute('data-correct').toLowerCase(); 
+        
+        gap.classList.remove('correct', 'incorrect');
 
-                if (isCorrect) {
-                    blank.classList.add('correct');
-                    correctCount++;
-                } else { 
-                    blank.classList.add('incorrect');
-                }
-            });
+        if (userAnswer === correctAnswer) {
+            gap.classList.add('correct');
+        } else {
+            gap.classList.add('incorrect');
+            allCorrect = false;
+        }
+    });
 
-            const resultDiv = document.getElementById('gap-result');
-
-            if (correctCount === totalGaps) {
-                resultDiv.textContent = `🎉 Perfect! All ${totalGaps} answers are correct.`;
-                resultDiv.classList.remove('incorrect');
-                resultDiv.classList.add('correct');
-            } else {
-                resultDiv.textContent = `You got ${correctCount} out of ${totalGaps} correct. Check the red highlighted gaps and try again!`;
-                resultDiv.classList.remove('correct');
-                resultDiv.classList.add('incorrect');
-            }
-            resultDiv.style.display = 'block';
+    // Display results
+    if (allCorrect) {
+        resultEl.classList.remove('incorrect');
+        resultEl.classList.add('correct');
+        resultEl.textContent = "Excellent! All gaps are correct. Well done!";
+    } else {
+        resultEl.classList.remove('correct');
+        resultEl.classList.add('incorrect');
+        resultEl.textContent = "Not quite right. Please review the answers and try again!";
+    }
+    resultEl.style.display = 'block';
         }
 
         function initGaps() {
