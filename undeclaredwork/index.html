@@ -382,12 +382,12 @@
                 </div>
                 
                 <div class="gap-fill-text text-lg text-gray-700">
-                    <p>1. Without a valid work <span class="gap-input" data-index="0" data-exercise="vocab" title="permit"></span>, you cannot legally be employed.</p>
-                    <p>2. The government must <span class="gap-input" data-index="1" data-exercise="vocab" title="monitor"></span> businesses to ensure fair competition.</p>
-                    <p>3. Losing this contract puts our company at a serious <span class="gap-input" data-index="2" data-exercise="vocab" title="disadvantage"></span> against competitors.</p>
-                    <p>4. The company announced it had lost a <span class="gap-input" data-index="3" data-exercise="vocab" title="tremendous"></span> amount of money last quarter.</p>
-                    <p>5. The new minimum <span class="gap-input" data-index="4" data-exercise="vocab" title="wage"></span> is now $15 per hour.</p>
-                    <p>6. Social security systems rely on steady tax <span class="gap-input" data-index="5" data-exercise="vocab" title="revenue"></span> to pay for pensions.</p>
+                    <p>1. Without a valid work <span class="gap-input" data-index="0" data-exercise="vocab" data-correct="permit" title=""></span>, you cannot legally be employed.</p>
+                    <p>2. The government must <span class="gap-input" data-index="1" data-exercise="vocab" data-correct="monitor" title=""></span> businesses to ensure fair competition.</p>
+                    <p>3. Losing this contract puts our company at a serious <span class="gap-input" data-index="2" data-exercise="vocab" data-correct="disadvantage" title=""></span> against competitors.</p>
+                    <p>4. The company announced it had lost a <span class="gap-input" data-index="3" data-exercise="vocab" data-correct="tremendous" title=""></span> amount of money last quarter.</p>
+                    <p>5. The new minimum <span class="gap-input" data-index="4" data-exercise="vocab" data-correct="wage" title=""></span> is now $15 per hour.</p>
+                    <p>6. Social security systems rely on steady tax <span class="gap-input" data-index="5" data-exercise="vocab" data-correct="revenue" title=""></span> to pay for pensions.</p>
                 </div>
                 
                 <div class="button-group">
@@ -819,40 +819,38 @@
             document.getElementById('vocab-gap-result').style.display = 'none';
         }
 
-        function checkGaps(exercise) {
-            let correctCount = 0;
-            const blanks = document.querySelectorAll(`.gap-input[data-exercise="${exercise}"]`);
-            const answers = vocabGapWords;
-            const resultDiv = document.getElementById(`${exercise}-gap-result`);
-            const totalGaps = answers.length;
-            
-            blanks.forEach((blank, index) => {
-                blank.classList.remove('correct', 'incorrect');
-                const extractedWord = blank.textContent.trim();
-                const expectedWord = answers[index];
-                
-                if (extractedWord === '') return; 
+         // Function to check Gap Fill exercises
+window.checkGaps = (exercise) => {
+    let allCorrect = true;
+    const gaps = document.querySelectorAll(`.gap-input[data-exercise="${exercise}"]`);
+    const resultEl = document.getElementById(`${exercise}-gap-result`);
 
-                const isCorrect = extractedWord.toLowerCase() === expectedWord.toLowerCase();
+    gaps.forEach(gap => {
+        const userAnswer = gap.textContent.trim().toLowerCase();
+        // **FIXED LINE: Reads from the new, secure data-correct attribute**
+        const correctAnswer = gap.getAttribute('data-correct').toLowerCase(); 
+        
+        gap.classList.remove('correct', 'incorrect');
 
-                if (isCorrect) {
-                    blank.classList.add('correct');
-                    correctCount++;
-                } else { 
-                    blank.classList.add('incorrect');
-                }
-            });
+        if (userAnswer === correctAnswer) {
+            gap.classList.add('correct');
+        } else {
+            gap.classList.add('incorrect');
+            allCorrect = false;
+        }
+    });
 
-            if (correctCount === totalGaps) {
-                resultDiv.textContent = `🎉 Perfect! All ${totalGaps} answers are correct.`;
-                resultDiv.classList.remove('incorrect');
-                resultDiv.classList.add('correct');
-            } else {
-                resultDiv.textContent = `You got ${correctCount} out of ${totalGaps} correct. Check the red highlighted gaps and try again!`;
-                resultDiv.classList.remove('correct');
-                resultDiv.classList.add('incorrect');
-            }
-            resultDiv.style.display = 'block';
+    // Display results
+    if (allCorrect) {
+        resultEl.classList.remove('incorrect');
+        resultEl.classList.add('correct');
+        resultEl.textContent = "Excellent! All gaps are correct. Well done!";
+    } else {
+        resultEl.classList.remove('correct');
+        resultEl.classList.add('incorrect');
+        resultEl.textContent = "Not quite right. Please review the answers and try again!";
+    }
+    resultEl.style.display = 'block';
         }
 
         function resetGaps(exercise) {
