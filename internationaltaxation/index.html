@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -877,50 +878,39 @@
             document.getElementById('idiom-gap-result').style.display = 'none';
         }
 
-        function checkGaps(exercise) {
-            let correctCount = 0;
-            const blanks = document.querySelectorAll(`.gap-input[data-exercise="${exercise}"]`);
-            const answers = (exercise === 'vocab') ? vocabGapWords : idiomGapWords;
-            const resultDiv = document.getElementById(`${exercise}-gap-result`);
-            const totalGaps = answers.length;
-            
-            blanks.forEach((blank) => {
-                blank.classList.remove('correct', 'incorrect');
-                const extractedWord = blank.textContent.trim();
-                const expectedWord = blank.title;
-                
-                if (extractedWord === '') return; 
+        // Function to check Gap Fill exercises
+window.checkGaps = (exercise) => {
+    let allCorrect = true;
+    const gaps = document.querySelectorAll(`.gap-input[data-exercise="${exercise}"]`);
+    const resultEl = document.getElementById(`${exercise}-gap-result`);
 
-                const isCorrect = extractedWord.toLowerCase() === expectedWord.toLowerCase();
+    gaps.forEach(gap => {
+        const userAnswer = gap.textContent.trim().toLowerCase();
+        // **FIXED LINE: Reads from the new, secure data-correct attribute**
+        const correctAnswer = gap.getAttribute('data-correct').toLowerCase(); 
+        
+        gap.classList.remove('correct', 'incorrect');
 
-                if (isCorrect) {
-                    blank.classList.add('correct');
-                    correctCount++;
-                } else { 
-                    blank.classList.add('incorrect');
-                }
-            });
-            
-            const allCorrect = correctCount === totalGaps;
-
-            if (correctCount > 0) {
-                 showCustomFeedback(true); // Always show positive feedback if they got at least one right
-            } else {
-                 showCustomFeedback(false);
-            }
-
-
-            if (allCorrect) {
-                resultDiv.textContent = `🎉 Audit Complete! Perfect score: ${totalGaps}/${totalGaps}!`;
-                resultDiv.classList.remove('incorrect');
-                resultDiv.classList.add('correct');
-            } else {
-                resultDiv.textContent = `❌ Further Review Needed! You got ${correctCount} out of ${totalGaps} correct.`;
-                resultDiv.classList.remove('correct');
-                resultDiv.classList.add('incorrect');
-            }
-            resultDiv.style.display = 'block';
+        if (userAnswer === correctAnswer) {
+            gap.classList.add('correct');
+        } else {
+            gap.classList.add('incorrect');
+            allCorrect = false;
         }
+    });
+
+    // Display results
+    if (allCorrect) {
+        resultEl.classList.remove('incorrect');
+        resultEl.classList.add('correct');
+        resultEl.textContent = "Excellent! All gaps are correct. Well done!";
+    } else {
+        resultEl.classList.remove('correct');
+        resultEl.classList.add('incorrect');
+        resultEl.textContent = "Not quite right. Please review the answers and try again!";
+    }
+    resultEl.style.display = 'block';
+}
 
         function resetGaps(exercise) {
             const blanks = document.querySelectorAll(`.gap-input[data-exercise="${exercise}"]`);
