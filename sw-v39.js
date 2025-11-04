@@ -52,7 +52,7 @@ const htmlPages = [
   '/orderingfood/',
   '/halloween/',
   '/trickortreat/',
-  '/frankenstein/'
+  '/frank/'
 ];
 
 // Essential assets
