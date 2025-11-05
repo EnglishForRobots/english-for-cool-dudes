@@ -471,16 +471,16 @@
         { term: '5:45', definition: "quarter to six" },
     ];
     
-    // 1. Number Gap-Fill Data (Revised for facts and generic numbers)
+    // 1. Number Gap-Fill Data (The 'oh' and 'double eight' sentence now uses two '___' placeholders)
     const gapSentences = [
-        { id: 'number-gap-1', sentence: "There are", answer: "seven", ending: " days in a week." },
-        { id: 'number-gap-2', sentence: "In the UK, the emergency number is", answer: "nine", ending: " 99." },
-        { id: 'number-gap-3', sentence: "There are", answer: "three hundred and sixty-five", ending: " days in a non-leap year." }
-        { id: 'number-gap-4', sentence: "Did you say 01588? Yes, that's right", answer: "oh", sentence: "one, five", answer: "double eight", ending: "." },
-        { id: 'number-gap-5', sentence: "The famous novel is called", answer: "nineteen eighty-four", ending: "." },
-	{ id: 'number-gap-6', sentence: "It's New Year's Eve 2025 and tomorrow it will be", answer: "twenty twenty six", ending: "." }
+        { answers: ["seven"], sentence: "There are ___ days in a week." },
+        { answers: ["nine"], sentence: "In the UK, the emergency number is ___ 99." },
+        { answers: ["three hundred and sixty-five"], sentence: "There are ___ days in a non-leap year." },
+        { answers: ["oh", "double eight"], sentence: "Did you say 01588? Yes, that's right ___ one, five ___." },
+        { answers: ["nineteen eighty-four"], sentence: "The famous novel is called ___." },
+	    { answers: ["twenty twenty six"], sentence: "It's New Year's Eve 2025 and tomorrow it will be ___." }
     ];
-    // Words for the word bank (Must include all answers, plus some distractors. Using the capital 'O' for the zero in the phone context.)
+    // Words for the word bank (Includes all answers plus distractors: seven, nine, three hundred and sixty-five, oh, double eight, nineteen eighty-four, twenty twenty six)
     const gapWords = ["seven", "three hundred and sixty-five", "nine", "twenty twenty six", "double eight", "oh", "nineteen eighty-four"];
 
     const colorClasses = ['match-color-1', 'match-color-2', 'match-color-3', 'match-color-4', 'match-color-5', 'match-color-6', 'match-color-7'];
@@ -513,7 +513,7 @@
     }
 
 
-    // --- EXERCISE 3: TIME MATCH FUNCTIONS ---
+    // --- EXERCISE 3: TIME MATCH FUNCTIONS (INCORRECT DESELECTS - AS REQUESTED) ---
 
     // Helper function for creating the card DOM element
     function createCardElement(cardData) {
@@ -574,7 +574,7 @@
             return;
         }
 
-        // 2. Prevent selecting two cards of the same type and select the clicked card
+        // 2. Select the clicked card and deselect any previously selected card of the same type
         if (isTerm) {
             if (selectedTerm) selectedTerm.classList.remove('selected');
             selectedTerm = clickedCard;
@@ -582,10 +582,6 @@
             if (selectedDefinition) selectedDefinition.classList.remove('selected');
             selectedDefinition = clickedCard;
         }
-        
-        // Remove 'selected' from the previously selected card of the *other* type (if any)
-        if (isTerm && selectedDefinition) selectedDefinition.classList.remove('selected');
-        if (!isTerm && selectedTerm) selectedTerm.classList.remove('selected');
         
         clickedCard.classList.add('selected');
 
@@ -642,7 +638,7 @@
     }
 
 
-    // --- EXERCISE 1: GAP-FILL FUNCTIONS ---
+    // --- EXERCISE 1: GAP-FILL FUNCTIONS (UPDATED FOR MULTIPLE GAPS/ANSWERS) ---
     
     function handleWordClick(event) {
         const clickedWord = event.target;
@@ -680,9 +676,10 @@
                 originalWordElement.classList.remove('used');
             }
             
-            if (selectedGapWord) {
-                selectedGapWord.classList.remove('selected');
-                selectedGapWord = null;
+            // If the cleared gap was the selected word, clear the selection
+            if (selectedGapWord && selectedGapWord.id === wordElementId) {
+                 selectedGapWord.classList.remove('selected');
+                 selectedGapWord = null;
             }
             
         } else if (selectedGapWord) {
@@ -705,6 +702,7 @@
 
     window.checkGaps = (exercise) => {
         let correctCount = 0;
+        // Select all gaps related to the exercise
         const blanks = document.querySelectorAll(`.gap-span[data-exercise="${exercise}"]`);
         const resultDiv = document.getElementById(`${exercise}-result`);
         const totalGaps = blanks.length;
@@ -712,6 +710,7 @@
         blanks.forEach((blank) => {
             blank.classList.remove('correct', 'incorrect');
             const extractedWord = blank.textContent.trim();
+            // Expected word is now stored in data-correct
             const expectedWord = blank.dataset.correct;
             
             // Check only if the gap is filled
@@ -746,6 +745,7 @@
         
         optionsContainer.innerHTML = '';
         textContainer.innerHTML = '';
+        let gapIndex = 0;
 
         // 1. Generate Word Options
         const shuffledWords = [...gapWords]; // Copy and shuffle the bank
@@ -761,11 +761,22 @@
             optionsContainer.appendChild(span);
         });
 
-        // 2. Generate Sentences
-        gapSentences.forEach((item, index) => {
+        // 2. Generate Sentences (Fixed parsing for multiple gaps)
+        gapSentences.forEach((item, sentenceIndex) => {
             const p = document.createElement('p');
+            let sentenceHtml = `${sentenceIndex + 1}. ${item.sentence}`;
+            
+            // Iterate over the answers for this sentence
+            item.answers.forEach(answer => {
+                // Create a gap element with the correct answer data
+                const gapElement = `<span class="gap-span" data-correct="${answer}" data-index="${sentenceIndex}" data-gap-index="${gapIndex}" data-exercise="number-gap"></span>`;
+                
+                // Replace the first '___' placeholder with the actual gap element
+                sentenceHtml = sentenceHtml.replace('___', gapElement);
+                gapIndex++;
+            });
                            
-            p.innerHTML = `${index + 1}. ${item.sentence} <span class="gap-span" data-correct="${item.answer}" data-index="${index}" data-exercise="number-gap"></span>${item.ending}`;
+            p.innerHTML = sentenceHtml;
             textContainer.appendChild(p);
         });
         
