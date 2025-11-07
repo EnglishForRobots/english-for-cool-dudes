@@ -10,17 +10,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Dashboard - English For Cool Dudes</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-    // These keys define the 'supabase' object that your login script relies on!
-    const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co'; 
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-    
-    // This creates the client object
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-</script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* --- GLOBAL STYLES (Copied for consistency) --- */
+        /* --- GLOBAL STYLES --- */
         * {
             margin: 0;
             padding: 0;
@@ -95,7 +87,10 @@
             font-size: 14px;
             font-weight: 700;
             transition: all 0.2s;
-            white-space: nowrap; 
+            white-space: nowrap;
+            cursor: pointer;
+            border: 1px solid #E5E9F2;
+            background: transparent;
         }
 
         .header-button.logout {
@@ -179,6 +174,7 @@
             font-size: 18px;
             color: #4A5568;
             font-weight: 600;
+            display: none;
         }
         
         .card-list {
@@ -192,9 +188,16 @@
             background: #EBF8FF;
             border: 2px dashed #90CDF4;
             border-radius: 12px;
-            padding: 40px 20px;
+            padding: 50px 30px;
             text-align: center;
             margin-top: 20px;
+        }
+
+        .empty-dashboard-container h3 {
+            font-size: 24px;
+            color: #2B6CB0;
+            font-weight: 800;
+            margin-bottom: 15px;
         }
 
         .empty-dashboard-container p {
@@ -202,6 +205,25 @@
             color: #2B6CB0;
             font-weight: 600;
             line-height: 1.8;
+            margin-bottom: 25px;
+        }
+
+        .empty-dashboard-container .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 800;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .empty-dashboard-container .cta-button:hover {
+            background: linear-gradient(135deg, #5A6AD0 0%, #6D4396 100%);
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
         }
         
         .lesson-card {
@@ -260,6 +282,7 @@
         }
         
         .vocab-word {
+            position: relative;
             display: inline-block;
             background: #FFFBEA;
             color: #92400E;
@@ -269,11 +292,90 @@
             font-weight: 700;
             cursor: pointer;
             border: 1px solid #FCD34D;
-            transition: background-color 0.1s;
+            transition: all 0.2s;
         }
 
         .vocab-word:hover {
             background: #FCD34D;
+            transform: translateY(-2px);
+        }
+
+        /* Dictionary Popup */
+        .dictionary-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border: 2px solid #667EEA;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 500px;
+            width: 90%;
+            display: none;
+        }
+
+        .dictionary-popup.active {
+            display: block;
+            animation: popupFadeIn 0.2s ease-out;
+        }
+
+        @keyframes popupFadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -45%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .dictionary-popup h3 {
+            font-size: 24px;
+            color: #667EEA;
+            margin-bottom: 15px;
+            font-weight: 800;
+        }
+
+        .dictionary-popup .definition {
+            font-size: 16px;
+            color: #2C3E50;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .dictionary-popup .close-btn {
+            background: #667EEA;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .dictionary-popup .close-btn:hover {
+            background: #5A6AD0;
+        }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .popup-overlay.active {
+            display: block;
         }
         
         /* Responsive */
@@ -296,6 +398,9 @@
             }
             .welcome-message {
                 font-size: 16px;
+            }
+            .empty-dashboard-container h3 {
+                font-size: 20px;
             }
             .empty-dashboard-container p {
                 font-size: 16px;
@@ -323,24 +428,30 @@
         😎 NEW! ADVANCED: Crocs' China Strategy 🐊
     </a>
 
+    <!-- Dictionary Popup -->
+    <div class="popup-overlay" id="popup-overlay"></div>
+    <div class="dictionary-popup" id="dictionary-popup">
+        <h3 id="popup-word">Word</h3>
+        <div class="definition" id="popup-definition">Loading definition...</div>
+        <button class="close-btn" id="close-popup">Close</button>
+    </div>
+
     <main class="container">
         <div class="dashboard-header">
             <h2 id="welcome-title">Welcome Back, Cool Dude!</h2>
-            <p class="welcome-message">Here are your last 10 completed lessons and saved words.</p>
-            <div id="loading-message" style="margin-top: 20px; font-weight: 700; color: #667EEA;">
-                Loading your Cool Dude status...
-            </div>
+            <p class="welcome-message" id="welcome-subtitle">Here are your last 10 completed lessons and saved words.</p>
         </div>
         
         <section id="lesson-list" class="card-list" style="display: none;">
-            </section>
+        </section>
         
-        <div id="no-lessons" class="empty-dashboard-container" style="display:none; margin-top: -30px;">
+        <div id="no-lessons" class="empty-dashboard-container" style="display:none;">
+            <h3>🎯 No Lessons Saved Yet!</h3>
             <p>
-                **Welcome Back, Cool Dude! 😎**<br>
-                Your Completed Lessons and Saved Words will appear here when you complete a lesson and save the words at the end. <br>
-                Have fun learning, Cool Dude!
+                Complete lessons and save words to build your personal English vocabulary collection.<br>
+                Start learning now, Cool Dude!
             </p>
+            <a href="/" class="cta-button">Browse Lessons</a>
         </div>
         
     </main>
@@ -356,7 +467,7 @@
 
             const LESSON_STATES = [
                 { text: "🚀 NEW! BUSINESS: Career Progression 🎯", href: "/feedback/" },
-                { text: "👻 NEW! BEGINNER: Trick or Treat! 🎃", href: "/trickortreat/" },
+                { text: "💻 NEW! BEGINNER: Trick or Treat! 🎃", href: "/trickortreat/" },
                 { text: "🎃 NEW! INTERMEDIATE: Beware The Black Cat! 👻", href: "/halloween/" },
                 { text: "🧟‍♂️ NEW! ADVANCED: The Creation's Ruin - Frankenstein ⚰️", href: "/frank/" },
                 { text: "😎 NEW! ADVANCED: Unusual European Foods 🍴", href: "/weirdeurofoods/" },
@@ -364,7 +475,7 @@
                 { text: "😎 NEW! TAX: International Tax Essentials 🌎", href: "/internationaltaxation/" },
                 { text: "😎 NEW! BEGINNER: What's The Weather Like? ☔", href: "/weather/" },
                 { text: "😎 NEW! INTERMEDIATE: Fortune Cookie English 🥠", href: "/fortunecookies/" },
-                { text: "😎 NEW! LEGAL: Intellectual Property Law 🏛️", href: "/iplaw/" },
+                { text: "😎 NEW! LEGAL: Intellectual Property Law 🛡️", href: "/iplaw/" },
                 { text: "😎 NEW! ADVANCED: Crocs' China Strategy 🐊", href: "/crocs/" }
             ];
             
@@ -394,79 +505,187 @@
 
         document.addEventListener('DOMContentLoaded', startTickerAnimation);
     </script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-        // ⚠️ REPLACE THESE PLACEHOLDERS WITH YOUR ACTUAL SUPABASE KEYS ⚠️
+        // Initialize Supabase client
         const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co'; 
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
 
-        const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         const logoutButton = document.getElementById('logout-btn');
         const welcomeTitle = document.getElementById('welcome-title');
-        const welcomeMessage = document.querySelector('.welcome-message'); // Selector for the subheading
-        const loadingMessage = document.getElementById('loading-message');
+        const welcomeSubtitle = document.getElementById('welcome-subtitle');
         const lessonList = document.getElementById('lesson-list');
         const noLessonsMessage = document.getElementById('no-lessons');
 
+        // Dictionary popup elements
+        const popupOverlay = document.getElementById('popup-overlay');
+        const dictionaryPopup = document.getElementById('dictionary-popup');
+        const popupWord = document.getElementById('popup-word');
+        const popupDefinition = document.getElementById('popup-definition');
+        const closePopupBtn = document.getElementById('close-popup');
+
         // 1. Check Auth Status and Redirect if not logged in
         async function checkAuthAndLoadDashboard() {
-            const { data: { user }, error } = await supabase.auth.getUser();
+            try {
+                const { data: { user }, error } = await supabase.auth.getUser();
 
-            if (error || !user) {
+                if (error || !user) {
+                    console.log('Not authenticated, redirecting to login');
+                    window.location.href = '/login/';
+                    return;
+                }
+
+                console.log('User authenticated:', user.email);
+
+                // Get user's name from metadata or email
+                let userName = 'Cool Dude';
+                if (user.user_metadata && user.user_metadata.full_name) {
+                    userName = user.user_metadata.full_name;
+                } else if (user.email) {
+                    userName = user.email.split('@')[0];
+                }
+
+                if (welcomeTitle) {
+                    welcomeTitle.textContent = `Welcome Back, ${userName}!`;
+                }
+
+                // Load dashboard data
+                await loadUserDashboardData(user.id);
+            } catch (err) {
+                console.error('Error checking auth:', err);
                 window.location.href = '/login/';
-                return;
             }
-
-            // AUTHENTICATED: Start hiding the transient messages
-            if(loadingMessage) loadingMessage.style.display = 'none';
-            // Hide the default subheading copy
-            if(welcomeMessage) welcomeMessage.style.display = 'none'; 
-
-            const userName = user.email ? user.email.split('@')[0] : 'Cool Dude';
-            if (welcomeTitle) {
-                welcomeTitle.textContent = 'Welcome Back, ' + userName + '!';
-            }
-
-            // --- 2. Load Dashboard Data (PLACEHOLDER FUNCTION) ---
-            loadUserDashboardData(user.id);
         }
         
         // 2. Handle Logout
         async function handleLogout() {
-            const { error } = await supabase.auth.signOut();
-            if (error) {
-                console.error('Logout Error:', error);
-                alert('Logout failed. Try again.');
-            } else {
-                window.location.href = '/login/'; 
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) {
+                    console.error('Logout Error:', error);
+                    alert('Logout failed. Please try again.');
+                } else {
+                    window.location.href = '/login/'; 
+                }
+            } catch (err) {
+                console.error('Unexpected logout error:', err);
+                alert('An error occurred during logout.');
             }
         }
         
-        // 3. Placeholder for Data Loading
-        function loadUserDashboardData(userId) {
-            // This is where you would call Supabase to get user data
-            
-            const placeholderData = []; // Still assumes NO data for now
-            
-            if (placeholderData.length === 0) {
-                 // Show the custom empty state message container
-                 if (noLessonsMessage) noLessonsMessage.style.display = 'block';
-                 // Ensure the main list is still hidden
-                 if (lessonList) lessonList.style.display = 'none';
-
-            } else {
-                 // DATA FOUND: Show the correct subheading and lesson list
-                 if(welcomeMessage) welcomeMessage.style.display = 'block'; 
-                 if(lessonList) lessonList.style.display = 'grid';
-                 // Logic to loop through data and create cards will go here
+        // 3. Load User Dashboard Data
+        async function loadUserDashboardData(userId) {
+            try {
+                // TODO: Replace with actual Supabase query when you have a lessons table
+                // Example query structure:
+                // const { data, error } = await supabase
+                //     .from('user_lessons')
+                //     .select('*')
+                //     .eq('user_id', userId)
+                //     .order('completed_at', { ascending: false })
+                //     .limit(10);
+                
+                // For testing, you can uncomment this to see how it looks with data:
+                const placeholderData = [];
+                // const placeholderData = [
+                //     {
+                //         title: "Crocs' China Strategy",
+                //         link: "/crocs/",
+                //         level: "ADVANCED",
+                //         date: "Nov 7, 2025",
+                //         vocabulary: [
+                //             { word: "Strategy", definition: "A plan of action designed to achieve a long-term goal" },
+                //             { word: "Market", definition: "The trade in a particular type of goods or services" },
+                //             { word: "Expansion", definition: "The action of becoming larger or more extensive" }
+                //         ]
+                //     }
+                // ];
+                
+                if (placeholderData.length === 0) {
+                    // Show empty state
+                    if (noLessonsMessage) noLessonsMessage.style.display = 'block';
+                    if (lessonList) lessonList.style.display = 'none';
+                    if (welcomeSubtitle) welcomeSubtitle.style.display = 'none';
+                } else {
+                    // Show lessons
+                    if (welcomeSubtitle) welcomeSubtitle.style.display = 'block';
+                    if (lessonList) {
+                        lessonList.style.display = 'grid';
+                        renderLessons(placeholderData);
+                    }
+                    if (noLessonsMessage) noLessonsMessage.style.display = 'none';
+                }
+            } catch (err) {
+                console.error('Error loading dashboard data:', err);
+                if (noLessonsMessage) {
+                    noLessonsMessage.innerHTML = '<h3>⚠️ Error</h3><p style="color: #E53E3E;">Error loading your data. Please refresh the page.</p>';
+                    noLessonsMessage.style.display = 'block';
+                }
             }
         }
 
+        // 4. Render lessons
+        function renderLessons(lessons) {
+            if (!lessonList) return;
+            
+            lessonList.innerHTML = '';
+            
+            lessons.forEach(lesson => {
+                const card = document.createElement('div');
+                card.className = 'lesson-card';
+                
+                const vocabHTML = lesson.vocabulary && lesson.vocabulary.length > 0 ? `
+                    <div class="vocabulary-section">
+                        <h4>Saved Words (${lesson.vocabulary.length}):</h4>
+                        <div class="vocabulary-list">
+                            ${lesson.vocabulary.map(item => 
+                                `<span class="vocab-word" data-word="${item.word}" data-definition="${item.definition}">${item.word}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                ` : '';
+                
+                card.innerHTML = `
+                    <h3><a href="${lesson.link}" class="lesson-link">${lesson.title}</a></h3>
+                    <div class="lesson-meta">${lesson.level} • Completed on ${lesson.date}</div>
+                    ${vocabHTML}
+                `;
+                
+                lessonList.appendChild(card);
+            });
+
+            // Add click handlers to vocabulary words
+            document.querySelectorAll('.vocab-word').forEach(wordEl => {
+                wordEl.addEventListener('click', function() {
+                    const word = this.getAttribute('data-word');
+                    const definition = this.getAttribute('data-definition');
+                    showDictionaryPopup(word, definition);
+                });
+            });
+        }
+
+        // 5. Dictionary popup functions
+        function showDictionaryPopup(word, definition) {
+            popupWord.textContent = word;
+            popupDefinition.textContent = definition;
+            dictionaryPopup.classList.add('active');
+            popupOverlay.classList.add('active');
+        }
+
+        function closeDictionaryPopup() {
+            dictionaryPopup.classList.remove('active');
+            popupOverlay.classList.remove('active');
+        }
+
+        // Close popup when clicking close button or overlay
+        closePopupBtn.addEventListener('click', closeDictionaryPopup);
+        popupOverlay.addEventListener('click', closeDictionaryPopup);
+
         // Attach Event Listeners
         document.addEventListener('DOMContentLoaded', checkAuthAndLoadDashboard);
+        
         if (logoutButton) {
             logoutButton.addEventListener('click', handleLogout);
         }
