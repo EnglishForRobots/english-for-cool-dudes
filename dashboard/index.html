@@ -12,7 +12,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* --- GLOBAL STYLES --- */
         * {
             margin: 0;
             padding: 0;
@@ -27,7 +26,6 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Header */
         .header {
             background: #FFFFFF;
             border-bottom: 1px solid #E5E9F2;
@@ -105,7 +103,6 @@
             border-color: #FBD3DA;
         }
         
-        /* Ticker Styles */
         #latest-updates-ticker {
             position: fixed;
             top: 20px; 
@@ -137,7 +134,6 @@
             100% { transform: scale(1); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
         }
 
-        /* Footer */
         .footer {
             background: #FFFFFF;
             border-top: 1px solid #E5E9F2;
@@ -151,7 +147,6 @@
             color: #718096;
         }
         
-        /* --- DASHBOARD SPECIFIC STYLES --- */
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -174,7 +169,6 @@
             font-size: 18px;
             color: #4A5568;
             font-weight: 600;
-            display: none;
         }
         
         .card-list {
@@ -300,7 +294,6 @@
             transform: translateY(-2px);
         }
 
-        /* Dictionary Popup */
         .dictionary-popup {
             position: fixed;
             top: 50%;
@@ -378,7 +371,6 @@
             display: block;
         }
         
-        /* Responsive */
         @media (max-width: 1240px) {
             #latest-updates-ticker {
                 right: 20px;
@@ -428,7 +420,6 @@
         😎 NEW! ADVANCED: Crocs' China Strategy 🐊
     </a>
 
-    <!-- Dictionary Popup -->
     <div class="popup-overlay" id="popup-overlay"></div>
     <div class="dictionary-popup" id="dictionary-popup">
         <h3 id="popup-word">Word</h3>
@@ -438,19 +429,16 @@
 
     <main class="container">
         <div class="dashboard-header">
-            <h2 id="welcome-title">Welcome Back, Cool Dude!</h2>
-            <p class="welcome-message" id="welcome-subtitle">Here are your last 10 completed lessons and saved words.</p>
+            <h2 id="welcome-title"></h2>
+            <p class="welcome-message" id="welcome-subtitle"></p>
         </div>
         
         <section id="lesson-list" class="card-list" style="display: none;">
         </section>
         
         <div id="no-lessons" class="empty-dashboard-container" style="display:none;">
-            <h3>🎯 No Lessons Saved Yet!</h3>
-            <p>
-                Complete lessons and save words to build your personal English vocabulary collection.<br>
-                Start learning now, Cool Dude!
-            </p>
+            <h3>🎯 Start Your Cool Dude Journey!</h3>
+            <p>Complete lessons to save words and build your vocabulary.</p>
             <a href="/" class="cta-button">Browse Lessons</a>
         </div>
         
@@ -484,9 +472,7 @@
             function updateTicker() {
                 currentStateIndex = (currentStateIndex + 1) % LESSON_STATES.length;
                 const newState = LESSON_STATES[currentStateIndex];
-
                 ticker.style.opacity = 0; 
-
                 setTimeout(() => {
                     ticker.textContent = newState.text;
                     ticker.href = newState.href;
@@ -496,7 +482,6 @@
 
             ticker.textContent = LESSON_STATES[0].text;
             ticker.href = LESSON_STATES[0].href;
-
             setInterval(updateTicker, 4000);
             
             ticker.addEventListener('mouseenter', () => { ticker.style.animation = 'none'; });
@@ -507,7 +492,6 @@
     </script>
 
     <script>
-        // Initialize Supabase client
         const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co'; 
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
 
@@ -519,14 +503,12 @@
         const lessonList = document.getElementById('lesson-list');
         const noLessonsMessage = document.getElementById('no-lessons');
 
-        // Dictionary popup elements
         const popupOverlay = document.getElementById('popup-overlay');
         const dictionaryPopup = document.getElementById('dictionary-popup');
         const popupWord = document.getElementById('popup-word');
         const popupDefinition = document.getElementById('popup-definition');
         const closePopupBtn = document.getElementById('close-popup');
 
-        // 1. Check Auth Status and Redirect if not logged in
         async function checkAuthAndLoadDashboard() {
             try {
                 const { data: { user }, error } = await supabase.auth.getUser();
@@ -537,29 +519,33 @@
                     return;
                 }
 
-                console.log('User authenticated:', user.email);
+                console.log('User authenticated:', user);
 
-                // Get user's name from metadata or email
+                // Get user's first name
                 let userName = 'Cool Dude';
                 if (user.user_metadata && user.user_metadata.full_name) {
-                    userName = user.user_metadata.full_name;
+                    userName = user.user_metadata.full_name.split(' ')[0];
                 } else if (user.email) {
                     userName = user.email.split('@')[0];
                 }
 
-                if (welcomeTitle) {
-                    welcomeTitle.textContent = `Welcome Back, ${userName}!`;
-                }
+                // Check if first login
+                const isFirstLogin = user.user_metadata && user.user_metadata.is_first_login;
 
-                // Load dashboard data
-                await loadUserDashboardData(user.id);
+                await loadUserDashboardData(user.id, userName, isFirstLogin);
+
+                // Clear first login flag after showing
+                if (isFirstLogin) {
+                    await supabase.auth.updateUser({
+                        data: { is_first_login: false }
+                    });
+                }
             } catch (err) {
                 console.error('Error checking auth:', err);
                 window.location.href = '/login/';
             }
         }
         
-        // 2. Handle Logout
         async function handleLogout() {
             try {
                 const { error } = await supabase.auth.signOut();
@@ -575,42 +561,28 @@
             }
         }
         
-        // 3. Load User Dashboard Data
-        async function loadUserDashboardData(userId) {
+        async function loadUserDashboardData(userId, userName, isFirstLogin) {
             try {
-                // TODO: Replace with actual Supabase query when you have a lessons table
-                // Example query structure:
-                // const { data, error } = await supabase
-                //     .from('user_lessons')
-                //     .select('*')
-                //     .eq('user_id', userId)
-                //     .order('completed_at', { ascending: false })
-                //     .limit(10);
-                
-                // For testing, you can uncomment this to see how it looks with data:
+                // TODO: Query your Supabase lessons table here
                 const placeholderData = [];
-                // const placeholderData = [
-                //     {
-                //         title: "Crocs' China Strategy",
-                //         link: "/crocs/",
-                //         level: "ADVANCED",
-                //         date: "Nov 7, 2025",
-                //         vocabulary: [
-                //             { word: "Strategy", definition: "A plan of action designed to achieve a long-term goal" },
-                //             { word: "Market", definition: "The trade in a particular type of goods or services" },
-                //             { word: "Expansion", definition: "The action of becoming larger or more extensive" }
-                //         ]
-                //     }
-                // ];
                 
                 if (placeholderData.length === 0) {
-                    // Show empty state
+                    // No lessons saved
+                    if (isFirstLogin) {
+                        welcomeTitle.textContent = `Hey, Cool ${userName}!`;
+                        welcomeSubtitle.textContent = 'Complete Lessons to Save Words to Your Dashboard!';
+                    } else {
+                        welcomeTitle.textContent = `Hey, Cool ${userName}!`;
+                        welcomeSubtitle.textContent = 'Complete Lessons to Save Words to Your Dashboard!';
+                    }
+                    
                     if (noLessonsMessage) noLessonsMessage.style.display = 'block';
                     if (lessonList) lessonList.style.display = 'none';
-                    if (welcomeSubtitle) welcomeSubtitle.style.display = 'none';
                 } else {
-                    // Show lessons
-                    if (welcomeSubtitle) welcomeSubtitle.style.display = 'block';
+                    // Has saved lessons
+                    welcomeTitle.textContent = `Hey, Cool ${userName}!`;
+                    welcomeSubtitle.textContent = 'Review Your Saved Words and Complete More Lessons';
+                    
                     if (lessonList) {
                         lessonList.style.display = 'grid';
                         renderLessons(placeholderData);
@@ -619,14 +591,11 @@
                 }
             } catch (err) {
                 console.error('Error loading dashboard data:', err);
-                if (noLessonsMessage) {
-                    noLessonsMessage.innerHTML = '<h3>⚠️ Error</h3><p style="color: #E53E3E;">Error loading your data. Please refresh the page.</p>';
-                    noLessonsMessage.style.display = 'block';
-                }
+                welcomeTitle.textContent = `Hey, Cool ${userName}!`;
+                welcomeSubtitle.textContent = 'Error loading your data. Please refresh.';
             }
         }
 
-        // 4. Render lessons
         function renderLessons(lessons) {
             if (!lessonList) return;
             
@@ -656,7 +625,6 @@
                 lessonList.appendChild(card);
             });
 
-            // Add click handlers to vocabulary words
             document.querySelectorAll('.vocab-word').forEach(wordEl => {
                 wordEl.addEventListener('click', function() {
                     const word = this.getAttribute('data-word');
@@ -666,7 +634,6 @@
             });
         }
 
-        // 5. Dictionary popup functions
         function showDictionaryPopup(word, definition) {
             popupWord.textContent = word;
             popupDefinition.textContent = definition;
@@ -679,11 +646,9 @@
             popupOverlay.classList.remove('active');
         }
 
-        // Close popup when clicking close button or overlay
         closePopupBtn.addEventListener('click', closeDictionaryPopup);
         popupOverlay.addEventListener('click', closeDictionaryPopup);
 
-        // Attach Event Listeners
         document.addEventListener('DOMContentLoaded', checkAuthAndLoadDashboard);
         
         if (logoutButton) {
