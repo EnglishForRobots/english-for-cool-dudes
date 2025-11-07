@@ -10,15 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - English For Cool Dudes</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-    // These keys define the 'supabase' object that your login script relies on!
-    const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co'; 
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-    
-    // This creates the client object
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-</script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* --- GLOBAL STYLES (Copied from index.html for consistency) --- */
         * {
@@ -173,12 +165,12 @@
             margin: 0 auto;
             padding: 30px 20px;
             display: flex;
-            justify-content: center; /* Center the login box horizontally */
+            justify-content: center;
         }
         
         .login-box {
             width: 100%;
-            max-width: 400px; /* Constrain the form width */
+            max-width: 400px;
             background: #FFFFFF;
             border: 1px solid #E5E9F2;
             border-radius: 12px;
@@ -228,7 +220,7 @@
             padding: 14px 20px;
             border: none;
             border-radius: 8px;
-            background: linear-gradient(135deg, #3498DB 0%, #2980B9 100%); /* Blue Accent for Action */
+            background: linear-gradient(135deg, #3498DB 0%, #2980B9 100%);
             color: white;
             font-size: 16px;
             font-weight: 800;
@@ -237,9 +229,14 @@
             margin-top: 10px;
         }
         
-        .login-submit:hover {
+        .login-submit:hover:not(:disabled) {
             background: linear-gradient(135deg, #2980B9 0%, #1F6C9F 100%);
             box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+
+        .login-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
         
         .login-links {
@@ -259,7 +256,6 @@
             color: #764BA2;
             text-decoration: underline;
         }
-
 
         /* Responsive */
         @media (max-width: 1240px) {
@@ -339,7 +335,9 @@
         <div class="login-box">
             <h2 class="login-title">Log in to your Account</h2>
             
-            <form action="/dashboard/" method="POST">
+            <div id="message" style="display: none; margin-bottom: 20px; text-align: center; font-weight: 700;"></div>
+            
+            <form id="login-form">
                 
                 <div class="form-group">
                     <label for="email">Email Address</label>
@@ -351,7 +349,7 @@
                     <input type="password" id="password" name="password" placeholder="Enter your password" required>
                 </div>
                 
-                <button type="submit" class="login-submit">
+                <button type="submit" id="login-btn" class="login-submit">
                     Sign In
                 </button>
             </form>
@@ -370,34 +368,23 @@
     <footer class="footer">
         <p class="footer-text">© 2025 English For Cool Dudes - Learn British English effectively</p>
     </footer>
-<script>
+
+    <script>
         function startTickerAnimation() {
             const ticker = document.getElementById('latest-updates-ticker');
             if (!ticker) return; 
 
-            // The list of content and links to cycle through
             const LESSON_STATES = [
-                // State 1: BUSINESS
                 { text: "🚀 NEW! BUSINESS: Career Progression 🎯", href: "/feedback/" },
-                // State 2: BEGINNER
-                { text: "👻 NEW! BEGINNER: Trick or Treat! 🎃", href: "/trickortreat/" },
-                // State 3: INTERMEDIATE
+                { text: "💻 NEW! BEGINNER: Trick or Treat! 🎃", href: "/trickortreat/" },
                 { text: "🎃 NEW! INTERMEDIATE: Beware The Black Cat! 👻", href: "/halloween/" },
-                // State 4: ADVANCED
                 { text: "🧟‍♂️ NEW! ADVANCED: The Creation's Ruin - Frankenstein ⚰️", href: "/frank/" },
-                // State 5: ADVANCED
                 { text: "😎 NEW! ADVANCED: Unusual European Foods 🍴", href: "/weirdeurofoods/" },
-                // State 6: BUSINESS
                 { text: "😎 NEW! BUSINESS: Change Management 🧭", href: "/changemanagement/" },
-                // State 7: TAX
                 { text: "😎 NEW! TAX: International Tax Essentials 🌎", href: "/internationaltaxation/" },
-                // State 8: BEGINNER
                 { text: "😎 NEW! BEGINNER: What's The Weather Like? ☔", href: "/weather/" },
-                // State 9: INTERMEDIATE
                 { text: "😎 NEW! INTERMEDIATE: Fortune Cookie English 🥠", href: "/fortunecookies/" },
-                // State 10: LEGAL
-                { text: "😎 NEW! LEGAL: Intellectual Property Law 🏛️", href: "/iplaw/" },
-                // State 11: ADVANCED (The one you noticed)
+                { text: "😎 NEW! LEGAL: Intellectual Property Law 🛡️", href: "/iplaw/" },
                 { text: "😎 NEW! ADVANCED: Crocs' China Strategy 🐊", href: "/crocs/" }
             ];
             
@@ -407,23 +394,20 @@
                 currentStateIndex = (currentStateIndex + 1) % LESSON_STATES.length;
                 const newState = LESSON_STATES[currentStateIndex];
 
-                ticker.style.opacity = 0; // Fade out
+                ticker.style.opacity = 0;
 
                 setTimeout(() => {
                     ticker.textContent = newState.text;
                     ticker.href = newState.href;
-                    ticker.style.opacity = 1; // Fade in
+                    ticker.style.opacity = 1;
                 }, 200);
             }
 
-            // Initialize the ticker with the first state
             ticker.textContent = LESSON_STATES[0].text;
             ticker.href = LESSON_STATES[0].href;
 
-            // Start the interval (cycles every 4 seconds)
             setInterval(updateTicker, 4000);
             
-            // Manage pulse animation
             ticker.addEventListener('mouseenter', () => {
                 ticker.style.animation = 'none';
             });
@@ -432,24 +416,22 @@
             });
         }
 
-        // Call the function when the page loads
         document.addEventListener('DOMContentLoaded', startTickerAnimation);
     </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-        // ⚠️ REPLACE THESE PLACEHOLDERS WITH YOUR ACTUAL SUPABASE KEYS ⚠️
+        // Initialize Supabase client
         const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co'; 
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
 
-        const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         // Get form elements
         const loginForm = document.getElementById('login-form');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
-        const messageDiv = document.getElementById('message'); // Assuming you add a message div to loginv1.html
-        const loginButton = document.getElementById('login-btn'); // Assuming you add an id to the submit button
+        const messageDiv = document.getElementById('message');
+        const loginButton = document.getElementById('login-btn');
 
         // Function to display messages
         function displayMessage(text, isError = false) {
@@ -475,40 +457,63 @@
             // Disable button and show loading state
             loginButton.disabled = true;
             loginButton.textContent = 'Logging In...';
-            loginButton.style.opacity = 0.7;
+            displayMessage('Signing you in...', false);
 
-            // Perform the sign-in call to Supabase
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
+            try {
+                // Perform the sign-in call to Supabase
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password,
+                });
 
-            loginButton.disabled = false;
-            loginButton.textContent = 'Log In';
-            loginButton.style.opacity = 1;
+                loginButton.disabled = false;
+                loginButton.textContent = 'Sign In';
 
-            if (error) {
-                console.error('Login Error:', error);
-                displayMessage('Login failed. Check your email and password, Cool Dude.', true);
-            } else {
-                // Success! Redirect the user to their dashboard.
-                displayMessage('Success! Redirecting you now...', false);
-                window.location.href = '/dashboard/';
+                if (error) {
+                    console.error('Login Error:', error);
+                    
+                    if (error.message.toLowerCase().includes('invalid')) {
+                        displayMessage('Invalid email or password. Please try again, Cool Dude!', true);
+                    } else if (error.message.toLowerCase().includes('email not confirmed')) {
+                        displayMessage('Please confirm your email address first. Check your inbox!', true);
+                    } else {
+                        displayMessage('Login failed: ' + error.message, true);
+                    }
+                } else {
+                    console.log('Login successful:', data);
+                    displayMessage('Success! Redirecting you now...', false);
+                    
+                    // Redirect to dashboard
+                    setTimeout(() => {
+                        window.location.href = '/dashboard/';
+                    }, 1000);
+                }
+            } catch (err) {
+                console.error('Unexpected login error:', err);
+                displayMessage('An unexpected error occurred. Please try again.', true);
+                loginButton.disabled = false;
+                loginButton.textContent = 'Sign In';
             }
         }
 
         // Check if the user is already logged in and redirect them to the dashboard
         async function checkUserSession() {
-             const { data: { user } } = await supabase.auth.getUser();
-             if (user) {
-                 window.location.href = '/dashboard/';
-             }
-         }
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    console.log('User already logged in, redirecting to dashboard');
+                    window.location.href = '/dashboard/';
+                }
+            } catch (err) {
+                console.error('Error checking session:', err);
+            }
+        }
 
         // Attach the submission handler and check session on load
         if (loginForm) {
             loginForm.addEventListener('submit', handleLogin);
         }
+        
         document.addEventListener('DOMContentLoaded', checkUserSession);
     </script>
 </body>
