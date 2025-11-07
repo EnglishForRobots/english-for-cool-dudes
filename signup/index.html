@@ -353,7 +353,7 @@
             
             <div id="message" style="display: none; margin-bottom: 20px; text-align: center; font-weight: 700;"></div>
             
-            <form id="signup-form">
+            <form id="signup-form" onsubmit="return false;">
                 
                 <div class="form-group">
                     <label for="name">Your Name</label>
@@ -486,8 +486,8 @@
 
         // Function to handle form submission
         async function handleSignUp(event) {
-            event.preventDefault(); // Stop default form submission
-
+            // event.preventDefault() is redundant now but harmless
+            
             if (!termsCheckbox.checked) {
                 displayMessage('You must agree to The Cool Dude Agreement.', true);
                 return;
@@ -525,10 +525,6 @@
             const { data, error } = await supabase.auth.signUp({
                 email: email,
                 password: password,
-                // Optional: Pass the name field as user metadata
-                // options: {
-                //    data: { name: document.getElementById('name').value.trim() }
-                // }
             });
 
             signupButton.disabled = false;
@@ -543,23 +539,31 @@
                 } else if (error.message.includes('already registered')) {
                      displayMessage('This email is already registered. Try logging in!', true);
                 } else {
-                     // Generic error message for other Supabase issues
                      displayMessage('Sign-up failed: ' + error.message, true);
                 }
             } else {
-                // Success! Supabase requires email confirmation by default.
-                displayMessage('Success! Check your email to confirm your account, Cool Dude.', false);
-                // Clear the form fields
+                // CRITICAL FIX 2: Success! Show message briefly, then redirect to login.
+                displayMessage('Success! Check your email to confirm your account, Cool Dude. Redirecting to login...', false);
+                
+                // Force redirect to the login page after success.
+                setTimeout(() => {
+                    window.location.href = '/login/'; 
+                }, 1000); // Wait 1 second
+                
+                // Clear the form fields (will be cleared by the redirect, but harmless here)
                 emailInput.value = '';
                 passwordInput.value = '';
                 confirmPasswordInput.value = '';
                 document.getElementById('name').value = '';
                 termsCheckbox.checked = false;
             }
+            // CRITICAL: Return false to ensure the form is aborted
+            return false;
         }
 
         // Attach the submission handler to the form
         if (signUpForm) {
+            // event.preventDefault() is used inside handleSignUp, but the onsubmit="return false;" is the stronger guard.
             signUpForm.addEventListener('submit', handleSignUp);
         }
     </script>
