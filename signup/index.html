@@ -221,7 +221,7 @@
             padding: 14px 20px;
             border: none;
             border-radius: 8px;
-            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%); /* Primary Accent */
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
             color: white;
             font-size: 16px;
             font-weight: 800;
@@ -230,9 +230,14 @@
             margin-top: 15px;
         }
         
-        .signup-submit:hover {
+        .signup-submit:hover:not(:disabled) {
             background: linear-gradient(135deg, #5A6AD0 0%, #6D4396 100%);
             box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .signup-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
         
         .signup-links {
@@ -353,7 +358,7 @@
             
             <div id="message" style="display: none; margin-bottom: 20px; text-align: center; font-weight: 700;"></div>
             
-            <form id="signup-form" onsubmit="return false;">
+            <form id="signup-form">
                 
                 <div class="form-group">
                     <label for="name">Your Name</label>
@@ -400,27 +405,17 @@
             const ticker = document.getElementById('latest-updates-ticker');
             if (!ticker) return; 
 
-            // The list of content and links to cycle through
             const LESSON_STATES = [
-                // State 1: BUSINESS
                 { text: "🚀 NEW! BUSINESS: Career Progression 🎯", href: "/feedback/" },
-                // State 2: BEGINNER
-                { text: "👻 NEW! BEGINNER: Trick or Treat! 🎃", href: "/trickortreat/" },
-                // State 3: INTERMEDIATE
+                { text: "💻 NEW! BEGINNER: Trick or Treat! 🎃", href: "/trickortreat/" },
                 { text: "🎃 NEW! INTERMEDIATE: Beware The Black Cat! 👻", href: "/halloween/" },
-                // State 4: ADVANCED
                 { text: "🧟‍♂️ NEW! ADVANCED: The Creation's Ruin - Frankenstein ⚰️", href: "/frank/" },
-                // State 5: ADVANCED
                 { text: "😎 NEW! ADVANCED: Unusual European Foods 🍴", href: "/weirdeurofoods/" },
-                // State 6: BUSINESS
                 { text: "😎 NEW! BUSINESS: Change Management 🧭", href: "/changemanagement/" },
-                // State 7: TAX
                 { text: "😎 NEW! TAX: International Tax Essentials 🌎", href: "/internationaltaxation/" },
-                // State 8: BEGINNER
                 { text: "😎 NEW! BEGINNER: What's The Weather Like? ☔", href: "/weather/" },
                 { text: "😎 NEW! INTERMEDIATE: Fortune Cookie English 🥠", href: "/fortunecookies/" },
-                { text: "😎 NEW! LEGAL: Intellectual Property Law 🏛️", href: "/iplaw/" },
-                // State 11: ADVANCED (The one you noticed)
+                { text: "😎 NEW! LEGAL: Intellectual Property Law 🛡️", href: "/iplaw/" },
                 { text: "😎 NEW! ADVANCED: Crocs' China Strategy 🐊", href: "/crocs/" }
             ];
             
@@ -430,23 +425,20 @@
                 currentStateIndex = (currentStateIndex + 1) % LESSON_STATES.length;
                 const newState = LESSON_STATES[currentStateIndex];
 
-                ticker.style.opacity = 0; // Fade out
+                ticker.style.opacity = 0;
 
                 setTimeout(() => {
                     ticker.textContent = newState.text;
                     ticker.href = newState.href;
-                    ticker.style.opacity = 1; // Fade in
+                    ticker.style.opacity = 1;
                 }, 200);
             }
 
-            // Initialize the ticker with the first state
             ticker.textContent = LESSON_STATES[0].text;
             ticker.href = LESSON_STATES[0].href;
 
-            // Start the interval (cycles every 4 seconds)
             setInterval(updateTicker, 4000);
             
-            // Manage pulse animation
             ticker.addEventListener('mouseenter', () => {
                 ticker.style.animation = 'none';
             });
@@ -455,19 +447,17 @@
             });
         }
 
-        // Call the function when the page loads
         document.addEventListener('DOMContentLoaded', startTickerAnimation);
 
         // --- SUPABASE & SIGN-UP LOGIC START ---
 
-        // The Supabase client is initialized correctly here, using the Supabase library loaded in the head.
         const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co'; 
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
 
-        const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
-        // Get form elements
         const signUpForm = document.getElementById('signup-form');
+        const nameInput = document.getElementById('name');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
         const confirmPasswordInput = document.getElementById('confirm-password');
@@ -475,91 +465,86 @@
         const signupButton = document.getElementById('signup-btn');
         const termsCheckbox = document.getElementById('terms-agreed');
 
-        // Function to display messages
         function displayMessage(text, isError = false) {
             messageDiv.textContent = text;
-            messageDiv.style.color = isError ? '#E53E3E' : '#38A169'; // Red for error, Green for success
+            messageDiv.style.color = isError ? '#E53E3E' : '#38A169';
             messageDiv.style.display = 'block';
         }
 
-        // Function to handle form submission
         async function handleSignUp(event) {
-            // event.preventDefault() is no longer strictly needed due to onsubmit="return false;" but is harmless
+            event.preventDefault();
             
             if (!termsCheckbox.checked) {
                 displayMessage('You must agree to The Cool Dude Agreement.', true);
                 return;
             }
             
+            const name = nameInput.value.trim();
             const email = emailInput.value.trim();
             const password = passwordInput.value; 
             const confirmPassword = confirmPasswordInput.value;
 
-            if (!email || !password || !confirmPassword) {
+            if (!name || !email || !password || !confirmPassword) {
                 displayMessage('Please fill out all fields.', true);
                 return;
             }
             
-            // Check if passwords match
             if (password !== confirmPassword) {
                 displayMessage('The passwords you entered do not match. Try again!', true);
                 return;
             }
             
-            // Check minimum password length
             if (password.length < 8) {
                 displayMessage('Your password must be at least 8 characters long.', true);
                 return;
             }
 
-
-            // Disable button and show loading state
             signupButton.disabled = true;
             signupButton.textContent = 'Processing...';
-            signupButton.style.opacity = 0.7;
             displayMessage('Sending sign-up request...', false);
 
-            // Perform the sign-up call to Supabase
-            const { data, error } = await supabase.auth.signUp({
-                email: email,
-                password: password,
-            });
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            full_name: name,
+                        }
+                    }
+                });
 
-            signupButton.disabled = false;
-            signupButton.textContent = 'Create My Account'; 
-            signupButton.style.opacity = 1;
+                signupButton.disabled = false;
+                signupButton.textContent = 'Create My Account'; 
 
-            if (error) {
-                console.error('Sign Up Error:', error);
-                // Display a user-friendly error message
-                if (error.message.includes('password')) {
-                     displayMessage('Password too weak or other password error. Please use 8 characters or more.', true);
-                } else if (error.message.includes('already registered')) {
-                     displayMessage('This email is already registered. Try logging in!', true);
+                if (error) {
+                    console.error('Sign Up Error:', error);
+                    
+                    if (error.message.toLowerCase().includes('password')) {
+                        displayMessage('Password too weak. Please use 8+ characters with variety.', true);
+                    } else if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('already exists')) {
+                        displayMessage('This email is already registered. Try logging in!', true);
+                    } else {
+                        displayMessage('Sign-up failed: ' + error.message, true);
+                    }
                 } else {
-                     displayMessage('Sign-up failed: ' + error.message, true);
+                    console.log('Sign-up successful:', data);
+                    displayMessage('Success! Check your email to confirm your account, Cool Dude. Redirecting...', false);
+                    
+                    setTimeout(() => {
+                        window.location.href = '/login/'; 
+                    }, 2000);
+                    
+                    signUpForm.reset();
                 }
-            } else {
-                // CRITICAL FIX 2: Success! Show message briefly, then redirect to login.
-                displayMessage('Success! Check your email to confirm your account, Cool Dude. Redirecting to login...', false);
-                
-                // Force redirect to the login page after success.
-                setTimeout(() => {
-                    window.location.href = '/login/'; 
-                }, 1000); // Wait 1 second
-                
-                // Clear the form fields (will be cleared by the redirect, but harmless here)
-                emailInput.value = '';
-                passwordInput.value = '';
-                confirmPasswordInput.value = '';
-                document.getElementById('name').value = '';
-                termsCheckbox.checked = false;
+            } catch (err) {
+                console.error('Unexpected error:', err);
+                displayMessage('An unexpected error occurred. Please try again.', true);
+                signupButton.disabled = false;
+                signupButton.textContent = 'Create My Account';
             }
-            // Ensure the function returns something to keep the process clean
-            return false;
         }
 
-        // Attach the submission handler to the form
         if (signUpForm) {
             signUpForm.addEventListener('submit', handleSignUp);
         }
