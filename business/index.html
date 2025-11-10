@@ -2,18 +2,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="icon" type="image/png" href="/images/favicon-32x32.png" sizes="32x32">
-    <link rel="apple-touch-icon" href="/images/icon-180.png" sizes="180x180">
-    <link rel="icon" type="image/png" href="/images/icon-192.png" sizes="192x192">
-
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+    <link rel="icon" type="image/png" href="/android-chrome-192x192.png" sizes="192x192">
     <link rel="manifest" href="/manifest.json">
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Business English Lessons - English For Cool Dudes</title>
+    <title>English For Cool Dudes</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* All CSS from newhomepagev2.html goes here */
         * {
             margin: 0;
             padding: 0;
@@ -28,7 +27,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Header */
+        /* === REUSABLE HEADER STYLES === */
         .header {
             background: #FFFFFF;
             border-bottom: 1px solid #E5E9F2;
@@ -40,27 +39,21 @@
             margin-bottom: 20px;
         }
 
-      .header-wrapper {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
 
-.header-link {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    text-decoration: none;
-    color: #2C3E50;
-}
-
-.header-link:hover {
-    opacity: 0.9;
-}
-
-.header-content:hover {
-     opacity: 0.9; /* Subtle visual feedback on hover */
-}
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            /* DELETED flex: 1; to group all left-side elements */
+        }
 
         .logo {
             width: 36px;
@@ -78,6 +71,78 @@
             font-weight: 800;
             color: #1A202C;
             letter-spacing: -0.02em;
+            text-decoration: none;
+        }
+
+        .header-buttons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-button {
+            text-decoration: none;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 700;
+            transition: all 0.2s;
+            white-space: nowrap;
+            cursor: pointer;
+            border: 1px solid #E5E9F2;
+            background: transparent;
+        }
+
+        .header-button.login {
+            background: #F8F9FB;
+            color: #4A5568;
+        }
+
+        .header-button.login:hover {
+            background: #FFFFFF;
+            color: #2C3E50;
+            border-color: #718096;
+        }
+
+        .header-button.signup {
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            color: white;
+            border: 1px solid transparent;
+        }
+
+        .header-button.signup:hover {
+            background: linear-gradient(135deg, #5A6AD0 0%, #6D4396 100%);
+            box-shadow: 0 2px 5px rgba(102, 126, 234, 0.4);
+        }
+
+        .header-button.dashboard {
+            background: #FFFBEA;
+            color: #92400E;
+            border-color: #FCD34D;
+        }
+
+        .header-button.dashboard:hover {
+            background: #FCD34D;
+            border-color: #F59E0B;
+        }
+
+        .header-button.logout {
+            background: #F8F9FB;
+            color: #E53E3E;
+        }
+
+        .header-button.logout:hover {
+            background: #FEEBEB;
+            color: #C53030;
+            border-color: #FBD3DA;
+        }
+
+        .user-greeting {
+            font-size: 14px;
+            color: #4A5568;
+            font-weight: 700;
+            margin-right: 5px;
+            white-space: nowrap;
         }
 
         /* Main Container */
@@ -87,7 +152,27 @@
             padding: 30px 20px;
         }
 
-        /* REMOVED WELCOME BANNER CSS */
+        /* Welcome Banner */
+        .welcome-banner {
+            background: linear-gradient(135deg, #3498DB 0%, #2980B9 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .welcome-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .welcome-subtitle {
+            font-size: 18px;
+            font-weight: 600;
+            opacity: 0.95;
+        }
 
         /* Section Headers */
         .section {
@@ -200,21 +285,6 @@
             gap: 5px;
         }
 
-        /* Special Cards */
-        .featured-card {
-            border: 3px solid #3498DB;
-            background: linear-gradient(135deg, #EBF5FB 0%, #FFFFFF 100%);
-        }
-
-        .featured-card .course-header {
-            background: linear-gradient(135deg, #3498DB 0%, #2980B9 100%);
-            color: white;
-        }
-
-        .featured-card .course-title {
-            color: white;
-        }
-
         /* Quick Links Section */
         .quick-links {
             display: grid;
@@ -282,7 +352,45 @@
             margin: 0;
             line-height: 1.6;
         }
+        
+        /* Ticker */
+        #latest-updates-ticker {
+            position: fixed;
+            top: 20px; 
+            right: 50%;
+            margin-right: -580px;
+            z-index: 1000;
+            cursor: pointer;
+            background: #FFC107;
+            color: #92400E;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 800;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, background-color 0.2s, opacity 0.2s;
+            border: 2px solid #F59E0B;
+            animation: pulse 2s infinite ease-in-out;
+            text-decoration: none;
+            white-space: nowrap;
+            max-width: 450px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            display: inline-block;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
+            50% { transform: scale(1.03); box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.6); }
+            100% { transform: scale(1); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
+        }
 
+        #latest-updates-ticker:hover {
+            background: #FFD54F;
+            transform: scale(1.05);
+            animation: none;
+        }
+        
         /* Footer */
         .footer {
             background: #FFFFFF;
@@ -298,8 +406,34 @@
         }
 
         /* Responsive */
+        @media (max-width: 1240px) {
+            #latest-updates-ticker {
+                right: 20px;
+                margin-right: 0;
+            }
+        }
+
         @media (max-width: 768px) {
-            /* REMOVED WELCOME BANNER RESPONSIVE CSS */
+            .user-greeting {
+                display: none;
+            }
+            
+            .header-button {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+
+            .welcome-banner {
+                padding: 30px 20px;
+            }
+
+            .welcome-title {
+                font-size: 26px;
+            }
+
+            .welcome-subtitle {
+                font-size: 16px;
+            }
 
             .course-grid {
                 grid-template-columns: 1fr;
@@ -335,18 +469,41 @@
             .course-body {
                 padding: 20px;
             }
+            
+            #latest-updates-ticker {
+                top: 10px;
+                right: 10px;
+                font-size: 12px;
+                padding: 6px 12px;
+            }
         }
     </style>
 </head>
 <body>
-    <header class="header">
-    <div class="header-wrapper">
-        <a href="/" class="header-link">
-            <div class="logo">😎</div> 
-            <span class="site-title">English For Cool Dudes</span> 
-        </a>
-    </div>
-</header>
+ <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">😎</span>
+                <a href="/" class="site-title">English For Cool Dudes</a>
+            
+                <div id="logged-out-buttons" class="header-buttons" style="display: none;">
+                    <a href="/login/" class="header-button login">Login</a>
+                    <a href="/signup/" class="header-button signup">Sign Up</a>
+                </div>
+
+                <div id="logged-in-buttons" class="header-buttons" style="display: none;">
+                    <span class="user-greeting" id="user-greeting">Hey Cool Dude! 👋</span>
+                    <a href="/dashboard/" class="header-button dashboard">My Dashboard</a>
+                    <button id="logout-btn" class="header-button logout">Sign Out</button>
+                </div>
+            </div>
+            
+        </div>
+    </header>
+
+<a href="/crocs/" id="latest-updates-ticker">
+        😎 NEW! ADVANCED: Crocs' China Strategy 🐊
+    </a>
 
     <main class="container">
 
@@ -468,8 +625,112 @@
 
     </main>
 
-    <footer class="footer">
+   <footer class="footer">
         <p class="footer-text">© 2025 English For Cool Dudes - Learn British English effectively</p>
     </footer>
+ <script>
+        // Ticker animation
+        function startTickerAnimation() {
+            const ticker = document.getElementById('latest-updates-ticker');
+            if (!ticker) return;
+
+            const LESSON_STATES = [
+                { text: "🚀 NEW! BUSINESS: Career Progression 🎯", href: "/feedback/" },
+                { text: "👻 NEW! BEGINNER: Trick or Treat! 🎃", href: "/trickortreat/" },
+                { text: "🎃 NEW! INTERMEDIATE: Beware The Black Cat! 👻", href: "/halloween/" },
+                { text: "🧟‍♂️ NEW! ADVANCED: The Creation's Ruin - Frankenstein ⚰️", href: "/frank/" },
+                { text: "😎 NEW! ADVANCED: Unusual European Foods 🍴", href: "/weirdeurofoods/" },
+                { text: "😎 NEW! BUSINESS: Change Management 🧭", href: "/changemanagement/" },
+                { text: "😎 NEW! TAX: International Tax Essentials 🌎", href: "/internationaltaxation/" },
+                { text: "😎 NEW! BEGINNER: What's The Weather Like? ☔", href: "/weather/" },
+                { text: "😎 NEW! INTERMEDIATE: Fortune Cookie English 🥠", href: "/fortunecookies/" },
+                { text: "😎 NEW! LEGAL: Intellectual Property Law 🏛️", href: "/iplaw/" },
+            ];
+
+            let currentStateIndex = 0;
+
+            function updateTicker() {
+                currentStateIndex = (currentStateIndex + 1) % LESSON_STATES.length;
+                const newState = LESSON_STATES[currentStateIndex];
+                ticker.style.opacity = 0;
+
+                setTimeout(() => {
+                    ticker.textContent = newState.text;
+                    ticker.href = newState.href;
+                    ticker.style.opacity = 1;
+                }, 200);
+            }
+
+            ticker.textContent = LESSON_STATES[0].text;
+            ticker.href = LESSON_STATES[0].href;
+            setInterval(updateTicker, 4000);
+            
+            ticker.addEventListener('mouseenter', () => { ticker.style.animation = 'none'; });
+            ticker.addEventListener('mouseleave', () => { ticker.style.animation = 'pulse 2s infinite ease-in-out'; });
+        }
+
+        document.addEventListener('DOMContentLoaded', startTickerAnimation);
+    </script>
+
+    <script>
+        // Initialize Supabase
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Auth header logic
+        async function initializeAuthHeader() {
+            const loggedOutButtons = document.getElementById('logged-out-buttons');
+            const loggedInButtons = document.getElementById('logged-in-buttons');
+            const userGreeting = document.getElementById('user-greeting');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            try {
+                const { data: { user }, error } = await supabase.auth.getUser();
+
+                if (user) {
+                    console.log('User logged in:', user.email);
+                    
+                    let userName = 'Cool Dude';
+                    if (user.user_metadata && user.user_metadata.full_name) {
+                        userName = user.user_metadata.full_name.split(' ')[0];
+                    } else if (user.email) {
+                        userName = user.email.split('@')[0];
+                    }
+                    
+                    if (userGreeting) userGreeting.textContent = `Hey ${userName}! 👋`;
+                    if (loggedInButtons) loggedInButtons.style.display = 'flex';
+                    if (loggedOutButtons) loggedOutButtons.style.display = 'none';
+                } else {
+                    console.log('User not logged in');
+                    if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
+                    if (loggedInButtons) loggedInButtons.style.display = 'none';
+                }
+            } catch (err) {
+                console.error('Error checking auth:', err);
+                if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
+                if (loggedInButtons) loggedInButtons.style.display = 'none';
+            }
+
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async () => {
+                    try {
+                        const { error } = await supabase.auth.signOut();
+                        if (error) {
+                            console.error('Logout error:', error);
+                            alert('Logout failed. Please try again.');
+                        } else {
+                            window.location.reload();
+                        }
+                    } catch (err) {
+                        console.error('Unexpected logout error:', err);
+                    }
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeAuthHeader);
+    </script>
 </body>
 </html>
