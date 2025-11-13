@@ -664,33 +664,29 @@
     <div id="feedback-popup"></div>
 
 <script>
-    // --- Supabase Client (Auth) ---
-    // You must replace these with your own Supabase project details!
+     // --- Supabase Client (Auth) - FIXED ---
     const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
 
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let currentUser = null;
 
-    
-   
-
     // --- Global Elements ---
     const dictionaryPopup = document.getElementById('dictionary-popup');
     const feedbackPopup = document.getElementById('feedback-popup');
     const progressStageSpan = document.getElementById('current-stage');
-
-// Lesson Data
-    const lessonTitle = "Guy Fawkes & Bonfire Night Intermediate";
+    
+    // Lesson Data
+    const lessonTitle = "Bonfire Night: Guy Fawkes and the Gunpowder Plot";
     const lessonLink = "/fawkes/";
-    const lessonLevel = "Intermediate";
+    const lessonLevel = "Upper Intermediate";
     
     // Helper function to find word object
     function getWordDefinition(word) {
         return wordsToSave.find(w => w.word === word);
     }
 
-    // --- Key Vocabulary List ---
+    // --- KEY A2 VOCABULARY LIST ---
     const wordsToSave = [
         { word: 'commemorates', definition: 'Remembers with respect; celebrates the memory of something.', type: 'verb' },
         { word: 'conspirators', definition: 'People who secretly plan or carry out illegal or harmful actions.', type: 'noun' },
@@ -704,52 +700,57 @@
         { word: 'shed', definition: 'To move away from or get rid of its original meaning or purpose.', type: 'verb' },
         { word: 'effigies', definition: 'Dummy models or representations of people.', type: 'noun' },
         { word: 'vestige', definition: 'A powerful reminder or memory of something from the past.', type: 'noun' },
-        { word: 'pageantry', definition: 'Objects or events that show respect or honor for important people or events.', type: 'noun' }
+        { word: 'pageantry', definition: 'Objects or events that show respect or honor for important people or events.', type: 'noun' },
     ];
 
     // --- Authentication ---
     async function checkUser() {
-        if (!supabase) {
-            // If Supabase isn't set up, show logged-out state
-            document.getElementById('logged-out-buttons').style.display = 'flex';
-            document.getElementById('login-prompt').style.display = 'block';
-            return;
-        }
-        // ... (rest of checkUser logic)
-        
-        const { data: { session } } = await supabase.auth.getSession();
-        currentUser = session ? session.user : null;
+        try {
+            const { data: { user }, error } = await supabase.auth.getUser();
 
-      if (currentUser) {
-            document.getElementById('logged-in-buttons').style.display = 'flex';
-            document.getElementById('logged-out-buttons').style.display = 'none';
-            document.getElementById('save-feature-loggedin').style.display = 'block';
-            document.getElementById('login-prompt').style.display = 'none';
-            
-            const userEmail = currentUser.email;
-            const greeting = document.getElementById('user-greeting');
-            if (userEmail) {
-                greeting.textContent = `Hey ${userEmail.split('@')[0]}! 👋`;
+           if (user) {
+                currentUser = user;
+                console.log('User logged in:', user.email);
+                
+                document.getElementById('logged-in-buttons').style.display = 'flex';
+                document.getElementById('logged-out-buttons').style.display = 'none';
+                document.getElementById('save-feature-loggedin').style.display = 'block';
+                document.getElementById('login-prompt').style.display = 'none';
+                
+                // --- Personalized Greeting Logic from your snippet ---
+                let userName = 'Cool Dude';
+                if (user.user_metadata && user.user_metadata.full_name) {
+                    // Use first name if available in user metadata
+                    userName = user.user_metadata.full_name.split(' ')[0];
+                } else if (user.email) {
+                    // Fallback to email pre-@ part
+                    userName = user.email.split('@')[0];
+                }
+                
+                const greeting = document.getElementById('user-greeting');
+                greeting.textContent = `Hey ${userName}! 👋`;
+                // ---------------------------------------------------
             } else {
-                greeting.textContent = `Hey Cool Dude! 👋`;
+                currentUser = null;
+                document.getElementById('logged-in-buttons').style.display = 'none';
+                document.getElementById('logged-out-buttons').style.display = 'flex';
+                document.getElementById('save-feature-loggedin').style.display = 'none';
+                document.getElementById('login-prompt').style.display = 'block';
             }
-        } else {
-            document.getElementById('logged-in-buttons').style.display = 'none';
+        } catch (err) {
+            console.error('Error checking auth:', err);
             document.getElementById('logged-out-buttons').style.display = 'flex';
-            document.getElementById('save-feature-loggedin').style.display = 'none';
-            document.getElementById('login-prompt').style.display = 'block';
+            document.getElementById('logged-in-buttons').style.display = 'none';
         }
     }
 
     async function handleLogout() {
-        if (!supabase) return;
         const { error } = await supabase.auth.signOut();
         if (error) {
             console.error('Error logging out:', error.message);
         } else {
             currentUser = null;
-            checkUser(); // Update UI
-            window.location.reload();
+            window.location.href = '/';
         }
     }
 
@@ -770,27 +771,23 @@
     }
     
     function nextStage(stageNumber) {
-        // Hide all stages
         document.querySelectorAll('.content-card[data-section-id]').forEach(card => {
-            if (card.dataset.sectionId != "0") { // Keep reading text card
+            if (card.dataset.sectionId != "0") {
                  card.style.display = 'none';
             }
         });
 
-        // Show the target stage
         const nextStageEl = document.getElementById(`stage-${stageNumber}`);
         if (nextStageEl) {
             nextStageEl.style.display = 'block';
             if (stageNumber <= 5) {
                  progressStageSpan.textContent = stageNumber;
             } else {
-                progressStageSpan.textContent = '5'; // On summary, show 5
-                document.querySelector('.flex.justify-between.items-center').style.display = 'none'; // Hide progress bar
-                
-                // NEW: Setup interactive word list when reaching the summary stage
+                progressStageSpan.textContent = '5';
+                document.querySelector('.flex.justify-between.items-center').style.display = 'none';
                 setupWordListInteraction();
             }
-            window.scrollTo(0, nextStageEl.offsetTop - 100); // Scroll to new stage
+            window.scrollTo(0, nextStageEl.offsetTop - 100);
         }
     }
 
@@ -810,43 +807,34 @@
         });
     }
 
-    // --- Dictionary Popup Logic (Fixed positioning for `position: fixed`) ---
+    // --- Dictionary Popup Logic ---
     function showDictionaryPopup(targetElement, definition) {
         if (!definition) return;
         
         dictionaryPopup.innerHTML = definition;
-        dictionaryPopup.style.display = 'block'; // Show it to measure it
+        dictionaryPopup.style.display = 'block';
         
-        // Get position relative to viewport (ignores scroll)
         const rect = targetElement.getBoundingClientRect();
         const popupRect = dictionaryPopup.getBoundingClientRect(); 
         
-        let topPos = rect.bottom + 5; // Start 5px below the word
-        
-        // Center popup horizontally over the word (uses target center - half popup width)
+        let topPos = rect.bottom + 5;
         let leftPos = rect.left + (rect.width / 2) - (popupRect.width / 2);
 
-        // 1. Check Left/Right Boundaries
         if ((leftPos + popupRect.width) > window.innerWidth - 10) {
-            leftPos = window.innerWidth - popupRect.width - 10; // Clamp to 10px from right
+            leftPos = window.innerWidth - popupRect.width - 10;
         }
         if (leftPos < 10) { 
-            leftPos = 10; // Clamp to 10px from left
+            leftPos = 10;
         }
 
-        // 2. Check Top/Bottom Boundaries
         const popupHeight = popupRect.height;
-        // Check if it fits below the word (with a 10px margin)
         if ((rect.bottom + popupHeight + 10) > window.innerHeight) {
-            // It doesn't fit below, place it above
-            topPos = rect.top - popupHeight - 5; // 5px above the word
+            topPos = rect.top - popupHeight - 5;
         }
         
-        // Final position set
         dictionaryPopup.style.left = `${leftPos}px`;
         dictionaryPopup.style.top = `${topPos}px`;
     }
-
 
     // --- Setup Click listeners for Reading Text ---
     function setupDictionary() {
@@ -858,11 +846,10 @@
             });
         });
 
-        // Click popup itself to stop bubble
         dictionaryPopup.addEventListener('click', (e) => e.stopPropagation());
     }
     
-    // --- NEW: Setup Click listeners for the Final Summary List ---
+    // --- Setup Click listeners for the Final Summary List ---
     function setupWordListInteraction() {
         document.querySelectorAll('#learned-words-list li').forEach(listItem => {
             listItem.addEventListener('click', (e) => {
@@ -871,15 +858,12 @@
                 const wordObj = getWordDefinition(word);
                 
                 if (wordObj) {
-                     // Format the definition for the popup
                      const definition = `<strong>${wordObj.word} (${wordObj.type})</strong><br/>${wordObj.definition}`;
-                     // Pass the list item as the target element for positioning
                      showDictionaryPopup(listItem, definition);
                 }
             });
         });
     }
-
 
     // --- Quiz Logic: Radio (Stage 1 & 5) ---
     function setupRadioQuizzes() {
@@ -989,11 +973,10 @@
             if (anyIncorrectSelected) {
                 showFeedback('Your Plan Has Failed! Choose again! 🧨', 'incorrect');
             } else if (anyCorrectMissed) {
-                showFeedback('Close! You missed a correct answer. Try again. 💣', 'incorrect');
+                showFeedback('Getting Warm! You missed a correct answer. Try again. 💣', 'incorrect');
             }
         }
     }
-
 
     // --- Quiz Logic: Gap Fill (Stage 3 & 4) ---
     function setupGapFill() {
@@ -1086,14 +1069,14 @@
         } else if (!allFilled) {
              showFeedback('Not quite... your plan has failed! 🧨', 'incorrect');
         } else {
-            showFeedback(`Getting warmer... ${correctCount} are correct. The wrong ones flashed red. Try again! 🔥`, 'incorrect');
+            showFeedback(`Getting warmer... ${correctCount} are correct. Try again! 🔥`, 'incorrect');
         }
     }
     
     // --- Save Words Logic ---
     async function saveWordsToDashboard() {
-        if (!supabase || !currentUser) {
-            showFeedback('You must be logged in to save words! 🔑', 'incorrect');
+        if (!currentUser) {
+            showFeedback('You must be logged in to save words! 🔒', 'incorrect');
             return;
         }
 
@@ -1103,16 +1086,22 @@
         saveButton.disabled = true;
         saveStatus.textContent = 'Saving... ⏳';
 
-        const records = wordsToSave.map(word => ({
-            user_id: currentUser.id,
-            word: word.word,
-            definition: word.definition,
-            context_lesson: 'Guy Fawkes & Bonfire Night',
-            type: word.type
-        }));
-
         try {
-            const { error } = await supabase.from('user_vocabulary').upsert(records, { onConflict: 'user_id, word' });
+            const { data, error } = await supabase
+                .from('lessons')
+                .upsert([
+                    { 
+                        user_id: currentUser.id, 
+                        lesson_title: lessonTitle,
+                        lesson_link: lessonLink,
+                        lesson_level: lessonLevel,
+                        vocabulary: wordsToSave,
+                        completed_at: new Date().toISOString()
+                    }
+                ], { 
+                    onConflict: 'user_id,lesson_title'
+                })
+                .select();
             
             if (error) {
                 throw error;
@@ -1121,6 +1110,10 @@
             saveStatus.textContent = '✅ Saved to your dashboard!';
             saveStatus.style.color = 'var(--color-correct)';
             saveButton.textContent = 'Words Saved!';
+            
+            setTimeout(() => {
+                window.location.href = '/dashboard/';
+            }, 1500);
 
         } catch (error) {
             console.error('Error saving words:', error.message);
@@ -1139,19 +1132,18 @@
         setupCheckboxQuizzes();
         setupGapFill();
 
-        // Logout button listener
         const logoutBtn = document.getElementById('logout-btn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', handleLogout);
         }
 
-        // Add body click to hide dictionary
         document.body.addEventListener('click', () => {
             if (dictionaryPopup.style.display === 'block') {
                 dictionaryPopup.style.display = 'none';
             }
         });
     });
+
 
 </script>
 </body>
