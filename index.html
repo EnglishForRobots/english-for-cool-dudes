@@ -477,6 +477,117 @@
             }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+async function checkForMistakesOnHomepage() {
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        // Get ALL mistakes from ALL lessons (not just one lesson)
+        const { data: mistakes } = await supabase
+            .from('user_mistakes')
+            .select('word, lesson')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(5); // Show max 5 recent mistakes
+        
+        if (mistakes && mistakes.length > 0) {
+            showMistakeReminderHomepage(mistakes);
+        }
+    } catch (error) {
+        console.error('Error checking mistakes:', error);
+    }
+}
+
+function showMistakeReminderHomepage(mistakes) {
+    // Group mistakes by lesson
+    const lessonGroups = {};
+    mistakes.forEach(m => {
+        if (!lessonGroups[m.lesson]) {
+            lessonGroups[m.lesson] = [];
+        }
+        lessonGroups[m.lesson].push(m.word);
+    });
+
+    const popup = document.createElement('div');
+    popup.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        z-index: 10000;
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+    `;
+    
+    let lessonHTML = '';
+    for (const [lesson, words] of Object.entries(lessonGroups)) {
+        const wordList = words.map(w => `<strong>${w}</strong>`).join(', ');
+        lessonHTML += `
+            <div style="margin: 15px 0; padding: 15px; background: #FEF2F2; border-radius: 8px;">
+                <p style="font-size: 14px; color: #666; margin-bottom: 5px;">${lesson}</p>
+                <p style="color: #DC2626; font-weight: 600;">${wordList}</p>
+            </div>
+        `;
+    }
+    
+    popup.innerHTML = `
+        <h2 style="color: #DC2626; margin-bottom: 15px;">🎯 Words to Review!</h2>
+        <p style="color: #666; margin-bottom: 20px;">
+            You had trouble with these words recently:
+        </p>
+        ${lessonHTML}
+        <p style="color: #666; margin-bottom: 25px; font-size: 14px;">
+            Try reviewing these lessons to master them!
+        </p>
+        <button id="got-it-btn" style="
+            background: #DC2626;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 16px;
+        ">Got it! 👍</button>
+    `;
+    
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 9999;
+    `;
+    
+    document.body.appendChild(overlay);
+    document.body.appendChild(popup);
+    
+    document.getElementById('got-it-btn').addEventListener('click', () => {
+        popup.remove();
+        overlay.remove();
+    });
+}
+
+// Run when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => checkForMistakesOnHomepage(), 1000);
+});
+</script>
 </head>
 <body>
     <!-- === REUSABLE AUTH HEADER === -->
