@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -776,12 +775,21 @@ async function saveMistake(word) {
     if (!currentUser) return;
     
     try {
-        await supabase.from('user_mistakes').insert({
+        // **FIXED:** Changed from 'insert' to 'upsert' to prevent duplicate mistake words
+        const { error } = await supabase.from('user_mistakes').upsert({
             user_id: currentUser.id,
             word: word,
-            lesson: lessonTitle
+            lesson: lessonTitle,
+            last_made_at: new Date().toISOString() // Tracking the most recent time the mistake was made
+        }, {
+            onConflict: 'user_id,word' // This enforces uniqueness on the combination of user and word
         });
-        console.log(`Saved mistake: ${word}`);
+        
+        if (error) {
+            throw error;
+        }
+        
+        console.log(`Saved or updated mistake: ${word}`);
     } catch (error) {
         console.error('Error saving mistake:', error);
     }
@@ -1095,7 +1103,7 @@ function checkGapFillStage(stageNum) {
             gap.classList.add('incorrect');
             allCorrect = false;
             
-            // NEW: Save the mistake!
+            // NEW: Save the mistake! The fixed saveMistake function will ensure it is only saved once.
             saveMistake(gap.dataset.answer);
             
             
