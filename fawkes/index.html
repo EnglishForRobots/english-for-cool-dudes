@@ -787,87 +787,8 @@ async function saveMistake(word) {
     }
 }
 
-// 2. Check for mistakes when page loads
-async function checkForMistakes() {
-    if (!currentUser) return;
-    
-    try {
-        const { data: mistakes } = await supabase
-            .from('user_mistakes')
-            .select('word')
-            .eq('user_id', currentUser.id)
-            .eq('lesson', lessonTitle)
-            .limit(3); // Show max 3 words
-        
-        if (mistakes && mistakes.length > 0) {
-            showMistakeReminder(mistakes);
-        }
-    } catch (error) {
-        console.error('Error checking mistakes:', error);
-    }
-}
 
-// 3. Show a simple popup reminder
-function showMistakeReminder(mistakes) {
-    const popup = document.createElement('div');
-    popup.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-        z-index: 10000;
-        max-width: 400px;
-        width: 90%;
-        text-align: center;
-    `;
-    
-    const wordList = mistakes.map(m => `<strong>${m.word}</strong>`).join(', ');
-    
-    popup.innerHTML = `
-        <h2 style="color: #DC2626; margin-bottom: 15px;">🎯 Remember These Words?</h2>
-        <p style="color: #666; margin-bottom: 20px;">
-            Last time you had trouble with: ${wordList}
-        </p>
-        <p style="color: #666; margin-bottom: 25px; font-size: 14px;">
-            Pay extra attention when you see them in this lesson!
-        </p>
-        <button id="got-it-btn" style="
-            background: #DC2626;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 16px;
-        ">Got it! 👍</button>
-    `;
-    
-    // Add overlay
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 9999;
-    `;
-    
-    document.body.appendChild(overlay);
-    document.body.appendChild(popup);
-    
-    // Close popup when button clicked
-    document.getElementById('got-it-btn').addEventListener('click', () => {
-        popup.remove();
-        overlay.remove();
-    });
-}
+
 
     // --- General UI Functions ---
     function toggleCollapse(contentId) {
@@ -1177,7 +1098,7 @@ function checkGapFillStage(stageNum) {
             // NEW: Save the mistake!
             saveMistake(gap.dataset.answer);
             
-            setTimeout(() => { gap.classList.remove('incorrect'); }, 1000);
+            
         }
     });
 
