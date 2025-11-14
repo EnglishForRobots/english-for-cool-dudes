@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Due Diligence in M&A - English for Cool Dudes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        /* --- COOL DUDES BRANDING & MOBILE-FIRST STYLES --- */
+        :root {
+            --color-primary: #047857; /* Dark Green - Professional */
+            --color-secondary: #FBBF24; /* Amber - Accent/Money */
+            --color-accent: #34D399; /* Light Green - Correct */
+            --color-background: #F0FDF4; /* Lightest Green/White */
+            --color-text: #1F2937;
+            --color-correct: #10B981;
+            --color-incorrect: #EF4444;
+            --color-new-feature: #4F46E5; /* Indigo */
+        }
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* === REUSABLE HEADER STYLES === */
+        .header {
+            background: #FFFFFF;
+            border-bottom: 1px solid #D1D5DB;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--color-primary) 0%, #064E3B 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .site-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #1A202C;
+            letter-spacing: -0.02em;
+            text-decoration: none;
+        }
+
+ .header-buttons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-button {
+            text-decoration: none;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 700;
+            transition: all 0.2s;
+            white-space: nowrap;
+            cursor: pointer;
+            border: 1px solid #E5E9F2;
+            background: transparent;
+        }
+
+        .header-button.login {
+            background: #F8F9FB;
+            color: #4A5568;
+        }
+
+        .header-button.login:hover {
+            background: #FFFFFF;
+            color: #2C3E50;
+            border-color: #718096;
+        }
+
+        .header-button.signup {
+            background: var(--color-primary);
+            color: white;
+            border: 1px solid transparent;
+        }
+
+        .header-button.signup:hover {
+            background: #065F46;
+            box-shadow: 0 2px 5px rgba(4, 120, 87, 0.4);
+        }
+
+        .header-button.dashboard {
+            background: #FFFBEA;
+            color: #92400E;
+            border-color: #FCD34D;
+        }
+
+        .header-button.dashboard:hover {
+            background: #FCD34D;
+            border-color: #F59E0B;
+        }
+
+        .header-button.logout {
+            background: #F8F9FB;
+            color: #E53E3E;
+        }
+
+        .header-button.logout:hover {
+            background: #FEEBEB;
+            color: #C53030;
+            border-color: #FBD3DA;
+        }
+        .user-greeting {
+            font-size: 14px;
+            color: #4A5568;
+            font-weight: 700;
+            margin-right: 5px;
+            white-space: nowrap;
+        }
+        
+        /* Lesson Layout */
+        .lesson-container {
+            max-width: 800px;
+            margin: 20px auto 40px;
+            padding: 0 15px;
+        }
+        
+        /* Content Blocks */
+        .content-card {
+            background-color: #FFFFFF;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 3px solid transparent; 
+        }
+        
+        /* Collapsible Header Style */
+        .collapsible-header {
+            color: var(--color-primary);
+            font-size: 1.8em;
+            font-weight: 800;
+            margin-bottom: 15px;
+            border-bottom: 3px solid var(--color-secondary);
+            padding-bottom: 3px;
+            cursor: pointer; 
+            user-select: none;
+            transition: color 0.2s;
+        }
+        .collapsible-header:hover {
+            color: #064E3B;
+        }
+
+        /* Reading Text Style */
+        .reading-text {
+            background: #ECFDF5; 
+            border: 1px solid #A7F3D0;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.05em;
+            white-space: pre-wrap;
+        }
+        
+        /* Dictionary Word Style */
+        .dictionary-word {
+            text-decoration: underline dashed var(--color-primary) 2px;
+            cursor: help;
+            font-weight: 700; 
+            color: var(--color-primary);
+        }
+
+        /* Quiz Options */
+        .quiz-option {
+            background: #FFFFFF;
+            border: 2px solid #E5E9F2;
+            padding: 15px; 
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            display: block;
+            user-select: none;
+            line-height: 1.4;
+        }
+        .quiz-option:hover {
+            background: #F3FFF6;
+            border-color: var(--color-primary);
+        }
+        .quiz-option.selected {
+            background: var(--color-accent);
+            color: var(--color-text);
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px var(--color-primary);
+            transform: scale(1.01);
+        }
+        .quiz-option.correct { 
+            background: var(--color-correct) !important;
+            color: white;
+            border-color: var(--color-correct) !important;
+        }
+        .quiz-option.incorrect { 
+            background: var(--color-incorrect) !important;
+            color: white;
+            border-color: var(--color-incorrect) !important;
+        }
+        
+        /* Gap Fill Styles */
+        .word-bank {
+            background: #FEEBC9;
+            border: 2px solid var(--color-secondary);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .word-option {
+            background-color: var(--color-primary); 
+            color: white;
+            padding: 10px 14px; 
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s, opacity 0.3s;
+            font-weight: 600;
+            transform: scale(1);
+            transition: transform 0.1s;
+        }
+        .word-option:active {
+            transform: scale(0.95);
+        }
+        .word-option.used {
+            opacity: 0.5;
+            pointer-events: none;
+            background-color: #AAB8C2;
+            transform: none;
+        }
+        .word-option.selected {
+            box-shadow: 0 0 0 4px #F59E0B; 
+            background-color: #D97706; 
+        }
+        .gap-input {
+            display: inline-block;
+            text-align: center;
+            padding: 6px 10px;
+            min-width: 110px; 
+            height: 40px; 
+            background-color: #E5E9F2;
+            border: 1px dashed var(--color-primary);
+            border-radius: 4px;
+            color: var(--color-text);
+            font-style: italic;
+            cursor: pointer;
+            line-height: 28px; 
+            vertical-align: middle;
+            font-weight: 600;
+            margin: 0 4px;
+            transition: all 0.2s ease;
+        }
+        .gap-input:hover {
+            border-color: var(--color-secondary);
+        }
+        .gap-input.correct {
+             background-color: var(--color-correct) !important;
+             color: white;
+        }
+        .gap-input.incorrect {
+             background-color: var(--color-incorrect) !important;
+             color: white;
+        }
+
+        /* Check/Next Button */
+        .check-btn {
+            background-color: var(--color-primary);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 15px;
+            display: block;
+            width: 100%;
+            border: none;
+            box-shadow: 0 4px #065F46; 
+            text-transform: uppercase;
+        }
+        .check-btn:hover {
+            background-color: #065F46;
+        }
+        .check-btn:active {
+            box-shadow: 0 1px #065F46;
+            transform: translateY(3px);
+        }
+        
+        /* Save to Dashboard Button */
+        #save-words-section {
+            background: #EFF6FF; /* Blueish tint for data/save */
+            border: 2px solid #93C5FD;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        #save-words-btn {
+            background-color: var(--color-new-feature);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: block;
+            width: 100%;
+            border: none;
+            box-shadow: 0 4px #3730A3;
+            text-transform: uppercase;
+            font-size: 1.1em;
+            text-align: center;
+        }
+        #save-words-btn:hover:not(:disabled) {
+            background-color: #3730A3;
+        }
+        #save-words-btn:active:not(:disabled) {
+            box-shadow: 0 1px #3730A3;
+            transform: translateY(3px);
+        }
+        #save-words-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #login-prompt {
+            background: #FEF3C7;
+            border: 2px solid #FCD34D;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        #login-prompt p {
+            color: #D97706;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        #login-prompt a {
+            color: #4F46E5;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        /* Feedback Pop-up */
+        #feedback-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px 30px;
+            background: var(--color-secondary);
+            color: var(--color-text);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: none;
+            font-size: 1.2em;
+            font-weight: 700;
+            text-align: center;
+        }
+        /* Dictionary Pop-up */
+        #dictionary-popup {
+            position: fixed; 
+            max-width: 250px;
+            padding: 15px;
+            background: var(--color-primary); 
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            z-index: 1001;
+            display: none;
+            font-size: 0.95em;
+            line-height: 1.4;
+            border: 3px solid var(--color-secondary);
+            text-align: left;
+        }
+        .next-btn {
+            background-color: var(--color-secondary);
+            color: var(--color-text);
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            float: right;
+            margin-top: 10px;
+        }
+        
+        /* Final Summary List Format */
+        #learned-words-list {
+            list-style: none;
+            padding-left: 0;
+            margin-left: 0;
+        }
+        #learned-words-list li {
+            margin-bottom: 5px; 
+            font-size: 1.05em;
+            line-height: 1.2;
+        }
+
+        @media (max-width: 768px) {
+            .user-greeting {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">⚖️</span>
+                <a href="/legal/" class="site-title">English For Cool Dudes</a>
+            </div>
+            
+            <div id="logged-out-buttons" class="header-buttons flex items-center gap-2">
+                <a href="/login/" class="header-button login text-gray-700 bg-gray-100 hover:bg-white border-gray-300">Login</a>
+                <a href="/signup/" class="header-button signup bg-green-600 hover:bg-green-700 text-white border-transparent">Sign Up</a>
+            </div>
+
+            <div id="logged-in-buttons" class="header-buttons hidden items-center gap-2">
+                <span class="user-greeting" id="user-greeting">Hey Cool Dude! 👋</span>
+                <a href="/dashboard/" class="header-button dashboard bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-300">My Dashboard</a>
+                <button id="logout-btn" class="header-button logout text-red-600 bg-red-50 hover:bg-red-200 border-red-300">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="lesson-container">
+        <h1 class="text-3xl font-black text-gray-800 mb-5">🤝 Due Diligence in Mergers and Acquisitions (M&A)</h1>
+        <p class="text-gray-600 mb-8">Level: Advanced/Professional | Topic: Commercial Law/M&A</p>
+        
+        <div class="flex justify-between items-center text-sm font-semibold mb-2 text-gray-600">
+            <span>Progress: Stage <span id="current-stage">1</span> of 5</span>
+        </div>
+        
+        <div class="content-card" data-section-id="0" data-completed="false">
+            <h2 class="collapsible-header" onclick="toggleCollapse('reading-content')">📜 Reading Text (Click to Read. Click <span class="dictionary-word" data-definition="Strong, thick, heavy type with a line underneath.">bold-underlined words</span> for definitions!)</h2>
+            <div class="reading-text text-justify" id="reading-content" style="display: none;">
+                <h4 class="text-xl font-extrabold text-gray-800 mb-3 mt-3">The Critical Role of Due Diligence in M&A</h4>
+
+                <span class="dictionary-word" data-definition="A comprehensive audit or investigation into a target company before signing a contract.">Due Diligence (DD)</span> is the <span class="dictionary-word" data-definition="Of crucial importance in relation to the development or success of something else.">pivotal</span> phase in any Mergers and Acquisitions (M&A) deal, typically starting after the signing of a non-binding <span class="dictionary-word" data-definition="A non-binding document outlining the initial agreement between parties.">Letter of Intent (LOI)</span>. DD involves a systematic investigation into the <span class="dictionary-word" data-definition="The company that is being acquired or bought out in an M&A transaction.">Target Company</span> to <span class="dictionary-word" data-definition="Establish the truth or correctness of something.">confirm</span> its financial health, legal standing, and operational viability. The process requires extensive <span class="dictionary-word" data-definition="The act of making information known.">disclosure</span> from the seller. Legal counsel must carefully be <span class="dictionary-word" data-definition="To investigate someone or something thoroughly, especially their background and financial reliability.">vetting</span> all contracts, focusing on potential <span class="dictionary-word" data-definition="A state of being responsible for something, especially by law.">liability</span> issues and the scope of environmental or intellectual property risk.
+
+                A primary concern is ensuring that the seller's <span class="dictionary-word" data-definition="Promises made by the seller regarding the state of the company, which, if false, can lead to liability.">warranties</span> regarding the business are accurate. Should any issue arise, the acquisition agreement will feature robust <span class="dictionary-word" data-definition="A contractual clause where one party promises to protect another against loss or damage.">indemnification</span> clauses, specifying how losses will be managed post-closing. Furthermore, funds are often placed in <span class="dictionary-word" data-definition="A legal arrangement where an asset or money is held by a third party until conditions are met.">escrow</span>—held by a neutral third party—to secure the buyer against breaches of those warranties.
+
+                The ultimate goal of DD is not just risk mitigation, but also confirming the expected <span class="dictionary-word" data-definition="The expected benefit when the combined companies' performance is greater than the sum of their individual parts.">synergy</span> and commercial viability. DD findings may allow the buyer to trigger a <span class="dictionary-word" data-definition="A contractual clause that allows a buyer to withdraw if a significant negative event affects the target company before closing.">Material Adverse Change (MAC)</span> clause, permitting them to walk away if a severe negative event occurs before the deal is <span class="dictionary-word" data-definition="Having legal force; obligated by contract.">binding</span> and the <span class="dictionary-word" data-definition="The final signing of documents that legally transfers ownership.">closing</span> is complete. DD transforms a proposed transaction from a merely <span class="dictionary-word" data-definition="Dependent on something else occurring; conditional.">contingent</span> idea into a concrete legal reality.
+            </div>
+        </div>
+
+        
+        <div id="stage-1" class="content-card" data-section-id="1" data-total-items="1">
+            <h2 class="mb-0 collapsible-header" onclick="this.removeAttribute('onclick'); this.textContent = '1 / 5: Main Purpose';">1 / 5: Main Purpose</h2>
+            <p class="text-gray-600 mb-4 font-semibold">According to the text, what is the **primary purpose** of Due Diligence (DD)? (Choose the best answer)</p>
+
+            <div class="question-box" data-correct-value="To investigate the Target Company's financial health, legal standing, and viability.">
+                <div class="quiz-options space-y-2">
+                    <div class="quiz-option" data-value="To formally close the deal and transfer all funds from escrow.">To formally close the deal and transfer all funds from escrow.</div>
+                    <div class="quiz-option" data-value="To negotiate the exact wording of the Material Adverse Change (MAC) clause.">To negotiate the exact wording of the Material Adverse Change (MAC) clause.</div>
+                    <div class="quiz-option" data-value="To investigate the Target Company's financial health, legal standing, and viability.">To investigate the Target Company's financial health, legal standing, and viability.</div>
+                </div>
+            </div>
+            <button class="check-btn" onclick="checkRadioQuestion(document.querySelector('#stage-1 .question-box'))" id="check-btn-1">Check Answer</button>
+            <button class="next-btn" onclick="nextStage(2)" style="display:none;">Continue to Stage 2 / 5 &rarr;</button>
+        </div>
+
+
+        <div id="stage-2" class="content-card" data-section-id="2" data-total-items="6" style="display:none;">
+            <h2 class="mb-0 collapsible-header" onclick="this.removeAttribute('onclick'); this.textContent = '2 / 5: Detail Check';">2 / 5: Detail Check</h2>
+            <p class="text-gray-600 mb-4 font-semibold">What is true about the M&A process as described? (Choose all correct answers in each set)</p>
+
+            <p class="font-bold mt-4 mb-2">Set A: The initial stage of a deal involves...</p>
+            <div class="question-box" data-correct-values="A,C" data-type="checkbox">
+                <div class="quiz-options space-y-2">
+                    <div class="quiz-option" data-value="A">the signing of a non-binding Letter of Intent (LOI).</div>
+                    <div class="quiz-option" data-value="B">the immediate transfer of the full purchase price to the seller.</div>
+                    <div class="quiz-option" data-value="C">the requirement for extensive disclosure from the seller.</div>
+                </div>
+            </div>
+
+            <p class="font-bold mt-4 mb-2">Set B: The purpose of escrow and indemnification is to...</p>
+            <div class="question-box" data-correct-values="E,F" data-type="checkbox">
+                <div class="quiz-options space-y-2">
+                    <div class="quiz-option" data-value="D">guarantee that the deal will eventually close, regardless of DD findings.</div>
+                    <div class="quiz-option" data-value="E">secure the buyer against losses or breaches of warranties.</div>
+                    <div class="quiz-option" data-value="F">specify how financial losses will be managed post-closing.</div>
+                </div>
+            </div>
+            <button class="check-btn" onclick="checkCheckboxQuestion(document.querySelectorAll('#stage-2 .question-box'))" id="check-btn-2">Check Answers</button>
+            <button class="next-btn" onclick="nextStage(3)" style="display:none;">Continue to Stage 3 / 5 &rarr;</button>
+        </div>
+
+
+        <div id="stage-3" class="content-card" data-section-id="3" data-total-items="7" style="display:none;">
+            <h2 class="mb-0 collapsible-header" onclick="this.removeAttribute('onclick'); this.textContent = '3 / 5: Legal Noun Builder';">3 / 5: Legal Noun Builder</h2>
+            
+            <h4 class="text-xl font-bold mt-4">📝 Practice Key Nouns!</h4>
+            <div class="word-bank mb-4">
+                <p class="font-bold mb-3 text-sm text-gray-700">Word Bank:</p>
+                <div class="word-options flex flex-wrap gap-2" id="noun-bank-gapfill">
+                    <div class="word-option" data-word="warranties">warranties</div>
+                    <div class="word-option" data-word="escrow">escrow</div>
+                    <div class="word-option" data-word="synergy">synergy</div>
+                    <div class="word-option" data-word="disclosure">disclosure</div>
+                    <div class="word-option" data-word="liability">liability</div>
+                    <div class="word-option" data-word="indemnification">indemnification</div>
+                    <div class="word-option" data-word="MAC">MAC</div>
+                </div>
+            </div>
+            <div class="gap-fill-text text-lg leading-loose space-y-3" id="gap-fill-nouns">
+                <p>1. The buyer must be protected by robust <span class="gap-input" data-answer="indemnification" data-original-text="____" data-filled-word="">____</span> clauses.</p>
+                <p>2. A key risk assessment area is potential environmental <span class="gap-input" data-answer="liability" data-original-text="____" data-filled-word="">____</span>.</p>
+                <p>3. Funds are held in <span class="gap-input" data-answer="escrow" data-original-text="____" data-filled-word="">____</span> to secure post-closing claims.</p>
+                <p>4. The seller provides assurances about the business state via contractual <span class="gap-input" data-answer="warranties" data-original-text="____" data-filled-word="">____</span>.</p>
+                <p>5. Full <span class="gap-input" data-answer="disclosure" data-original-text="____" data-filled-word="">____</span> is necessary to confirm the expected commercial <span class="gap-input" data-answer="Synergy" data-original-text="____" data-filled-word="">____</span>.</p>
+                <p>6. The buyer can withdraw using the Material Adverse Change (<span class="gap-input" data-answer="MAC" data-original-text="____" data-filled-word="">____</span>) clause.</p>
+            </div>
+
+            <button type="button" class="check-btn" onclick="checkGapFillStage(3)">Check Noun Gaps</button>
+            <button class="next-btn" onclick="nextStage(4)" style="display:none;">Continue to Stage 4 / 5 &rarr;</button>
+        </div>
+
+
+        <div id="stage-4" class="content-card" data-section-id="4" data-total-items="6" style="display:none;">
+            <h2 class="mb-0 collapsible-header" onclick="this.removeAttribute('onclick'); this.textContent = '4 / 5: Verb/Adjective Builder';">4 / 5: Verb/Adjective Builder</h2>
+            
+            <h4 class="text-xl font-bold mt-4">⏳ Practice the Verbs/Adjectives!</h4>
+            <div class="word-bank mb-4">
+                <p class="font-bold mb-3 text-sm text-gray-700">Word Bank:</p>
+                <div class="word-options flex flex-wrap gap-2" id="prep-bank-gapfill">
+                    <div class="word-option" data-word="contingent">contingent</div>
+                    <div class="word-option" data-word="binding">binding</div>
+                    <div class="word-option" data-word="vetting">vetting</div>
+                    <div class="word-option" data-word="pivotal">pivotal</div>
+                    <div class="word-option" data-word="confirm">confirm</div>
+                    <div class="word-option" data-word="closing">closing</div>
+                </div>
+            </div>
+            <div class="gap-fill-text text-lg leading-loose space-y-3" id="gap-fill-preps">
+                <p>1. Due Diligence is a <span class="gap-input" data-answer="pivotal" data-original-text="____" data-filled-word="">____</span> phase in the transaction timeline.</p>
+                <p>2. The legal team is actively <span class="gap-input" data-answer="vetting" data-original-text="____" data-filled-word="">____</span> all regulatory filings.</p>
+                <p>3. The buyer must <span class="gap-input" data-answer="confirm" data-original-text="____" data-filled-word="">____</span> the seller's representations before proceeding.</p>
+                <p>4. The deal remains <span class="gap-input" data-answer="contingent" data-original-text="____" data-filled-word="">____</span> until the conditions are met.</p>
+                <p>5. The contract is not legally <span class="gap-input" data-answer="binding" data-original-text="____" data-filled-word="">____</span> until the formal <span class="gap-input" data-answer="closing" data-original-text="____" data-filled-word="">____</span> date.</p>
+            </div>
+
+            <button type="button" class="check-btn" onclick="checkGapFillStage(4)">Check Verb/Adjective Gaps</button>
+            <button class="next-btn" onclick="nextStage(5)" style="display:none;">Continue to Stage 5 / 5 &rarr;</button>
+        </div>
+
+
+        <div id="stage-5" class="content-card" data-section-id="5" data-total-items="1" style="display:none;">
+            <h2 class="mb-0 collapsible-header" onclick="this.removeAttribute('onclick'); this.textContent = '5 / 5: Final Review';">5 / 5: Final Review</h2>
+            <p class="text-gray-600 mb-4 font-semibold">What kind of document is a **Letter of Intent (LOI)** at the start of the DD process? (Choose the correct description)</p>
+
+            <div class="question-box" data-correct-value="A document that is non-binding and outlines the preliminary agreement.">
+                <div class="quiz-options space-y-2">
+		<div class="quiz-option" data-value="A document that is non-binding and outlines the preliminary agreement.">A document that is non-binding and outlines the preliminary agreement.</div>
+                    <div class="quiz-option" data-value="A fully executed and binding contract that commits both parties to the sale.">A fully executed and binding contract that commits both parties to the sale.</div>
+                    
+                    <div class="quiz-option" data-value="A final invoice detailing the purchase price and escrow arrangements.">A final invoice detailing the purchase price and escrow arrangements.</div>
+                </div>
+            </div>
+            <button class="check-btn" onclick="checkRadioQuestion(document.querySelector('#stage-5 .question-box'))" id="check-btn-5">Check Answer</button>
+            <button class="next-btn" onclick="showFinalSummary()" style="display:none;">View Final Summary &rarr;</button>
+        </div>
+        
+        <div id="final-summary-card" class="content-card bg-white p-6 mt-8 border-l-8 border-yellow-500" style="display:none;">
+            <h2 class="text-3xl font-black text-yellow-600 border-none">⚖️ 🎉 Lesson Result: Completed!</h2>
+            <p class="text-lg mb-4 text-gray-700">You have completed all 5 stages of *Due Diligence in Mergers and Acquisitions*.</p>
+            
+            <h4 class="text-xl font-bold mt-4 mb-2 text-gray-700 border-b pb-1">Key Vocabulary Review: Click to see definitions</h4>
+            <ul id="learned-words-list" class="list-disc list-inside text-gray-800 ml-4 grid grid-cols-2 sm:grid-cols-3 gap-y-1">
+                </ul>
+            
+            <div id="save-words-section">
+                <div id="logged-in-save" style="display: none;">
+                    <button id="save-words-btn" onclick="saveWordsToDashboard()">
+                        💾 Save My New Legal Words to My Dashboard
+                    </button>
+                </div>
+
+                <div id="login-prompt" style="display: none;">
+                    <p>🔒 You must be logged in to save words to your dashboard!</p>
+                    <a href="/signup/">Sign Up</a> or <a href="/login/">Log In</a> to start saving vocabulary.
+                </div>
+            </div>
+
+            <p class="text-gray-600 font-semibold mt-4">Keep learning English, cool dude! 📈 💼</p>
+        </div>
+    </main>
+    
+    <div id="feedback-popup"></div>
+    <div id="dictionary-popup"></div>
+
+   <script>
+  // === SUPABASE INITIALIZATION - FIXED ===
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // === GLOBAL STATE ===
+        const TOTAL_STAGES = 5; 
+        const FLASH_DURATION = 1500;
+        let currentStage = 1;
+        let selectedWordOption = null;
+        let currentUser = null;
+        
+        // === LESSON VOCABULARY DATA ===
+        const lessonTitle = "Due Diligence in Mergers and Acquisitions (M&A)";
+        const lessonLink = "/duediligence/";
+        const lessonLevel = "LEGAL";
+        const learnedWords = [
+            { word: "Due Diligence", definition: "A comprehensive audit or investigation into a target company before signing a contract." },
+            { word: "pivotal", definition: "Of crucial importance in relation to the development or success of something else." },
+            { word: "Letter of Intent (LOI)", definition: "A non-binding document outlining the initial agreement between parties." },
+            { word: "Target Company", definition: "The company that is being acquired or bought out in an M&A transaction." },
+            { word: "confirm", definition: "Establish the truth or correctness of something." },
+            { word: "disclosure", definition: "The act of making information known." },
+            { word: "vetting", definition: "To investigate someone or something thoroughly, especially their background and financial reliability." },
+            { word: "liability", definition: "A state of being responsible for something, especially by law." },
+            { word: "warranties", definition: "Promises made by the seller regarding the state of the company, which, if false, can lead to liability." },
+            { word: "indemnification", definition: "A contractual clause where one party promises to protect another against loss or damage." },
+            { word: "escrow", definition: "A legal arrangement where an asset or money is held by a third party until conditions are met." },
+            { word: "synergy", definition: "The expected benefit when the combined companies' performance is greater than the sum of their individual parts." },
+            { word: "Material Adverse Change (MAC)", definition: "A contractual clause that allows a buyer to withdraw if a significant negative event affects the target company before closing." },
+            { word: "binding", definition: "Having legal force; obligated by contract." },
+            { word: "closing", definition: "The final signing of documents that legally transfers ownership." },
+            { word: "contingent", definition: "Dependent on something else occurring; conditional." },
+            
+        ];
+
+        // === AUTH HEADER INITIALIZATION ===
+        async function initializeAuthHeader() {
+            const loggedOutButtons = document.getElementById('logged-out-buttons');
+            const loggedInButtons = document.getElementById('logged-in-buttons');
+            const userGreeting = document.getElementById('user-greeting');
+            const logoutBtn = document.getElementById('logout-btn');
+            const loggedInSave = document.getElementById('logged-in-save');
+            const loginPrompt = document.getElementById('login-prompt');
+
+            try {
+                const { data: { user }, error } = await supabase.auth.getUser();
+
+                if (user) {
+                    currentUser = user;
+                    console.log('User logged in:', user.email);
+                    
+                    let userName = 'Cool Dude';
+                    if (user.user_metadata && user.user_metadata.full_name) {
+                        userName = user.user_metadata.full_name.split(' ')[0];
+                    } else if (user.email) {
+                        userName = user.email.split('@')[0];
+                    }
+                    
+                    if (userGreeting) userGreeting.textContent = `Hey ${userName}! 👋`;
+                    if (loggedInButtons) loggedInButtons.style.display = 'flex';
+                    if (loggedOutButtons) loggedOutButtons.style.display = 'none';
+                    if (loggedInSave) loggedInSave.style.display = 'block';
+                    if (loginPrompt) loginPrompt.style.display = 'none';
+                } else {
+                    currentUser = null;
+                    console.log('User not logged in');
+                    
+                    if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
+                    if (loggedInButtons) loggedInButtons.style.display = 'none';
+                    if (loggedInSave) loggedInSave.style.display = 'none';
+                    if (loginPrompt) loginPrompt.style.display = 'block';
+                }
+            } catch (err) {
+                console.error('Error checking auth:', err);
+                if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
+                if (loggedInButtons) loggedInButtons.style.display = 'none';
+                if (loggedInSave) loggedInSave.style.display = 'none';
+                if (loginPrompt) loginPrompt.style.display = 'block';
+            }
+
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async () => {
+                    try {
+                        const { error } = await supabase.auth.signOut();
+                        if (error) {
+                            console.error('Logout error:', error);
+                            alert('Logout failed. Please try again.');
+                        } else {
+                            window.location.href = '/';
+                        }
+                    } catch (err) {
+                        console.error('Unexpected logout error:', err);
+                    }
+                });
+            }
+        }
+        
+        // === SAVE WORDS TO DASHBOARD - FIXED ===
+        async function saveWordsToDashboard() {
+            const saveButton = document.getElementById('save-words-btn');
+            saveButton.disabled = true;
+            saveButton.textContent = "Saving...";
+
+            if (!currentUser) {
+                alert("🚨 You must be logged in to save your vocabulary!");
+                saveButton.disabled = false;
+                saveButton.textContent = "💾 Save My New Legal Words to My Dashboard";
+                return;
+            }
+            
+            try {
+                const completedDate = new Date().toLocaleDateString('en-GB', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+
+                const { data, error } = await supabase
+                    .from('lessons')
+                    .upsert([
+                        { 
+                            user_id: currentUser.id, 
+                            lesson_title: lessonTitle,
+                            lesson_link: lessonLink,
+                            lesson_level: lessonLevel,
+                            vocabulary: learnedWords,
+                            completed_at: new Date().toISOString()
+                        }
+                    ], { 
+                        onConflict: 'user_id,lesson_title'
+                    })
+                    .select();
+
+                if (error) {
+                    console.error('Supabase Save Error:', error);
+                    showPopup('Save Failed: ' + error.message, 'incorrect');
+                    
+                    saveButton.disabled = false;
+                    saveButton.textContent = "💾 Try Saving Again (Error)";
+                    saveButton.style.backgroundColor = 'var(--color-incorrect)';
+                } else {
+                    console.log('Save successful:', data);
+                    showPopup('Words Saved! Redirecting to Dashboard... 🎉', 'correct');
+                    
+                    saveButton.disabled = true;
+                    saveButton.textContent = "✅ Words Saved!";
+                    saveButton.style.backgroundColor = 'var(--color-correct)';
+                    
+                    setTimeout(() => {
+                        window.location.href = '/dashboard/';
+                    }, 1500);
+                }
+            } catch (err) {
+                console.error('Unexpected error saving:', err);
+                showPopup('An unexpected error occurred.', 'incorrect');
+                saveButton.disabled = false;
+                saveButton.textContent = "💾 Try Saving Again";
+            }
+        }
+
+
+        // === CORE LESSON LOGIC ===
+
+        let currentSelectedRadio = null; 
+        const allDictionaryWords = {};
+
+
+        // --- UI UTILITIES ---
+
+        function showPopup(message, type = 'correct') {
+            const popup = document.getElementById('feedback-popup');
+            let finalMessage = message;
+
+            if (type === 'correct') {
+                finalMessage = `Passed the check! ✅ ${message}`;
+                popup.style.backgroundColor = 'var(--color-correct)';
+                popup.style.color = 'white';
+            } else if (type === 'incorrect') {
+                finalMessage = `Rethink that entry! ❌ ${message}`;
+                popup.style.backgroundColor = 'var(--color-incorrect)';
+                popup.style.color = 'white';
+            } else {
+                 finalMessage = `Heads up! ⚠️ ${message}`;
+                 popup.style.backgroundColor = 'var(--color-secondary)';
+                 popup.style.color = 'var(--color-text)';
+            }
+            
+            popup.textContent = finalMessage;
+            popup.style.display = 'block';
+
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 1500);
+        }
+
+        function updateProgress() {
+            const completedStages = document.querySelectorAll('.content-card[data-completed="true"]').length;
+            document.getElementById('current-stage').textContent = completedStages;
+        }
+
+        // --- STAGE PROGRESSION ---
+
+        function nextStage(nextStageNumber) {
+            document.getElementById(`stage-${currentStage}`).style.display = 'none';
+            document.getElementById(`stage-${nextStageNumber}`).style.display = 'block';
+            currentStage = nextStageNumber;
+            updateProgress();
+        }
+
+        function showFinalSummary() {
+            document.getElementById('stage-5').style.display = 'none';
+            document.getElementById('final-summary-card').style.display = 'block';
+            
+            const wordList = document.getElementById('learned-words-list');
+            wordList.innerHTML = '';
+            
+            learnedWords.forEach(item => {
+                const listItem = document.createElement('li'); 
+                const wordElement = document.createElement('span'); 
+                wordElement.className = 'dictionary-word'; 
+                wordElement.textContent = item.word;
+                wordElement.setAttribute('data-definition', item.definition);
+                
+                listItem.appendChild(wordElement);
+                wordList.appendChild(listItem);
+            });
+            
+            setupDictionaryListeners();
+        }
+
+        function toggleCollapse(elementId) {
+            const content = document.getElementById(elementId);
+            if (content.style.display === "none") {
+                content.style.display = "block";
+            } else {
+                content.style.display = "none";
+            }
+        }
+
+        // --- DICTIONARY (CLICK/TAP) ---
+
+        function setupDictionaryListeners() {
+            const popup = document.getElementById('dictionary-popup');
+            let currentOpenWord = null;
+            
+            document.querySelectorAll('.dictionary-word').forEach(wordEl => {
+                wordEl.onclick = null;
+            });
+
+            document.querySelectorAll('.dictionary-word').forEach(wordEl => {
+                const definition = wordEl.getAttribute('data-definition');
+                const word = wordEl.textContent.trim();
+                allDictionaryWords[word] = definition;
+                
+                wordEl.onclick = (e) => { 
+                    e.stopPropagation();
+                    
+                    if (currentOpenWord === wordEl) {
+                        popup.style.display = 'none';
+                        currentOpenWord = null;
+                        return;
+                    }
+
+                    popup.innerHTML = `<strong>${word}</strong>: ${definition}`;
+                    
+                    const rect = e.target.getBoundingClientRect();
+                    let top = rect.bottom + 5;
+                    let left = rect.left;
+
+                    popup.style.display = 'block';
+                    const popupWidth = 250; 
+                    const popupHeight = popup.offsetHeight; 
+
+                    if (left + popupWidth > window.innerWidth - 20) { 
+                        left = window.innerWidth - popupWidth - 20;
+                    }
+                    if (left < 10) {
+                        left = 10;
+                    }
+                    if (rect.bottom + popupHeight > window.innerHeight - 20) {
+                        top = rect.top - popupHeight - 5;
+                        if (top < 10) { 
+                            top = rect.bottom + 5;
+                        }
+                    }
+
+                    popup.style.top = `${top}px`;
+                    popup.style.left = `${left}px`;
+                    
+                    currentOpenWord = wordEl;
+                };
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (currentOpenWord && !e.target.closest('.dictionary-word')) {
+                    document.getElementById('dictionary-popup').style.display = 'none';
+                    currentOpenWord = null;
+                }
+            });
+        }
+
+
+        // --- QUIZ LOGIC (Radio & Checkboxes) ---
+        
+        function setupQuizListeners() {
+            document.querySelectorAll('.question-box:not([data-type="checkbox"]) .quiz-option').forEach(option => {
+                option.addEventListener('click', function(e) {
+                    const parentBox = this.closest('.question-box');
+                    if (parentBox.getAttribute('data-locked') === 'true') return;
+
+                    parentBox.querySelectorAll('.quiz-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    this.classList.add('selected');
+                });
+            });
+
+            document.querySelectorAll('.question-box[data-type="checkbox"] .quiz-option').forEach(option => {
+                option.addEventListener('click', function(e) {
+                    const parentBox = this.closest('.question-box');
+                    if (parentBox.getAttribute('data-locked') === 'true') return;
+
+                    this.classList.toggle('selected');
+                });
+            });
+        }
+
+        function checkRadioQuestion(questionBox) {
+            const selectedOption = questionBox.querySelector('.quiz-option.selected');
+            const correctValue = questionBox.getAttribute('data-correct-value');
+            const cardElement = questionBox.closest('.content-card');
+            const checkButton = document.getElementById(`check-btn-${cardElement.getAttribute('data-section-id')}`);
+            const nextButton = cardElement.querySelector('.next-btn');
+            const sectionId = cardElement.getAttribute('data-section-id');
+
+            if (!selectedOption) {
+                showPopup('Pre-check incomplete. Please select an answer first.', 'incorrect');
+                return;
+            }
+
+            if (selectedOption.getAttribute('data-value') === correctValue) {
+                selectedOption.classList.add('correct');
+                showPopup('Compliance Verified!', 'correct');
+                questionBox.setAttribute('data-locked', 'true');
+                checkButton.style.display = 'none';
+                cardElement.setAttribute('data-completed', 'true');
+                nextButton.style.display = 'block';
+            } else {
+                selectedOption.classList.add('incorrect');
+                
+                if (sectionId === '1' || sectionId === '5') {
+                    showPopup('Incorrect. Double-check the text and try again.', 'incorrect');
+                    
+                    setTimeout(() => {
+                        selectedOption.classList.remove('selected', 'incorrect');
+                    }, 500); 
+
+                } else { 
+                    showPopup('Answer found! Proceeding to next stage.', 'incorrect');
+                    
+                    questionBox.querySelectorAll('.quiz-option').forEach(option => {
+                        if (option.getAttribute('data-value') === correctValue) {
+                            option.classList.add('correct');
+                        }
+                        option.style.pointerEvents = 'none';
+                    });
+                    nextButton.style.display = 'block'; 
+                    checkButton.style.display = 'none';
+                    cardElement.setAttribute('data-completed', 'true');
+                }
+            }
+            updateProgress();
+        }
+
+        function checkCheckboxQuestion(questionBoxes) {
+            let allCorrect = true;
+            let hasIncorrectSelection = false;
+            
+            questionBoxes.forEach(questionBox => {
+                const correctValues = questionBox.getAttribute('data-correct-values').split(',');
+
+                questionBox.querySelectorAll('.quiz-option').forEach(option => {
+                    option.classList.remove('correct', 'incorrect');
+
+                    const isSelected = option.classList.contains('selected');
+                    const isCorrect = correctValues.includes(option.getAttribute('data-value'));
+
+                    if (isSelected) {
+                        if (isCorrect) {
+                            option.classList.add('correct'); 
+                        } else {
+                            hasIncorrectSelection = true;
+                            allCorrect = false;
+                            option.classList.add('incorrect'); 
+                        }
+                    } else if (isCorrect) {
+                        allCorrect = false;
+                    }
+                });
+
+                const correctCount = correctValues.length;
+                const selectedCorrectCount = Array.from(questionBox.querySelectorAll('.quiz-option.selected')).filter(opt => correctValues.includes(opt.getAttribute('data-value'))).length;
+                
+                if (correctCount !== selectedCorrectCount) {
+                    allCorrect = false;
+                }
+            });
+
+            const cardElement = questionBoxes[0].closest('.content-card');
+            const checkButton = cardElement.querySelector('.check-btn');
+            const nextButton = cardElement.querySelector('.next-btn');
+
+            if (!document.querySelectorAll('#stage-2 .quiz-option.selected').length) {
+                 showPopup('Pre-check incomplete. Please select at least one answer.', 'incorrect');
+                 return;
+            }
+
+            if (allCorrect) {
+                showPopup('Audit Complete! All systems verified.', 'correct');
+                
+                questionBoxes.forEach(questionBox => {
+                    const correctValues = questionBox.getAttribute('data-correct-values').split(','); 
+                    
+                    questionBox.querySelectorAll('.quiz-option').forEach(option => {
+                        option.classList.remove('selected');
+                        
+                        if (correctValues.includes(option.getAttribute('data-value'))) {
+                             option.classList.add('correct'); 
+                        }
+                        
+                        option.style.pointerEvents = 'none';
+                    });
+                });
+
+                cardElement.setAttribute('data-completed', 'true');
+                checkButton.style.display = 'none';
+                nextButton.style.display = 'block';
+
+            } else {
+                
+                if (hasIncorrectSelection) {
+                    showPopup('❌ Misstatements found. Try Again!', 'incorrect');
+                } else {
+                    showPopup('⚠️ Incomplete Vetting. Check Again!', 'secondary'); 
+                }
+                
+                setTimeout(() => {
+                    questionBoxes.forEach(questionBox => {
+                        questionBox.querySelectorAll('.quiz-option').forEach(option => {
+                            if (option.classList.contains('incorrect')) {
+                                option.classList.remove('selected');
+                            }
+                            option.classList.remove('correct', 'incorrect');
+                        });
+                    });
+                }, 800);
+            }
+            updateProgress();
+        }
+
+        // --- GAP FILL LOGIC ---
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function handleWordSelectGap(event) {
+            const wordOption = event.currentTarget;
+            
+            if (selectedWordOption) {
+                selectedWordOption.classList.remove('selected');
+            }
+
+            if (selectedWordOption === wordOption) {
+                selectedWordOption = null;
+            } else {
+                wordOption.classList.add('selected');
+                selectedWordOption = wordOption;
+            }
+        }
+
+        function handleGapFill(event) {
+            const gapInput = event.currentTarget;
+            
+            if (gapInput.hasAttribute('data-locked')) {
+                return;
+            }
+            
+            const stageCard = gapInput.closest('.content-card');
+            const stageId = stageCard ? stageCard.id : null;
+            const wordBankId = stageId === 'stage-3' ? 'noun-bank-gapfill' : 
+                               stageId === 'stage-4' ? 'prep-bank-gapfill' : null;
+            const wordBank = wordBankId ? document.getElementById(wordBankId) : null;
+
+            const wasIncorrect = gapInput.classList.contains('incorrect');
+            const usedWord = gapInput.getAttribute('data-filled-word');
+
+            if (wasIncorrect) {
+                gapInput.textContent = gapInput.getAttribute('data-original-text');
+                gapInput.removeAttribute('data-filled-word');
+                gapInput.classList.remove('incorrect');
+                
+                if (wordBank) {
+                    const wordOption = wordBank.querySelector(`.word-option[data-word="${usedWord}"]`);
+                    if (wordOption) {
+                        wordOption.classList.remove('used');
+                        wordOption.style.display = 'block';
+                    }
+                }
+                
+                return;
+            }
+
+
+            if (selectedWordOption) {
+                const wordToFill = selectedWordOption.getAttribute('data-word');
+                
+                const existingWord = gapInput.getAttribute('data-filled-word');
+                if (existingWord) {
+                    if (wordBank) {
+                        const existingWordOption = wordBank.querySelector(`.word-option[data-word="${existingWord}"]`);
+                        if (existingWordOption) {
+                            existingWordOption.classList.remove('used');
+                            existingWordOption.style.display = 'block';
+                        }
+                    }
+                }
+
+                gapInput.textContent = wordToFill;
+                gapInput.setAttribute('data-filled-word', wordToFill);
+                
+                selectedWordOption.classList.remove('selected');
+                selectedWordOption.classList.add('used');
+                selectedWordOption.style.display = 'none';
+                selectedWordOption = null;
+                
+            } else {
+                const usedWord = gapInput.getAttribute('data-filled-word');
+                if (usedWord) {
+                    gapInput.textContent = gapInput.getAttribute('data-original-text');
+                    gapInput.removeAttribute('data-filled-word');
+                    
+                    if (wordBank) {
+                        const wordOption = wordBank.querySelector(`.word-option[data-word="${usedWord}"]`);
+                        if (wordOption) {
+                            wordOption.classList.remove('used');
+                            wordOption.style.display = 'block';
+                        }
+                    }
+                }
+            }
+        }
+
+        function bindGapFillListeners() {
+            document.querySelectorAll('.word-option').forEach(word => {
+                word.addEventListener('click', handleWordSelectGap);
+            });
+
+            document.querySelectorAll('.gap-input').forEach(gap => {
+                gap.addEventListener('click', handleGapFill);
+            });
+        }
+
+        function checkGapFillStage(stageNumber) {
+            const cardElement = document.getElementById(`stage-${stageNumber}`);
+            const gaps = cardElement.querySelectorAll('.gap-input');
+            const checkButton = cardElement.querySelector('.check-btn');
+            const nextButton = cardElement.querySelector('.next-btn');
+            
+            let allGapsFilled = true;
+            let allCorrect = true;
+            let firstUnfilled = null;
+
+            gaps.forEach(gap => {
+                if (!gap.getAttribute('data-filled-word')) {
+                    allGapsFilled = false;
+                    if (!firstUnfilled) firstUnfilled = gap;
+                    return;
+                }
+
+                const filledWord = gap.getAttribute('data-filled-word');
+                const correctAnswer = gap.getAttribute('data-answer');
+
+                if (filledWord === correctAnswer) {
+                    gap.classList.add('correct');
+                    gap.classList.remove('incorrect');
+                    gap.setAttribute('data-locked', 'true');
+                } else {
+                    gap.classList.add('incorrect');
+                    gap.classList.remove('correct');
+                    allCorrect = false;
+                }
+            });
+
+            if (!allGapsFilled) {
+                showPopup('Pre-check incomplete. Please fill all the gaps first.', 'incorrect');
+                if (firstUnfilled) firstUnfilled.focus();
+                return;
+            }
+
+            if (allCorrect) {
+                showPopup('Excellent! Records balanced!', 'correct');
+                cardElement.setAttribute('data-completed', 'true');
+                checkButton.style.display = 'none';
+                nextButton.style.display = 'block';
+                gaps.forEach(gap => {
+                     gap.setAttribute('data-locked', 'true');
+                });
+                
+            } else {
+                showPopup('Breach of Warranty! Check the books again!', 'incorrect');
+            }
+
+            updateProgress();
+        }
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeAuthHeader(); 
+            setupQuizListeners(); 
+            bindGapFillListeners(); 
+            setupDictionaryListeners(); 
+
+            const prepBank = document.getElementById('prep-bank-gapfill');
+            if (prepBank) {
+                const words = Array.from(prepBank.children);
+                const shuffledWords = shuffleArray(words);
+                
+                prepBank.innerHTML = '';
+                shuffledWords.forEach(word => prepBank.appendChild(word));
+            }
+            
+            document.getElementById('reading-content').style.display = 'none'; 
+            document.getElementById('stage-1').style.display = 'block';
+            document.getElementById('stage-2').style.display = 'none';
+            document.getElementById('stage-3').style.display = 'none';
+            document.getElementById('stage-4').style.display = 'none';
+            document.getElementById('stage-5').style.display = 'none';
+            updateProgress(); 
+        });
+    </script>
+</body>
+</html>
