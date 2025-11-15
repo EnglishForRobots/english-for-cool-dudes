@@ -797,112 +797,405 @@
 
         document.getElementById('dictionary-overlay').addEventListener('click', closeDictionary);
 
-        async function checkForMistakesOnHomepage() {
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (!user) return;
+       async function checkForMistakesOnHomepage() {
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
 
-                const { data: mistakes } = await supabase
-                    .from('user_mistakes')
-                    .select('word, lesson')
-                    .eq('user_id', user.id)
-                    .order('created_at', { ascending: false })
-                    .limit(5);
-                
-                if (mistakes && mistakes.length > 0) {
-                    showMistakeReminderHomepage(mistakes);
-                }
-            } catch (error) {
-                console.error('Error checking mistakes:', error);
-            }
+        const { data: mistakes, error } = await supabase
+            .from('user_mistakes')
+            .select('word, definition, word_type, lesson, lesson_link, last_made_at')
+            .eq('user_id', user.id)
+            .order('last_made_at', { ascending: false })
+            .limit(10);
+        
+        if (error) {
+            console.error('Error fetching mistakes:', error);
+            return;
         }
+        
+        if (mistakes && mistakes.length > 0) {
+            showMistakeReminderHomepage(mistakes);
+        }
+    } catch (error) {
+        console.error('Error checking mistakes:', error);
+    }
+}
 
-        function showMistakeReminderHomepage(mistakes) {
-            const lessonGroups = {};
-            mistakes.forEach(m => {
-                if (!lessonGroups[m.lesson]) {
-                    lessonGroups[m.lesson] = [];
-                }
-                lessonGroups[m.lesson].push(m.word);
-            });
+// 2. ENHANCED: Show mistake reminder with dictionary and optional practice
+function showMistakeReminderHomepage(mistakes) {
+    // Group by lesson for better organization
+    const lessonGroups = {};
+    mistakes.forEach(m => {
+        if (!lessonGroups[m.lesson]) {
+            lessonGroups[m.lesson] = {
+                words: [],
+                link: m.lesson_link
+            };
+        }
+        lessonGroups[m.lesson].words.push(m);
+    });
 
-            const popup = document.createElement('div');
-            popup.style.cssText = `
+    const popup = document.createElement('div');
+    popup.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        z-index: 10000;
+        max-width: 600px;
+        width: 90%;
+        max-height: 85vh;
+        overflow-y: auto;
+    `;
+    
+    let lessonHTML = '';
+    for (const [lessonName, lessonData] of Object.entries(lessonGroups)) {
+        const wordList = lessonData.words.map(w => 
+            `<strong class="clickable-word" data-word="${w.word}" data-definition="${w.definition || 'No definition available'}" data-type="${w.word_type || 'word'}">${w.word}</strong>`
+        ).join(', ');
+        
+        lessonHTML += `
+            <div style="margin: 15px 0; padding: 15px; background: #FEF2F2; border-radius: 8px; border-left: 4px solid #DC2626;">
+                <p style="font-size: 14px; color: #666; margin-bottom: 8px; font-weight: 600;">
+                    📚 ${lessonName}
+                    ${lessonData.link ? `<a href="${lessonData.link}" style="color: #667EEA; text-decoration: none; margin-left: 8px; font-size: 12px;">↗ Revisit</a>` : ''}
+                </p>
+                <p style="color: #DC2626; font-weight: 600; line-height: 1.6;">${wordList}</p>
+            </div>
+        `;
+    }
+    
+    popup.innerHTML = `
+        <h2 style="color: #DC2626; margin-bottom: 15px; font-size: 24px; font-weight: 800;">
+            🎯 Words to Review! (${mistakes.length})
+        </h2>
+        <p style="color: #666; margin-bottom: 20px; line-height: 1.6;">
+            You had trouble with these words recently. <strong>Click any word</strong> to see its definition:
+        </p>
+        ${lessonHTML}
+        
+        <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
+            <button id="practice-btn" style="
+                background: #667EEA;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-weight: 700;
+                cursor: pointer;
+                font-size: 16px;
+                flex: 1;
+                min-width: 140px;
+            ">🔥 Practice Now</button>
+            
+            <button id="got-it-btn" style="
+                background: #E5E9F2;
+                color: #4A5568;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-weight: 700;
+                cursor: pointer;
+                font-size: 16px;
+                flex: 1;
+                min-width: 140px;
+            ">Got it! 👍</button>
+        </div>
+    `;
+    
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 9999;
+    `;
+    
+    document.body.appendChild(overlay);
+    document.body.appendChild(popup);
+    
+    // Add click handlers for clickable words
+    popup.querySelectorAll('.clickable-word').forEach(wordEl => {
+        wordEl.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const definition = `<div style="text-align: left;">
+                <strong style="font-size: 16px; color: #1A202C;">${wordEl.dataset.word}</strong>
+                <span style="color: #718096; font-style: italic; margin-left: 8px;">(${wordEl.dataset.type})</span>
+                <p style="margin-top: 8px; color: #4A5568; line-height: 1.5;">${wordEl.dataset.definition}</p>
+            </div>`;
+            
+            // Close any existing dictionary popup
+            const existingDict = document.getElementById('mistake-dictionary-popup');
+            if (existingDict) existingDict.remove();
+            
+            // Create new dictionary popup
+            const dictPopup = document.createElement('div');
+            dictPopup.id = 'mistake-dictionary-popup';
+            dictPopup.style.cssText = `
                 position: fixed;
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
                 background: white;
-                padding: 30px;
-                border-radius: 15px;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-                z-index: 10000;
-                max-width: 500px;
-                width: 90%;
-                text-align: center;
+                padding: 20px;
+                border-radius: 12px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+                z-index: 10002;
+                max-width: 400px;
+                width: 85%;
+                border: 3px solid #667EEA;
             `;
-            
-            let lessonHTML = '';
-            for (const [lesson, words] of Object.entries(lessonGroups)) {
-                const wordList = words.map(w => `<strong class="clickable-word" data-word="${w}">${w}</strong>`).join(', ');
-                lessonHTML += `
-                    <div style="margin: 15px 0; padding: 15px; background: #FEF2F2; border-radius: 8px;">
-                        <p style="font-size: 14px; color: #666; margin-bottom: 5px;">${lesson}</p>
-                        <p style="color: #DC2626; font-weight: 600;">${wordList}</p>
-                    </div>
-                `;
-            }
-            
-            popup.innerHTML = `
-                <h2 style="color: #DC2626; margin-bottom: 15px;">🎯 Words to Review!</h2>
-                <p style="color: #666; margin-bottom: 20px;">
-                    You had trouble with these words recently. Click any word to see its definition:
-                </p>
-                ${lessonHTML}
-                
-                <button id="got-it-btn" style="
-                    background: #DC2626;
+            dictPopup.innerHTML = definition + `
+                <button onclick="this.parentElement.remove()" style="
+                    background: #667EEA;
                     color: white;
                     border: none;
-                    padding: 12px 30px;
-                    border-radius: 8px;
+                    padding: 8px 20px;
+                    border-radius: 6px;
                     font-weight: 700;
                     cursor: pointer;
-                    font-size: 16px;
-                ">Got it! 👍</button>
+                    margin-top: 15px;
+                    width: 100%;
+                ">Close</button>
             `;
-            
-            const overlay = document.createElement('div');
-            overlay.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.5);
-                z-index: 9999;
-            `;
-            
-            document.body.appendChild(overlay);
-            document.body.appendChild(popup);
-            
-            // Add click handlers for clickable words
-            popup.querySelectorAll('.clickable-word').forEach(wordEl => {
-                wordEl.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    lookupWord(wordEl.dataset.word);
-                });
-            });
-            
-            document.getElementById('got-it-btn').addEventListener('click', () => {
-                popup.remove();
-                overlay.remove();
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => checkForMistakesOnHomepage(), 1000);
+            document.body.appendChild(dictPopup);
         });
+    });
+    
+    // Practice button - creates a gap-fill exercise
+    document.getElementById('practice-btn').addEventListener('click', () => {
+        createPracticeExercise(mistakes);
+        popup.remove();
+        overlay.remove();
+    });
+    
+    // Got it button
+    document.getElementById('got-it-btn').addEventListener('click', () => {
+        popup.remove();
+        overlay.remove();
+    });
+}
+
+// 3. NEW: Create a practice exercise from mistakes
+function createPracticeExercise(mistakes) {
+    // Take up to 6 random words for practice
+    const practiceWords = mistakes.slice(0, 6);
+    
+    const practicePopup = document.createElement('div');
+    practicePopup.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        z-index: 10000;
+        max-width: 700px;
+        width: 90%;
+        max-height: 85vh;
+        overflow-y: auto;
+    `;
+    
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 9999;
+    `;
+    
+    // Shuffle words for word bank
+    const shuffled = [...practiceWords].sort(() => Math.random() - 0.5);
+    
+    practicePopup.innerHTML = `
+        <h2 style="color: #667EEA; margin-bottom: 15px; font-size: 24px; font-weight: 800;">
+            🔥 Quick Practice Exercise
+        </h2>
+        <p style="color: #666; margin-bottom: 20px;">Fill in the blanks with the correct words:</p>
+        
+        <div style="background: #F0F4FF; border: 2px solid #667EEA; border-radius: 10px; padding: 15px; margin-bottom: 20px;">
+            <p style="font-weight: 700; margin-bottom: 10px; color: #4A5568;">Word Bank:</p>
+            <div id="practice-word-bank" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                ${shuffled.map(w => `
+                    <span class="practice-word" data-word="${w.word}" style="
+                        background: #667EEA;
+                        color: white;
+                        padding: 8px 14px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        transition: all 0.2s;
+                        user-select: none;
+                    ">${w.word}</span>
+                `).join('')}
+            </div>
+        </div>
+        
+        <div id="practice-sentences" style="line-height: 2; font-size: 16px;">
+            ${practiceWords.map((w, i) => `
+                <p style="margin-bottom: 15px;">
+                    ${i + 1}. ${generateSentence(w.word, w.definition)}
+                </p>
+            `).join('')}
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-top: 25px;">
+            <button id="check-practice-btn" style="
+                background: #667EEA;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-weight: 700;
+                cursor: pointer;
+                font-size: 16px;
+                flex: 1;
+            ">Check Answers</button>
+            
+            <button id="close-practice-btn" style="
+                background: #E5E9F2;
+                color: #4A5568;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-weight: 700;
+                cursor: pointer;
+                font-size: 16px;
+            ">Close</button>
+        </div>
+        
+        <div id="practice-feedback" style="margin-top: 15px; font-weight: 700; text-align: center;"></div>
+    `;
+    
+    document.body.appendChild(overlay);
+    document.body.appendChild(practicePopup);
+    
+    // Setup practice interaction
+    setupPracticeInteraction(practiceWords);
+    
+    document.getElementById('close-practice-btn').addEventListener('click', () => {
+        practicePopup.remove();
+        overlay.remove();
+    });
+}
+
+// 4. Generate a sentence with a gap for the word
+function generateSentence(word, definition) {
+    // Create a simple sentence template based on the definition
+    const templates = [
+        `The concept of <span class="practice-gap" data-answer="${word}">____</span> is important to understand.`,
+        `We need to consider the role of <span class="practice-gap" data-answer="${word}">____</span> in this context.`,
+        `The idea of <span class="practice-gap" data-answer="${word}">____</span> plays a key role here.`,
+        `Understanding <span class="practice-gap" data-answer="${word}">____</span> is essential for this topic.`,
+    ];
+    
+    return templates[Math.floor(Math.random() * templates.length)];
+}
+
+// 5. Setup practice interaction
+function setupPracticeInteraction(words) {
+    let selectedWord = null;
+    
+    // Word bank clicks
+    document.querySelectorAll('.practice-word').forEach(wordEl => {
+        wordEl.addEventListener('click', () => {
+            if (wordEl.classList.contains('used')) return;
+            
+            document.querySelectorAll('.practice-word').forEach(w => 
+                w.style.boxShadow = 'none'
+            );
+            
+            if (selectedWord === wordEl) {
+                selectedWord = null;
+            } else {
+                wordEl.style.boxShadow = '0 0 0 3px #F59E0B';
+                selectedWord = wordEl;
+            }
+        });
+    });
+    
+    // Gap clicks
+    document.querySelectorAll('.practice-gap').forEach(gap => {
+        gap.style.cssText = `
+            display: inline-block;
+            min-width: 100px;
+            padding: 4px 12px;
+            background: #FEF3C7;
+            border: 2px dashed #F59E0B;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 700;
+            color: #92400E;
+        `;
+        
+        gap.addEventListener('click', () => {
+            if (!selectedWord) return;
+            if (gap.dataset.filled === 'true') return;
+            
+            gap.textContent = selectedWord.dataset.word;
+            gap.dataset.filled = 'true';
+            gap.dataset.filledWord = selectedWord.dataset.word;
+            gap.style.background = '#FBBF24';
+            gap.style.borderStyle = 'solid';
+            
+            selectedWord.classList.add('used');
+            selectedWord.style.opacity = '0.3';
+            selectedWord.style.pointerEvents = 'none';
+            selectedWord = null;
+            
+            document.querySelectorAll('.practice-word').forEach(w => 
+                w.style.boxShadow = 'none'
+            );
+        });
+    });
+    
+    // Check button
+    document.getElementById('check-practice-btn').addEventListener('click', () => {
+        let correct = 0;
+        let total = 0;
+        
+        document.querySelectorAll('.practice-gap').forEach(gap => {
+            total++;
+            const isCorrect = gap.dataset.filledWord === gap.dataset.answer;
+            
+            if (isCorrect) {
+                correct++;
+                gap.style.background = '#10B981';
+                gap.style.color = 'white';
+                gap.style.borderColor = '#10B981';
+            } else {
+                gap.style.background = '#DC2626';
+                gap.style.color = 'white';
+                gap.style.borderColor = '#DC2626';
+            }
+        });
+        
+        const feedback = document.getElementById('practice-feedback');
+        if (correct === total) {
+            feedback.innerHTML = '🎉 Perfect! All correct!';
+            feedback.style.color = '#10B981';
+        } else {
+            feedback.innerHTML = `📊 You got ${correct}/${total} correct. Keep practicing!`;
+            feedback.style.color = '#F59E0B';
+        }
+        
+        document.getElementById('check-practice-btn').disabled = true;
+        document.getElementById('check-practice-btn').style.opacity = '0.6';
+    });
+}
     </script>
 
     <script>
