@@ -770,26 +770,30 @@
 
     // === SIMPLE MISTAKE TRACKING ===
 
-// 1. Save a mistake to the database
+// 1. FIXED: Save a mistake to the database
 async function saveMistake(word) {
     if (!currentUser) return;
     
     try {
-        // **FIXED:** Changed from 'insert' to 'upsert' to prevent duplicate mistake words
+        const wordObj = getWordDefinition(word);
+        
         const { error } = await supabase.from('user_mistakes').upsert({
             user_id: currentUser.id,
             word: word,
+            definition: wordObj ? wordObj.definition : '',
+            word_type: wordObj ? wordObj.type : '',
             lesson: lessonTitle,
-            last_made_at: new Date().toISOString() // Tracking the most recent time the mistake was made
+            lesson_link: lessonLink,
+            last_made_at: new Date().toISOString()
         }, {
-            onConflict: 'user_id,word' // This enforces uniqueness on the combination of user and word
+            onConflict: 'user_id,word'
         });
         
         if (error) {
             throw error;
         }
         
-        console.log(`Saved or updated mistake: ${word}`);
+        console.log(`Saved/updated mistake: ${word}`);
     } catch (error) {
         console.error('Error saving mistake:', error);
     }
@@ -1077,7 +1081,6 @@ async function saveMistake(word) {
         });
     }
 
-// 4. Modified gap-fill checker to track mistakes
 function checkGapFillStage(stageNum) {
     const stageEl = document.getElementById(`stage-${stageNum}`);
     if (stageEl.dataset.answered === 'true') return;
@@ -1103,10 +1106,8 @@ function checkGapFillStage(stageNum) {
             gap.classList.add('incorrect');
             allCorrect = false;
             
-            // NEW: Save the mistake! The fixed saveMistake function will ensure it is only saved once.
+            // Save the mistake with the correct answer (not what they typed)
             saveMistake(gap.dataset.answer);
-            
-            
         }
     });
 
@@ -1121,6 +1122,7 @@ function checkGapFillStage(stageNum) {
         showFeedback(`Getting warmer... ${correctCount} are correct. The wrong ones flashed red. Try again! 🔥`, 'incorrect');
     }
 }
+
     
     // --- Save Words Logic ---
     async function saveWordsToDashboard() {
