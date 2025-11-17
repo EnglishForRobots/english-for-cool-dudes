@@ -724,852 +724,780 @@
     <footer class="footer">
         <p class="footer-text">© 2025 English For Cool Dudes - Learn British English effectively</p>
     </footer>
-
-   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        // Dictionary functionality
-        async function lookupWord(word) {
-            const popup = document.getElementById('dictionary-popup');
-            const overlay = document.getElementById('dictionary-overlay');
+        
+        // Dictionary functions (kept as is)
+        function showDictionary(word, definition, type) {
+            document.getElementById('dictionary-popup').style.display = 'block';
+            document.getElementById('dictionary-overlay').style.display = 'block';
+            
             const content = document.getElementById('dictionary-content');
-            
-            content.innerHTML = '<p style="text-align: center;">Loading...</p>';
-            popup.style.display = 'block';
-            overlay.style.display = 'block';
-            
-            try {
-                const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
-                
-                if (!response.ok) {
-                    content.innerHTML = `
-                        <h2 style="color: #DC2626; margin-bottom: 15px;">Word not found</h2>
-                        <p style="color: #666;">Sorry, we couldn't find a definition for "${word}".</p>
-                        <button onclick="closeDictionary()" style="
-                            background: #667EEA;
-                            color: white;
-                            border: none;
-                            padding: 12px 30px;
-                            border-radius: 8px;
-                            font-weight: 700;
-                            cursor: pointer;
-                            font-size: 16px;
-                            margin-top: 20px;
-                        ">Close</button>
-                    `;
-                    return;
-                }
-                
-                const data = await response.json();
-                const entry = data[0];
-                
-                let html = `<h2 style="color: #1A202C; margin-bottom: 20px;">${entry.word}</h2>`;
-                
-                if (entry.phonetic) {
-                    html += `<p style="color: #718096; margin-bottom: 20px; font-style: italic;">${entry.phonetic}</p>`;
-                }
-                
-                entry.meanings.forEach(meaning => {
-                    html += `<div style="margin-bottom: 20px;">`;
-                    html += `<h3 style="color: #667EEA; margin-bottom: 10px;">${meaning.partOfSpeech}</h3>`;
-                    
-                    meaning.definitions.slice(0, 3).forEach((def, idx) => {
-                        html += `<p style="margin-bottom: 10px;"><strong>${idx + 1}.</strong> ${def.definition}</p>`;
-                        if (def.example) {
-                            html += `<p style="color: #718096; font-style: italic; margin-left: 20px; margin-bottom: 10px;">Example: "${def.example}"</p>`;
-                        }
-                    });
-                    html += `</div>`;
-                });
-                
-                html += `<button onclick="closeDictionary()" style="
-                    background: #667EEA;
-                    color: white;
-                    border: none;
-                    padding: 12px 30px;
-                    border-radius: 8px;
-                    font-weight: 700;
-                    cursor: pointer;
-                    font-size: 16px;
-                    margin-top: 20px;
-                ">Close</button>`;
-                
-                content.innerHTML = html;
-            } catch (error) {
-                console.error('Dictionary lookup error:', error);
-                content.innerHTML = `
-                    <h2 style="color: #DC2626; margin-bottom: 15px;">Error</h2>
-                    <p style="color: #666;">Sorry, there was an error looking up this word.</p>
-                    <button onclick="closeDictionary()" style="
-                        background: #667EEA;
-                        color: white;
-                        border: none;
-                        padding: 12px 30px;
-                        border-radius: 8px;
-                        font-weight: 700;
-                        cursor: pointer;
-                        font-size: 16px;
-                        margin-top: 20px;
-                    ">Close</button>
-                `;
-            }
+            content.innerHTML = `
+                <h3 style="color: #667EEA; font-size: 20px; margin-bottom: 10px; font-weight: 800;">${word} <span style="font-size: 14px; color: #718096; font-weight: 600;">(${type})</span></h3>
+                <p style="color: #4A5568; line-height: 1.7; margin-bottom: 20px;">${definition}</p>
+                <button onclick="closeDictionary()" style="background: #E5E9F2; color: #4A5568; border: none; padding: 10px 30px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 16px; margin-top: 20px; ">Close</button>
+            `;
         }
 
         function closeDictionary() {
             document.getElementById('dictionary-popup').style.display = 'none';
             document.getElementById('dictionary-overlay').style.display = 'none';
         }
-
         document.getElementById('dictionary-overlay').addEventListener('click', closeDictionary);
 
-       async function checkForMistakesOnHomepage() {
-    try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
 
-        const { data: mistakes, error } = await supabase
-            .from('user_mistakes')
-            .select('word, definition, word_type, lesson, lesson_link, last_made_at')
-            .eq('user_id', user.id)
-            .order('last_made_at', { ascending: false })
-            .limit(10);
-        
-        if (error) {
-            console.error('Error fetching mistakes:', error);
-            return;
-        }
-        
-        if (mistakes && mistakes.length > 0) {
-            showMistakeReminderHomepage(mistakes);
-        }
-    } catch (error) {
-        console.error('Error checking mistakes:', error);
-    }
-}
+        // --- NEW/UPDATED MISTAKE MANAGEMENT LOGIC ---
 
-// 2. ENHANCED: Show mistake reminder with dictionary and optional practice
-function showMistakeReminderHomepage(mistakes) {
-    // Group by lesson for better organization
-    const lessonGroups = {};
-    mistakes.forEach(m => {
-        if (!lessonGroups[m.lesson]) {
-            lessonGroups[m.lesson] = {
-                words: [],
-                link: m.lesson_link
-            };
-        }
-        lessonGroups[m.lesson].words.push(m);
-    });
-
-    const popup = document.createElement('div');
-    popup.id = 'mistake-reminder-popup'; // Added ID
-    popup.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-        z-index: 10000;
-        max-width: 600px;
-        width: 90%;
-        max-height: 85vh;
-        overflow-y: auto;
-    `;
-    
-    let lessonHTML = '';
-    for (const [lessonName, lessonData] of Object.entries(lessonGroups)) {
-        const wordList = lessonData.words.map(w => 
-            `<strong class="clickable-word" data-word="${w.word}" data-definition="${w.definition || 'No definition available'}" data-type="${w.word_type || 'word'}">${w.word}</strong>`
-        ).join(', ');
-        
-        lessonHTML += `
-            <div style="margin: 15px 0; padding: 15px; background: #FEF2F2; border-radius: 8px; border-left: 4px solid #DC2626;">
-                <p style="font-size: 14px; color: #666; margin-bottom: 8px; font-weight: 600;">
-                    📚 ${lessonName}
-                    ${lessonData.link ? `<a href="${lessonData.link}" style="color: #667EEA; text-decoration: none; margin-left: 8px; font-size: 12px;">↗ Revisit</a>` : ''}
-                </p>
-                <p style="color: #DC2626; font-weight: 600; line-height: 1.6;">${wordList}</p>
-            </div>
-        `;
-    }
-    
-    popup.innerHTML = `
-        <h2 style="color: #DC2626; margin-bottom: 15px; font-size: 24px; font-weight: 800;">
-            🎯 Words to Review! (${mistakes.length})
-        </h2>
-        <p style="color: #666; margin-bottom: 20px; line-height: 1.6;">
-            You had trouble with these words recently. <strong>Click any word</strong> to see its definition:
-        </p>
-        ${lessonHTML}
-        
-        <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
-            <button id="practice-btn" style="
-                background: #667EEA;
-                color: white;
-                border: none;
-                padding: 12px 24px;
-                border-radius: 8px;
-                font-weight: 700;
-                cursor: pointer;
-                font-size: 16px;
-                flex: 1;
-                min-width: 140px;
-            ">🔥 Practice Now</button>
+        // Function to update the state of the 'Clear Selected Words' button
+        function handleCheckboxChange() {
+            const popup = document.getElementById('mistake-reminder-popup');
+            if (!popup) return;
             
-            <button id="got-it-btn" style="
-                background: #E5E9F2;
-                color: #4A5568;
-                border: none;
-                padding: 12px 24px;
-                border-radius: 8px;
-                font-weight: 700;
-                cursor: pointer;
-                font-size: 16px;
-                flex: 1;
-                min-width: 140px;
-            ">Got it! 👍</button>
+            const clearSelectedBtn = popup.querySelector('#clear-selected-btn');
+            const checkboxes = popup.querySelectorAll('.word-checkbox');
+            
+            const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+            
+            // Logic to enable/disable button
+            if (anyChecked) {
+                clearSelectedBtn.style.opacity = '1.0';
+                clearSelectedBtn.style.pointerEvents = 'auto';
+                clearSelectedBtn.style.background = '#DC2626';
+            } else {
+                clearSelectedBtn.style.opacity = '0.6';
+                clearSelectedBtn.style.pointerEvents = 'none';
+                clearSelectedBtn.style.background = '#DC2626'; 
+            }
+        }
 
-            <button id="clear-all-btn" style="
-                background: #DC2626;
-                color: white;
-                border: none;
-                padding: 12px 24px;
-                border-radius: 8px;
-                font-weight: 700;
-                cursor: pointer;
-                font-size: 16px;
-                flex: 1;
-                min-width: 140px;
-            ">🗑️ Clear All Words</button>
-            </div>
-    `;
-    
-    const overlay = document.createElement('div');
-    overlay.id = 'mistake-reminder-overlay'; // Added ID
-    overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 9999;
-    `;
-    
-    document.body.appendChild(overlay);
-    document.body.appendChild(popup);
-    
-    // Add click handlers for clickable words
-    popup.querySelectorAll('.clickable-word').forEach(wordEl => {
-        wordEl.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const definition = `<div style="text-align: left;">
-                <strong style="font-size: 16px; color: #1A202C;">${wordEl.dataset.word}</strong>
-                <span style="color: #718096; font-style: italic; margin-left: 8px;">(${wordEl.dataset.type})</span>
-                <p style="margin-top: 8px; color: #4A5568; line-height: 1.5;">${wordEl.dataset.definition}</p>
-            </div>`;
-            
-            // Close any existing dictionary popup
-            const existingDict = document.getElementById('mistake-dictionary-popup');
-            if (existingDict) existingDict.remove();
-            
-            // Create new dictionary popup
-            const dictPopup = document.createElement('div');
-            dictPopup.id = 'mistake-dictionary-popup';
-            dictPopup.style.cssText = `
+        // Function to clear only the selected mistake words
+        async function clearSelectedMistakes() {
+            const popup = document.getElementById('mistake-reminder-popup');
+            if (!popup) return;
+
+            const checkboxes = popup.querySelectorAll('.word-checkbox:checked');
+            if (checkboxes.length === 0) {
+                alert("Please select at least one word to clear.");
+                return;
+            }
+
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) {
+                    alert('You must be logged in to clear words.');
+                    return;
+                }
+
+                const confirmed = confirm(`Are you sure you want to clear the ${checkboxes.length} selected word(s)?`);
+                if (!confirmed) return;
+                
+                const deletePromises = [];
+
+                checkboxes.forEach(checkbox => {
+                    const [word, lesson] = checkbox.dataset.key.split('::');
+                    
+                    // Build the deletion promise for each checked word
+                    deletePromises.push(
+                        supabase
+                            .from('user_mistakes')
+                            .delete()
+                            .eq('user_id', user.id)
+                            .eq('word', word)
+                            .eq('lesson', lesson)
+                    );
+                });
+
+                // Execute all deletions concurrently
+                const results = await Promise.all(deletePromises);
+                let errorOccurred = false;
+
+                results.forEach(result => {
+                    if (result.error) {
+                        console.error('Error clearing mistake:', result.error);
+                        errorOccurred = true;
+                    }
+                });
+
+                if (errorOccurred) {
+                    alert('Finished clearing words, but some errors occurred. Check the console for details.');
+                } else {
+                    // Successfully cleared, now refresh the list
+                    alert(`${checkboxes.length} word(s) successfully cleared!`);
+                }
+
+                // Close the current popup and re-run the check to display the new list
+                document.getElementById('mistake-reminder-popup').remove();
+                document.getElementById('mistake-reminder-overlay').remove();
+                checkForMistakesOnHomepage();
+                
+            } catch (error) {
+                console.error('Unexpected error during selected mistake clearing:', error);
+                alert('An unexpected error occurred while clearing words.');
+            }
+        }
+
+
+        // 1. Check for mistakes
+        async function checkForMistakesOnHomepage() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) return; // Only show for logged-in users
+
+                const { data: mistakes, error } = await supabase
+                    .from('user_mistakes')
+                    .select('word, definition, word_type, lesson, lesson_link, last_made_at')
+                    .eq('user_id', user.id)
+                    .order('last_made_at', { ascending: false })
+                    .limit(10); // Show up to 10 recent mistakes
+
+                if (error) {
+                    console.error('Error fetching mistakes:', error);
+                    return;
+                }
+
+                if (mistakes && mistakes.length > 0) {
+                    showMistakeReminderHomepage(mistakes);
+                }
+
+            } catch (error) {
+                console.error('Error checking mistakes:', error);
+            }
+        }
+
+
+        // 2. ENHANCED: Show mistake reminder with dictionary and new management options
+        function showMistakeReminderHomepage(mistakes) {
+            // Group by lesson for better organization
+            const lessonGroups = {};
+            mistakes.forEach(m => {
+                if (!lessonGroups[m.lesson]) {
+                    lessonGroups[m.lesson] = { words: [], link: m.lesson_link };
+                }
+                lessonGroups[m.lesson].words.push(m);
+            });
+
+            // Variables for both main word list and checkboxes
+            let lessonHTML = '';
+            let wordCheckboxesHTML = '';
+
+            for (const [lessonName, lessonData] of Object.entries(lessonGroups)) {
+                // --- Part 1: Word Display (The clickable dictionary list) ---
+                const wordList = lessonData.words.map(w =>
+                    `<strong class="clickable-word" data-word="${w.word}" data-definition="${w.definition || 'No definition available'}" data-type="${w.word_type || 'word'}">${w.word}</strong>`
+                ).join(', ');
+
+                lessonHTML += `
+                    <div style="margin: 15px 0; padding: 15px; background: #FEF2F2; border-radius: 8px; border-left: 4px solid #DC2626;">
+                        <p style="font-size: 14px; color: #666; margin-bottom: 8px; font-weight: 600;">
+                            📚 ${lessonName}
+                            ${lessonData.link ? `<a href="${lessonData.link}" style="color: #667EEA; text-decoration: none; margin-left: 8px; font-size: 12px;">↗ Revisit</a>` : ''}
+                        </p>
+                        <p style="color: #DC2626; font-weight: 600; line-height: 1.6;">${wordList}</p>
+                    </div>
+                `;
+                
+                // --- Part 2: Checkbox Creation (For the management box) ---
+                lessonData.words.forEach(w => {
+                    const uniqueKey = `${w.word}::${w.lesson}`;
+                    wordCheckboxesHTML += `
+                        <div style="display: flex; align-items: center;">
+                            <input type="checkbox" id="check-${uniqueKey}" data-key="${uniqueKey}" class="word-checkbox" style="margin-right: 6px; cursor: pointer; transform: scale(1.1);">
+                            <label for="check-${uniqueKey}" style="font-size: 14px; cursor: pointer; color: #4A5568;">${w.word}</label>
+                        </div>
+                    `;
+                });
+            }
+
+
+            const popup = document.createElement('div');
+            popup.id = 'mistake-reminder-popup'; // Added ID
+            popup.style.cssText = `
                 position: fixed;
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
                 background: white;
-                padding: 20px;
-                border-radius: 12px;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-                z-index: 10002;
-                max-width: 400px;
-                width: 85%;
-                border: 3px solid #667EEA;
+                padding: 30px;
+                border-radius: 15px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                z-index: 10000;
+                max-width: 600px;
+                width: 90%;
+                max-height: 85vh;
+                overflow-y: auto;
             `;
-            dictPopup.innerHTML = definition + `
-                <button onclick="this.parentElement.remove()" style="
-                    background: #667EEA;
-                    color: white;
-                    border: none;
-                    padding: 8px 20px;
-                    border-radius: 6px;
-                    font-weight: 700;
-                    cursor: pointer;
-                    margin-top: 15px;
-                    width: 100%;
-                ">Close</button>
-            `;
-            document.body.appendChild(dictPopup);
-        });
-    });
-    
-    // Practice button - creates a gap-fill exercise
-    document.getElementById('practice-btn').addEventListener('click', () => {
-        createPracticeExercise(mistakes);
-        popup.remove();
-        overlay.remove();
-    });
-    
-    // Got it button (Dismiss)
-    document.getElementById('got-it-btn').addEventListener('click', () => {
-        popup.remove();
-        overlay.remove();
-    });
 
-    // NEW: Clear All button logic
-    document.getElementById('clear-all-btn').addEventListener('click', async () => {
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                alert('You must be logged in to clear words.');
-                return;
-            }
+            popup.innerHTML = `
+                <h2 style="color: #DC2626; margin-bottom: 15px; font-size: 24px; font-weight: 800;"> 🚨 Don't Forget These Words! </h2>
+                <p style="color: #666; margin-bottom: 20px;">We noticed you struggled with these words recently. Time to review and practice them!</p>
 
-            const confirmClear = confirm("Are you sure you want to clear ALL your incorrect words? This cannot be undone.");
-            if (!confirmClear) return;
+                ${lessonHTML}
 
-            const { error } = await supabase
-                .from('user_mistakes')
-                .delete()
-                .eq('user_id', user.id);
+                <div style="margin-top: 15px; background: #F8F9FB; padding: 15px; border-radius: 8px; border: 1px solid #E5E9F2;">
+                    <p style="font-weight: 700; color: #1A202C; margin-bottom: 10px;">
+                        ✅ Manage Your List: (Individual Clear)
+                    </p>
+                    <div id="word-checkboxes" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px;">
+                        ${wordCheckboxesHTML} 
+                    </div>
+                    <button id="clear-selected-btn" style="
+                        background: #DC2626;
+                        color: white;
+                        border: none;
+                        padding: 10px 20px;
+                        border-radius: 8px;
+                        font-weight: 700;
+                        cursor: pointer;
+                        font-size: 14px;
+                        margin-top: 15px;
+                        width: 100%;
+                        opacity: 0.6;
+                        pointer-events: none;
+                        transition: opacity 0.2s;
+                    ">🗑️ Clear Selected Words</button>
+                </div>
 
-            if (error) {
-                console.error('Error clearing mistakes:', error);
-                alert('Failed to clear words. Please try again.');
-            } else {
-                alert('All incorrect words have been cleared!');
-                popup.remove();
-                overlay.remove();
-            }
-        } catch (error) {
-            console.error('Unexpected error during mistake clearing:', error);
-            alert('An unexpected error occurred while clearing words.');
-        }
-    });
-}
-
-// 3. NEW: Create a practice exercise from mistakes
-function createPracticeExercise(mistakes) {
-    // Take up to 6 random words for practice
-    const practiceWords = mistakes.slice(0, 6);
-    
-    const practicePopup = document.createElement('div');
-    practicePopup.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-        z-index: 10000;
-        max-width: 700px;
-        width: 90%;
-        max-height: 85vh;
-        overflow-y: auto;
-    `;
-    
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 9999;
-    `;
-    
-    // Shuffle words for word bank
-    const shuffled = [...practiceWords].sort(() => Math.random() - 0.5);
-    
-    practicePopup.innerHTML = `
-        <h2 style="color: #667EEA; margin-bottom: 15px; font-size: 24px; font-weight: 800;">
-            🔥 Quick Practice Exercise
-        </h2>
-        <p style="color: #666; margin-bottom: 20px;">Fill in the blanks with the correct words:</p>
-        
-        <div style="background: #F0F4FF; border: 2px solid #667EEA; border-radius: 10px; padding: 15px; margin-bottom: 20px;">
-            <p style="font-weight: 700; margin-bottom: 10px; color: #4A5568;">Word Bank:</p>
-            <div id="practice-word-bank" style="display: flex; flex-wrap: wrap; gap: 8px;">
-                ${shuffled.map(w => `
-                    <span class="practice-word" data-word="${w.word}" style="
+                <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
+                    <button id="practice-btn" style="
                         background: #667EEA;
                         color: white;
-                        padding: 8px 14px;
-                        border-radius: 6px;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 8px;
+                        font-weight: 700;
                         cursor: pointer;
-                        font-weight: 600;
-                        transition: all 0.2s;
-                        user-select: none;
-                    ">${w.word}</span>
-                `).join('')}
-            </div>
-        </div>
-        
-        <div id="practice-sentences" style="line-height: 2; font-size: 16px;">
-            ${practiceWords.map((w, i) => `
-                <p style="margin-bottom: 15px;">
-                    ${i + 1}. ${generateSentence(w.word, w.definition)}
-                </p>
-            `).join('')}
-        </div>
-        
-        <div style="display: flex; gap: 10px; margin-top: 25px;">
-            <button id="check-practice-btn" style="
-                background: #667EEA;
-                color: white;
-                border: none;
-                padding: 12px 24px;
-                border-radius: 8px;
-                font-weight: 700;
-                cursor: pointer;
-                font-size: 16px;
-                flex: 1;
-            ">Check Answers</button>
+                        font-size: 16px;
+                        flex: 1;
+                        min-width: 140px;
+                    ">🔥 Practice Now</button>
+                    
+                    <button id="got-it-btn" style="
+                        background: #E5E9F2;
+                        color: #4A5568;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 8px;
+                        font-weight: 700;
+                        cursor: pointer;
+                        font-size: 16px;
+                        flex: 1;
+                        min-width: 140px;
+                    ">Got it! 👍</button>
+                    
+                    <button id="clear-all-btn" style="
+                        background: #DC2626;
+                        color: white;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 8px;
+                        font-weight: 700;
+                        cursor: pointer;
+                        font-size: 16px;
+                        flex: 1;
+                        min-width: 140px;
+                    ">🗑️ Clear All Words</button>
+                </div>
+            `;
+
+            const overlay = document.createElement('div');
+            overlay.id = 'mistake-reminder-overlay'; // Added ID
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 9999;
+            `;
+
+            document.body.appendChild(overlay);
+            document.body.appendChild(popup);
+
+
+            // --- NEW: Bind listeners for individual word clearing ---
+            const clearSelectedBtn = popup.querySelector('#clear-selected-btn');
+            const checkboxes = popup.querySelectorAll('.word-checkbox');
+
+            // Checkbox change handler (for enabling/disabling the clear button)
+            checkboxes.forEach(cb => cb.addEventListener('change', handleCheckboxChange));
+
+            // Initial state setup for the button
+            handleCheckboxChange(); 
+
+            // Bind the clear selected button
+            clearSelectedBtn.addEventListener('click', clearSelectedMistakes);
+            // --- END NEW LISTENERS ---
+
+
+            // Add click handlers for clickable words (Dictionary)
+            popup.querySelectorAll('.clickable-word').forEach(wordEl => {
+                wordEl.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showDictionary(wordEl.dataset.word, wordEl.dataset.definition, wordEl.dataset.type);
+                });
+            });
+
+            // Practice button
+            document.getElementById('practice-btn').addEventListener('click', () => {
+                document.getElementById('mistake-reminder-popup').remove();
+                document.getElementById('mistake-reminder-overlay').remove();
+                startPractice(mistakes);
+            });
+
+            // Got it button (Dismiss)
+            document.getElementById('got-it-btn').addEventListener('click', () => {
+                document.getElementById('mistake-reminder-popup').remove();
+                document.getElementById('mistake-reminder-overlay').remove();
+            });
             
-            <button id="close-practice-btn" style="
-                background: #E5E9F2;
-                color: #4A5568;
-                border: none;
-                padding: 12px 24px;
-                border-radius: 8px;
-                font-weight: 700;
-                cursor: pointer;
-                font-size: 16px;
-            ">Close</button>
-        </div>
-        
-        <div id="practice-feedback" style="margin-top: 15px; font-weight: 700; text-align: center;"></div>
-    `;
-    
-    document.body.appendChild(overlay);
-    document.body.appendChild(practicePopup);
-    
-    // Setup practice interaction
-    setupPracticeInteraction(practiceWords);
-    
-    document.getElementById('close-practice-btn').addEventListener('click', () => {
-        practicePopup.remove();
-        overlay.remove();
-    });
-}
+            // Clear All button logic (Kept as is, now has a dedicated ID)
+            document.getElementById('clear-all-btn').addEventListener('click', async () => {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) {
+                    alert('You must be logged in to clear your word list.');
+                    return;
+                }
 
-// 4. Generate a sentence with a gap for the word
-// ========================================
-// IMPROVED generateSentence() FUNCTION
-// ========================================
+                const confirmed = confirm(`Are you sure you want to clear ALL ${mistakes.length} words from your list? This cannot be undone.`);
+                if (!confirmed) return;
 
-function generateSentence(word, definition) {
-    // Specific sentence patterns for all vocabulary words
-    const sentencePatterns = {
-        // === GUY FAWKES VOCABULARY ===
-        'conspirators': [
-            `The <span class="practice-gap" data-answer="${word}">____</span> met in secret to plan their attack.`,
-            `Police arrested several <span class="practice-gap" data-answer="${word}">____</span> involved in the plot.`,
-            `The <span class="practice-gap" data-answer="${word}">____</span> were charged with planning illegal activities.`
-        ],
-        'effigies': [
-            `On Bonfire Night, people burn <span class="practice-gap" data-answer="${word}">____</span> of Guy Fawkes.`,
-            `The protesters made <span class="practice-gap" data-answer="${word}">____</span> of the politician.`,
-            `During the festival, <span class="practice-gap" data-answer="${word}">____</span> were displayed throughout the town.`
-        ],
-        'commemorates': [
-            `This holiday <span class="practice-gap" data-answer="${word}">____</span> an important historical event.`,
-            `The statue <span class="practice-gap" data-answer="${word}">____</span> the bravery of soldiers.`,
-            `Every year, the ceremony <span class="practice-gap" data-answer="${word}">____</span> those who fought for freedom.`
-        ],
-        'assembled': [
-            `The team <span class="practice-gap" data-answer="${word}">____</span> in the meeting room at 9am.`,
-            `He <span class="practice-gap" data-answer="${word}">____</span> a group of experts to solve the problem.`,
-            `The protesters <span class="practice-gap" data-answer="${word}">____</span> outside the government building.`
-        ],
-        'uncovered': [
-            `Investigators <span class="practice-gap" data-answer="${word}">____</span> evidence of the crime.`,
-            `The journalist <span class="practice-gap" data-answer="${word}">____</span> a major scandal.`,
-            `Police <span class="practice-gap" data-answer="${word}">____</span> the truth after months of investigation.`
-        ],
-        'shed': [
-            `The country has <span class="practice-gap" data-answer="${word}">____</span> its colonial past.`,
-            `She tried to <span class="practice-gap" data-answer="${word}">____</span> her negative reputation.`,
-            `The company <span class="practice-gap" data-answer="${word}">____</span> thousands of jobs this year.`
-        ],
-        'charismatic': [
-            `The <span class="practice-gap" data-answer="${word}">____</span> leader inspired millions of followers.`,
-            `His <span class="practice-gap" data-answer="${word}">____</span> personality made him very popular.`,
-            `She was a <span class="practice-gap" data-answer="${word}">____</span> speaker who captivated audiences.`
-        ],
-        'treason': [
-            `He was executed for <span class="practice-gap" data-answer="${word}">____</span> against the crown.`,
-            `Betraying your country is considered <span class="practice-gap" data-answer="${word}">____</span>.`,
-            `The punishment for <span class="practice-gap" data-answer="${word}">____</span> was death.`
-        ],
-        'persecution': [
-            `They fled their homeland to escape religious <span class="practice-gap" data-answer="${word}">____</span>.`,
-            `The <span class="practice-gap" data-answer="${word}">____</span> of minorities is a serious human rights issue.`,
-            `Catholics faced severe <span class="practice-gap" data-answer="${word}">____</span> in that era.`
-        ],
-        'gunpowder': [
-            `The barrels were filled with <span class="practice-gap" data-answer="${word}">____</span> for the explosion.`,
-            `<span class="practice-gap" data-answer="${word}">____</span> was invented in China centuries ago.`,
-            `They stored the <span class="practice-gap" data-answer="${word}">____</span> in a secret cellar.`
-        ],
-        'radicalization': [
-            `The <span class="practice-gap" data-answer="${word}">____</span> of young people is a growing concern.`,
-            `His <span class="practice-gap" data-answer="${word}">____</span> happened gradually over several years.`,
-            `Governments are working to prevent <span class="practice-gap" data-answer="${word}">____</span> online.`
-        ],
-        'vestige': [
-            `The old castle is the last <span class="practice-gap" data-answer="${word}">____</span> of medieval times.`,
-            `Only a <span class="practice-gap" data-answer="${word}">____</span> of the ancient city remains today.`,
-            `These traditions are a <span class="practice-gap" data-answer="${word}">____</span> of our cultural heritage.`
-        ],
-        'pageantry': [
-            `The royal wedding was full of traditional <span class="practice-gap" data-answer="${word}">____</span>.`,
-            `The ceremony included elaborate <span class="practice-gap" data-answer="${word}">____</span> and costumes.`,
-            `British <span class="practice-gap" data-answer="${word}">____</span> is famous around the world.`
-        ],
+                const { error } = await supabase
+                    .from('user_mistakes')
+                    .delete()
+                    .eq('user_id', user.id);
 
-        // === TRICK OR TREAT VOCABULARY (A1 BEGINNER) ===
-        'Candy': [
-            `The children collected lots of <span class="practice-gap" data-answer="${word}">____</span> on Halloween.`,
-            `Would you like some <span class="practice-gap" data-answer="${word}">____</span>? I have chocolate.`,
-            `Put the <span class="practice-gap" data-answer="${word}">____</span> in your bag, please.`
-        ],
-        'Door': [
-            `Please open the <span class="practice-gap" data-answer="${word}">____</span> for me.`,
-            `Knock on the <span class="practice-gap" data-answer="${word}">____</span> and say "Trick or Treat!"`,
-            `The <span class="practice-gap" data-answer="${word}">____</span> is closed. Can you open it?`
-        ],
-        'Bag': [
-            `Put your candy in this <span class="practice-gap" data-answer="${word}">____</span>.`,
-            `My <span class="practice-gap" data-answer="${word}">____</span> is full of sweets now!`,
-            `I carry a big <span class="practice-gap" data-answer="${word}">____</span> for Halloween.`
-        ],
-        'Costume': [
-            `I like your ghost <span class="practice-gap" data-answer="${word}">____</span>! Very scary!`,
-            `What <span class="practice-gap" data-answer="${word}">____</span> will you wear this Halloween?`,
-            `She has a beautiful princess <span class="practice-gap" data-answer="${word}">____</span>.`
-        ],
-        'Trick or Treat': [
-            `The children shout "<span class="practice-gap" data-answer="${word}">____</span>!" at every house.`,
-            `When you knock on the door, say "<span class="practice-gap" data-answer="${word}">____</span>!"`,
-            `<span class="practice-gap" data-answer="${word}">____</span> is what we say on Halloween night.`
-        ],
-        'please': [
-            `Can I have some candy, <span class="practice-gap" data-answer="${word}">____</span>?`,
-            `Open the door, <span class="practice-gap" data-answer="${word}">____</span>.`,
-            `Give me chocolate, <span class="practice-gap" data-answer="${word}">____</span>!`
-        ],
-        'I have': [
-            `<span class="practice-gap" data-answer="${word}">____</span> three pieces of candy in my bag.`,
-            `<span class="practice-gap" data-answer="${word}">____</span> a costume. Do you want to see it?`,
-            `<span class="practice-gap" data-answer="${word}">____</span> lots of sweets now!`
-        ],
-        'Open': [
-            `<span class="practice-gap" data-answer="${word}">____</span> the door, please. I want candy!`,
-            `Can you <span class="practice-gap" data-answer="${word}">____</span> your bag for me?`,
-            `<span class="practice-gap" data-answer="${word}">____</span> this box. There is chocolate inside.`
-        ],
-        'Try': [
-            `<span class="practice-gap" data-answer="${word}">____</span> this candy. It is very sweet!`,
-            `You should <span class="practice-gap" data-answer="${word}">____</span> my costume on Halloween.`,
-            `<span class="practice-gap" data-answer="${word}">____</span> knocking on the door again.`
-        ],
-        'Show': [
-            `<span class="practice-gap" data-answer="${word}">____</span> me your costume, please!`,
-            `Can you <span class="practice-gap" data-answer="${word}">____</span> me your candy?`,
-            `I want to <span class="practice-gap" data-answer="${word}">____</span> you something special.`
-        ],
+                if (error) {
+                    console.error('Error clearing all mistakes:', error);
+                    alert('Failed to clear words. Please try again.');
+                } else {
+                    alert('Your entire word list has been cleared!');
+                    document.getElementById('mistake-reminder-popup').remove();
+                    document.getElementById('mistake-reminder-overlay').remove();
+                    // No need to call checkForMistakesOnHomepage as the list is now empty
+                }
+            });
+        }
 
-        // === BANK OF ENGLAND VOCABULARY ===
-        'Threadneedle Street': [
-            `The Bank of England is located on <span class="practice-gap" data-answer="${word}">____</span> in London.`,
-            `<span class="practice-gap" data-answer="${word}">____</span> is famous for being the home of Britain's central bank.`,
-            `Many financial institutions are near <span class="practice-gap" data-answer="${word}">____</span>.`
-        ],
-        'Monetary Stability': [
-            `The Bank's main goal is to maintain <span class="practice-gap" data-answer="${word}">____</span> in the UK.`,
-            `<span class="practice-gap" data-answer="${word}">____</span> means keeping inflation low and predictable.`,
-            `Central banks work to ensure <span class="practice-gap" data-answer="${word}">____</span> for the economy.`
-        ],
-        'Inflation': [
-            `When prices rise rapidly, we call it high <span class="practice-gap" data-answer="${word}">____</span>.`,
-            `The Bank raises interest rates to control <span class="practice-gap" data-answer="${word}">____</span>.`,
-            `<span class="practice-gap" data-answer="${word}">____</span> makes your money worth less over time.`
-        ],
-        'confidence': [
-            `Public <span class="practice-gap" data-answer="${word}">____</span> in the banking system is crucial.`,
-            `The Bank's actions help maintain <span class="practice-gap" data-answer="${word}">____</span> in the economy.`,
-            `People need <span class="practice-gap" data-answer="${word}">____</span> that their money is safe.`
-        ],
-        'banknotes': [
-            `The Bank of England prints all British <span class="practice-gap" data-answer="${word}">____</span>.`,
-            `Only the central bank can issue <span class="practice-gap" data-answer="${word}">____</span> in England.`,
-            `These <span class="practice-gap" data-answer="${word}">____</span> feature portraits of the King.`
-        ],
-        'vault': [
-            `Gold reserves are stored in a secure underground <span class="practice-gap" data-answer="${word}">____</span>.`,
-            `The Bank's <span class="practice-gap" data-answer="${word}">____</span> holds billions of pounds worth of gold.`,
-            `Access to the <span class="practice-gap" data-answer="${word}">____</span> is highly restricted.`
-        ],
-        'Governor': [
-            `The <span class="practice-gap" data-answer="${word}">____</span> is the highest-ranking official at the Bank.`,
-            `The <span class="practice-gap" data-answer="${word}">____</span> leads the Monetary Policy Committee.`,
-            `Britain's central bank <span class="practice-gap" data-answer="${word}">____</span> is appointed by the King.`
-        ],
-        'regulation': [
-            `Stricter financial <span class="practice-gap" data-answer="${word}">____</span> helps prevent crises.`,
-            `The Bank oversees banking <span class="practice-gap" data-answer="${word}">____</span> in the UK.`,
-            `New <span class="practice-gap" data-answer="${word}">____</span> requires banks to hold more capital.`
-        ],
-        'monetary': [
-            `The Bank sets <span class="practice-gap" data-answer="${word}">____</span> policy for the whole country.`,
-            `<span class="practice-gap" data-answer="${word}">____</span> decisions affect borrowing costs nationwide.`,
-            `Central banks use <span class="practice-gap" data-answer="${word}">____</span> tools to manage the economy.`
-        ],
-        'stimulate': [
-            `Lower interest rates help <span class="practice-gap" data-answer="${word}">____</span> economic growth.`,
-            `The Bank can <span class="practice-gap" data-answer="${word}">____</span> the economy by cutting rates.`,
-            `Tax cuts may <span class="practice-gap" data-answer="${word}">____</span> consumer spending.`
-        ],
-        'crucial': [
-            `The Bank's role as lender of last resort is <span class="practice-gap" data-answer="${word}">____</span>.`,
-            `Maintaining trust in the currency is <span class="practice-gap" data-answer="${word}">____</span> for stability.`,
-            `It is <span class="practice-gap" data-answer="${word}">____</span> that the Bank acts independently.`
-        ],
-        'adapt': [
-            `The Bank must <span class="practice-gap" data-answer="${word}">____</span> to new digital currencies.`,
-            `Central banks need to <span class="practice-gap" data-answer="${word}">____</span> to changing economic conditions.`,
-            `The institution has learned to <span class="practice-gap" data-answer="${word}">____</span> over its long history.`
-        ],
-        'central': [
-            `The Bank of England is the <span class="practice-gap" data-answer="${word}">____</span> bank of the UK.`,
-            `A <span class="practice-gap" data-answer="${word}">____</span> bank manages a nation's monetary policy.`,
-            `<span class="practice-gap" data-answer="${word}">____</span> banks are independent from government.`
-        ],
-        'set': [
-            `The MPC meets regularly to <span class="practice-gap" data-answer="${word}">____</span> interest rates.`,
-            `Who has the power to <span class="practice-gap" data-answer="${word}">____</span> the cost of borrowing?`,
-            `The Bank will <span class="practice-gap" data-answer="${word}">____</span> rates based on inflation data.`
-        ]
-    };
 
-    // If we have specific patterns for this word, use them
-    if (sentencePatterns[word]) {
-        const patterns = sentencePatterns[word];
-        return patterns[Math.floor(Math.random() * patterns.length)];
-    }
-
-    // Otherwise, use intelligent fallback based on word type in definition
-    const defLower = definition.toLowerCase();
-    
-    // Check if it's a verb
-    if (defLower.includes('to ') || word.endsWith('s') || word.endsWith('ed') || word.endsWith('ing')) {
-        return `We need to <span class="practice-gap" data-answer="${word}">____</span> this carefully.`;
-    }
-    
-    // Check if it's describing a person/people
-    if (defLower.includes('people') || defLower.includes('person') || defLower.includes('someone')) {
-        return `The <span class="practice-gap" data-answer="${word}">____</span> were important in this story.`;
-    }
-    
-    // Check if it's about a quality/characteristic
-    if (defLower.includes('having') || defLower.includes('quality') || defLower.includes('characteristic')) {
-        return `She is very <span class="practice-gap" data-answer="${word}">____</span> when she speaks.`;
-    }
-    
-    // Check if it's about actions/events
-    if (defLower.includes('act') || defLower.includes('event') || defLower.includes('process')) {
-        return `The <span class="practice-gap" data-answer="${word}">____</span> happened last week.`;
-    }
-    
-    // Check if it's about objects/things
-    if (defLower.includes('object') || defLower.includes('thing') || defLower.includes('item')) {
-        return `I need to find my <span class="practice-gap" data-answer="${word}">____</span> before I leave.`;
-    }
-    
-    // Generic fallback (still better than completely abstract)
-    return `This sentence uses the word <span class="practice-gap" data-answer="${word}">____</span> correctly.`;
-}
-
-// 5. Setup practice interaction
-function setupPracticeInteraction(words) {
-    let selectedWord = null;
-    
-    // Word bank clicks
-    document.querySelectorAll('.practice-word').forEach(wordEl => {
-        wordEl.addEventListener('click', () => {
-            if (wordEl.classList.contains('used')) return;
-            
-            document.querySelectorAll('.practice-word').forEach(w => 
-                w.style.boxShadow = 'none'
-            );
-            
-            if (selectedWord === wordEl) {
-                selectedWord = null;
-            } else {
-                wordEl.style.boxShadow = '0 0 0 3px #F59E0B';
-                selectedWord = wordEl;
+        // 3. Practice Function (kept as is)
+        function startPractice(mistakes) {
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
             }
-        });
-    });
-    
-    // Gap clicks
-    document.querySelectorAll('.practice-gap').forEach(gap => {
-        gap.style.cssText = `
-            display: inline-block;
-            min-width: 100px;
-            padding: 4px 12px;
-            background: #FEF3C7;
-            border: 2px dashed #F59E0B;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 700;
-            color: #92400E;
-        `;
-        
-        gap.addEventListener('click', () => {
-            if (!selectedWord) return;
-            if (gap.dataset.filled === 'true') return;
-            
-            gap.textContent = selectedWord.dataset.word;
-            gap.dataset.filled = 'true';
-            gap.dataset.filledWord = selectedWord.dataset.word;
-            gap.style.background = '#FBBF24';
-            gap.style.borderStyle = 'solid';
-            
-            selectedWord.classList.add('used');
-            selectedWord.style.opacity = '0.3';
-            selectedWord.style.pointerEvents = 'none';
-            selectedWord = null;
-            
-            document.querySelectorAll('.practice-word').forEach(w => 
-                w.style.boxShadow = 'none'
-            );
-        });
-    });
-    
-    // Check button
-    document.getElementById('check-practice-btn').addEventListener('click', () => {
-        let correct = 0;
-        let total = 0;
-        
-        document.querySelectorAll('.practice-gap').forEach(gap => {
-            total++;
-            const isCorrect = gap.dataset.filledWord === gap.dataset.answer;
-            
-            if (isCorrect) {
-                correct++;
-                gap.style.background = '#10B981';
-                gap.style.color = 'white';
-                gap.style.borderColor = '#10B981';
-            } else {
-                gap.style.background = '#DC2626';
-                gap.style.color = 'white';
-                gap.style.borderColor = '#DC2626';
+
+            function generateGapSentence(word, definition) {
+                // A dictionary of known sentence patterns to make the exercises better
+                const sentencePatterns = {
+                    'portrayal': [
+                        `The media's <span class="practice-gap" data-answer="${word}">____</span> of the politician was very negative.`,
+                        `The film offered a realistic <span class="practice-gap" data-answer="${word}">____</span> of working-class life.`,
+                        `Artists have long debated the accurate <span class="practice-gap" data-answer="${word}">____</span> of emotion.`,
+                    ],
+                    'sculptures': [
+                        `Rodin is famous for his bronze <span class="practice-gap" data-answer="${word}">____</span>.`,
+                        `The museum displays ancient Roman <span class="practice-gap" data-answer="${word}">____</span> made of marble.`,
+                        `The artist created a series of abstract <span class="practice-gap" data-answer="${word}">____</span> for the park.`,
+                    ],
+                    // === BRITISH FOOD IDIOMS VOCABULARY ===
+                    'cream of the crop': [
+                        `Only the <span class="practice-gap" data-answer="${word}">____</span> were invited to the exclusive dinner.`,
+                        `They selected the <span class="practice-gap" data-answer="${word}">____</span> from the job applicants.`,
+                        `This vineyard produces the <span class="practice-gap" data-answer="${word}">____</span> of its region.`,
+                    ],
+                    'take the biscuit': [
+                        `His excuse for being late really <span class="practice-gap" data-answer="${word}">____</span>; it was unbelievable.`,
+                        `Of all the bad jokes I've heard, that one definitely <span class="practice-gap" data-answer="${word}">____</span>.`,
+                        `She won the argument, but the way she celebrated really <span class="practice-gap" data-answer="${word}">____</span>.`,
+                    ],
+                    'spill the beans': [
+                        `Please don't <span class="practice-gap" data-answer="${word}">____</span> about the surprise party!`,
+                        `He accidentally <span class="practice-gap" data-answer="${word}">____</span> about the company's new product.`,
+                        `She promised not to <span class="practice-gap" data-answer="${word}">____</span> until the right time.`,
+                    ],
+                    'not my cup of tea': [
+                        `I appreciate modern art, but it's <span class="practice-gap" data-answer="${word}">____</span>.`,
+                        `Football is really <span class="practice-gap" data-answer="${word}">____</span>; I prefer rugby.`,
+                        `Camping in the rain is <span class="practice-gap" data-answer="${word}">____</span>.`,
+                    ],
+                    'bring home the bacon': [
+                        `It's a traditional expectation that the man <span class="practice-gap" data-answer="${word}">____</span>.`,
+                        `After graduating, she got a high-paying job to <span class="practice-gap" data-answer="${word}">____</span> for her family.`,
+                        `He works two jobs to <span class="practice-gap" data-answer="${word}">____</span> and pay the bills.`,
+                    ],
+                    // === BANK OF ENGLAND VOCABULARY (ADVANCED) ===
+                    'Monetary Stability': [
+                        `The Bank's main goal is to maintain <span class="practice-gap" data-answer="${word}">____</span> in the UK.`,
+                        `<span class="practice-gap" data-answer="${word}">____</span> means keeping inflation low and predictable.`,
+                        `Central banks work to ensure <span class="practice-gap" data-answer="${word}">____</span> for the economy.`,
+                    ],
+                    'Inflation': [
+                        `When prices rise rapidly, we call it high <span class="practice-gap" data-answer="${word}">____</span>.`,
+                        `The Bank raises interest rates to control <span class="practice-gap" data-answer="${word}">____</span>.`,
+                        `<span class="practice-gap" data-answer="${word}">____</span> makes your money worth less over time.`,
+                    ],
+                    'confidence': [
+                        `Public <span class="practice-gap" data-answer="${word}">____</span> in the banking system is crucial.`,
+                        `The Bank's actions help maintain <span class="practice-gap" data-answer="${word}">____</span> in the economy.`,
+                        `People need <span class="practice-gap" data-answer="${word}">____</span> that their money is safe.`,
+                    ],
+                    'banknotes': [
+                        `The Bank of England prints all British <span class="practice-gap" data-answer="${word}">____</span>.`,
+                        `Only the central bank can issue <span class="practice-gap" data-answer="${word}">____</span> in England.`,
+                        `These <span class="practice-gap" data-answer="${word}">____</span> feature portraits of the King.`,
+                    ],
+                    'vault': [
+                        `Gold reserves are stored in a secure underground <span class="practice-gap" data-answer="${word}">____</span>.`,
+                        `The Bank's <span class="practice-gap" data-answer="${word}">____</span> holds billions of pounds worth of gold.`,
+                        `Access to the <span class="practice-gap" data-answer="${word}">____</span> is highly restricted.`,
+                    ],
+                    'Governor': [
+                        `The <span class="practice-gap" data-answer="${word}">____</span> is the highest-ranking official at the Bank.`,
+                        `The <span class="practice-gap" data-answer="${word}">____</span> leads the Monetary Policy Committee.`,
+                        `Britain's central bank <span class="practice-gap" data-answer="${word}">____</span> is appointed by the King.`,
+                    ],
+                    // === TRICK OR TREAT VOCABULARY (A1 BEGINNER) ===
+                    'Candy': [
+                        `The children collected lots of <span class="practice-gap" data-answer="${word}">____</span> on Halloween.`,
+                        `Would you like some <span class="practice-gap" data-answer="${word}">____</span>? I have chocolate.`,
+                        `Put the <span class="practice-gap" data-answer="${word}">____</span> in your bag, please.`,
+                    ],
+                    'Door': [
+                        `Please open the <span class="practice-gap" data-answer="${word}">____</span> for me.`,
+                        `Knock on the <span class="practice-gap" data-answer="${word}">____</span> and say "Trick or Treat!"`,
+                        `The <span class="practice-gap" data-answer="${word}">____</span> is closed. Can you open it?`,
+                    ],
+                    'Bag': [
+                        `Put your candy in this <span class="practice-gap" data-answer="${word}">____</span>.`,
+                        `My <span class="practice-gap" data-answer="${word}">____</span> is full of sweets now!`,
+                        `I carry a big <span class="practice-gap" data-answer="${word}">____</span> for Halloween.`,
+                    ],
+                    'Costume': [
+                        `I like your ghost <span class="practice-gap" data-answer="${word}">____</span>! Very scary!`,
+                        `What <span class="practice-gap" data-answer="${word}">____</span> will you wear this Halloween?`,
+                        `She has a beautiful princess <span class="practice-gap" data-answer="${word}">____</span>.`,
+                    ],
+                    'Trick or Treat': [
+                        `The children shout "<span class="practice-gap" data-answer="${word}">____</span>!" at every house.`,
+                        `When you knock on the door, say "<span class="practice-gap" data-answer="${word}">____</span>!"`,
+                        `<span class="practice-gap" data-answer="${word}">____</span> is what we say on Halloween night.`,
+                    ],
+                };
+
+                // Normalize the word (to handle singular/plural if needed)
+                const normalizedWord = word.toLowerCase();
+
+                // If we have specific patterns for this word, use them
+                if (sentencePatterns[normalizedWord]) {
+                    const patterns = sentencePatterns[normalizedWord];
+                    return patterns[Math.floor(Math.random() * patterns.length)];
+                }
+
+                // Otherwise, use intelligent fallback based on word type in definition
+                const defLower = definition.toLowerCase();
+
+                // Check if it's a verb (simple heuristic)
+                if (defLower.includes('to ') || word.endsWith('s') || word.endsWith('ed') || word.endsWith('ing')) {
+                    return `We need to <span class="practice-gap" data-answer="${word}">____</span> this carefully.`;
+                }
+                
+                // Check if it's describing a person/people/thing (simple heuristic)
+                if (defLower.includes('people') || defLower.includes('person') || defLower.includes('someone') || defLower.includes('thing')) {
+                    return `The <span class="practice-gap" data-answer="${word}">____</span> were important in this story.`;
+                } 
+
+                // Default fallback
+                return `It is important to understand the meaning of the word <span class="practice-gap" data-answer="${word}">____</span> in this context.`;
             }
-        });
+
+            // Limit to 6 random words for practice
+            const practiceWords = shuffleArray([...mistakes]).slice(0, 6);
+            
+            // Generate sentences
+            let sentencesHTML = practiceWords.map((w, index) => {
+                const sentence = generateGapSentence(w.word, w.definition);
+                return `
+                    <div style="margin-bottom: 20px; font-size: 17px; background: #FFF; padding: 15px; border-radius: 8px; border: 1px solid #E5E9F2;">
+                        ${index + 1}. ${sentence}
+                    </div>
+                `;
+            }).join('');
+
+
+            // Create and display the practice popup
+            const practicePopup = document.createElement('div');
+            practicePopup.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                padding: 30px;
+                border-radius: 15px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                z-index: 10000;
+                max-width: 700px;
+                width: 90%;
+                max-height: 85vh;
+                overflow-y: auto;
+            `;
+
+            const overlay = document.createElement('div');
+            overlay.id = 'mistake-reminder-overlay-practice'; // Use a distinct ID
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 9999;
+            `;
+
+            // Shuffle words for word bank
+            const shuffled = shuffleArray([...practiceWords]);
+
+            practicePopup.innerHTML = `
+                <h2 style="color: #667EEA; margin-bottom: 15px; font-size: 24px; font-weight: 800;"> 🔥 Quick Practice Exercise </h2>
+                <p style="color: #666; margin-bottom: 20px;">Fill in the blanks with the correct words:</p>
+
+                <div style="background: #F0F4FF; border: 2px solid #667EEA; border-radius: 10px; padding: 15px; margin-bottom: 20px;">
+                    <p style="font-weight: 700; margin-bottom: 10px; color: #4A5568;">Word Bank (Click to Select):</p>
+                    <div id="practice-word-bank" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        ${shuffled.map(w => `
+                            <span class="practice-word" data-word="${w.word}" style="
+                                background: #667EEA;
+                                color: white;
+                                padding: 8px 14px;
+                                border-radius: 6px;
+                                cursor: pointer;
+                                font-weight: 600;
+                                transition: all 0.2s;
+                                user-select: none;
+                            ">${w.word}</span>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div id="practice-sentences">
+                    ${sentencesHTML}
+                </div>
+
+                <p id="practice-feedback" style="font-weight: 700; font-size: 18px; margin: 20px 0; text-align: center; color: #4A5568; min-height: 25px;">Ready to check your answers?</p>
+                
+                <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
+                    <button id="check-practice-btn" style="
+                        background: #10B981;
+                        color: white;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 8px;
+                        font-weight: 700;
+                        cursor: pointer;
+                        font-size: 16px;
+                        flex: 1;
+                        min-width: 140px;
+                        transition: background-color 0.2s;
+                    ">✅ Check Answers</button>
+                    
+                    <button id="close-practice-btn" style="
+                        background: #E5E9F2;
+                        color: #4A5568;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 8px;
+                        font-weight: 700;
+                        cursor: pointer;
+                        font-size: 16px;
+                        flex: 1;
+                        min-width: 140px;
+                    ">Close</button>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+            document.body.appendChild(practicePopup);
+
+            let selectedWord = null;
+
+            // Word bank selection logic
+            document.querySelectorAll('.practice-word').forEach(wordEl => {
+                wordEl.addEventListener('click', () => {
+                    if (wordEl.classList.contains('used')) return;
+
+                    // Deselect previously selected word
+                    if (selectedWord) {
+                        selectedWord.style.boxShadow = 'none';
+                    }
+                    
+                    // Select new word
+                    selectedWord = wordEl;
+                    selectedWord.style.boxShadow = '0 0 0 3px #667EEA';
+                });
+            });
+
+            // Gap fill logic
+            document.querySelectorAll('.practice-gap').forEach(gap => {
+                gap.style.borderBottom = '2px dashed #999';
+                gap.style.padding = '0 5px';
+                gap.style.cursor = 'pointer';
+                gap.style.minWidth = '80px';
+                gap.style.display = 'inline-block';
+                gap.style.textAlign = 'center';
+                gap.style.fontWeight = '700';
+                gap.style.color = '#1A202C';
+                gap.style.background = '#F8F9FB';
+                gap.style.borderColor = '#E5E9F2';
+                gap.style.borderRadius = '4px';
+
+                gap.addEventListener('click', () => {
+                    if (!selectedWord) return;
+                    if (gap.dataset.filled === 'true') {
+                        // Restore the word to the bank
+                        const oldWordEl = document.querySelector(`.practice-word[data-word="${gap.dataset.filledWord}"]`);
+                        if (oldWordEl) {
+                            oldWordEl.classList.remove('used');
+                            oldWordEl.style.opacity = '1.0';
+                            oldWordEl.style.pointerEvents = 'auto';
+                        }
+                    }
+
+                    // Fill the gap with the currently selected word
+                    gap.textContent = selectedWord.dataset.word;
+                    gap.dataset.filled = 'true';
+                    gap.dataset.filledWord = selectedWord.dataset.word;
+                    
+                    // Mark the gap's appearance for not checked yet
+                    gap.style.background = '#FBBF24'; 
+                    gap.style.borderStyle = 'solid';
+                    gap.style.borderColor = '#F59E0B';
+
+                    // Mark the word as used in the bank
+                    selectedWord.classList.add('used');
+                    selectedWord.style.opacity = '0.3';
+                    selectedWord.style.pointerEvents = 'none';
+                    selectedWord.style.boxShadow = 'none'; // Clear selection visual
+                    selectedWord = null;
+                });
+            });
+
+            // Check button
+            document.getElementById('check-practice-btn').addEventListener('click', () => {
+                let correct = 0;
+                let total = 0;
+                document.querySelectorAll('.practice-gap').forEach(gap => {
+                    total++;
+                    const isCorrect = gap.dataset.filledWord === gap.dataset.answer;
+                    if (isCorrect) {
+                        correct++;
+                        gap.style.background = '#10B981';
+                        gap.style.color = 'white';
+                        gap.style.borderColor = '#10B981';
+                    } else {
+                        gap.style.background = '#DC2626';
+                        gap.style.color = 'white';
+                        gap.style.borderColor = '#DC2626';
+                    }
+                });
+
+                const feedback = document.getElementById('practice-feedback');
+                if (correct === total) {
+                    feedback.innerHTML = '🎉 Perfect! All correct!';
+                    feedback.style.color = '#10B981';
+                } else {
+                    feedback.innerHTML = `📊 You got ${correct}/${total} correct. Keep practicing!`;
+                    feedback.style.color = '#F59E0B';
+                }
+                
+                document.getElementById('check-practice-btn').style.pointerEvents = 'none'; // Prevent re-checking
+                document.getElementById('check-practice-btn').style.opacity = '0.6';
+            });
+
+            // Close button
+            document.getElementById('close-practice-btn').addEventListener('click', () => {
+                practicePopup.remove();
+                overlay.remove();
+            });
+
+            overlay.addEventListener('click', () => {
+                practicePopup.remove();
+                overlay.remove();
+            });
+        }
+
+
+        // 4. Ticker Function (kept as is)
+        const LESSON_STATES = [
+            { text: '😎 NEW! ADVANCED: Crocs\' China Strategy 🐊', href: '/crocs/' },
+            { text: '💼 BUSINESS: Master Financial English 📈', href: '/business/' },
+            { text: '⚖️ LEGAL: Contract Terms Explained ✍️', href: '/legal/' },
+            { text: '🎯 ADVANCED: British Food Idioms 🇬🇧', href: '/advanced/british-foodv9.html' }
+        ];
+
+        let currentTickerIndex = 0;
         
-        const feedback = document.getElementById('practice-feedback');
-        if (correct === total) {
-            feedback.innerHTML = '🎉 Perfect! All correct!';
-            feedback.style.color = '#10B981';
-        } else {
-            feedback.innerHTML = `📊 You got ${correct}/${total} correct. Keep practicing!`;
-            feedback.style.color = '#F59E0B';
+        function updateTicker() {
+            const ticker = document.getElementById('latest-updates-ticker');
+            if (!ticker) return;
+
+            currentTickerIndex = (currentTickerIndex + 1) % LESSON_STATES.length;
+            
+            // Fade out
+            ticker.style.opacity = 0;
+            
+            setTimeout(() => {
+                // Change content
+                ticker.textContent = LESSON_STATES[currentTickerIndex].text;
+                ticker.href = LESSON_STATES[currentTickerIndex].href;
+                // Fade in
+                ticker.style.opacity = 1;
+            }, 200); // Wait for fade out to complete
         }
         
-        document.getElementById('check-practice-btn').disabled = true;
-        document.getElementById('check-practice-btn').style.opacity = '0.6';
-    });
-}
-    </script>
-
-    <script>
-        // Ticker animation
         function startTickerAnimation() {
             const ticker = document.getElementById('latest-updates-ticker');
             if (!ticker) return;
 
-            const LESSON_STATES = [
-                { text: "🚩 NEW! LEGAL: Due Diligence and M&A 💼", href: "/duediligence/" },
-                { text: "🔥 NEW! BEGINNER: Bonfire Night and Guy Fawkes 🎆", href: "/bonfire/" },
-                { text: "🏧 NEW! INTERMEDIATE: The Bank of England 💰", href: "/boe/" },
-                { text: "🏧 NEW! TAX: Tax Audit Essentials 🔍", href: "/audit/" },
-                { text: "🚀 NEW! BUSINESS: Career Progression 🎯", href: "/feedback/" },
-                { text: "👻 NEW! BEGINNER: Trick or Treat! 🎃", href: "/trickortreat/" },
-                { text: "🎃 NEW! INTERMEDIATE: Beware The Black Cat! 👻", href: "/halloween/" },
-                { text: "🧟‍♂️ NEW! ADVANCED: The Creation's Ruin - Frankenstein ⚰️", href: "/frank/" },
-                { text: "😎 NEW! ADVANCED: Unusual European Foods 🍴", href: "/weirdeurofoods/" },
-                { text: "😎 NEW! BUSINESS: Change Management 🧭", href: "/changemanagement/" },
-                { text: "😎 NEW! TAX: International Tax Essentials 🌎", href: "/internationaltaxation/" },
-                { text: "😎 NEW! BEGINNER: What's The Weather Like? ☔", href: "/weather/" },
-                { text: "😎 NEW! INTERMEDIATE: Fortune Cookie English 🥠", href: "/fortunecookies/" },
-                { text: "😎 NEW! LEGAL: Intellectual Property Law 🏛️", href: "/iplaw/" },
-            ];
-
-            let currentStateIndex = 0;
-
-            function updateTicker() {
-                currentStateIndex = (currentStateIndex + 1) % LESSON_STATES.length;
-                const newState = LESSON_STATES[currentStateIndex];
-                ticker.style.opacity = 0;
-
-                setTimeout(() => {
-                    ticker.textContent = newState.text;
-                    ticker.href = newState.href;
-                    ticker.style.opacity = 1;
-                }, 200);
-            }
-
             ticker.textContent = LESSON_STATES[0].text;
             ticker.href = LESSON_STATES[0].href;
-            setInterval(updateTicker, 4000);
-            
-            ticker.addEventListener('mouseenter', () => { ticker.style.animation = 'none'; });
-            ticker.addEventListener('mouseleave', () => { ticker.style.animation = 'pulse 2s infinite ease-in-out'; });
+            setInterval(updateTicker, 4000); // Change every 4 seconds
+
+            // Pause animation on hover
+            ticker.addEventListener('mouseenter', () => {
+                ticker.style.animation = 'none';
+                ticker.style.transform = 'scale(1.05)';
+            });
+            ticker.addEventListener('mouseleave', () => {
+                ticker.style.animation = 'pulse 2s infinite ease-in-out';
+                ticker.style.transform = 'scale(1)';
+            });
         }
 
-        document.addEventListener('DOMContentLoaded', startTickerAnimation);
-    </script>
 
-    <script>
-        // Initialize Supabase and Auth header logic
+        // 5. Authentication (kept as is)
         async function initializeAuthHeader() {
             const loggedOutButtons = document.getElementById('logged-out-buttons');
             const loggedInButtons = document.getElementById('logged-in-buttons');
-            const userGreeting = document.getElementById('user-greeting');
             const logoutBtn = document.getElementById('logout-btn');
+            const userGreeting = document.getElementById('user-greeting');
 
             try {
-                const { data: { user }, error } = await supabase.auth.getUser();
+                const { data: { user } } = await supabase.auth.getUser();
 
                 if (user) {
-                    console.log('User logged in:', user.email);
-                    
-                    let userName = 'Cool Dude';
-                    if (user.user_metadata && user.user_metadata.full_name) {
-                        userName = user.user_metadata.full_name.split(' ')[0];
-                    } else if (user.email) {
-                        userName = user.email.split('@')[0];
-                    }
-                    
-                    if (userGreeting) userGreeting.textContent = `Hey ${userName}! 👋`;
-                    if (loggedInButtons) loggedInButtons.style.display = 'flex';
+                    const email = user.email || 'Cool Dude';
+                    const username = email.split('@')[0];
+                    if (userGreeting) userGreeting.textContent = `Hey ${username}! 👋`;
                     if (loggedOutButtons) loggedOutButtons.style.display = 'none';
+                    if (loggedInButtons) loggedInButtons.style.display = 'flex';
                 } else {
                     console.log('User not logged in');
                     if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
@@ -1598,12 +1526,15 @@ function setupPracticeInteraction(words) {
             }
         }
 
+
+        // 6. Initialization on Load
         document.addEventListener('DOMContentLoaded', async () => {
-    await initializeAuthHeader();
-    
-    // This line triggers the mistake popup!
-    setTimeout(() => checkForMistakesOnHomepage(), 1500);
-});
+            await initializeAuthHeader();
+            startTickerAnimation();
+            
+            // This line triggers the mistake popup after a short delay
+            setTimeout(() => checkForMistakesOnHomepage(), 1500);
+        });
     </script>
 </body>
 </html>
