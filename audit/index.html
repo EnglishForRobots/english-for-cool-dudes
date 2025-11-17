@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -610,7 +609,7 @@
             
             <div id="save-words-section">
                 <div id="logged-in-save" style="display: none;">
-                    <button id="save-words-btn" onclick="saveWordsToDashboard()">
+                    <button id="save-words-btn" onclick="finishLessonAndSaveData()">
                         💾 Save My New Tax Words to My Dashboard
                     </button>
                 </div>
@@ -642,30 +641,137 @@
         let selectedWordOption = null;
         let currentUser = null;
         
-        // === LESSON VOCABULARY DATA ===
+        // === LESSON DATA FOR INDEX PAGE COMPATIBILITY ===
         const lessonTitle = "Tax Audit Essentials: Preparation and Process";
         const lessonLink = "/audit/";
-        const lessonLevel = "INTERMEDIATE";
+        const lessonLevel = "TAX";
+        // Array to track all incorrect words/concepts during this session
+        const incorrectAnswers = []; 
+
+        // Helper function to log a mistake (only once per word in this session)
+        function logMistake(word) {
+            // Check if word is not null/empty and not already in the list
+            if (word && word.trim() !== '' && !incorrectAnswers.includes(word.trim())) {
+                incorrectAnswers.push(word.trim());
+                console.log(`Logged mistake for further practice: ${word.trim()}`);
+            }
+        }
+        
+        // === LESSON VOCABULARY DATA ===
         const learnedWords = [
-            { word: "audit", definition: "An official examination of a company's financial records to verify accuracy." },
-            { word: "financial statements", definition: "Formal records of a company's financial activities and position." },
-            { word: "annual report", definition: "A comprehensive summary of a company's financial performance over the year." },
-			{ word: "scrutiny", definition: "Critical observation or examination." },
-            { word: "settled", definition: "Paid or resolved." },
-            { word: "paramount", definition: "More important than anything else; supreme." },
-            { word: "review", definition: "A formal assessment of something with the intention of instituting change if necessary." },
-            { word: "discrepancies", definition: "A lack of compatibility or similarity between facts or claims." },
-            { word: "inventories", definition: "A complete list of items, especially stock or raw materials." },
-            { word: "remote audits", definition: "Audits conducted using digital records and platforms without a physical visit." },
-            { word: "prevalent", definition: "Widespread in a particular area or at a particular time." },
-            { word: "ledgers", definition: "A book or computer file in which a company's financial data is stored." },
-            { word: "onus", definition: "The responsibility or burden of proof." },
-            { word: "accessible", definition: "Easily obtained or understood." },
-            { word: "opinion", definition: "An auditor's formal conclusion on the financial statements." },
-            { word: "unqualified opinion", definition: "An auditor's conclusion that financial statements are presented fairly, without material misstatements." },
-            { word: "qualified opinion", definition: "An auditor's conclusion that financial statements contain material misstatements." },
-            { word: "implications", definition: "The consequences or results of an action." }
+            { word: "audit", definition: "An official examination of a company's financial records to verify accuracy.", type: "NOUN" },
+            { word: "financial statements", definition: "Formal records of a company's financial activities and position.", type: "NOUN" },
+            { word: "annual report", definition: "A comprehensive summary of a company's financial performance over the year.", type: "NOUN" },
+			{ word: "scrutiny", definition: "Critical observation or examination.", type: "NOUN" },
+            { word: "settled", definition: "Paid or resolved.", type: "VERB" },
+            { word: "paramount", definition: "More important than anything else; supreme.", type: "ADJECTIVE" },
+            { word: "review", definition: "A formal assessment of something with the intention of instituting change if necessary.", type: "NOUN" },
+            { word: "discrepancies", definition: "A lack of compatibility or similarity between facts or claims.", type: "NOUN" },
+            { word: "inventories", definition: "A complete list of items, especially stock or raw materials.", type: "NOUN" },
+            { word: "remote audits", definition: "Audits conducted using digital records and platforms without a physical visit.", type: "NOUN" },
+            { word: "prevalent", definition: "Widespread in a particular area or at a particular time.", type: "ADJECTIVE" },
+            { word: "ledgers", definition: "A book or computer file in which a company's financial data is stored.", type: "NOUN" },
+            { word: "onus", definition: "The responsibility or burden of proof.", type: "NOUN" },
+            { word: "accessible", definition: "Easily obtained or understood.", type: "ADJECTIVE" },
+            { word: "opinion", definition: "An auditor's formal conclusion on the financial statements.", type: "NOUN" },
+            { word: "unqualified opinion", definition: "An auditor's conclusion that financial statements are presented fairly, without material misstatements.", type: "NOUN" },
+            { word: "qualified opinion", definition: "An auditor's conclusion that financial statements contain material misstatements.", type: "NOUN" },
+            { word: "implications", definition: "The consequences or results of an action.", type: "NOUN" }
         ];
+
+        // Function that saves only the lesson completion status (original logic)
+        async function saveLessonCompletion() {
+            const { data, error } = await supabase
+                .from('lessons')
+                .upsert([
+                    { 
+                        user_id: currentUser.id, 
+                        lesson_title: lessonTitle,
+                        lesson_link: lessonLink,
+                        lesson_level: lessonLevel,
+                        vocabulary: learnedWords,
+                        completed_at: new Date().toISOString()
+                    }
+                ], { 
+                    onConflict: 'user_id,lesson_title'
+                })
+                .select();
+
+            if (error) {
+                throw error; // Throw error to be caught by the calling function
+            }
+            
+            return data;
+        }
+
+        // NEW function that handles both saving completion AND mistakes
+        async function finishLessonAndSaveData() {
+            const saveButton = document.getElementById('save-words-btn');
+            saveButton.disabled = true;
+            saveButton.textContent = "Saving...";
+
+            if (!currentUser) {
+                alert("🚨 You must be logged in to save your vocabulary!");
+                saveButton.disabled = false;
+                saveButton.textContent = "💾 Save My New Tax Words to My Dashboard";
+                return;
+            }
+            
+            try {
+                // 1. Save Lesson Completion
+                await saveLessonCompletion();
+
+                // 2. Save only the incorrect answers for the index practice pop-up
+                if (incorrectAnswers.length > 0) {
+                    
+                    // Map mistakes to vocabulary objects if possible, otherwise use N/A
+                    const payload = incorrectAnswers.map(word => {
+                        const wordObj = learnedWords.find(w => w.word === word); 
+                        return {
+                            user_id: currentUser.id,
+                            lesson_title: lessonTitle,
+                            lesson_link: lessonLink,
+                            word: word,
+                            // Use definition from learnedWords or a generic message for quiz options
+                            definition: wordObj ? wordObj.definition : 'Quiz or Gap-Fill Practice Item from this lesson.',
+                            // Use type from learnedWords or a generic type
+                            type: wordObj ? wordObj.type : 'QUESTION_MISTAKE',
+                            // Crucial field for the index page pop-up
+                            word_list_type: 'incorrect_answers' 
+                        };
+                    });
+
+                    // Insert/Update to the user_mistakes table
+                    const { error: mistakesError } = await supabase
+                        .from('user_mistakes')
+                        .upsert(payload, { 
+                            onConflict: 'user_id,lesson_title,word'
+                        })
+                        .select();
+                    
+                    if (mistakesError) throw mistakesError;
+                    console.log(`✅ Saved ${incorrectAnswers.length} unique mistakes.`);
+                }
+
+                // Final UI update and redirect
+                showPopup('Words & Mistakes Saved! Redirecting to Dashboard... 🎉', 'correct');
+                saveButton.disabled = true;
+                saveButton.textContent = "✅ Words Saved!";
+                saveButton.style.backgroundColor = 'var(--color-correct)';
+                
+                setTimeout(() => {
+                    window.location.href = '/dashboard/';
+                }, 1500);
+
+            } catch (err) {
+                console.error('❌ Error saving data:', err);
+                showPopup('Save Failed: ' + err.message, 'incorrect');
+                
+                saveButton.disabled = false;
+                saveButton.textContent = "💾 Try Saving Again (Error)";
+                saveButton.style.backgroundColor = 'var(--color-incorrect)';
+            }
+        }
 
         // === AUTH HEADER INITIALIZATION ===
         async function initializeAuthHeader() {
@@ -729,70 +835,6 @@
             }
         }
         
-        // === SAVE WORDS TO DASHBOARD - FIXED ===
-        async function saveWordsToDashboard() {
-            const saveButton = document.getElementById('save-words-btn');
-            saveButton.disabled = true;
-            saveButton.textContent = "Saving...";
-
-            if (!currentUser) {
-                alert("🚨 You must be logged in to save your vocabulary!");
-                saveButton.disabled = false;
-                saveButton.textContent = "💾 Save My New Tax Words to My Dashboard";
-                return;
-            }
-            
-            try {
-                const completedDate = new Date().toLocaleDateString('en-GB', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric'
-                });
-
-                const { data, error } = await supabase
-                    .from('lessons')
-                    .upsert([
-                        { 
-                            user_id: currentUser.id, 
-                            lesson_title: lessonTitle,
-                            lesson_link: lessonLink,
-                            lesson_level: lessonLevel,
-                            vocabulary: learnedWords,
-                            completed_at: new Date().toISOString()
-                        }
-                    ], { 
-                        onConflict: 'user_id,lesson_title'
-                    })
-                    .select();
-
-                if (error) {
-                    console.error('Supabase Save Error:', error);
-                    showPopup('Save Failed: ' + error.message, 'incorrect');
-                    
-                    saveButton.disabled = false;
-                    saveButton.textContent = "💾 Try Saving Again (Error)";
-                    saveButton.style.backgroundColor = 'var(--color-incorrect)';
-                } else {
-                    console.log('Save successful:', data);
-                    showPopup('Words Saved! Redirecting to Dashboard... 🎉', 'correct');
-                    
-                    saveButton.disabled = true;
-                    saveButton.textContent = "✅ Words Saved!";
-                    saveButton.style.backgroundColor = 'var(--color-correct)';
-                    
-                    setTimeout(() => {
-                        window.location.href = '/dashboard/';
-                    }, 1500);
-                }
-            } catch (err) {
-                console.error('Unexpected error saving:', err);
-                showPopup('An unexpected error occurred.', 'incorrect');
-                saveButton.disabled = false;
-                saveButton.textContent = "💾 Try Saving Again";
-            }
-        }
-
-
         // === CORE LESSON LOGIC ===
 
         let currentSelectedRadio = null; 
@@ -983,6 +1025,9 @@
             } else {
                 selectedOption.classList.add('incorrect');
                 
+                // LOG MISTAKE: Log the text of the incorrect option selected
+                logMistake(selectedOption.getAttribute('data-value'));
+
                 if (sectionId === '1' || sectionId === '5') {
                     showPopup('Incorrect. Double-check the text and try again.', 'incorrect');
                     
@@ -1027,6 +1072,8 @@
                             hasIncorrectSelection = true;
                             allCorrect = false;
                             option.classList.add('incorrect'); 
+                            // LOG MISTAKE: Log the text of the incorrect option selected
+                            logMistake(option.getAttribute('data-value'));
                         }
                     } else if (isCorrect) {
                         allCorrect = false;
@@ -1135,6 +1182,7 @@
             const usedWord = gapInput.getAttribute('data-filled-word');
 
             if (wasIncorrect) {
+                // Allows incorrect answers to be deselected for another try
                 gapInput.textContent = gapInput.getAttribute('data-original-text');
                 gapInput.removeAttribute('data-filled-word');
                 gapInput.classList.remove('incorrect');
@@ -1211,6 +1259,9 @@
             let firstUnfilled = null;
 
             gaps.forEach(gap => {
+                // Clear previous check classes
+                gap.classList.remove('correct', 'incorrect');
+                
                 if (!gap.getAttribute('data-filled-word')) {
                     allGapsFilled = false;
                     if (!firstUnfilled) firstUnfilled = gap;
@@ -1222,12 +1273,12 @@
 
                 if (filledWord === correctAnswer) {
                     gap.classList.add('correct');
-                    gap.classList.remove('incorrect');
                     gap.setAttribute('data-locked', 'true');
                 } else {
                     gap.classList.add('incorrect');
-                    gap.classList.remove('correct');
                     allCorrect = false;
+                    // LOG MISTAKE: Log the word that was incorrectly placed
+                    logMistake(filledWord);
                 }
             });
 
@@ -1247,6 +1298,7 @@
                 });
                 
             } else {
+                // No automatic word reset, allowing the user to click incorrect gaps to retrieve words
                 showPopup('Check the books again! Click the incorrect answers to put the words back in the bank and try swapping them.', 'incorrect');
             }
 
@@ -1260,6 +1312,7 @@
             bindGapFillListeners(); 
             setupDictionaryListeners(); 
 
+            // Shuffle the Stage 4 word bank on load
             const prepBank = document.getElementById('prep-bank-gapfill');
             if (prepBank) {
                 const words = Array.from(prepBank.children);
