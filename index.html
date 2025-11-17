@@ -844,7 +844,7 @@
         // 1. Check for mistakes
         async function checkForMistakesOnHomepage() {
             try {
-                const { data: { user } } = await supabase.auth.getUser();
+                const { data: { user } = {} } = await supabase.auth.getUser(); // Safely destructure
                 if (!user) return; // Only show for logged-in users
 
                 const { data: mistakes, error } = await supabase
@@ -1057,7 +1057,7 @@
             
             // Clear All button logic (Kept as is, now has a dedicated ID)
             document.getElementById('clear-all-btn').addEventListener('click', async () => {
-                const { data: { user } } = await supabase.auth.getUser();
+                const { data: { user } = {} } = await supabase.auth.getUser();
                 if (!user) {
                     alert('You must be logged in to clear your word list.');
                     return;
@@ -1084,7 +1084,7 @@
         }
 
 
-        // 3. Practice Function (kept as is)
+        // 3. Practice Function (UPDATED: Removes all generic sentences)
         function startPractice(mistakes) {
             function shuffleArray(array) {
                 for (let i = array.length - 1; i > 0; i--) {
@@ -1095,7 +1095,7 @@
             }
 
             function generateGapSentence(word, definition) {
-                // A dictionary of known sentence patterns to make the exercises better
+                // A dictionary of known, specific sentence patterns for practice
                 const sentencePatterns = {
                     'portrayal': [
                         `The media's <span class="practice-gap" data-answer="${word}">____</span> of the politician was very negative.`,
@@ -1133,13 +1133,13 @@
                         `After graduating, she got a high-paying job to <span class="practice-gap" data-answer="${word}">____</span> for her family.`,
                         `He works two jobs to <span class="practice-gap" data-answer="${word}">____</span> and pay the bills.`,
                     ],
-                    // === BANK OF ENGLAND VOCABULARY (ADVANCED) ===
-                    'Monetary Stability': [
+                    // === BANK OF ENGLAND VOCABULARY (ADVANCED) - KEYS LOWERCASED FOR ROBUSTNESS ===
+                    'monetary stability': [
                         `The Bank's main goal is to maintain <span class="practice-gap" data-answer="${word}">____</span> in the UK.`,
                         `<span class="practice-gap" data-answer="${word}">____</span> means keeping inflation low and predictable.`,
                         `Central banks work to ensure <span class="practice-gap" data-answer="${word}">____</span> for the economy.`,
                     ],
-                    'Inflation': [
+                    'inflation': [
                         `When prices rise rapidly, we call it high <span class="practice-gap" data-answer="${word}">____</span>.`,
                         `The Bank raises interest rates to control <span class="practice-gap" data-answer="${word}">____</span>.`,
                         `<span class="practice-gap" data-answer="${word}">____</span> makes your money worth less over time.`,
@@ -1159,33 +1159,33 @@
                         `The Bank's <span class="practice-gap" data-answer="${word}">____</span> holds billions of pounds worth of gold.`,
                         `Access to the <span class="practice-gap" data-answer="${word}">____</span> is highly restricted.`,
                     ],
-                    'Governor': [
+                    'governor': [
                         `The <span class="practice-gap" data-answer="${word}">____</span> is the highest-ranking official at the Bank.`,
                         `The <span class="practice-gap" data-answer="${word}">____</span> leads the Monetary Policy Committee.`,
                         `Britain's central bank <span class="practice-gap" data-answer="${word}">____</span> is appointed by the King.`,
                     ],
                     // === TRICK OR TREAT VOCABULARY (A1 BEGINNER) ===
-                    'Candy': [
+                    'candy': [
                         `The children collected lots of <span class="practice-gap" data-answer="${word}">____</span> on Halloween.`,
                         `Would you like some <span class="practice-gap" data-answer="${word}">____</span>? I have chocolate.`,
                         `Put the <span class="practice-gap" data-answer="${word}">____</span> in your bag, please.`,
                     ],
-                    'Door': [
+                    'door': [
                         `Please open the <span class="practice-gap" data-answer="${word}">____</span> for me.`,
                         `Knock on the <span class="practice-gap" data-answer="${word}">____</span> and say "Trick or Treat!"`,
                         `The <span class="practice-gap" data-answer="${word}">____</span> is closed. Can you open it?`,
                     ],
-                    'Bag': [
+                    'bag': [
                         `Put your candy in this <span class="practice-gap" data-answer="${word}">____</span>.`,
                         `My <span class="practice-gap" data-answer="${word}">____</span> is full of sweets now!`,
                         `I carry a big <span class="practice-gap" data-answer="${word}">____</span> for Halloween.`,
                     ],
-                    'Costume': [
+                    'costume': [
                         `I like your ghost <span class="practice-gap" data-answer="${word}">____</span>! Very scary!`,
                         `What <span class="practice-gap" data-answer="${word}">____</span> will you wear this Halloween?`,
                         `She has a beautiful princess <span class="practice-gap" data-answer="${word}">____</span>.`,
                     ],
-                    'Trick or Treat': [
+                    'trick or treat': [
                         `The children shout "<span class="practice-gap" data-answer="${word}">____</span>!" at every house.`,
                         `When you knock on the door, say "<span class="practice-gap" data-answer="${word}">____</span>!"`,
                         `<span class="practice-gap" data-answer="${word}">____</span> is what we say on Halloween night.`,
@@ -1201,32 +1201,30 @@
                     return patterns[Math.floor(Math.random() * patterns.length)];
                 }
 
-                // Otherwise, use intelligent fallback based on word type in definition
-                const defLower = definition.toLowerCase();
-
-                // Check if it's a verb (simple heuristic)
-                if (defLower.includes('to ') || word.endsWith('s') || word.endsWith('ed') || word.endsWith('ing')) {
-                    return `We need to <span class="practice-gap" data-answer="${word}">____</span> this carefully.`;
-                }
-                
-                // Check if it's describing a person/people/thing (simple heuristic)
-                if (defLower.includes('people') || defLower.includes('person') || defLower.includes('someone') || defLower.includes('thing')) {
-                    return `The <span class="practice-gap" data-answer="${word}">____</span> were important in this story.`;
-                } 
-
-                // Default fallback
-                return `It is important to understand the meaning of the word <span class="practice-gap" data-answer="${word}">____</span> in this context.`;
+                // If no specific sentence is found, return null (eliminating all generic fallbacks)
+                return null; 
             }
 
-            // Limit to 6 random words for practice
-            const practiceWords = shuffleArray([...mistakes]).slice(0, 6);
+            // Limit to 6 random words from the mistakes list
+            const initialWords = shuffleArray([...mistakes]).slice(0, 6);
             
-            // Generate sentences
-            let sentencesHTML = practiceWords.map((w, index) => {
+            // Filter out words without a specific sentence and pair them with their generated sentence
+            const practiceItems = initialWords.map(w => {
                 const sentence = generateGapSentence(w.word, w.definition);
+                return sentence ? { word: w.word, sentence: sentence } : null;
+            }).filter(item => item !== null); // Filter out nulls
+
+            // Exit immediately if no specific practice sentences are found
+            if (practiceItems.length === 0) {
+                 alert("We couldn't generate a specific practice exercise from your current word list. Please ensure your words are from lessons with specific practice sentences (e.g., British Food Idioms, Bank of England vocab).");
+                 return; 
+            }
+
+            // Generate sentences HTML from the filtered list (practiceItems)
+            let sentencesHTML = practiceItems.map((item, index) => {
                 return `
                     <div style="margin-bottom: 20px; font-size: 17px; background: #FFF; padding: 15px; border-radius: 8px; border: 1px solid #E5E9F2;">
-                        ${index + 1}. ${sentence}
+                        ${index + 1}. ${item.sentence}
                     </div>
                 `;
             }).join('');
@@ -1234,6 +1232,7 @@
 
             // Create and display the practice popup
             const practicePopup = document.createElement('div');
+            // ... (practicePopup styles remain the same) ...
             practicePopup.style.cssText = `
                 position: fixed;
                 top: 50%;
@@ -1252,6 +1251,7 @@
 
             const overlay = document.createElement('div');
             overlay.id = 'mistake-reminder-overlay-practice'; // Use a distinct ID
+            // ... (overlay styles remain the same) ...
             overlay.style.cssText = `
                 position: fixed;
                 top: 0;
@@ -1262,8 +1262,8 @@
                 z-index: 9999;
             `;
 
-            // Shuffle words for word bank
-            const shuffled = shuffleArray([...practiceWords]);
+            // Shuffle words for word bank (using only the filtered words)
+            const shuffledWordsForBank = shuffleArray(practiceItems.map(item => ({ word: item.word })));
 
             practicePopup.innerHTML = `
                 <h2 style="color: #667EEA; margin-bottom: 15px; font-size: 24px; font-weight: 800;"> 🔥 Quick Practice Exercise </h2>
@@ -1272,7 +1272,7 @@
                 <div style="background: #F0F4FF; border: 2px solid #667EEA; border-radius: 10px; padding: 15px; margin-bottom: 20px;">
                     <p style="font-weight: 700; margin-bottom: 10px; color: #4A5568;">Word Bank (Click to Select):</p>
                     <div id="practice-word-bank" style="display: flex; flex-wrap: wrap; gap: 8px;">
-                        ${shuffled.map(w => `
+                        ${shuffledWordsForBank.map(w => `
                             <span class="practice-word" data-word="${w.word}" style="
                                 background: #667EEA;
                                 color: white;
@@ -1490,7 +1490,7 @@
             const userGreeting = document.getElementById('user-greeting');
 
             try {
-                const { data: { user } } = await supabase.auth.getUser();
+                const { data: { user } = {} } = await supabase.auth.getUser(); // Safely destructure
 
                 if (user) {
                     const email = user.email || 'Cool Dude';
