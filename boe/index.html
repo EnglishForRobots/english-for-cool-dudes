@@ -1185,50 +1185,67 @@
         }
 
         function checkGapFillStage(stageNumber) {
-            const cardElement = document.querySelector(`#stage-${stageNumber}`);
-            const allGaps = cardElement.querySelectorAll('.gap-input');
-            const nextButton = cardElement.querySelector('.next-btn');
-            const totalGaps = allGaps.length;
-            let correctCount = 0;
+        const cardElement = document.querySelector(`#stage-${stageNumber}`);
+        const allGaps = cardElement.querySelectorAll('.gap-input');
+        const nextButton = cardElement.querySelector('.next-btn');
+        const totalGaps = allGaps.length;
+        let correctCount = 0;
+        
+        allGaps.forEach(gap => {
+            gap.classList.remove('correct', 'incorrect');
+            gap.removeAttribute('data-solved-correctly'); 
             
-            allGaps.forEach(gap => {
-                gap.classList.remove('correct', 'incorrect');
-                gap.removeAttribute('data-solved-correctly'); 
+            const userWord = gap.getAttribute('data-filled-word');
+            const correctAnswer = gap.getAttribute('data-answer');
+
+            if (userWord === correctAnswer) {
+                // Path 1: Correctly filled gap
+                gap.classList.add('correct');
+                gap.setAttribute('data-solved-correctly', 'true');
+                correctCount++;
+            } else if (userWord) { // <-- CRUCIAL FIX: Only proceed if a word was entered (not empty)
+                // Path 2: Incorrectly filled gap (This is your 'Inflation' attempt)
                 
-                const userWord = gap.getAttribute('data-filled-word');
-                const correctAnswer = gap.getAttribute('data-answer');
-
-                if (userWord === correctAnswer) {
-                    gap.classList.add('correct');
-                    gap.setAttribute('data-solved-correctly', 'true');
-                    correctCount++;
-                } else if (userWord) {
-                    // Flash incorrect, then reset the gap and return the word to the bank
-                    gap.classList.add('incorrect');
-                    const wordElement = document.querySelector(`#stage-${stageNumber} .word-option[data-word="${userWord}"]`);
-                    
-                    setTimeout(() => {
-                         gap.classList.remove('incorrect');
-                         gap.textContent = gap.getAttribute('data-original-text');
-                         gap.setAttribute('data-filled-word', '');
-                         
-                         if (wordElement) { wordElement.classList.remove('used', 'selected'); }
-                         updateProgress(); 
-                    }, FLASH_DURATION);
+                // LOG MISTAKE: Logs the word that was *missed* (the correct answer)
+                const mistakeWordData = learnedWords.find(w => w.word.toLowerCase() === correctAnswer.toLowerCase());
+                const wordType = stageNumber === 3 ? "Noun" : "Verb/Adjective"; 
+                
+                if (mistakeWordData) {
+                    logMistake(mistakeWordData.word, mistakeWordData.definition, wordType);
+                } else {
+                    console.warn(`Could not find definition for word: ${correctAnswer}`);
                 }
-            });
 
-            if (correctCount === totalGaps) {
-                cardElement.setAttribute('data-completed', 'true');
-                showPopup(true);
-                nextButton.style.display = 'block';
-            } else {
-                showPopup(false);
-                nextButton.style.display = 'none';
-                cardElement.removeAttribute('data-completed');
+                // Flash incorrect, then reset the gap and return the word to the bank
+                gap.classList.add('incorrect');
+                const wordElement = document.querySelector(`#stage-${stageNumber} .word-option[data-word="${userWord}"]`);
+                
+                setTimeout(() => {
+                     gap.classList.remove('incorrect');
+                     gap.textContent = gap.getAttribute('data-original-text');
+                     gap.setAttribute('data-filled-word', '');
+                     
+                     if (wordElement) { wordElement.classList.remove('used', 'selected'); }
+                     updateProgress(); 
+                }, FLASH_DURATION);
             }
-            updateProgress();
+            // Path 3: Empty gap. Since the previous two paths failed, and there is no 'else', 
+            // this gap is simply skipped and no mistake is logged. ✅
+        });
+
+        if (correctCount === totalGaps) {
+            cardElement.setAttribute('data-completed', 'true');
+            showPopup(true);
+            nextButton.style.display = 'block';
+        } else {
+            // Note: showPopup() will be delayed by the FLASH_DURATION if Path 2 ran.
+            showPopup(false);
+            nextButton.style.display = 'none';
+            cardElement.removeAttribute('data-completed');
         }
+        updateProgress();
+    }
+        
 
 
         // --- INITIALIZATION ---
