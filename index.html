@@ -1192,7 +1192,34 @@
                     ],
                 };
 
-             
+                // Normalize the word (to handle singular/plural if needed)
+                const normalizedWord = word.toLowerCase();
+
+                // If we have specific patterns for this word, use them
+                if (sentencePatterns[normalizedWord]) {
+                    const patterns = sentencePatterns[normalizedWord];
+                    return patterns[Math.floor(Math.random() * patterns.length)];
+                }
+
+                // Otherwise, use intelligent fallback based on word type in definition
+                const defLower = definition.toLowerCase();
+
+                // Check if it's a verb (simple heuristic)
+                if (defLower.includes('to ') || word.endsWith('s') || word.endsWith('ed') || word.endsWith('ing')) {
+                    return `We need to <span class="practice-gap" data-answer="${word}">____</span> this carefully.`;
+                }
+                
+                // Check if it's describing a person/people/thing (simple heuristic)
+                if (defLower.includes('people') || defLower.includes('person') || defLower.includes('someone') || defLower.includes('thing')) {
+                    return `The <span class="practice-gap" data-answer="${word}">____</span> were important in this story.`;
+                } 
+
+                // Default fallback
+                return `It is important to understand the meaning of the word <span class="practice-gap" data-answer="${word}">____</span> in this context.`;
+            }
+
+            // Limit to 6 random words for practice
+            const practiceWords = shuffleArray([...mistakes]).slice(0, 6);
             
             // Generate sentences
             let sentencesHTML = practiceWords.map((w, index) => {
