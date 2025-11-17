@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Bank of England - English for Cool Dudes</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         /* --- COOL DUDES BRANDING & MOBILE-FIRST STYLES --- */
@@ -295,10 +295,13 @@
         .gap-input.correct {
              background-color: var(--color-correct) !important;
              color: white;
+             font-style: normal;
+             pointer-events: none;
         }
         .gap-input.incorrect {
              background-color: var(--color-incorrect) !important;
              color: white;
+             font-style: normal;
         }
 
         /* Check/Next Button */
@@ -437,6 +440,7 @@
             margin-bottom: 5px; 
             font-size: 1.05em;
             line-height: 1.2;
+            cursor: help;
         }
 
         @media (max-width: 768px) {
@@ -568,7 +572,7 @@
                 <p>2. The top official of the BoE is the <span class="gap-input" data-answer="Governor" data-original-text="____" data-filled-word="">____</span>.</p>
                 <p>3. They are responsible for the issuance of <span class="gap-input" data-answer="banknotes" data-original-text="____" data-filled-word="">____</span> in England and Wales.</p>
                 <p>4. The BoE stores gold reserves in a huge underground <span class="gap-input" data-answer="vault" data-original-text="____" data-filled-word="">____</span>.</p>
-                <p>5. The BoE’s actions maintain public <span class="gap-input" data-answer="confidence" data-original-text="____" data-filled-word="">____</span> in the financial system.</p>
+                <p>5. The BoE's actions maintain public <span class="gap-input" data-answer="confidence" data-original-text="____" data-filled-word="">____</span> in the financial system.</p>
                 <p>6. The Bank has adapted to the need for stricter <span class="gap-input" data-answer="regulation" data-original-text="____" data-filled-word="">____</span> in the modern era.</p>
             </div>
 
@@ -653,46 +657,84 @@
     <div id="dictionary-popup"></div>
 
    <script>
-        // === SUPABASE INITIALIZATION - FIXED ===
+        // === 1. SUPABASE INITIALIZATION ===
         const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
         
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // === GLOBAL STATE ===
+        // === 2. GLOBAL STATE ===
         const TOTAL_STAGES = 5; 
         const FLASH_DURATION = 1500;
         let currentStage = 1;
         let selectedWordForGap = null;
-        let currentUser = null; // Track logged-in user
+        let currentUser = null;
         
-        // === LESSON VOCABULARY DATA ===
+        // === 3. LESSON VOCABULARY DATA ===
         const lessonTitle = "The Bank of England";
-        const lessonLink = "/boe/"; // Add this
-        const lessonLevel = "INTERMEDIATE"; // Add this
+        const lessonLink = "/boe/";
+        const lessonLevel = "INTERMEDIATE";
+        
         const learnedWords = [
-            { word: "Threadneedle Street", definition: "A narrow street in London's financial district, where the Bank of England is located." },
-            { word: "Bank", definition: "A financial institution owned by the government that manages the state's currency and monetary policy." },
-            { word: "Monetary Stability", definition: "Keeping prices stable, meaning inflation is low and predictable." },
-            { word: "Set Interest Rates", definition: "To change or determine the level of interest rates in an economy." },
-            { word: "Inflation", definition: "A general increase in prices and fall in the purchasing value of money." },
-            { word: "Stimulate", definition: "To cause or encourage something to grow or become active." },
-            { word: "Balancing Act", definition: "A difficult situation that must be handled with care to avoid giving offense or causing problems." },
-            { word: "Lender of Last Resort", definition: "The final provider of money to a bank that is in financial trouble." },
-            { word: "Crisis", definition: "A very serious situation in which the financial system or a major part of it is collapsing." },
-            { word: "Meltdown", definition: "A sudden, dramatic failure or collapse of a system or institution." },
-            { word: "Confidence", definition: "Belief in the reliability, truth, ability, or strength of someone or something." },
-            { word: "Issuance of Banknotes", definition: "The issuing or creation of new banknotes and coins." },
-            { word: "Issue", definition: "To officially give someone the power or right to do something." },
-            { word: "Reserves", definition: "A quantity of a resource (like gold or money) that is kept available for future use." },
-            { word: "Vault", definition: "A secure room or vault, especially one where money or valuables are kept." },
-            { word: "Governor", definition: "The highest-ranking official in the Bank of England." },
-            { word: "Monetary Policy Committee (MPC)", definition: "The group responsible for setting monetary policy, consisting of the Governor and other experts." },
-            { word: "Adapt", definition: "To change in response to new conditions; to become adjusted." },
-            { word: "Regulation", definition: "Rules or laws that control how a business is conducted." },
+            { word: "Threadneedle Street", definition: "A narrow street in London's financial district, where the Bank of England is located.", type: "noun" },
+            { word: "Bank", definition: "A financial institution owned by the government that manages the state's currency and monetary policy.", type: "noun" },
+            { word: "Monetary Stability", definition: "Keeping prices stable, meaning inflation is low and predictable.", type: "noun" },
+            { word: "set", definition: "To change or determine the level of interest rates in an economy.", type: "verb" },
+            { word: "inflation", definition: "A general increase in prices and fall in the purchasing value of money.", type: "noun" },
+            { word: "stimulate", definition: "To cause or encourage something to grow or become active.", type: "verb" },
+            { word: "balancing act", definition: "A difficult situation that must be handled with care to avoid giving offense or causing problems.", type: "noun" },
+            { word: "lender of last resort", definition: "The final provider of money to a bank that is in financial trouble.", type: "phrase" },
+            { word: "crisis", definition: "A very serious situation in which the financial system or a major part of it is collapsing.", type: "noun" },
+            { word: "meltdown", definition: "A sudden, dramatic failure or collapse of a system or institution.", type: "noun" },
+            { word: "confidence", definition: "Belief in the reliability, truth, ability, or strength of someone or something.", type: "noun" },
+            { word: "issuance of banknotes", definition: "The issuing or creation of new banknotes and coins.", type: "phrase" },
+            { word: "issue", definition: "To officially give someone the power or right to do something.", type: "verb" },
+            { word: "reserves", definition: "A quantity of a resource (like gold or money) that is kept available for future use.", type: "noun" },
+            { word: "vault", definition: "A secure room or vault, especially one where money or valuables are kept.", type: "noun" },
+            { word: "Governor", definition: "The highest-ranking official in the Bank of England.", type: "noun" },
+            { word: "Monetary Policy Committee (MPC)", definition: "The group responsible for setting monetary policy, consisting of the Governor and other experts.", type: "noun" },
+            { word: "adapt", definition: "To change in response to new conditions; to become adjusted.", type: "verb" },
+            { word: "regulation", definition: "Rules or laws that control how a business is conducted.", type: "noun" },
+            { word: "monetary", definition: "Relating to money or currency.", type: "adjective" },
+            { word: "crucial", definition: "Extremely important or necessary.", type: "adjective" },
+            { word: "central", definition: "Most important; main.", type: "adjective" },
+            { word: "banknotes", definition: "Paper money issued by a bank.", type: "noun" },
         ];
         
-        // === AUTH HEADER INITIALIZATION ===
+        // === 4. MISTAKE TRACKING FUNCTIONS ===
+        function getWordDefinition(word) {
+            return learnedWords.find(w => w.word === word || w.word.toLowerCase() === word.toLowerCase());
+        }
+
+        async function saveMistake(word) {
+            if (!currentUser) {
+                console.log('No user logged in, skipping mistake save');
+                return;
+            }
+            
+            try {
+                const wordObj = getWordDefinition(word);
+                
+                const { error } = await supabase.from('user_mistakes').upsert({
+                    user_id: currentUser.id,
+                    word: word,
+                    definition: wordObj ? wordObj.definition : '',
+                    word_type: wordObj ? wordObj.type : '',
+                    lesson: lessonTitle,
+                    lesson_link: lessonLink,
+                    last_made_at: new Date().toISOString()
+                }, {
+                    onConflict: 'user_id,word'
+                });
+                
+                if (error) throw error;
+                console.log(`✅ Saved mistake: ${word}`);
+            } catch (error) {
+                console.error('Error saving mistake:', error);
+            }
+        }
+        
+        // === 5. AUTH HEADER INITIALIZATION ===
         async function initializeAuthHeader() {
             const loggedOutButtons = document.getElementById('logged-out-buttons');
             const loggedInButtons = document.getElementById('logged-in-buttons');
@@ -706,7 +748,7 @@
 
                 if (user) {
                     currentUser = user;
-                    console.log('User logged in:', user.email);
+                    console.log('✅ User logged in:', user.email);
                     
                     let userName = 'Cool Dude';
                     if (user.user_metadata && user.user_metadata.full_name) {
@@ -722,7 +764,7 @@
                     if (loginPrompt) loginPrompt.style.display = 'none';
                 } else {
                     currentUser = null;
-                    console.log('User not logged in');
+                    console.log('ℹ️ No user logged in');
                     
                     if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
                     if (loggedInButtons) loggedInButtons.style.display = 'none';
@@ -754,7 +796,7 @@
             }
         }
         
-        // === SAVE WORDS TO DASHBOARD - FIXED ===
+        // === 6. SAVE WORDS TO DASHBOARD ===
         async function saveWordsToDashboard() {
             const saveButton = document.getElementById('save-words-btn');
             saveButton.disabled = true;
@@ -768,13 +810,6 @@
             }
             
             try {
-                // Format the current date
-                const completedDate = new Date().toLocaleDateString('en-GB', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric'
-                });
-
                 const { data, error } = await supabase
                     .from('lessons')
                     .upsert([
@@ -806,7 +841,6 @@
                     saveButton.textContent = "✅ Words Saved!";
                     saveButton.style.backgroundColor = 'var(--color-correct)';
                     
-                    // Redirect to dashboard after 1.5 seconds
                     setTimeout(() => {
                         window.location.href = '/dashboard/';
                     }, 1500);
@@ -819,7 +853,7 @@
             }
         }
         
-        // === UTILITY FUNCTIONS ===
+        // === 7. UTILITY FUNCTIONS ===
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -854,7 +888,7 @@
             }, FLASH_DURATION);
         }
 
-        // === STAGE & PROGRESS CONTROL ===
+        // === 8. STAGE & PROGRESS CONTROL ===
         function updateProgress() {
             document.getElementById('current-stage').textContent = currentStage;
             document.getElementById('final-summary-card').style.display = 'none';
@@ -901,7 +935,7 @@
             setupDictionaryListeners();
         }
         
-        // === DICTIONARY LOGIC ===
+        // === 9. DICTIONARY LOGIC ===
         function showDictionaryPopup(wordElement, popup) {
             const definition = wordElement.getAttribute('data-definition');
             const rect = wordElement.getBoundingClientRect();
@@ -963,17 +997,7 @@
             }
         }
 
-        // === INITIALIZATION ===
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeAuthHeader();
-            setupDictionaryListeners();
-            
-            // Note: Your quiz stage JavaScript goes here
-            // I've kept the essential parts - add back your quiz logic
-            
-            updateProgress();
-        });
- // --- RADIO BUTTON QUIZ LOGIC (Stage 1 & 5) ---
+        // === 10. RADIO BUTTON QUIZ LOGIC (Stage 1 & 5) ===
         function setupRadioListeners() {
             const options = document.querySelectorAll('#stage-1 .quiz-option, #stage-5 .quiz-option');
             options.forEach(option => {
@@ -1000,7 +1024,10 @@
             questionBox.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('correct', 'incorrect'));
             questionBox.removeAttribute('data-solved-correctly');
             
-            if (selectedOption.getAttribute('data-value') === questionBox.getAttribute('data-correct-value')) {
+            const correctAnswer = questionBox.getAttribute('data-correct-value');
+            const selectedAnswer = selectedOption.getAttribute('data-value');
+            
+            if (selectedAnswer === correctAnswer) {
                 selectedOption.classList.remove('selected');
                 selectedOption.classList.add('correct');
                 selectedOption.style.pointerEvents = 'none';
@@ -1011,6 +1038,16 @@
             } else {
                 selectedOption.classList.remove('selected'); 
                 selectedOption.classList.add('incorrect');
+                
+                // 🔥 SAVE MISTAKE - Extract key concepts from correct answer
+                const correctText = correctAnswer.toLowerCase();
+                if (correctText.includes('central bank')) {
+                    saveMistake('central');
+                    saveMistake('Bank');
+                } else if (correctText.includes('distributing')) {
+                    saveMistake('issue');
+                }
+                
                 setTimeout(() => selectedOption.classList.remove('incorrect'), FLASH_DURATION); 
                 showPopup(false);
                 nextButton.style.display = 'none';
@@ -1019,7 +1056,7 @@
         }
 
 
-        // --- CHECKBOX QUIZ LOGIC (Stage 2) ---
+        // === 11. CHECKBOX QUIZ LOGIC (Stage 2) ===
         function setupCheckboxListeners() {
             const options = document.querySelectorAll('#stage-2 .quiz-option');
             options.forEach(option => {
@@ -1044,7 +1081,9 @@
                 const options = questionBox.querySelectorAll('.quiz-option');
                 
                 options.forEach(o => {
-                    if (o.style.pointerEvents !== 'none') { o.classList.remove('incorrect'); }
+                    if (o.style.pointerEvents !== 'none') { 
+                        o.classList.remove('incorrect'); 
+                    }
                 });
                 
                 questionBox.removeAttribute('data-solved-correctly'); 
@@ -1054,7 +1093,9 @@
                 let initialLockCount = 0; 
 
                 options.forEach(option => {
-                    if (option.style.pointerEvents === 'none') { initialLockCount++; }
+                    if (option.style.pointerEvents === 'none') { 
+                        initialLockCount++; 
+                    }
                 });
                 correctAnswersFoundCount = initialLockCount;
                 
@@ -1062,6 +1103,7 @@
                     const optionValue = option.getAttribute('data-value');
                     const isCorrectChoice = correctValues.includes(optionValue);
                     const isCurrentlySelected = option.classList.contains('selected');
+                    const optionText = option.textContent.trim().toLowerCase();
                     
                     if (isCurrentlySelected) {
                         if (isCorrectChoice) {
@@ -1074,11 +1116,31 @@
                         } else {
                             incorrectSelectedOptions.push(option);
                             attemptFailedDueToWrongSelection = true;
+                            
+                            // 🔥 SAVE MISTAKE - Track wrong answers selected
+                            if (optionText.includes('lowering') && optionText.includes('inflation')) {
+                                saveMistake('inflation');
+                                saveMistake('set');
+                            } else if (optionText.includes('monetary policy committee')) {
+                                saveMistake('Governor');
+                            }
                         }
-                    } 
+                    } else if (isCorrectChoice && option.style.pointerEvents !== 'none') {
+                        // 🔥 SAVE MISTAKE - Track missed correct answers
+                        if (optionText.includes('old lady')) {
+                            saveMistake('Threadneedle Street');
+                        } else if (optionText.includes('lender of last resort')) {
+                            saveMistake('lender of last resort');
+                        } else if (optionText.includes('issuance')) {
+                            saveMistake('issue');
+                            saveMistake('banknotes');
+                        } else if (optionText.includes('gold reserves')) {
+                            saveMistake('vault');
+                            saveMistake('reserves');
+                        }
+                    }
                 });
                 
-                // Process Incorrects (Flash and Deselect)
                 if (incorrectSelectedOptions.length > 0) {
                     incorrectSelectedOptions.forEach(el => {
                         el.classList.remove('selected'); 
@@ -1087,13 +1149,11 @@
                     });
                 }
                 
-                // Check for Final Set Completion
                 if (incorrectSelectedOptions.length === 0 && correctAnswersFoundCount === correctValues.length) {
                     questionBox.setAttribute('data-solved-correctly', 'true');
                 }
             });
             
-            // Determine final stage-level message
             const unsolvedBoxes = document.querySelectorAll('#stage-2 .question-box:not([data-solved-correctly="true"])');
             
             if (unsolvedBoxes.length === 0) {
@@ -1114,7 +1174,7 @@
         }
 
 
-        // --- GAP FILL LOGIC (Stage 3 & 4) ---
+        // === 12. GAP FILL LOGIC (Stage 3 & 4) ===
 
         function bindGapFillListeners() {
             const wordBanks = document.querySelectorAll('.word-options .word-option');
@@ -1147,7 +1207,6 @@
             const cardElement = gap.closest('.content-card');
             
             if (currentWord) {
-                // Clear the gap and return the word to the bank
                 const wordElement = document.querySelector(`.word-option[data-word="${currentWord}"]`);
                 if (wordElement) {
                     wordElement.classList.remove('used', 'selected');
@@ -1159,102 +1218,108 @@
                 selectedWordForGap = null;
 
             } else if (selectedWordForGap) {
-                // Fill the gap with the selected word
                 const wordToFill = selectedWordForGap.getAttribute('data-word');
                 
-                // Check if this word is already in use by another gap within the same card
-                cardElement.querySelectorAll('.gap-input').forEach(alreadyUsedGap => {
-                    if (alreadyUsedGap.getAttribute('data-filled-word') === wordToFill) {
-                        alreadyUsedGap.textContent = alreadyUsedGap.getAttribute('data-original-text');
-                        alreadyUsedGap.setAttribute('data-filled-word', '');
-                        alreadyUsedGap.classList.remove('correct', 'incorrect');
-                        alreadyUsedGap.removeAttribute('data-solved-correctly');
+                cardElement.querySelectorAll('.gap-input[data-filled-word="' + wordToFill + '"]').forEach(otherGap => {
+                    if (otherGap !== gap) {
+                        otherGap.textContent = otherGap.getAttribute('data-original-text');
+                        otherGap.setAttribute('data-filled-word', '');
+                        otherGap.classList.remove('correct', 'incorrect');
+                        otherGap.removeAttribute('data-solved-correctly');
                     }
                 });
-
+                
                 gap.textContent = wordToFill;
                 gap.setAttribute('data-filled-word', wordToFill);
-                
                 selectedWordForGap.classList.add('used');
                 selectedWordForGap.classList.remove('selected');
                 selectedWordForGap = null;
             }
-            cardElement.removeAttribute('data-completed');
-            updateProgress(); 
         }
 
-        function checkGapFillStage(stageNumber) {
-            const cardElement = document.querySelector(`#stage-${stageNumber}`);
-            const allGaps = cardElement.querySelectorAll('.gap-input');
-            const nextButton = cardElement.querySelector('.next-btn');
-            const totalGaps = allGaps.length;
-            let correctCount = 0;
-            
-            allGaps.forEach(gap => {
-                gap.classList.remove('correct', 'incorrect');
-                gap.removeAttribute('data-solved-correctly'); 
-                
-                const userWord = gap.getAttribute('data-filled-word');
-                const correctAnswer = gap.getAttribute('data-answer');
+        function checkGapFillStage(stageNum) {
+            const stageElement = document.getElementById(`stage-${stageNum}`);
+            const checkButton = stageElement.querySelector('.check-btn');
+            const nextButton = stageElement.querySelector('.next-btn');
 
-                if (userWord === correctAnswer) {
+            if (stageElement.getAttribute('data-answered') === 'true') {
+                return;
+            }
+
+            const gaps = stageElement.querySelectorAll('.gap-input');
+            let allCorrect = true;
+            let correctCount = 0;
+            let allFilled = true;
+
+            gaps.forEach(gap => {
+                gap.classList.remove('correct', 'incorrect');
+                
+                const filledWord = gap.getAttribute('data-filled-word');
+                const correctAnswer = gap.getAttribute('data-answer');
+                const isCorrect = filledWord === correctAnswer;
+
+                if (filledWord === "") {
+                    allFilled = false;
+                    allCorrect = false;
+                } else if (isCorrect) {
                     gap.classList.add('correct');
                     gap.setAttribute('data-solved-correctly', 'true');
                     correctCount++;
-                } else if (userWord) {
-                    // Flash incorrect, then reset the gap and return the word to the bank
+                } else {
                     gap.classList.add('incorrect');
-                    const wordElement = document.querySelector(`#stage-${stageNumber} .word-option[data-word="${userWord}"]`);
+                    allCorrect = false;
+                    
+                    // 🔥 SAVE MISTAKE - Save the correct answer they missed
+                    saveMistake(correctAnswer);
                     
                     setTimeout(() => {
-                         gap.classList.remove('incorrect');
-                         gap.textContent = gap.getAttribute('data-original-text');
-                         gap.setAttribute('data-filled-word', '');
-                         
-                         if (wordElement) { wordElement.classList.remove('used', 'selected'); }
-                         updateProgress(); 
+                        if (gap.getAttribute('data-solved-correctly') !== 'true') {
+                            gap.classList.remove('incorrect');
+                        }
                     }, FLASH_DURATION);
                 }
             });
 
-            if (correctCount === totalGaps) {
-                cardElement.setAttribute('data-completed', 'true');
-                showPopup(true);
-                nextButton.style.display = 'block';
-            } else {
-                showPopup(false);
-                nextButton.style.display = 'none';
-                cardElement.removeAttribute('data-completed');
+            if (!allFilled) {
+                showPopup(false, "Please fill all gaps! 📝");
+                return;
             }
+
+            if (allCorrect) {
+                showPopup(true);
+                stageElement.setAttribute('data-answered', 'true');
+                stageElement.setAttribute('data-completed', 'true');
+                
+                const wordBank = stageElement.querySelector('.word-bank');
+                if (wordBank) wordBank.style.display = 'none';
+                
+                checkButton.style.display = 'none';
+                nextButton.style.display = 'block';
+                
+                gaps.forEach(gap => {
+                    gap.style.pointerEvents = 'none';
+                });
+            } else {
+                showPopup(false, `${correctCount} / ${gaps.length} correct. Try again! 🔄`);
+            }
+            
             updateProgress();
         }
 
-
-        // --- INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', () => {
+        // === 13. INITIALIZATION ===
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🏦 Bank of England Lesson Loaded');
+            
+            // Initialize authentication
+            await initializeAuthHeader();
+            
+            // Setup all interactive elements
+            setupDictionaryListeners();
             setupRadioListeners();
             setupCheckboxListeners();
-            bindGapFillListeners(); 
-            setupDictionaryListeners(); 
-
-            // Shuffle the Word Bank for Stage 4
-            const prepBank = document.getElementById('prep-bank-gapfill');
-            if (prepBank) {
-                const words = Array.from(prepBank.children);
-                const shuffledWords = shuffleArray(words);
-                
-                prepBank.innerHTML = '';
-                shuffledWords.forEach(word => prepBank.appendChild(word));
-            }
+            bindGapFillListeners();
             
-            // Set initial state for all 5 stages
-            document.getElementById('reading-content').style.display = 'none'; 
-            document.getElementById('stage-1').style.display = 'block';
-            document.getElementById('stage-2').style.display = 'none';
-            document.getElementById('stage-3').style.display = 'none';
-            document.getElementById('stage-4').style.display = 'none';
-            document.getElementById('stage-5').style.display = 'none';
-            updateProgress(); // Initialize stage count
+            console.log('✅ All lesson features initialized');
         });
     </script>
 </body>
