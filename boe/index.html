@@ -653,538 +653,549 @@
     <div id="feedback-popup"></div>
     <div id="dictionary-popup"></div>
 
-   <script>
-        // === SUPABASE INITIALIZATION - FIXED ===
-        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-        
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  <script>
+    // === SUPABASE INITIALIZATION ===
+    const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+    
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // === GLOBAL STATE ===
-        const TOTAL_STAGES = 5; 
-        const FLASH_DURATION = 1500;
-        let currentStage = 1;
-        let selectedWordForGap = null;
-        let currentUser = null; // Track logged-in user
-        
-        // === LESSON VOCABULARY DATA ===
-        const lessonTitle = "The Bank of England";
-        const lessonLink = "/boe/"; // Add this
-        const lessonLevel = "INTERMEDIATE"; // Add this
-        const learnedWords = [
-            { word: "Threadneedle Street", definition: "A narrow street in London's financial district, where the Bank of England is located." },
-            { word: "Bank", definition: "A financial institution owned by the government that manages the state's currency and monetary policy." },
-            { word: "Monetary Stability", definition: "Keeping prices stable, meaning inflation is low and predictable." },
-            { word: "Set Interest Rates", definition: "To change or determine the level of interest rates in an economy." },
-            { word: "Inflation", definition: "A general increase in prices and fall in the purchasing value of money." },
-            { word: "Stimulate", definition: "To cause or encourage something to grow or become active." },
-            { word: "Balancing Act", definition: "A difficult situation that must be handled with care to avoid giving offense or causing problems." },
-            { word: "Lender of Last Resort", definition: "The final provider of money to a bank that is in financial trouble." },
-            { word: "Crisis", definition: "A very serious situation in which the financial system or a major part of it is collapsing." },
-            { word: "Meltdown", definition: "A sudden, dramatic failure or collapse of a system or institution." },
-            { word: "Confidence", definition: "Belief in the reliability, truth, ability, or strength of someone or something." },
-            { word: "Issuance of Banknotes", definition: "The issuing or creation of new banknotes and coins." },
-            { word: "Issue", definition: "To officially give someone the power or right to do something." },
-            { word: "Reserves", definition: "A quantity of a resource (like gold or money) that is kept available for future use." },
-            { word: "Vault", definition: "A secure room or vault, especially one where money or valuables are kept." },
-            { word: "Governor", definition: "The highest-ranking official in the Bank of England." },
-            { word: "Monetary Policy Committee (MPC)", definition: "The group responsible for setting monetary policy, consisting of the Governor and other experts." },
-            { word: "Adapt", definition: "To change in response to new conditions; to become adjusted." },
-            { word: "Regulation", definition: "Rules or laws that control how a business is conducted." },
-        ];
-        
-        // === AUTH HEADER INITIALIZATION ===
-        async function initializeAuthHeader() {
-            const loggedOutButtons = document.getElementById('logged-out-buttons');
-            const loggedInButtons = document.getElementById('logged-in-buttons');
-            const userGreeting = document.getElementById('user-greeting');
-            const logoutBtn = document.getElementById('logout-btn');
-            const loggedInSave = document.getElementById('logged-in-save');
-            const loginPrompt = document.getElementById('login-prompt');
+    // === GLOBAL STATE ===
+    const TOTAL_STAGES = 5; 
+    const FLASH_DURATION = 1500;
+    let currentStage = 1;
+    let selectedWordForGap = null;
+    let currentUser = null; // Track logged-in user
+    
+    // === LESSON VOCABULARY DATA ===
+    const lessonTitle = "The Bank of England";
+    const lessonLink = "/boe/";
+    const lessonLevel = "INTERMEDIATE"; 
+    const learnedWords = [
+        { word: "Threadneedle Street", definition: "A narrow street in London's financial district, where the Bank of England is located." },
+        { word: "Bank", definition: "A financial institution owned by the government that manages the state's currency and monetary policy." },
+        { word: "Monetary Stability", definition: "Keeping prices stable, meaning inflation is low and predictable." },
+        { word: "Set Interest Rates", definition: "To change or determine the level of interest rates in an economy." },
+        { word: "Inflation", definition: "A general increase in prices and fall in the purchasing value of money." },
+        { word: "Stimulate", definition: "To cause or encourage something to grow or become active." },
+        { word: "Balancing Act", definition: "A difficult situation that must be handled with care to avoid giving offense or causing problems." },
+        { word: "Lender of Last Resort", definition: "The final provider of money to a bank that is in financial trouble." },
+        { word: "Crisis", definition: "A very serious situation in which the financial system or a major part of it is collapsing." },
+        { word: "Meltdown", definition: "A sudden, dramatic failure or collapse of a system or institution." },
+        { word: "Confidence", definition: "Belief in the reliability, truth, ability, or strength of someone or something." },
+        { word: "Issuance of Banknotes", definition: "The issuing or creation of new banknotes and coins." },
+        { word: "Issue", definition: "To officially give someone the power or right to do something." },
+        { word: "Reserves", definition: "A quantity of a resource (like gold or money) that is kept available for future use." },
+        { word: "Vault", definition: "A secure room or vault, especially one where money or valuables are kept." },
+        { word: "Governor", definition: "The highest-ranking official in the Bank of England." },
+        { word: "Monetary Policy Committee (MPC)", definition: "The group responsible for setting monetary policy, consisting of the Governor and other experts." },
+        { word: "Adapt", definition: "To change in response to new conditions; to become adjusted." },
+        { word: "Regulation", definition: "Rules or laws that control how a business is conducted." },
+    ];
+    
+    // === AUTH HEADER INITIALIZATION ===
+    async function initializeAuthHeader() {
+        const loggedOutButtons = document.getElementById('logged-out-buttons');
+        const loggedInButtons = document.getElementById('logged-in-buttons');
+        const userGreeting = document.getElementById('user-greeting');
+        const logoutBtn = document.getElementById('logout-btn');
+        const loggedInSave = document.getElementById('logged-in-save');
+        const loginPrompt = document.getElementById('login-prompt');
 
-            try {
-                const { data: { user }, error } = await supabase.auth.getUser();
+        try {
+            const { data: { user }, error } = await supabase.auth.getUser();
 
-                if (user) {
-                    currentUser = user;
-                    console.log('User logged in:', user.email);
-                    
-                    let userName = 'Cool Dude';
-                    if (user.user_metadata && user.user_metadata.full_name) {
-                        userName = user.user_metadata.full_name.split(' ')[0];
-                    } else if (user.email) {
-                        userName = user.email.split('@')[0];
-                    }
-                    
-                    if (userGreeting) userGreeting.textContent = `Hey ${userName}! 👋`;
-                    if (loggedInButtons) loggedInButtons.style.display = 'flex';
-                    if (loggedOutButtons) loggedOutButtons.style.display = 'none';
-                    if (loggedInSave) loggedInSave.style.display = 'block';
-                    if (loginPrompt) loginPrompt.style.display = 'none';
-                } else {
-                    currentUser = null;
-                    console.log('User not logged in');
-                    
-                    if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
-                    if (loggedInButtons) loggedInButtons.style.display = 'none';
-                    if (loggedInSave) loggedInSave.style.display = 'none';
-                    if (loginPrompt) loginPrompt.style.display = 'block';
+            if (user) {
+                currentUser = user;
+                
+                let userName = 'Cool Dude';
+                if (user.user_metadata && user.user_metadata.full_name) {
+                    userName = user.user_metadata.full_name.split(' ')[0];
+                } else if (user.email) {
+                    userName = user.email.split('@')[0];
                 }
-            } catch (err) {
-                console.error('Error checking auth:', err);
+                
+                if (userGreeting) userGreeting.textContent = `Hey ${userName}! 👋`;
+                if (loggedInButtons) loggedInButtons.style.display = 'flex';
+                if (loggedOutButtons) loggedOutButtons.style.display = 'none';
+                if (loggedInSave) loggedInSave.style.display = 'block';
+                if (loginPrompt) loginPrompt.style.display = 'none';
+            } else {
+                currentUser = null;
+                
                 if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
                 if (loggedInButtons) loggedInButtons.style.display = 'none';
                 if (loggedInSave) loggedInSave.style.display = 'none';
                 if (loginPrompt) loginPrompt.style.display = 'block';
             }
+        } catch (err) {
+            console.error('Error checking auth:', err);
+            if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
+            if (loggedInButtons) loggedInButtons.style.display = 'none';
+            if (loggedInSave) loggedInSave.style.display = 'none';
+            if (loginPrompt) loginPrompt.style.display = 'block';
+        }
 
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', async () => {
-                    try {
-                        const { error } = await supabase.auth.signOut();
-                        if (error) {
-                            console.error('Logout error:', error);
-                            alert('Logout failed. Please try again.');
-                        } else {
-                            window.location.href = '/';
-                        }
-                    } catch (err) {
-                        console.error('Unexpected logout error:', err);
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async () => {
+                try {
+                    const { error } = await supabase.auth.signOut();
+                    if (error) {
+                        console.error('Logout error:', error);
+                        alert('Logout failed. Please try again.');
+                    } else {
+                        window.location.href = '/';
                     }
-                });
-            }
-        }
-        
-        // === SAVE WORDS TO DASHBOARD - FIXED ===
-        async function saveWordsToDashboard() {
-            const saveButton = document.getElementById('save-words-btn');
-            saveButton.disabled = true;
-            saveButton.textContent = "Saving...";
-
-            if (!currentUser) {
-                alert("🚨 You must be logged in to save your vocabulary!");
-                saveButton.disabled = false;
-                saveButton.textContent = "💾 Save My New Words to My Dashboard";
-                return;
-            }
-            
-            try {
-                // Format the current date
-                const completedDate = new Date().toLocaleDateString('en-GB', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric'
-                });
-
-                const { data, error } = await supabase
-                    .from('lessons')
-                    .upsert([
-                        { 
-                            user_id: currentUser.id, 
-                            lesson_title: lessonTitle,
-                            lesson_link: lessonLink,
-                            lesson_level: lessonLevel,
-                            vocabulary: learnedWords,
-                            completed_at: new Date().toISOString()
-                        }
-                    ], { 
-                        onConflict: 'user_id,lesson_title'
-                    })
-                    .select();
-
-                if (error) {
-                    console.error('Supabase Save Error:', error);
-                    showPopup(false, "Save Failed: " + error.message);
-                    
-                    saveButton.disabled = false;
-                    saveButton.textContent = "💾 Try Saving Again (Error)";
-                    saveButton.style.backgroundColor = 'var(--color-incorrect)';
-                } else {
-                    console.log('Save successful:', data);
-                    showPopup(true, "Words Saved! Redirecting to Dashboard... 🎉");
-                    
-                    saveButton.disabled = true;
-                    saveButton.textContent = "✅ Words Saved!";
-                    saveButton.style.backgroundColor = 'var(--color-correct)';
-                    
-                    // Redirect to dashboard after 1.5 seconds
-                    setTimeout(() => {
-                        window.location.href = '/dashboard/';
-                    }, 1500);
+                } catch (err) {
+                    console.error('Unexpected logout error:', err);
                 }
-            } catch (err) {
-                console.error('Unexpected error saving:', err);
-                showPopup(false, "An unexpected error occurred.");
-                saveButton.disabled = false;
-                saveButton.textContent = "💾 Try Saving Again";
-            }
+            });
         }
-        
-        // === UTILITY FUNCTIONS ===
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
+    }
+    
+    // === LOG MISTAKE FUNCTION ===
+    async function logMistake(word, definition, wordType) {
+        if (!currentUser) return; 
 
-        function toggleCollapse(elementId) {
-            const element = document.getElementById(elementId);
-            const isVisible = element.style.display === 'block';
-            element.style.display = isVisible ? 'none' : 'block';
+        try {
+            const { error } = await supabase
+                .from('user_mistakes')
+                .upsert(
+                    { 
+                        user_id: currentUser.id, 
+                        word: word, 
+                        definition: definition,
+                        word_type: wordType,
+                        lesson: lessonTitle,
+                        lesson_link: lessonLink,
+                        last_made_at: new Date().toISOString(),
+                        mistake_count: 1
+                    }, 
+                    { 
+                        onConflict: 'user_id,word,lesson_link', 
+                        ignoreDuplicates: false 
+                    }
+                );
+
+            if (error) {
+                console.error('Error logging mistake:', error);
+            }
+        } catch (err) {
+            console.error('Unexpected error in logMistake:', err);
+        }
+    }
+    
+    // === SAVE WORDS TO DASHBOARD ===
+    async function saveWordsToDashboard() {
+        const saveButton = document.getElementById('save-words-btn');
+        saveButton.disabled = true;
+        saveButton.textContent = "Saving...";
+
+        if (!currentUser) {
+            alert("🚨 You must be logged in to save your vocabulary!");
+            saveButton.disabled = false;
+            saveButton.textContent = "💾 Save My New Words to My Dashboard";
+            return;
         }
         
-        function showPopup(isCorrect = true, customMessage = null) { 
-            const popup = document.getElementById('feedback-popup');
-            let finalMessage = '';
-            
-            if (customMessage) {
-                finalMessage = customMessage;
-            } else if (isCorrect) {
-                finalMessage = "Brilliant! Correct! 🏦";
+        try {
+            const { data, error } = await supabase
+                .from('lessons')
+                .upsert([
+                    { 
+                        user_id: currentUser.id, 
+                        lesson_title: lessonTitle,
+                        lesson_link: lessonLink,
+                        lesson_level: lessonLevel,
+                        vocabulary: learnedWords,
+                        completed_at: new Date().toISOString()
+                    }
+                ], { 
+                    onConflict: 'user_id,lesson_title'
+                })
+                .select();
+
+            if (error) {
+                console.error('Supabase Save Error:', error);
+                showPopup(false, "Save Failed: " + error.message);
+                
+                saveButton.disabled = false;
+                saveButton.textContent = "💾 Try Saving Again (Error)";
+                saveButton.style.backgroundColor = 'var(--color-incorrect)';
             } else {
-                finalMessage = "Mistake! Keep practicing! 📉";
-            }
-
-            popup.style.background = isCorrect ? 'var(--color-secondary)' : 'var(--color-incorrect)'; 
-            popup.textContent = finalMessage;
-            popup.style.display = 'block';
-            setTimeout(() => {
-                popup.style.display = 'none';
-            }, FLASH_DURATION);
-        }
-
-        // === STAGE & PROGRESS CONTROL ===
-        function updateProgress() {
-            document.getElementById('current-stage').textContent = currentStage;
-            document.getElementById('final-summary-card').style.display = 'none';
-        }
-
-        function nextStage(nextStageNumber) {
-            const currentStageElement = document.getElementById(`stage-${currentStage}`);
-            if (currentStageElement) {
-                currentStageElement.style.display = 'none';
-            }
-            currentStage = nextStageNumber;
-            const nextElement = document.getElementById(`stage-${currentStage}`);
-            if (nextElement) {
-                nextElement.style.display = 'block';
-            }
-            updateProgress();
-            window.scrollTo(0, 0); 
-        }
-
-        function showFinalSummary() {
-            const currentStageElement = document.getElementById(`stage-${currentStage}`);
-            if (currentStageElement) {
-                currentStageElement.style.display = 'none';
-            }
-            currentStage = TOTAL_STAGES; 
-            
-            const listContainer = document.getElementById('learned-words-list');
-            listContainer.innerHTML = '';
-
-            learnedWords.forEach(item => {
-                const listItem = document.createElement('li'); 
-                const wordElement = document.createElement('span'); 
-                wordElement.className = 'dictionary-word'; 
-                wordElement.textContent = item.word;
-                wordElement.setAttribute('data-definition', item.definition);
+                showPopup(true, "Words Saved! Redirecting to Dashboard... 🎉");
                 
-                listItem.appendChild(wordElement);
-                listContainer.appendChild(listItem);
-            });
-            
-            document.getElementById('final-summary-card').style.display = 'block';
-            window.scrollTo(0, 0); 
-
-            setupDictionaryListeners();
+                saveButton.disabled = true;
+                saveButton.textContent = "✅ Words Saved!";
+                saveButton.style.backgroundColor = 'var(--color-correct)';
+                
+                setTimeout(() => {
+                    window.location.href = '/dashboard/';
+                }, 1500);
+            }
+        } catch (err) {
+            console.error('Unexpected error saving:', err);
+            showPopup(false, "An unexpected error occurred.");
+            saveButton.disabled = false;
+            saveButton.textContent = "💾 Try Saving Again";
         }
+    }
+    
+    // === UTILITY FUNCTIONS ===
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function toggleCollapse(elementId) {
+        const element = document.getElementById(elementId);
+        const isVisible = element.style.display === 'block';
+        element.style.display = isVisible ? 'none' : 'block';
+    }
+    
+    function showPopup(isCorrect = true, customMessage = null) { 
+        const popup = document.getElementById('feedback-popup');
+        let finalMessage = '';
         
-        // === DICTIONARY LOGIC ===
-        function showDictionaryPopup(wordElement, popup) {
-            const definition = wordElement.getAttribute('data-definition');
-            const rect = wordElement.getBoundingClientRect();
-            
-            popup.innerHTML = `
-                <p class="font-bold mb-1 text-base text-yellow-300">${wordElement.textContent.replace(/\*\*|/g, '')}</p>
-                <p>${definition}</p>
-            `;
-            
-            if (popup.style.display === 'block' && popup.dataset.currentWord === wordElement.textContent) {
-                 popup.style.display = 'none';
-                 delete popup.dataset.currentWord;
-                 return;
-            }
-            
-            popup.dataset.currentWord = wordElement.textContent;
-
-            const popUpWidth = popup.offsetWidth || 250; 
-            const popUpHeight = popup.offsetHeight || 100; 
-            
-            let topPosition = rect.top - popUpHeight - 15;
-            let leftPosition = rect.left + (rect.width / 2) - (popUpWidth / 2);
-
-            if (rect.top < 100) { topPosition = rect.bottom + 10; }
-            if (leftPosition < 10) { leftPosition = 10; }
-            if (leftPosition + popUpWidth > window.innerWidth - 10) {
-                leftPosition = window.innerWidth - popUpWidth - 10;
-            }
-            
-            popup.style.top = `${topPosition}px`;
-            popup.style.left = `${leftPosition}px`;
-            popup.style.display = 'block';
+        if (customMessage) {
+            finalMessage = customMessage;
+        } else if (isCorrect) {
+            finalMessage = "Brilliant! Correct! 🏦";
+        } else {
+            finalMessage = "Mistake! Keep practicing! 📉";
         }
 
-        function setupDictionaryListeners() {
-            const dictionaryWords = document.querySelectorAll('.dictionary-word');
-            const popup = document.getElementById('dictionary-popup');
-            
-            dictionaryWords.forEach(word => {
-                if (word.getAttribute('data-listener-bound') === 'true') {
-                    return;
-                }
+        popup.style.background = isCorrect ? 'var(--color-secondary)' : 'var(--color-incorrect)'; 
+        popup.textContent = finalMessage;
+        popup.style.display = 'block';
+        setTimeout(() => {
+            popup.style.display = 'none';
+        }, FLASH_DURATION);
+    }
 
-                word.addEventListener('click', (e) => {
-                    e.stopPropagation(); 
-                    showDictionaryPopup(word, popup);
-                });
-                
-                word.setAttribute('data-listener-bound', 'true');
-            });
-            
-            if (!document.body.getAttribute('data-dictionary-close-bound')) {
-                document.body.addEventListener('click', (e) => {
-                    if (popup.style.display === 'block' && !popup.contains(e.target)) {
-                        popup.style.display = 'none';
-                    }
-                });
-                document.body.setAttribute('data-dictionary-close-bound', 'true');
-            }
+    // === STAGE & PROGRESS CONTROL ===
+    function updateProgress() {
+        document.getElementById('current-stage').textContent = currentStage;
+        document.getElementById('final-summary-card').style.display = 'none';
+    }
+
+    function nextStage(nextStageNumber) {
+        const currentStageElement = document.getElementById(`stage-${currentStage}`);
+        if (currentStageElement) {
+            currentStageElement.style.display = 'none';
         }
+        currentStage = nextStageNumber;
+        const nextElement = document.getElementById(`stage-${currentStage}`);
+        if (nextElement) {
+            nextElement.style.display = 'block';
+        }
+        updateProgress();
+        window.scrollTo(0, 0); 
+    }
 
-        // === INITIALIZATION ===
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeAuthHeader();
-            setupDictionaryListeners();
+    function showFinalSummary() {
+        const currentStageElement = document.getElementById(`stage-${currentStage}`);
+        if (currentStageElement) {
+            currentStageElement.style.display = 'none';
+        }
+        currentStage = TOTAL_STAGES; 
+        
+        const listContainer = document.getElementById('learned-words-list');
+        listContainer.innerHTML = '';
+
+        learnedWords.forEach(item => {
+            const listItem = document.createElement('li'); 
+            const wordElement = document.createElement('span'); 
+            wordElement.className = 'dictionary-word'; 
+            wordElement.textContent = item.word;
+            wordElement.setAttribute('data-definition', item.definition);
             
-            // Note: Your quiz stage JavaScript goes here
-            // I've kept the essential parts - add back your quiz logic
-            
-            updateProgress();
+            listItem.appendChild(wordElement);
+            listContainer.appendChild(listItem);
         });
- // --- RADIO BUTTON QUIZ LOGIC (Stage 1 & 5) ---
-        function setupRadioListeners() {
-            const options = document.querySelectorAll('#stage-1 .quiz-option, #stage-5 .quiz-option');
-            options.forEach(option => {
-                option.addEventListener('click', () => {
-                    const questionBox = option.closest('.question-box');
-                    if (questionBox.getAttribute('data-solved-correctly') === 'true') return;
+        
+        document.getElementById('final-summary-card').style.display = 'block';
+        window.scrollTo(0, 0); 
 
-                    questionBox.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
-                    option.classList.add('selected');
-                });
-            });
+        setupDictionaryListeners();
+    }
+    
+    // === DICTIONARY LOGIC ===
+    function showDictionaryPopup(wordElement, popup) {
+        const definition = wordElement.getAttribute('data-definition');
+        const rect = wordElement.getBoundingClientRect();
+        
+        popup.innerHTML = `
+            <p class="font-bold mb-1 text-base text-yellow-300">${wordElement.textContent.replace(/\*\*|/g, '')}</p>
+            <p>${definition}</p>
+        `;
+        
+        if (popup.style.display === 'block' && popup.dataset.currentWord === wordElement.textContent) {
+             popup.style.display = 'none';
+             delete popup.dataset.currentWord;
+             return;
         }
         
-        function checkRadioQuestion(questionBox) {
-            const stageElement = questionBox.closest('.content-card');
-            const selectedOption = questionBox.querySelector('.quiz-option.selected');
-            const nextButton = stageElement.querySelector('.next-btn');
+        popup.dataset.currentWord = wordElement.textContent;
 
-            if (!selectedOption) {
-                showPopup(false); 
+        const popUpWidth = popup.offsetWidth || 250; 
+        const popUpHeight = popup.offsetHeight || 100; 
+        
+        let topPosition = rect.top - popUpHeight - 15;
+        let leftPosition = rect.left + (rect.width / 2) - (popUpWidth / 2);
+
+        if (rect.top < 100) { topPosition = rect.bottom + 10; }
+        if (leftPosition < 10) { leftPosition = 10; }
+        if (leftPosition + popUpWidth > window.innerWidth - 10) {
+            leftPosition = window.innerWidth - popUpWidth - 10;
+        }
+        
+        popup.style.top = `${topPosition}px`;
+        popup.style.left = `${leftPosition}px`;
+        popup.style.display = 'block';
+    }
+
+    function setupDictionaryListeners() {
+        const dictionaryWords = document.querySelectorAll('.dictionary-word');
+        const popup = document.getElementById('dictionary-popup');
+        
+        dictionaryWords.forEach(word => {
+            if (word.getAttribute('data-listener-bound') === 'true') {
                 return;
             }
+
+            word.addEventListener('click', (e) => {
+                e.stopPropagation(); 
+                showDictionaryPopup(word, popup);
+            });
             
-            questionBox.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('correct', 'incorrect'));
-            questionBox.removeAttribute('data-solved-correctly');
-            
-            if (selectedOption.getAttribute('data-value') === questionBox.getAttribute('data-correct-value')) {
-                selectedOption.classList.remove('selected');
-                selectedOption.classList.add('correct');
-                selectedOption.style.pointerEvents = 'none';
-                questionBox.setAttribute('data-solved-correctly', 'true');
-                stageElement.setAttribute('data-completed', 'true');
-                showPopup(true);
-                nextButton.style.display = 'block';
-            } else {
-                selectedOption.classList.remove('selected'); 
-                selectedOption.classList.add('incorrect');
-                setTimeout(() => selectedOption.classList.remove('incorrect'), FLASH_DURATION); 
-                showPopup(false);
-                nextButton.style.display = 'none';
-            }
-            updateProgress();
+            word.setAttribute('data-listener-bound', 'true');
+        });
+        
+        if (!document.body.getAttribute('data-dictionary-close-bound')) {
+            document.body.addEventListener('click', (e) => {
+                if (popup.style.display === 'block' && !popup.contains(e.target)) {
+                    popup.style.display = 'none';
+                }
+            });
+            document.body.setAttribute('data-dictionary-close-bound', 'true');
         }
+    }
+
+    // --- RADIO BUTTON QUIZ LOGIC (Stage 1 & 5) ---
+    function setupRadioListeners() {
+        const options = document.querySelectorAll('#stage-1 .quiz-option, #stage-5 .quiz-option');
+        options.forEach(option => {
+            option.addEventListener('click', () => {
+                const questionBox = option.closest('.question-box');
+                if (questionBox.getAttribute('data-solved-correctly') === 'true') return;
+
+                questionBox.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+                option.classList.add('selected');
+            });
+        });
+    }
+    
+    function checkRadioQuestion(questionBox) {
+        const stageElement = questionBox.closest('.content-card');
+        const selectedOption = questionBox.querySelector('.quiz-option.selected');
+        const nextButton = stageElement.querySelector('.next-btn');
+
+        if (!selectedOption) {
+            showPopup(false); 
+            return;
+        }
+        
+        questionBox.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('correct', 'incorrect'));
+        questionBox.removeAttribute('data-solved-correctly');
+        
+        if (selectedOption.getAttribute('data-value') === questionBox.getAttribute('data-correct-value')) {
+            selectedOption.classList.remove('selected');
+            selectedOption.classList.add('correct');
+            selectedOption.style.pointerEvents = 'none';
+            questionBox.setAttribute('data-solved-correctly', 'true');
+            stageElement.setAttribute('data-completed', 'true');
+            showPopup(true);
+            nextButton.style.display = 'block';
+        } else {
+            selectedOption.classList.remove('selected'); 
+            selectedOption.classList.add('incorrect');
+            setTimeout(() => selectedOption.classList.remove('incorrect'), FLASH_DURATION); 
+            showPopup(false);
+            nextButton.style.display = 'none';
+        }
+        updateProgress();
+    }
 
 
-        // --- CHECKBOX QUIZ LOGIC (Stage 2) ---
-        function setupCheckboxListeners() {
-            const options = document.querySelectorAll('#stage-2 .quiz-option');
+    // --- CHECKBOX QUIZ LOGIC (Stage 2) ---
+    function setupCheckboxListeners() {
+        const options = document.querySelectorAll('#stage-2 .quiz-option');
+        options.forEach(option => {
+            option.addEventListener('click', () => {
+                if (option.style.pointerEvents === 'none') return;
+                
+                option.classList.toggle('selected');
+                if (option.classList.contains('incorrect')) {
+                    option.classList.remove('incorrect');
+                }
+            });
+        });
+    }
+
+    function checkCheckboxQuestion(questionBoxes) {
+        let attemptFailedDueToWrongSelection = false; 
+        const nextButton = document.querySelector('#stage-2 .next-btn');
+        const stageElement = document.querySelector('#stage-2');
+        
+        questionBoxes.forEach(questionBox => {
+            const correctValues = questionBox.getAttribute('data-correct-values').split(',');
+            const options = questionBox.querySelectorAll('.quiz-option');
+            
+            options.forEach(o => {
+                if (o.style.pointerEvents !== 'none') { o.classList.remove('incorrect'); }
+            });
+            
+            questionBox.removeAttribute('data-solved-correctly'); 
+
+            let incorrectSelectedOptions = []; 
+            let correctAnswersFoundCount = 0;
+            let initialLockCount = 0; 
+
             options.forEach(option => {
-                option.addEventListener('click', () => {
-                    if (option.style.pointerEvents === 'none') return;
-                    
-                    option.classList.toggle('selected');
-                    if (option.classList.contains('incorrect')) {
-                        option.classList.remove('incorrect');
-                    }
-                });
+                if (option.style.pointerEvents === 'none') { initialLockCount++; }
             });
-        }
-
-        function checkCheckboxQuestion(questionBoxes) {
-            let attemptFailedDueToWrongSelection = false; 
-            const nextButton = document.querySelector('#stage-2 .next-btn');
-            const stageElement = document.querySelector('#stage-2');
+            correctAnswersFoundCount = initialLockCount;
             
-            questionBoxes.forEach(questionBox => {
-                const correctValues = questionBox.getAttribute('data-correct-values').split(',');
-                const options = questionBox.querySelectorAll('.quiz-option');
+            options.forEach(option => {
+                const optionValue = option.getAttribute('data-value');
+                const isCorrectChoice = correctValues.includes(optionValue);
+                const isCurrentlySelected = option.classList.contains('selected');
                 
-                options.forEach(o => {
-                    if (o.style.pointerEvents !== 'none') { o.classList.remove('incorrect'); }
-                });
-                
-                questionBox.removeAttribute('data-solved-correctly'); 
-
-                let incorrectSelectedOptions = []; 
-                let correctAnswersFoundCount = 0;
-                let initialLockCount = 0; 
-
-                options.forEach(option => {
-                    if (option.style.pointerEvents === 'none') { initialLockCount++; }
-                });
-                correctAnswersFoundCount = initialLockCount;
-                
-                options.forEach(option => {
-                    const optionValue = option.getAttribute('data-value');
-                    const isCorrectChoice = correctValues.includes(optionValue);
-                    const isCurrentlySelected = option.classList.contains('selected');
-                    
-                    if (isCurrentlySelected) {
-                        if (isCorrectChoice) {
-                            if (option.style.pointerEvents !== 'none') {
-                                option.classList.remove('selected');
-                                option.classList.add('correct');    
-                                option.style.pointerEvents = 'none';
-                                correctAnswersFoundCount++; 
-                            }
-                        } else {
-                            incorrectSelectedOptions.push(option);
-                            attemptFailedDueToWrongSelection = true;
+                if (isCurrentlySelected) {
+                    if (isCorrectChoice) {
+                        if (option.style.pointerEvents !== 'none') {
+                            option.classList.remove('selected');
+                            option.classList.add('correct');    
+                            option.style.pointerEvents = 'none';
+                            correctAnswersFoundCount++; 
                         }
-                    } 
-                });
-                
-                // Process Incorrects (Flash and Deselect)
-                if (incorrectSelectedOptions.length > 0) {
-                    incorrectSelectedOptions.forEach(el => {
-                        el.classList.remove('selected'); 
-                        el.classList.add('incorrect'); 
-                        setTimeout(() => el.classList.remove('incorrect'), FLASH_DURATION); 
-                    });
-                }
-                
-                // Check for Final Set Completion
-                if (incorrectSelectedOptions.length === 0 && correctAnswersFoundCount === correctValues.length) {
-                    questionBox.setAttribute('data-solved-correctly', 'true');
-                }
-            });
-            
-            // Determine final stage-level message
-            const unsolvedBoxes = document.querySelectorAll('#stage-2 .question-box:not([data-solved-correctly="true"])');
-            
-            if (unsolvedBoxes.length === 0) {
-                stageElement.setAttribute('data-completed', 'true');
-                showPopup(true); 
-                nextButton.style.display = 'block';
-            } else {
-                nextButton.style.display = 'none';
-                
-                if (attemptFailedDueToWrongSelection) {
-                    showPopup(false, 'Mistake! Check all details again. 📉');
-                } else {
-                    showPopup(false, "You're close! Choose all the correct answers. 🧐");
-                }
-                stageElement.removeAttribute('data-completed');
-            }
-            updateProgress();
-        }
-
-
-        // --- GAP FILL LOGIC (Stage 3 & 4) ---
-
-        function bindGapFillListeners() {
-            const wordBanks = document.querySelectorAll('.word-options .word-option');
-            const gapInputs = document.querySelectorAll('.gap-input');
-
-            wordBanks.forEach(word => {
-                word.addEventListener('click', () => handleWordSelectGap(word));
-            });
-
-            gapInputs.forEach(gap => {
-                gap.addEventListener('click', () => handleGapFill(gap));
-            });
-        }
-
-        function handleWordSelectGap(word) {
-            if (selectedWordForGap) {
-                selectedWordForGap.classList.remove('selected');
-            }
-
-            if (selectedWordForGap === word) {
-                selectedWordForGap = null;
-            } else if (!word.classList.contains('used')) {
-                word.classList.add('selected');
-                selectedWordForGap = word;
-            }
-        }
-
-        function handleGapFill(gap) {
-            const currentWord = gap.getAttribute('data-filled-word');
-            const cardElement = gap.closest('.content-card');
-            
-            if (currentWord) {
-                // Clear the gap and return the word to the bank
-                const wordElement = document.querySelector(`.word-option[data-word="${currentWord}"]`);
-                if (wordElement) {
-                    wordElement.classList.remove('used', 'selected');
-                }
-                gap.textContent = gap.getAttribute('data-original-text');
-                gap.setAttribute('data-filled-word', '');
-                gap.classList.remove('correct', 'incorrect');
-                gap.removeAttribute('data-solved-correctly');
-                selectedWordForGap = null;
-
-            } else if (selectedWordForGap) {
-                // Fill the gap with the selected word
-                const wordToFill = selectedWordForGap.getAttribute('data-word');
-                
-                // Check if this word is already in use by another gap within the same card
-                cardElement.querySelectorAll('.gap-input').forEach(alreadyUsedGap => {
-                    if (alreadyUsedGap.getAttribute('data-filled-word') === wordToFill) {
-                        alreadyUsedGap.textContent = alreadyUsedGap.getAttribute('data-original-text');
-                        alreadyUsedGap.setAttribute('data-filled-word', '');
-                        alreadyUsedGap.classList.remove('correct', 'incorrect');
-                        alreadyUsedGap.removeAttribute('data-solved-correctly');
+                    } else {
+                        incorrectSelectedOptions.push(option);
+                        attemptFailedDueToWrongSelection = true;
                     }
+                } 
+            });
+            
+            // Process Incorrects (Flash and Deselect)
+            if (incorrectSelectedOptions.length > 0) {
+                incorrectSelectedOptions.forEach(el => {
+                    el.classList.remove('selected'); 
+                    el.classList.add('incorrect'); 
+                    setTimeout(() => el.classList.remove('incorrect'), FLASH_DURATION); 
                 });
-
-                gap.textContent = wordToFill;
-                gap.setAttribute('data-filled-word', wordToFill);
-                
-                selectedWordForGap.classList.add('used');
-                selectedWordForGap.classList.remove('selected');
-                selectedWordForGap = null;
             }
-            cardElement.removeAttribute('data-completed');
-            updateProgress(); 
+            
+            // Check for Final Set Completion
+            if (incorrectSelectedOptions.length === 0 && correctAnswersFoundCount === correctValues.length) {
+                questionBox.setAttribute('data-solved-correctly', 'true');
+            }
+        });
+        
+        // Determine final stage-level message
+        const unsolvedBoxes = document.querySelectorAll('#stage-2 .question-box:not([data-solved-correctly="true"])');
+        
+        if (unsolvedBoxes.length === 0) {
+            stageElement.setAttribute('data-completed', 'true');
+            showPopup(true); 
+            nextButton.style.display = 'block';
+        } else {
+            nextButton.style.display = 'none';
+            
+            if (attemptFailedDueToWrongSelection) {
+                showPopup(false, 'Mistake! Check all details again. 📉');
+            } else {
+                showPopup(false, "You're close! Choose all the correct answers. 🧐");
+            }
+            stageElement.removeAttribute('data-completed');
+        }
+        updateProgress();
+    }
+
+
+    // --- GAP FILL LOGIC (Stage 3 & 4) ---
+
+    function bindGapFillListeners() {
+        const wordBanks = document.querySelectorAll('.word-options .word-option');
+        const gapInputs = document.querySelectorAll('.gap-input');
+
+        wordBanks.forEach(word => {
+            word.addEventListener('click', () => handleWordSelectGap(word));
+        });
+
+        gapInputs.forEach(gap => {
+            gap.addEventListener('click', () => handleGapFill(gap));
+        });
+    }
+
+    function handleWordSelectGap(word) {
+        if (selectedWordForGap) {
+            selectedWordForGap.classList.remove('selected');
         }
 
-        function checkGapFillStage(stageNumber) {
+        if (selectedWordForGap === word) {
+            selectedWordForGap = null;
+        } else if (!word.classList.contains('used')) {
+            word.classList.add('selected');
+            selectedWordForGap = word;
+        }
+    }
+
+    function handleGapFill(gap) {
+        const currentWord = gap.getAttribute('data-filled-word');
+        const cardElement = gap.closest('.content-card');
+        
+        if (currentWord) {
+            // Clear the gap and return the word to the bank
+            const wordElement = document.querySelector(`.word-option[data-word="${currentWord}"]`);
+            if (wordElement) {
+                wordElement.classList.remove('used', 'selected');
+            }
+            gap.textContent = gap.getAttribute('data-original-text');
+            gap.setAttribute('data-filled-word', '');
+            gap.classList.remove('correct', 'incorrect');
+            gap.removeAttribute('data-solved-correctly');
+            selectedWordForGap = null;
+
+        } else if (selectedWordForGap) {
+            // Fill the gap with the selected word
+            const wordToFill = selectedWordForGap.getAttribute('data-word');
+            
+            // Check if this word is already in use by another gap within the same card
+            cardElement.querySelectorAll('.gap-input').forEach(alreadyUsedGap => {
+                if (alreadyUsedGap.getAttribute('data-filled-word') === wordToFill) {
+                    alreadyUsedGap.textContent = alreadyUsedGap.getAttribute('data-original-text');
+                    alreadyUsedGap.setAttribute('data-filled-word', '');
+                    alreadyUsedGap.classList.remove('correct', 'incorrect');
+                    alreadyUsedGap.removeAttribute('data-solved-correctly');
+                }
+            });
+
+            gap.textContent = wordToFill;
+            gap.setAttribute('data-filled-word', wordToFill);
+            
+            selectedWordForGap.classList.add('used');
+            selectedWordForGap.classList.remove('selected');
+            selectedWordForGap = null;
+        }
+        cardElement.removeAttribute('data-completed');
+        updateProgress(); 
+    }
+
+    function checkGapFillStage(stageNumber) {
         const cardElement = document.querySelector(`#stage-${stageNumber}`);
         const allGaps = cardElement.querySelectorAll('.gap-input');
         const nextButton = cardElement.querySelector('.next-btn');
@@ -1203,8 +1214,8 @@
                 gap.classList.add('correct');
                 gap.setAttribute('data-solved-correctly', 'true');
                 correctCount++;
-            } else if (userWord) { // <-- CRUCIAL FIX: Only proceed if a word was entered (not empty)
-                // Path 2: Incorrectly filled gap (This is your 'Inflation' attempt)
+            } else if (userWord) { 
+                // Path 2: Incorrectly filled gap (Only runs if a word was in the gap)
                 
                 // LOG MISTAKE: Logs the word that was *missed* (the correct answer)
                 const mistakeWordData = learnedWords.find(w => w.word.toLowerCase() === correctAnswer.toLowerCase());
@@ -1229,8 +1240,7 @@
                      updateProgress(); 
                 }, FLASH_DURATION);
             }
-            // Path 3: Empty gap. Since the previous two paths failed, and there is no 'else', 
-            // this gap is simply skipped and no mistake is logged. ✅
+            // Path 3: Empty gap. This is correctly skipped for mistake logging.
         });
 
         if (correctCount === totalGaps) {
@@ -1238,42 +1248,41 @@
             showPopup(true);
             nextButton.style.display = 'block';
         } else {
-            // Note: showPopup() will be delayed by the FLASH_DURATION if Path 2 ran.
             showPopup(false);
             nextButton.style.display = 'none';
             cardElement.removeAttribute('data-completed');
         }
         updateProgress();
     }
-        
 
 
-        // --- INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', () => {
-            setupRadioListeners();
-            setupCheckboxListeners();
-            bindGapFillListeners(); 
-            setupDictionaryListeners(); 
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeAuthHeader(); // Ensure auth runs first
+        setupRadioListeners();
+        setupCheckboxListeners();
+        bindGapFillListeners(); 
+        setupDictionaryListeners(); 
 
-            // Shuffle the Word Bank for Stage 4
-            const prepBank = document.getElementById('prep-bank-gapfill');
-            if (prepBank) {
-                const words = Array.from(prepBank.children);
-                const shuffledWords = shuffleArray(words);
-                
-                prepBank.innerHTML = '';
-                shuffledWords.forEach(word => prepBank.appendChild(word));
-            }
+        // Shuffle the Word Bank for Stage 4
+        const prepBank = document.getElementById('prep-bank-gapfill');
+        if (prepBank) {
+            const words = Array.from(prepBank.children);
+            const shuffledWords = shuffleArray(words);
             
-            // Set initial state for all 5 stages
-            document.getElementById('reading-content').style.display = 'none'; 
-            document.getElementById('stage-1').style.display = 'block';
-            document.getElementById('stage-2').style.display = 'none';
-            document.getElementById('stage-3').style.display = 'none';
-            document.getElementById('stage-4').style.display = 'none';
-            document.getElementById('stage-5').style.display = 'none';
-            updateProgress(); // Initialize stage count
-        });
-    </script>
+            prepBank.innerHTML = '';
+            shuffledWords.forEach(word => prepBank.appendChild(word));
+        }
+        
+        // Set initial state for all 5 stages
+        document.getElementById('reading-content').style.display = 'none'; 
+        document.getElementById('stage-1').style.display = 'block';
+        document.getElementById('stage-2').style.display = 'none';
+        document.getElementById('stage-3').style.display = 'none';
+        document.getElementById('stage-4').style.display = 'none';
+        document.getElementById('stage-5').style.display = 'none';
+        updateProgress(); // Initialize stage count
+    });
+</script>
 </body>
 </html>
