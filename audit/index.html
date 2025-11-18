@@ -792,6 +792,34 @@
             }
         }
 
+	   async function logMistake(word, definition) {
+    if (!currentUser) return;
+    
+    try {
+        const { data, error } = await supabase
+            .from('user_mistakes')
+            .upsert([
+                {
+                    user_id: currentUser.id,
+                    word: word,
+                    definition: definition,
+                    word_type: 'vocabulary',
+                    lesson: lessonTitle,
+                    lesson_link: lessonLink,
+                    last_made_at: new Date().toISOString()
+                }
+            ], {
+                onConflict: 'user_id,word,lesson'
+            });
+
+        if (error) {
+            console.error('Error logging mistake:', error);
+        }
+    } catch (err) {
+        console.error('Unexpected error logging mistake:', err);
+    }
+}
+
 
         // === CORE LESSON LOGIC ===
 
@@ -1228,6 +1256,10 @@
                     gap.classList.add('incorrect');
                     gap.classList.remove('correct');
                     allCorrect = false;
+
+					const mistakeWord = correctAnswer;
+            const mistakeDef = learnedWords.find(w => w.word === mistakeWord)?.definition || 'No definition available';
+            logMistake(mistakeWord, mistakeDef);
                 }
             });
 
