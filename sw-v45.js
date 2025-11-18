@@ -72,8 +72,8 @@ const essentialAssets = [
   '/images/icon-512.png',
   '/images/icon-180.png',
   '/images/favicon-32x32.png',
-  '/favicon.png',
-  'https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap'
+  '/favicon.png'
+  
 ];
 
 // --- INSTALL EVENT: Pre-cache everything ---
@@ -132,46 +132,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('fetch', (event) => {
   const requestURL = new URL(event.request.url);
 
-  // 1. EXTERNAL FONT FILES CACHING (fonts.gstatic.com)
-  if (requestURL.origin === 'https://fonts.gstatic.com') {
-    event.respondWith(
-      caches.open(FONT_CACHE_NAME).then((cache) => {
-        return cache.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          return fetch(event.request).then((networkResponse) => {
-            cache.put(event.request, networkResponse.clone());
-            return networkResponse;
-          }).catch(() => null);
-        });
-      })
-    );
-    return;
-  }
-
-  // 2. GOOGLE FONTS CSS CACHING (fonts.googleapis.com)
-  if (requestURL.origin === 'https://fonts.googleapis.com') {
-    event.respondWith(
-      caches.open(FONT_CACHE_NAME).then((cache) => {
-        return cache.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) {
-            console.log('[SW v45] Serving Google Fonts CSS from cache');
-            return cachedResponse;
-          }
-          return fetch(event.request).then((networkResponse) => {
-            console.log('[SW v45] Caching Google Fonts CSS');
-            cache.put(event.request, networkResponse.clone());
-            return networkResponse;
-          }).catch(() => {
-            console.warn('[SW v45] Failed to fetch Google Fonts CSS');
-            return null;
-          });
-        });
-      })
-    );
-    return;
-  }
+ 
 
   // 3. HANDLE NAVIGATION REQUESTS (HTML pages)
   const isNavigation = event.request.mode === 'navigate' || 
@@ -240,7 +201,7 @@ self.addEventListener('fetch', (event) => {
               <title>Offline - Cool Dudes</title>
               <style>
                 body {
-                  font-family: 'Nunito', sans-serif;
+                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
                   background: #F8F9FB;
                   display: flex;
                   align-items: center;
