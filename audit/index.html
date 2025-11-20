@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -644,30 +643,69 @@
         let selectedWordOption = null;
         let currentUser = null;
         
-        // === LESSON VOCABULARY DATA ===
+        // === LESSON VOCABULARY DATA - UPDATED WITH TYPES ===
         const lessonTitle = "Tax Audit Essentials: Preparation and Process";
         const lessonLink = "/audit/";
         const lessonLevel = "INTERMEDIATE";
         const learnedWords = [
-            { word: "audit", definition: "An official examination of a company's financial records to verify accuracy." },
-            { word: "financial statements", definition: "Formal records of a company's financial activities and position." },
-            { word: "annual report", definition: "A comprehensive summary of a company's financial performance over the year." },
-			{ word: "scrutiny", definition: "Critical observation or examination." },
-            { word: "settled", definition: "Paid or resolved." },
-            { word: "paramount", definition: "More important than anything else; supreme." },
-            { word: "review", definition: "A formal assessment of something with the intention of instituting change if necessary." },
-            { word: "discrepancies", definition: "A lack of compatibility or similarity between facts or claims." },
-            { word: "inventories", definition: "A complete list of items, especially stock or raw materials." },
-            { word: "remote audits", definition: "Audits conducted using digital records and platforms without a physical visit." },
-            { word: "prevalent", definition: "Widespread in a particular area or at a particular time." },
-            { word: "ledgers", definition: "A book or computer file in which a company's financial data is stored." },
-            { word: "onus", definition: "The responsibility or burden of proof." },
-            { word: "accessible", definition: "Easily obtained or understood." },
-            { word: "opinion", definition: "An auditor's formal conclusion on the financial statements." },
-            { word: "unqualified opinion", definition: "An auditor's conclusion that financial statements are presented fairly, without material misstatements." },
-            { word: "qualified opinion", definition: "An auditor's conclusion that financial statements contain material misstatements." },
-            { word: "implications", definition: "The consequences or results of an action." }
+            { word: "audit", definition: "An official examination of a company's financial records to verify accuracy.", type: "noun" },
+            { word: "financial statements", definition: "Formal records of a company's financial activities and position.", type: "noun" },
+            { word: "annual report", definition: "A comprehensive summary of a company's financial performance over the year.", type: "noun" },
+			{ word: "scrutiny", definition: "Critical observation or examination.", type: "noun" },
+            { word: "settled", definition: "Paid or resolved.", type: "adjective" },
+            { word: "paramount", definition: "More important than anything else; supreme.", type: "adjective" },
+            { word: "review", definition: "A formal assessment of something with the intention of instituting change if necessary.", type: "noun" },
+            { word: "discrepancies", definition: "A lack of compatibility or similarity between facts or claims.", type: "noun" },
+            { word: "inventories", definition: "A complete list of items, especially stock or raw materials.", type: "noun" },
+            { word: "remote audits", definition: "Audits conducted using digital records and platforms without a physical visit.", type: "noun" },
+            { word: "prevalent", definition: "Widespread in a particular area or at a particular time.", type: "adjective" },
+            { word: "ledgers", definition: "A book or computer file in which a company's financial data is stored.", type: "noun" },
+            { word: "onus", definition: "The responsibility or burden of proof.", type: "noun" },
+            { word: "accessible", definition: "Easily obtained or understood.", type: "adjective" },
+            { word: "opinion", definition: "An auditor's formal conclusion on the financial statements.", type: "noun" },
+            { word: "unqualified opinion", definition: "An auditor's conclusion that financial statements are presented fairly, without material misstatements.", type: "noun" },
+            { word: "qualified opinion", definition: "An auditor's conclusion that financial statements contain material misstatements.", type: "noun" },
+            { word: "implications", definition: "The consequences or results of an action.", type: "noun" },
+            { word: "verify", definition: "To check that something is true or accurate.", type: "verb" }
         ];
+
+        // Helper function to find word object (Added for Mistake Tracking)
+        function getWordDefinition(word) {
+            return learnedWords.find(w => w.word === word);
+        }
+
+        // === MISTAKE SAVING FUNCTION (Added) ===
+        async function saveMistake(word) {
+            if (!currentUser) return;
+            
+            try {
+                const wordObj = getWordDefinition(word);
+                // Fallback for word type if not found in list
+                const wordType = wordObj ? wordObj.type : 'noun'; 
+                const def = wordObj ? wordObj.definition : '';
+
+                const { error } = await supabase.from('user_mistakes').upsert({
+                    user_id: currentUser.id,
+                    word: word,
+                    definition: def,
+                    word_type: wordType,
+                    lesson: lessonTitle,
+                    lesson_link: lessonLink,
+                    last_made_at: new Date().toISOString()
+                }, {
+                    onConflict: 'user_id,word'
+                });
+                
+                if (error) {
+                    throw error;
+                }
+                
+                console.log(`Saved/updated mistake: ${word}`);
+            } catch (error) {
+                console.error('Error saving mistake:', error);
+            }
+        }
+
 
         // === AUTH HEADER INITIALIZATION ===
         async function initializeAuthHeader() {
@@ -1230,6 +1268,9 @@
                     gap.classList.add('incorrect');
                     gap.classList.remove('correct');
                     allCorrect = false;
+                    
+                    // CALL TO SAVE MISTAKE ADDED HERE
+                    saveMistake(correctAnswer);
                 }
             });
 
