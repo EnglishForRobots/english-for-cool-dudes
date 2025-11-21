@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smishing: The Toll Road Scam - English for Cool Dudes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        /* === CYBER SECURITY THEME === */
+        :root {
+            --color-primary: #1E293B; /* Slate 800 - Dark/Security */
+            --color-secondary: #DC2626; /* Red 600 - Threat/Alert */
+            --color-accent: #F59E0B; /* Amber - Warning */
+            --color-background: #F8FAFC; /* Slate 50 - Clean Background */
+            --color-text: #0F172A;
+            --color-correct: #10B981; /* Emerald - Success */
+            --color-incorrect: #EF4444; /* Red - Error */
+            --color-partial: #F59E0B; /* Amber - Partial/Warning */
+            --color-highlight: #3B82F6; /* Blue - Tech */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* === HEADER STYLES === */
+        .header {
+            background: #FFFFFF;
+            border-bottom: 1px solid #E2E8F0;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 15px; }
+
+        .logo {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, var(--color-primary) 0%, #000000 100%);
+            color: var(--color-secondary);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; border: 2px solid var(--color-secondary);
+        }
+
+        .site-title { font-size: 20px; font-weight: 800; color: #0F172A; text-decoration: none; letter-spacing: -0.5px; }
+
+        .header-buttons { display: flex; align-items: center; gap: 8px; }
+
+        .header-button {
+            text-decoration: none; padding: 8px 16px; border-radius: 6px;
+            font-size: 14px; font-weight: 600; transition: all 0.2s;
+            white-space: nowrap; cursor: pointer; border: 1px solid #CBD5E1;
+        }
+
+        .header-button.login { background: #FFF; color: #475569; }
+        .header-button.login:hover { background: #F1F5F9; color: #0F172A; }
+
+        .header-button.signup { background: var(--color-secondary); color: white; border-color: var(--color-secondary); }
+        .header-button.signup:hover { background: #B91C1C; box-shadow: 0 2px 5px rgba(220, 38, 38, 0.3); }
+
+        .header-button.dashboard { background: #FFFBEA; color: #B45309; border-color: #FCD34D; }
+        .header-button.dashboard:hover { background: #FCD34D; color: #78350F; }
+
+        .header-button.logout { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
+        .header-button.logout:hover { background: #FEE2E2; }
+
+        .user-greeting { font-size: 14px; color: #475569; font-weight: 700; margin-right: 10px; display: block; }
+        
+        /* === LESSON CONTAINER === */
+        .lesson-container { max-width: 800px; margin: 30px auto 60px; padding: 0 20px; }
+        
+        .content-card {
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #E2E8F0;
+            position: relative;
+        }
+
+        /* Video Container */
+        .video-wrapper {
+            position: relative; padding-bottom: 56.25%; height: 0;
+            border-radius: 12px; overflow: hidden; margin-bottom: 20px;
+            border: 4px solid var(--color-primary); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        
+        /* Collapsible Header */
+        .collapsible-header {
+            color: var(--color-primary); font-size: 1.5em; font-weight: 800;
+            margin-bottom: 15px; padding-bottom: 10px;
+            border-bottom: 3px solid #E2E8F0; cursor: pointer; 
+            user-select: none; transition: all 0.2s;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .collapsible-header:hover { color: var(--color-secondary); border-bottom-color: var(--color-secondary); }
+        .collapsible-header::after { content: '▼'; font-size: 0.7em; color: #94A3B8; transition: transform 0.3s; }
+        .collapsible-header.collapsed::after { transform: rotate(-90deg); }
+
+        /* Reading Text */
+        .reading-text {
+            background: #F8FAFC; border-left: 5px solid var(--color-secondary);
+            padding: 20px; border-radius: 0 8px 8px 0;
+            font-size: 1.1em; color: #334155;
+            white-space: normal; line-height: 1.8;
+        }
+        .reading-text p { margin-bottom: 1.2em; }
+        .reading-text p:last-child { margin-bottom: 0; }
+        
+        .dictionary-word {
+            text-decoration: underline dashed var(--color-secondary) 2px;
+            text-underline-offset: 4px; cursor: help; font-weight: 700; 
+            color: var(--color-primary); transition: all 0.2s;
+        }
+        .dictionary-word:hover { background-color: #FEF2F2; color: var(--color-secondary); border-radius: 4px; }
+
+        /* Quiz Styles */
+        .quiz-option {
+            background: #FFFFFF; border: 2px solid #E2E8F0; padding: 16px; 
+            margin-bottom: 12px; border-radius: 10px; cursor: pointer;
+            transition: all 0.2s ease; font-weight: 600; display: block; color: #475569;
+        }
+        .quiz-option:hover { background: #F1F5F9; border-color: var(--color-primary); transform: translateX(4px); }
+        .quiz-option.selected {
+            background: #F1F5F9; color: var(--color-primary);
+            border-color: var(--color-primary); box-shadow: 0 0 0 2px var(--color-primary) inset;
+        }
+        .quiz-option.correct { 
+            background: var(--color-correct) !important; color: white !important; border-color: var(--color-correct) !important;
+        }
+        .quiz-option.incorrect { 
+            background: var(--color-incorrect) !important; color: white !important; border-color: var(--color-incorrect) !important;
+        }
+        .quiz-option.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* === UPDATED WORD BANK STYLES === */
+        .word-bank {
+            background: #E2E8F0; 
+            border: 2px solid #CBD5E1; 
+            border-radius: 10px;
+            padding: 20px; 
+            margin-bottom: 25px; 
+            text-align: center; /* Centers the Title */
+        }
+        
+        .word-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px; /* Space between words */
+            justify-content: center; /* Center words horizontally */
+            margin-top: 10px;
+        }
+
+        .word-option {
+            background-color: #FFFFFF; 
+            color: var(--color-primary);
+            border: 2px solid var(--color-primary); 
+            padding: 8px 18px; 
+            border-radius: 25px; /* Pill shape */
+            cursor: pointer; 
+            transition: all 0.2s;
+            font-weight: 700; 
+            box-shadow: 0 2px 0 rgba(0,0,0,0.1);
+            font-size: 0.95em;
+        }
+        .word-option:hover { transform: translateY(-2px); box-shadow: 0 4px 0 rgba(0,0,0,0.1); background-color: var(--color-primary); color: white; }
+        .word-option:active { transform: translateY(0); box-shadow: none; }
+        .word-option.selected { background-color: var(--color-secondary); color: white; border-color: var(--color-secondary); }
+        .word-option.used { opacity: 0.4; pointer-events: none; background-color: #94A3B8; border-color: #94A3B8; color: white; box-shadow: none; }
+
+        /* Gap Input */
+        .gap-input {
+            display: inline-block; text-align: center; padding: 0 10px;
+            min-width: 120px; height: 38px; line-height: 36px;
+            background-color: #FFF; border-bottom: 3px solid var(--color-primary);
+            color: var(--color-text); font-weight: 700; cursor: pointer; margin: 0 4px;
+            transition: all 0.2s;
+        }
+        .gap-input:hover { background-color: #E2E8F0; }
+        .gap-input.filled { background-color: #DBEAFE; color: var(--color-highlight); border-bottom-color: var(--color-highlight); }
+        .gap-input.correct { background-color: var(--color-correct) !important; color: white !important; border-bottom-color: var(--color-correct) !important; pointer-events: none; }
+        .gap-input.incorrect { background-color: var(--color-incorrect) !important; color: white !important; border-bottom-color: var(--color-incorrect) !important; }
+
+        /* Buttons */
+        .check-btn {
+            background-color: var(--color-primary); color: white; padding: 16px;
+            border-radius: 10px; font-weight: 800; cursor: pointer; width: 100%;
+            border: none; text-transform: uppercase; margin-top: 25px; letter-spacing: 1px;
+            transition: all 0.2s; box-shadow: 0 4px 0 #0F172A;
+        }
+        .check-btn:hover { background-color: #334155; transform: translateY(-2px); box-shadow: 0 6px 0 #0F172A; }
+        .check-btn:active { transform: translateY(2px); box-shadow: 0 0 0 #0F172A; }
+        
+        .next-btn {
+            background-color: var(--color-secondary); color: white; padding: 12px 30px;
+            border-radius: 8px; font-weight: 700; cursor: pointer; float: right;
+            margin-top: 20px; border: none; transition: all 0.2s;
+        }
+        .next-btn:hover { background-color: #991B1B; transform: translateX(5px); }
+
+        /* Popups */
+        #feedback-popup {
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            padding: 25px 40px; border-radius: 16px; font-weight: 800; font-size: 1.2em; color: white;
+            display: none; z-index: 2000; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border: 4px solid white; min-width: 300px;
+        }
+        
+        #dictionary-popup {
+            position: fixed; max-width: 300px; padding: 20px; background: #FFFFFF;
+            color: #334155; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            z-index: 9999; display: none; border: 3px solid var(--color-primary);
+        }
+
+        /* Final Words List */
+        #learned-words-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; list-style: none; padding: 0; }
+        #learned-words-list li {
+            background: white; padding: 15px; border-radius: 10px; border: 2px solid #E2E8F0;
+            text-align: center; cursor: pointer; transition: all 0.2s;
+        }
+        #learned-words-list li:hover { transform: translateY(-3px); border-color: var(--color-secondary); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+
+        @media (max-width: 768px) { .user-greeting { display: none; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">🕵️</span>
+                <a href="/advanced/" class="site-title">English For Cool Dudes</a>
+            </div>
+            <div id="logged-out-buttons" class="header-buttons" style="display: none;">
+                <a href="/login/" class="header-button login">Login</a>
+                <a href="/signup/" class="header-button signup">Sign Up</a>
+            </div>
+            <div id="logged-in-buttons" class="header-buttons" style="display: none;">
+                <span class="user-greeting" id="user-greeting">Hey Cool Dude! 👋</span>
+                <a href="/dashboard/" class="header-button dashboard">My Dashboard</a>
+                <button id="logout-btn" class="header-button logout">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="lesson-container">
+        <h1 class="text-3xl font-black text-gray-900 mb-2">📲 The Toll Road SMS Scam</h1>
+        <h2 class="text-lg text-red-600 font-bold mb-6">Cyber Security: How Criminals Steal Data</h2>
+        <p class="text-gray-500 mb-8 text-sm uppercase tracking-wide font-bold">Level: Advanced (C1) | Topic: Smishing / Fraud</p>
+        
+        <div class="flex justify-between items-center text-sm font-semibold mb-4 text-gray-600 bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+            <span>Progress: Stage <span id="current-stage">1</span> of 5</span>
+        </div>
+        
+        <div class="content-card" data-section-id="0">
+            <h2 class="collapsible-header" onclick="toggleCollapse('reading-content', this)">📜 1. Read Before Watching</h2>
+            <div class="reading-text" id="reading-content"> 
+                <h4 class="text-xl font-bold text-gray-800 mb-4">The Rise of the "Smish"</h4>
+                <p>It starts with a buzz in your pocket. An urgent text message claims you have an unpaid road toll and that your vehicle will be <span class="dictionary-word" data-definition="Taken away by legal authority because a law was broken." data-type="verb (passive)">impounded</span> if you don't pay immediately. This is a classic example of <span class="dictionary-word" data-definition="The fraudulent practice of sending texts purporting to be from reputable companies to induce individuals to reveal personal information." data-type="noun">phishing</span> (specifically "smishing" or SMS-phishing).</p>
+                
+                <p>Federal investigators have <span class="dictionary-word" data-definition="Revealed the true nature of something; exposed." data-type="verb">uncovered</span> that these messages often originate from organized crime groups in China. These groups have <span class="dictionary-word" data-definition="Tricked or deceived." data-type="verb">duped</span> millions of victims, generating over $1 billion in illicit <span class="dictionary-word" data-definition="Income, especially when of a company or organization and of a substantial nature." data-type="noun">revenue</span>.</p>
+                
+                <p>The scam is sophisticated. Victims are led to a fake website designed to look <span class="dictionary-word" data-definition="Conforming to the law or rules; real." data-type="adjective">legitimate</span>. Once there, they input their credit card details. However, the criminals don't just want the card number; they want to add the card to a digital wallet (like Apple Pay). To do this, they need the victim to provide the <span class="dictionary-word" data-definition="A password or code sent to verify identity (2FA)." data-type="noun">authorization code</span> sent by the bank. Once <span class="dictionary-word" data-definition="Verified as genuine or true." data-type="verb (passive)">authenticated</span>, the criminals can use the card instantly on the other side of the world.</p>
+            </div>
+        </div>
+
+        <div id="stage-1" class="content-card">
+            <div class="video-wrapper">
+                <iframe src="https://www.youtube.com/embed/jxn62DjzaBs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+
+            <h2 class="collapsible-header" style="margin-top:15px; cursor: default;">🎥 2. Watch & Check Purpose</h2>
+            <p class="text-gray-600 mb-4 font-medium">Based on the video, what is the <strong>ultimate technical goal</strong> of the scammers when you visit their site?</p>
+
+            <div class="question-box" data-correct-value="To add your credit card to their digital wallet using an OTP code.">
+                <div class="quiz-options">
+                    <div class="quiz-option" data-value="To get you to pay a $6.69 fine to the government.">To get you to pay a $6.69 fine to the government.</div>
+                    <div class="quiz-option" data-value="To add your credit card to their digital wallet using an OTP code.">To add your credit card to their digital wallet using an OTP code.</div>
+                    <div class="quiz-option" data-value="To install a virus that tracks your location.">To install a virus that tracks your location.</div>
+                </div>
+            </div>
+            <button class="check-btn" onclick="checkRadioQuestion(this)">Check Answer</button>
+            <button class="next-btn" onclick="nextStage(2)" style="display:none;">Next Stage &rarr;</button>
+        </div>
+
+        <div id="stage-2" class="content-card" style="display:none;">
+            <h2 class="collapsible-header" style="cursor: default;">📝 3. Detail Check</h2>
+            <p class="text-gray-600 mb-4">Select ALL correct statements based on the video report.</p>
+
+            <p class="font-bold text-gray-800 mt-4 mb-2">A. How does the "Cash Out" work?</p>
+            <div class="question-box" data-correct-values="A,C" data-type="checkbox">
+                <div class="quiz-options">
+                    <div class="quiz-option" data-value="A">They transmit the card signal from China to a shopper in the US/Europe.</div>
+                    <div class="quiz-option" data-value="B">They fly to the US to use the physical cards.</div>
+                    <div class="quiz-option" data-value="C">They recruit local shoppers to buy luxury goods and gift cards.</div>
+                </div>
+            </div>
+
+            <p class="font-bold text-gray-800 mt-6 mb-2">B. Why do they use this complex method?</p>
+            <div class="question-box" data-correct-values="D,F" data-type="checkbox">
+                <div class="quiz-options">
+                    <div class="quiz-option" data-value="D">To avoid raising "red flags" with the bank (location fraud detection).</div>
+                    <div class="quiz-option" data-value="E">Because it is impossible to use credit cards in China.</div>
+                    <div class="quiz-option" data-value="F">To resell the purchased items for profit.</div>
+                </div>
+            </div>
+
+            <button class="check-btn" onclick="checkCheckboxQuestion(this)">Check Answers</button>
+            <button class="next-btn" onclick="nextStage(3)" style="display:none;">Next Stage &rarr;</button>
+        </div>
+
+        <div id="stage-3" class="content-card" style="display:none;">
+            <h2 class="collapsible-header" style="cursor: default;">4. Key Nouns</h2>
+            <div class="word-bank">
+                <p class="font-bold mb-2 text-xs text-gray-500 uppercase w-full text-center">Word Bank</p>
+                <div class="word-options" id="noun-bank">
+                    <div class="word-option" data-word="revenue">revenue</div>
+                    <div class="word-option" data-word="authorization">authorization</div>
+                    <div class="word-option" data-word="red flags">red flags</div>
+                    <div class="word-option" data-word="proof of concept">proof of concept</div>
+                </div>
+            </div>
+
+            <div class="gap-fill-text text-lg leading-loose space-y-4">
+                <p>1. The bank sends an <span class="gap-input" data-answer="authorization">____</span> code to your phone to confirm identity.</p>
+                <p>2. This scam generates over $1 billion in <span class="gap-input" data-answer="revenue">____</span> for the criminal groups.</p>
+                <p>3. Using a card in China while the owner is in the US would raise <span class="gap-input" data-answer="red flags">____</span>.</p>
+                <p>4. The researchers bought an apple juice just as a <span class="gap-input" data-answer="proof of concept">____</span> to show it works.</p>
+            </div>
+
+            <button type="button" class="check-btn" onclick="checkGapFillStage(3)">Check Nouns</button>
+            <button class="next-btn" onclick="nextStage(4)" style="display:none;">Next Stage &rarr;</button>
+        </div>
+
+        <div id="stage-4" class="content-card" style="display:none;">
+            <h2 class="collapsible-header" style="cursor: default;">5. Verbs & Adjectives</h2>
+            <div class="word-bank">
+                <p class="font-bold mb-2 text-xs text-gray-500 uppercase w-full text-center">Word Bank</p>
+                <div class="word-options" id="verb-bank">
+                    <div class="word-option" data-word="impounded">impounded</div>
+                    <div class="word-option" data-word="duped">duped</div>
+                    <div class="word-option" data-word="transmit">transmit</div>
+                    <div class="word-option" data-word="authenticated">authenticated</div>
+                </div>
+            </div>
+
+            <div class="gap-fill-text text-lg leading-loose space-y-4">
+                <p>1. The text threatens that your vehicle will be <span class="gap-input" data-answer="impounded">____</span>.</p>
+                <p>2. The software allows them to <span class="gap-input" data-answer="transmit">____</span> the card signal overseas.</p>
+                <p>3. They have <span class="gap-input" data-answer="duped">____</span> over a million people with this trick.</p>
+                <p>4. Once the card is <span class="gap-input" data-answer="authenticated">____</span>, it lives in their digital wallet.</p>
+            </div>
+
+            <button type="button" class="check-btn" onclick="checkGapFillStage(4)">Check Verbs</button>
+            <button class="next-btn" onclick="nextStage(5)" style="display:none;">Next Stage &rarr;</button>
+        </div>
+
+        <div id="stage-5" class="content-card" style="display:none;">
+            <h2 class="collapsible-header" style="cursor: default;">6. Critical Thinking</h2>
+            <p class="text-gray-600 mb-4 font-medium">Why does the presenter say "Once the scammers put your code in, you are cooked"?</p>
+
+            <div class="question-box" data-correct-value="Because the card is now tokenized on their device and they don't need you anymore.">
+                <div class="quiz-options">
+                    <div class="quiz-option" data-value="Because they will now come to your house.">Because they will now come to your house.</div>
+                    <div class="quiz-option" data-value="Because the card is now tokenized on their device and they don't need you anymore.">Because the card is now tokenized on their device and they don't need you anymore.</div>
+                    <div class="quiz-option" data-value="Because the police will arrest you for not paying the toll.">Because the police will arrest you for not paying the toll.</div>
+                </div>
+            </div>
+            <button class="check-btn" onclick="checkRadioQuestion(this)">Check Answer</button>
+            <button class="next-btn" onclick="showFinalSummary()" style="display:none;">View Summary &rarr;</button>
+        </div>
+        
+        <div id="stage-6" class="content-card" style="display:none; border-top: 5px solid var(--color-correct);">
+            <h2 class="text-2xl font-black text-gray-800 mb-2">🛡️ Lesson Complete!</h2>
+            <p class="text-lg mb-6 text-gray-600">You are now aware of Smishing tactics. Stay safe!</p>
+            
+            <div class="bg-gray-50 p-5 rounded-lg border border-gray-200 mb-6">
+                <h3 class="font-bold text-lg text-gray-800 mb-3">Vocabulary Review (Tap for definition):</h3>
+                <ul id="learned-words-list"></ul>
+            </div>
+            
+            <div id="save-words-section" class="text-center bg-slate-100 p-6 rounded-xl border border-slate-200">
+                <div id="save-feature-loggedin" style="display: none;">
+                    <button id="save-words-btn" class="bg-indigo-600 text-white font-bold py-3 px-6 rounded-full hover:bg-indigo-700 transition w-full shadow-lg transform hover:-translate-y-1" onclick="saveWordsToDashboard()">💾 Save 12 Words to Dashboard</button>
+                </div>
+                <div id="login-prompt" style="display: none;">
+                    <p class="text-red-600 font-bold mb-2">🔒 Login to save your progress!</p>
+                    <a href="/login/" class="inline-block bg-gray-800 text-white font-bold py-2 px-4 rounded hover:bg-black transition">Log In / Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="dictionary-popup"></div>
+    <div id="feedback-popup"></div>
+
+<script>
+    // --- CONFIG ---
+    const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let currentUser = null;
+
+    // Lesson Meta
+    const lessonTitle = "The Toll Road SMS Scam";
+    const lessonLink = "/smishing/";
+    const lessonLevel = "ADVANCED";
+
+    // Vocab Data
+    const learnedWords = [
+        { word: "impounded", definition: "Taken into legal custody (usually a vehicle or property) because of a violation.", type: "verb" },
+        { word: "phishing", definition: "The fraudulent practice of sending messages purporting to be from reputable companies to induce individuals to reveal personal info.", type: "noun" },
+        { word: "duped", definition: "Deceived or tricked.", type: "verb" },
+        { word: "revenue", definition: "Income, especially when of a company or organization.", type: "noun" },
+        { word: "legitimate", definition: "Conforming to the law or to rules; real/authentic.", type: "adjective" },
+        { word: "authorization", definition: "The action or fact of authorizing or being authorized (e.g., an SMS code).", type: "noun" },
+        { word: "authenticated", definition: "Proved or showed to be true or genuine.", type: "verb" },
+        { word: "red flags", definition: "Warning signs of danger or a problem.", type: "noun" },
+        { word: "transmit", definition: "Cause (something) to pass on from one place or person to another.", type: "verb" },
+        { word: "proof of concept", definition: "Evidence, typically derived from an experiment, which demonstrates that a design concept is feasible.", type: "noun" },
+        { word: "tokenized", definition: "The process of substituting a sensitive data element (like a card number) with a non-sensitive equivalent.", type: "adjective" },
+        { word: "illicit", definition: "Forbidden by law, rules, or custom.", type: "adjective" }
+    ];
+
+    // --- UTILS & THEMED POPUPS ---
+    function showFeedback(msg, type) {
+        const p = document.getElementById('feedback-popup');
+        p.textContent = msg;
+        
+        if (type === 'correct') {
+            p.style.background = 'var(--color-correct)';
+            p.style.borderColor = 'white';
+        } else if (type === 'incorrect') {
+            p.style.background = 'var(--color-incorrect)';
+            p.style.borderColor = 'white';
+        } else if (type === 'partial') {
+            p.style.background = 'var(--color-partial)';
+            p.style.borderColor = '#78350F'; // Dark Amber
+        }
+        
+        p.style.display = 'block';
+        setTimeout(() => p.style.display = 'none', 2000);
+    }
+
+    // Themed Messages
+    const msgs = {
+        correct: ['Access Granted! 🔓✅', 'Firewall Secure! 🛡️', 'Threat Neutralized! 👮‍♂️', 'Encrypted & Safe! 🔐'],
+        incorrect: ['Access Denied! 🚨', 'Malware Detected! 🦠', 'Phishing Attempt! Try again 🎣', 'Breach Detected! 💥'],
+        partial: ['Data Incomplete! 📂', 'Packet Loss! You missed one 📶', 'Buffering... Select more! ⏳']
+    };
+
+    function getRandomMsg(type) {
+        const list = msgs[type];
+        return list[Math.floor(Math.random() * list.length)];
+    }
+
+    function showDictionary(el, html) {
+        const p = document.getElementById('dictionary-popup');
+        p.innerHTML = html;
+        p.style.display = 'block';
+        const r = el.getBoundingClientRect();
+        let top = r.bottom + 10;
+        if (top + 100 > window.innerHeight) top = r.top - 100;
+        p.style.top = top + 'px';
+        p.style.left = Math.max(10, r.left - 100) + 'px';
+    }
+
+    function shuffle(a) { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+    // --- AUTH ---
+    async function initAuth() {
+        const {data:{user}} = await supabase.auth.getUser();
+        if(user) {
+            currentUser = user;
+            document.getElementById('logged-out-buttons').style.display='none';
+            document.getElementById('logged-in-buttons').style.display='flex';
+            document.getElementById('save-feature-loggedin').style.display='block';
+            const name = user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Cool Dude';
+            document.getElementById('user-greeting').textContent = `Hey ${name}! 👋`;
+        } else {
+            document.getElementById('logged-out-buttons').style.display='flex';
+            document.getElementById('login-prompt').style.display='block';
+        }
+    }
+
+    // --- SAVING ---
+    async function saveMistake(word) {
+        if(!currentUser) return;
+        const wObj = learnedWords.find(w=>w.word.toLowerCase()===word.toLowerCase()) || {word, definition:'', type:''};
+        await supabase.from('user_mistakes').upsert({
+            user_id: currentUser.id, word: wObj.word, definition: wObj.definition, word_type: wObj.type,
+            lesson: lessonTitle, lesson_link: lessonLink, last_made_at: new Date().toISOString()
+        }, {onConflict: 'user_id,word'});
+    }
+
+    async function saveWordsToDashboard() {
+        const btn = document.getElementById('save-words-btn');
+        btn.textContent = "Saving..."; btn.disabled = true;
+        if(!currentUser) return;
+        const {error} = await supabase.from('lessons').upsert([{
+            user_id: currentUser.id, lesson_title: lessonTitle, lesson_link: lessonLink, lesson_level: lessonLevel,
+            vocabulary: learnedWords, completed_at: new Date().toISOString()
+        }], {onConflict: 'user_id,lesson_title'});
+        
+        if(!error) {
+            btn.textContent = "✅ Saved!"; btn.style.background = "#10B981";
+            setTimeout(()=>window.location.href='/dashboard/', 1000);
+        } else {
+            btn.textContent = "❌ Error"; btn.disabled = false;
+        }
+    }
+
+    // --- GAME LOGIC ---
+    function checkRadioQuestion(btn) {
+        const box = btn.previousElementSibling;
+        const sel = box.querySelector('.selected');
+        if(!sel) return showFeedback('Input Required ⌨️', 'partial');
+        
+        if(sel.dataset.value === box.dataset.correctValue) {
+            sel.classList.add('correct'); 
+            showFeedback(getRandomMsg('correct'), 'correct');
+            btn.style.display='none'; btn.nextElementSibling.style.display='block';
+        } else {
+            sel.classList.add('incorrect'); 
+            showFeedback(getRandomMsg('incorrect'), 'incorrect');
+            setTimeout(()=>sel.classList.remove('incorrect','selected'), 1000);
+        }
+    }
+
+    function checkCheckboxQuestion(btn) {
+        const boxes = btn.parentNode.querySelectorAll('.question-box');
+        let allCorrect = true; 
+        let anySel = false;
+        let anyWrongSelected = false;
+        let missingCorrect = false;
+
+        boxes.forEach(b => {
+            const correct = b.dataset.correctValues.split(',');
+            const selectedEls = Array.from(b.querySelectorAll('.selected'));
+            const selectedVals = selectedEls.map(o=>o.dataset.value);
+            
+            if(selectedVals.length) anySel = true;
+
+            // Check for incorrect selections
+            const wrongSelection = selectedVals.some(v => !correct.includes(v));
+            if (wrongSelection) anyWrongSelected = true;
+
+            // Check for missing correct selections
+            const correctMissed = correct.some(v => !selectedVals.includes(v));
+            if (correctMissed) missingCorrect = true;
+
+            if (wrongSelection || correctMissed) allCorrect = false;
+
+            // Visuals
+            selectedEls.forEach(s => {
+                if(correct.includes(s.dataset.value)) s.classList.add('correct');
+                else s.classList.add('incorrect');
+            });
+        });
+
+        if(!anySel) return showFeedback('Input Required ⌨️', 'partial');
+
+        if(allCorrect) {
+            showFeedback(getRandomMsg('correct'), 'correct');
+            btn.style.display='none'; btn.nextElementSibling.style.display='block';
+        } else if (anyWrongSelected) {
+            showFeedback(getRandomMsg('incorrect'), 'incorrect');
+            setTimeout(() => document.querySelectorAll('.incorrect').forEach(el=>el.classList.remove('incorrect','selected')), 1500);
+        } else if (missingCorrect) {
+            // No wrong answers, but not ALL right answers
+            showFeedback(getRandomMsg('partial'), 'partial');
+             // Don't clear selection, let them add more
+        }
+    }
+
+    // GAP FILL
+    let selWord = null;
+    function setupGapFill() {
+        document.querySelectorAll('.word-option').forEach(o => {
+            o.addEventListener('click', () => {
+                if(o.classList.contains('used')) return;
+                if(selWord) selWord.classList.remove('selected');
+                selWord = o; o.classList.add('selected');
+            });
+        });
+        document.querySelectorAll('.gap-input').forEach(g => {
+            g.addEventListener('click', () => {
+                if(g.classList.contains('filled')) {
+                    const txt = g.textContent;
+                    g.textContent = "____"; g.className = "gap-input";
+                    // Free up word
+                    const bank = g.closest('.content-card').querySelector('.word-options');
+                    const wEl = Array.from(bank.children).find(w=>w.dataset.word===txt);
+                    if(wEl) wEl.classList.remove('used');
+                    return;
+                }
+                if(selWord) {
+                    g.textContent = selWord.dataset.word;
+                    g.dataset.filledWord = selWord.dataset.word;
+                    g.classList.add('filled');
+                    selWord.classList.remove('selected'); selWord.classList.add('used'); selWord = null;
+                }
+            });
+        });
+    }
+
+    function checkGapFillStage(stage) {
+        const div = document.getElementById(`stage-${stage}`);
+        const gaps = div.querySelectorAll('.gap-input');
+        let allRight = true; let allFilled = true;
+        gaps.forEach(g => {
+            if(!g.classList.contains('filled')) { allFilled=false; return; }
+            if(g.dataset.filledWord === g.dataset.answer) {
+                g.classList.add('correct');
+            } else {
+                g.classList.add('incorrect'); allRight = false;
+                saveMistake(g.dataset.answer);
+            }
+        });
+        if(!allFilled) return showFeedback('Input Required ⌨️', 'partial');
+        if(allRight) {
+            showFeedback(getRandomMsg('correct'), 'correct');
+            div.querySelector('.check-btn').style.display='none';
+            div.querySelector('.next-btn').style.display='block';
+        } else {
+            showFeedback(getRandomMsg('incorrect'), 'incorrect');
+        }
+    }
+
+    // NAV
+    function nextStage(n) {
+        // Hide current stage content
+        document.querySelectorAll('.content-card[id^="stage-"]').forEach(d=>d.style.display='none');
+        
+        // Show next
+        const next = document.getElementById(`stage-${n}`);
+        next.style.display='block';
+        document.getElementById('current-stage').textContent = n;
+        
+        // Smooth scroll to video area (skip reading text)
+        const readingHeight = document.getElementById('reading-content').parentElement.offsetHeight;
+        window.scrollTo({top: readingHeight + 40, behavior:'smooth'});
+    }
+
+    function showFinalSummary() {
+        document.querySelectorAll('.content-card[id^="stage-"]').forEach(d=>d.style.display='none');
+        const fin = document.getElementById('stage-6');
+        fin.style.display='block';
+        const ul = document.getElementById('learned-words-list');
+        learnedWords.forEach(w => {
+            const li = document.createElement('li');
+            li.innerHTML = `<strong>${w.word}</strong> <div class="text-xs text-gray-500 mt-1">(${w.type})</div>`;
+            li.onclick = (e) => { e.stopPropagation(); showDictionary(li, `<b>${w.word}</b>: ${w.definition}`); };
+            ul.appendChild(li);
+        });
+    }
+
+    function toggleCollapse(id, header) {
+        const el = document.getElementById(id);
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        header.classList.toggle('collapsed');
+    }
+
+    // INIT
+    document.addEventListener('DOMContentLoaded', () => {
+        initAuth();
+        setupGapFill();
+        
+        // Radio
+        document.querySelectorAll('.quiz-option').forEach(o => {
+            o.addEventListener('click', () => {
+                if(o.closest('.question-box').dataset.type === 'checkbox') {
+                    o.classList.toggle('selected');
+                } else {
+                    o.parentNode.querySelectorAll('.selected').forEach(s=>s.classList.remove('selected'));
+                    o.classList.add('selected');
+                }
+            });
+        });
+
+        // Reading Text Dictionary
+        document.querySelectorAll('.dictionary-word').forEach(w => {
+            w.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showDictionary(w, `<b>${w.textContent}</b>: ${w.dataset.definition}`);
+            });
+        });
+        
+        // Close Popup
+        document.body.addEventListener('click', (e) => {
+            if(!e.target.closest('.dictionary-word') && !e.target.closest('#dictionary-popup')) {
+                document.getElementById('dictionary-popup').style.display='none';
+            }
+        });
+
+        // Shuffle Banks
+        const nounBank = document.getElementById('noun-bank');
+        const verbBank = document.getElementById('verb-bank');
+        if(nounBank) shuffle(Array.from(nounBank.children)).forEach(c=>nounBank.appendChild(c));
+        if(verbBank) shuffle(Array.from(verbBank.children)).forEach(c=>verbBank.appendChild(c));
+    });
+</script>
+</body>
+</html>
