@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Don't Say It! - English For Cool Dudes</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background: #F8F9FB; 
+            color: #2C3E50; 
+            margin: 0; 
+            overflow-x: hidden; 
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            text-align: center; 
+            min-height: 80vh; 
+        }
+        
+        /* Game Controls */
+        .controls {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            align-items: flex-start;
+            border: 1px solid #E5E9F2;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+        }
+        
+        label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        select, input {
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 2px solid #E2E8F0;
+            font-size: 15px;
+            background: #FFFFFF;
+            color: #2C3E50;
+            cursor: pointer;
+            min-width: 150px;
+            transition: border-color 0.2s;
+        }
+        select:hover, select:focus, input:focus {
+            border-color: #667EEA;
+            outline: none;
+        }
+
+        /* Team Name Inputs */
+        #team-names-container {
+            width: 100%;
+            display: none;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+            padding-top: 15px;
+            border-top: 1px dashed #E2E8F0;
+        }
+        
+        .team-input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .btn { 
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%); 
+            color: white; 
+            padding: 12px 30px; 
+            border-radius: 8px; 
+            text-decoration: none; 
+            border: none; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-weight: 700;
+            transition: transform 0.2s, box-shadow 0.2s;
+            height: 46px;
+            margin-top: 19px;
+        }
+        .btn:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); 
+        }
+        
+        /* Game Card Styling */
+        #game-area { display: none; }
+        
+        .game-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            max-width: 400px;
+            border: 2px solid #E2E8F0;
+            position: relative;
+            overflow: hidden;
+            transition: opacity 0.2s;
+        }
+        
+        .card-header {
+            border-bottom: 2px solid #E2E8F0;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .target-word {
+            font-size: 36px;
+            font-weight: 800;
+            color: #667EEA;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+        
+        .forbidden-label {
+            font-size: 12px;
+            color: #A0AEC0;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .forbidden-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .forbidden-item {
+            color: #E53E3E;
+            font-weight: 600;
+            font-size: 20px;
+            padding: 8px 0;
+            border-bottom: 1px dashed #EDF2F7;
+        }
+        .forbidden-item:last-child { border-bottom: none; }
+
+        /* Game Controls (In-Game) */
+        .game-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            align-items: center;
+        }
+        
+        .btn-game {
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.1s;
+            min-width: 140px;
+            color: white;
+        }
+        .btn-game:active { transform: scale(0.95); }
+        
+        .btn-skip { background: #ED8936; box-shadow: 0 4px 10px rgba(237, 137, 54, 0.3); }
+        .btn-success { background: #48BB78; box-shadow: 0 4px 10px rgba(72, 187, 120, 0.3); }
+        
+        /* Pause Button inside controls */
+        .btn-pause { 
+            background: #FFFFFF; 
+            color: #4A5568; 
+            border: 2px solid #CBD5E0; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+            min-width: 60px;
+            padding: 15px 20px;
+        }
+        .btn-pause:hover { border-color: #667EEA; color: #667EEA; }
+
+        /* Timer and Score */
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            max-width: 600px;
+            margin: 0 auto;
+            font-weight: 700;
+            font-size: 18px;
+            color: #4A5568;
+            background: #EDF2F7;
+            padding: 10px 20px;
+            border-radius: 50px;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .timer-urgent { color: #E53E3E; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        /* Header/Footer match */
+        .header { background: #FFFFFF; border-bottom: 1px solid #E2E8F0; padding: 20px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.04); margin-bottom: 20px; }
+        .header-content { max-width: 1000px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; gap: 15px; }
+        .logo { width: 36px; height: 36px; background: linear-gradient(135deg, #0EA5E9 0%, #8B5CF6 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .site-title { font-size: 20px; font-weight: 600; color: #0F172A; letter-spacing: -0.02em; text-decoration: none; }
+        footer { background: #FFFFFF; border-top: 1px solid #E5E9F2; padding: 32px 20px; margin-top: 60px; text-align: center; }
+        footer p { font-size: 14px; color: #718096; }
+        footer a { color: #8B5CF6; margin: 0 10px; text-decoration: none; }
+
+        /* Win Modal */
+        #win-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 6000; }
+        .win-content { background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 500px; width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: pop 0.4s ease-out; }
+        .win-title { font-size: 32px; font-weight: 800; color: #8B5CF6; margin-bottom: 10px; }
+        .win-text { font-size: 18px; color: #4A5568; margin-bottom: 30px; }
+        .win-buttons { display: flex; flex-direction: column; gap: 10px; }
+        .win-btn { padding: 12px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; font-size: 16px; transition: transform 0.2s; }
+        .btn-primary { background: #10B981; color: white; }
+        .btn-secondary { background: #EDF2F7; color: #4A5568; }
+        .win-btn:hover { transform: scale(1.02); }
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        /* Confetti */
+        .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5000; overflow: hidden; display: none; }
+        .confetti-piece { position: absolute; top: -50px; font-size: 2rem; animation: fall linear forwards; }
+        @keyframes fall { 0% { transform: translateY(-50px) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
+        
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed; top:0; left:0; right:0; bottom:0;
+            background: rgba(255,255,255,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            font-weight: bold;
+            color: #667EEA;
+        }
+        
+        /* Team Score Display */
+        #team-scores {
+            display: none; /* Hidden unless Team Mode is active */
+            margin-left: 10px;
+            font-size: 16px;
+        }
+        .active-team { color: #667EEA; border-bottom: 2px solid #667EEA; }
+        
+        /* Current Player/Team Indicator */
+        #turn-indicator {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 800;
+            color: #667EEA;
+            margin-top: 15px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left" style="display: flex; align-items: center; gap: 15px;">
+                <span class="logo">🚫</span>
+                <a href="/games/" class="site-title">English For Cool Dudes</a>
+            </div>
+        </div>
+    </header>
+
+    <div id="confettiContainer" class="confetti-container"></div>
+    <div id="loading-overlay">Loading your personalized game...</div>
+
+    <!-- Win Modal -->
+    <div id="win-modal">
+        <div class="win-content">
+            <h2 class="win-title" id="win-title-text">🎉 Game Over!</h2>
+            <p class="win-text" id="win-message">Scores...</p>
+            <div class="win-buttons">
+                <button class="win-btn btn-primary" onclick="closeModalAndRestart()">🔄 Play Again</button>
+                <button class="win-btn btn-secondary" onclick="closeModalAndNewTheme()">🎨 Change Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1 style="color:#1A202C; margin-bottom:10px;">🚫 Don't Say It!</h1>
+        <p style="color:#718096; margin-bottom:20px;">Describe the word <b>without</b> using the forbidden words!</p>
+        
+        <div class="controls" id="setup-panel">
+            <div class="control-group">
+                <label for="themeSelect">Choose Topic</label>
+                <select id="themeSelect" onchange="handleThemeChange()">
+                    <option value="business">Business General</option>
+                    <option value="meetings">Meetings</option>
+                    <option value="office">Office Objects</option>
+                    <option value="social">Socializing</option>
+                    <option value="mistakes" style="font-weight:bold; color:#E53E3E;">🚨 My Personal Mistakes</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="modeSelect">Game Mode</label>
+                <select id="modeSelect" onchange="handleModeChange()">
+                    <option value="1">1 Player (Practice)</option>
+                    <option value="2">2 Players (A vs B)</option>
+                    <option value="2t">2 Teams</option>
+                    <option value="3t">3 Teams</option>
+                    <option value="4t">4 Teams</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="levelSelect">Level</label>
+                <select id="levelSelect">
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate" selected>Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="timeSelect">Time Limit</label>
+                <select id="timeSelect">
+                    <option value="30" selected>30 Seconds</option>
+                    <option value="60">60 Seconds</option>
+                    <option value="90">90 Seconds</option>
+                    <option value="120">2 Minutes</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="scoreLimit">Points to Win</label>
+                <select id="scoreLimit">
+                    <option value="5">5 Points (Quick)</option>
+                    <option value="10" selected>10 Points</option>
+                    <option value="20">20 Points</option>
+                    <option value="50">50 Points (Marathon)</option>
+                </select>
+            </div>
+            
+            <!-- Dynamic Team Name Inputs -->
+            <div id="team-names-container">
+                <!-- Javascript will inject inputs here -->
+            </div>
+            
+            <button class="btn" onclick="initGame()">Start Game</button>
+        </div>
+
+        <div id="game-area">
+            <div class="hud">
+                <span>⏱️ <span id="timerDisplay">30</span>s</span>
+                
+                <!-- Single/Classic Score -->
+                <span id="classic-score">⭐ Score: <span id="scoreDisplay">0</span>/<span id="targetScoreDisplay">10</span></span>
+                
+                <!-- Team Score (Hidden by default) -->
+                <span id="team-scores">
+                    <!-- JS populates this -->
+                </span>
+            </div>
+            
+            <div id="turn-indicator">It's Team A's Turn!</div>
+
+            <div class="game-card" id="cardDisplay">
+                <!-- Card content injected here -->
+            </div>
+
+            <div class="game-controls">
+                <button class="btn-game btn-skip" onclick="skipCard()">Skip (-1)</button>
+                
+                <!-- Pause Button -->
+                <button class="btn-game btn-pause" onclick="togglePause()" id="pauseBtn">⏸️</button>
+                
+                <button class="btn-game btn-success" onclick="successCard()">Got it! (+1)</button>
+            </div>
+        </div>
+        
+        <br><br>
+        <a href="/games/" style="color: #8B5CF6; text-decoration: none; font-weight:600;">&larr; Back to Break Room</a>
+    </div>
+
+    <footer>
+        <p>© 2025 English For Cool Dudes - 😎</p>
+        <div style="margin-top: 10px;">
+            <a href="/impressum/">Impressum</a>
+            <a href="/datenschutz/">Datenschutzerklärung</a>
+        </div>
+    </footer>
+
+    <script>
+        // --- SUPABASE CONFIG ---
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // --- CARD DATABASE (Structure: level -> topic -> cards) ---
+        // To keep it simple, I'm flattening the levels into the topics for now, 
+        // but allowing the 'level' selector to filter them if I had metadata.
+        // For this implementation, I'll treat 'Beginner' as fewer forbidden words
+        // and 'Advanced' as more abstract words.
+        
+        const cardsDB = {
+            business: [
+                { t: "Salary", f: ["Money", "Pay", "Month", "Earn"] },
+                { t: "Boss", f: ["Manager", "Chief", "Leader", "Work"] },
+                { t: "Colleague", f: ["Friend", "Work", "Office", "Person"] },
+                { t: "Promotion", f: ["Job", "Better", "Higher", "Rise"] },
+                { t: "Deadline", f: ["Time", "Finish", "Late", "Project"] },
+                { t: "Client", f: ["Customer", "Buy", "Sell", "Service"] },
+                { t: "Budget", f: ["Money", "Plan", "Spend", "Cost"] },
+                { t: "Profit", f: ["Money", "Gain", "Loss", "Business"] },
+                { t: "Resume", f: ["CV", "Job", "Paper", "History"] },
+                { t: "Interview", f: ["Job", "Talk", "Meeting", "Question"] }
+            ],
+            meetings: [
+                { t: "Agenda", f: ["Plan", "List", "Topics", "Paper"] },
+                { t: "Minutes", f: ["Notes", "Record", "Write", "Time"] },
+                { t: "Chairperson", f: ["Leader", "Sit", "Head", "Control"] },
+                { t: "Remote", f: ["Home", "Zoom", "Teams", "Online"] },
+                { t: "Presentation", f: ["Slide", "PowerPoint", "Talk", "Show"] },
+                { t: "Brainstorm", f: ["Idea", "Think", "Group", "Create"] },
+                { t: "Feedback", f: ["Opinion", "Good", "Bad", "Review"] },
+                { t: "Huddle", f: ["Group", "Stand", "Quick", "Team"] }
+            ],
+            office: [
+                { t: "Stapler", f: ["Paper", "Clip", "Join", "Metal"] },
+                { t: "Printer", f: ["Paper", "Ink", "Copy", "Machine"] },
+                { t: "Laptop", f: ["Computer", "Screen", "Keyboard", "Portable"] },
+                { t: "Desk", f: ["Table", "Sit", "Work", "Furniture"] },
+                { t: "Water Cooler", f: ["Drink", "Chat", "Bottle", "Gossip"] },
+                { t: "Headset", f: ["Ears", "Listen", "Microphone", "Call"] },
+                { t: "Whiteboard", f: ["Write", "Marker", "Wall", "Draw"] },
+                { t: "Mouse", f: ["Click", "Computer", "Hand", "Scroll"] }
+            ],
+            social: [
+                { t: "Weekend", f: ["Saturday", "Sunday", "Work", "Relax"] },
+                { t: "Holiday", f: ["Vacation", "Travel", "Trip", "Work"] },
+                { t: "Coffee", f: ["Drink", "Morning", "Cup", "Tea"] },
+                { t: "Lunch", f: ["Eat", "Food", "Break", "Midday"] },
+                { t: "Hobby", f: ["Like", "Do", "Free time", "Fun"] },
+                { t: "Commute", f: ["Travel", "Work", "Train", "Bus"] },
+                { t: "Pub", f: ["Drink", "Bar", "Beer", "After work"] },
+                { t: "Restaurant", f: ["Eat", "Food", "Dinner", "Menu"] }
+            ]
+        };
+
+        // --- GAME STATE ---
+        let currentCards = [];
+        let timer = 30;
+        let initialTime = 30;
+        let timerInterval;
+        let currentCardIndex = 0;
+        let isMistakesMode = false;
+        let isPaused = false;
+        
+        // Mode & Scoring
+        let gameMode = 'classic'; // '1', '2', '2t', '3t', '4t'
+        let targetScore = 10;
+        let teams = []; // Array of objects { name: "Team A", score: 0 }
+        let currentTeamIndex = 0;
+
+        // --- HANDLERS ---
+        function handleThemeChange() {
+            // Placeholder for theme logic
+        }
+        
+        function handleModeChange() {
+            const mode = document.getElementById('modeSelect').value;
+            const container = document.getElementById('team-names-container');
+            container.innerHTML = '';
+            container.style.display = 'none';
+
+            if (mode === '2t' || mode === '3t' || mode === '4t') {
+                container.style.display = 'flex';
+                const count = parseInt(mode.charAt(0));
+                for(let i=1; i<=count; i++) {
+                    const div = document.createElement('div');
+                    div.className = 'team-input-group';
+                    div.innerHTML = `
+                        <label>Team ${i} Name</label>
+                        <input type="text" id="teamName${i}" value="Team ${i}" placeholder="Name">
+                    `;
+                    container.appendChild(div);
+                }
+            }
+        }
+
+        // --- INIT ---
+        async function initGame() {
+            const theme = document.getElementById('themeSelect').value;
+            const timeSetting = document.getElementById('timeSelect').value;
+            const scoreSetting = document.getElementById('scoreLimit').value;
+            const modeSetting = document.getElementById('modeSelect').value;
+            const levelSetting = document.getElementById('levelSelect').value;
+            
+            // Set settings
+            initialTime = parseInt(timeSetting);
+            targetScore = parseInt(scoreSetting);
+            gameMode = modeSetting;
+            
+            // Setup Teams
+            teams = [];
+            if (gameMode === '1') {
+                teams.push({ name: 'Player', score: 0 });
+            } else if (gameMode === '2') {
+                teams.push({ name: 'Player 1', score: 0 });
+                teams.push({ name: 'Player 2', score: 0 });
+            } else {
+                // Team modes
+                const count = parseInt(gameMode.charAt(0));
+                for(let i=1; i<=count; i++) {
+                    const nameInput = document.getElementById(`teamName${i}`);
+                    let name = nameInput ? nameInput.value : `Team ${i}`;
+                    if(!name.trim()) name = `Team ${i}`;
+                    teams.push({ name: name, score: 0 });
+                }
+            }
+
+            // Reset state
+            timer = initialTime;
+            currentCardIndex = 0;
+            currentTeamIndex = 0;
+            isPaused = false;
+            isMistakesMode = (theme === 'mistakes');
+
+            // Configure UI based on mode
+            const classicScore = document.getElementById('classic-score');
+            const teamScores = document.getElementById('team-scores');
+            const turnIndicator = document.getElementById('turn-indicator');
+
+            if (gameMode === '1') {
+                classicScore.style.display = 'inline';
+                teamScores.style.display = 'none';
+                turnIndicator.style.display = 'none';
+            } else {
+                classicScore.style.display = 'none';
+                teamScores.style.display = 'inline';
+                turnIndicator.style.display = 'block';
+                updateTeamScoresUI();
+            }
+            
+            document.getElementById('targetScoreDisplay').textContent = targetScore;
+            document.getElementById('scoreDisplay').textContent = '0';
+
+            // Load Cards
+            if (isMistakesMode) {
+                document.getElementById('loading-overlay').style.display = 'flex';
+                const { data: { user } } = await supabase.auth.getUser();
+                
+                if (!user) {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    alert("🔒 You need to log in to play with your mistakes!");
+                    return;
+                }
+
+                const { data: mistakes, error } = await supabase
+                    .from('user_mistakes')
+                    .select('word, definition')
+                    .eq('user_id', user.id);
+
+                document.getElementById('loading-overlay').style.display = 'none';
+
+                if (error || !mistakes || mistakes.length < 3) {
+                    alert("⚠️ You don't have enough mistakes recorded yet! You need at least 3 to play. Go do some lessons first! 😉");
+                    return;
+                }
+
+                currentCards = mistakes.map(m => {
+                    const defWords = m.definition
+                        .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") 
+                        .split(/\s+/)
+                        .filter(w => w.length > 3) 
+                        .slice(0, 4); 
+                    
+                    return { t: m.word, f: defWords.length > 0 ? defWords : ["Definition", "Meaning"] };
+                });
+                currentCards.sort(() => 0.5 - Math.random());
+
+            } else {
+                currentCards = [...cardsDB[theme]];
+                // Simple level filtering logic: 
+                // Beginner = Show 2 forbidden words
+                // Intermediate = Show 3 forbidden words
+                // Advanced = Show 4 forbidden words
+                if (levelSetting === 'beginner') {
+                    currentCards.forEach(c => c.f = c.f.slice(0, 2));
+                } else if (levelSetting === 'intermediate') {
+                    currentCards.forEach(c => c.f = c.f.slice(0, 3));
+                }
+
+                // Duplicate array to ensure enough cards for high scores
+                while (currentCards.length < targetScore + 20) {
+                    currentCards = currentCards.concat(cardsDB[theme]);
+                }
+                currentCards.sort(() => 0.5 - Math.random());
+            }
+
+            document.getElementById('setup-panel').style.display = 'none';
+            document.getElementById('game-area').style.display = 'block';
+            
+            updateHUD();
+            showCard();
+            startTimer();
+        }
+
+        function updateTeamScoresUI() {
+            const container = document.getElementById('team-scores');
+            container.innerHTML = '';
+            teams.forEach((team, index) => {
+                const span = document.createElement('span');
+                span.textContent = `${team.name}: ${team.score}`;
+                span.style.marginRight = '10px';
+                if (index === currentTeamIndex) {
+                    span.classList.add('active-team');
+                }
+                container.appendChild(span);
+            });
+            
+            const indicator = document.getElementById('turn-indicator');
+            indicator.textContent = `It's ${teams[currentTeamIndex].name}'s Turn!`;
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if(!isPaused) {
+                    timer--;
+                    updateHUD();
+                    
+                    if(timer <= 10) {
+                        document.getElementById('timerDisplay').classList.add('timer-urgent');
+                    } else {
+                        document.getElementById('timerDisplay').classList.remove('timer-urgent');
+                    }
+
+                    if (timer <= 0) {
+                        handleTimeUp();
+                    }
+                }
+            }, 1000);
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            const btn = document.getElementById('pauseBtn');
+            if(isPaused) {
+                btn.textContent = '▶️';
+                document.getElementById('cardDisplay').style.opacity = '0.1'; // Hide card to prevent cheating
+            } else {
+                btn.textContent = '⏸️';
+                document.getElementById('cardDisplay').style.opacity = '1';
+            }
+        }
+
+        function handleTimeUp() {
+            if (gameMode !== '1') {
+                // Switch teams logic
+                alert(`Time's up for ${teams[currentTeamIndex].name}! Passing to next team.`);
+                
+                // Switch Team Index
+                currentTeamIndex = (currentTeamIndex + 1) % teams.length;
+                updateTeamScoresUI();
+                
+                // Reset Timer and Card
+                timer = initialTime;
+                currentCardIndex++; 
+                showCard(); 
+                // Timer continues (or restarts)
+            } else {
+                // Single Player Time up = Game Over
+                clearInterval(timerInterval);
+                
+                // Update modal elements
+                document.querySelector('.win-title').textContent = "Time's Up!";
+                document.getElementById('win-message').textContent = `You scored ${teams[0].score} points!`;
+                
+                showWinModal();
+            }
+        }
+
+        function updateHUD() {
+            if(gameMode === '1') {
+                document.getElementById('scoreDisplay').textContent = teams[0].score;
+            } else {
+                updateTeamScoresUI(); // Refresh highlights
+            }
+            document.getElementById('timerDisplay').textContent = timer;
+        }
+
+        function showCard() {
+            if (currentCardIndex >= currentCards.length) {
+                // Reshuffle if run out
+                currentCards.sort(() => 0.5 - Math.random());
+                currentCardIndex = 0;
+            }
+
+            const card = currentCards[currentCardIndex];
+            const cardDiv = document.getElementById('cardDisplay');
+            
+            let forbiddenHTML = card.f.map(word => `<li class="forbidden-item">${word}</li>`).join('');
+            
+            cardDiv.innerHTML = `
+                <div class="card-header">
+                    <h2 class="target-word">${card.t}</h2>
+                </div>
+                <span class="forbidden-label">FORBIDDEN WORDS:</span>
+                <ul class="forbidden-list">
+                    ${forbiddenHTML}
+                </ul>
+            `;
+        }
+
+        function skipCard() {
+            if(isPaused) return;
+            
+            // Penalty logic (Optional: usually Taboo skips don't lose points, just lose time)
+            // But user requested -1 point in previous turn, keeping it logic
+            teams[currentTeamIndex].score = Math.max(0, teams[currentTeamIndex].score - 1);
+            
+            updateHUD();
+            currentCardIndex++;
+            showCard();
+        }
+
+        function successCard() {
+            if(isPaused) return;
+
+            teams[currentTeamIndex].score++;
+            
+            // Win Condition Check
+            if (teams[currentTeamIndex].score >= targetScore) {
+                triggerWin(teams[currentTeamIndex].name);
+                return;
+            }
+            
+            updateHUD();
+            currentCardIndex++;
+            showCard();
+        }
+
+        // --- WIN LOGIC ---
+        const emojis = ['🐹', '👑', '🚌', '🧩', '😎', '🚀', '🎉', '🚫'];
+        let confettiInterval;
+
+        function triggerWin(winnerName) {
+            clearInterval(timerInterval);
+            
+            let title = "🎉 Game Over!";
+            let msg = "";
+            
+            if (gameMode === '1') {
+                title = "🎉 Target Reached!";
+                msg = `You reached ${targetScore} points!`;
+            } else {
+                title = `🎉 ${winnerName} Wins!`;
+                // Construct score string
+                let scoreStr = teams.map(t => `${t.name}: ${t.score}`).join(' | ');
+                msg = `Final Scores: ${scoreStr}`;
+            }
+
+            // Update modal elements
+            document.querySelector('.win-title').textContent = title;
+            document.getElementById('win-message').textContent = msg;
+            
+            showWinModal();
+        }
+        
+        function showWinModal() {
+            document.getElementById('confettiContainer').style.display = 'block';
+            
+            confettiInterval = setInterval(() => {
+                const piece = document.createElement('div');
+                piece.classList.add('confetti-piece');
+                piece.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                piece.style.left = Math.random() * 100 + 'vw';
+                piece.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                document.getElementById('confettiContainer').appendChild(piece);
+                setTimeout(() => piece.remove(), 5000);
+            }, 150);
+
+            setTimeout(() => {
+                document.getElementById('win-modal').style.display = 'flex';
+            }, 500);
+        }
+
+        function closeModalAndRestart() {
+            document.getElementById('win-modal').style.display = 'none';
+            document.getElementById('confettiContainer').style.display = 'none';
+            document.getElementById('timerDisplay').classList.remove('timer-urgent');
+            clearInterval(confettiInterval);
+            initGame(); // Restart with same settings
+        }
+
+        function closeModalAndNewTheme() {
+            document.getElementById('win-modal').style.display = 'none';
+            document.getElementById('confettiContainer').style.display = 'none';
+            document.getElementById('timerDisplay').classList.remove('timer-urgent');
+            clearInterval(confettiInterval);
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('setup-panel').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
