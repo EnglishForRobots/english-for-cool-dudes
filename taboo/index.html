@@ -184,16 +184,30 @@
         .btn-skip { background: #ED8936; box-shadow: 0 4px 10px rgba(237, 137, 54, 0.3); }
         .btn-success { background: #48BB78; box-shadow: 0 4px 10px rgba(72, 187, 120, 0.3); }
         
-        /* Pause Button inside controls */
+        /* Pause/Start Button Styling */
         .btn-pause { 
             background: #FFFFFF; 
             color: #4A5568; 
             border: 2px solid #CBD5E0; 
             box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-            min-width: 60px;
+            min-width: 100px; /* Slightly wider for text */
             padding: 15px 20px;
         }
         .btn-pause:hover { border-color: #667EEA; color: #667EEA; }
+        
+        /* Initial Start Pulse Animation */
+        .btn-start-pulse {
+            animation: attentionPulse 2s infinite;
+            border-color: #667EEA;
+            color: #667EEA;
+            background: #EEF2FF;
+        }
+        
+        @keyframes attentionPulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(102, 126, 234, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(102, 126, 234, 0); }
+        }
 
         /* Timer and Score */
         .hud {
@@ -303,11 +317,15 @@
         <div class="controls" id="setup-panel">
             <div class="control-group">
                 <label for="themeSelect">Choose Topic</label>
-                <select id="themeSelect" onchange="handleThemeChange()">
+                <select id="themeSelect">
+                    <option value="random">🔀 Random Mix</option>
                     <option value="business">Business General</option>
                     <option value="meetings">Meetings</option>
                     <option value="office">Office Objects</option>
                     <option value="social">Socializing</option>
+                    <option value="holidays">Holidays & Travel</option>
+                    <option value="food">Food & Drink</option>
+                    <option value="opinions">Giving Opinions</option>
                     <option value="mistakes" style="font-weight:bold; color:#E53E3E;">🚨 My Personal Mistakes</option>
                 </select>
             </div>
@@ -322,7 +340,7 @@
                     <option value="4t">4 Teams</option>
                 </select>
             </div>
-
+            
             <div class="control-group">
                 <label for="levelSelect">Level</label>
                 <select id="levelSelect">
@@ -357,7 +375,7 @@
                 <!-- Javascript will inject inputs here -->
             </div>
             
-            <button class="btn" onclick="initGame()">Start Game</button>
+            <button class="btn" onclick="initGame()">Ready to Play!</button>
         </div>
 
         <div id="game-area">
@@ -380,12 +398,12 @@
             </div>
 
             <div class="game-controls">
-                <button class="btn-game btn-skip" onclick="skipCard()">Skip (-1)</button>
+                <button class="btn-game btn-skip" id="skipBtn" onclick="skipCard()" disabled>Skip (-1)</button>
                 
-                <!-- Pause Button -->
-                <button class="btn-game btn-pause" onclick="togglePause()" id="pauseBtn">⏸️</button>
+                <!-- Start/Pause/Resume Button -->
+                <button class="btn-game btn-pause btn-start-pulse" id="pauseBtn" onclick="togglePause()">▶️ START</button>
                 
-                <button class="btn-game btn-success" onclick="successCard()">Got it! (+1)</button>
+                <button class="btn-game btn-success" id="successBtn" onclick="successCard()" disabled>Got it! (+1)</button>
             </div>
         </div>
         
@@ -407,12 +425,7 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // --- CARD DATABASE (Structure: level -> topic -> cards) ---
-        // To keep it simple, I'm flattening the levels into the topics for now, 
-        // but allowing the 'level' selector to filter them if I had metadata.
-        // For this implementation, I'll treat 'Beginner' as fewer forbidden words
-        // and 'Advanced' as more abstract words.
-        
+        // --- CARD DATABASE ---
         const cardsDB = {
             business: [
                 { t: "Salary", f: ["Money", "Pay", "Month", "Earn"] },
@@ -424,7 +437,9 @@
                 { t: "Budget", f: ["Money", "Plan", "Spend", "Cost"] },
                 { t: "Profit", f: ["Money", "Gain", "Loss", "Business"] },
                 { t: "Resume", f: ["CV", "Job", "Paper", "History"] },
-                { t: "Interview", f: ["Job", "Talk", "Meeting", "Question"] }
+                { t: "Interview", f: ["Job", "Talk", "Meeting", "Question"] },
+                { t: "Negotiation", f: ["Talk", "Deal", "Price", "Argue"] },
+                { t: "Contract", f: ["Paper", "Sign", "Legal", "Deal"] }
             ],
             meetings: [
                 { t: "Agenda", f: ["Plan", "List", "Topics", "Paper"] },
@@ -455,6 +470,36 @@
                 { t: "Commute", f: ["Travel", "Work", "Train", "Bus"] },
                 { t: "Pub", f: ["Drink", "Bar", "Beer", "After work"] },
                 { t: "Restaurant", f: ["Eat", "Food", "Dinner", "Menu"] }
+            ],
+            holidays: [
+                { t: "Passport", f: ["Document", "Travel", "Country", "Photo"] },
+                { t: "Suitcase", f: ["Bag", "Clothes", "Pack", "Travel"] },
+                { t: "Airport", f: ["Plane", "Fly", "Travel", "Wait"] },
+                { t: "Hotel", f: ["Sleep", "Room", "Stay", "Bed"] },
+                { t: "Beach", f: ["Sand", "Sea", "Sun", "Water"] },
+                { t: "Souvenir", f: ["Gift", "Buy", "Memory", "Shop"] },
+                { t: "Sightseeing", f: ["Look", "Tour", "Visit", "Camera"] },
+                { t: "Guidebook", f: ["Read", "Book", "Info", "Map"] }
+            ],
+            food: [
+                { t: "Menu", f: ["List", "Food", "Order", "Read"] },
+                { t: "Waiter", f: ["Man", "Serve", "Food", "Restaurant"] },
+                { t: "Bill", f: ["Pay", "Money", "Cost", "Check"] },
+                { t: "Tip", f: ["Money", "Extra", "Service", "Give"] },
+                { t: "Spicy", f: ["Hot", "Chilli", "Pepper", "Taste"] },
+                { t: "Vegetarian", f: ["Meat", "No", "Vegetable", "Eat"] },
+                { t: "Dessert", f: ["Sweet", "After", "Cake", "Ice cream"] },
+                { t: "Reservation", f: ["Book", "Table", "Call", "Time"] }
+            ],
+            opinions: [
+                { t: "Agree", f: ["Yes", "Same", "Think", "Opinion"] },
+                { t: "Disagree", f: ["No", "Different", "Wrong", "Opposite"] },
+                { t: "Believe", f: ["Think", "True", "Faith", "Mind"] },
+                { t: "Suggest", f: ["Idea", "Give", "Propose", "Say"] },
+                { t: "Prefer", f: ["Like", "Better", "Choose", "Want"] },
+                { t: "Convince", f: ["Persuade", "Change", "Mind", "Talk"] },
+                { t: "Doubt", f: ["Unsure", "Question", "Maybe", "Not"] },
+                { t: "Recommend", f: ["Good", "Tell", "Try", "Advice"] }
             ]
         };
 
@@ -465,7 +510,7 @@
         let timerInterval;
         let currentCardIndex = 0;
         let isMistakesMode = false;
-        let isPaused = false;
+        let isPaused = true; // Start paused
         
         // Mode & Scoring
         let gameMode = 'classic'; // '1', '2', '2t', '3t', '4t'
@@ -534,7 +579,7 @@
             timer = initialTime;
             currentCardIndex = 0;
             currentTeamIndex = 0;
-            isPaused = false;
+            isPaused = true; // Must start paused/ready state
             isMistakesMode = (theme === 'mistakes');
 
             // Configure UI based on mode
@@ -591,7 +636,14 @@
                 currentCards.sort(() => 0.5 - Math.random());
 
             } else {
-                currentCards = [...cardsDB[theme]];
+                if(theme === 'random') {
+                    // Combine all categories
+                    currentCards = [];
+                    Object.values(cardsDB).forEach(deck => currentCards.push(...deck));
+                } else {
+                    currentCards = [...cardsDB[theme]];
+                }
+                
                 // Simple level filtering logic: 
                 // Beginner = Show 2 forbidden words
                 // Intermediate = Show 3 forbidden words
@@ -604,7 +656,11 @@
 
                 // Duplicate array to ensure enough cards for high scores
                 while (currentCards.length < targetScore + 20) {
-                    currentCards = currentCards.concat(cardsDB[theme]);
+                    if(theme === 'random') {
+                         Object.values(cardsDB).forEach(deck => currentCards.push(...deck));
+                    } else {
+                         currentCards = currentCards.concat(cardsDB[theme]);
+                    }
                 }
                 currentCards.sort(() => 0.5 - Math.random());
             }
@@ -613,8 +669,10 @@
             document.getElementById('game-area').style.display = 'block';
             
             updateHUD();
-            showCard();
-            startTimer();
+            
+            // DO NOT start timer yet. Show mask state.
+            maskCard();
+            updatePauseButtonState();
         }
 
         function updateTeamScoresUI() {
@@ -656,13 +714,42 @@
 
         function togglePause() {
             isPaused = !isPaused;
-            const btn = document.getElementById('pauseBtn');
+            updatePauseButtonState();
+            
             if(isPaused) {
-                btn.textContent = '▶️';
-                document.getElementById('cardDisplay').style.opacity = '0.1'; // Hide card to prevent cheating
+                maskCard();
             } else {
-                btn.textContent = '⏸️';
-                document.getElementById('cardDisplay').style.opacity = '1';
+                showCard(); // Reveal
+                startTimer(); // Ensure timer is running
+            }
+        }
+        
+        function updatePauseButtonState() {
+            const btn = document.getElementById('pauseBtn');
+            const skipBtn = document.getElementById('skipBtn');
+            const successBtn = document.getElementById('successBtn');
+            
+            if (isPaused) {
+                if (timer === initialTime && currentCardIndex === 0 && (gameMode === '1' ? scores.A === 0 : teams[0].score === 0)) {
+                     btn.innerHTML = '▶️ START';
+                     btn.classList.add('btn-start-pulse');
+                } else {
+                     btn.innerHTML = '▶️ RESUME';
+                     btn.classList.remove('btn-start-pulse');
+                }
+                
+                skipBtn.disabled = true;
+                successBtn.disabled = true;
+                skipBtn.style.opacity = '0.5';
+                successBtn.style.opacity = '0.5';
+            } else {
+                btn.innerHTML = '⏸️ PAUSE';
+                btn.classList.remove('btn-start-pulse');
+                
+                skipBtn.disabled = false;
+                successBtn.disabled = false;
+                skipBtn.style.opacity = '1';
+                successBtn.style.opacity = '1';
             }
         }
 
@@ -678,8 +765,10 @@
                 // Reset Timer and Card
                 timer = initialTime;
                 currentCardIndex++; 
-                showCard(); 
-                // Timer continues (or restarts)
+                isPaused = true; // Force pause for handoff
+                maskCard();
+                updatePauseButtonState();
+                // Timer stops until resume click
             } else {
                 // Single Player Time up = Game Over
                 clearInterval(timerInterval);
@@ -699,6 +788,18 @@
                 updateTeamScoresUI(); // Refresh highlights
             }
             document.getElementById('timerDisplay').textContent = timer;
+        }
+
+        function maskCard() {
+            const cardDiv = document.getElementById('cardDisplay');
+            cardDiv.innerHTML = `
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#A0AEC0;">
+                    <span style="font-size:50px;">🙈</span>
+                    <h3>Game Paused / Ready</h3>
+                    <p>Tap Start/Resume to see card</p>
+                </div>
+            `;
+            cardDiv.style.opacity = '1';
         }
 
         function showCard() {
@@ -753,7 +854,7 @@
         }
 
         // --- WIN LOGIC ---
-        const emojis = ['🐹', '👑', '🚌', '🧩', '😎', '🚀', '🎉', '🚫'];
+        const emojis = ['🐹', '👑', '🚌', '🧩', '😎', '🚀', '🎉', '🚫', '☔', '💂'];
         let confettiInterval;
 
         function triggerWin(winnerName) {
