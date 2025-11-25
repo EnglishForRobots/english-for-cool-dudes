@@ -1833,15 +1833,22 @@
             const logoutBtn = document.getElementById('logout-btn');
             const userGreeting = document.getElementById('user-greeting');
 
-            try {
-                const { data: { user } = {} } = await supabase.auth.getUser(); // Safely destructure
+             try {
+                const { data: { user }, error } = await supabase.auth.getUser();
 
                 if (user) {
-                    const email = user.email || 'Cool Dude';
-                    const username = email.split('@')[0];
-                    if (userGreeting) userGreeting.textContent = `Hey ${username}! 👋`;
-                    if (loggedOutButtons) loggedOutButtons.style.display = 'none';
+                    console.log('User logged in:', user.email);
+                    
+                    let userName = 'Cool Dude';
+                    if (user.user_metadata && user.user_metadata.full_name) {
+                        userName = user.user_metadata.full_name.split(' ')[0];
+                    } else if (user.email) {
+                        userName = user.email.split('@')[0];
+                    }
+                    
+                    if (userGreeting) userGreeting.textContent = `Hey ${userName}! 👋`;
                     if (loggedInButtons) loggedInButtons.style.display = 'flex';
+                    if (loggedOutButtons) loggedOutButtons.style.display = 'none';
                 } else {
                     console.log('User not logged in');
                     if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
