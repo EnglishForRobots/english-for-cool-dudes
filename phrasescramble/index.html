@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phrase Scramble - English For Cool Dudes</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background: #F8F9FB; 
+            color: #2C3E50; 
+            margin: 0; 
+            overflow-x: hidden; 
+        }
+        .container { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            text-align: center; 
+            min-height: 80vh; 
+        }
+        
+        /* Game Controls */
+        .controls {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #E5E9F2;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+        }
+        
+        label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        select {
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 2px solid #E2E8F0;
+            font-size: 15px;
+            background: #FFFFFF;
+            color: #2C3E50;
+            cursor: pointer;
+            min-width: 200px;
+            transition: border-color 0.2s;
+        }
+        select:hover, select:focus {
+            border-color: #667EEA;
+            outline: none;
+        }
+
+        .btn { 
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%); 
+            color: white; 
+            padding: 12px 30px; 
+            border-radius: 8px; 
+            text-decoration: none; 
+            border: none; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-weight: 700;
+            transition: transform 0.2s, box-shadow 0.2s;
+            height: 46px;
+            margin-top: 19px;
+        }
+        .btn:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); 
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-check { background: #10B981; margin-top: 0; }
+        .btn-hint { background: #ED8936; margin-top: 0; }
+
+        /* Game Area */
+        #game-area {
+            display: none; 
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .scramble-box {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            border: 2px solid #E2E8F0;
+            margin-bottom: 20px;
+            min-height: 150px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .word-tile {
+            background: #EEF2FF;
+            border: 2px solid #667EEA;
+            color: #2C3E50;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: grab;
+            user-select: none;
+            transition: transform 0.2s, background-color 0.2s;
+            font-size: 18px;
+        }
+        .word-tile:hover { transform: translateY(-2px); }
+        .word-tile:active { cursor: grabbing; }
+        .word-tile.placed { background: #C6F6D5; border-color: #48BB78; }
+
+        /* Drop Zone */
+        .drop-zone {
+            background: #F7FAFC;
+            border: 3px dashed #CBD5E0;
+            border-radius: 12px;
+            min-height: 80px;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .drop-zone.highlight { border-color: #667EEA; background: #EEF2FF; }
+
+        /* Progress & Score */
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #4A5568;
+            background: #EDF2F7;
+            padding: 10px 20px;
+            border-radius: 50px;
+        }
+        
+        /* Hint Text Display */
+        #hint-text {
+            margin-bottom: 15px;
+            font-style: italic;
+            color: #718096;
+            font-size: 14px;
+            min-height: 20px;
+        }
+
+        /* Header/Footer match */
+        .header { background: #FFFFFF; border-bottom: 1px solid #E2E8F0; padding: 20px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.04); margin-bottom: 20px; }
+        .header-content { max-width: 1000px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; gap: 15px; }
+        .logo { width: 36px; height: 36px; background: linear-gradient(135deg, #0EA5E9 0%, #8B5CF6 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .site-title { font-size: 20px; font-weight: 600; color: #0F172A; letter-spacing: -0.02em; text-decoration: none; }
+        footer { background: #FFFFFF; border-top: 1px solid #E5E9F2; padding: 32px 20px; margin-top: 60px; text-align: center; }
+        footer p { font-size: 14px; color: #718096; }
+        footer a { color: #8B5CF6; margin: 0 10px; text-decoration: none; }
+
+        /* Win Modal */
+        #win-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 6000; }
+        .win-content { background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 500px; width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: pop 0.4s ease-out; }
+        .win-title { font-size: 32px; font-weight: 800; color: #8B5CF6; margin-bottom: 10px; }
+        .win-text { font-size: 18px; color: #4A5568; margin-bottom: 30px; }
+        .win-buttons { display: flex; flex-direction: column; gap: 10px; }
+        .win-btn { padding: 12px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; font-size: 16px; transition: transform 0.2s; }
+        .btn-primary { background: #10B981; color: white; }
+        .btn-secondary { background: #EDF2F7; color: #4A5568; }
+        .win-btn:hover { transform: scale(1.02); }
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        /* Confetti */
+        .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5000; overflow: hidden; display: none; }
+        .confetti-piece { position: absolute; top: -50px; font-size: 2rem; animation: fall linear forwards; }
+        @keyframes fall { 0% { transform: translateY(-50px) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
+        
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed; top:0; left:0; right:0; bottom:0;
+            background: rgba(255,255,255,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            font-weight: bold;
+            color: #667EEA;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left" style="display: flex; align-items: center; gap: 15px;">
+                <span class="logo">🧩</span>
+                <a href="/games/" class="site-title">English For Cool Dudes</a>
+            </div>
+        </div>
+    </header>
+
+    <div id="confettiContainer" class="confetti-container"></div>
+    <div id="loading-overlay">Loading your personalized game...</div>
+
+    <!-- Win Modal -->
+    <div id="win-modal">
+        <div class="win-content">
+            <div class="win-title">🎉 Fantastic!</div>
+            <div class="win-text" id="win-message">You unscrambled all phrases!</div>
+            <div class="win-buttons">
+                <button class="win-btn btn-primary" onclick="closeModalAndRestart()">🔄 Play Again</button>
+                <button class="win-btn btn-secondary" onclick="closeModalAndNewTheme()">🎨 Try Another Theme</button>
+                <button class="win-btn btn-secondary" onclick="closeModalAndNewLevel()">📈 Try Another Level</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1 style="color:#1A202C; margin-bottom:10px;">🧩 Phrase Scramble</h1>
+        <p style="color:#718096; margin-bottom:20px;">Drag and drop the words to build the correct sentence!</p>
+        
+        <div class="controls" id="setup-panel">
+            <div class="control-group">
+                <label for="themeSelect">Choose Topic</label>
+                <select id="themeSelect" onchange="handleThemeChange()">
+                    <option value="business">Business Email</option>
+                    <option value="meetings">Meetings & Calls</option>
+                    <option value="social">Small Talk</option>
+                    <option value="negotiation">Negotiation</option>
+                    <option value="holidays">Holidays & Travel</option>
+                    <option value="food">Ordering Food</option>
+                    <option value="arguing">Arguing & Conflict</option>
+                    <option value="opinions">Giving Opinions</option>
+                    <option value="mistakes" style="font-weight:bold; color:#E53E3E;">🚨 My Personal Mistakes</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="levelSelect">Choose Level</label>
+                <select id="levelSelect">
+                    <option value="beginner">Beginner (A1-A2)</option>
+                    <option value="intermediate">Intermediate (B1-B2)</option>
+                    <option value="advanced">Advanced (C1-C2)</option>
+                </select>
+            </div>
+            
+            <button class="btn" id="startBtn" onclick="initGame()">Start Game</button>
+        </div>
+
+        <div id="game-area">
+            <div class="stats-bar">
+                <span>Round: <span id="currentRound">1</span>/<span id="totalRounds">5</span></span>
+                <span>Score: <span id="score">0</span></span>
+            </div>
+            
+            <!-- Context/Hint area mainly for Mistakes mode -->
+            <div id="hint-text"></div>
+
+            <div class="drop-zone" id="dropZone">
+                <!-- Words dropped here -->
+                <span style="color:#CBD5E0; font-weight:600; pointer-events:none;">Drop words here...</span>
+            </div>
+
+            <div class="scramble-box" id="sourceBox">
+                <!-- Draggable words go here -->
+            </div>
+
+            <div style="display:flex; gap:10px; justify-content:center;">
+                <button class="btn btn-hint" onclick="showHint()">💡 Hint</button>
+                <button class="btn btn-check" onclick="checkAnswer()">✅ Check Answer</button>
+            </div>
+        </div>
+        
+        <br><br>
+        <a href="/games/" style="color: #8B5CF6; text-decoration: none; font-weight:600;">&larr; Back to Break Room ☕</a>
+    </div>
+
+    <footer>
+        <p>© 2025 English For Cool Dudes - 😎</p>
+        <div style="margin-top: 10px;">
+            <a href="/impressum/">Impressum</a>
+            <a href="/datenschutz/">Datenschutzerklärung</a>
+        </div>
+    </footer>
+
+    <script>
+        // --- SUPABASE CONFIG ---
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // --- PHRASE DATABASE ---
+        const phrases = {
+            business: {
+                beginner: [
+                    "Please send me the file.",
+                    "I look forward to hearing from you.",
+                    "Thank you for your email.",
+                    "Can we meet on Monday?",
+                    "See you next week."
+                ],
+                intermediate: [
+                    "Could you please clarify this point?",
+                    "I apologize for the late reply.",
+                    "Please find the attached document.",
+                    "Let me know if you have questions.",
+                    "We should reschedule our meeting."
+                ],
+                advanced: [
+                    "We anticipate a significant increase in revenue.",
+                    "Please ensure all stakeholders are informed.",
+                    "This proposal aligns with our strategic goals.",
+                    "I would appreciate your prompt attention to this.",
+                    "Let's circle back to this issue later."
+                ]
+            },
+            meetings: {
+                beginner: [
+                    "Nice to meet you.",
+                    "Can you hear me?",
+                    "Let's start the meeting.",
+                    "Who is taking notes?",
+                    "Do you agree?"
+                ],
+                intermediate: [
+                    "Shall we get down to business?",
+                    "I'd like to add something here.",
+                    "Does anyone have any questions?",
+                    "Let's wrap this up for today.",
+                    "Could you speak up a little?"
+                ],
+                advanced: [
+                    "Let's not get bogged down in details.",
+                    "I want to play devil's advocate here.",
+                    "We need to think outside the box.",
+                    "Let's touch base again next week.",
+                    "The consensus is to move forward."
+                ]
+            },
+            social: {
+                beginner: [
+                    "How was your weekend?",
+                    "What do you do?",
+                    "The weather is nice today.",
+                    "Do you like coffee?",
+                    "Where are you from?"
+                ],
+                intermediate: [
+                    "Have you been here before?",
+                    "It's been ages since we met.",
+                    "What have you been up to?",
+                    "I heard you got promoted.",
+                    "How is your project going?"
+                ],
+                advanced: [
+                    "It's a pleasure to finally meet you in person.",
+                    "I was wondering if you could help me.",
+                    "What's your take on the new policy?",
+                    "Fancy grabbing a bite to eat?",
+                    "I've heard great things about your work."
+                ]
+            },
+            negotiation: {
+                beginner: [
+                    "That is too expensive.",
+                    "Can you give a discount?",
+                    "We accept your offer.",
+                    "I need time to think.",
+                    "Let's make a deal."
+                ],
+                intermediate: [
+                    "We are looking for a better price.",
+                    "That sounds like a fair compromise.",
+                    "I'm afraid we can't agree to that.",
+                    "Let's meet halfway on this.",
+                    "What is your bottom line?"
+                ],
+                advanced: [
+                    "We need to leverage our position.",
+                    "This is a non-negotiable term for us.",
+                    "Let's try to find common ground.",
+                    "We are prepared to walk away.",
+                    "This offer is contingent on approval."
+                ]
+            },
+            holidays: {
+                beginner: [
+                    "I want to book a room.",
+                    "Where is the beach?",
+                    "How much is the ticket?",
+                    "I need a taxi please.",
+                    "The food was delicious."
+                ],
+                intermediate: [
+                    "I would like to make a reservation.",
+                    "Could I have a window seat please?",
+                    "What time do we have to check out?",
+                    "Is breakfast included in the price?",
+                    "We had a delay at the airport."
+                ],
+                advanced: [
+                    "We thoroughly enjoyed the local cuisine.",
+                    "The accommodation exceeded our expectations.",
+                    "We embarked on a guided excursion.",
+                    "My itinerary is quite flexible today.",
+                    "I experienced severe jet lag yesterday."
+                ]
+            },
+            food: {
+                beginner: [
+                    "I would like a menu.",
+                    "Can I have the bill?",
+                    "I am allergic to nuts.",
+                    "Water with no ice please.",
+                    "This soup is very hot."
+                ],
+                intermediate: [
+                    "Could we see the wine list?",
+                    "I think I will have the steak.",
+                    "Is there a service charge included?",
+                    "Could you recommend a local dish?",
+                    "I'd like my steak medium rare."
+                ],
+                advanced: [
+                    "The tasting menu looks exquisite.",
+                    "I found the texture slightly rubbery.",
+                    "Does this dish contain any gluten?",
+                    "We would like to split the bill.",
+                    "The ambiance here is delightful."
+                ]
+            },
+            arguing: {
+                beginner: [
+                    "I do not agree.",
+                    "You are wrong.",
+                    "Please listen to me.",
+                    "That is not fair.",
+                    "I am not happy."
+                ],
+                intermediate: [
+                    "I see your point but I disagree.",
+                    "That is not exactly what I meant.",
+                    "We are going around in circles.",
+                    "Let's agree to disagree.",
+                    "You are missing the point."
+                ],
+                advanced: [
+                    "I take issue with that statement.",
+                    "With all due respect, you are mistaken.",
+                    "That argument is fundamentally flawed.",
+                    "Let's not jump to conclusions.",
+                    "We need to find a middle ground."
+                ]
+            },
+            opinions: {
+                beginner: [
+                    "I think it is good.",
+                    "In my opinion it is bad.",
+                    "I like this idea.",
+                    "I do not like it.",
+                    "Maybe you are right."
+                ],
+                intermediate: [
+                    "Personally I feel that it works.",
+                    "From my point of view it is risky.",
+                    "As far as I am concerned.",
+                    "I am convinced that this is best.",
+                    "I tend to think that you are right."
+                ],
+                advanced: [
+                    "It is my firm belief that we should proceed.",
+                    "I would argue that the opposite is true.",
+                    "To play devil's advocate for a moment.",
+                    "I am inclined to agree with you.",
+                    "My impression is that we need more time."
+                ]
+            }
+        };
+
+        // --- GAME STATE ---
+        let currentPhrases = [];
+        let currentRound = 0;
+        let score = 0;
+        let currentTargetPhrase = "";
+        let draggedItem = null;
+        let isMistakesMode = false;
+
+        // --- UI HANDLERS ---
+        function handleThemeChange() {
+            const theme = document.getElementById('themeSelect').value;
+            const levelSelect = document.getElementById('levelSelect');
+            
+            if (theme === 'mistakes') {
+                levelSelect.disabled = true;
+                levelSelect.innerHTML = '<option>Personalized</option>';
+            } else {
+                levelSelect.disabled = false;
+                levelSelect.innerHTML = `
+                    <option value="beginner">Beginner (A1-A2)</option>
+                    <option value="intermediate">Intermediate (B1-B2)</option>
+                    <option value="advanced">Advanced (C1-C2)</option>
+                `;
+            }
+        }
+
+        function closeModalAndNewLevel() {
+            document.getElementById('win-modal').style.display = 'none';
+            document.getElementById('confettiContainer').style.display = 'none';
+            clearInterval(confettiInterval);
+            
+            // Focus level selector if applicable
+            const levelSelect = document.getElementById('levelSelect');
+            if (!levelSelect.disabled) {
+                levelSelect.focus();
+            } else {
+                document.getElementById('themeSelect').focus();
+            }
+            
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('setup-panel').style.display = 'flex';
+        }
+
+        // --- INIT ---
+        async function initGame() {
+            const theme = document.getElementById('themeSelect').value;
+            const level = document.getElementById('levelSelect').value;
+            
+            isMistakesMode = (theme === 'mistakes');
+            document.getElementById('hint-text').textContent = ""; // Clear hint area
+
+            if (isMistakesMode) {
+                document.getElementById('loading-overlay').style.display = 'flex';
+                const { data: { user } } = await supabase.auth.getUser();
+                
+                if (!user) {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    alert("🔒 You need to log in to play with your mistakes!");
+                    window.location.href = '/login/'; 
+                    return;
+                }
+
+                const { data: mistakes, error } = await supabase
+                    .from('user_mistakes')
+                    .select('word, definition')
+                    .eq('user_id', user.id);
+
+                document.getElementById('loading-overlay').style.display = 'none';
+
+                if (error || !mistakes || mistakes.length < 3) {
+                    alert("⚠️ You don't have enough mistakes recorded yet! You need at least 3 to play. Go do some lessons first! 😉");
+                    return;
+                }
+
+                // Create sentences from mistakes: "The definition of [WORD] is [DEF]"
+                // Challenge: Scramble the definition. 
+                // Hint: "Define: [WORD]"
+                
+                // We will structure 'currentPhrases' differently for mistakes mode
+                // It will store objects: { phrase: "Definition Text", hint: "Define: Word" }
+                currentPhrases = mistakes.map(m => ({
+                    phrase: m.definition, // The text to scramble
+                    hint: `Define: ${m.word}` // Context
+                })).sort(() => 0.5 - Math.random()).slice(0, 5);
+
+            } else {
+                // Standard Mode
+                let allPhrases = phrases[theme][level];
+                // Standard phrases are just strings
+                currentPhrases = [...allPhrases].sort(() => 0.5 - Math.random()).slice(0, 5);
+            }
+            
+            currentRound = 0;
+            score = 0;
+            
+            document.getElementById('setup-panel').style.display = 'none';
+            document.getElementById('game-area').style.display = 'block';
+            document.getElementById('totalRounds').textContent = currentPhrases.length;
+            
+            loadRound();
+        }
+
+        function loadRound() {
+            if (currentRound >= currentPhrases.length) {
+                triggerWin();
+                return;
+            }
+
+            document.getElementById('currentRound').textContent = currentRound + 1;
+            document.getElementById('score').textContent = score;
+            
+            // Handle data structure difference
+            if (isMistakesMode) {
+                currentTargetPhrase = currentPhrases[currentRound].phrase;
+                document.getElementById('hint-text').innerHTML = `<strong>Challenge:</strong> ${currentPhrases[currentRound].hint}`;
+            } else {
+                currentTargetPhrase = currentPhrases[currentRound];
+                document.getElementById('hint-text').textContent = ""; 
+            }
+            
+            // Cleanup phrase (remove trailing period for scramble purposes if preferred, 
+            // but here we keep punctuation to make it a grammar puzzle too)
+            
+            let words = currentTargetPhrase.split(' ');
+            let shuffledWords = [...words].sort(() => 0.5 - Math.random());
+
+            const sourceBox = document.getElementById('sourceBox');
+            const dropZone = document.getElementById('dropZone');
+            
+            sourceBox.innerHTML = '';
+            dropZone.innerHTML = '<span style="color:#CBD5E0; font-weight:600; pointer-events:none; width:100%; text-align:center;">Drop words here...</span>';
+
+            shuffledWords.forEach((word, index) => {
+                const tile = document.createElement('div');
+                tile.classList.add('word-tile');
+                tile.textContent = word;
+                tile.draggable = true;
+                tile.id = `word-${index}`;
+                
+                // Drag Events
+                tile.addEventListener('dragstart', handleDragStart);
+                tile.addEventListener('dragend', handleDragEnd);
+                // Touch Events for Mobile
+                tile.addEventListener('touchstart', handleTouchStart, {passive: false});
+                tile.addEventListener('touchmove', handleTouchMove, {passive: false});
+                tile.addEventListener('touchend', handleTouchEnd);
+                
+                // Click to move logic
+                tile.addEventListener('click', () => moveTile(tile));
+
+                sourceBox.appendChild(tile);
+            });
+
+            setupDropZone();
+        }
+
+        // --- DRAG & DROP LOGIC ---
+        function handleDragStart(e) {
+            draggedItem = this;
+            setTimeout(() => this.style.opacity = '0.5', 0);
+        }
+
+        function handleDragEnd() {
+            this.style.opacity = '1';
+            draggedItem = null;
+            checkPlaceholder();
+        }
+
+        function setupDropZone() {
+            const dz = document.getElementById('dropZone');
+            const sb = document.getElementById('sourceBox');
+
+            [dz, sb].forEach(zone => {
+                zone.addEventListener('dragover', e => {
+                    e.preventDefault(); // Allow drop
+                    zone.classList.add('highlight');
+                });
+                zone.addEventListener('dragleave', () => zone.classList.remove('highlight'));
+                zone.addEventListener('drop', e => {
+                    e.preventDefault();
+                    zone.classList.remove('highlight');
+                    if (draggedItem) {
+                        zone.appendChild(draggedItem);
+                        checkPlaceholder();
+                    }
+                });
+            });
+        }
+
+        // --- TOUCH SUPPORT ---
+        function handleTouchStart(e) {}
+        function handleTouchMove(e) { e.preventDefault(); } 
+        function handleTouchEnd(e) {} 
+
+        // --- CLICK TO MOVE ---
+        function moveTile(tile) {
+            const parent = tile.parentElement;
+            const dropZone = document.getElementById('dropZone');
+            const sourceBox = document.getElementById('sourceBox');
+            
+            const placeholder = dropZone.querySelector('span');
+            
+            if (parent === sourceBox) {
+                if(placeholder) placeholder.remove();
+                dropZone.appendChild(tile);
+            } else {
+                sourceBox.appendChild(tile);
+                checkPlaceholder();
+            }
+        }
+
+        function checkPlaceholder() {
+            const dz = document.getElementById('dropZone');
+            const hasTiles = dz.querySelector('.word-tile');
+            const hasPlaceholder = dz.querySelector('span');
+            
+            if (!hasTiles && !hasPlaceholder) {
+                dz.innerHTML = '<span style="color:#CBD5E0; font-weight:600; pointer-events:none; width:100%; text-align:center;">Drop words here...</span>';
+            } else if (hasTiles && hasPlaceholder) {
+                hasPlaceholder.remove();
+            }
+        }
+
+        // --- GAMEPLAY LOGIC ---
+        function checkAnswer() {
+            const dropZone = document.getElementById('dropZone');
+            const tiles = dropZone.querySelectorAll('.word-tile');
+            let userSentence = Array.from(tiles).map(t => t.textContent).join(' ');
+            
+            // Case insensitive check can be nicer, but for sentence building exact match is usually preferred
+            if (userSentence === currentTargetPhrase) {
+                // Correct
+                tiles.forEach(t => t.classList.add('placed'));
+                score += 10;
+                document.getElementById('score').textContent = score;
+                
+                dropZone.style.borderColor = '#48BB78';
+                dropZone.style.backgroundColor = '#F0FFF4';
+                
+                setTimeout(() => {
+                    currentRound++;
+                    dropZone.style.borderColor = '#CBD5E0';
+                    dropZone.style.backgroundColor = '#F7FAFC';
+                    loadRound();
+                }, 1000);
+            } else {
+                // Incorrect
+                dropZone.style.borderColor = '#F56565';
+                dropZone.style.backgroundColor = '#FFF5F5';
+                setTimeout(() => {
+                    dropZone.style.borderColor = '#CBD5E0';
+                    dropZone.style.backgroundColor = '#F7FAFC';
+                }, 800);
+            }
+        }
+
+        function showHint() {
+            // Show first two words
+            let firstTwo = currentTargetPhrase.split(' ').slice(0, 2).join(' ');
+            alert(`Hint: The sentence starts with...\n"${firstTwo}..."`);
+            score -= 2; 
+            document.getElementById('score').textContent = score;
+        }
+
+        // --- WIN LOGIC ---
+        const emojis = ['🐹', '👑', '🚌', '🧩', '😎', '🚀', '🎉'];
+        let confettiInterval;
+
+        function triggerWin() {
+            document.getElementById('win-message').textContent = `You completed the set with a score of ${score}!`;
+            document.getElementById('confettiContainer').style.display = 'block';
+            
+            confettiInterval = setInterval(() => {
+                const piece = document.createElement('div');
+                piece.classList.add('confetti-piece');
+                piece.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                piece.style.left = Math.random() * 100 + 'vw';
+                piece.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                document.getElementById('confettiContainer').appendChild(piece);
+                setTimeout(() => piece.remove(), 5000);
+            }, 150);
+
+            setTimeout(() => {
+                document.getElementById('win-modal').style.display = 'flex';
+            }, 500);
+        }
+
+        function closeModalAndRestart() {
+            document.getElementById('win-modal').style.display = 'none';
+            document.getElementById('confettiContainer').style.display = 'none';
+            clearInterval(confettiInterval);
+            initGame();
+        }
+
+        function closeModalAndNewTheme() {
+            document.getElementById('win-modal').style.display = 'none';
+            document.getElementById('confettiContainer').style.display = 'none';
+            clearInterval(confettiInterval);
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('setup-panel').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
