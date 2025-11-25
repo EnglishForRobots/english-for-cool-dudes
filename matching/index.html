@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocabulary Match - English For Cool Dudes</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* --- COOL DUDES BRANDING --- */
+        :root {
+            --color-primary: #0EA5E9; /* Sky Blue */
+            --color-secondary: #8B5CF6; /* Violet */
+            --color-accent: #F472B6; /* Pink */
+            --color-background: #F0F9FF; /* Very Light Blue */
+            --color-text: #0F172A; /* Dark Slate */
+            --color-correct: #10B981;
+            --color-incorrect: #EF4444;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background: var(--color-background); 
+            color: var(--color-text); 
+            margin: 0; 
+            overflow-x: hidden; /* Prevent horizontal scroll from confetti */
+        }
+
+        /* Header Styles (Consistent with other pages) */
+        .header {
+            background: #FFFFFF;
+            border-bottom: 1px solid #E2E8F0;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            margin-bottom: 20px;
+        }
+
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .site-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--color-text);
+            letter-spacing: -0.02em;
+            text-decoration: none;
+        }
+
+        .container { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            text-align: center; 
+            min-height: 80vh; 
+        }
+        
+        /* Game Controls */
+        .controls {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #E5E9F2;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+        }
+        
+        label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        select {
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 2px solid #E2E8F0;
+            font-size: 15px;
+            background: #FFFFFF;
+            color: #2C3E50;
+            cursor: pointer;
+            min-width: 200px;
+            transition: border-color 0.2s;
+        }
+        select:hover, select:focus {
+            border-color: var(--color-secondary);
+            outline: none;
+        }
+
+        .btn { 
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%); 
+            color: white; 
+            padding: 12px 30px; 
+            border-radius: 8px; 
+            text-decoration: none; 
+            border: none; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-weight: 700;
+            transition: transform 0.2s, box-shadow 0.2s;
+            height: 46px;
+            margin-top: 19px; /* Align with inputs */
+        }
+        .btn:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); 
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Score Board */
+        .score-board { 
+            font-size: 18px; 
+            margin-bottom: 20px; 
+            font-weight: 600; 
+            color: #4A5568; 
+            background: #EDF2F7;
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 50px;
+        }
+
+        /* Game Board */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: #FFFFFF;
+            min-height: 100px; 
+            border-radius: 12px;
+            border: 2px solid #E2E8F0;
+            border-bottom: 4px solid #E2E8F0; /* 3D feel */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #2C3E50; /* Visible by default now */
+            user-select: none;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .card:hover { 
+            transform: translateY(-2px);
+            border-color: var(--color-secondary);
+        }
+        
+        /* Selected State (Highlighted) */
+        .card.selected {
+            background: #EEF2FF;
+            border: 2px solid var(--color-secondary);
+            border-bottom: 4px solid #5A67D8;
+            color: #2C3E50;
+            transform: translateY(2px); /* Pressed effect */
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+        }
+
+        /* Matched State */
+        .card.matched {
+            background: #C6F6D5;
+            color: #22543D;
+            border: 2px solid var(--color-correct);
+            border-bottom: 4px solid #38A169;
+            cursor: default;
+            transform: none;
+            animation: pop 0.3s ease-out;
+            pointer-events: none; /* Disable clicks */
+        }
+        
+        /* Incorrect State (Temporary Flash) */
+        .card.incorrect {
+            background: #FEE2E2;
+            border-color: var(--color-incorrect);
+            border-bottom-color: #E53E3E;
+            color: #9B2C2C;
+            animation: shake 0.4s;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+        
+        /* Footer match */
+        footer { background: #FFFFFF; border-top: 1px solid #E5E9F2; padding: 32px 20px; margin-top: 60px; text-align: center; }
+        footer p { font-size: 14px; color: #718096; }
+        footer a { color: var(--color-secondary); margin: 0 10px; text-decoration: none; }
+        
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed; top:0; left:0; right:0; bottom:0;
+            background: rgba(255,255,255,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            font-weight: bold;
+            color: var(--color-secondary);
+        }
+
+        /* --- CONFETTI ANIMATION STYLES --- */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5000;
+            overflow: hidden;
+            display: none; /* Hidden by default */
+        }
+        .confetti-piece {
+            position: absolute;
+            top: -50px;
+            font-size: 2rem;
+            animation: fall linear forwards;
+        }
+        @keyframes fall {
+            0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Win Modal */
+        #win-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 6000;
+        }
+        .win-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: pop 0.4s ease-out;
+        }
+        .win-title { font-size: 32px; font-weight: 800; color: var(--color-secondary); margin-bottom: 10px; }
+        .win-text { font-size: 18px; color: #4A5568; margin-bottom: 30px; }
+        .win-buttons { display: flex; flex-direction: column; gap: 10px; }
+        .win-btn {
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+        .btn-primary { background: var(--color-correct); color: white; }
+        .btn-secondary { background: #EDF2F7; color: #4A5568; }
+        .win-btn:hover { transform: scale(1.02); }
+
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left" style="display: flex; align-items: center; gap: 15px;">
+                <span class="logo">🎮</span>
+                <a href="/games/" class="site-title">English For Cool Dudes</a>
+            </div>
+        </div>
+    </header>
+
+    <div id="loading-overlay">Loading your personalized game...</div>
+    <div id="confettiContainer" class="confetti-container"></div>
+
+    <!-- Win Modal -->
+    <div id="win-modal">
+        <div class="win-content">
+            <div class="win-title">🎉 Bloody Brilliant!</div>
+            <div class="win-text" id="win-message">You cleared the board in X moves.</div>
+            <div class="win-buttons">
+                <button class="win-btn btn-primary" onclick="closeModalAndRestart()">🔄 Play Again (Same Settings)</button>
+                <button class="win-btn btn-secondary" onclick="closeModalAndNewTheme()">🎨 Try Another Theme</button>
+                <button class="win-btn btn-secondary" onclick="closeModalAndNewLevel()">📈 Try Another Level</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1 style="color:#1A202C; margin-bottom:10px;">🔗 Vocabulary Match</h1>
+        <p style="color:#718096; margin-bottom:20px;">Connect the words with their correct definitions!</p>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="themeSelect">Choose Topic</label>
+                <select id="themeSelect" onchange="handleThemeChange()">
+                    <option value="business">Business English</option>
+                    <option value="tax">Tax & Finance</option>
+                    <option value="legal">Legal English</option>
+                    <option value="holidays">Holidays & Travel</option>
+                    <option value="work">Office Life</option>
+                    <option value="geography">Geography & Culture</option>
+                    <option value="mistakes" style="font-weight:bold; color:#E53E3E;">🚨 My Personal Mistakes</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="levelSelect">Choose Level</label>
+                <select id="levelSelect">
+                    <option value="beginner">Beginner (A1-A2)</option>
+                    <option value="intermediate">Intermediate (B1-B2)</option>
+                    <option value="advanced">Advanced (C1-C2)</option>
+                </select>
+            </div>
+            
+            <button class="btn" id="startBtn" onclick="initGame()">Start Game</button>
+        </div>
+
+        <div class="score-board">
+            Moves: <span id="moves">0</span> | Pairs Found: <span id="pairs">0</span>/<span id="totalPairs">6</span>
+        </div>
+
+        <div class="grid" id="gameGrid">
+            <!-- Cards will be injected here -->
+            <div style="grid-column: 1/-1; padding: 40px; color: #A0AEC0;">
+                Select a theme and press Start Game!
+            </div>
+        </div>
+        
+        <br><br>
+        <a href="/games/" style="color: var(--color-secondary); text-decoration: none; font-weight:600;">&larr; Back to Break Room</a>
+    </div>
+
+    <footer>
+        <p>© 2025 English For Cool Dudes - 😎</p>
+        <div style="margin-top: 10px;">
+            <a href="/impressum/">Impressum</a>
+            <a href="/datenschutz/">Datenschutzerklärung</a>
+        </div>
+    </footer>
+
+    <script>
+        // --- SUPABASE CONFIG ---
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // --- EXTENSIVE VOCABULARY DATABASE ---
+        const vocabulary = {
+            business: {
+                beginner: [
+                    {w:"Boss", m:"Manager"}, {w:"Job", m:"Work"}, {w:"Staff", m:"Employees"}, 
+                    {w:"Salary", m:"Pay"}, {w:"Office", m:"Workplace"}, {w:"Desk", m:"Table"},
+                    {w:"Meeting", m:"Discussion"}, {w:"Email", m:"Digital Mail"}, {w:"Client", m:"Customer"},
+                    {w:"Bonus", m:"Extra Pay"}, {w:"Sales", m:"Selling"}, {w:"Team", m:"Group"}
+                ],
+                intermediate: [
+                    {w:"Agenda", m:"Plan for meeting"}, {w:"Deadline", m:"Due date"}, {w:"Invoice", m:"Bill"},
+                    {w:"Colleague", m:"Co-worker"}, {w:"Resign", m:"Quit job"}, {w:"Apply", m:"Ask for job"},
+                    {w:"Promotion", m:"Better job"}, {w:"Budget", m:"Spending plan"}, {w:"Strategy", m:"Long-term plan"},
+                    {w:"Negotiate", m:"Discuss deal"}, {w:"Recruit", m:"Hire people"}, {w:"Contract", m:"Legal agreement"}
+                ],
+                advanced: [
+                    {w:"Merger", m:"Joining companies"}, {w:"Acquisition", m:"Buying a company"}, {w:"Stakeholder", m:"Interested party"},
+                    {w:"Revenue", m:"Income"}, {w:"Quarter", m:"3 month period"}, {w:"Liabilities", m:"Debts"},
+                    {w:"Assets", m:"Items of value"}, {w:"Turnover", m:"Total sales"}, {w:"Bankruptcy", m:"Financial ruin"},
+                    {w:"Dividend", m:"Profit share"}, {w:"Equity", m:"Ownership value"}, {w:"Outsource", m:"Use external help"}
+                ]
+            },
+            tax: {
+                beginner: [
+                    {w:"Tax", m:"Money to gov"}, {w:"Pay", m:"Give money"}, {w:"Year", m:"12 Months"},
+                    {w:"Money", m:"Cash/Coin"}, {w:"Bank", m:"Money store"}, {w:"Save", m:"Keep money"},
+                    {w:"Bill", m:"Request for pay"}, {w:"Price", m:"Cost"}, {w:"Rich", m:"Wealthy"}
+                ],
+                intermediate: [
+                    {w:"VAT", m:"Value Added Tax"}, {w:"Refund", m:"Money back"}, {w:"Income Tax", m:"Tax on earnings"},
+                    {w:"Receipt", m:"Proof of buy"}, {w:"Audit", m:"Check records"}, {w:"Deduction", m:"Lowers tax"},
+                    {w:"Profit", m:"Earnings"}, {w:"Loss", m:"Lost money"}, {w:"Declare", m:"Report income"}
+                ],
+                advanced: [
+                    {w:"Jurisdiction", m:"Legal territory"}, {w:"Compliance", m:"Following rules"}, {w:"Exempt", m:"Tax free"},
+                    {w:"Remittance", m:"Sending money"}, {w:"Fiscal Year", m:"Financial year"}, {w:"Threshold", m:"Limit"},
+                    {w:"Liability", m:"Legal debt"}, {w:"Evasion", m:"Illegal non-pay"}, {w:"Avoidance", m:"Legal reducing"},
+                    {w:"Offshore", m:"Foreign country"}, {w:"Capital Gains", m:"Profit on assets"}, {w:"Levy", m:"Impose tax"}
+                ]
+            },
+            legal: {
+                beginner: [
+                    {w:"Law", m:"Rules"}, {w:"Judge", m:"Decision maker"}, {w:"Police", m:"Enforcers"},
+                    {w:"Crime", m:"Bad act"}, {w:"Jail", m:"Prison"}, {w:"Rules", m:"Regulations"},
+                    {w:"Fair", m:"Just"}, {w:"Vote", m:"Choose"}, {w:"Fine", m:"Money penalty"}
+                ],
+                intermediate: [
+                    {w:"Contract", m:"Agreement"}, {w:"Lawyer", m:"Attorney"}, {w:"Guilty", m:"Did it"},
+                    {w:"Innocent", m:"Didn't do it"}, {w:"Witness", m:"Saw the crime"}, {w:"Court", m:"Place of trial"},
+                    {w:"Sue", m:"Legal action"}, {w:"Trial", m:"Legal process"}, {w:"Evidence", m:"Proof"}
+                ],
+                advanced: [
+                    {w:"Plaintiff", m:"Accuser"}, {w:"Defendant", m:"Accused"}, {w:"Litigation", m:"Legal action"},
+                    {w:"Clause", m:"Contract part"}, {w:"Breach", m:"Break contract"}, {w:"Liability", m:"Responsibility"},
+                    {w:"Intellectual Property", m:"Ideas/Creations"}, {w:"Due Diligence", m:"Careful check"}, {w:"Arbitration", m:"Private settling"},
+                    {w:"Jurisprudence", m:"Theory of law"}, {w:"Statute", m:"Written law"}, {w:"Verdict", m:"Final decision"}
+                ]
+            },
+            holidays: {
+                beginner: [
+                    {w:"Hotel", m:"Place to sleep"}, {w:"Beach", m:"Sand and sea"}, {w:"Sun", m:"Hot star"},
+                    {w:"Swim", m:"Move in water"}, {w:"Plane", m:"Air travel"}, {w:"Ticket", m:"Pass"},
+                    {w:"Bag", m:"Suitcase"}, {w:"Map", m:"Guide"}, {w:"Bus", m:"Transport"}
+                ],
+                intermediate: [
+                    {w:"Reservation", m:"Booking"}, {w:"Passport", m:"Travel ID"}, {w:"Luggage", m:"Bags"},
+                    {w:"Sightseeing", m:"Visiting places"}, {w:"Souvenir", m:"Keepsake"}, {w:"Customs", m:"Border check"},
+                    {w:"Delayed", m:"Late"}, {w:"Boarding", m:"Getting on"}, {w:"Arrival", m:"Coming in"}
+                ],
+                advanced: [
+                    {w:"Itinerary", m:"Travel plan"}, {w:"Accommodation", m:"Place to stay"}, {w:"Excursion", m:"Short trip"},
+                    {w:"Embark", m:"Get on ship"}, {w:"Heritage", m:"History/Culture"}, {w:"Destination", m:"End place"},
+                    {w:"Jet lag", m:"Time zone tiredness"}, {w:"Layover", m:"Stop between flights"}, {w:"Visa", m:"Entry permit"}
+                ]
+            },
+            work: {
+                beginner: [
+                    {w:"Computer", m:"PC"}, {w:"Pen", m:"Writing tool"}, {w:"Lunch", m:"Midday meal"},
+                    {w:"Break", m:"Rest time"}, {w:"Start", m:"Begin"}, {w:"Finish", m:"End"},
+                    {w:"Phone", m:"Call tool"}, {w:"Help", m:"Assist"}, {w:"Task", m:"Job to do"}
+                ],
+                intermediate: [
+                    {w:"Remote", m:"Work from home"}, {w:"Schedule", m:"Timetable"}, {w:"Shift", m:"Work hours"},
+                    {w:"Overtime", m:"Extra hours"}, {w:"Payroll", m:"Salary list"}, {w:"Recruit", m:"Hire"},
+                    {w:"Interview", m:"Job meeting"}, {w:"Resume", m:"CV/History"}, {w:"Training", m:"Learning"}
+                ],
+                advanced: [
+                    {w:"Collaborate", m:"Work together"}, {w:"Efficiency", m:"Good work rate"}, {w:"Delegate", m:"Give tasks"},
+                    {w:"Micro-manage", m:"Control too much"}, {w:"Appraisal", m:"Performance review"}, {w:"Burnout", m:"Exhaustion"},
+                    {w:"Freelance", m:"Self-employed"}, {w:"Incentive", m:"Motivation"}, {w:"Redundant", m:"Not needed"}
+                ]
+            },
+            geography: {
+                beginner: [
+                    {w:"City", m:"Large town"}, {w:"River", m:"Flowing water"}, {w:"Mountain", m:"High land"},
+                    {w:"Sea", m:"Ocean"}, {w:"Map", m:"Guide"}, {w:"World", m:"Earth"},
+                    {w:"North", m:"Direction up"}, {w:"South", m:"Direction down"}, {w:"Lake", m:"Water body"}
+                ],
+                intermediate: [
+                    {w:"Capital", m:"Main city"}, {w:"Border", m:"Country line"}, {w:"Population", m:"People count"},
+                    {w:"Island", m:"Land in water"}, {w:"Climate", m:"Weather pattern"}, {w:"Valley", m:"Low land"},
+                    {w:"Coast", m:"Sea edge"}, {w:"Forest", m:"Tree area"}, {w:"Desert", m:"Dry land"}
+                ],
+                advanced: [
+                    {w:"Peninsula", m:"Land sticking out"}, {w:"Urbanisation", m:"City growth"}, {w:"Demographics", m:"Pop. stats"},
+                    {w:"Hemisphere", m:"Half of earth"}, {w:"Topography", m:"Land shape"}, {w:"Archipelago", m:"Island group"},
+                    {w:"Tributary", m:"River branch"}, {w:"Equator", m:"Middle line"}, {w:"Plateau", m:"High flat land"}
+                ]
+            }
+        };
+
+        // --- GAME VARIABLES ---
+        let grid = document.getElementById('gameGrid');
+        let selectedCards = []; // Stores currently selected cards
+        let moveCount = 0;
+        let pairsFound = 0;
+        let totalGamePairs = 6; // Default pairs
+
+        // --- UI HANDLERS ---
+        function handleThemeChange() {
+            const theme = document.getElementById('themeSelect').value;
+            const levelSelect = document.getElementById('levelSelect');
+            
+            if (theme === 'mistakes') {
+                levelSelect.disabled = true;
+                levelSelect.innerHTML = '<option>Personalized</option>';
+            } else {
+                levelSelect.disabled = false;
+                levelSelect.innerHTML = `
+                    <option value="beginner">Beginner (A1-A2)</option>
+                    <option value="intermediate">Intermediate (B1-B2)</option>
+                    <option value="advanced">Advanced (C1-C2)</option>
+                `;
+            }
+        }
+
+        // --- GAME INIT LOGIC ---
+        async function initGame() {
+            const theme = document.getElementById('themeSelect').value;
+            const level = document.getElementById('levelSelect').value;
+            
+            document.getElementById('loading-overlay').style.display = 'flex';
+            let rawPairs = [];
+
+            if (theme === 'mistakes') {
+                // --- MISTAKES MODE ---
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    alert("🔒 You need to log in to play with your mistakes!");
+                    window.location.href = '/login/'; 
+                    return;
+                }
+
+                const { data: mistakes, error } = await supabase
+                    .from('user_mistakes')
+                    .select('word, definition')
+                    .eq('user_id', user.id);
+
+                if (error || !mistakes || mistakes.length < 2) {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    alert("⚠️ You don't have enough mistakes recorded yet! Go do some lessons and make mistakes first! 😉");
+                    return;
+                }
+
+                // Format mistakes to match game structure
+                rawPairs = mistakes.map(m => ({ w: m.word, m: m.definition || "Definition" }));
+            } else {
+                // --- STANDARD MODE ---
+                rawPairs = vocabulary[theme][level];
+            }
+
+            document.getElementById('loading-overlay').style.display = 'none';
+            startGameWithData(rawPairs);
+        }
+
+        function startGameWithData(data) {
+            // Randomize Vocabulary (Prevent Repetition)
+            let shuffledData = [...data].sort(() => 0.5 - Math.random());
+            
+            // Determine how many pairs to play with (max 8, min 2)
+            totalGamePairs = Math.min(8, shuffledData.length);
+            let selectedPairs = shuffledData.slice(0, totalGamePairs);
+
+            // Reset UI
+            grid.innerHTML = '';
+            // Improve grid responsive layout based on count
+            if(totalGamePairs <= 4) {
+                grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(180px, 1fr))';
+            } else {
+                grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(140px, 1fr))';
+            }
+
+            document.getElementById('moves').innerText = '0';
+            document.getElementById('pairs').innerText = '0';
+            document.getElementById('totalPairs').innerText = totalGamePairs;
+            moveCount = 0;
+            pairsFound = 0;
+            selectedCards = [];
+
+            // Create Cards Array
+            let cardsArray = [];
+            selectedPairs.forEach(item => {
+                // Truncate definitions if too long for card
+                let def = item.m;
+                if (def.length > 60) def = def.substring(0, 57) + "...";
+
+                cardsArray.push({ text: item.w, id: item.w, type: 'word' });
+                cardsArray.push({ text: def, id: item.w, type: 'match' });
+            });
+
+            // Shuffle Cards
+            cardsArray.sort(() => 0.5 - Math.random());
+
+            // Render Cards
+            cardsArray.forEach(item => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.dataset.id = item.id;
+                card.dataset.type = item.type;
+                
+                // Content visible immediately
+                card.innerHTML = `<span>${item.text}</span>`;
+                
+                card.addEventListener('click', function() {
+                    handleCardClick(this);
+                });
+                grid.appendChild(card);
+            });
+        }
+
+        function handleCardClick(cardElement) {
+            // Ignore clicks on matched cards or same card
+            if (cardElement.classList.contains('matched')) return;
+            if (selectedCards.includes(cardElement)) {
+                // Deselect if clicking the same active card
+                cardElement.classList.remove('selected');
+                selectedCards = selectedCards.filter(c => c !== cardElement);
+                return;
+            }
+
+            // Max 2 cards selected at a time
+            if (selectedCards.length >= 2) {
+                // If user clicks a 3rd card, clear previous selection logic if desired, 
+                // or force them to wait. Here we'll clear previous mismatched ones for smoother play.
+                clearSelection(); 
+            }
+
+            // Select Card
+            cardElement.classList.add('selected');
+            selectedCards.push(cardElement);
+
+            // If 2 cards selected, check match
+            if (selectedCards.length === 2) {
+                moveCount++;
+                document.getElementById('moves').innerText = moveCount;
+                checkForMatch();
+            }
+        }
+
+        function checkForMatch() {
+            const [card1, card2] = selectedCards;
+            let isMatch = card1.dataset.id === card2.dataset.id;
+
+            if (isMatch) {
+                card1.classList.remove('selected');
+                card2.classList.remove('selected');
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                
+                pairsFound++;
+                document.getElementById('pairs').innerText = pairsFound;
+                
+                selectedCards = []; // Clear selection
+
+                if (pairsFound === totalGamePairs) {
+                    triggerWin(moveCount);
+                }
+            } else {
+                // Mismatch: Show 'incorrect' state briefly
+                card1.classList.add('incorrect');
+                card2.classList.add('incorrect');
+                
+                // Auto-clear after delay
+                setTimeout(() => {
+                    clearSelection();
+                }, 1000);
+            }
+        }
+
+        function clearSelection() {
+            selectedCards.forEach(card => {
+                card.classList.remove('selected', 'incorrect');
+            });
+            selectedCards = [];
+        }
+
+        // --- CONFETTI & MODAL LOGIC ---
+        const emojis = ['🐹', '👑', '🚌', '☔', '💂', '🫖', '🇬🇧', '🏰', '🎡', '🚇', '🎓', '🧠'];
+        let confettiInterval;
+
+        function triggerWin(moves) {
+            // Update modal text
+            document.getElementById('win-message').textContent = `You matched all pairs in just ${moves} moves!`;
+            
+            // Show confetti
+            const container = document.getElementById('confettiContainer');
+            container.style.display = 'block';
+            
+            confettiInterval = setInterval(() => {
+                const piece = document.createElement('div');
+                piece.classList.add('confetti-piece');
+                piece.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                piece.style.left = Math.random() * 100 + 'vw';
+                piece.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                container.appendChild(piece);
+                setTimeout(() => piece.remove(), 5000);
+            }, 150);
+
+            // Show modal after brief delay
+            setTimeout(() => {
+                document.getElementById('win-modal').style.display = 'flex';
+            }, 800);
+        }
+
+        function closeModal() {
+            document.getElementById('win-modal').style.display = 'none';
+            document.getElementById('confettiContainer').style.display = 'none';
+            document.getElementById('confettiContainer').innerHTML = ''; // Clear confetti
+            clearInterval(confettiInterval);
+        }
+
+        function closeModalAndRestart() {
+            closeModal();
+            initGame(); // Just re-runs with current dropdown settings
+        }
+
+        function closeModalAndNewTheme() {
+            closeModal();
+            // Focus theme selector
+            document.getElementById('themeSelect').focus();
+            // Optional: could simulate a click or just let user pick
+        }
+
+        function closeModalAndNewLevel() {
+            closeModal();
+            // Focus level selector
+            document.getElementById('levelSelect').focus();
+        }
+    </script>
+</body>
+</html>
