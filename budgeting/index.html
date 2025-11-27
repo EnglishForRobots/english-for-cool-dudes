@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance & Transactions: Budgeting, Receipts & Payments - English For Cool Dudes</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* --- BRANDING & LAYOUT STYLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: #F8F9FB;
+            color: #2C3E50;
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Define the Blue Theme Colors */
+        :root {
+            --color-primary-blue: #3498DB; 
+            --color-secondary-blue: #2980B9; 
+            --color-light-blue: #D6EAF8; 
+            --color-light-green: #D4EDDA; 
+            --color-dark-green: #155724; 
+            --color-light-red: #FADBD8; 
+            --color-dark-red: #721C24; 
+            --color-default-bg: #FFFFFF;
+            --color-panel-bg: #F8F9FB;
+            --color-new-feature: #7C3AED; /* Purple for Save Feature */
+        }
+
+        /* Header (Global Nav Bar) */
+        .header {
+            background: var(--color-default-bg);
+            border-bottom: 1px solid #E5E9F2;
+            padding: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-left { display: flex; align-items: center; gap: 15px; }
+
+        .logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%); 
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .site-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #1A202C;
+            text-decoration: none;
+            letter-spacing: -0.02em;
+        }
+
+        /* Header Buttons */
+        .header-buttons { display: flex; align-items: center; gap: 8px; }
+        .header-button {
+            text-decoration: none; padding: 7px 14px; border-radius: 6px;
+            font-size: 14px; font-weight: 600; transition: all 0.2s;
+            white-space: nowrap; cursor: pointer; border: 1px solid #E5E9F2;
+            background: transparent;
+        }
+        .header-button.login { background: #F8F9FB; color: #4A5568; }
+        .header-button.login:hover { background: #FFFFFF; color: #2C3E50; border-color: #718096; }
+        .header-button.signup { background: var(--color-primary-blue); color: white; border-color: var(--color-primary-blue); }
+        .header-button.signup:hover { background: var(--color-secondary-blue); box-shadow: 0 2px 5px rgba(52, 152, 219, 0.4); }
+        .header-button.dashboard { background: #FFFBEA; color: #92400E; border-color: #FCD34D; }
+        .header-button.logout { background: #F8F9FB; color: #E53E3E; }
+        .header-button.logout:hover { background: #FEEBEB; color: #C53030; }
+        .user-greeting { font-size: 14px; color: #4A5568; font-weight: 600; margin-right: 5px; display: block; }
+
+        /* Main Container */
+        .container-main {
+            max-width: 1000px; 
+            margin: 30px auto;
+            padding: 30px 20px;
+            background-color: var(--color-default-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #E5E9F2;
+        }
+
+        /* Lesson Specific Styles */
+        .lesson-main-title {
+            font-size: 2.5em;
+            font-weight: 800;
+            color: var(--color-primary-blue);
+            margin-bottom: 10px;
+            letter-spacing: -0.02em;
+        }
+
+        .lesson-section {
+            background-color: var(--color-panel-bg); 
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid #E5E9F2;
+        }
+
+        .section-title {
+            color: var(--color-primary-blue);
+            font-size: 1.8em;
+            font-weight: 800;
+            margin-bottom: 20px;
+            padding-bottom: 5px;
+            border-bottom: 2px dashed #E5E9F2;
+        }
+        
+        /* Interactive Elements */
+        .interactive-element {
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            background-color: var(--color-default-bg);
+            color: #2C3E50;
+            font-weight: 600;
+            padding: 12px 18px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .interactive-element:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        }
+        
+        /* Match Card Styles */
+        .match-card {
+            border: 2px solid transparent; 
+            transition: all 0.2s ease;
+            cursor: pointer;
+            user-select: none;
+            border-radius: 0.75rem; 
+            padding: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            font-weight: 600;
+        }
+
+        .match-card.term {
+            background-color: #EAF2F8; 
+            font-size: 1.125rem;
+            border: 2px solid var(--color-secondary-blue); 
+            text-align: center;
+        }
+        .match-card.definition {
+            background-color: #F8F9FB; 
+            text-align: left;
+            border: 2px solid #AAB8C2; 
+        }
+
+        .match-card.selected {
+            border-color: var(--color-primary-blue);
+            background-color: var(--color-light-blue);
+            box-shadow: 0 0 0 4px var(--color-primary-blue);
+        }
+        
+        .match-card.matched { pointer-events: none; opacity: 1; transform: none; }
+
+        /* Matched Colors */
+        .match-card.matched-color-A { background-color: #E8F5E9 !important; border-color: #2ECC71 !important; box-shadow: 0 0 0 4px #2ECC71 !important; }
+        .match-card.matched-color-B { background-color: #FFF3E0 !important; border-color: #FF9800 !important; box-shadow: 0 0 0 4px #FF9800 !important; }
+        .match-card.matched-color-C { background-color: #E3F2FD !important; border-color: #2196F3 !important; box-shadow: 0 0 0 4px #2196F3 !important; }
+        .match-card.matched-color-D { background-color: #F3E5F5 !important; border-color: #9C27B0 !important; box-shadow: 0 0 0 4px #9C27B0 !important; }
+        .match-card.matched-color-E { background-color: #FFC0CB !important; border-color: #FF7043 !important; box-shadow: 0 0 0 4px #FF7043 !important; }
+        .match-card.matched-color-F { background-color: #E8EAF6 !important; border-color: #3F51B5 !important; box-shadow: 0 0 0 4px #3F51B5 !important; }
+
+        /* Comprehension Buttons */
+        .comp-btn-group .option-button {
+            transition: all 0.2s;
+            background-color: var(--color-default-bg);
+            color: #2C3E50;
+            font-weight: 600;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 1px solid #AAB8C2;
+            text-align: left;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .comp-btn-group .option-button:hover { border-color: var(--color-primary-blue); }
+        .comp-btn-group .option-button.selected { background-color: var(--color-light-blue); color: #1A202C !important; border-color: var(--color-secondary-blue); box-shadow: 0 0 0 4px var(--color-primary-blue); }
+        .comp-btn-group .option-button.correct { background-color: #2ECC71 !important; color: white !important; border-color: #2ECC71 !important; box-shadow: 0 0 0 4px #2ECC71 !important; }
+        .comp-btn-group .option-button.incorrect { background-color: #E74C3C !important; color: white !important; border-color: #E74C3C !important; box-shadow: 0 0 0 4px #E74C3C !important; }
+
+        /* Feedback Box */
+        .result-message {
+            margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: 700; display: none; text-align: center;
+        }
+        .result-message.correct { background-color: var(--color-light-green); color: var(--color-dark-green); border: 1px solid #C3E6CB; }
+        .result-message.incorrect { background-color: var(--color-light-red); color: var(--color-dark-red); border: 1px solid #F5C6CB; }
+        
+        /* Gap-Fill */
+        .word-bank { background: #EAF2F8; border: 2px solid var(--color-primary-blue); border-radius: 10px; }
+        .word-options { display: flex; flex-wrap: wrap; gap: 10px; }
+        .word-option {
+            background-color: var(--color-secondary-blue); color: white; padding: 10px 15px;
+            border-radius: 6px; cursor: pointer; transition: all 0.2s; font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); border: none;
+        }
+        .word-option:hover { background-color: var(--color-primary-blue); }
+        .word-option.selected { background-color: var(--color-primary-blue) !important; transform: scale(1.05); box-shadow: 0 0 0 4px var(--color-primary-blue) !important; }
+        .word-option.used { opacity: 0.4; pointer-events: none; background-color: #AAB8C2; transform: none; }
+
+        .gap-input {
+            display: inline-block; text-align: center; padding: 6px 10px; min-width: 150px; 
+            height: 38px; background-color: #E5E9F2; border: 1px dashed #AAB8C2; 
+            border-radius: 4px; color: #2C3E50; font-style: italic; cursor: pointer;
+            line-height: 24px; vertical-align: middle; font-weight: 600; margin: 0 4px; transition: all 0.2s;
+        }
+        .gap-input:empty { background-color: #E5E9F2; border: 1px dashed var(--color-secondary-blue); }
+        .gap-input.correct { background-color: var(--color-light-green) !important; border-color: #4CAF50 !important; color: var(--color-dark-green) !important; font-style: normal; }
+        .gap-input.incorrect { background-color: var(--color-light-red) !important; border-color: #E74C3C !important; color: var(--color-dark-red) !important; font-style: normal; }
+
+        /* Buttons */
+        .button-group { margin-top: 20px; display: flex; gap: 15px; justify-content: center; }
+        .check-button {
+            background: var(--color-secondary-blue); color: white; border: none; padding: 12px 25px;
+            border-radius: 9999px; cursor: pointer; font-size: 1em; font-weight: 600;
+            transition: all 0.3s; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .check-button:hover { background: var(--color-primary-blue); transform: translateY(-1px); }
+        .reset-button { background: #95a5a6; }
+        .reset-button:hover { background: #7f8c8d; }
+
+        /* Save Words Section */
+        #save-words-section {
+            background: #EDE9FE; border: 2px solid #C4B5FD; padding: 25px;
+            border-radius: 12px; margin-top: 40px; text-align: center;
+        }
+        #save-words-btn {
+            background-color: var(--color-new-feature); color: white; padding: 14px 30px;
+            border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color 0.2s;
+            display: block; width: 100%; border: none; box-shadow: 0 4px #5B21B6;
+            text-transform: uppercase; font-size: 1.1em;
+        }
+        #save-words-btn:hover:not(:disabled) { background-color: #5B21B6; }
+        #save-words-btn:active:not(:disabled) { box-shadow: 0 1px #5B21B6; transform: translateY(3px); }
+        #save-words-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        #learned-words-list {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px; margin-bottom: 20px; text-align: center; list-style: none;
+        }
+        #learned-words-list li {
+            background: white; padding: 10px 15px; border-radius: 8px;
+            border: 2px solid #E5E9F2; font-size: 0.95em; cursor: pointer;
+            transition: all 0.2s; font-weight: 600; color: var(--color-primary-blue);
+        }
+        #learned-words-list li:hover {
+            transform: translateY(-2px); border-color: var(--color-secondary-blue);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        /* --- POPUP STYLES --- */
+        #feedback-popup {
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            padding: 20px 40px; border-radius: 16px; font-weight: 700; color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 2000; display: none;
+            text-align: center; font-size: 1.3em; border: 4px solid white;
+        }
+
+        #dictionary-popup {
+            position: fixed; max-width: 280px; padding: 16px; background: #FFFFFF;
+            border: 2px solid var(--color-secondary-blue); border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 2001; display: none;
+            font-size: 0.95em; color: #2C3E50; line-height: 1.5;
+        }
+
+        @media (max-width: 768px) { .user-greeting { display: none; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">😎</span>
+                <a href="/beginner/" class="site-title">English For Cool Dudes</a>
+            </div>
+            
+            <div id="logged-out-buttons" class="header-buttons" style="display: none;">
+                <a href="/login/" class="header-button login">Login</a>
+                <a href="/signup/" class="header-button signup">Sign Up</a>
+            </div>
+
+            <div id="logged-in-buttons" class="header-buttons" style="display: none;">
+                <span class="user-greeting" id="user-greeting">Hey Cool Dude! 👋</span>
+                <a href="/dashboard/" class="header-button dashboard">My Dashboard</a>
+                <button id="logout-btn" class="header-button logout">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-main">
+        <h1 class="lesson-main-title">💰 Finance: Budgeting & Payments</h1>
+        <p class="text-lg text-gray-500 mb-8">Beginner-level (A2/B1) core vocabulary for managing company and personal money.</p>
+
+        <main class="space-y-8">
+
+            <section id="exercise-1" class="lesson-section shadow-lg">
+                <h2 class="section-title">🔗 1. Finance Terminology Match</h2>
+                <p class="text-gray-600 mb-6">Match the **Finance Term** (Blue border) with its **Definition** (Gray border).</p>
+
+                <div id="vocab-match-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                
+                <div class="button-group">
+                    <button class="check-button reset-button" onclick="resetVocab()">Reset Exercise</button>
+                </div>
+            </section>
+        
+            <section id="exercise-2" class="lesson-section shadow-lg">
+                <h2 class="section-title">❓ 2. Usage Comprehension</h2>
+                <p class="exercise-instructions">Read the short sentences, then answer the questions to test your understanding.</p>
+                
+                <div class="question" data-question="1">
+                    <p class="font-semibold text-lg text-gray-600 mb-3">1. If a company's **expenses** are much higher than its income, the company is probably losing money and might not make a:</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="1">
+                        <li class="option-button" data-correct="false">Tax</li>
+                        <li class="option-button" data-correct="true">Profit</li>
+                        <li class="option-button" data-correct="false">Deposit</li>
+                        <li class="option-button" data-correct="false">Budget</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="2">
+                    <p class="font-semibold text-lg text-gray-600 mb-3">2. Before people **withdraw** money from an ATM, they enter their PIN and often check their:</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="2">
+                        <li class="option-button" data-correct="false">Deposit</li>
+                        <li class="option-button" data-correct="false">Invoice</li>
+                        <li class="option-button" data-correct="false">Receipt</li>
+                        <li class="option-button" data-correct="true">Balance</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="3">
+                    <p class="font-semibold text-lg text-gray-600 mb-3">3. Which action would you perform if you wanted to put money *into* a bank account?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="3">
+                        <li class="option-button" data-correct="false">Withdraw</li>
+                        <li class="option-button" data-correct="false">Pay Tax</li>
+                        <li class="option-button" data-correct="true">Deposit</li>
+                        <li class="option-button" data-correct="false">File an Expense</li>
+                    </ul>
+                </div>
+
+                <div class="button-group">
+                    <button class="check-button" onclick="checkComprehension()">Check Answers</button>
+                    <button class="check-button reset-button" onclick="resetComprehension()">Reset Exercise</button>
+                </div>
+                <div id="comprehension-result" class="result-message"></div>
+            </section>
+
+            <section id="exercise-3" class="lesson-section shadow-lg">
+                <h2 class="section-title">📝 3. Financial Sentence Completion</h2>
+                <p class="text-gray-600 mb-6">Click a **Word** in the bank to select it (it turns blue), then click the blank space where you want to place it.</p>
+                
+                <div class="word-bank p-4 mb-6">
+                    <h4 class="font-bold text-gray-600 mb-3">Word Bank:</h4>
+                    <div class="word-options" id="gap-fill-options">
+                        <span class="word-option">salary</span>
+                        <span class="word-option">transfer</span>
+                        <span class="word-option">interest</span>
+                        <span class="word-option">account</span>
+                        <span class="word-option">loan</span>
+                    </div>
+                </div>
+
+                <div class="gap-fill-text text-lg">
+                    <p class="mb-5">1. I need to make a quick money <span class="gap-input" data-word-index="0"></span> of €200 from my savings to my checking <span class="gap-input" data-word-index="1"></span>.</p>
+                    <p class="mb-5">2. Banks give good <span class="gap-input" data-word-index="2"></span> on savings, but charge higher rates on a <span class="gap-input" data-word-index="3"></span>.</p>
+                    <p class="mb-5">3. Most people get their monthly <span class="gap-input" data-word-index="4"></span> paid directly into their bank account.</p>
+                </div>
+                <div class="button-group">
+                    <button class="check-button" onclick="checkGaps()">Check Answers</button>
+                    <button class="check-button reset-button" onclick="resetGaps()">Reset Exercise</button>
+                </div>
+                <div id="gap-result" class="result-message"></div>
+            </section>
+
+            <section class="lesson-section shadow-lg border-t-4 border-blue-500">
+                <h2 class="section-title">🎉 Lesson Complete & Summary</h2>
+                <p class="mb-4 text-gray-600">Great job! Click a word below to see its definition.</p>
+                
+                <ul id="learned-words-list">
+                    <li data-word="Budget">Budget</li><li data-word="Expense">Expense</li><li data-word="Profit">Profit</li><li data-word="Tax">Tax</li>
+                    <li data-word="Deposit">Deposit</li><li data-word="Withdraw">Withdraw</li><li data-word="Salary">Salary</li><li data-word="Transfer">Transfer</li>
+                    <li data-word="Interest">Interest</li><li data-word="Loan">Loan</li><li data-word="Account">Account</li><li data-word="Balance">Balance</li>
+                </ul>
+
+                <div id="save-words-section">
+                    <h3 class="text-xl font-bold mb-3" style="color: var(--color-new-feature);">💾 Save Your Progress</h3>
+                    
+                    <div id="save-feature-loggedin" style="display: none;">
+                        <p class="text-gray-700 mb-4">Save these words to your personal dashboard to practice them later.</p>
+                        <button id="save-words-btn" onclick="saveWordsToDashboard()">Save Words to Dashboard</button>
+                        <p id="save-status" class="text-center mt-3 font-semibold"></p>
+                    </div>
+                    
+                    <div id="login-prompt" style="display: none;">
+                        <p class="text-red-600 font-bold mb-2">🔒 Login to save your progress!</p>
+                        <a href="/login/" class="inline-block bg-gray-800 text-white font-bold py-2 px-4 rounded hover:bg-black transition">Log In / Sign Up</a>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    
+    <div id="feedback-popup"></div>
+    <div id="dictionary-popup"></div>
+
+    <script>
+        // --- AUTH CONFIG ---
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null;
+
+        const lessonTitle = "Finance: Budgeting & Payments";
+        const lessonLink = "/budgeting/";
+        const lessonLevel = "A2/B1";
+
+        // Words to Save
+        const wordsToSave = [
+            { word: "Budget", type: "noun", definition: "A plan that estimates income and expenses." },
+            { word: "Expense", type: "noun", definition: "Money spent on something; a cost." },
+            { word: "Profit", type: "noun", definition: "Financial gain; money left after expenses." },
+            { word: "Tax", type: "noun", definition: "Money paid to the government." },
+            { word: "Deposit", type: "verb", definition: "To put money into a bank account." },
+            { word: "Withdraw", type: "verb", definition: "To take money out of a bank account." },
+            { word: "Salary", type: "noun", definition: "A fixed regular payment for work." },
+            { word: "Transfer", type: "noun/verb", definition: "Moving money from one account to another." },
+            { word: "Interest", type: "noun", definition: "Money paid for the use of money (loans) or gained from savings." },
+            { word: "Loan", type: "noun", definition: "Money borrowed that must be paid back." },
+            { word: "Account", type: "noun", definition: "An arrangement with a bank to hold money." },
+            { word: "Balance", type: "noun", definition: "The amount of money in a bank account." }
+        ];
+
+        // --- AUTH FUNCTIONS ---
+        async function checkUser() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('logged-in-buttons').style.display = 'flex';
+                    document.getElementById('logged-out-buttons').style.display = 'none';
+                    document.getElementById('save-feature-loggedin').style.display = 'block';
+                    document.getElementById('login-prompt').style.display = 'none';
+                    
+                    const name = user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Cool Dude';
+                    document.getElementById('user-greeting').textContent = `Hey ${name}! 👋`;
+                } else {
+                    document.getElementById('logged-in-buttons').style.display = 'none';
+                    document.getElementById('logged-out-buttons').style.display = 'flex';
+                    document.getElementById('save-feature-loggedin').style.display = 'none';
+                    document.getElementById('login-prompt').style.display = 'block';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function saveWordsToDashboard() {
+            if (!currentUser) return;
+            const btn = document.getElementById('save-words-btn');
+            const status = document.getElementById('save-status');
+            
+            btn.disabled = true;
+            btn.textContent = "Saving...";
+
+            const { error } = await supabase.from('lessons').upsert([{
+                user_id: currentUser.id,
+                lesson_title: lessonTitle,
+                lesson_link: lessonLink,
+                lesson_level: lessonLevel,
+                vocabulary: wordsToSave,
+                completed_at: new Date().toISOString()
+            }], { onConflict: 'user_id,lesson_title' });
+
+            if (!error) {
+                btn.textContent = "✅ Saved!";
+                btn.style.backgroundColor = "#10B981"; // Green
+                status.textContent = "Great job! Words added to your dashboard.";
+                setTimeout(() => window.location.href = '/dashboard/', 1500);
+            } else {
+                btn.textContent = "❌ Error";
+                btn.disabled = false;
+                status.textContent = "Error saving. Please try again.";
+            }
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.href = '/';
+        });
+        
+        // --- POPUP FUNCTIONS ---
+        function showFeedback(msg, type) {
+            const el = document.getElementById('feedback-popup');
+            el.textContent = msg;
+            el.style.display = 'block';
+            
+            if (type === 'correct') {
+                el.style.backgroundColor = '#2ECC71'; // Green
+                el.style.borderColor = '#27AE60';
+            } else {
+                el.style.backgroundColor = '#E74C3C'; // Red
+                el.style.borderColor = '#C0392B';
+            }
+            setTimeout(() => { el.style.display = 'none'; }, 1800);
+        }
+
+        function showDictionaryPopup(target, word) {
+            const wordObj = wordsToSave.find(w => w.word === word);
+            if(!wordObj) return;
+
+            const popup = document.getElementById('dictionary-popup');
+            popup.innerHTML = `<strong>${wordObj.word}</strong> <span style="font-size:0.85em; color:#7F8C8D;">(${wordObj.type})</span><br>${wordObj.definition}`;
+            popup.style.display = 'block';
+
+            const rect = target.getBoundingClientRect();
+            // Position above the word if possible, otherwise below
+            let topPos = rect.top - popup.offsetHeight - 10;
+            if (topPos < 10) topPos = rect.bottom + 10;
+            
+            popup.style.top = topPos + 'px';
+            popup.style.left = (rect.left + (rect.width/2) - (popup.offsetWidth/2)) + 'px';
+        }
+        
+        // Close dictionary on outside click
+        document.body.addEventListener('click', (e) => {
+            if (!e.target.closest('#dictionary-popup') && !e.target.closest('#learned-words-list li')) {
+                document.getElementById('dictionary-popup').style.display = 'none';
+            }
+        });
+
+        // --- EXERCISE LOGIC ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        function cleanText(text) {
+            if (!text) return '';
+            return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z]/g, '').toLowerCase();
+        }
+
+        /* 1. MATCHING LOGIC */
+        const newVocabData = [
+            { type: 'term', content: "Budget", key: 'A' }, { type: 'definition', content: "A plan estimating income and expenses.", key: 'A' },
+            { type: 'term', content: "Expense", key: 'B' }, { type: 'definition', content: "Money spent on something; a cost.", key: 'B' },
+            { type: 'term', content: "Profit", key: 'C' }, { type: 'definition', content: "Money left after all expenses are paid.", key: 'C' },
+            { type: 'term', content: "Tax", key: 'D' }, { type: 'definition', content: "Money paid to the government.", key: 'D' },
+            { type: 'term', content: "Deposit", key: 'E' }, { type: 'definition', content: "To put money into a bank account.", key: 'E' },
+            { type: 'term', content: "Withdraw", key: 'F' }, { type: 'definition', content: "To take money out of a bank account.", key: 'F' }
+        ];
+        let selectedTermCard = null;
+        let selectedDefinitionCard = null;
+        let matchedPairs = 0;
+
+        const funCorrect = ["Cha-ching! 💸", "In the money! 💰", "Smart investment! 📈", "Rich pickings! 💎"];
+        const funIncorrect = ["Bankrupt! 📉", "Insufficient funds! 🛑", "Debt collector calling! 📞", "Credit denied! 💳"];
+
+        function initVocab() {
+            const matchContainer = document.getElementById('vocab-match-container');
+            matchContainer.innerHTML = '';
+            shuffleArray(newVocabData);
+            newVocabData.forEach(item => {
+                const card = document.createElement('div'); 
+                card.className = `match-card interactive-element ${item.type}`;
+                card.innerHTML = item.type === 'term' ? `<span class="font-extrabold text-gray-600">${item.content}</span>` : `<span class="text-gray-600">${item.content}</span>`; 
+                card.dataset.key = item.key; card.dataset.type = item.type;
+                card.addEventListener('click', () => handleMatchClick(card));
+                matchContainer.appendChild(card);
+            });
+            selectedTermCard = null; selectedDefinitionCard = null; matchedPairs = 0;
+        }
+
+        function handleMatchClick(card) {
+            if (card.classList.contains('matched')) return;
+            
+            const type = card.dataset.type;
+            let currentSelection = type === 'term' ? selectedTermCard : selectedDefinitionCard;
+            if (currentSelection) currentSelection.classList.remove('selected');
+            
+            if (currentSelection === card) {
+                if (type === 'term') selectedTermCard = null; else selectedDefinitionCard = null;
+                return;
+            }
+            
+            if (type === 'term') selectedTermCard = card; else selectedDefinitionCard = card;
+            card.classList.add('selected');
+
+            if (selectedTermCard && selectedDefinitionCard) {
+                if (selectedTermCard.dataset.key === selectedDefinitionCard.dataset.key) {
+                    const matchKey = selectedTermCard.dataset.key; 
+                    [selectedTermCard, selectedDefinitionCard].forEach(el => {
+                        el.classList.remove('selected'); el.classList.add('matched', `matched-color-${matchKey}`);
+                    });
+                    matchedPairs++;
+                    showFeedback(funCorrect[Math.floor(Math.random()*funCorrect.length)], 'correct');
+                    selectedTermCard = null; selectedDefinitionCard = null;
+                } else {
+                    showFeedback(funIncorrect[Math.floor(Math.random()*funIncorrect.length)], 'incorrect');
+                    setTimeout(() => {
+                        if(selectedTermCard) selectedTermCard.classList.remove('selected'); 
+                        if(selectedDefinitionCard) selectedDefinitionCard.classList.remove('selected');
+                        selectedTermCard = null; selectedDefinitionCard = null;
+                    }, 800);
+                }
+            }
+        }
+        function resetVocab() { initVocab(); }
+
+        /* 2. COMPREHENSION LOGIC */
+        function checkComprehension() {
+            const questions = document.querySelectorAll('.question');
+            let correctAnswers = 0;
+            questions.forEach(q => {
+                const selected = q.querySelector('.option-button.selected');
+                const allOptions = q.querySelectorAll('.option-button');
+                allOptions.forEach(opt => {
+                    opt.classList.remove('correct', 'incorrect');
+                    if (opt.dataset.correct === 'true') opt.classList.add('correct');
+                });
+                if (selected) {
+                    if (selected.dataset.correct === 'true') correctAnswers++;
+                    else selected.classList.add('incorrect');
+                }
+            });
+            const resultDiv = document.getElementById('comprehension-result');
+            resultDiv.style.display = 'block';
+            if (correctAnswers === questions.length) {
+                resultDiv.textContent = '🎉 Great job! All answers are correct!'; resultDiv.className = 'result-message correct';
+            } else {
+                resultDiv.textContent = `You got ${correctAnswers} out of ${questions.length} correct.`; resultDiv.className = 'result-message incorrect';
+            }
+        }
+        function resetComprehension() {
+            document.querySelectorAll('.option-button').forEach(item => item.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById('comprehension-result').style.display = 'none';
+        }
+
+        /* 3. GAP FILL LOGIC */
+        const gapAnswers = ['transfer', 'account', 'interest', 'loan', 'salary']; 
+        let selectedGapWord = null; 
+        
+        function initGaps() {
+            const wordOptionsContainer = document.getElementById('gap-fill-options');
+            const options = Array.from(wordOptionsContainer.children);
+            shuffleArray(options);
+            options.forEach(option => {
+                wordOptionsContainer.appendChild(option);
+                option.classList.remove('used', 'selected'); 
+            });
+            document.querySelectorAll('.gap-input').forEach(blank => {
+                blank.textContent = ''; blank.classList.remove('correct', 'incorrect', 'selected');
+            });
+            selectedGapWord = null; document.getElementById('gap-result').style.display = 'none';
+        }
+        
+        function handleGapBlankClick(blank) {
+            if (blank.textContent.trim() !== '') { 
+                const cleanedWord = cleanText(blank.textContent); 
+                const btn = Array.from(document.querySelectorAll('.word-option')).find(b => cleanText(b.textContent) === cleanedWord);
+                if (btn) btn.classList.remove('used');
+                blank.textContent = ''; blank.classList.remove('correct', 'incorrect');
+                return;
+            } 
+            if (selectedGapWord) {
+                blank.textContent = selectedGapWord.textContent.trim();
+                selectedGapWord.classList.remove('selected'); selectedGapWord.classList.add('used');
+                selectedGapWord = null;
+            } 
+        }
+        
+        function checkGaps() {
+            let correctCount = 0;
+            const blanks = document.querySelectorAll('.gap-input'); 
+            blanks.forEach(blank => { 
+                const index = parseInt(blank.dataset.wordIndex, 10); 
+                const extractedWord = cleanText(blank.textContent); 
+                const answerWord = cleanText(gapAnswers[index]);
+                blank.classList.remove('selected', 'incorrect', 'correct');
+                if (extractedWord && (extractedWord === answerWord)) {
+                    blank.classList.add('correct'); correctCount++;
+                } else if (extractedWord) { 
+                    blank.classList.add('incorrect');
+                }
+            });
+            const resultDiv = document.getElementById('gap-result');
+            resultDiv.style.display = 'block';
+            if (correctCount === blanks.length) {
+                resultDiv.textContent = '🎉 Perfect! All correct.'; resultDiv.className = 'result-message correct';
+            } else {
+                resultDiv.textContent = `You got ${correctCount} out of ${blanks.length} correct.`; resultDiv.className = 'result-message incorrect';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkUser();
+            initVocab();
+            // Dictionary Listeners
+            document.querySelectorAll('#learned-words-list li').forEach(li => {
+                li.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showDictionaryPopup(li, li.dataset.word);
+                });
+            });
+            // Comprehension Listeners
+            document.querySelectorAll('.option-button').forEach(item => {
+                item.addEventListener('click', () => {
+                    item.closest('.question').querySelectorAll('.option-button').forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect'));
+                    item.classList.add('selected'); document.getElementById('comprehension-result').style.display = 'none';
+                });
+            });
+            // Gap Fill Listeners
+            document.querySelectorAll('.word-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    if (option.classList.contains('used')) return;
+                    if (selectedGapWord) selectedGapWord.classList.remove('selected');
+                    if (selectedGapWord === option) selectedGapWord = null;
+                    else { selectedGapWord = option; selectedGapWord.classList.add('selected'); }
+                });
+            });
+            document.querySelectorAll('.gap-input').forEach(blank => {
+                blank.addEventListener('click', () => handleGapBlankClick(blank));
+            });
+            initGaps();
+        });
+    </script>
+</body>
+</html>
