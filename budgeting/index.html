@@ -514,6 +514,31 @@
             await supabase.auth.signOut();
             window.location.href = '/';
         });
+
+        // --- ADD THIS FUNCTION TO SAVE MISTAKES ---
+async function saveMistake(word) {
+    if (!currentUser) return; // Only save if logged in
+
+    // Find the word details (definition/type) from your existing words list
+    // We compare lowercase to match the gap answers correctly
+    const wordObj = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase());
+
+    try {
+        const { error } = await supabase.from('user_mistakes').upsert({
+            user_id: currentUser.id,
+            // Use the capitalized version from the list if found, otherwise use the input
+            word: wordObj ? wordObj.word : word, 
+            definition: wordObj ? wordObj.definition : '',
+            word_type: wordObj ? wordObj.type : 'word',
+            lesson: lessonTitle,
+            lesson_link: lessonLink,
+            last_made_at: new Date().toISOString()
+        }, { onConflict: 'user_id,word' });
+        
+        if (error) console.error('Error saving mistake:', error);
+        else console.log('Mistake saved:', word);
+    } catch (err) { console.error(err); }
+}
         
         // --- POPUP FUNCTIONS ---
         function showFeedback(msg, type) {
@@ -697,28 +722,40 @@
             } 
         }
         
-        function checkGaps() {
-            let correctCount = 0;
-            const blanks = document.querySelectorAll('.gap-input'); 
-            blanks.forEach(blank => { 
-                const index = parseInt(blank.dataset.wordIndex, 10); 
-                const extractedWord = cleanText(blank.textContent); 
-                const answerWord = cleanText(gapAnswers[index]);
-                blank.classList.remove('selected', 'incorrect', 'correct');
-                if (extractedWord && (extractedWord === answerWord)) {
-                    blank.classList.add('correct'); correctCount++;
-                } else if (extractedWord) { 
-                    blank.classList.add('incorrect');
-                }
-            });
-            const resultDiv = document.getElementById('gap-result');
-            resultDiv.style.display = 'block';
-            if (correctCount === blanks.length) {
-                resultDiv.textContent = '🎉 Perfect! All correct.'; resultDiv.className = 'result-message correct';
-            } else {
-                resultDiv.textContent = `You got ${correctCount} out of ${blanks.length} correct.`; resultDiv.className = 'result-message incorrect';
-            }
+      function checkGaps() {
+    let correctCount = 0;
+    const blanks = document.querySelectorAll('.gap-input'); 
+    
+    blanks.forEach(blank => { 
+        const index = parseInt(blank.dataset.wordIndex, 10); 
+        const extractedWord = cleanText(blank.textContent); 
+        const answerWord = cleanText(gapAnswers[index]);
+        
+        blank.classList.remove('selected', 'incorrect', 'correct');
+        
+        if (extractedWord && (extractedWord === answerWord)) {
+            blank.classList.add('correct'); 
+            correctCount++;
+        } else if (extractedWord) { 
+            // The word is wrong!
+            blank.classList.add('incorrect');
+            
+            // --- NEW LINE: SAVE THE MISTAKE ---
+            // We save 'answerWord' (the word they SHOULD have known)
+            saveMistake(gapAnswers[index]); 
         }
+    });
+
+    const resultDiv = document.getElementById('gap-result');
+    resultDiv.style.display = 'block';
+    if (correctCount === blanks.length) {
+        resultDiv.textContent = '🎉 Perfect! All correct.'; 
+        resultDiv.className = 'result-message correct';
+    } else {
+        resultDiv.textContent = `You got ${correctCount} out of ${blanks.length} correct.`; 
+        resultDiv.className = 'result-message incorrect';
+    }
+}
 
         document.addEventListener('DOMContentLoaded', () => {
             checkUser();
