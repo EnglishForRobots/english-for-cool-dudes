@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top 10 Phrasal Verbs - English For Cool Dudes</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* --- BRANDING & LAYOUT STYLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: #F8F9FB; /* Light Blue-Grey Background */
+            color: #2C3E50; /* Dark Text */
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- THEME: BUSINESS / COOL DUDE PALETTE 😎 --- */
+        :root {
+            --color-primary: #667EEA; /* Cool Blue */
+            --color-secondary: #2C3E50; /* Dark Business Blue */
+            --color-accent: #764BA2; /* Purple */
+            --color-light-bg: #EBF4FF; /* Very Light Blue */
+            --color-white: #FFFFFF;
+            
+            /* Feedback Colors */
+            --color-correct: #2E7D32; /* Success Green */
+            --color-incorrect: #C62828; /* Red */
+            
+            /* UI Elements */
+            --color-save-btn: #5A67D8; /* Indigo for Save */
+        }
+
+        /* Header (Global Nav Bar) */
+        .header {
+            background: var(--color-white);
+            border-bottom: 1px solid #E2E8F0;
+            padding: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-left { display: flex; align-items: center; gap: 15px; }
+
+        .logo {
+            width: 36px;
+            height: 36px;
+            /* Cool Gradient Logo */
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%); 
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .site-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #1A202C;
+            text-decoration: none;
+            letter-spacing: -0.02em;
+        }
+
+        /* Header Buttons */
+        .header-buttons { display: flex; align-items: center; gap: 8px; }
+        .header-button {
+            text-decoration: none; padding: 7px 14px; border-radius: 6px;
+            font-size: 14px; font-weight: 600; transition: all 0.2s;
+            white-space: nowrap; cursor: pointer; border: 1px solid #E2E8F0;
+            background: transparent;
+        }
+        .header-button.login { background: #F8F9FB; color: #4A5568; }
+        .header-button.login:hover { background: #FFFFFF; color: #2C3E50; border-color: #A0AEC0; }
+        
+        .header-button.signup { background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%); color: white; border: none; }
+        .header-button.signup:hover { box-shadow: 0 2px 5px rgba(102, 126, 234, 0.4); transform: translateY(-1px); }
+        
+        .header-button.dashboard { background: #FFFBEA; color: #92400E; border-color: #FCD34D; }
+        
+        .header-button.logout { background: #FFF5F5; color: #C53030; border-color: #FEB2B2; }
+        .header-button.logout:hover { background: #FED7D7; }
+        
+        .user-greeting { font-size: 14px; color: #4A5568; font-weight: 600; margin-right: 5px; display: block; }
+
+        /* Main Container */
+        .container-main {
+            max-width: 1000px; 
+            margin: 30px auto;
+            padding: 30px 20px;
+            background-color: var(--color-white);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            border: 1px solid #E2E8F0;
+        }
+
+        /* Lesson Specific Styles */
+        .lesson-main-title {
+            font-size: 2.5em;
+            font-weight: 800;
+            color: var(--color-secondary);
+            margin-bottom: 10px;
+            letter-spacing: -0.02em;
+        }
+
+        .lesson-section {
+            background-color: #F7FAFC; /* Very pale blue bg */
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid #EDF2F7;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: var(--color-secondary);
+            font-size: 1.8em;
+            font-weight: 800;
+            margin-bottom: 20px;
+            padding-bottom: 5px;
+            border-bottom: 2px dashed #CBD5E0;
+        }
+        
+        /* Reading/List Style */
+        .verb-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .verb-card {
+            background: #FFFFFF;
+            border-left: 5px solid var(--color-primary);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        .verb-card:hover { transform: translateY(-2px); }
+        .verb-name { font-size: 1.2em; font-weight: 800; color: #2C3E50; margin-bottom: 5px; }
+        .verb-def { color: #4A5568; font-style: italic; margin-bottom: 10px; }
+        .verb-ex { background: #EBF4FF; padding: 8px 12px; border-radius: 6px; font-size: 0.9em; color: #2D3748; }
+        
+        /* Interactive Elements */
+        .interactive-element {
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            background-color: var(--color-white);
+            color: #2C3E50;
+            font-weight: 600;
+            padding: 12px 18px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .interactive-element:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        }
+        
+        /* --- MATCH CARD STYLES --- */
+        .match-card {
+            border: 2px solid transparent; 
+            transition: all 0.2s ease;
+            cursor: pointer;
+            user-select: none;
+            border-radius: 0.75rem; 
+            padding: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            font-weight: 600;
+        }
+
+        .match-card.term {
+            background-color: #EBF4FF; 
+            font-size: 1.125rem;
+            border: 2px solid var(--color-primary);
+            text-align: center;
+        }
+        .match-card.definition {
+            background-color: #FFFFFF; 
+            text-align: left;
+            border: 2px solid #CBD5E0;
+        }
+
+        .match-card.selected {
+            border-color: var(--color-accent);
+            background-color: #E9D8FD; /* Light Purple */
+            box-shadow: 0 0 0 4px #D6BCFA;
+        }
+        
+        .match-card.matched { pointer-events: none; opacity: 1; transform: none; }
+
+        /* Matched Colors */
+        .match-card.matched-color-A { background-color: #C6F6D5 !important; border-color: #38A169 !important; box-shadow: 0 0 0 4px #38A169 !important; }
+        .match-card.matched-color-B { background-color: #BEE3F8 !important; border-color: #3182CE !important; box-shadow: 0 0 0 4px #3182CE !important; }
+        .match-card.matched-color-C { background-color: #E9D8FD !important; border-color: #805AD5 !important; box-shadow: 0 0 0 4px #805AD5 !important; }
+        .match-card.matched-color-D { background-color: #FED7D7 !important; border-color: #E53E3E !important; box-shadow: 0 0 0 4px #E53E3E !important; }
+        .match-card.matched-color-E { background-color: #FEFCBF !important; border-color: #D69E2E !important; box-shadow: 0 0 0 4px #D69E2E !important; }
+
+        /* Feedback Box */
+        .result-message {
+            margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: 700; display: none; text-align: center;
+        }
+        .result-message.correct { background-color: #C6F6D5; color: #22543D; border: 1px solid #9AE6B4; }
+        .result-message.incorrect { background-color: #FED7D7; color: #742A2A; border: 1px solid #FEB2B2; }
+        
+        /* Gap-Fill */
+        .word-bank { background: #E2E8F0; border: 2px solid #A0AEC0; border-radius: 10px; }
+        .word-options { display: flex; flex-wrap: wrap; gap: 10px; }
+        .word-option {
+            background-color: var(--color-primary); color: white; padding: 10px 15px;
+            border-radius: 6px; cursor: pointer; transition: all 0.2s; font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); border: none;
+        }
+        .word-option:hover { background-color: #5A67D8; }
+        .word-option.selected { background-color: var(--color-accent) !important; transform: scale(1.05); box-shadow: 0 0 0 4px #D6BCFA !important; }
+        .word-option.used { opacity: 0.4; pointer-events: none; background-color: #718096; transform: none; }
+
+        .gap-input {
+            display: inline-block; text-align: center; padding: 6px 10px; min-width: 140px; 
+            height: 38px; background-color: #EDF2F7; border: 1px dashed #667EEA; 
+            border-radius: 4px; color: #2C3E50; font-style: italic; cursor: pointer;
+            line-height: 24px; vertical-align: middle; font-weight: 600; margin: 0 4px; transition: all 0.2s;
+        }
+        .gap-input:empty { background-color: #EDF2F7; border: 1px dashed var(--color-primary); }
+        .gap-input.correct { background-color: #C6F6D5 !important; border-color: #48BB78 !important; color: #22543D !important; font-style: normal; }
+        .gap-input.incorrect { background-color: #FED7D7 !important; border-color: #F56565 !important; color: #742A2A !important; font-style: normal; }
+
+        /* Buttons */
+        .button-group { margin-top: 20px; display: flex; gap: 15px; justify-content: center; }
+        .check-button {
+            background: var(--color-primary); color: white; border: none; padding: 12px 25px;
+            border-radius: 9999px; cursor: pointer; font-size: 1em; font-weight: 600;
+            transition: all 0.3s; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .check-button:hover { background: #5A67D8; transform: translateY(-1px); }
+        .reset-button { background: #718096; }
+        .reset-button:hover { background: #4A5568; }
+
+        /* Save Words Section */
+        #save-words-section {
+            background: #EBF8FF; border: 2px solid #90CDF4; padding: 25px;
+            border-radius: 12px; margin-top: 40px; text-align: center;
+        }
+        #save-words-btn {
+            background-color: var(--color-save-btn); color: white; padding: 14px 30px;
+            border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color 0.2s;
+            display: block; width: 100%; border: none; box-shadow: 0 4px #434190;
+            text-transform: uppercase; font-size: 1.1em;
+        }
+        #save-words-btn:hover:not(:disabled) { background-color: #4C51BF; }
+        #save-words-btn:active:not(:disabled) { box-shadow: 0 1px #434190; transform: translateY(3px); }
+        #save-words-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        #learned-words-list {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px; margin-bottom: 20px; text-align: center; list-style: none;
+        }
+        #learned-words-list li {
+            background: white; padding: 10px 15px; border-radius: 8px;
+            border: 2px solid #667EEA; font-size: 0.95em; cursor: pointer;
+            transition: all 0.2s; font-weight: 600; color: #2C3E50;
+        }
+        #learned-words-list li:hover {
+            transform: translateY(-2px); border-color: var(--color-accent);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); background-color: #EBF4FF;
+        }
+
+        /* --- POPUP STYLES --- */
+        #feedback-popup {
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            padding: 20px 40px; border-radius: 16px; font-weight: 700; color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 2000; display: none;
+            text-align: center; font-size: 1.3em; border: 4px solid white;
+        }
+
+        #dictionary-popup {
+            position: fixed; max-width: 280px; padding: 16px; background: #FFFFFF;
+            border: 3px solid var(--color-primary); border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 2001; display: none;
+            font-size: 0.95em; color: #2C3E50; line-height: 1.5;
+        }
+
+        @media (max-width: 768px) { .user-greeting { display: none; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">🧩</span>
+                <a href="/" class="site-title">English For Cool Dudes</a>
+            </div>
+            
+            <div id="logged-out-buttons" class="header-buttons" style="display: none;">
+                <a href="/login/" class="header-button login">Login</a>
+                <a href="/signup/" class="header-button signup">Sign Up</a>
+            </div>
+
+            <div id="logged-in-buttons" class="header-buttons" style="display: none;">
+                <span class="user-greeting" id="user-greeting">Hey Cool Dude! 👋</span>
+                <a href="/dashboard/" class="header-button dashboard">My Dashboard</a>
+                <button id="logout-btn" class="header-button logout">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-main">
+        <h1 class="lesson-main-title">🧩 Top 10 Phrasal Verbs for Work</h1>
+        <p class="text-lg text-gray-500 mb-8">Professional English (B1/B2) to help you sound like a native in the office.</p>
+
+        <main class="space-y-8">
+            
+            <section class="lesson-section shadow-lg">
+                <h2 class="section-title">📚 The Cheat Sheet</h2>
+                <p class="mb-6 text-gray-600">Review these verbs before you start the activities!</p>
+                <div class="verb-grid">
+                    <div class="verb-card">
+                        <div class="verb-name">Catch up (on)</div>
+                        <div class="verb-def">To do work you haven't done yet, or exchange news.</div>
+                        <div class="verb-ex">"I need to <strong>catch up</strong> on my emails."</div>
+                    </div>
+                    <div class="verb-card">
+                        <div class="verb-name">Put off</div>
+                        <div class="verb-def">To delay or postpone something.</div>
+                        <div class="verb-ex">"Let's <strong>put off</strong> the meeting until Friday."</div>
+                    </div>
+                    <div class="verb-card">
+                        <div class="verb-name">Call off</div>
+                        <div class="verb-def">To cancel something completely.</div>
+                        <div class="verb-ex">"They decided to <strong>call off</strong> the party."</div>
+                    </div>
+                    <div class="verb-card">
+                        <div class="verb-name">Look into</div>
+                        <div class="verb-def">To investigate or check something.</div>
+                        <div class="verb-ex">"I will <strong>look into</strong> that problem immediately."</div>
+                    </div>
+                    <div class="verb-card">
+                        <div class="verb-name">Run out of</div>
+                        <div class="verb-def">To have none left.</div>
+                        <div class="verb-ex">"We have <strong>run out of</strong> paper."</div>
+                    </div>
+                    <div class="verb-card">
+                        <div class="verb-name">Get along (with)</div>
+                        <div class="verb-def">To have a good relationship.</div>
+                        <div class="verb-ex">"I <strong>get along</strong> well with my boss."</div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="exercise-1" class="lesson-section shadow-lg">
+                <h2 class="section-title">🔗 1. Quick Match</h2>
+                <p class="text-gray-600 mb-6">Match the **Phrasal Verb** (Blue border) with its **Definition** (Gray border).</p>
+
+                <div id="vocab-match-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                
+                <div class="button-group">
+                    <button class="check-button reset-button" onclick="resetVocab()">Reset Exercise</button>
+                </div>
+            </section>
+        
+            <section id="exercise-3" class="lesson-section shadow-lg">
+                <h2 class="section-title">📝 2. Complete the Emails</h2>
+                <p class="text-gray-600 mb-6">Click a **Word** in the bank to select it, then click the blank space to finish the sentences.</p>
+                
+                <div class="word-bank p-4 mb-6">
+                    <h4 class="font-bold text-gray-600 mb-3">Word Bank:</h4>
+                    <div class="word-options" id="gap-fill-options">
+                        <span class="word-option">put off</span>
+                        <span class="word-option">run out of</span>
+                        <span class="word-option">call off</span>
+                        <span class="word-option">look into</span>
+                        <span class="word-option">catch up</span>
+                    </div>
+                </div>
+
+                <div class="gap-fill-text text-lg leading-loose">
+                    <p class="mb-5">1. Hi team, I'm too busy today. Can we <span class="gap-input" data-word-index="0"></span> the meeting until tomorrow?</p>
+                    <p class="mb-5">2. Sorry I'm late! I had to <span class="gap-input" data-word-index="4"></span> on some paperwork.</p>
+                    <p class="mb-5">3. Bad news. We have <span class="gap-input" data-word-index="1"></span> coffee in the kitchen!</p>
+                    <p class="mb-5">4. The client is complaining about the error. Please <span class="gap-input" data-word-index="3"></span> it and find a solution.</p>
+                    <p class="mb-5">5. Due to the strike, we have to <span class="gap-input" data-word-index="2"></span> the conference completely.</p>
+                </div>
+                <div class="button-group">
+                    <button class="check-button" onclick="checkGaps()">Check Answers</button>
+                    <button class="check-button reset-button" onclick="resetGaps()">Reset Exercise</button>
+                </div>
+                <div id="gap-result" class="result-message"></div>
+            </section>
+
+            <section class="lesson-section shadow-lg border-t-4 border-indigo-500">
+                <h2 class="section-title">🎉 Lesson Complete</h2>
+                <p class="mb-4 text-gray-600">Great job! Click a verb below to see its definition.</p>
+                
+                <ul id="learned-words-list">
+                    <li data-word="Catch up">Catch up</li>
+                    <li data-word="Put off">Put off</li>
+                    <li data-word="Call off">Call off</li>
+                    <li data-word="Look into">Look into</li>
+                    <li data-word="Run out of">Run out of</li>
+                    <li data-word="Get along">Get along</li>
+                </ul>
+
+                <div id="save-words-section">
+                    <h3 class="text-xl font-bold mb-3" style="color: var(--color-save-btn);">💾 Save Your Progress</h3>
+                    
+                    <div id="save-feature-loggedin" style="display: none;">
+                        <p class="text-gray-700 mb-4">Save these verbs to your personal dashboard to practice them later.</p>
+                        <button id="save-words-btn" onclick="saveWordsToDashboard()">Save Verbs to Dashboard</button>
+                        <p id="save-status" class="text-center mt-3 font-semibold"></p>
+                    </div>
+                    
+                    <div id="login-prompt" style="display: none;">
+                        <p class="text-red-600 font-bold mb-2">🔒 Login to save your progress!</p>
+                        <a href="/login/" class="inline-block bg-gray-800 text-white font-bold py-2 px-4 rounded hover:bg-black transition">Log In / Sign Up</a>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    
+    <div id="feedback-popup"></div>
+    <div id="dictionary-popup"></div>
+
+    <script>
+        // --- AUTH CONFIG ---
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null;
+
+        const lessonTitle = "Top 10 Phrasal Verbs for Work";
+        const lessonLink = "/phrasals/"; // Ensure this matches your file name
+        const lessonLevel = "B1/B2";
+
+        // Words to Save
+        const wordsToSave = [
+            { word: "catch up", type: "phrasal verb", definition: "To do work you haven't done yet." },
+            { word: "put off", type: "phrasal verb", definition: "To delay or postpone." },
+            { word: "call off", type: "phrasal verb", definition: "To cancel completely." },
+            { word: "look into", type: "phrasal verb", definition: "To investigate." },
+            { word: "run out of", type: "phrasal verb", definition: "To have none left." },
+            { word: "get along", type: "phrasal verb", definition: "To have a good relationship." }
+        ];
+
+        // --- AUTH FUNCTIONS ---
+        async function checkUser() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('logged-in-buttons').style.display = 'flex';
+                    document.getElementById('logged-out-buttons').style.display = 'none';
+                    document.getElementById('save-feature-loggedin').style.display = 'block';
+                    document.getElementById('login-prompt').style.display = 'none';
+                    
+                    const name = user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Cool Dude';
+                    document.getElementById('user-greeting').textContent = `Hey ${name}! 👋`;
+                } else {
+                    document.getElementById('logged-in-buttons').style.display = 'none';
+                    document.getElementById('logged-out-buttons').style.display = 'flex';
+                    document.getElementById('save-feature-loggedin').style.display = 'none';
+                    document.getElementById('login-prompt').style.display = 'block';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function saveWordsToDashboard() {
+            if (!currentUser) return;
+            const btn = document.getElementById('save-words-btn');
+            const status = document.getElementById('save-status');
+            
+            btn.disabled = true;
+            btn.textContent = "Saving...";
+
+            const { error } = await supabase.from('lessons').upsert([{
+                user_id: currentUser.id,
+                lesson_title: lessonTitle,
+                lesson_link: lessonLink,
+                lesson_level: lessonLevel,
+                vocabulary: wordsToSave,
+                completed_at: new Date().toISOString()
+            }], { onConflict: 'user_id,lesson_title' });
+
+            if (!error) {
+                btn.textContent = "✅ Saved!";
+                btn.style.backgroundColor = "#2E7D32"; 
+                status.textContent = "Great job! Words added to your dashboard.";
+                setTimeout(() => window.location.href = '/dashboard/', 1500);
+            } else {
+                btn.textContent = "❌ Error";
+                btn.disabled = false;
+                status.textContent = "Error saving. Please try again.";
+            }
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.reload();
+        });
+        
+        // --- POPUP FUNCTIONS ---
+        function showFeedback(msg, type) {
+            const el = document.getElementById('feedback-popup');
+            el.textContent = msg;
+            el.style.display = 'block';
+            
+            if (type === 'correct') {
+                el.style.backgroundColor = '#48BB78'; // Green
+                el.style.borderColor = '#2F855A';
+            } else {
+                el.style.backgroundColor = '#F56565'; // Red
+                el.style.borderColor = '#C53030';
+            }
+            setTimeout(() => { el.style.display = 'none'; }, 1800);
+        }
+
+        function showDictionaryPopup(target, word) {
+            const wordObj = wordsToSave.find(w => w.word === word);
+            if(!wordObj) return;
+
+            const popup = document.getElementById('dictionary-popup');
+            popup.innerHTML = `<strong>${wordObj.word}</strong> <span style="font-size:0.85em; color:#558B2F;">(${wordObj.type})</span><br>${wordObj.definition}`;
+            popup.style.display = 'block';
+
+            const rect = target.getBoundingClientRect();
+            let topPos = rect.top - popup.offsetHeight - 10;
+            if (topPos < 10) topPos = rect.bottom + 10;
+            
+            popup.style.top = topPos + 'px';
+            popup.style.left = (rect.left + (rect.width/2) - (popup.offsetWidth/2)) + 'px';
+        }
+        
+        document.body.addEventListener('click', (e) => {
+            if (!e.target.closest('#dictionary-popup') && !e.target.closest('#learned-words-list li') && !e.target.closest('.verb-card')) {
+                document.getElementById('dictionary-popup').style.display = 'none';
+            }
+        });
+
+        // --- EXERCISE LOGIC ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        function cleanText(text) {
+            if (!text) return '';
+            return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z]/g, '').toLowerCase();
+        }
+
+        /* 1. MATCHING LOGIC */
+        const newVocabData = [
+            { type: 'term', content: "Put off", key: 'A' }, { type: 'definition', content: "To delay or postpone something.", key: 'A' },
+            { type: 'term', content: "Call off", key: 'B' }, { type: 'definition', content: "To cancel something completely.", key: 'B' },
+            { type: 'term', content: "Catch up", key: 'C' }, { type: 'definition', content: "To do work you missed.", key: 'C' },
+            { type: 'term', content: "Look into", key: 'D' }, { type: 'definition', content: "To investigate a problem.", key: 'D' },
+            { type: 'term', content: "Run out of", key: 'E' }, { type: 'definition', content: "To have none left.", key: 'E' }
+        ];
+        let selectedTermCard = null;
+        let selectedDefinitionCard = null;
+
+        const funCorrect = ["Excellent! 👔", "Promoted! 📈", "Great work! ✨", "Spot on! ✅"];
+        const funIncorrect = ["Try again! 📉", "Not quite! ❌", "Check your notes! 📝"];
+
+        function initVocab() {
+            const matchContainer = document.getElementById('vocab-match-container');
+            matchContainer.innerHTML = '';
+            shuffleArray(newVocabData);
+            newVocabData.forEach(item => {
+                const card = document.createElement('div'); 
+                card.className = `match-card interactive-element ${item.type}`;
+                card.innerHTML = item.type === 'term' ? `<span class="font-extrabold text-gray-600">${item.content}</span>` : `<span class="text-gray-600">${item.content}</span>`; 
+                card.dataset.key = item.key; card.dataset.type = item.type;
+                card.addEventListener('click', () => handleMatchClick(card));
+                matchContainer.appendChild(card);
+            });
+            selectedTermCard = null; selectedDefinitionCard = null;
+        }
+
+        function handleMatchClick(card) {
+            if (card.classList.contains('matched')) return;
+            
+            const type = card.dataset.type;
+            let currentSelection = type === 'term' ? selectedTermCard : selectedDefinitionCard;
+            if (currentSelection) currentSelection.classList.remove('selected');
+            
+            if (currentSelection === card) {
+                if (type === 'term') selectedTermCard = null; else selectedDefinitionCard = null;
+                return;
+            }
+            
+            if (type === 'term') selectedTermCard = card; else selectedDefinitionCard = card;
+            card.classList.add('selected');
+
+            if (selectedTermCard && selectedDefinitionCard) {
+                if (selectedTermCard.dataset.key === selectedDefinitionCard.dataset.key) {
+                    const matchKey = selectedTermCard.dataset.key; 
+                    [selectedTermCard, selectedDefinitionCard].forEach(el => {
+                        el.classList.remove('selected'); el.classList.add('matched', `matched-color-${matchKey}`);
+                    });
+                    showFeedback(funCorrect[Math.floor(Math.random()*funCorrect.length)], 'correct');
+                    selectedTermCard = null; selectedDefinitionCard = null;
+                } else {
+                    showFeedback(funIncorrect[Math.floor(Math.random()*funIncorrect.length)], 'incorrect');
+                    setTimeout(() => {
+                        if(selectedTermCard) selectedTermCard.classList.remove('selected'); 
+                        if(selectedDefinitionCard) selectedDefinitionCard.classList.remove('selected');
+                        selectedTermCard = null; selectedDefinitionCard = null;
+                    }, 800);
+                }
+            }
+        }
+        function resetVocab() { initVocab(); }
+
+        /* 3. GAP FILL LOGIC */
+        // These are the TARGET words for each gap index
+        const gapAnswers = ['put off', 'run out of', 'call off', 'look into', 'catch up']; 
+        let selectedGapWord = null; 
+        
+        function initGaps() {
+            const wordOptionsContainer = document.getElementById('gap-fill-options');
+            const options = Array.from(wordOptionsContainer.children);
+            shuffleArray(options);
+            options.forEach(option => {
+                wordOptionsContainer.appendChild(option);
+                option.classList.remove('used', 'selected'); 
+            });
+            document.querySelectorAll('.gap-input').forEach(blank => {
+                blank.textContent = ''; blank.classList.remove('correct', 'incorrect', 'selected');
+            });
+            selectedGapWord = null; document.getElementById('gap-result').style.display = 'none';
+        }
+        
+        function handleGapBlankClick(blank) {
+            // Logic to clear a filled blank (return word to bank)
+            if (blank.textContent.trim() !== '') { 
+                const cleanedWord = cleanText(blank.textContent).replace(/ /g, ''); 
+                // We strip spaces for matching because classLists don't handle spaces well, 
+                // but here we just need to match the text content roughly
+                const btn = Array.from(document.querySelectorAll('.word-option')).find(b => cleanText(b.textContent).replace(/ /g, '') === cleanedWord);
+                
+                if (btn) btn.classList.remove('used');
+                blank.textContent = ''; blank.classList.remove('correct', 'incorrect');
+                return;
+            } 
+            // Logic to fill blank
+            if (selectedGapWord) {
+                blank.textContent = selectedGapWord.textContent.trim();
+                selectedGapWord.classList.remove('selected'); selectedGapWord.classList.add('used');
+                selectedGapWord = null;
+            } 
+        }
+        
+        function checkGaps() {
+            let correctCount = 0;
+            let mistakes = []; // Tracking mistakes for your Index Popup fix
+            const blanks = document.querySelectorAll('.gap-input'); 
+            
+            blanks.forEach(blank => { 
+                const index = parseInt(blank.dataset.wordIndex, 10); 
+                const extractedWord = cleanText(blank.textContent).replace(/\s/g, ''); 
+                const answerWord = cleanText(gapAnswers[index]).replace(/\s/g, '');
+                
+                blank.classList.remove('selected', 'incorrect', 'correct');
+                
+                if (extractedWord && (extractedWord === answerWord)) {
+                    blank.classList.add('correct'); 
+                    correctCount++;
+                } else if (extractedWord) { 
+                    blank.classList.add('incorrect');
+                    // !!! CRITICAL FIX !!! 
+                    // If they got it wrong, we save the CORRECT answer (the one they should have known)
+                    // so the index page can test them on it later.
+                    mistakes.push(gapAnswers[index]);
+                }
+            });
+
+            // Trigger the storage update for the Index popup
+            if (mistakes.length > 0) {
+                updateMistakesStorage(mistakes);
+            }
+
+            const resultDiv = document.getElementById('gap-result');
+            resultDiv.style.display = 'block';
+            if (correctCount === blanks.length) {
+                resultDiv.textContent = '🎉 Perfect! You are ready for business.'; resultDiv.className = 'result-message correct';
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            } else {
+                resultDiv.textContent = `You got ${correctCount} out of ${blanks.length} correct. Check the red boxes!`; resultDiv.className = 'result-message incorrect';
+            }
+        }
+        
+        function resetGaps() { initGaps(); }
+
+        // === LOCAL STORAGE HELPER (From your saved preferences) ===
+        function updateMistakesStorage(newMistakes) {
+            let existingMistakes = JSON.parse(localStorage.getItem('cool_dude_mistakes')) || [];
+            newMistakes.forEach(word => {
+                if (!existingMistakes.includes(word)) {
+                    existingMistakes.push(word);
+                }
+            });
+            localStorage.setItem('cool_dude_mistakes', JSON.stringify(existingMistakes));
+            console.log("Saved mistakes for extra practice:", newMistakes);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkUser();
+            initVocab();
+            // Dictionary Listeners
+            document.querySelectorAll('#learned-words-list li').forEach(li => {
+                li.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showDictionaryPopup(li, li.dataset.word);
+                });
+            });
+
+            // Gap Fill Listeners
+            document.querySelectorAll('.word-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    if (option.classList.contains('used')) return;
+                    if (selectedGapWord) selectedGapWord.classList.remove('selected');
+                    if (selectedGapWord === option) selectedGapWord = null;
+                    else { selectedGapWord = option; selectedGapWord.classList.add('selected'); }
+                });
+            });
+            document.querySelectorAll('.gap-input').forEach(blank => {
+                blank.addEventListener('click', () => handleGapBlankClick(blank));
+            });
+            initGaps();
+        });
+    </script>
+</body>
+</html>
