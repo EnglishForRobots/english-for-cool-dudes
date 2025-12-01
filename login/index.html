@@ -439,14 +439,11 @@
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         // --- DOM ELEMENTS ---
-        const signUpForm = document.getElementById('signup-form');
-        const nameInput = document.getElementById('name');
+        const loginForm = document.getElementById('login-form'); // Correct ID for Login Page
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
-        const confirmPasswordInput = document.getElementById('confirm-password');
         const messageDiv = document.getElementById('message');
-        const signupButton = document.getElementById('signup-btn');
-        const termsCheckbox = document.getElementById('terms-agreed');
+        const loginButton = document.getElementById('login-btn');
 
         // --- HELPER FUNCTIONS ---
         function displayMessage(text, isError = false) {
@@ -455,77 +452,47 @@
             messageDiv.style.display = 'block';
         }
 
-        async function handleSignUp(event) {
+        async function handleLogin(event) {
             event.preventDefault();
             
-            if (!termsCheckbox.checked) {
-                displayMessage('You must agree to The Cool Dude Agreement.', true);
-                return;
-            }
-            
-            const name = nameInput.value.trim();
             const email = emailInput.value.trim();
             const password = passwordInput.value; 
-            const confirmPassword = confirmPasswordInput.value;
 
-            if (!name || !email || !password || !confirmPassword) {
-                displayMessage('Please fill out all fields.', true);
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                displayMessage('The passwords you entered do not match. Try again!', true);
-                return;
-            }
-            
-            if (password.length < 8) {
-                displayMessage('Your password must be at least 8 characters long.', true);
+            if (!email || !password) {
+                displayMessage('Please enter your email and password.', true);
                 return;
             }
 
-            signupButton.disabled = true;
-            signupButton.textContent = 'Processing...';
-            displayMessage('Creating your account...', false);
+            loginButton.disabled = true;
+            loginButton.textContent = 'Signing in...';
+            displayMessage('Verifying credentials...', false);
 
             try {
-                const { data, error } = await supabase.auth.signUp({
+                const { data, error } = await supabase.auth.signInWithPassword({
                     email: email,
-                    password: password,
-                    options: {
-                        data: {
-                            full_name: name,
-                            is_first_login: true
-                        }
-                    }
+                    password: password
                 });
 
-                signupButton.disabled = false;
-                signupButton.textContent = 'Create My Account'; 
+                loginButton.disabled = false;
+                loginButton.textContent = 'Sign In'; 
 
                 if (error) {
-                    console.error('Sign Up Error:', error);
-                    
-                    if (error.message.toLowerCase().includes('password')) {
-                        displayMessage('Password too weak. Please use 8+ characters with variety.', true);
-                    } else if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('already exists')) {
-                        displayMessage('This email is already registered. Try logging in!', true);
-                    } else {
-                        displayMessage('Sign-up failed: ' + error.message, true);
-                    }
+                    console.error('Login Error:', error);
+                    displayMessage('Login failed: Invalid email or password.', true);
                 } else {
-                    console.log('Sign-up successful:', data);
-                    displayMessage('Success! Redirecting to your dashboard...', false);
+                    console.log('Login successful:', data);
+                    displayMessage('Success! Redirecting...', false);
                     
                     // Redirect immediately to dashboard
                     setTimeout(() => {
                         window.location.href = '/dashboard/'; 
-                    }, 1000);
+                    }, 500);
                 }
             } catch (err) {
                 console.error('Unexpected error:', err);
                 displayMessage('An unexpected error occurred. Please try again.', true);
-                signupButton.disabled = false;
-                signupButton.textContent = 'Create My Account';
+                loginButton.disabled = false;
+                loginButton.textContent = 'Sign In';
             }
         }
 
@@ -539,8 +506,8 @@
             }
 
             // 2. Setup Form Listener
-            if (signUpForm) {
-                signUpForm.addEventListener('submit', handleSignUp);
+            if (loginForm) {
+                loginForm.addEventListener('submit', handleLogin);
             }
         });
     </script>
