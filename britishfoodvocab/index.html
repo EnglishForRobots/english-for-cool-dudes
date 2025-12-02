@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>British Food Vocabulary - English For Cool Dudes</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* --- BRANDING & LAYOUT STYLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: #FDFBF7; /* Creamy Background */
+            color: #2D3748;
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- THEME: GREAT BRITISH MENU 🇬🇧 --- */
+        :root {
+            --color-primary: #012169; /* Royal Navy Blue */
+            --color-secondary: #C8102E; /* Union Jack Red */
+            --color-accent: #C5A065; /* Gold/Biscuit */
+            --color-light-bg: #F5F5DC; /* Beige */
+            --color-white: #FFFFFF;
+            
+            /* Feedback Colors */
+            --color-correct: #2E7D32; /* Green */
+            --color-incorrect: #C62828; /* Red */
+            
+            /* UI Elements */
+            --color-save-btn: #012169; /* Navy for Save */
+        }
+
+        /* Header */
+        .header {
+            background: var(--color-white);
+            border-bottom: 3px solid var(--color-secondary);
+            padding: 20px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-content {
+            max-width: 1200px; margin: 0 auto; padding: 0 20px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .logo {
+            width: 40px; height: 40px;
+            background: var(--color-primary); 
+            color: white;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; border: 2px solid var(--color-secondary);
+        }
+        .site-title { font-size: 20px; font-weight: 800; color: var(--color-primary); text-decoration: none; letter-spacing: -0.02em; }
+
+        /* Header Buttons */
+        .header-buttons { display: flex; align-items: center; gap: 8px; }
+        .header-button {
+            text-decoration: none; padding: 7px 14px; border-radius: 6px;
+            font-size: 14px; font-weight: 700; transition: all 0.2s;
+            white-space: nowrap; cursor: pointer; border: 2px solid var(--color-primary);
+            background: transparent; color: var(--color-primary);
+        }
+        .header-button.login { background: #FFFFFF; }
+        .header-button.login:hover { background: #EBF8FF; }
+        
+        .header-button.signup { background: var(--color-secondary); color: white; border-color: var(--color-secondary); }
+        .header-button.signup:hover { background: #B71C1C; }
+        
+        .header-button.dashboard { background: var(--color-accent); color: white; border-color: var(--color-accent); }
+        .header-button.dashboard:hover { background: #B08D55; }
+        
+        .header-button.logout { border-color: #EF5350; color: #EF5350; }
+        .header-button.logout:hover { background: #FFEBEE; }
+        
+        .user-greeting { font-size: 14px; color: var(--color-primary); font-weight: 700; margin-right: 5px; display: block; }
+
+        /* Main Container */
+        .container-main {
+            max-width: 900px; margin: 40px auto; padding: 40px 30px;
+            background-color: var(--color-white); border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); border-top: 5px solid var(--color-primary);
+        }
+
+        /* Lesson Styles */
+        .lesson-main-title { 
+            font-size: 2.8em; font-weight: 900; color: var(--color-primary); 
+            margin-bottom: 10px; letter-spacing: -0.03em; text-align: center;
+        }
+        .lesson-subtitle {
+            text-align: center; color: #718096; font-size: 1.1em; margin-bottom: 40px; font-weight: 500;
+        }
+
+        .lesson-section {
+            background-color: #F8FAFC; padding: 30px; border-radius: 12px;
+            border: 1px solid #E2E8F0; margin-bottom: 35px; position: relative;
+        }
+        
+        .section-title {
+            color: var(--color-secondary); font-size: 1.5em; font-weight: 800;
+            margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--color-accent);
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        
+        /* Reading Text */
+        .reading-text {
+            background: #FFFFFF; border-left: 6px solid var(--color-secondary);
+            padding: 25px; border-radius: 0 8px 8px 0; font-size: 1.15em;
+            color: #2D3748; line-height: 1.9; box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        .highlight-word {
+            color: var(--color-primary); font-weight: 800; cursor: help;
+            border-bottom: 2px dashed var(--color-accent); transition: all 0.2s;
+        }
+        .highlight-word:hover { background-color: var(--color-light-bg); color: var(--color-secondary); }
+        
+        /* Match Cards */
+        .match-card {
+            border: 2px solid transparent; transition: all 0.2s ease; cursor: pointer;
+            user-select: none; border-radius: 8px; padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); font-weight: 700;
+        }
+        .match-card.term { 
+            background-color: #EBF8FF; font-size: 1.1em; 
+            border: 2px solid var(--color-primary); text-align: center; color: var(--color-primary);
+        }
+        .match-card.definition { 
+            background-color: #FFFFFF; text-align: left; 
+            border: 2px solid #CBD5E0; color: #4A5568;
+        }
+        .match-card.selected { 
+            border-color: var(--color-secondary); background-color: #FFF5F5; 
+            transform: scale(1.02); box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+        }
+        .match-card.matched { pointer-events: none; opacity: 0.8; transform: none; }
+
+        /* Matched Colors (Thematic) */
+        .match-card.matched-color-A { background-color: #E6FFFA !important; border-color: #2E7D32 !important; }
+        .match-card.matched-color-B { background-color: #FFF5F5 !important; border-color: #C62828 !important; }
+        .match-card.matched-color-C { background-color: #EBF8FF !important; border-color: #012169 !important; }
+        .match-card.matched-color-D { background-color: #FEFCBF !important; border-color: #D69E2E !important; }
+        .match-card.matched-color-E { background-color: #FAF5FF !important; border-color: #805AD5 !important; }
+        .match-card.matched-color-F { background-color: #EDF2F7 !important; border-color: #4A5568 !important; }
+
+        /* Quiz Buttons */
+        .comp-btn-group .option-button {
+            transition: all 0.2s; background-color: #FFFFFF; color: #2D3748;
+            font-weight: 600; padding: 12px 18px; border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); border: 2px solid #E2E8F0;
+            text-align: left; width: 100%; cursor: pointer; margin-bottom: 8px;
+        }
+        .comp-btn-group .option-button:hover { border-color: var(--color-primary); background-color: #EBF8FF; }
+        .comp-btn-group .option-button.selected { background-color: var(--color-primary); color: white !important; border-color: var(--color-primary); }
+        .comp-btn-group .option-button.correct { background-color: #38A169 !important; color: white !important; border-color: #38A169 !important; }
+        .comp-btn-group .option-button.incorrect { background-color: #E53E3E !important; color: white !important; border-color: #E53E3E !important; }
+
+        /* Results & Gaps */
+        .result-message { margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: 700; display: none; text-align: center; }
+        .result-message.correct { background-color: #C6F6D5; color: #22543D; border: 1px solid #9AE6B4; }
+        .result-message.incorrect { background-color: #FED7D7; color: #742A2A; border: 1px solid #FEB2B2; }
+        
+        .word-bank { background: #EDF2F7; border: 2px solid var(--color-primary); border-radius: 10px; }
+        .word-options { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;}
+        .word-option {
+            background-color: var(--color-white); color: var(--color-primary); padding: 8px 16px;
+            border-radius: 20px; cursor: pointer; transition: all 0.2s; font-weight: 700;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); border: 2px solid var(--color-primary);
+        }
+        .word-option:hover { background-color: var(--color-primary); color: white; }
+        .word-option.selected { background-color: var(--color-secondary) !important; border-color: var(--color-secondary) !important; color: white !important; transform: scale(1.05); }
+        .word-option.used { opacity: 0.4; pointer-events: none; background-color: #CBD5E0; border-color: #CBD5E0; color: #718096; transform: none; }
+
+        .gap-input {
+            display: inline-block; text-align: center; padding: 0 8px; min-width: 120px; 
+            height: 32px; background-color: #FFF; border-bottom: 3px solid var(--color-primary); 
+            color: #2D3748; font-style: italic; cursor: pointer;
+            line-height: 30px; vertical-align: middle; font-weight: 700; margin: 0 4px; transition: all 0.2s;
+        }
+        .gap-input:empty { background-color: #F7FAFC; }
+        .gap-input.correct { background-color: #C6F6D5 !important; border-color: #38A169 !important; color: #22543D !important; font-style: normal; }
+        .gap-input.incorrect { background-color: #FED7D7 !important; border-color: #E53E3E !important; color: #742A2A !important; font-style: normal; }
+
+        /* General Buttons */
+        .button-group { margin-top: 25px; display: flex; gap: 15px; justify-content: center; }
+        .check-button {
+            background: var(--color-primary); color: white; border: none; padding: 12px 30px;
+            border-radius: 30px; cursor: pointer; font-size: 1em; font-weight: 700;
+            transition: all 0.3s; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .check-button:hover { background: #0033A0; transform: translateY(-2px); box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); }
+        .reset-button { background: #718096; }
+        .reset-button:hover { background: #4A5568; }
+
+        /* Save Section */
+        #save-words-section { background: #FFF5F5; border: 2px solid var(--color-secondary); padding: 30px; border-radius: 12px; margin-top: 40px; text-align: center; }
+        #save-words-btn {
+            background-color: var(--color-secondary); color: white; padding: 15px 35px;
+            border-radius: 8px; font-weight: 700; cursor: pointer; transition: background-color 0.2s;
+            display: inline-block; border: none; box-shadow: 0 4px #7F1D1D;
+            text-transform: uppercase; font-size: 1.1em;
+        }
+        #save-words-btn:hover:not(:disabled) { background-color: #B71C1C; }
+        #save-words-btn:active:not(:disabled) { box-shadow: 0 1px #7F1D1D; transform: translateY(3px); }
+        #save-words-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        #learned-words-list {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px; margin-bottom: 20px; text-align: center; list-style: none;
+        }
+        #learned-words-list li {
+            background: white; padding: 12px 15px; border-radius: 8px;
+            border: 2px solid #E2E8F0; font-size: 1em; cursor: pointer;
+            transition: all 0.2s; font-weight: 700; color: var(--color-primary);
+        }
+        #learned-words-list li:hover {
+            transform: translateY(-3px); border-color: var(--color-accent);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08); background-color: #FFFFF0;
+        }
+
+        /* Popups */
+        #feedback-popup {
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            padding: 20px 40px; border-radius: 16px; font-weight: 800; color: white;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3); z-index: 2000; display: none;
+            text-align: center; font-size: 1.5em; border: 4px solid white;
+        }
+        #dictionary-popup {
+            position: fixed; max-width: 300px; padding: 20px; background: #FFFFFF;
+            border: 4px solid var(--color-primary); border-radius: 16px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2); z-index: 2001; display: none;
+            font-size: 1em; color: #2D3748; line-height: 1.6;
+        }
+
+        @media (max-width: 768px) { .user-greeting { display: none; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">🇬🇧</span>
+                <a href="/intermediate/" class="site-title">English For Cool Dudes</a>
+            </div>
+            <div id="logged-out-buttons" class="header-buttons" style="display: none;">
+                <a href="/login/" class="header-button login">Login</a>
+                <a href="/signup/" class="header-button signup">Sign Up</a>
+            </div>
+            <div id="logged-in-buttons" class="header-buttons" style="display: none;">
+                <span class="user-greeting" id="user-greeting">Hey Cool Dude! 👋</span>
+                <a href="/dashboard/" class="header-button dashboard">My Dashboard</a>
+                <button id="logout-btn" class="header-button logout">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-main">
+        <h1 class="lesson-main-title">🇬🇧 British Food Vocabulary</h1>
+        <p class="lesson-subtitle">Learn the most delicious (and weird) words in the UK menu!</p>
+
+        <main class="space-y-8">
+            
+            <section class="lesson-section shadow-lg">
+                <h2 class="section-title">📜 Reading: The Great British Menu</h2>
+                <div class="reading-text">
+                    <p>Welcome to the wonderful world of British food! If you visit the UK, you must start your day with a <span class="highlight-word" onclick="showDictionaryPopup(this, 'Full English')">Full English</span> breakfast (eggs, bacon, beans, and toast). For lunch, you might try a <span class="highlight-word" onclick="showDictionaryPopup(this, 'Chip Butty')">Chip Butty</span>. This is a very simple sandwich made with hot chips (fries) inside buttered bread!</p>
+
+                    <p>For dinner, the most famous meal is the <span class="highlight-word" onclick="showDictionaryPopup(this, 'Sunday Roast')">Sunday Roast</span>. It includes roast meat, potatoes, vegetables, and a special bread called a <span class="highlight-word" onclick="showDictionaryPopup(this, 'Yorkshire Pudding')">Yorkshire Pudding</span>, all covered in hot brown <span class="highlight-word" onclick="showDictionaryPopup(this, 'Gravy')">Gravy</span>. Another classic dish is <span class="highlight-word" onclick="showDictionaryPopup(this, 'Bangers and Mash')">Bangers and Mash</span> (sausages and mashed potatoes).</p>
+
+                    <p>Of course, British people love tea. We call a cup of tea a "<span class="highlight-word" onclick="showDictionaryPopup(this, 'Cuppa')">Cuppa</span>." We usually drink it with a <span class="highlight-word" onclick="showDictionaryPopup(this, 'Biscuit')">Biscuit</span> (cookie). If you are still hungry, you can have a dessert, which we simply call <span class="highlight-word" onclick="showDictionaryPopup(this, 'Pudding')">Pudding</span>.</p>
+                </div>
+            </section>
+
+            <section id="exercise-1" class="lesson-section shadow-lg">
+                <h2 class="section-title">🔗 1. Food Match</h2>
+                <p class="text-gray-600 mb-6">Match the **British Food** (Blue border) with its **Description** (Gray border).</p>
+
+                <div id="vocab-match-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                
+                <div class="button-group">
+                    <button class="check-button reset-button" onclick="resetVocab()">Reset Exercise</button>
+                </div>
+            </section>
+        
+            <section id="exercise-2" class="lesson-section shadow-lg">
+                <h2 class="section-title">❓ 2. Menu Quiz</h2>
+                <p class="exercise-instructions">Answer these questions based on the text.</p>
+                
+                <div class="question" data-question="1">
+                    <p class="font-semibold text-lg text-gray-700 mb-3">1. What is a "Chip Butty"?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="1">
+                        <li class="option-button" data-correct="false">A sandwich with potato chips (crisps).</li>
+                        <li class="option-button" data-correct="true">A sandwich with hot fries (chips) inside.</li>
+                        <li class="option-button" data-correct="false">A special type of butter.</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="2">
+                    <p class="font-semibold text-lg text-gray-700 mb-3">2. What do British people typically eat with a "Cuppa"?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="2">
+                        <li class="option-button" data-correct="false">Gravy</li>
+                        <li class="option-button" data-correct="false">A Yorkshire Pudding</li>
+                        <li class="option-button" data-correct="true">A Biscuit</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="3">
+                    <p class="font-semibold text-lg text-gray-700 mb-3">3. Which meal includes a Yorkshire Pudding?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="3">
+                        <li class="option-button" data-correct="true">Sunday Roast</li>
+                        <li class="option-button" data-correct="false">Full English Breakfast</li>
+                        <li class="option-button" data-correct="false">Bangers and Mash</li>
+                    </ul>
+                </div>
+
+                <div class="button-group">
+                    <button class="check-button" onclick="checkComprehension()">Check Answers</button>
+                    <button class="check-button reset-button" onclick="resetComprehension()">Reset Exercise</button>
+                </div>
+                <div id="comprehension-result" class="result-message"></div>
+            </section>
+
+            <section id="exercise-3" class="lesson-section shadow-lg">
+                <h2 class="section-title">📝 3. Cafe Order</h2>
+                <p class="text-gray-600 mb-6">Complete the conversation in the cafe.</p>
+                
+                <div class="word-bank p-4 mb-6">
+                    <h4 class="font-bold text-gray-600 mb-3 text-center">Menu Options:</h4>
+                    <div class="word-options" id="gap-fill-options">
+                        <span class="word-option">gravy</span>
+                        <span class="word-option">cuppa</span>
+                        <span class="word-option">bangers</span>
+                        <span class="word-option">pudding</span>
+                        <span class="word-option">mash</span>
+                    </div>
+                </div>
+
+                <div class="gap-fill-text text-lg">
+                    <p class="mb-5"><strong>Customer:</strong> Hello! I'm very hungry. Can I have the sausages, please?</p>
+                    <p class="mb-5"><strong>Waiter:</strong> Do you mean the <span class="gap-input" data-word-index="2"></span>? Sure! Do you want fries or mashed potato?</p>
+                    <p class="mb-5"><strong>Customer:</strong> I'll have the <span class="gap-input" data-word-index="4"></span>, please. And lots of brown sauce on top.</p>
+                    <p class="mb-5"><strong>Waiter:</strong> No problem, lots of <span class="gap-input" data-word-index="0"></span>. Would you like a drink?</p>
+                    <p class="mb-5"><strong>Customer:</strong> Yes, just a nice hot <span class="gap-input" data-word-index="1"></span> of tea.</p>
+                    <p class="mb-5"><strong>Waiter:</strong> Excellent. And for <span class="gap-input" data-word-index="3"></span> (dessert)? We have apple pie.</p>
+                </div>
+                <div class="button-group">
+                    <button class="check-button" onclick="checkGaps()">Check Answers</button>
+                    <button class="check-button reset-button" onclick="resetGaps()">Reset Exercise</button>
+                </div>
+                <div id="gap-result" class="result-message"></div>
+            </section>
+
+            <!-- SUMMARY & SAVE SECTION -->
+            <section class="lesson-section shadow-lg border-t-4 border-red-700">
+                <h2 class="section-title">🎉 Lesson Complete & Summary</h2>
+                <p class="mb-4 text-gray-600">Delicious! Click a word below to review the menu:</p>
+                
+                <ul id="learned-words-list">
+                    <li data-word="chip butty">chip butty</li>
+                    <li data-word="bangers">bangers</li>
+                    <li data-word="mash">mash</li>
+                    <li data-word="cuppa">cuppa</li>
+                    <li data-word="biscuit">biscuit</li>
+                    <li data-word="gravy">gravy</li>
+                    <li data-word="pudding">pudding</li>
+                    <li data-word="full English">full English</li>
+                    <li data-word="roast">roast</li>
+                    <li data-word="Yorkshire Pudding">Yorkshire Pudding</li>
+                </ul>
+
+                <div id="save-words-section">
+                    <h3 class="text-xl font-bold mb-3" style="color: var(--color-secondary);">💾 Save Your Progress</h3>
+                    <div id="save-feature-loggedin" style="display: none;">
+                        <p class="text-gray-700 mb-4">Save these British food words to your dashboard.</p>
+                        <button id="save-words-btn" onclick="saveWordsToDashboard()">Save Words to Dashboard</button>
+                        <p id="save-status" class="text-center mt-3 font-semibold"></p>
+                    </div>
+                    <div id="login-prompt" style="display: none;">
+                        <p class="text-red-600 font-bold mb-2">🔒 Login to save your progress!</p>
+                        <a href="/login/" class="inline-block bg-gray-800 text-white font-bold py-2 px-4 rounded hover:bg-black transition">Log In / Sign Up</a>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    
+    <!-- Popups -->
+    <div id="feedback-popup"></div>
+    <div id="dictionary-popup"></div>
+
+    <script>
+        // --- AUTH CONFIG ---
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null;
+
+        const lessonTitle = "British Food Vocabulary";
+        const lessonLink = "/britishfoodvocab/";
+        const lessonLevel = "A2/B1";
+
+        // Words to Save
+        const wordsToSave = [
+            { word: "chip butty", type: "noun", definition: "A sandwich made with hot chips (fries) and buttered bread." },
+            { word: "bangers", type: "noun", definition: "Sausages." },
+            { word: "mash", type: "noun", definition: "Mashed potatoes." },
+            { word: "cuppa", type: "noun", definition: "A cup of tea (slang)." },
+            { word: "biscuit", type: "noun", definition: "A cookie, often eaten with tea." },
+            { word: "gravy", type: "noun", definition: "A brown sauce made from meat juices." },
+            { word: "pudding", type: "noun", definition: "Dessert (sweet course) or a savoury dish like Yorkshire Pudding." },
+            { word: "full English", type: "noun", definition: "A cooked breakfast with eggs, bacon, sausage, beans, and toast." },
+            { word: "roast", type: "noun", definition: "A meal of roasted meat, potatoes, and vegetables (usually Sunday)." },
+            { word: "Yorkshire Pudding", type: "noun", definition: "A baked batter pudding served with roast beef." }
+        ];
+
+        // --- AUTH FUNCTIONS ---
+        async function checkUser() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('logged-in-buttons').style.display = 'flex';
+                    document.getElementById('logged-out-buttons').style.display = 'none';
+                    document.getElementById('save-feature-loggedin').style.display = 'block';
+                    document.getElementById('login-prompt').style.display = 'none';
+                    
+                    const name = user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Cool Dude';
+                    document.getElementById('user-greeting').textContent = `Hey ${name}! 👋`;
+                } else {
+                    document.getElementById('logged-in-buttons').style.display = 'none';
+                    document.getElementById('logged-out-buttons').style.display = 'flex';
+                    document.getElementById('save-feature-loggedin').style.display = 'none';
+                    document.getElementById('login-prompt').style.display = 'block';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function saveWordsToDashboard() {
+            if (!currentUser) return;
+            const btn = document.getElementById('save-words-btn');
+            const status = document.getElementById('save-status');
+            btn.disabled = true;
+            btn.textContent = "Saving...";
+
+            const { error } = await supabase.from('lessons').upsert([{
+                user_id: currentUser.id,
+                lesson_title: lessonTitle,
+                lesson_link: lessonLink,
+                lesson_level: lessonLevel,
+                vocabulary: wordsToSave,
+                completed_at: new Date().toISOString()
+            }], { onConflict: 'user_id,lesson_title' });
+
+            if (!error) {
+                btn.textContent = "✅ Saved!";
+                btn.style.backgroundColor = "#2E7D32"; 
+                status.textContent = "Great job! Words added to your dashboard.";
+                setTimeout(() => window.location.href = '/dashboard/', 1500);
+            } else {
+                btn.textContent = "❌ Error";
+                btn.disabled = false;
+                status.textContent = "Error saving. Please try again.";
+            }
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.href = '/';
+        });
+        
+        // --- POPUP FUNCTIONS ---
+        function showFeedback(msg, type) {
+            const el = document.getElementById('feedback-popup');
+            el.textContent = msg;
+            el.style.display = 'block';
+            if (type === 'correct') {
+                el.style.backgroundColor = '#2E7D32'; 
+                el.style.borderColor = '#1B5E20';
+            } else {
+                el.style.backgroundColor = '#C62828';
+                el.style.borderColor = '#7F1D1D';
+            }
+            setTimeout(() => { el.style.display = 'none'; }, 1800);
+        }
+
+        function showDictionaryPopup(target, word) {
+            const searchWord = word.toLowerCase();
+            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === searchWord);
+            if(!wordObj) return;
+
+            const popup = document.getElementById('dictionary-popup');
+            popup.innerHTML = `<strong>${wordObj.word}</strong> <span style="font-size:0.85em; color:#718096;">(${wordObj.type})</span><br>${wordObj.definition}`;
+            popup.style.display = 'block';
+
+            const rect = target.getBoundingClientRect();
+            let topPos = rect.top - popup.offsetHeight - 10;
+            if (topPos < 10) topPos = rect.bottom + 10;
+            
+            popup.style.top = topPos + 'px';
+            popup.style.left = (rect.left + (rect.width/2) - (popup.offsetWidth/2)) + 'px';
+        }
+        
+        document.body.addEventListener('click', (e) => {
+            if (!e.target.closest('#dictionary-popup') && !e.target.closest('#learned-words-list li') && !e.target.closest('.highlight-word')) {
+                document.getElementById('dictionary-popup').style.display = 'none';
+            }
+        });
+
+        // --- EXERCISE LOGIC ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        function cleanText(text) {
+            if (!text) return '';
+            return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z]/g, '').toLowerCase();
+        }
+
+        /* 1. MATCHING LOGIC */
+        const newVocabData = [
+            { type: 'term', content: "Chip Butty", key: 'A' }, { type: 'definition', content: "A french fry sandwich.", key: 'A' },
+            { type: 'term', content: "Bangers", key: 'B' }, { type: 'definition', content: "Sausages.", key: 'B' },
+            { type: 'term', content: "Cuppa", key: 'C' }, { type: 'definition', content: "A cup of tea.", key: 'C' },
+            { type: 'term', content: "Biscuit", key: 'D' }, { type: 'definition', content: "A cookie.", key: 'D' },
+            { type: 'term', content: "Gravy", key: 'E' }, { type: 'definition', content: "Brown meat sauce.", key: 'E' },
+            { type: 'term', content: "Mash", key: 'F' }, { type: 'definition', content: "Mashed potatoes.", key: 'F' }
+        ];
+        let selectedTermCard = null;
+        let selectedDefinitionCard = null;
+        let matchedPairs = 0;
+
+        const funCorrect = ["Yummy! 😋", "Tasty! 🌭", "Delicious! 🍩", "Spot on, chap! 🎩"];
+        const funIncorrect = ["Yuck! 🤢", "Not tasty! ❌", "Try again! 🍽️"];
+
+        function initVocab() {
+            const matchContainer = document.getElementById('vocab-match-container');
+            matchContainer.innerHTML = '';
+            shuffleArray(newVocabData);
+            newVocabData.forEach(item => {
+                const card = document.createElement('div'); 
+                card.className = `match-card interactive-element ${item.type}`;
+                card.innerHTML = item.type === 'term' ? `<span class="font-extrabold text-gray-700">${item.content}</span>` : `<span class="text-gray-600">${item.content}</span>`; 
+                card.dataset.key = item.key; card.dataset.type = item.type;
+                card.addEventListener('click', () => handleMatchClick(card));
+                matchContainer.appendChild(card);
+            });
+            selectedTermCard = null; selectedDefinitionCard = null; matchedPairs = 0;
+        }
+
+        function handleMatchClick(card) {
+            if (card.classList.contains('matched')) return;
+            const type = card.dataset.type;
+            let currentSelection = type === 'term' ? selectedTermCard : selectedDefinitionCard;
+            if (currentSelection) currentSelection.classList.remove('selected');
+            
+            if (currentSelection === card) {
+                if (type === 'term') selectedTermCard = null; else selectedDefinitionCard = null;
+                return;
+            }
+            if (type === 'term') selectedTermCard = card; else selectedDefinitionCard = card;
+            card.classList.add('selected');
+
+            if (selectedTermCard && selectedDefinitionCard) {
+                if (selectedTermCard.dataset.key === selectedDefinitionCard.dataset.key) {
+                    const matchKey = selectedTermCard.dataset.key; 
+                    [selectedTermCard, selectedDefinitionCard].forEach(el => {
+                        el.classList.remove('selected'); el.classList.add('matched', `matched-color-${matchKey}`);
+                    });
+                    matchedPairs++;
+                    showFeedback(funCorrect[Math.floor(Math.random()*funCorrect.length)], 'correct');
+                    selectedTermCard = null; selectedDefinitionCard = null;
+                } else {
+                    showFeedback(funIncorrect[Math.floor(Math.random()*funIncorrect.length)], 'incorrect');
+                    setTimeout(() => {
+                        if(selectedTermCard) selectedTermCard.classList.remove('selected'); 
+                        if(selectedDefinitionCard) selectedDefinitionCard.classList.remove('selected');
+                        selectedTermCard = null; selectedDefinitionCard = null;
+                    }, 800);
+                }
+            }
+        }
+        function resetVocab() { initVocab(); }
+
+        /* 2. COMPREHENSION LOGIC */
+        function checkComprehension() {
+            const questions = document.querySelectorAll('.question');
+            let correctAnswers = 0;
+            questions.forEach(q => {
+                const selected = q.querySelector('.option-button.selected');
+                const allOptions = q.querySelectorAll('.option-button');
+                allOptions.forEach(opt => {
+                    opt.classList.remove('correct', 'incorrect');
+                    if (opt.dataset.correct === 'true') opt.classList.add('correct');
+                });
+                if (selected) {
+                    if (selected.dataset.correct === 'true') correctAnswers++;
+                    else selected.classList.add('incorrect');
+                }
+            });
+            const resultDiv = document.getElementById('comprehension-result');
+            resultDiv.style.display = 'block';
+            if (correctAnswers === questions.length) {
+                resultDiv.textContent = '🎉 Perfect score! You are a food expert!'; resultDiv.className = 'result-message correct';
+            } else {
+                resultDiv.textContent = `You got ${correctAnswers} out of ${questions.length} correct.`; resultDiv.className = 'result-message incorrect';
+            }
+        }
+        function resetComprehension() {
+            document.querySelectorAll('.option-button').forEach(item => item.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById('comprehension-result').style.display = 'none';
+        }
+
+        /* 3. GAP FILL LOGIC */
+        const gapAnswers = ['gravy', 'cuppa', 'bangers', 'pudding', 'mash']; 
+        let selectedGapWord = null; 
+        
+        function initGaps() {
+            const wordOptionsContainer = document.getElementById('gap-fill-options');
+            const options = Array.from(wordOptionsContainer.children);
+            shuffleArray(options);
+            options.forEach(option => {
+                wordOptionsContainer.appendChild(option);
+                option.classList.remove('used', 'selected'); 
+            });
+            document.querySelectorAll('.gap-input').forEach(blank => {
+                blank.textContent = ''; blank.classList.remove('correct', 'incorrect', 'selected');
+            });
+            selectedGapWord = null; document.getElementById('gap-result').style.display = 'none';
+        }
+        
+        function handleGapBlankClick(blank) {
+            if (blank.textContent.trim() !== '') { 
+                const cleanedWord = cleanText(blank.textContent); 
+                const btn = Array.from(document.querySelectorAll('.word-option')).find(b => cleanText(b.textContent) === cleanedWord);
+                if (btn) btn.classList.remove('used');
+                blank.textContent = ''; blank.classList.remove('correct', 'incorrect');
+                return;
+            } 
+            if (selectedGapWord) {
+                blank.textContent = selectedGapWord.textContent.trim();
+                selectedGapWord.classList.remove('selected'); selectedGapWord.classList.add('used');
+                selectedGapWord = null;
+            } 
+        }
+        
+        function checkGaps() {
+            let correctCount = 0;
+            const blanks = document.querySelectorAll('.gap-input'); 
+            blanks.forEach(blank => { 
+                const index = parseInt(blank.dataset.wordIndex, 10); 
+                const extractedWord = cleanText(blank.textContent); 
+                const answerWord = cleanText(gapAnswers[index]);
+                blank.classList.remove('selected', 'incorrect', 'correct');
+                if (extractedWord && (extractedWord === answerWord)) {
+                    blank.classList.add('correct'); correctCount++;
+                } else if (extractedWord) { 
+                    blank.classList.add('incorrect');
+                }
+            });
+            const resultDiv = document.getElementById('gap-result');
+            resultDiv.style.display = 'block';
+            if (correctCount === blanks.length) {
+                resultDiv.textContent = '🎉 Order Complete! Bon appétit!'; resultDiv.className = 'result-message correct';
+            } else {
+                resultDiv.textContent = `You got ${correctCount} out of ${blanks.length} correct.`; resultDiv.className = 'result-message incorrect';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkUser();
+            initVocab();
+            document.querySelectorAll('#learned-words-list li').forEach(li => {
+                li.addEventListener('click', (e) => { e.stopPropagation(); showDictionaryPopup(li, li.dataset.word); });
+            });
+            document.querySelectorAll('.option-button').forEach(item => {
+                item.addEventListener('click', () => {
+                    item.closest('.question').querySelectorAll('.option-button').forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect'));
+                    item.classList.add('selected'); document.getElementById('comprehension-result').style.display = 'none';
+                });
+            });
+            document.querySelectorAll('.word-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    if (option.classList.contains('used')) return;
+                    if (selectedGapWord) selectedGapWord.classList.remove('selected');
+                    if (selectedGapWord === option) selectedGapWord = null;
+                    else { selectedGapWord = option; selectedGapWord.classList.add('selected'); }
+                });
+            });
+            document.querySelectorAll('.gap-input').forEach(blank => {
+                blank.addEventListener('click', () => handleGapBlankClick(blank));
+            });
+            initGaps();
+        });
+    </script>
+</body>
+</html>
