@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Elevator Pitch - English For Cool Dudes</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* --- BRANDING & LAYOUT STYLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: #F3F4F6; /* Cool Light Gray */
+            color: #111827; /* Dark Gray Text */
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- THEME: STARTUP & INNOVATION 🚀 --- */
+        :root {
+            --color-primary: #7C3AED; /* Electric Violet */
+            --color-secondary: #0D9488; /* Teal / Growth */
+            --color-accent: #F59E0B; /* Amber / Idea */
+            --color-light-bg: #EDE9FE; /* Light Violet */
+            --color-white: #FFFFFF;
+            
+            /* Feedback Colors */
+            --color-correct: #10B981; /* Emerald Green */
+            --color-incorrect: #EF4444; /* Red */
+            
+            /* UI Elements */
+            --color-save-btn: #7C3AED; 
+        }
+
+        /* Header */
+        .header {
+            background: var(--color-white);
+            border-bottom: 1px solid #E5E7EB;
+            padding: 20px 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-content {
+            max-width: 1200px; margin: 0 auto; padding: 0 20px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .logo {
+            width: 40px; height: 40px;
+            /* Startup Gradient */
+            background: linear-gradient(135deg, #7C3AED 0%, #2563EB 100%); 
+            color: white;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+        }
+        .site-title { font-size: 20px; font-weight: 800; color: #1F2937; text-decoration: none; letter-spacing: -0.02em; }
+
+        /* Header Buttons */
+        .header-buttons { display: flex; align-items: center; gap: 8px; }
+        .header-button {
+            text-decoration: none; padding: 8px 16px; border-radius: 8px;
+            font-size: 14px; font-weight: 700; transition: all 0.2s;
+            white-space: nowrap; cursor: pointer; border: 1px solid #E5E7EB;
+            background: transparent;
+        }
+        .header-button.login { background: #FFFFFF; color: #4B5563; }
+        .header-button.login:hover { background: #F9FAFB; color: var(--color-primary); border-color: var(--color-primary); }
+        
+        .header-button.signup { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+        .header-button.signup:hover { background: #6D28D9; box-shadow: 0 4px 6px rgba(124, 58, 237, 0.3); }
+        
+        .header-button.dashboard { background: #F0FDFA; color: #0F766E; border-color: #5EEAD4; }
+        .header-button.dashboard:hover { background: #CCFBF1; }
+        
+        .header-button.logout { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
+        .header-button.logout:hover { background: #FEE2E2; }
+        
+        .user-greeting { font-size: 14px; color: var(--color-primary); font-weight: 700; margin-right: 10px; display: block; }
+
+        /* Main Container */
+        .container-main {
+            max-width: 900px; margin: 40px auto; padding: 40px;
+            background-color: var(--color-white); border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); border-top: 5px solid var(--color-primary);
+        }
+
+        /* Lesson Styles */
+        .lesson-main-title { 
+            font-size: 2.8em; font-weight: 900; color: #111827; 
+            margin-bottom: 5px; letter-spacing: -0.03em;
+            background: -webkit-linear-gradient(0deg, #7C3AED, #2563EB);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .lesson-subtitle {
+            color: #6B7280; font-size: 1.1em; margin-bottom: 40px; font-weight: 500;
+            text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.85em;
+        }
+
+        .lesson-section {
+            background-color: #FFFFFF; padding: 0; margin-bottom: 60px;
+        }
+        
+        .section-title {
+            color: var(--color-secondary); font-size: 1.5em; font-weight: 800;
+            margin-bottom: 25px; padding-bottom: 10px; border-bottom: 2px solid #CCFBF1;
+            display: flex; align-items: center; gap: 12px;
+        }
+        
+        /* Reading Text */
+        .reading-text {
+            background: #F5F3FF; border-left: 4px solid var(--color-primary);
+            padding: 30px; border-radius: 0 12px 12px 0; font-size: 1.15em;
+            color: #374151; line-height: 1.9;
+        }
+        .highlight-word {
+            color: var(--color-primary); font-weight: 800; cursor: help;
+            border-bottom: 2px dotted var(--color-primary); transition: all 0.2s;
+        }
+        .highlight-word:hover { background-color: #DDD6FE; color: #4C1D95; }
+        
+        /* Match Cards */
+        .match-card {
+            border: 2px solid #F3F4F6; transition: all 0.2s ease; cursor: pointer;
+            user-select: none; border-radius: 12px; padding: 18px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); font-weight: 600; font-size: 0.95em;
+        }
+        .match-card.term { 
+            background-color: #FFFFFF; color: var(--color-primary); text-align: center; font-weight: 800;
+            border-color: #E5E7EB;
+        }
+        .match-card.definition { 
+            background-color: #F9FAFB; text-align: left; color: #4B5563;
+        }
+        .match-card.selected { 
+            border-color: var(--color-primary); background-color: #F5F3FF; 
+            transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(124, 58, 237, 0.1); 
+        }
+        .match-card.matched { pointer-events: none; opacity: 0.6; transform: none; box-shadow: none; }
+
+        /* Matched Colors */
+        .match-card.matched-color-A { border-color: #3B82F6 !important; background: #EFF6FF !important; }
+        .match-card.matched-color-B { border-color: #10B981 !important; background: #ECFDF5 !important; }
+        .match-card.matched-color-C { border-color: #F59E0B !important; background: #FFFBEB !important; }
+        .match-card.matched-color-D { border-color: #8B5CF6 !important; background: #F5F3FF !important; }
+        .match-card.matched-color-E { border-color: #EC4899 !important; background: #FDF2F8 !important; }
+        .match-card.matched-color-F { border-color: #6366F1 !important; background: #EEF2FF !important; }
+
+        /* Quiz Buttons */
+        .comp-btn-group .option-button {
+            transition: all 0.2s; background-color: #FFFFFF; color: #374151;
+            font-weight: 600; padding: 16px 24px; border-radius: 10px;
+            border: 2px solid #F3F4F6; text-align: left; width: 100%; cursor: pointer; margin-bottom: 12px;
+        }
+        .comp-btn-group .option-button:hover { border-color: var(--color-primary); background-color: #F5F3FF; }
+        .comp-btn-group .option-button.selected { background-color: #8B5CF6; color: white !important; border-color: #8B5CF6; }
+        .comp-btn-group .option-button.correct { background-color: #10B981 !important; color: white !important; border-color: #10B981 !important; }
+        .comp-btn-group .option-button.incorrect { background-color: #EF4444 !important; color: white !important; border-color: #EF4444 !important; }
+
+        /* Results & Gaps */
+        .result-message { margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: 700; display: none; text-align: center; }
+        .result-message.correct { background-color: #D1FAE5; color: #065F46; }
+        .result-message.incorrect { background-color: #FEE2E2; color: #991B1B; }
+        
+        .word-bank { background: #F0FDFA; padding: 25px; border-radius: 12px; border: 1px solid #CCFBF1; }
+        .word-options { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;}
+        .word-option {
+            background-color: var(--color-white); color: var(--color-secondary); padding: 10px 20px;
+            border-radius: 30px; cursor: pointer; transition: all 0.2s; font-weight: 700;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); border: 2px solid #5EEAD4;
+        }
+        .word-option:hover { background-color: var(--color-secondary); color: white; border-color: var(--color-secondary); }
+        .word-option.selected { background-color: var(--color-primary) !important; border-color: var(--color-primary) !important; color: white !important; transform: scale(1.05); }
+        .word-option.used { opacity: 0.4; pointer-events: none; background-color: #E5E7EB; border-color: #E5E7EB; color: #9CA3AF; transform: none; }
+
+        .gap-input {
+            display: inline-block; text-align: center; padding: 0 8px; min-width: 120px; 
+            height: 34px; background-color: #FFF; border-bottom: 3px solid #CBD5E1; 
+            color: #1F2937; font-style: italic; cursor: pointer; font-size: 1em;
+            line-height: 30px; vertical-align: bottom; font-weight: 700; margin: 0 4px; transition: all 0.2s;
+        }
+        .gap-input:empty { background-color: #F9FAFB; border-bottom-style: dashed; }
+        .gap-input.correct { background-color: #D1FAE5 !important; border-color: #10B981 !important; color: #065F46 !important; font-style: normal; }
+        .gap-input.incorrect { background-color: #FEE2E2 !important; border-color: #EF4444 !important; color: #991B1B !important; font-style: normal; }
+
+        /* Buttons */
+        .button-group { margin-top: 35px; display: flex; gap: 15px; justify-content: center; }
+        .check-button {
+            background: var(--color-primary); color: white; border: none; padding: 14px 35px;
+            border-radius: 12px; cursor: pointer; font-size: 1em; font-weight: 700;
+            transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.3);
+        }
+        .check-button:hover { background: #6D28D9; transform: translateY(-2px); }
+        .reset-button { background: #FFFFFF; color: #6B7280; border: 1px solid #E5E7EB; box-shadow: none; }
+        .reset-button:hover { background: #F3F4F6; color: #374151; transform: none; }
+
+        /* Save Section */
+        #save-words-section { background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%); color: white; padding: 50px; border-radius: 16px; margin-top: 80px; text-align: center; }
+        #save-words-btn {
+            background-color: #F59E0B; color: #78350F; padding: 16px 40px;
+            border-radius: 8px; font-weight: 800; cursor: pointer; transition: background-color 0.2s;
+            display: inline-block; border: none; box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.3);
+            text-transform: uppercase; font-size: 1.1em; letter-spacing: 0.05em;
+        }
+        #save-words-btn:hover:not(:disabled) { background-color: #D97706; transform: translateY(-2px); }
+        #save-words-btn:active:not(:disabled) { transform: translateY(1px); }
+        #save-words-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        #learned-words-list {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px; margin-bottom: 40px; text-align: left; list-style: none;
+        }
+        #learned-words-list li {
+            background: rgba(255,255,255,0.1); padding: 14px 18px; border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1); font-size: 0.95em; cursor: pointer;
+            transition: all 0.2s; font-weight: 600; color: #E0E7FF; display: flex; justify-content: space-between;
+        }
+        #learned-words-list li:hover {
+            background: rgba(255,255,255,0.25); color: white; border-color: white; transform: translateY(-2px);
+        }
+        #learned-words-list li::after { content: '💡'; opacity: 0.7; font-size: 0.9em; }
+
+        /* Popups */
+        #feedback-popup {
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            padding: 25px 50px; border-radius: 12px; font-weight: 800; color: white;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); z-index: 2000; display: none;
+            text-align: center; font-size: 1.4em; border: 2px solid rgba(255,255,255,0.5);
+        }
+        #dictionary-popup {
+            position: fixed; max-width: 320px; padding: 25px; background: #FFFFFF;
+            border-top: 6px solid var(--color-primary); border-radius: 8px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); z-index: 2001; display: none;
+            font-size: 1em; color: #374151; line-height: 1.6;
+        }
+
+        @media (max-width: 768px) { .user-greeting { display: none; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">🚀</span>
+                <a href="/" class="site-title">English For Cool Dudes</a>
+            </div>
+            
+            <div id="logged-out-buttons" class="header-buttons" style="display: none;">
+                <a href="/login/" class="header-button login">Login</a>
+                <a href="/signup/" class="header-button signup">Sign Up</a>
+            </div>
+
+            <div id="logged-in-buttons" class="header-buttons" style="display: none;">
+                <span class="user-greeting" id="user-greeting">Hey Cool Dude! 👋</span>
+                <a href="/dashboard/" class="header-button dashboard">My Dashboard</a>
+                <button id="logout-btn" class="header-button logout">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-main">
+        <h1 class="lesson-main-title">The Elevator Pitch</h1>
+        <p class="lesson-subtitle">Business English (B2/C1) - Selling your idea in 30 seconds</p>
+
+        <main class="space-y-8">
+            
+            <section class="lesson-section">
+                <h2 class="section-title"><span>🎤</span> The 30-Second Opportunity</h2>
+                <div class="reading-text">
+                    <p>Imagine you step into an elevator and see a famous investor. You have exactly 30 seconds before the doors open at their floor. This is your chance to deliver the perfect <span class="highlight-word" onclick="showDictionaryPopup(this, 'Elevator Pitch')">Elevator Pitch</span>.</p>
+
+                    <p>To succeed, you need a powerful <span class="highlight-word" onclick="showDictionaryPopup(this, 'Hook')">hook</span> to grab their attention immediately. You must clearly explain your <span class="highlight-word" onclick="showDictionaryPopup(this, 'Value Proposition')">value proposition</span>—what problem you solve and why your solution is better. This often involves highlighting your <span class="highlight-word" onclick="showDictionaryPopup(this, 'USP')">USP</span> (Unique Selling Point).</p>
+
+                    <p>Investors are busy, so be <span class="highlight-word" onclick="showDictionaryPopup(this, 'Concise')">concise</span>. They want to know if your business model is <span class="highlight-word" onclick="showDictionaryPopup(this, 'Scalable')">scalable</span> (can it grow big?) and if you have any existing <span class="highlight-word" onclick="showDictionaryPopup(this, 'Traction')">traction</span>, such as user numbers or sales. If you are <span class="highlight-word" onclick="showDictionaryPopup(this, 'Persuasive')">persuasive</span> enough, they might ask to see your full <span class="highlight-word" onclick="showDictionaryPopup(this, 'Pitch Deck')">pitch deck</span> later.</p>
+
+                    <p>Finally, never leave without a <span class="highlight-word" onclick="showDictionaryPopup(this, 'Call to Action')">Call to Action</span>. Ask for their card or a meeting!</p>
+                </div>
+            </section>
+
+            <section id="exercise-1" class="lesson-section">
+                <h2 class="section-title"><span>🔗</span> 1. Pitch Terminology</h2>
+                <p class="text-gray-600 mb-6">Match the **Start-up Term** with its **Definition**.</p>
+
+                <div id="vocab-match-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                
+                <div class="button-group">
+                    <button class="check-button reset-button" onclick="resetVocab()">Reset Exercise</button>
+                </div>
+            </section>
+        
+            <section id="exercise-2" class="lesson-section">
+                <h2 class="section-title"><span>❓</span> 2. Strategy Quiz</h2>
+                <p class="exercise-instructions mb-6 text-gray-600">Choose the best answer based on the text.</p>
+                
+                <div class="question mb-8" data-question="1">
+                    <p class="font-bold text-lg text-gray-800 mb-3">1. What is the main purpose of a "Hook"?</p>
+                    <ul class="options-list space-y-2 comp-btn-group" data-question="1">
+                        <li class="option-button" data-correct="false">To catch fish.</li>
+                        <li class="option-button" data-correct="true">To grab the listener's attention immediately.</li>
+                        <li class="option-button" data-correct="false">To explain the financial details.</li>
+                    </ul>
+                </div>
+                
+                <div class="question mb-8" data-question="2">
+                    <p class="font-bold text-lg text-gray-800 mb-3">2. If a business is "scalable," what does it mean?</p>
+                    <ul class="options-list space-y-2 comp-btn-group" data-question="2">
+                        <li class="option-button" data-correct="true">It can grow significantly without major problems.</li>
+                        <li class="option-button" data-correct="false">It weighs a lot.</li>
+                        <li class="option-button" data-correct="false">It is very small and local.</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="3">
+                    <p class="font-bold text-lg text-gray-800 mb-3">3. What is a "Call to Action"?</p>
+                    <ul class="options-list space-y-2 comp-btn-group" data-question="3">
+                        <li class="option-button" data-correct="false">Calling your mother for advice.</li>
+                        <li class="option-button" data-correct="false">Complaining about the weather.</li>
+                        <li class="option-button" data-correct="true">Instructing the listener on what to do next (e.g., "Email me").</li>
+                    </ul>
+                </div>
+
+                <div class="button-group">
+                    <button class="check-button" onclick="checkComprehension()">Check Strategy</button>
+                    <button class="check-button reset-button" onclick="resetComprehension()">Reset</button>
+                </div>
+                <div id="comprehension-result" class="result-message"></div>
+            </section>
+
+            <section id="exercise-3" class="lesson-section">
+                <h2 class="section-title"><span>📝</span> 3. Pitch Perfect</h2>
+                <p class="text-gray-600 mb-6">Complete the pitch sentences with the correct word.</p>
+                
+                <div class="word-bank mb-6">
+                    <div class="word-options" id="gap-fill-options">
+                        <span class="word-option">funding</span>
+                        <span class="word-option">usp</span>
+                        <span class="word-option">traction</span>
+                        <span class="word-option">concise</span>
+                        <span class="word-option">deck</span>
+                    </div>
+                </div>
+
+                <div class="gap-fill-text text-lg leading-loose text-gray-700">
+                    <p class="mb-4">1. We are seeking $500,000 in seed <span class="gap-input" data-word-index="0"></span> to launch the app.</p>
+                    <p class="mb-4">2. Our main <span class="gap-input" data-word-index="1"></span> is that our battery lasts twice as long as the competition.</p>
+                    <p class="mb-4">3. Please keep your presentation <span class="gap-input" data-word-index="3"></span>; we only have 10 minutes.</p>
+                    <p class="mb-4">4. We have gained great <span class="gap-input" data-word-index="2"></span> with 10,000 downloads in the first week.</p>
+                    <p class="mb-4">5. I have sent you my pitch <span class="gap-input" data-word-index="4"></span> via email.</p>
+                </div>
+                <div class="button-group">
+                    <button class="check-button" onclick="checkGaps()">Verify Pitch</button>
+                    <button class="check-button reset-button" onclick="resetGaps()">Reset</button>
+                </div>
+                <div id="gap-result" class="result-message"></div>
+            </section>
+
+            <!-- SUMMARY & SAVE SECTION -->
+            <div id="save-words-section">
+                <h2 class="text-2xl font-bold mb-4 text-white">🚀 Startup Portfolio</h2>
+                <p class="mb-6 text-indigo-100">You have added 12 essential pitch terms to your vocabulary.</p>
+                
+                <ul id="learned-words-list">
+                    <li data-word="elevator pitch">elevator pitch</li>
+                    <li data-word="hook">hook</li>
+                    <li data-word="concise">concise</li>
+                    <li data-word="persuasive">persuasive</li>
+                    <li data-word="USP">USP</li>
+                    <li data-word="investors">investors</li>
+                    <li data-word="scalable">scalable</li>
+                    <li data-word="traction">traction</li>
+                    <li data-word="funding">funding</li>
+                    <li data-word="target audience">target audience</li>
+                    <li data-word="call to action">call to action</li>
+                    <li data-word="pitch deck">pitch deck</li>
+                </ul>
+
+                <div id="save-area">
+                    <div id="save-feature-loggedin" style="display: none;">
+                        <button id="save-words-btn" onclick="saveWordsToDashboard()">Save to Dashboard</button>
+                        <p id="save-status" class="text-center mt-3 font-semibold text-indigo-200"></p>
+                    </div>
+                    <div id="login-prompt" style="display: none;">
+                        <p class="text-indigo-200 font-bold mb-2">Login to save your progress.</p>
+                        <a href="/login/" class="inline-block bg-white text-indigo-900 font-bold py-2 px-4 rounded hover:bg-gray-100 transition">Log In</a>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+    
+    <!-- Popups -->
+    <div id="feedback-popup"></div>
+    <div id="dictionary-popup"></div>
+
+    <script>
+        // --- AUTH CONFIG ---
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null;
+
+        const lessonTitle = "The Elevator Pitch (Upper Int)";
+        const lessonLink = "/elevator/";
+        const lessonLevel = "B2/C1";
+
+        // Words to Save
+        const wordsToSave = [
+            { word: "elevator pitch", type: "noun", definition: "A short, persuasive speech used to spark interest in what you do." },
+            { word: "hook", type: "noun", definition: "A statement or question used to grab attention immediately." },
+            { word: "concise", type: "adjective", definition: "Giving a lot of information clearly and in a few words." },
+            { word: "persuasive", type: "adjective", definition: "Good at convincing someone to do or believe something." },
+            { word: "USP", type: "noun", definition: "Unique Selling Point; what makes you different from competitors." },
+            { word: "investors", type: "noun", definition: "People who put money into a business expecting a profit." },
+            { word: "scalable", type: "adjective", definition: "Able to grow or expand without being hampered by its structure." },
+            { word: "traction", type: "noun", definition: "The momentum or progress a startup has gained (e.g., users, sales)." },
+            { word: "funding", type: "noun", definition: "Money provided, especially by an organization or government, for a particular purpose." },
+            { word: "target audience", type: "noun", definition: "The specific group of people you want to reach with your product." },
+            { word: "call to action", type: "noun", definition: "An instruction to the audience to provoke an immediate response (e.g., 'Call now')." },
+            { word: "pitch deck", type: "noun", definition: "A brief presentation used to provide a quick overview of your business plan." }
+        ];
+
+        // --- AUTH FUNCTIONS ---
+        async function checkUser() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('logged-in-buttons').style.display = 'flex';
+                    document.getElementById('logged-out-buttons').style.display = 'none';
+                    document.getElementById('save-feature-loggedin').style.display = 'block';
+                    document.getElementById('login-prompt').style.display = 'none';
+                    
+                    const name = user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Entrepreneur';
+                    document.getElementById('user-greeting').textContent = `Welcome, ${name}`;
+                } else {
+                    document.getElementById('logged-in-buttons').style.display = 'none';
+                    document.getElementById('logged-out-buttons').style.display = 'flex';
+                    document.getElementById('save-feature-loggedin').style.display = 'none';
+                    document.getElementById('login-prompt').style.display = 'block';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function saveWordsToDashboard() {
+            if (!currentUser) return;
+            const btn = document.getElementById('save-words-btn');
+            const status = document.getElementById('save-status');
+            btn.disabled = true;
+            btn.textContent = "Uploading...";
+
+            const { error } = await supabase.from('lessons').upsert([{
+                user_id: currentUser.id,
+                lesson_title: lessonTitle,
+                lesson_link: lessonLink,
+                lesson_level: lessonLevel,
+                vocabulary: wordsToSave,
+                completed_at: new Date().toISOString()
+            }], { onConflict: 'user_id,lesson_title' });
+
+            if (!error) {
+                btn.textContent = "Saved to Portfolio";
+                btn.style.backgroundColor = "#10B981"; 
+                status.textContent = "Pitch successful! Words saved.";
+                setTimeout(() => window.location.href = '/dashboard/', 1500);
+            } else {
+                btn.textContent = "Error";
+                btn.disabled = false;
+                status.textContent = "Upload failed. Try again.";
+            }
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.href = '/';
+        });
+        
+        // --- POPUP FUNCTIONS ---
+        function showFeedback(msg, type) {
+            const el = document.getElementById('feedback-popup');
+            el.textContent = msg;
+            el.style.display = 'block';
+            if (type === 'correct') {
+                el.style.backgroundColor = '#10B981'; 
+                el.style.borderColor = '#059669';
+            } else {
+                el.style.backgroundColor = '#EF4444';
+                el.style.borderColor = '#B91C1C';
+            }
+            setTimeout(() => { el.style.display = 'none'; }, 1500);
+        }
+
+        function showDictionaryPopup(target, word) {
+            const searchWord = word.toLowerCase();
+            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === searchWord);
+            if(!wordObj) return;
+
+            const popup = document.getElementById('dictionary-popup');
+            popup.innerHTML = `<strong>${wordObj.word}</strong> <span style="font-size:0.85em; color:#6B7280;">(${wordObj.type})</span><br>${wordObj.definition}`;
+            popup.style.display = 'block';
+
+            const rect = target.getBoundingClientRect();
+            let topPos = rect.top - popup.offsetHeight - 10;
+            if (topPos < 10) topPos = rect.bottom + 10;
+            
+            popup.style.top = topPos + 'px';
+            popup.style.left = (rect.left + (rect.width/2) - (popup.offsetWidth/2)) + 'px';
+        }
+        
+        document.body.addEventListener('click', (e) => {
+            if (!e.target.closest('#dictionary-popup') && !e.target.closest('#learned-words-list li') && !e.target.closest('.highlight-word')) {
+                document.getElementById('dictionary-popup').style.display = 'none';
+            }
+        });
+
+        // --- EXERCISE LOGIC ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        function cleanText(text) {
+            if (!text) return '';
+            return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z]/g, '').toLowerCase();
+        }
+
+        /* 1. MATCHING LOGIC */
+        const newVocabData = [
+            { type: 'term', content: "Hook", key: 'A' }, { type: 'definition', content: "The opening sentence that grabs attention.", key: 'A' },
+            { type: 'term', content: "USP", key: 'B' }, { type: 'definition', content: "What makes you different (Unique Selling Point).", key: 'B' },
+            { type: 'term', content: "Traction", key: 'C' }, { type: 'definition', content: "Progress or momentum (e.g., sales).", key: 'C' },
+            { type: 'term', content: "Scalable", key: 'D' }, { type: 'definition', content: "Able to grow without problems.", key: 'D' },
+            { type: 'term', content: "Investors", key: 'E' }, { type: 'definition', content: "People who give money for profit.", key: 'E' },
+            { type: 'term', content: "Deck", key: 'F' }, { type: 'definition', content: "A presentation used to pitch.", key: 'F' }
+        ];
+        let selectedTermCard = null;
+        let selectedDefinitionCard = null;
+        let matchedPairs = 0;
+
+        const funCorrect = ["You're hired! 🤝", "Great Pitch! 🚀", "Unicorn Status! 🦄", "Funding Secured! 💰"];
+        const funIncorrect = ["Start Over! 📉", "Pivot! 🔄", "No Deal! 🛑"];
+
+        function initVocab() {
+            const matchContainer = document.getElementById('vocab-match-container');
+            matchContainer.innerHTML = '';
+            shuffleArray(newVocabData);
+            newVocabData.forEach(item => {
+                const card = document.createElement('div'); 
+                card.className = `match-card interactive-element ${item.type}`;
+                card.innerHTML = item.type === 'term' ? item.content : item.content; 
+                card.dataset.key = item.key; card.dataset.type = item.type;
+                card.addEventListener('click', () => handleMatchClick(card));
+                matchContainer.appendChild(card);
+            });
+            selectedTermCard = null; selectedDefinitionCard = null; matchedPairs = 0;
+        }
+
+        function handleMatchClick(card) {
+            if (card.classList.contains('matched')) return;
+            const type = card.dataset.type;
+            let currentSelection = type === 'term' ? selectedTermCard : selectedDefinitionCard;
+            if (currentSelection) currentSelection.classList.remove('selected');
+            
+            if (currentSelection === card) {
+                if (type === 'term') selectedTermCard = null; else selectedDefinitionCard = null;
+                return;
+            }
+            if (type === 'term') selectedTermCard = card; else selectedDefinitionCard = card;
+            card.classList.add('selected');
+
+            if (selectedTermCard && selectedDefinitionCard) {
+                if (selectedTermCard.dataset.key === selectedDefinitionCard.dataset.key) {
+                    const matchKey = selectedTermCard.dataset.key; 
+                    [selectedTermCard, selectedDefinitionCard].forEach(el => {
+                        el.classList.remove('selected'); el.classList.add('matched', `matched-color-${matchKey}`);
+                    });
+                    matchedPairs++;
+                    showFeedback(funCorrect[Math.floor(Math.random()*funCorrect.length)], 'correct');
+                    selectedTermCard = null; selectedDefinitionCard = null;
+                } else {
+                    showFeedback(funIncorrect[Math.floor(Math.random()*funIncorrect.length)], 'incorrect');
+                    setTimeout(() => {
+                        if(selectedTermCard) selectedTermCard.classList.remove('selected'); 
+                        if(selectedDefinitionCard) selectedDefinitionCard.classList.remove('selected');
+                        selectedTermCard = null; selectedDefinitionCard = null;
+                    }, 800);
+                }
+            }
+        }
+        function resetVocab() { initVocab(); }
+
+        /* 2. COMPREHENSION LOGIC */
+        function checkComprehension() {
+            const questions = document.querySelectorAll('.question');
+            let correctAnswers = 0;
+            questions.forEach(q => {
+                const selected = q.querySelector('.option-button.selected');
+                const allOptions = q.querySelectorAll('.option-button');
+                allOptions.forEach(opt => {
+                    opt.classList.remove('correct', 'incorrect');
+                    if (opt.dataset.correct === 'true') opt.classList.add('correct');
+                });
+                if (selected) {
+                    if (selected.dataset.correct === 'true') correctAnswers++;
+                    else selected.classList.add('incorrect');
+                }
+            });
+            const resultDiv = document.getElementById('comprehension-result');
+            resultDiv.style.display = 'block';
+            if (correctAnswers === questions.length) {
+                resultDiv.textContent = '🎉 Ready for Shark Tank!'; resultDiv.className = 'result-message correct';
+            } else {
+                resultDiv.textContent = `You got ${correctAnswers}/${questions.length} correct. Refine your strategy.`; resultDiv.className = 'result-message incorrect';
+            }
+        }
+        function resetComprehension() {
+            document.querySelectorAll('.option-button').forEach(item => item.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById('comprehension-result').style.display = 'none';
+        }
+
+        /* 3. GAP FILL LOGIC */
+        const gapAnswers = ['funding', 'usp', 'traction', 'concise', 'deck']; 
+        let selectedGapWord = null; 
+        
+        function initGaps() {
+            const wordOptionsContainer = document.getElementById('gap-fill-options');
+            const options = Array.from(wordOptionsContainer.children);
+            shuffleArray(options);
+            options.forEach(option => {
+                wordOptionsContainer.appendChild(option);
+                option.classList.remove('used', 'selected'); 
+            });
+            document.querySelectorAll('.gap-input').forEach(blank => {
+                blank.textContent = ''; blank.classList.remove('correct', 'incorrect', 'selected');
+            });
+            selectedGapWord = null; document.getElementById('gap-result').style.display = 'none';
+        }
+        
+        function handleGapBlankClick(blank) {
+            if (blank.textContent.trim() !== '') { 
+                const cleanedWord = cleanText(blank.textContent); 
+                const btn = Array.from(document.querySelectorAll('.word-option')).find(b => cleanText(b.textContent) === cleanedWord);
+                if (btn) btn.classList.remove('used');
+                blank.textContent = ''; blank.classList.remove('correct', 'incorrect');
+                return;
+            } 
+            if (selectedGapWord) {
+                blank.textContent = selectedGapWord.textContent.trim();
+                selectedGapWord.classList.remove('selected'); selectedGapWord.classList.add('used');
+                selectedGapWord = null;
+            } 
+        }
+        
+        function checkGaps() {
+            let correctCount = 0;
+            const blanks = document.querySelectorAll('.gap-input'); 
+            blanks.forEach(blank => { 
+                const index = parseInt(blank.dataset.wordIndex, 10); 
+                const extractedWord = cleanText(blank.textContent); 
+                const answerWord = cleanText(gapAnswers[index]);
+                blank.classList.remove('selected', 'incorrect', 'correct');
+                if (extractedWord && (extractedWord === answerWord)) {
+                    blank.classList.add('correct'); correctCount++;
+                } else if (extractedWord) { 
+                    blank.classList.add('incorrect');
+                }
+            });
+            const resultDiv = document.getElementById('gap-result');
+            resultDiv.style.display = 'block';
+            if (correctCount === blanks.length) {
+                resultDiv.textContent = '🎉 Series A Funded!'; resultDiv.className = 'result-message correct';
+            } else {
+                resultDiv.textContent = `Progress: ${correctCount}/${blanks.length} terms correct.`; resultDiv.className = 'result-message incorrect';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkUser();
+            initVocab();
+            document.querySelectorAll('#learned-words-list li').forEach(li => {
+                li.addEventListener('click', (e) => { e.stopPropagation(); showDictionaryPopup(li, li.dataset.word); });
+            });
+            document.querySelectorAll('.option-button').forEach(item => {
+                item.addEventListener('click', () => {
+                    item.closest('.question').querySelectorAll('.option-button').forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect'));
+                    item.classList.add('selected'); document.getElementById('comprehension-result').style.display = 'none';
+                });
+            });
+            document.querySelectorAll('.word-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    if (option.classList.contains('used')) return;
+                    if (selectedGapWord) selectedGapWord.classList.remove('selected');
+                    if (selectedGapWord === option) selectedGapWord = null;
+                    else { selectedGapWord = option; selectedGapWord.classList.add('selected'); }
+                });
+            });
+            document.querySelectorAll('.gap-input').forEach(blank => {
+                blank.addEventListener('click', () => handleGapBlankClick(blank));
+            });
+            initGaps();
+        });
+    </script>
+</body>
+</html>
