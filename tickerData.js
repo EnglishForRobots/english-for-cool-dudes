@@ -1,8 +1,11 @@
 // --- Shared Data Source ---
 const LESSON_STATES = [
-    { text: '🧩 NEW! INTERMEDIATE: Top 10 Phrasal Verbs For Work 😎', href: '/phrasals/' },
-    { text: '🌐 NEW! TAX: The Netflix Tax 🎬🍿', href: '/VATdigital/' },
+    
+    { text: "🐢 NEW! INTERMEDIATE: Meet Jonathan the Tortoise 😎", href: "/jonathan/" },
+    { text: "🧩 NEW! INTERMEDIATE: Top 10 Phrasal Verbs For Work 😎", href: "/phrasals/" },
+    { text: "🌐 NEW! TAX: The Netflix Tax 🎬🍿", href: "/VATdigital/" },
     { text: "🚩 NEW! LEGAL: Due Diligence in M&A 💼", href: "/duediligence/" },
+    { text: "🐢 NEW! BEGINNER: Amazing Animals: Jonathan T 🐢", href: "/tortoise/" },
     { text: "🔥 NEW! BEGINNER: Bonfire Night and Guy Fawkes 🎆", href: "/bonfire/" },
     { text: "🏧 NEW! INTERMEDIATE: The Bank of England 💰", href: "/boe/" },
     { text: "🏧 NEW! TAX: Tax Audit Essentials 🔍", href: "/audit/" },
