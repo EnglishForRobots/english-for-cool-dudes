@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alibaba: The E-Commerce Empire - English for Cool Dudes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        /* --- ALIBABA / E-COMMERCE THEME --- */
+        :root {
+            --color-primary: #FF6600; /* Alibaba Orange */
+            --color-secondary: #2D3748; /* Dark Charcoal/Business */
+            --color-accent: #F59E0B; /* Gold/Money */
+            --color-background: #FFF7ED; /* Very light orange/cream */
+            --color-text: #1A202C;
+            --color-correct: #10B981; /* Success Green */
+            --color-incorrect: #EF4444; /* Error Red */
+            --color-highlight: #FF6600;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* === HEADER STYLES === */
+        .header {
+            background: #FFFFFF;
+            border-bottom: 2px solid #FED7AA;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px -1px rgba(255, 102, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 15px; }
+
+        .logo {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, #FF8C00 0%, #FF5100 100%);
+            color: white;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; 
+        }
+
+        .site-title { font-size: 20px; font-weight: 600; color: #2D3748; text-decoration: none; letter-spacing: -0.5px; }
+
+        .header-buttons { display: flex; align-items: center; gap: 8px; }
+
+        .header-button {
+            text-decoration: none; padding: 8px 16px; border-radius: 6px;
+            font-size: 14px; font-weight: 600; transition: all 0.2s;
+            white-space: nowrap; cursor: pointer; border: 1px solid #CBD5E1;
+        }
+
+        .header-button.login { background: #FFF; color: #475569; }
+        .header-button.login:hover { background: #FFEDD5; color: #C2410C; }
+
+        .header-button.signup { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+        .header-button.signup:hover { background: #EA580C; box-shadow: 0 2px 5px rgba(234, 88, 12, 0.3); }
+
+        .header-button.dashboard { background: #FFFBEA; color: #B45309; border-color: #FCD34D; }
+        .header-button.logout { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
+
+        .user-greeting { font-size: 14px; color: #475569; font-weight: 600; margin-right: 10px; display: block; }
+        
+        /* === LESSON CONTAINER === */
+        .lesson-container { max-width: 800px; margin: 30px auto 60px; padding: 0 20px; }
+        
+        .content-card {
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #FED7AA;
+            position: relative;
+        }
+
+        /* Video Container */
+        .video-wrapper {
+            position: relative; padding-bottom: 56.25%; height: 0;
+            border-radius: 12px; overflow: hidden; margin-bottom: 20px;
+            border: 4px solid var(--color-primary); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        
+        /* Collapsible Header */
+        .collapsible-header {
+            color: var(--color-secondary); font-size: 1.5em; font-weight: 700;
+            margin-bottom: 15px; padding-bottom: 10px;
+            border-bottom: 3px solid #FFEDD5; cursor: pointer; 
+            user-select: none; transition: all 0.2s;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .collapsible-header:hover { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+        .collapsible-header::after { content: '▼'; font-size: 0.7em; color: #FF8C00; transition: transform 0.3s; }
+        .collapsible-header.collapsed::after { transform: rotate(-90deg); }
+
+        /* Reading Text */
+        .reading-text {
+            background: #FFF7ED; border-left: 5px solid var(--color-primary);
+            padding: 20px; border-radius: 0 8px 8px 0;
+            font-size: 1.1em; color: #4A5568;
+            white-space: normal; line-height: 1.8;
+        }
+        .reading-text p { margin-bottom: 1.2em; }
+        
+        .dictionary-word {
+            text-decoration: underline dashed var(--color-primary) 2px;
+            text-underline-offset: 4px; cursor: help; font-weight: 600; 
+            color: var(--color-secondary); transition: all 0.2s;
+        }
+        .dictionary-word:hover { background-color: #FFEDD5; color: var(--color-primary); border-radius: 4px; }
+
+        /* Quiz Styles */
+        .quiz-option {
+            background: #FFFFFF; border: 2px solid #E2E8F0; padding: 16px; 
+            margin-bottom: 12px; border-radius: 10px; cursor: pointer;
+            transition: all 0.2s ease; font-weight: 600; display: block; color: #4A5568;
+        }
+        .quiz-option:hover { background: #FFEDD5; border-color: var(--color-primary); transform: translateX(4px); }
+        .quiz-option.selected {
+            background: #FFEDD5; color: #9A3412;
+            border-color: var(--color-primary); box-shadow: 0 0 0 2px var(--color-primary) inset;
+        }
+        .quiz-option.correct { background: var(--color-correct) !important; color: white !important; border-color: var(--color-correct) !important; }
+        .quiz-option.incorrect { background: var(--color-incorrect) !important; color: white !important; border-color: var(--color-incorrect) !important; }
+
+        /* Word Bank & Gaps */
+        .word-bank {
+            background: #FFF7ED; border: 2px dashed #F97316; 
+            border-radius: 10px; padding: 20px; margin-bottom: 25px; 
+            text-align: center;
+        }
+        
+        .word-options {
+            display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 10px;
+        }
+
+        .word-option {
+            background-color: #FFFFFF; color: var(--color-secondary);
+            border: 2px solid var(--color-secondary); padding: 8px 18px; 
+            border-radius: 8px; cursor: pointer; transition: all 0.2s;
+            font-weight: 700; box-shadow: 0 2px 0 rgba(0,0,0,0.1);
+        }
+        .word-option:hover { transform: translateY(-2px); border-color: var(--color-primary); color: var(--color-primary); }
+        .word-option.selected { background-color: var(--color-primary); color: white; border-color: var(--color-primary); }
+        .word-option.used { opacity: 0.4; pointer-events: none; background-color: #CBD5E1; border-color: #CBD5E1; color: white; }
+
+        .gap-input {
+            display: inline-block; text-align: center; padding: 0 10px;
+            min-width: 120px; height: 32px; line-height: 30px;
+            background-color: #FFF; border-bottom: 3px solid var(--color-secondary);
+            color: var(--color-primary); font-weight: 700; cursor: pointer; margin: 0 4px;
+        }
+        .gap-input.filled { background-color: #FFEDD5; border-bottom-color: var(--color-primary); }
+        .gap-input.correct { background-color: var(--color-correct) !important; color: white !important; border-bottom-color: var(--color-correct) !important; pointer-events: none; }
+        .gap-input.incorrect { background-color: var(--color-incorrect) !important; color: white !important; border-bottom-color: var(--color-incorrect) !important; }
+
+        /* Buttons */
+        .check-btn {
+            background-color: var(--color-secondary); color: white; padding: 16px;
+            border-radius: 10px; font-weight: 700; cursor: pointer; width: 100%;
+            border: none; text-transform: uppercase; margin-top: 25px; letter-spacing: 1px;
+            transition: all 0.2s; box-shadow: 0 4px 0 #1A202C;
+        }
+        .check-btn:hover { background-color: #4A5568; transform: translateY(-2px); box-shadow: 0 6px 0 #1A202C; }
+        .check-btn:active { transform: translateY(2px); box-shadow: 0 0 0 #1A202C; }
+        
+        .next-btn {
+            background-color: var(--color-primary); color: white; padding: 12px 30px;
+            border-radius: 8px; font-weight: 700; cursor: pointer; float: right;
+            margin-top: 20px; border: none; transition: all 0.2s;
+        }
+        .next-btn:hover { background-color: #EA580C; transform: translateX(5px); }
+
+        /* Popups */
+        #feedback-popup {
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            padding: 25px 40px; border-radius: 16px; font-weight: 700; font-size: 1.2em; color: white;
+            display: none; z-index: 2000; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            border: 4px solid white; min-width: 300px;
+        }
+        
+        #dictionary-popup {
+            position: fixed; max-width: 300px; padding: 20px; background: #FFFFFF;
+            color: #334155; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            z-index: 9999; display: none; border: 3px solid var(--color-primary);
+        }
+
+        /* Footer */
+        .footer {
+            background: #FFFFFF; border-top: 1px solid #FED7AA;
+            padding: 32px 20px; margin-top: 60px; text-align: center;
+        }
+        .footer-text { font-size: 14px; color: #718096; }
+
+        @media (max-width: 768px) { .user-greeting { display: none; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">🛒</span>
+                <a href="/business/" class="site-title">English For Cool Dudes</a>
+            </div>
+            <div id="logged-out-buttons" class="header-buttons" style="display: none;">
+                <a href="/login/" class="header-button login">Login</a>
+                <a href="/signup/" class="header-button signup">Sign Up</a>
+            </div>
+            <div id="logged-in-buttons" class="header-buttons" style="display: none;">
+                <span class="user-greeting" id="user-greeting">Hey Cool Dude! 👋</span>
+                <a href="/dashboard/" class="header-button dashboard">My Dashboard</a>
+                <button id="logout-btn" class="header-button logout">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="lesson-container">
+        <h1 class="text-3xl font-black text-gray-900 mb-2">📦 Alibaba: The E-Commerce Empire</h1>
+        <h2 class="text-lg text-orange-600 font-bold mb-6">Business English: Antitrust, IPOs & Cloud Computing</h2>
+        <p class="text-gray-500 mb-8 text-sm uppercase tracking-wide font-bold">Level: Upper-Int (B2/C1) | Topic: Tech Business</p>
+        
+        <div class="flex justify-between items-center text-sm font-semibold mb-4 text-gray-600 bg-white p-3 rounded-lg border border-orange-100 shadow-sm">
+            <span>Progress: Stage <span id="current-stage">1</span> of 5</span>
+        </div>
+        
+        <div class="content-card" data-section-id="0">
+            <h2 class="collapsible-header" onclick="toggleCollapse('reading-content', this)">📜 1. Context: The "Hybrid" Company</h2>
+            <div class="reading-text" id="reading-content"> 
+                <h4 class="text-xl font-bold text-gray-800 mb-4">More than just "The Amazon of China"</h4>
+                <p>Alibaba is often described as a hybrid. It isn't just one thing; it combines elements of Amazon, PayPal, and Google into one massive digital <span class="dictionary-word" data-definition="A complex network or interconnected system." data-type="noun">ecosystem</span>.</p>
+                
+                <p>Founded in 1999 by Jack Ma in a small apartment, the company faced significant challenges. At the time, China had fewer than 10 million internet users. The team had to build trust from the ground up, convincing businesses to trade and pay online. Their first major victory was "Taobao" (meaning "treasure hunting"), a consumer platform that defeated eBay in the Chinese market by understanding local needs better.</p>
+                
+                <p>However, recent years have been turbulent. The company has faced fierce competition from apps like TikTok and Pinduoduo, and in 2021, it was hit with a record fine for <span class="dictionary-word" data-definition="Relating to a monopoly; having exclusive control over a market." data-type="adjective">monopolistic</span> practices. To survive and grow, Alibaba is now betting heavily on AI and Cloud Computing.</p>
+            </div>
+        </div>
+
+        <div id="stage-1" class="content-card">
+            <div class="video-wrapper">
+                <iframe src="https://www.youtube-nocookie.com/embed/v9Qu1Zp1gdc?start=95" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+
+            <h2 class="collapsible-header" style="margin-top:15px; cursor: default;">🎥 2. Watch & Comprehend</h2>
+            <p class="text-gray-600 mb-4 font-medium">According to the video, why did Alibaba originally launch "Taobao" in 2003?</p>
+
+            <div class="question-box" data-correct-value="To prevent eBay from dominating the Chinese market.">
+                <div class="quiz-options">
+                    <div class="quiz-option" data-value="To help international brands like Nike sell in China.">To help international brands like Nike sell in China.</div>
+                    <div class="quiz-option" data-value="To prevent eBay from dominating the Chinese market.">To prevent eBay from dominating the Chinese market.</div>
+                    <div class="quiz-option" data-value="Because the government ordered them to do it.">Because the government ordered them to do it.</div>
+                </div>
+            </div>
+            <button class="check-btn" onclick="checkRadioQuestion(this)">Check Answer</button>
+            <button class="next-btn" onclick="nextStage(2)" style="display:none;">Next Stage &rarr;</button>
+        </div>
+
+        <div id="stage-2" class="content-card" style="display:none;">
+            <h2 class="collapsible-header" style="cursor: default;">📈 3. Revenue & Growth</h2>
+            <p class="text-gray-600 mb-4">Select ALL correct statements about Alibaba's revenue sources mentioned in the video.</p>
+
+            <p class="font-bold text-gray-800 mt-4 mb-2">A. What drives the "Customer Management Revenue" (CMR)?</p>
+            <div class="question-box" data-correct-values="B,C" data-type="checkbox">
+                <div class="quiz-options">
+                    <div class="quiz-option" data-value="A">Direct sales of Alibaba's own products.</div>
+                    <div class="quiz-option" data-value="B">Marketing services and sales commissions.</div>
+                    <div class="quiz-option" data-value="C">A new 0.6% software service fee for merchants.</div>
+                </div>
+            </div>
+
+            <p class="font-bold text-gray-800 mt-6 mb-2">B. Who actually "drives the bottom line" (makes the profit)?</p>
+            <div class="question-box" data-correct-values="E" data-type="checkbox">
+                <div class="quiz-options">
+                    <div class="quiz-option" data-value="D">The shoppers.</div>
+                    <div class="quiz-option" data-value="E">The merchants (sellers).</div>
+                    <div class="quiz-option" data-value="F">The government subsidies.</div>
+                </div>
+            </div>
+
+            <button class="check-btn" onclick="checkCheckboxQuestion(this)">Check Answers</button>
+            <button class="next-btn" onclick="nextStage(3)" style="display:none;">Next Stage &rarr;</button>
+        </div>
+
+        <div id="stage-3" class="content-card" style="display:none;">
+            <h2 class="collapsible-header" style="cursor: default;">4. Business Vocabulary (Nouns)</h2>
+            <div class="word-bank">
+                <p class="font-bold mb-2 text-xs text-gray-500 uppercase w-full text-center">Word Bank</p>
+                <div class="word-options" id="noun-bank">
+                    <div class="word-option" data-word="revenue">revenue</div>
+                    <div class="word-option" data-word="antitrust">antitrust</div>
+                    <div class="word-option" data-word="IPO">IPO</div>
+                    <div class="word-option" data-word="dividends">dividends</div>
+                </div>
+            </div>
+
+            <div class="gap-fill-text text-lg leading-loose space-y-4">
+                <p>1. In 2014, Alibaba had a massive <span class="gap-input" data-answer="IPO">____</span>, valuing the company at $231 billion.</p>
+                <p>2. E-commerce is still the company's largest <span class="gap-input" data-answer="revenue">____</span> driver.</p>
+                <p>3. Authorities launched an <span class="gap-input" data-answer="antitrust">____</span> investigation to check if they had too much power.</p>
+                <p>4. Investing in Cloud and Digital has paid real <span class="gap-input" data-answer="dividends">____</span> (benefits) for the company.</p>
+            </div>
+
+            <button type="button" class="check-btn" onclick="checkGapFillStage(3)">Check Nouns</button>
+            <button class="next-btn" onclick="nextStage(4)" style="display:none;">Next Stage &rarr;</button>
+        </div>
+
+        <div id="stage-4" class="content-card" style="display:none;">
+            <h2 class="collapsible-header" style="cursor: default;">5. Business Vocabulary (Verbs/Adj)</h2>
+            <p class="text-sm text-gray-500 mb-4">Fill in the blanks regarding the company's restructuring attempt.</p>
+            
+            <div class="word-bank">
+                <p class="font-bold mb-2 text-xs text-gray-500 uppercase w-full text-center">Word Bank</p>
+                <div class="word-options" id="verb-bank">
+                    <div class="word-option" data-word="intensifying">intensifying</div>
+                    <div class="word-option" data-word="monopolistic">monopolistic</div>
+                    <div class="word-option" data-word="weighed">weighed</div>
+                    <div class="word-option" data-word="restructure">restructure</div>
+                </div>
+            </div>
+
+            <div class="gap-fill-text text-lg leading-loose space-y-4">
+                <p>1. The company was fined $2.8 billion for <span class="gap-input" data-answer="monopolistic">____</span> practices.</p>
+                <p>2. Competition from Pinduoduo and TikTok was <span class="gap-input" data-answer="intensifying">____</span> rapidly.</p>
+                <p>3. They decided to <span class="gap-input" data-answer="restructure">____</span> the business into six units.</p>
+                <p>4. The goal was to let units run fast without being <span class="gap-input" data-answer="weighed">____</span> down by the group.</p>
+            </div>
+
+            <button type="button" class="check-btn" onclick="checkGapFillStage(4)">Check Verbs</button>
+            <button class="next-btn" onclick="nextStage(5)" style="display:none;">Next Stage &rarr;</button>
+        </div>
+
+        <div id="stage-5" class="content-card" style="display:none;">
+            <h2 class="collapsible-header" style="cursor: default;">6. Critical Thinking</h2>
+            <p class="text-gray-600 mb-4 font-medium">Why does the video suggest Alibaba promoted old co-founders (Joe Tsai and Eddie Wu) back to leadership roles?</p>
+
+            <div class="question-box" data-correct-value="To calm the confusion caused by the failed six-division strategy.">
+                <div class="quiz-options">
+                    <div class="quiz-option" data-value="Because they are the only people who know how to code AI.">Because they are the only people who know how to code AI.</div>
+                    <div class="quiz-option" data-value="To prepare the company for a sale to Amazon.">To prepare the company for a sale to Amazon.</div>
+                    <div class="quiz-option" data-value="To calm the confusion caused by the failed six-division strategy.">To calm the confusion caused by the failed six-division strategy.</div>
+                </div>
+            </div>
+            <button class="check-btn" onclick="checkRadioQuestion(this)">Check Answer</button>
+            <button class="next-btn" onclick="showFinalSummary()" style="display:none;">View Summary &rarr;</button>
+        </div>
+        
+        <div id="stage-6" class="content-card" style="display:none; border-top: 5px solid var(--color-correct);">
+            <h2 class="text-2xl font-black text-gray-800 mb-2">💰 Transaction Complete!</h2>
+            <p class="text-lg mb-6 text-gray-600">You've successfully navigated the Alibaba empire.</p>
+            
+            <div class="bg-orange-50 p-5 rounded-lg border border-orange-200 mb-6">
+                <h3 class="font-bold text-lg text-gray-800 mb-3">Vocabulary Inventory (Tap for definition):</h3>
+                <ul id="learned-words-list"></ul>
+            </div>
+            
+            <div id="save-words-section" class="text-center bg-gray-50 p-6 rounded-xl border border-gray-200">
+                <div id="save-feature-loggedin" style="display: none;">
+                    <button id="save-words-btn" class="bg-gray-800 text-white font-bold py-3 px-6 rounded-full hover:bg-black transition w-full shadow-lg transform hover:-translate-y-1" onclick="saveWordsToDashboard()">💾 Add 8 Words to Inventory</button>
+                </div>
+                <div id="login-prompt" style="display: none;">
+                    <p class="text-red-600 font-bold mb-2">🔒 Login to save your progress!</p>
+                    <a href="/login/" class="inline-block bg-orange-500 text-white font-bold py-2 px-4 rounded hover:bg-orange-600 transition">Log In / Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+    <p class="footer-text">© 2025 English For Cool Dudes - 😎</p>
+    <div style="margin-top: 10px;">
+        <a href="/impressum/" style="color: #F97316; margin-right: 15px; text-decoration: none;">Impressum</a>
+        <a href="/datenschutz/" style="color: #F97316; text-decoration: none;">Datenschutzerklärung</a>
+    </div>
+</footer>
+
+    <div id="dictionary-popup"></div>
+    <div id="feedback-popup"></div>
+
+<script>
+    // --- CONFIG ---
+    const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let currentUser = null;
+
+    // Lesson Meta
+    const lessonTitle = "Alibaba: The E-Commerce Empire";
+    const lessonLink = "/alibaba/";
+    const lessonLevel = "UPPER-INTERMEDIATE";
+
+    // Vocab Data
+    const learnedWords = [
+        { word: "ecosystem", definition: "A complex network or interconnected system of businesses.", type: "noun" },
+        { word: "revenue", definition: "Income, especially when of a company or organization.", type: "noun" },
+        { word: "monopolistic", definition: "Relating to a monopoly; having exclusive control over a market.", type: "adjective" },
+        { word: "antitrust", definition: "Laws or actions that oppose trusts or monopolies; promoting competition.", type: "noun/adj" },
+        { word: "IPO", definition: "Initial Public Offering: The first sale of stock by a private company to the public.", type: "noun" },
+        { word: "intensifying", definition: "Becoming stronger or more extreme.", type: "verb (participle)" },
+        { word: "dividends", definition: "A sum of money paid to shareholders; figuratively, a benefit or advantage.", type: "noun" },
+        { word: "restructure", definition: "To organize a business or system in a new way.", type: "verb" }
+    ];
+
+    // --- UTILS & THEMED POPUPS ---
+    function showFeedback(msg, type) {
+        const p = document.getElementById('feedback-popup');
+        p.textContent = msg;
+        
+        if (type === 'correct') {
+            p.style.background = 'var(--color-correct)';
+            p.style.borderColor = 'white';
+        } else if (type === 'incorrect') {
+            p.style.background = 'var(--color-incorrect)';
+            p.style.borderColor = 'white';
+        } else if (type === 'partial') {
+            p.style.background = 'var(--color-accent)';
+            p.style.borderColor = '#78350F';
+        }
+        
+        p.style.display = 'block';
+        setTimeout(() => p.style.display = 'none', 2000);
+    }
+
+    // THEMATIC MESSAGES UPDATED
+    const msgs = {
+        correct: ['Market Dominance! 🚀🇨🇳', 'Cloud Computing Power! ☁️💻', 'IPO Value Secured! 💰📈', 'Package Delivered! 📦📬'],
+        incorrect: ['Antitrust Fine! ⚖️💥', 'Competition Ahead! ⚔️📉', 'Stock Price Dip! 📉📉', 'Warehouse Error! 📦🛑'],
+        partial: ['Processing... ⏳', 'Add to Cart! (Select more)', 'Incomplete Order! 📦']
+    };
+
+    function getRandomMsg(type) {
+        const list = msgs[type];
+        return list[Math.floor(Math.random() * list.length)];
+    }
+
+    function showDictionary(el, html) {
+        const p = document.getElementById('dictionary-popup');
+        p.innerHTML = html;
+        p.style.display = 'block';
+        const r = el.getBoundingClientRect();
+        let top = r.bottom + 10;
+        if (top + 100 > window.innerHeight) top = r.top - 100;
+        p.style.top = top + 'px';
+        p.style.left = Math.max(10, r.left - 100) + 'px';
+    }
+
+    function shuffle(a) { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+    // --- AUTH ---
+    async function initAuth() {
+        const {data:{user}} = await supabase.auth.getUser();
+        if(user) {
+            currentUser = user;
+            document.getElementById('logged-out-buttons').style.display='none';
+            document.getElementById('logged-in-buttons').style.display='flex';
+            document.getElementById('save-feature-loggedin').style.display='block';
+            const name = user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Cool Dude';
+            document.getElementById('user-greeting').textContent = `Hey ${name}! 👋`;
+        } else {
+            document.getElementById('logged-out-buttons').style.display='flex';
+            document.getElementById('login-prompt').style.display='block';
+        }
+    }
+
+    // --- SAVING ---
+    async function saveMistake(word) {
+        if(!currentUser) return;
+        const wObj = learnedWords.find(w=>w.word.toLowerCase()===word.toLowerCase()) || {word, definition:'', type:''};
+        await supabase.from('user_mistakes').upsert({
+            user_id: currentUser.id, word: wObj.word, definition: wObj.definition, word_type: wObj.type,
+            lesson: lessonTitle, lesson_link: lessonLink, last_made_at: new Date().toISOString()
+        }, {onConflict: 'user_id,word'});
+    }
+
+    async function saveWordsToDashboard() {
+        const btn = document.getElementById('save-words-btn');
+        btn.textContent = "Processing..."; btn.disabled = true;
+        if(!currentUser) return;
+        const {error} = await supabase.from('lessons').upsert([{
+            user_id: currentUser.id, lesson_title: lessonTitle, lesson_link: lessonLink, lesson_level: lessonLevel,
+            vocabulary: learnedWords, completed_at: new Date().toISOString()
+        }], {onConflict: 'user_id,lesson_title'});
+        
+        if(!error) {
+            btn.textContent = "✅ Inventory Saved!"; btn.style.background = "#10B981";
+            setTimeout(()=>window.location.href='/dashboard/', 1000);
+        } else {
+            btn.textContent = "❌ Error"; btn.disabled = false;
+        }
+    }
+
+    // --- GAME LOGIC ---
+    function checkRadioQuestion(btn) {
+        const box = btn.previousElementSibling;
+        const sel = box.querySelector('.selected');
+        if(!sel) return showFeedback('Select an option! 🖱️', 'partial');
+        
+        if(sel.dataset.value === box.dataset.correctValue) {
+            sel.classList.add('correct'); 
+            showFeedback(getRandomMsg('correct'), 'correct');
+            btn.style.display='none'; btn.nextElementSibling.style.display='block';
+        } else {
+            sel.classList.add('incorrect'); 
+            showFeedback(getRandomMsg('incorrect'), 'incorrect');
+            setTimeout(()=>sel.classList.remove('incorrect','selected'), 1000);
+        }
+    }
+
+    function checkCheckboxQuestion(btn) {
+        const boxes = btn.parentNode.querySelectorAll('.question-box');
+        let allCorrect = true; 
+        let anySel = false;
+        let anyWrongSelected = false;
+        let missingCorrect = false;
+
+        boxes.forEach(b => {
+            const correct = b.dataset.correctValues.split(',');
+            const selectedEls = Array.from(b.querySelectorAll('.selected'));
+            const selectedVals = selectedEls.map(o=>o.dataset.value);
+            
+            if(selectedVals.length) anySel = true;
+
+            const wrongSelection = selectedVals.some(v => !correct.includes(v));
+            if (wrongSelection) anyWrongSelected = true;
+
+            const correctMissed = correct.some(v => !selectedVals.includes(v));
+            if (correctMissed) missingCorrect = true;
+
+            if (wrongSelection || correctMissed) allCorrect = false;
+
+            selectedEls.forEach(s => {
+                if(correct.includes(s.dataset.value)) s.classList.add('correct');
+                else s.classList.add('incorrect');
+            });
+        });
+
+        if(!anySel) return showFeedback('Selection Required 🖱️', 'partial');
+
+        if(allCorrect) {
+            showFeedback(getRandomMsg('correct'), 'correct');
+            btn.style.display='none'; btn.nextElementSibling.style.display='block';
+        } else if (anyWrongSelected) {
+            showFeedback(getRandomMsg('incorrect'), 'incorrect');
+            setTimeout(() => document.querySelectorAll('.incorrect').forEach(el=>el.classList.remove('incorrect','selected')), 1500);
+        } else if (missingCorrect) {
+            showFeedback(getRandomMsg('partial'), 'partial');
+        }
+    }
+
+    // GAP FILL
+    let selWord = null;
+    function setupGapFill() {
+        document.querySelectorAll('.word-option').forEach(o => {
+            o.addEventListener('click', () => {
+                if(o.classList.contains('used')) return;
+                if(selWord) selWord.classList.remove('selected');
+                selWord = o; o.classList.add('selected');
+            });
+        });
+        document.querySelectorAll('.gap-input').forEach(g => {
+            g.addEventListener('click', () => {
+                if(g.classList.contains('filled')) {
+                    const txt = g.textContent;
+                    g.textContent = "____"; g.className = "gap-input";
+                    const bank = g.closest('.content-card').querySelector('.word-options');
+                    const wEl = Array.from(bank.children).find(w=>w.dataset.word===txt);
+                    if(wEl) wEl.classList.remove('used');
+                    return;
+                }
+                if(selWord) {
+                    g.textContent = selWord.dataset.word;
+                    g.dataset.filledWord = selWord.dataset.word;
+                    g.classList.add('filled');
+                    selWord.classList.remove('selected'); selWord.classList.add('used'); selWord = null;
+                }
+            });
+        });
+    }
+
+    function checkGapFillStage(stage) {
+        const div = document.getElementById(`stage-${stage}`);
+        const gaps = div.querySelectorAll('.gap-input');
+        let allRight = true; let allFilled = true;
+        gaps.forEach(g => {
+            if(!g.classList.contains('filled')) { allFilled=false; return; }
+            if(g.dataset.filledWord === g.dataset.answer) {
+                g.classList.add('correct');
+            } else {
+                g.classList.add('incorrect'); allRight = false;
+                saveMistake(g.dataset.answer);
+            }
+        });
+        if(!allFilled) return showFeedback('Fill all gaps! ✏️', 'partial');
+        if(allRight) {
+            showFeedback(getRandomMsg('correct'), 'correct');
+            div.querySelector('.check-btn').style.display='none';
+            div.querySelector('.next-btn').style.display='block';
+        } else {
+            showFeedback(getRandomMsg('incorrect'), 'incorrect');
+        }
+    }
+
+    // NAV
+    function nextStage(n) {
+        document.querySelectorAll('.content-card[id^="stage-"]').forEach(d=>d.style.display='none');
+        const next = document.getElementById(`stage-${n}`);
+        next.style.display='block';
+        document.getElementById('current-stage').textContent = n;
+        const readingHeight = document.getElementById('reading-content').parentElement.offsetHeight;
+        window.scrollTo({top: readingHeight + 40, behavior:'smooth'});
+    }
+
+    function showFinalSummary() {
+        document.querySelectorAll('.content-card[id^="stage-"]').forEach(d=>d.style.display='none');
+        const fin = document.getElementById('stage-6');
+        fin.style.display='block';
+        const ul = document.getElementById('learned-words-list');
+        learnedWords.forEach(w => {
+            const li = document.createElement('li');
+            li.style.cssText = "background:white; padding:10px; border-radius:8px; border:1px solid #FED7AA; margin-bottom:10px; cursor:pointer;";
+            li.innerHTML = `<strong>${w.word}</strong> <span class="text-xs text-gray-500">(${w.type})</span>`;
+            li.onclick = (e) => { e.stopPropagation(); showDictionary(li, `<b>${w.word}</b>: ${w.definition}`); };
+            ul.appendChild(li);
+        });
+    }
+
+    function toggleCollapse(id, header) {
+        const el = document.getElementById(id);
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        header.classList.toggle('collapsed');
+    }
+
+    // INIT
+    document.addEventListener('DOMContentLoaded', () => {
+        initAuth();
+        setupGapFill();
+        
+        document.querySelectorAll('.quiz-option').forEach(o => {
+            o.addEventListener('click', () => {
+                if(o.closest('.question-box').dataset.type === 'checkbox') {
+                    o.classList.toggle('selected');
+                } else {
+                    o.parentNode.querySelectorAll('.selected').forEach(s=>s.classList.remove('selected'));
+                    o.classList.add('selected');
+                }
+            });
+        });
+
+        document.querySelectorAll('.dictionary-word').forEach(w => {
+            w.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showDictionary(w, `<b>${w.textContent}</b>: ${w.dataset.definition}`);
+            });
+        });
+        
+        document.body.addEventListener('click', (e) => {
+            if(!e.target.closest('.dictionary-word') && !e.target.closest('#dictionary-popup')) {
+                document.getElementById('dictionary-popup').style.display='none';
+            }
+        });
+
+        const nounBank = document.getElementById('noun-bank');
+        const verbBank = document.getElementById('verb-bank');
+        if(nounBank) shuffle(Array.from(nounBank.children)).forEach(c=>nounBank.appendChild(c));
+        if(verbBank) shuffle(Array.from(verbBank.children)).forEach(c=>verbBank.appendChild(c));
+    });
+</script>
+</body>
+</html>
