@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wealth Tax: The Global Debate - English for Cool Dudes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        /* --- WEALTH TAX / FINANCE THEME --- */
+        :root {
+            --color-primary: #1E3A8A; /* Dark Blue (Finance/Gov) */
+            --color-secondary: #0F172A; /* Slate Black */
+            --color-accent: #D97706; /* Gold/Money */
+            --color-background: #F1F5F9; /* Light Slate Grey */
+            --color-text: #1E293B;
+            --color-correct: #059669; /* Emerald Green */
+            --color-incorrect: #DC2626; /* Error Red */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* === HEADER STYLES === */
+        .header {
+            background: #FFFFFF;
+            border-bottom: 2px solid #CBD5E1;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 15px; }
+
+        .logo {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, var(--color-primary) 0%, #3B82F6 100%);
+            color: white;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; 
+        }
+
+        .site-title { font-size: 20px; font-weight: 700; color: var(--color-secondary); text-decoration: none; letter-spacing: -0.5px; }
+
+        .header-buttons { display: flex; align-items: center; gap: 8px; }
+
+        .header-button {
+            text-decoration: none; padding: 8px 16px; border-radius: 6px;
+            font-size: 14px; font-weight: 600; transition: all 0.2s;
+            white-space: nowrap; cursor: pointer; border: 1px solid #CBD5E1;
+        }
+
+        .header-button.login { background: #FFF; color: #475569; }
+        .header-button.login:hover { background: #F8FAFC; color: var(--color-primary); }
+
+        .header-button.signup { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+        .header-button.signup:hover { background: #1E40AF; box-shadow: 0 2px 5px rgba(30, 58, 138, 0.3); }
+
+        .header-button.dashboard { background: #EFF6FF; color: var(--color-primary); border-color: #BFDBFE; }
+        .header-button.logout { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
+
+        .user-greeting { font-size: 14px; color: #475569; font-weight: 600; margin-right: 10px; display: block; }
+        
+        /* === LESSON CONTAINER === */
+        .lesson-container { max-width: 800px; margin: 30px auto 60px; padding: 0 20px; }
+        
+        .content-card {
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            border: 1px solid #E2E8F0;
+            position: relative;
+        }
+
+        /* Collapsible Header */
+        .collapsible-header {
+            color: var(--color-secondary); font-size: 1.5em; font-weight: 700;
+            margin-bottom: 15px; padding-bottom: 10px;
+            border-bottom: 3px solid #E2E8F0; cursor: pointer; 
+            user-select: none; transition: all 0.2s;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .collapsible-header:hover { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+        .collapsible-header::after { content: '▼'; font-size: 0.7em; color: var(--color-accent); transition: transform 0.3s; }
+        .collapsible-header.collapsed::after { transform: rotate(-90deg); }
+
+        /* Reading Text */
+        .reading-text {
+            background: #F8FAFC; border-left: 5px solid var(--color-primary);
+            padding: 20px; border-radius: 0 8px 8px 0;
+            font-size: 1.1em; color: #334155;
+            white-space: normal; line-height: 1.8;
+        }
+        .reading-text p { margin-bottom: 1.2em; }
+        
+        .dictionary-word {
+            text-decoration: underline dashed var(--color-accent) 2px;
+            text-underline-offset: 4px; cursor: help; font-weight: 600; 
+            color: var(--color-primary); transition: all 0.2s;
+        }
+        .dictionary-word:hover { background-color: #FEF3C7; color: #D97706; border-radius: 4px; }
+
+        /* === NEW MATCHING CARD STYLES === */
+        .match-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;
+        }
+        .match-card {
+            background: #F8FAFC; border: 2px solid #E2E8F0; padding: 15px;
+            border-radius: 8px; cursor: pointer; font-weight: 600; text-align: center;
+            display: flex; align-items: center; justify-content: center; min-height: 80px;
+            font-size: 0.95em; color: #475569; transition: all 0.2s;
+        }
+        .match-card:hover { border-color: var(--color-primary); background: #EFF6FF; }
+        .match-card.selected { 
+            background: #DBEAFE; border-color: var(--color-primary); 
+            color: var(--color-primary); box-shadow: 0 0 0 2px var(--color-primary); 
+        }
+        .match-card.matched { 
+            background: #DCFCE7; border-color: var(--color-correct); 
+            color: #166534; opacity: 0.7; pointer-events: none;
+        }
+
+        /* Quiz Styles */
+        .quiz-option {
+            background: #FFFFFF; border: 2px solid #E2E8F0; padding: 16px; 
+            margin-bottom: 12px; border-radius: 10px; cursor: pointer;
+            transition: all 0.2s ease; font-weight: 600; display: block; color: #475569;
+        }
+        .quiz-option:hover { background: #F1F5F9; border-color: var(--color-primary); transform: translateX(4px); }
+        .quiz-option.selected {
+            background: #EFF6FF; color: var(--color-primary);
+            border-color: var(--color-primary); box-shadow: 0 0 0 2px var(--color-primary) inset;
+        }
+        .quiz-option.correct { background: var(--color-correct) !important; color: white !important; border-color: var(--color-correct) !important; }
+        .quiz-option.incorrect { background: var(--color-incorrect) !important; color: white !important; border-color: var(--color-incorrect) !important; }
+
+        /* Word Bank & Gaps */
+        .word-bank {
+            background: #EFF6FF; border: 2px dashed var(--color-primary); 
+            border-radius: 10px; padding: 20px; margin-bottom: 25px; 
+            text-align: center;
+        }
+        .word-options { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 10px; }
+        .word-option {
+            background-color: #FFFFFF; color: var(--color-secondary);
+            border: 2px solid var(--color-secondary); padding: 8px 18px; 
+            border-radius: 8px; cursor: pointer; transition: all 0.2s;
+            font-weight: 700; box-shadow: 0 2px 0 rgba(0,0,0,0.1);
+        }
+        .word-option:hover { transform: translateY(-2px); border-color: var(--color-primary); color: var(--color-primary); }
+        .word-option.selected { background-color: var(--color-primary); color: white; border-color: var(--color-primary); }
+        .word-option.used { opacity: 0.4; pointer-events: none; background-color: #94A3B8; border-color: #94A3B8; color: white; }
+
+        .gap-input {
+            display: inline-block; text-align: center; padding: 0 10px;
+            min-width: 120px; height: 32px; line-height: 30px;
+            background-color: #FFF; border-bottom: 3px solid var(--color-secondary);
+            color: var(--color-primary); font-weight: 700; cursor: pointer; margin: 0 4px;
+        }
+        .gap-input.filled { background-color: #EFF6FF; border-bottom-color: var(--color-primary); }
+        .gap-input.correct { background-color: var(--color-correct) !important; color: white !important; border-bottom-color: var(--color-correct) !important; pointer-events: none; }
+        .gap-input.incorrect { background-color: var(--color-incorrect) !important; color: white !important; border-bottom-color: var(--color-incorrect) !important; }
+
+        /* Buttons */
+        .check-btn {
+            background-color: var(--color-secondary); color: white; padding: 16px;
+            border-radius: 10px; font-weight: 700; cursor: pointer; width: 100%;
+            border: none; text-transform: uppercase; margin-top: 25px; letter-spacing: 1px;
+            transition: all 0.2s; box-shadow: 0 4px 0 #000;
+        }
+        .check-btn:hover { background-color: #334155; transform: translateY(-2px); box-shadow: 0 6px 0 #000; }
+        .check-btn:active { transform: translateY(2px); box-shadow: 0 0 0 #000; }
+        
+        .next-btn {
+            background-color: var(--color-accent); color: white; padding: 12px 30px;
+            border-radius: 8px; font-weight: 700; cursor: pointer; float: right;
+            margin-top: 20px; border: none; transition: all 0.2s;
+        }
+        .next-btn:hover { background-color: #B45309; transform: translateX(5px); }
+
+        /* Popups */
+        #feedback-popup {
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            padding: 25px 40px; border-radius: 16px; font-weight: 700; font-size: 1.2em; color: white;
+            display: none; z-index: 2000; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            border: 4px solid white; min-width: 300px;
+        }
+        
+        #dictionary-popup {
+            position: fixed; max-width: 300px; padding: 20px; background: #FFFFFF;
+            color: #334155; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            z-index: 9999; display: none; border: 3px solid var(--color-primary);
+        }
+
+        /* Footer */
+        .footer {
+            background: #FFFFFF; border-top: 1px solid #E2E8F0;
+            padding: 32px 20px; margin-top: 60px; text-align: center;
+        }
+        .footer-text { font-size: 14px; color: #64748B; }
+
+        @media (max-width: 768px) { .user-greeting { display: none; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">🏛️</span>
+                <a href="/tax/" class="site-title">English For Cool Dudes</a>
+            </div>
+            <div id="logged-out-buttons" class="header-buttons" style="display: none;">
+                <a href="/login/" class="header-button login">Login</a>
+                <a href="/signup/" class="header-button signup">Sign Up</a>
+            </div>
+            <div id="logged-in-buttons" class="header-buttons" style="display: none;">
+                <span class="user-greeting" id="user-greeting">Hey Cool Dude! 👋</span>
+                <a href="/dashboard/" class="header-button dashboard">My Dashboard</a>
+                <button id="logout-btn" class="header-button logout">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="lesson-container">
+        <h1 class="text-3xl font-black text-gray-900 mb-2">💶 Wealth Tax: The Global Debate</h1>
+        <h2 class="text-lg text-blue-800 font-bold mb-6">Wealth Tax, Capital Flight, and Inequality</h2>
+        <p class="text-gray-500 mb-8 text-sm uppercase tracking-wide font-bold">Level: Advanced (C1) | Topic: Tax Policy</p>
+        
+        <div class="flex justify-between items-center text-sm font-semibold mb-4 text-gray-600 bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+            <span>Progress: Stage <span id="current-stage">1</span> of 5</span>
+        </div>
+        
+        <div class="content-card" data-section-id="0">
+            <h2 class="collapsible-header" onclick="toggleCollapse('reading-content', this)">📜 1. Context: To Tax or Not to Tax?</h2>
+            <div class="reading-text" id="reading-content"> 
+                <h4 class="text-xl font-bold text-gray-800 mb-4">The Wealth Tax Dilemma</h4>
+                <p>In Germany, the Wealth Tax has been suspended since 1997. The Federal Constitutional Court ruled that the valuation methods for real estate versus financial assets were unequal. However, calls for its reintroduction are growing. Proponents argue that it is the most effective tool for <span class="dictionary-word" data-definition="The transfer of income or wealth from some individuals to others (usually rich to poor)." data-type="noun">redistribution</span>, ensuring that the gap between the ultra-rich and the working class does not widen.</p>
+                
+                <p>Opponents, particularly in the middle class, cite <span class="dictionary-word" data-definition="The availability of liquid assets (cash) to a market or company." data-type="noun">liquidity</span> concerns. A business owner might be "wealthy" on paper because they own a factory, but they may not have the cash on hand to pay a tax on those <span class="dictionary-word" data-definition="Property owned by a person or company, regarded as having value." data-type="noun">assets</span>.</p>
+                
+                <p>Internationally, the debate is equally heated. France famously replaced its broad wealth tax (ISF) with a real-estate specific tax (IFI) to prevent <span class="dictionary-word" data-definition="When assets or money flow out of a country due to an economic event or high taxes." data-type="noun">capital flight</span>, where millionaires moved their tax residency to Belgium or Switzerland.</p>
+            </div>
+        </div>
+
+        <div id="stage-1" class="content-card">
+            <h2 class="collapsible-header" style="margin-top:0; cursor: default;">🧩 2. Vocabulary Match</h2>
+            <p class="text-gray-600 mb-4 font-medium">Match the term to its definition by clicking pairs.</p>
+            
+            <div id="matching-game-area" class="match-grid">
+                </div>
+
+            <button class="next-btn" id="match-next-btn" onclick="nextStage(2)" style="display:none;">Next Stage &rarr;</button>
+        </div>
+
+        <div id="stage-2" class="content-card" style="display:none;">
+            <h2 class="collapsible-header" style="cursor: default;">📈 3. Policy Details</h2>
+            <p class="text-gray-600 mb-4">Select ALL correct statements based on the text.</p>
+
+            <p class="font-bold text-gray-800 mt-4 mb-2">A. Why was the German tax suspended in 1997?</p>
+            <div class="question-box" data-correct-values="C" data-type="checkbox">
+                <div class="quiz-options">
+                    <div class="quiz-option" data-value="A">Because the government had a budget surplus.</div>
+                    
+                    <div class="quiz-option" data-value="B">Because the EU made it illegal.</div>
+<div class="quiz-option" data-value="C">Because valuation methods for real estate vs. finance were unequal.</div>
+                </div>
+            </div>
+
+            <p class="font-bold text-gray-800 mt-6 mb-2">B. What is the "Mittelstand" concern?</p>
+            <div class="question-box" data-correct-values="D" data-type="checkbox">
+                <div class="quiz-options">
+                    <div class="quiz-option" data-value="D">They have assets (factories) but low liquidity (cash) to pay the tax.</div>
+		    <div class="quiz-option" data-value="E">They don't have enough employees.</div>
+                    <div class="quiz-option" data-value="F">They want to move to France.</div>
+                </div>
+            </div>
+
+            <button class="check-btn" onclick="checkCheckboxQuestion(this)">Check Answers</button>
+            <button class="next-btn" onclick="nextStage(3)" style="display:none;">Next Stage &rarr;</button>
+        </div>
+
+        <div id="stage-3" class="content-card" style="display:none;">
+            <h2 class="collapsible-header" style="cursor: default;">4. Finance Vocabulary (Nouns)</h2>
+            <div class="word-bank">
+                <p class="font-bold mb-2 text-xs text-gray-500 uppercase w-full text-center">Word Bank</p>
+                <div class="word-options" id="noun-bank">
+                    <div class="word-option" data-word="redistribution">redistribution</div>
+                    <div class="word-option" data-word="assets">assets</div>
+                    <div class="word-option" data-word="liquidity">liquidity</div>
+                    <div class="word-option" data-word="inequality">inequality</div>
+                </div>
+            </div>
+
+            <div class="gap-fill-text text-lg leading-loose space-y-4">
+                <p>1. The government hopes that higher taxes will help with wealth <span class="gap-input" data-answer="redistribution">____</span>.</p>
+                <p>2. We cannot pay the tax because we have a <span class="gap-input" data-answer="liquidity">____</span> problem; no cash on hand.</p>
+                <p>3. The <span class="gap-input" data-answer="assets">____</span> of the company include real estate, patents, and machinery.</p>
+                <p>4. Rising <span class="gap-input" data-answer="inequality">____</span> is a major social issue in many developed nations.</p>
+            </div>
+
+            <button type="button" class="check-btn" onclick="checkGapFillStage(3)">Check Nouns</button>
+            <button class="next-btn" onclick="nextStage(4)" style="display:none;">Next Stage &rarr;</button>
+        </div>
+
+        <div id="stage-4" class="content-card" style="display:none;">
+            <h2 class="collapsible-header" style="cursor: default;">5. Finance Vocabulary (Concepts)</h2>
+            <p class="text-sm text-gray-500 mb-4">Fill in the blanks regarding the consequences of tax policy.</p>
+            
+            <div class="word-bank">
+                <p class="font-bold mb-2 text-xs text-gray-500 uppercase w-full text-center">Word Bank</p>
+                <div class="word-options" id="verb-bank">
+                    <div class="word-option" data-word="capital flight">capital flight</div>
+                    <div class="word-option" data-word="suspended">suspended</div>
+                    <div class="word-option" data-word="revenue">revenue</div>
+                    <div class="word-option" data-word="unfair">unfair</div>
+                </div>
+            </div>
+
+            <div class="gap-fill-text text-lg leading-loose space-y-4">
+                <p>1. If taxes are too high, the country might experience <span class="gap-input" data-answer="capital flight">____</span> as rich people leave.</p>
+                <p>2. The tax was <span class="gap-input" data-answer="suspended">____</span> in 1997 due to legal issues.</p>
+                <p>3. The court ruled that the valuation method was <span class="gap-input" data-answer="unfair">____</span>.</p>
+                <p>4. The government needs more tax <span class="gap-input" data-answer="revenue">____</span> to fund schools.</p>
+            </div>
+
+            <button type="button" class="check-btn" onclick="checkGapFillStage(4)">Check Concepts</button>
+            <button class="next-btn" onclick="nextStage(5)" style="display:none;">Next Stage &rarr;</button>
+        </div>
+
+        <div id="stage-5" class="content-card" style="display:none;">
+            <h2 class="collapsible-header" style="cursor: default;">6. Critical Thinking: Hedging</h2>
+            <p class="text-gray-600 mb-4 font-medium">Which is the most "diplomatic" way to say: "This tax will destroy the economy"?</p>
+
+            <div class="question-box" data-correct-value="It could arguably have a negative impact on economic growth.">
+                <div class="quiz-options">
+                    <div class="quiz-option" data-value="It is a stupid idea that kills business.">It is a stupid idea that kills business.</div>
+                    <div class="quiz-option" data-value="It could arguably have a negative impact on economic growth.">It could arguably have a negative impact on economic growth.</div>
+                    <div class="quiz-option" data-value="I hate paying taxes.">I hate paying taxes.</div>
+                </div>
+            </div>
+            <button class="check-btn" onclick="checkRadioQuestion(this)">Check Answer</button>
+            <button class="next-btn" onclick="showFinalSummary()" style="display:none;">View Summary &rarr;</button>
+        </div>
+        
+        <div id="stage-6" class="content-card" style="display:none; border-top: 5px solid var(--color-correct);">
+            <h2 class="text-2xl font-black text-gray-800 mb-2">🏛️ Audit Complete!</h2>
+            <p class="text-lg mb-6 text-gray-600">You have analyzed the Wealth Tax debate.</p>
+            
+            <div class="bg-blue-50 p-5 rounded-lg border border-blue-200 mb-6">
+                <h3 class="font-bold text-lg text-gray-800 mb-3">Vocabulary Inventory (Tap for definition):</h3>
+                <ul id="learned-words-list"></ul>
+            </div>
+            
+            <div id="save-words-section" class="text-center bg-gray-50 p-6 rounded-xl border border-gray-200">
+                <div id="save-feature-loggedin" style="display: none;">
+                    <button id="save-words-btn" class="bg-gray-800 text-white font-bold py-3 px-6 rounded-full hover:bg-black transition w-full shadow-lg transform hover:-translate-y-1" onclick="saveWordsToDashboard()">💾 Add 8 Words to Inventory</button>
+                </div>
+                <div id="login-prompt" style="display: none;">
+                    <p class="text-red-600 font-bold mb-2">🔒 Login to save your progress!</p>
+                    <a href="/login/" class="inline-block bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition">Log In / Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+    <p class="footer-text">© 2025 English For Cool Dudes - 😎</p>
+    <div style="margin-top: 10px;">
+        <a href="/impressum/" style="color: #1E3A8A; margin-right: 15px; text-decoration: none;">Impressum</a>
+        <a href="/datenschutz/" style="color: #1E3A8A; text-decoration: none;">Datenschutzerklärung</a>
+    </div>
+</footer>
+
+    <div id="dictionary-popup"></div>
+    <div id="feedback-popup"></div>
+
+<script>
+    // --- CONFIG ---
+    const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let currentUser = null;
+
+    // Lesson Meta
+    const lessonTitle = "Wealth Tax: The Global Debate";
+    const lessonLink = "/wealthtax/";
+    const lessonLevel = "ADVANCED";
+
+    // Vocab Data
+    const learnedWords = [
+        { word: "redistribution", definition: "The transfer of income/wealth from some individuals to others (usually rich to poor).", type: "noun" },
+        { word: "liquidity", definition: "The availability of liquid assets (cash) to a market or company.", type: "noun" },
+        { word: "assets", definition: "Property owned by a person or company, regarded as having value.", type: "noun" },
+        { word: "inequality", definition: "Difference in size, degree, circumstances, etc.; lack of equality.", type: "noun" },
+        { word: "capital flight", definition: "When assets/money flow out of a country due to an economic event or high taxes.", type: "noun phrase" },
+        { word: "suspended", definition: "Temporarily prevented from continuing or being in force.", type: "verb/adj" },
+        { word: "revenue", definition: "Income, especially when of a company or organization.", type: "noun" },
+        { word: "unfair", definition: "Not following the rules of justice; unjust.", type: "adjective" }
+    ];
+
+    // --- UTILS & THEMED POPUPS ---
+    function showFeedback(msg, type) {
+        const p = document.getElementById('feedback-popup');
+        p.textContent = msg;
+        
+        if (type === 'correct') {
+            p.style.background = 'var(--color-correct)';
+            p.style.borderColor = 'white';
+        } else if (type === 'incorrect') {
+            p.style.background = 'var(--color-incorrect)';
+            p.style.borderColor = 'white';
+        } else if (type === 'partial') {
+            p.style.background = 'var(--color-accent)';
+            p.style.borderColor = '#78350F';
+        }
+        
+        p.style.display = 'block';
+        setTimeout(() => p.style.display = 'none', 2000);
+    }
+
+    // WEALTH TAX SPECIFIC MESSAGES
+    const msgs = {
+        correct: [
+            'Inequality Reduced! ⚖️📉',
+            'Infrastructure Funded! 🏗️💶',
+            'Fair Share Paid! 🤝💰',
+            'Assets Appraised! 🏡✅',
+            'Net Worth Calculated! 💎📊'
+        ],
+        incorrect: [
+            'Capital Flight! ✈️💸',
+            'Moved to Switzerland! 🏔️👋',
+            'Liquidity Crisis! 🧊💶',
+            'Hidden Offshore! 🏝️🏴‍☠️',
+            'Valuation Error! 📉🚫'
+        ],
+        partial: [
+            'Appraising Assets... 🧐', 
+            'Calculating Net Worth... 🧮', 
+            'Check your exemptions... 📝'
+        ]
+    };
+
+    function getRandomMsg(type) {
+        const list = msgs[type];
+        return list[Math.floor(Math.random() * list.length)];
+    }
+
+    function showDictionary(el, html) {
+        const p = document.getElementById('dictionary-popup');
+        p.innerHTML = html;
+        p.style.display = 'block';
+        const r = el.getBoundingClientRect();
+        let top = r.bottom + 10;
+        if (top + 100 > window.innerHeight) top = r.top - 100;
+        p.style.top = top + 'px';
+        p.style.left = Math.max(10, r.left - 100) + 'px';
+    }
+
+    function shuffle(a) { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+    // --- AUTH ---
+    async function initAuth() {
+        const {data:{user}} = await supabase.auth.getUser();
+        if(user) {
+            currentUser = user;
+            document.getElementById('logged-out-buttons').style.display='none';
+            document.getElementById('logged-in-buttons').style.display='flex';
+            document.getElementById('save-feature-loggedin').style.display='block';
+            const name = user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Cool Dude';
+            document.getElementById('user-greeting').textContent = `Hey ${name}! 👋`;
+        } else {
+            document.getElementById('logged-out-buttons').style.display='flex';
+            document.getElementById('login-prompt').style.display='block';
+        }
+        
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+             await supabase.auth.signOut();
+             window.location.reload();
+        });
+    }
+
+    // --- SAVING ---
+    async function saveMistake(word) {
+        if(!currentUser) return;
+        const wObj = learnedWords.find(w=>w.word.toLowerCase()===word.toLowerCase()) || {word, definition:'', type:''};
+        await supabase.from('user_mistakes').upsert({
+            user_id: currentUser.id, word: wObj.word, definition: wObj.definition, word_type: wObj.type,
+            lesson: lessonTitle, lesson_link: lessonLink, last_made_at: new Date().toISOString()
+        }, {onConflict: 'user_id,word'});
+    }
+
+    async function saveWordsToDashboard() {
+        const btn = document.getElementById('save-words-btn');
+        btn.textContent = "Processing..."; btn.disabled = true;
+        if(!currentUser) return;
+        const {error} = await supabase.from('lessons').upsert([{
+            user_id: currentUser.id, lesson_title: lessonTitle, lesson_link: lessonLink, lesson_level: lessonLevel,
+            vocabulary: learnedWords, completed_at: new Date().toISOString()
+        }], {onConflict: 'user_id,lesson_title'});
+        
+        if(!error) {
+            btn.textContent = "✅ Inventory Saved!"; btn.style.background = "#059669";
+            setTimeout(()=>window.location.href='/dashboard/', 1000);
+        } else {
+            btn.textContent = "❌ Error"; btn.disabled = false;
+        }
+    }
+
+    // --- MATCHING GAME LOGIC (PORTED) ---
+    // Pairs specific to matching (can differ from final vocab list if needed)
+    const matchingPairs = [
+        { term: 'Redistribution', def: 'Transfer of wealth from rich to poor.' },
+        { term: 'Liquidity', def: 'Having cash available to pay bills.' },
+        { term: 'Assets', def: 'Property owned (e.g., house, factory).' },
+        { term: 'Inequality', def: 'A large gap between rich and poor.' },
+        { term: 'Capital Flight', def: 'Money leaving the country to avoid tax.' }
+    ];
+
+    let selectedCard = null;
+    let matchedCount = 0;
+
+    function initMatchingGame() {
+        const grid = document.getElementById('matching-game-area');
+        grid.innerHTML = '';
+        let cards = [];
+        matchingPairs.forEach((pair, idx) => {
+            cards.push({ id: idx, type: 'term', text: pair.term });
+            cards.push({ id: idx, type: 'def', text: pair.def });
+        });
+        shuffle(cards);
+
+        cards.forEach(cardData => {
+            const card = document.createElement('div');
+            card.className = 'match-card';
+            card.textContent = cardData.text;
+            card.dataset.id = cardData.id;
+            card.dataset.type = cardData.type;
+            
+            // BOLD THE TERMS
+            if (cardData.type === 'term') {
+                card.style.fontWeight = '800'; 
+                card.style.color = '#1E3A8A'; // Dark Blue
+                card.style.fontSize = '1.1em';
+            } else {
+                card.style.fontWeight = '400';
+            }
+
+            card.onclick = () => handleMatchClick(card);
+            grid.appendChild(card);
+        });
+    }
+
+    function handleMatchClick(card) {
+        if(card.classList.contains('matched') || card === selectedCard) return;
+
+        if(!selectedCard) {
+            // First selection
+            selectedCard = card;
+            card.classList.add('selected');
+        } else {
+            // Second selection
+            if(selectedCard.dataset.id === card.dataset.id && selectedCard.dataset.type !== card.dataset.type) {
+                // Match
+                card.classList.add('matched');
+                selectedCard.classList.remove('selected');
+                selectedCard.classList.add('matched');
+                selectedCard = null;
+                matchedCount++;
+                showFeedback(getRandomMsg('correct'), 'correct');
+
+                if(matchedCount === matchingPairs.length) {
+                    document.getElementById('match-next-btn').style.display = 'block';
+                }
+            } else {
+                // No Match
+                card.classList.add('incorrect');
+                selectedCard.classList.add('incorrect');
+                showFeedback(getRandomMsg('incorrect'), 'incorrect');
+                setTimeout(() => {
+                    card.classList.remove('incorrect');
+                    if(selectedCard) selectedCard.classList.remove('incorrect', 'selected');
+                    selectedCard = null;
+                }, 800);
+            }
+        }
+    }
+
+
+    // --- QUIZ LOGIC ---
+    function checkRadioQuestion(btn) {
+        const box = btn.previousElementSibling;
+        const sel = box.querySelector('.selected');
+        if(!sel) return showFeedback('Select an option! 🖱️', 'partial');
+        
+        if(sel.dataset.value === box.dataset.correctValue) {
+            sel.classList.add('correct'); 
+            showFeedback(getRandomMsg('correct'), 'correct');
+            btn.style.display='none'; btn.nextElementSibling.style.display='block';
+        } else {
+            sel.classList.add('incorrect'); 
+            showFeedback(getRandomMsg('incorrect'), 'incorrect');
+            setTimeout(()=>sel.classList.remove('incorrect','selected'), 1000);
+        }
+    }
+
+    function checkCheckboxQuestion(btn) {
+        const boxes = btn.parentNode.querySelectorAll('.question-box');
+        let allCorrect = true; 
+        let anySel = false;
+
+        boxes.forEach(b => {
+            const correct = b.dataset.correctValues.split(',');
+            const selectedEls = Array.from(b.querySelectorAll('.selected'));
+            const selectedVals = selectedEls.map(o=>o.dataset.value);
+            
+            if(selectedVals.length) anySel = true;
+
+            // Simple equality check for arrays
+            const isMatch = JSON.stringify(selectedVals.sort()) === JSON.stringify(correct.sort());
+            if(!isMatch) allCorrect = false;
+
+            selectedEls.forEach(s => {
+                if(correct.includes(s.dataset.value)) s.classList.add('correct');
+                else s.classList.add('incorrect');
+            });
+        });
+
+        if(!anySel) return showFeedback('Selection Required 🖱️', 'partial');
+
+        if(allCorrect) {
+            showFeedback(getRandomMsg('correct'), 'correct');
+            btn.style.display='none'; btn.nextElementSibling.style.display='block';
+        } else {
+            showFeedback(getRandomMsg('incorrect'), 'incorrect');
+            setTimeout(() => document.querySelectorAll('.incorrect').forEach(el=>el.classList.remove('incorrect','selected')), 1500);
+        }
+    }
+
+    // GAP FILL
+    let selWord = null;
+    function setupGapFill() {
+        document.querySelectorAll('.word-option').forEach(o => {
+            o.addEventListener('click', () => {
+                if(o.classList.contains('used')) return;
+                if(selWord) selWord.classList.remove('selected');
+                selWord = o; o.classList.add('selected');
+            });
+        });
+        document.querySelectorAll('.gap-input').forEach(g => {
+            g.addEventListener('click', () => {
+                if(g.classList.contains('filled')) {
+                    const txt = g.textContent;
+                    g.textContent = "____"; g.className = "gap-input";
+                    const bank = g.closest('.content-card').querySelector('.word-options');
+                    const wEl = Array.from(bank.children).find(w=>w.dataset.word===txt);
+                    if(wEl) wEl.classList.remove('used');
+                    return;
+                }
+                if(selWord) {
+                    g.textContent = selWord.dataset.word;
+                    g.dataset.filledWord = selWord.dataset.word;
+                    g.classList.add('filled');
+                    selWord.classList.remove('selected'); selWord.classList.add('used'); selWord = null;
+                }
+            });
+        });
+    }
+
+    function checkGapFillStage(stage) {
+        const div = document.getElementById(`stage-${stage}`);
+        const gaps = div.querySelectorAll('.gap-input');
+        let allRight = true; let allFilled = true;
+        gaps.forEach(g => {
+            if(!g.classList.contains('filled')) { allFilled=false; return; }
+            if(g.dataset.filledWord === g.dataset.answer) {
+                g.classList.add('correct');
+            } else {
+                g.classList.add('incorrect'); allRight = false;
+                saveMistake(g.dataset.answer);
+            }
+        });
+        if(!allFilled) return showFeedback('Fill all gaps! ✏️', 'partial');
+        if(allRight) {
+            showFeedback(getRandomMsg('correct'), 'correct');
+            div.querySelector('.check-btn').style.display='none';
+            div.querySelector('.next-btn').style.display='block';
+        } else {
+            showFeedback(getRandomMsg('incorrect'), 'incorrect');
+        }
+    }
+
+    // NAV
+    function nextStage(n) {
+        document.querySelectorAll('.content-card[id^="stage-"]').forEach(d=>d.style.display='none');
+        const next = document.getElementById(`stage-${n}`);
+        next.style.display='block';
+        document.getElementById('current-stage').textContent = n;
+        
+        // Auto-scroll to top of container
+        const container = document.querySelector('.lesson-container');
+        window.scrollTo({top: container.offsetTop - 20, behavior:'smooth'});
+    }
+
+    function showFinalSummary() {
+        document.querySelectorAll('.content-card[id^="stage-"]').forEach(d=>d.style.display='none');
+        const fin = document.getElementById('stage-6');
+        fin.style.display='block';
+        const ul = document.getElementById('learned-words-list');
+        learnedWords.forEach(w => {
+            const li = document.createElement('li');
+            li.style.cssText = "background:white; padding:10px; border-radius:8px; border:1px solid #E2E8F0; margin-bottom:10px; cursor:pointer;";
+            li.innerHTML = `<strong>${w.word}</strong> <span class="text-xs text-gray-500">(${w.type})</span>`;
+            li.onclick = (e) => { e.stopPropagation(); showDictionary(li, `<b>${w.word}</b>: ${w.definition}`); };
+            ul.appendChild(li);
+        });
+    }
+
+    function toggleCollapse(id, header) {
+        const el = document.getElementById(id);
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        header.classList.toggle('collapsed');
+    }
+
+    // INIT
+    document.addEventListener('DOMContentLoaded', () => {
+        initAuth();
+        setupGapFill();
+        initMatchingGame(); // Initialize the specific matching logic
+        
+        // Quiz Option Click Logic
+        document.querySelectorAll('.quiz-option').forEach(o => {
+            o.addEventListener('click', () => {
+                if(o.closest('.question-box').dataset.type === 'checkbox') {
+                    o.classList.toggle('selected');
+                } else {
+                    o.parentNode.querySelectorAll('.selected').forEach(s=>s.classList.remove('selected'));
+                    o.classList.add('selected');
+                }
+            });
+        });
+
+        // Dictionary
+        document.querySelectorAll('.dictionary-word').forEach(w => {
+            w.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showDictionary(w, `<b>${w.textContent}</b>: ${w.dataset.definition}`);
+            });
+        });
+        
+        document.body.addEventListener('click', (e) => {
+            if(!e.target.closest('.dictionary-word') && !e.target.closest('#dictionary-popup')) {
+                document.getElementById('dictionary-popup').style.display='none';
+            }
+        });
+
+        const nounBank = document.getElementById('noun-bank');
+        const verbBank = document.getElementById('verb-bank');
+        if(nounBank) shuffle(Array.from(nounBank.children)).forEach(c=>nounBank.appendChild(c));
+        if(verbBank) shuffle(Array.from(verbBank.children)).forEach(c=>verbBank.appendChild(c));
+    });
+</script>
+</body>
+</html>
