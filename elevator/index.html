@@ -486,6 +486,33 @@
             await supabase.auth.signOut();
             window.location.href = '/';
         });
+
+		// --- NEW FUNCTION: SAVE MISTAKES TO SUPABASE ---
+async function saveMistake(word) {
+    if (!currentUser) return; // Only save if logged in
+
+    // Find the full word details (definition/type) from your existing list
+    const wObj = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase()) || {
+        word: word,
+        definition: '',
+        type: ''
+    };
+
+    // Upsert into the user_mistakes table
+    await supabase.from('user_mistakes').upsert({
+        user_id: currentUser.id,
+        word: wObj.word,
+        definition: wObj.definition,
+        word_type: wObj.type,
+        lesson: lessonTitle,
+        lesson_link: lessonLink,
+        last_made_at: new Date().toISOString()
+    }, {
+        onConflict: 'user_id,word'
+    });
+    
+    console.log(`Saved mistake: ${word}`); // Optional for debugging
+}
         
         // --- POPUP FUNCTIONS ---
         function showFeedback(msg, type) {
@@ -672,10 +699,13 @@
                 const extractedWord = cleanText(blank.textContent); 
                 const answerWord = cleanText(gapAnswers[index]);
                 blank.classList.remove('selected', 'incorrect', 'correct');
+                
                 if (extractedWord && (extractedWord === answerWord)) {
                     blank.classList.add('correct'); correctCount++;
                 } else if (extractedWord) { 
                     blank.classList.add('incorrect');
+                    // This sends the correct word to the database for future practice
+                    saveMistake(gapAnswers[index]); 
                 }
             });
             const resultDiv = document.getElementById('gap-result');
