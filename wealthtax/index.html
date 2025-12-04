@@ -56,7 +56,7 @@
             border-radius: 8px; display: flex; align-items: center; justify-content: center;
             font-size: 20px; color: white;
         }
-        .site-title { font-size: 20px; font-weight: 800; color: #0F172A; text-decoration: none; letter-spacing: -0.02em; }
+        .site-title { font-size: 20px; font-weight: 600; color: #0F172A; text-decoration: none; letter-spacing: -0.02em; }
 
         /* Buttons */
         .header-buttons { display: flex; align-items: center; gap: 8px; }
@@ -584,7 +584,7 @@
             const options = Array.from(wordOptionsContainer.children);
             shuffleArray(options);
             options.forEach(option => { wordOptionsContainer.appendChild(option); option.classList.remove('used', 'selected'); });
-            document.querySelectorAll('.gap-input').forEach(blank => { blank.textContent = ''; blank.classList.remove('correct', 'incorrect', 'selected'); });
+            document.querySelectorAll('.gap-input').forEach(blank => { blank.textContent = '____'; blank.classList.remove('correct', 'incorrect', 'selected'); });
             selectedGapWord = null; document.getElementById('gap-result').style.display = 'none';
         }
         
@@ -605,24 +605,59 @@
         }
         
         function checkGaps() {
-            let correctCount = 0; const blanks = document.querySelectorAll('.gap-input'); 
+            let correctCount = 0;
+            let attemptedCount = 0;
+            const blanks = document.querySelectorAll('.gap-input');
+            
             blanks.forEach(blank => { 
                 const answerWord = blank.dataset.answer;
                 const extractedWord = blank.textContent.trim();
-                blank.classList.remove('selected', 'incorrect', 'correct');
                 
-                if (extractedWord === '____') {
-                    // Do nothing
-                } else if (extractedWord.toLowerCase() === answerWord.toLowerCase()) { 
+                // Clear state
+                blank.classList.remove('selected', 'incorrect');
+                
+                // SKIP IF EMPTY: logic to handle partial completion
+                if (!extractedWord || extractedWord === '____' || extractedWord === '') {
+                    // Do not increment attemptedCount, do not mark incorrect, do not save mistake
+                    return;
+                }
+                
+                attemptedCount++;
+
+                if (extractedWord.toLowerCase() === answerWord.toLowerCase()) { 
                     blank.classList.add('correct'); correctCount++; 
                 } else { 
                     blank.classList.add('incorrect');
-                    saveMistake(answerWord); // Save mistake
+                    saveMistake(answerWord); // Only save if they actually attempted it
                 }
             });
+
             const resultDiv = document.getElementById('gap-result'); resultDiv.style.display = 'block';
-            if (correctCount === blanks.length) { resultDiv.textContent = '🎉 Perfect! Fiscal policy mastered.'; resultDiv.className = 'result-message correct'; }
-            else { resultDiv.textContent = `You got ${correctCount}/${blanks.length} correct.`; resultDiv.className = 'result-message incorrect'; }
+            
+            if (correctCount === blanks.length) { 
+                resultDiv.textContent = '🎉 Perfect! Fiscal policy mastered.'; 
+                resultDiv.className = 'result-message correct';
+                resultDiv.style.backgroundColor = ''; resultDiv.style.color = ''; resultDiv.style.borderColor = '';
+            } else if (attemptedCount === 0) {
+                resultDiv.textContent = 'Please fill in a word first.'; 
+                resultDiv.className = 'result-message incorrect';
+                resultDiv.style.backgroundColor = '#F1F5F9'; resultDiv.style.color = '#64748B'; resultDiv.style.borderColor = '#CBD5E1';
+            } else if (correctCount === attemptedCount) {
+                resultDiv.textContent = `Good start! ${correctCount} correct so far. Keep going!`; 
+                resultDiv.className = 'result-message correct';
+                // Use a "Warning/Info" color (Yellow/Gold) for partial success
+                resultDiv.style.backgroundColor = '#FEF3C7'; 
+                resultDiv.style.color = '#B45309'; 
+                resultDiv.style.borderColor = '#FCD34D';
+            } else { 
+                resultDiv.textContent = `You got ${correctCount} correct out of ${attemptedCount} attempted.`; 
+                resultDiv.className = 'result-message incorrect'; 
+                resultDiv.style.backgroundColor = ''; resultDiv.style.color = ''; resultDiv.style.borderColor = '';
+            }
+        }
+
+        function resetGaps() {
+            initGaps();
         }
 
         document.addEventListener('DOMContentLoaded', () => {
