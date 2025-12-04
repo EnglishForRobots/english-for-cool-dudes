@@ -355,7 +355,7 @@
     }
     document.getElementById('dictionary-overlay').addEventListener('click', closeDictionary);
 
-    // --- 2. DAILY BRAIN BOOST (SPACED REPETITION) ---
+    // --- 2. THE "BRAIN BOOST" ALGORITHM (Spaced Repetition) ---
     async function checkForMistakesOnHomepage() {
         try {
             const { data: { user } = {} } = await supabase.auth.getUser();
@@ -364,7 +364,12 @@
                 return;
             }
 
-            // A. Fetch Mistakes (Priority 1 - Fix these first)
+            // 1. Define "Spaced Repetition" Timeframe (Lessons completed > 24 hours ago)
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const isoYesterday = yesterday.toISOString();
+
+            // 2. Fetch Mistakes (Priority A)
             const { data: mistakes } = await supabase
                 .from('user_mistakes')
                 .select('word, definition, word_type, lesson, lesson_link')
@@ -373,43 +378,49 @@
 
             let practiceBatch = mistakes || [];
 
-            // B. If fewer than 5 mistakes, fetch "Stale" Correct Words (Priority 2 - Spaced Repetition)
+            // 3. Fetch Spaced Review Words (Priority B) - Only if we have space left
             if (practiceBatch.length < 5) {
-                const needed = 5 - practiceBatch.length;
+                const slotsNeeded = 5 - practiceBatch.length;
                 
-                // Fetch lessons completed more than 1 day ago to review
-                const { data: lessons } = await supabase
+                // Fetch lessons completed BEFORE yesterday
+                const { data: oldLessons } = await supabase
                     .from('lessons')
                     .select('vocabulary')
                     .eq('user_id', user.id)
-                    .order('completed_at', { ascending: true }) // Oldest lessons first
-                    .limit(3);
+                    .lt('completed_at', isoYesterday) 
+                    .limit(5); // Grab a few recent "old" lessons
 
-                if (lessons && lessons.length > 0) {
+                if (oldLessons && oldLessons.length > 0) {
                     let poolOfKnownWords = [];
-                    lessons.forEach(lesson => {
+                    
+                    // Extract words
+                    oldLessons.forEach(lesson => {
                         if(Array.isArray(lesson.vocabulary)) {
-                            poolOfKnownWords.push(...lesson.vocabulary);
+                            lesson.vocabulary.forEach(v => {
+                                // Don't add if it's already in the mistake list
+                                const isAlreadyInBatch = practiceBatch.some(pb => pb.word === v.word);
+                                if (!isAlreadyInBatch) poolOfKnownWords.push(v);
+                            });
                         }
                     });
 
-                    // Shuffle and pick needed amount
-                    poolOfKnownWords = poolOfKnownWords.sort(() => 0.5 - Math.random()).slice(0, needed);
+                    // Shuffle and slice
+                    poolOfKnownWords = poolOfKnownWords.sort(() => 0.5 - Math.random()).slice(0, slotsNeeded);
                     
-                    // Add to batch with 'is_review' flag
+                    // Add to batch
                     poolOfKnownWords.forEach(w => {
                         practiceBatch.push({
                             word: w.word,
                             definition: w.definition,
                             word_type: w.type || 'word',
                             lesson: 'Review',
-                            is_review: true // Logic: Don't delete this from mistakes table if correct
+                            is_review: true // Logic: Don't delete this from mistakes table
                         });
                     });
                 }
             }
 
-            // C. Update the Widget UI
+            // 4. Render Widget
             const widget = document.getElementById('repair-shop-widget');
             const title = document.getElementById('repair-title');
             const desc = document.getElementById('repair-desc');
@@ -417,7 +428,7 @@
 
             if (practiceBatch.length > 0) {
                 widget.style.display = 'block';
-                // Positive Blue/Growth styling
+                // Positive Blue Styling
                 widget.style.background = '#F0F9FF'; 
                 widget.style.borderColor = '#BAE6FD';
                 widget.style.borderLeft = '4px solid #0EA5E9'; 
@@ -430,7 +441,7 @@
                 
                 desc.innerHTML = `Strengthen your memory:<br>
                                   <span style="font-size:12px; color:#64748B;">
-                                  (🎯 ${mistakeCount} Focus Words + 🧠 ${reviewCount} Memory Reviews)
+                                  (🎯 ${mistakeCount} Focus Words + 🧠 ${reviewCount} Spaced Reviews)
                                   </span>`;
                 
                 btn.style.display = 'inline-flex';
@@ -457,7 +468,8 @@
         }
 
         function generateGapSentence(word, definition) {
-            // THE FULL SENTENCE BANK
+            // === THE MASTER SENTENCE BANK ===
+            // This is the lookup table to convert DB words into Context Sentences
             const sentencePatterns = {
                 'redistribution': [`The government supports wealth <span class="practice-gap" data-answer="${word}">____</span> to help the poor.`, `Critics argue that excessive <span class="practice-gap" data-answer="${word}">____</span> discourages hard work.`],
                 'liquidity': [`The company has a serious <span class="practice-gap" data-answer="${word}">____</span> problem; they have assets but no cash.`, `Real estate usually has lower <span class="practice-gap" data-answer="${word}">____</span> than stocks.`],
@@ -504,7 +516,7 @@
                 'hatched': [`The bird <span class="practice-gap" data-answer="${word}">____</span> yesterday.`, `He <span class="practice-gap" data-answer="${word}">____</span> in 1832.`],
                 'veterinarian': [`Take the dog to a <span class="practice-gap" data-answer="${word}">____</span>.`, `The <span class="practice-gap" data-answer="${word}">____</span> checks his health.`],
                 'cataracts': [`Older animals develop <span class="practice-gap" data-answer="${word}">____</span>.`, `Blindness caused by <span class="practice-gap" data-answer="${word}">____</span>.`],
-                'senses': [`Dogs have strong <span class="practice-gap" data-answer="${word}">____</span>.`, `His <span class="practice-gap" data-answer="${word}">____</span> declined.`],
+                'senses': [`Dogs have strong <span class="practice-gap" data-answer="${word}">____</span> of smell.`, `His <span class="practice-gap" data-answer="${word}">____</span> declined.`],
                 'iconic': [`The Eiffel Tower is <span class="practice-gap" data-answer="${word}">____</span>.`, `Jonathan is <span class="practice-gap" data-answer="${word}">____</span>.`],
                 'governor': [`The <span class="practice-gap" data-answer="${word}">____</span> lives here.`, `She was elected <span class="practice-gap" data-answer="${word}">____</span>.`],
                 'status': [`High social <span class="practice-gap" data-answer="${word}">____</span>.`, `His <span class="practice-gap" data-answer="${word}">____</span> is confirmed.`],
@@ -622,7 +634,38 @@
                 'authenticated': [`User <span class="practice-gap" data-answer="${word}">____</span>.`, `Card <span class="practice-gap" data-answer="${word}">____</span>.`],
                 'proof of concept': [`Built a <span class="practice-gap" data-answer="${word}">____</span>.`, `Need a <span class="practice-gap" data-answer="${word}">____</span>.`],
                 'tokenized': [`Number is <span class="practice-gap" data-answer="${word}">____</span>.`, `Stores <span class="practice-gap" data-answer="${word}">____</span> values.`],
-                'illicit': [`<span class="practice-gap" data-answer="${word}">____</span> activities.`, `<span class="practice-gap" data-answer="${word}">____</span> trade.`]
+                'illicit': [`<span class="practice-gap" data-answer="${word}">____</span> activities.`, `<span class="practice-gap" data-answer="${word}">____</span> trade.`],
+                'tradition': [`Christmas <span class="practice-gap" data-answer="${word}">____</span>.`, `Family <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'advent calendar': [`Open the <span class="practice-gap" data-answer="${word}">____</span>.`, `Chocolate <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'chocolate': [`Sweet <span class="practice-gap" data-answer="${word}">____</span>.`, `Dark <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'count': [`<span class="practice-gap" data-answer="${word}">____</span> the days.`, `Can you <span class="practice-gap" data-answer="${word}">____</span>?`],
+                'december': [`Month of <span class="practice-gap" data-answer="${word}">____</span>.`, `Cold in <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'surprise': [`Big <span class="practice-gap" data-answer="${word}">____</span>.`, `Nice <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'christmas eve': [`On <span class="practice-gap" data-answer="${word}">____</span>.`, `Before <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'discount': [`20% <span class="practice-gap" data-answer="${word}">____</span>.`, `Student <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'receipt': [`Keep the <span class="practice-gap" data-answer="${word}">____</span>.`, `Lost the <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'cash': [`Pay with <span class="practice-gap" data-answer="${word}">____</span>.`, `No <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'expensive': [`Too <span class="practice-gap" data-answer="${word}">____</span>.`, `Very <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'cheap': [`Very <span class="practice-gap" data-answer="${word}">____</span>.`, `Buy <span class="practice-gap" data-answer="${word}">____</span> things.`],
+                'price tag': [`Look at <span class="practice-gap" data-answer="${word}">____</span>.`, `No <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'customer': [`Happy <span class="practice-gap" data-answer="${word}">____</span>.`, `New <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'sale': [`Big <span class="practice-gap" data-answer="${word}">____</span>.`, `On <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'anticipation': [`Build <span class="practice-gap" data-answer="${word}">____</span>.`, `Full of <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'origin': [`Latin <span class="practice-gap" data-answer="${word}">____</span>.`, `Unknown <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'commercialized': [`Too <span class="practice-gap" data-answer="${word}">____</span>.`, `Highly <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'symbolize': [`Roses <span class="practice-gap" data-answer="${word}">____</span> love.`, `Flags <span class="practice-gap" data-answer="${word}">____</span> country.`],
+                'heritage': [`Cultural <span class="practice-gap" data-answer="${word}">____</span>.`, `Rich <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'alternative': [`Find an <span class="practice-gap" data-answer="${word}">____</span>.`, `Good <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'countdown': [`Final <span class="practice-gap" data-answer="${word}">____</span>.`, `Start the <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'luxury': [`<span class="practice-gap" data-answer="${word}">____</span> car.`, `Pure <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'retailer': [`Online <span class="practice-gap" data-answer="${word}">____</span>.`, `High street <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'transaction': [`Bank <span class="practice-gap" data-answer="${word}">____</span>.`, `Secure <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'warranty': [`1 year <span class="practice-gap" data-answer="${word}">____</span>.`, `Under <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'refund': [`Full <span class="practice-gap" data-answer="${word}">____</span>.`, `Ask for <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'impulse': [`<span class="practice-gap" data-answer="${word}">____</span> buy.`, `Control <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'consumer': [`<span class="practice-gap" data-answer="${word}">____</span> rights.`, `Smart <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'bargain': [`Real <span class="practice-gap" data-answer="${word}">____</span>.`, `Love a <span class="practice-gap" data-answer="${word}">____</span>.`],
+                'promotion': [`Special <span class="practice-gap" data-answer="${word}">____</span>.`, `Sales <span class="practice-gap" data-answer="${word}">____</span>.`]
             };
 
             const normalizedWord = word.toLowerCase();
