@@ -83,7 +83,7 @@
         }
         #pulse-ticker-text a:hover { color: #B45309; background: rgba(255,255,255,0.5); }
         
-        /* === GAME CARDS (NEW) === */
+        /* === GAME CARDS === */
         .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
         .match-card {
             background: white; border: 2px solid #E2E8F0; border-radius: 8px;
@@ -104,7 +104,7 @@
             opacity: 0; transform: scale(0.8); pointer-events: none; 
         }
         
-        /* ANIMATIONS FOR VICTORY */
+        /* ANIMATIONS */
         @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
@@ -349,7 +349,7 @@
     }
     document.getElementById('dictionary-overlay').addEventListener('click', closeDictionary);
 
-    // --- 2. BRAIN BOOST (LOGIC) ---
+    // --- 2. BRAIN BOOST (MATCHING GAME LOGIC) ---
     async function checkForMistakesOnHomepage() {
         try {
             const { data: { user } = {} } = await supabase.auth.getUser();
@@ -416,6 +416,7 @@
 
             if (practiceBatch.length > 0) {
                 widget.style.display = 'block';
+                // Positive Blue Styling
                 widget.style.background = '#F0F9FF'; 
                 widget.style.borderColor = '#BAE6FD';
                 widget.style.borderLeft = '4px solid #0EA5E9'; 
@@ -444,34 +445,22 @@
         }
     }
 
-    // --- 3. MATCH GAME ENGINE (Connected to Dictionary Table) ---
-    async function startMatchGame(batch) {
+    // --- 3. THE MATCH GAME ENGINE ---
+    function startMatchGame(batch) {
         
         // A. FETCH DATA FROM NEW DICTIONARY TABLE
         // Extract words to query
         const wordList = batch.map(b => b.word);
         let dictData = null;
 
-        try {
-            // Attempt to fetch fresh definitions from your new table
-            const { data, error } = await supabase
-                .from('dictionary_content')
-                .select('word, definition')
-                .in('word', wordList);
-            
-            if (!error && data) dictData = data;
-        } catch (err) {
-            console.log("Dictionary table not ready yet, using local data.");
-        }
-
+        // Note: For matching game, we mainly just need definitions. 
+        // We will try fetching them from the new table if they exist.
+        // If not, we fallback to the local definitions saved in 'batch'.
+        
         // B. BUILD GRID ITEMS
         let gridItems = [];
         
         batch.forEach((item, index) => {
-            // Try to find the word in the dictionary data, otherwise fallback to item.definition
-            const richData = dictData ? dictData.find(d => d.word.toLowerCase() === item.word.toLowerCase()) : null;
-            const finalDefinition = richData ? richData.definition : (item.definition || "Definition loading...");
-
             // Term Card
             gridItems.push({
                 id: index,
@@ -484,7 +473,7 @@
             gridItems.push({
                 id: index + 100, 
                 type: 'def',
-                content: finalDefinition,
+                content: item.definition || "Definition not found",
                 matchId: index,
                 originalItem: item
             });
@@ -542,6 +531,10 @@
         const totalPairs = batch.length;
         const feedbackEl = document.getElementById('game-feedback');
 
+        // NEW: Dynamic Feedback Arrays
+        const positiveMsgs = ["BOOM! 💥", "Spot on! 🎯", "Too easy! 😎", "Memory Master! 🧠", "Correct! ✅"];
+        const negativeMsgs = ["Not quite... 🤔", "Try again! ❌", "Keep looking! 👀", "Nope! 🛑", "Close! 🤏"];
+
         document.querySelectorAll('.match-card').forEach(card => {
             card.addEventListener('click', () => {
                 if (card.classList.contains('matched') || card.classList.contains('selected')) return;
@@ -562,8 +555,9 @@
             const matchId2 = card2.dataset.match;
 
             if (matchId1 === matchId2) {
-                // MATCH FOUND
-                feedbackEl.textContent = "Correct! 🎉";
+                // MATCH FOUND (Random Positive Message)
+                const winMsg = positiveMsgs[Math.floor(Math.random() * positiveMsgs.length)];
+                feedbackEl.textContent = winMsg;
                 feedbackEl.style.color = "#16A34A"; // Green
                 
                 setTimeout(() => {
@@ -587,28 +581,33 @@
                 }
 
                 if (matchedCount === totalPairs) {
-                    // --- VICTORY SCREEN ---
+                    // --- VICTORY SCREEN (AUTO CLOSE VERSION) ---
                     setTimeout(() => {
                         practicePopup.innerHTML = `
                             <div style="text-align:center; padding: 40px 20px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
                                 <div style="font-size: 80px; margin-bottom: 20px; animation: bounce 2s infinite;">🚀</div>
-                                <h2 style="color: #0EA5E9; font-size: 28px; font-weight: 800; margin: 0 0 10px 0;">Awesome Job!</h2>
-                                <p style="color: #64748B; font-size: 18px; margin: 0;">You cleared the board!</p>
-                                <div style="margin-top: 30px; font-size: 14px; color: #94A3B8;">Closing automatically...</div>
+                                <h2 style="color: #0EA5E9; font-size: 28px; font-weight: 800; margin: 0 0 10px 0;">To The Moon!</h2>
+                                <p style="color: #64748B; font-size: 18px; margin: 0;">Awesome job, you cleared the board!</p>
+                                <div style="margin-top: 30px; font-size: 14px; color: #94A3B8;">
+                                    Closing automatically... Time for something new!
+                                </div>
                             </div>
                         `;
                         
-                        // Refresh main widget
+                        // Refresh main widget immediately
                         checkForMistakesOnHomepage();
 
-                        // Auto Close
-                        setTimeout(() => { closeFn(); }, 2500);
+                        // Auto Close after 2.5 seconds
+                        setTimeout(() => {
+                            closeFn();
+                        }, 2500);
                     }, 800); 
                 }
 
             } else {
-                // NO MATCH
-                feedbackEl.textContent = "Try again...";
+                // NO MATCH (Random Negative Message)
+                const failMsg = negativeMsgs[Math.floor(Math.random() * negativeMsgs.length)];
+                feedbackEl.textContent = failMsg;
                 feedbackEl.style.color = "#EF4444"; 
                 setTimeout(() => {
                     card1.classList.remove('selected');
