@@ -43,12 +43,48 @@
             border-left: 4px solid #F59E0B; 
             padding: 20px 24px; 
             border-radius: 10px; 
-            margin-bottom: 30px; 
+            margin-bottom: 20px; 
             box-shadow: 0 1px 3px rgba(0,0,0,0.04);
             display: flex;
             align-items: center;
             min-height: 60px; 
         }
+
+        /* === 2.5 THE REPAIR SHOP WIDGET (NEW!) === */
+        #repair-shop-widget {
+            display: none; /* Hidden by default until we check for mistakes */
+            background: #FFFFFF;
+            border: 1px solid #E5E9F2;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        #repair-shop-widget.has-mistakes {
+            background: #FEF2F2;
+            border-color: #FECACA;
+            border-left: 4px solid #EF4444;
+        }
+        
+        #repair-shop-widget.all-clear {
+            background: #F0FDF4;
+            border-color: #BBF7D0;
+            border-left: 4px solid #22C55E;
+        }
+
+        .repair-content { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+        .repair-text h3 { font-size: 18px; font-weight: 700; margin-bottom: 5px; }
+        .repair-text p { font-size: 14px; color: #64748B; }
+        
+        .repair-btn {
+            background: #EF4444; color: white; border: none; padding: 10px 20px;
+            border-radius: 6px; font-weight: 600; cursor: pointer; text-decoration: none;
+            display: inline-flex; align-items: center; gap: 8px; font-size: 14px;
+            transition: transform 0.2s;
+        }
+        .repair-btn:hover { background: #DC2626; transform: translateY(-1px); }
 
         /* The animated text inside the box */
         #pulse-ticker-text { 
@@ -155,6 +191,18 @@
     <main class="container">
         <div class="info-box">
             <p id="pulse-ticker-text">Loading Office Activity... 🏢</p>
+        </div>
+
+        <div id="repair-shop-widget">
+            <div class="repair-content">
+                <div class="repair-text">
+                    <h3 id="repair-title">🔧 The Repair Shop</h3>
+                    <p id="repair-desc">Checking for vocabulary that needs fixing...</p>
+                </div>
+                <button id="start-repair-btn" class="repair-btn" style="display:none;">
+                    🛠️ Start Quick Repair (2 min)
+                </button>
+            </div>
         </div>
 
         <section class="section">
@@ -307,212 +355,56 @@
     }
     document.getElementById('dictionary-overlay').addEventListener('click', closeDictionary);
 
-    // --- MISTAKE MANAGEMENT LOGIC ---
-    function handleCheckboxChange() {
-        const popup = document.getElementById('mistake-reminder-popup');
-        if (!popup) return;
-        const clearSelectedBtn = popup.querySelector('#clear-selected-btn');
-        const checkboxes = popup.querySelectorAll('.word-checkbox');
-        const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
-        
-        if (anyChecked) {
-            clearSelectedBtn.style.opacity = '1.0';
-            clearSelectedBtn.style.pointerEvents = 'auto';
-        } else {
-            clearSelectedBtn.style.opacity = '0.6';
-            clearSelectedBtn.style.pointerEvents = 'none';
-        }
-    }
-
-    async function clearSelectedMistakes() {
-        const popup = document.getElementById('mistake-reminder-popup');
-        if (!popup) return;
-        const checkboxes = popup.querySelectorAll('.word-checkbox:checked');
-        if (checkboxes.length === 0) return alert("Please select at least one word.");
-
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return alert('You must be logged in.');
-            if (!confirm(`Clear ${checkboxes.length} selected word(s)?`)) return;
-            
-            const deletePromises = [];
-            checkboxes.forEach(checkbox => {
-                const [word, lesson] = checkbox.dataset.key.split('::');
-                deletePromises.push(supabase.from('user_mistakes').delete().eq('user_id', user.id).eq('word', word).eq('lesson', lesson));
-            });
-
-            await Promise.all(deletePromises);
-            alert(`${checkboxes.length} word(s) cleared!`);
-            document.getElementById('mistake-reminder-popup').remove();
-            document.getElementById('mistake-reminder-overlay').remove();
-            checkForMistakesOnHomepage();
-        } catch (error) {
-            console.error(error);
-            alert('Error clearing words.');
-        }
-    }
+    // --- REPAIR SHOP LOGIC ---
+    let currentRepairBatch = [];
 
     async function checkForMistakesOnHomepage() {
         try {
             const { data: { user } = {} } = await supabase.auth.getUser();
-            if (!user) return; 
+            if (!user) {
+                document.getElementById('repair-shop-widget').style.display = 'none';
+                return;
+            }
 
+            // Fetch only 5 mistakes to keep it a "Micro-Lesson"
             const { data: mistakes, error } = await supabase
                 .from('user_mistakes')
                 .select('word, definition, word_type, lesson, lesson_link, last_made_at')
                 .eq('user_id', user.id)
                 .order('last_made_at', { ascending: false })
-                .limit(10); 
+                .limit(5); 
 
             if (error) return console.error('Error:', error);
 
+            const widget = document.getElementById('repair-shop-widget');
+            const title = document.getElementById('repair-title');
+            const desc = document.getElementById('repair-desc');
+            const btn = document.getElementById('start-repair-btn');
+
             if (mistakes && mistakes.length > 0) {
-                showMistakeReminderHomepage(mistakes);
-                if (mistakes.length === 10) {
-                    const tenthItemDate = mistakes[9].last_made_at;
-                    await supabase.from('user_mistakes').delete().eq('user_id', user.id).lt('last_made_at', tenthItemDate); 
-                }
+                currentRepairBatch = mistakes;
+                widget.classList.add('has-mistakes');
+                widget.style.display = 'block';
+                title.innerHTML = `🔧 The Repair Shop (${mistakes.length} items)`;
+                title.style.color = '#DC2626';
+                desc.innerHTML = `You have <strong>${mistakes.length} words</strong> to fix. Repair them now to clear your record!`;
+                btn.style.display = 'inline-flex';
+                btn.onclick = () => startPractice(mistakes);
+            } else {
+                // Show "All Good" state briefly or hide
+                widget.classList.add('all-clear');
+                widget.style.display = 'block';
+                title.innerHTML = `✅ All Systems Operational`;
+                title.style.color = '#166534';
+                desc.innerHTML = `No broken vocabulary detected. Great job, Cool Dude!`;
+                btn.style.display = 'none';
             }
         } catch (error) {
             console.error('Error:', error);
         }
     }
 
-    function showMistakeReminderHomepage(mistakes) {
-        const lessonGroups = {};
-        mistakes.forEach(m => {
-            if (!lessonGroups[m.lesson]) lessonGroups[m.lesson] = { words: [], link: m.lesson_link };
-            lessonGroups[m.lesson].words.push(m);
-        });
-
-        let lessonHTML = '';
-        let wordCheckboxesHTML = '';
-
-        for (const [lessonName, lessonData] of Object.entries(lessonGroups)) {
-            const wordList = lessonData.words.map(w =>
-                `<strong class="clickable-word" data-word="${w.word}" data-definition="${w.definition || ''}" data-type="${w.word_type || 'word'}">${w.word}</strong>`
-            ).join(', ');
-
-            lessonHTML += `
-                <div style="margin: 15px 0; padding: 15px; background: #FEF2F2; border-radius: 8px; border-left: 4px solid #DC2626;">
-                    <p style="font-size: 14px; color: #666; margin-bottom: 8px; font-weight: 600;">
-                        📚 ${lessonName} ${lessonData.link ? `<a href="${lessonData.link}" style="color: #667EEA; text-decoration: none; margin-left: 8px; font-size: 12px;">↗ Revisit</a>` : ''}
-                    </p>
-                    <p style="color: #DC2626; font-weight: 600; line-height: 1.6;">${wordList}</p>
-                </div>
-            `;
-            
-            lessonData.words.forEach(w => {
-                const uniqueKey = `${w.word}::${w.lesson}`;
-                wordCheckboxesHTML += `
-                    <div style="display: flex; align-items: center;">
-                        <input type="checkbox" id="check-${uniqueKey}" data-key="${uniqueKey}" class="word-checkbox" style="margin-right: 6px; transform: scale(1.1);">
-                        <label for="check-${uniqueKey}" style="font-size: 14px; color: #4A5568;">${w.word}</label>
-                    </div>`;
-            });
-        }
-
-        const popup = document.createElement('div');
-        popup.id = 'mistake-reminder-popup';
-        popup.style.cssText = `position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); z-index: 10000; max-width: 600px; width: 90%; max-height: 85vh; overflow-y: auto;`;
-        popup.innerHTML = `
-        <h2 style="color: #DC2626; margin-bottom: 15px; font-size: 24px; font-weight: 600;"> 🚨 Don't Forget These Words! </h2>
-                <p style="color: #666; margin-bottom: 20px;">You might want to review and practise these words. Have fun!</p>
-
-                ${lessonHTML}
-
-                <div style="margin-top: 15px; background: #F8F9FB; padding: 15px; border-radius: 8px; border: 1px solid #E5E9F2;">
-                    <p style="font-weight: 600; color: #1A202C; margin-bottom: 10px;">
-                        ✅ Manage Your List:
-                    </p>
-                    <div id="word-checkboxes" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px;">
-                        ${wordCheckboxesHTML} 
-                    </div>
-                    <button id="clear-selected-btn" style="
-                        background: #DC2626;
-                        color: white;
-                        border: none;
-                        padding: 10px 20px;
-                        border-radius: 8px;
-                        font-weight: 600;
-                        cursor: pointer;
-                        font-size: 14px;
-                        margin-top: 15px;
-                        width: 100%;
-                        opacity: 0.6;
-                        pointer-events: none;
-                        transition: opacity 0.2s;
-                    ">🗑️ Clear Selected Words</button>
-                </div>
-
-                <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
-                    <button id="practice-btn" style="
-                        background: #667EEA;
-                        color: white;
-                        border: none;
-                        padding: 12px 24px;
-                        border-radius: 8px;
-                        font-weight: 600;
-                        cursor: pointer;
-                        font-size: 16px;
-                        flex: 1;
-                        min-width: 140px;
-                    ">🔥 Practice Now</button>
-                    
-                    <button id="got-it-btn" style="
-                        background: #E5E9F2;
-                        color: #4A5568;
-                        border: none;
-                        padding: 12px 24px;
-                        border-radius: 8px;
-                        font-weight: 600;
-                        cursor: pointer;
-                        font-size: 16px;
-                        flex: 1;
-                        min-width: 140px;
-                    ">Got it! 👍</button>
-                    
-                    <button id="clear-all-btn" style="
-                        background: #DC2626;
-                        color: white;
-                        border: none;
-                        padding: 12px 24px;
-                        border-radius: 8px;
-                        font-weight: 600;
-                        cursor: pointer;
-                        font-size: 16px;
-                        flex: 1;
-                        min-width: 140px;
-                    ">🗑️ Clear All Words</button>
-                </div>
-            `;
-
-        const overlay = document.createElement('div');
-        overlay.id = 'mistake-reminder-overlay';
-        overlay.style.cssText = `position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999;`;
-
-        document.body.appendChild(overlay);
-        document.body.appendChild(popup);
-
-        popup.querySelectorAll('.word-checkbox').forEach(cb => cb.addEventListener('change', handleCheckboxChange));
-        popup.querySelector('#clear-selected-btn').addEventListener('click', clearSelectedMistakes);
-        popup.querySelectorAll('.clickable-word').forEach(wordEl => {
-            wordEl.addEventListener('click', (e) => { e.stopPropagation(); showDictionary(wordEl.dataset.word, wordEl.dataset.definition, wordEl.dataset.type); });
-        });
-
-        document.getElementById('practice-btn').addEventListener('click', () => {
-            document.getElementById('mistake-reminder-popup').remove();
-            document.getElementById('mistake-reminder-overlay').remove();
-            startPractice(mistakes);
-        });
-
-        document.getElementById('got-it-btn').addEventListener('click', () => {
-            document.getElementById('mistake-reminder-popup').remove();
-            document.getElementById('mistake-reminder-overlay').remove();
-        });
-    }
-
-    // --- PRACTICE FUNCTION (WITH YOUR ORIGINAL WORDS + FALLBACK) ---
+    // --- PRACTICE FUNCTION (WITH FALLBACK) ---
     function startPractice(mistakes) {
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -525,47 +417,41 @@
         function generateGapSentence(word, definition) {
             // 1. YOUR ORIGINAL SENTENCE LIST (RESTORED)
             const sentencePatterns = {
-
-// === WEALTH TAX VOCABULARY ===
 'redistribution': [
-    `The government supports wealth <span class="practice-gap" data-answer="\${word}">____</span> to help the poor.`,
-    `Critics argue that excessive <span class="practice-gap" data-answer="\${word}">____</span> discourages hard work.`
+    `The government supports wealth <span class="practice-gap" data-answer="${word}">____</span> to help the poor.`,
+    `Critics argue that excessive <span class="practice-gap" data-answer="${word}">____</span> discourages hard work.`
 ],
 'liquidity': [
-    `The company has a serious <span class="practice-gap" data-answer="\${word}">____</span> problem; they have assets but no cash.`,
-    `Real estate usually has lower <span class="practice-gap" data-answer="\${word}">____</span> than stocks or bonds.`
+    `The company has a serious <span class="practice-gap" data-answer="${word}">____</span> problem; they have assets but no cash.`,
+    `Real estate usually has lower <span class="practice-gap" data-answer="${word}">____</span> than stocks or bonds.`
 ],
 'assets': [
-    `The wealthy often hide their <span class="practice-gap" data-answer="\${word}">____</span> in offshore accounts.`,
-    `Her total <span class="practice-gap" data-answer="\${word}">____</span> include three houses and a luxury boat.`
+    `The wealthy often hide their <span class="practice-gap" data-answer="${word}">____</span> in offshore accounts.`,
+    `Her total <span class="practice-gap" data-answer="${word}">____</span> include three houses and a luxury boat.`
 ],
 'inequality': [
-    `The wealth tax aims to reduce social <span class="practice-gap" data-answer="\${word}">____</span>.`,
-    `Economic <span class="practice-gap" data-answer="\${word}">____</span> has grown significantly between the rich and working class.`
+    `The wealth tax aims to reduce social <span class="practice-gap" data-answer="${word}">____</span>.`,
+    `Economic <span class="practice-gap" data-answer="${word}">____</span> has grown significantly between the rich and working class.`
 ],
 'capital flight': [
-    `High taxes can trigger massive <span class="practice-gap" data-answer="\${word}">____</span> to countries with lower rates.`,
-    `France experienced <span class="practice-gap" data-answer="\${word}">____</span> when millionaires moved to Belgium.`
+    `High taxes can trigger massive <span class="practice-gap" data-answer="${word}">____</span> to countries with lower rates.`,
+    `France experienced <span class="practice-gap" data-answer="${word}">____</span> when millionaires moved to Belgium.`
 ],
 'suspended': [
-    `The wealth tax was <span class="practice-gap" data-answer="\${word}">____</span> in 1997 due to legal issues.`,
-    `Trading on the stock market was <span class="practice-gap" data-answer="\${word}">____</span> for an hour today.`
+    `The wealth tax was <span class="practice-gap" data-answer="${word}">____</span> in 1997 due to legal issues.`,
+    `Trading on the stock market was <span class="practice-gap" data-answer="${word}">____</span> for an hour today.`
 ],
 'revenue': [
-    `The state needs more tax <span class="practice-gap" data-answer="\${word}">____</span> to fund schools and hospitals.`,
-    `Corporate <span class="practice-gap" data-answer="\${word}">____</span> fell by 10% this quarter due to the recession.`
+    `The state needs more tax <span class="practice-gap" data-answer="${word}">____</span> to fund schools and hospitals.`,
+    `Corporate <span class="practice-gap" data-answer="${word}">____</span> fell by 10% this quarter due to the recession.`
 ],
 'unfair': [
-    `Many business owners feel the valuation method is <span class="practice-gap" data-answer="\${word}">____</span>.`,
-    `It is <span class="practice-gap" data-answer="\${word}">____</span> to tax money that has already been taxed once.`
+    `Many business owners feel the valuation method is <span class="practice-gap" data-answer="${word}">____</span>.`,
+    `It is <span class="practice-gap" data-answer="${word}">____</span> to tax money that has already been taxed once.`
 ],
 'ecosystem': [
     `Alibaba combines Amazon and Google into one digital <span class="practice-gap" data-answer="${word}">____</span>.`,
     `Apple has created a closed <span class="practice-gap" data-answer="${word}">____</span> of hardware and software.`
-],
-'revenue': [ // Note: This key already exists in your file; this updates it with business context
-    `E-commerce is the company's largest <span class="practice-gap" data-answer="${word}">____</span> driver.`,
-    `The new tax is expected to generate significant government <span class="practice-gap" data-answer="${word}">____</span>.`
 ],
 'monopolistic': [
     `The company was fined $2.8 billion for <span class="practice-gap" data-answer="${word}">____</span> practices.`,
@@ -1222,7 +1108,7 @@
         // Generate items using the new logic
         const practiceItems = initialWords.map(w => {
             const sentence = generateGapSentence(w.word, w.definition);
-            return sentence ? { word: w.word, sentence: sentence } : null;
+            return sentence ? { word: w.word, sentence: sentence, lesson: w.lesson } : null;
         }).filter(item => item !== null); 
 
         if (practiceItems.length === 0) {
@@ -1345,25 +1231,51 @@
             });
         });
 
-        // 3. Check Answers
-        document.getElementById('check-practice-btn').addEventListener('click', () => {
+        // 3. Check Answers & REPAIR
+        document.getElementById('check-practice-btn').addEventListener('click', async () => {
             let correct = 0, total = 0;
+            const wordsToDelete = [];
+
             document.querySelectorAll('.practice-gap').forEach(gap => {
                 total++;
                 if (gap.dataset.filledWord === gap.dataset.answer) {
                     correct++;
                     gap.style.background = '#10B981'; gap.style.color = 'white'; gap.style.borderColor = '#10B981';
+                    // Mark this word for deletion from DB
+                    wordsToDelete.push(gap.dataset.answer);
                 } else {
                     gap.style.background = '#DC2626'; gap.style.color = 'white'; gap.style.borderColor = '#DC2626';
                 }
             });
 
             const feedback = document.getElementById('practice-feedback');
-            if (correct === total) {
-                feedback.innerHTML = '🎉 Perfect! All correct!'; feedback.style.color = '#10B981';
-            } else {
-                feedback.innerHTML = `📊 You got ${correct}/${total} correct.`; feedback.style.color = '#F59E0B';
+            
+            // --- NEW: AUTO-DELETE REPAIRED WORDS ---
+            if (wordsToDelete.length > 0) {
+                try {
+                    const { data: { user } } = await supabase.auth.getUser();
+                    if (user) {
+                        const deletePromises = wordsToDelete.map(word => 
+                            supabase.from('user_mistakes')
+                                .delete()
+                                .eq('user_id', user.id)
+                                .eq('word', word)
+                        );
+                        await Promise.all(deletePromises);
+                        // Refresh the widget behind the modal
+                        checkForMistakesOnHomepage();
+                    }
+                } catch (err) { console.error("Error repairing words:", err); }
             }
+
+            if (correct === total) {
+                feedback.innerHTML = '🎉 Perfect! Repaired words removed from list.'; feedback.style.color = '#10B981';
+            } else if (correct > 0) {
+                feedback.innerHTML = `📊 ${correct} words repaired and removed!`; feedback.style.color = '#F59E0B';
+            } else {
+                feedback.innerHTML = `❌ No words repaired. Try again!`; feedback.style.color = '#DC2626';
+            }
+            
             document.getElementById('check-practice-btn').style.pointerEvents = 'none';
             document.getElementById('check-practice-btn').style.opacity = '0.6';
         });
