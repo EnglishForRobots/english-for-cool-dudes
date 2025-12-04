@@ -103,6 +103,10 @@
         .match-card.matched { 
             opacity: 0; transform: scale(0.8); pointer-events: none; 
         }
+        
+        /* ANIMATIONS FOR VICTORY */
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
         /* === 3. COURSE CARDS === */
         .section { margin-bottom: 50px; }
@@ -572,15 +576,25 @@
                 }
 
                 if (matchedCount === totalPairs) {
+                    // --- SUCCESS & AUTO CLOSE SEQUENCE ---
                     setTimeout(() => {
-                        feedbackEl.textContent = "🔥 All Cleared! Brain Boost Complete!";
-                        document.getElementById('close-game-btn').textContent = "Finish & Reload";
-                        document.getElementById('close-game-btn').style.background = "#0EA5E9";
-                        document.getElementById('close-game-btn').style.color = "white";
+                        practicePopup.innerHTML = `
+                            <div style="text-align:center; padding: 40px 20px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+                                <div style="font-size: 80px; margin-bottom: 20px; animation: bounce 2s infinite;">🎉</div>
+                                <h2 style="color: #0EA5E9; font-size: 28px; font-weight: 800; margin: 0 0 10px 0;">Awesome Job!</h2>
+                                <p style="color: #64748B; font-size: 18px; margin: 0;">You cleared the board!</p>
+                                <div style="margin-top: 30px; font-size: 14px; color: #94A3B8;">Closing automatically...</div>
+                            </div>
+                        `;
                         
-                        // Refresh main widget
+                        // Refresh main widget immediately
                         checkForMistakesOnHomepage();
-                    }, 1000);
+
+                        // Auto Close after 2.5 seconds
+                        setTimeout(() => {
+                            closeFn();
+                        }, 2500);
+                    }, 800); // Wait for card vanish animation
                 }
 
             } else {
