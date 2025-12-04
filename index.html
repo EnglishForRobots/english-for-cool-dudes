@@ -349,7 +349,7 @@
     }
     document.getElementById('dictionary-overlay').addEventListener('click', closeDictionary);
 
-    // --- 2. BRAIN BOOST (MATCHING GAME LOGIC) ---
+    // --- 2. BRAIN BOOST (LOGIC) ---
     async function checkForMistakesOnHomepage() {
         try {
             const { data: { user } = {} } = await supabase.auth.getUser();
@@ -368,7 +368,7 @@
                 .from('user_mistakes')
                 .select('word, definition, word_type, lesson, lesson_link')
                 .eq('user_id', user.id)
-                .limit(4); // Limit to 4 to keep the grid manageable (4 pairs = 8 cards)
+                .limit(4); // Limit to 4 pairs
 
             let practiceBatch = mistakes || [];
 
@@ -416,7 +416,6 @@
 
             if (practiceBatch.length > 0) {
                 widget.style.display = 'block';
-                // Positive Blue Styling
                 widget.style.background = '#F0F9FF'; 
                 widget.style.borderColor = '#BAE6FD';
                 widget.style.borderLeft = '4px solid #0EA5E9'; 
@@ -445,25 +444,47 @@
         }
     }
 
-    // --- 3. THE MATCH GAME ENGINE ---
-    function startMatchGame(batch) {
-        // 1. Create Data Structure for Grid
+    // --- 3. MATCH GAME ENGINE (Connected to Dictionary Table) ---
+    async function startMatchGame(batch) {
+        
+        // A. FETCH DATA FROM NEW DICTIONARY TABLE
+        // Extract words to query
+        const wordList = batch.map(b => b.word);
+        let dictData = null;
+
+        try {
+            // Attempt to fetch fresh definitions from your new table
+            const { data, error } = await supabase
+                .from('dictionary_content')
+                .select('word, definition')
+                .in('word', wordList);
+            
+            if (!error && data) dictData = data;
+        } catch (err) {
+            console.log("Dictionary table not ready yet, using local data.");
+        }
+
+        // B. BUILD GRID ITEMS
         let gridItems = [];
         
         batch.forEach((item, index) => {
+            // Try to find the word in the dictionary data, otherwise fallback to item.definition
+            const richData = dictData ? dictData.find(d => d.word.toLowerCase() === item.word.toLowerCase()) : null;
+            const finalDefinition = richData ? richData.definition : (item.definition || "Definition loading...");
+
             // Term Card
             gridItems.push({
                 id: index,
                 type: 'term',
                 content: item.word,
-                matchId: index, // Links to definition
-                originalItem: item // Keeps track if it's a mistake or review
+                matchId: index, 
+                originalItem: item 
             });
             // Definition Card
             gridItems.push({
-                id: index + 100, // Unique ID
+                id: index + 100, 
                 type: 'def',
-                content: item.definition || "Definition not found",
+                content: finalDefinition,
                 matchId: index,
                 originalItem: item
             });
@@ -472,7 +493,7 @@
         // Shuffle
         gridItems.sort(() => 0.5 - Math.random());
 
-        // 2. Build Modal
+        // C. BUILD MODAL UI
         const practicePopup = document.createElement('div');
         practicePopup.style.cssText = `
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -515,26 +536,20 @@
         document.body.appendChild(overlay);
         document.body.appendChild(practicePopup);
 
-        // 3. Game Logic Variables
+        // D. GAMEPLAY LOGIC
         let selectedCards = [];
         let matchedCount = 0;
         const totalPairs = batch.length;
         const feedbackEl = document.getElementById('game-feedback');
 
-        // 4. Click Handler
         document.querySelectorAll('.match-card').forEach(card => {
             card.addEventListener('click', () => {
-                // Ignore if already matched or already selected
                 if (card.classList.contains('matched') || card.classList.contains('selected')) return;
-                
-                // Max 2 selected at once
                 if (selectedCards.length >= 2) return;
 
-                // Select card
                 card.classList.add('selected');
                 selectedCards.push(card);
 
-                // If 2 selected, check match
                 if (selectedCards.length === 2) {
                     checkMatch();
                 }
@@ -547,11 +562,10 @@
             const matchId2 = card2.dataset.match;
 
             if (matchId1 === matchId2) {
-                // MATCH FOUND!
+                // MATCH FOUND
                 feedbackEl.textContent = "Correct! 🎉";
                 feedbackEl.style.color = "#16A34A"; // Green
                 
-                // Add matched class (starts animation)
                 setTimeout(() => {
                     card1.classList.add('matched');
                     card2.classList.add('matched');
@@ -561,47 +575,41 @@
 
                 matchedCount++;
                 
-                // --- DB UPDATE: REMOVE MISTAKE ---
-                // Find the original item data to see if it was a mistake or review
+                // DELETE MISTAKE FROM DB (If it was a mistake)
                 const originalItem = batch[matchId1]; 
                 if (originalItem && !originalItem.is_review) {
-                    // It was a mistake! Delete from DB.
                     try {
                         const { data: { user } } = await supabase.auth.getUser();
                         if (user) {
                             await supabase.from('user_mistakes').delete().eq('user_id', user.id).eq('word', originalItem.word);
-                            console.log(`Repaired: ${originalItem.word}`);
                         }
                     } catch (err) { console.error(err); }
                 }
 
                 if (matchedCount === totalPairs) {
-                    // --- SUCCESS & AUTO CLOSE SEQUENCE ---
+                    // --- VICTORY SCREEN ---
                     setTimeout(() => {
                         practicePopup.innerHTML = `
                             <div style="text-align:center; padding: 40px 20px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
-                                <div style="font-size: 80px; margin-bottom: 20px; animation: bounce 2s infinite;">🎉</div>
+                                <div style="font-size: 80px; margin-bottom: 20px; animation: bounce 2s infinite;">🚀</div>
                                 <h2 style="color: #0EA5E9; font-size: 28px; font-weight: 800; margin: 0 0 10px 0;">Awesome Job!</h2>
                                 <p style="color: #64748B; font-size: 18px; margin: 0;">You cleared the board!</p>
                                 <div style="margin-top: 30px; font-size: 14px; color: #94A3B8;">Closing automatically...</div>
                             </div>
                         `;
                         
-                        // Refresh main widget immediately
+                        // Refresh main widget
                         checkForMistakesOnHomepage();
 
-                        // Auto Close after 2.5 seconds
-                        setTimeout(() => {
-                            closeFn();
-                        }, 2500);
-                    }, 800); // Wait for card vanish animation
+                        // Auto Close
+                        setTimeout(() => { closeFn(); }, 2500);
+                    }, 800); 
                 }
 
             } else {
                 // NO MATCH
                 feedbackEl.textContent = "Try again...";
-                feedbackEl.style.color = "#EF4444"; // Red
-                
+                feedbackEl.style.color = "#EF4444"; 
                 setTimeout(() => {
                     card1.classList.remove('selected');
                     card2.classList.remove('selected');
@@ -611,11 +619,10 @@
             selectedCards = [];
         }
 
-        // 5. Close Handler
         const closeFn = () => { 
             practicePopup.remove(); 
             overlay.remove(); 
-            if (matchedCount > 0) checkForMistakesOnHomepage(); // Refresh if they did at least one
+            if (matchedCount > 0) checkForMistakesOnHomepage(); 
         };
         document.getElementById('close-game-btn').addEventListener('click', closeFn);
     }
@@ -625,7 +632,6 @@
         const pulseText = document.getElementById('pulse-ticker-text');
         if(!pulseText) return;
 
-        // Fetch Recent Activity Feed
         const { data: feed } = await supabase.from('office_pulse').select('*');
         const messages = [];
 
