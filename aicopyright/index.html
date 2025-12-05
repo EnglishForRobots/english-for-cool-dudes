@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music & AI: The GEMA Ruling - English For Cool Dudes</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* --- BRANDING & LAYOUT STYLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: #F8FAFC; /* Very Light Blue-Grey */
+            color: #334155; /* Slate Text */
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- THEME: MUSIC/LEGAL (PURPLE/NAVY) 🎵⚖️ --- */
+        :root {
+            --color-primary: #4C1D95; /* Deep Purple (Creative/Music) */
+            --color-secondary: #1E293B; /* Slate Navy (Legal) */
+            --color-accent: #8B5CF6; /* Violet */
+            --color-white: #FFFFFF;
+            
+            /* Feedback Colors */
+            --color-correct: #10B981; /* Emerald */
+            --color-incorrect: #EF4444; /* Red */
+            
+            --color-save-btn: #8B5CF6; 
+        }
+
+        /* Header */
+        .header {
+            background: var(--color-white);
+            border-bottom: 2px solid var(--color-primary);
+            padding: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header-content {
+            max-width: 1200px; margin: 0 auto; padding: 0 20px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+
+        .logo {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, #4C1D95 0%, #6D28D9 100%); 
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            font-size: 20px; color: white;
+        }
+        .site-title { font-size: 20px; font-weight: 800; color: #1E293B; text-decoration: none; letter-spacing: -0.02em; }
+
+        /* Buttons */
+        .header-buttons { display: flex; align-items: center; gap: 8px; }
+        .header-button {
+            text-decoration: none; padding: 7px 14px; border-radius: 6px;
+            font-size: 14px; font-weight: 600; transition: all 0.2s;
+            white-space: nowrap; cursor: pointer; border: 1px solid #CBD5E1;
+            background: transparent;
+        }
+        .header-button.login { background: #FFF; color: #475569; }
+        .header-button.login:hover { background: #F8FAFC; color: var(--color-primary); }
+        
+        .header-button.signup { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+        .header-button.signup:hover { background: #5B21B6; box-shadow: 0 2px 5px rgba(76, 29, 149, 0.3); }
+        
+        .header-button.dashboard { background: #F3E8FF; color: #6D28D9; border-color: #D8B4FE; }
+        .header-button.logout { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
+        
+        .user-greeting { font-size: 14px; color: #475569; font-weight: 600; margin-right: 5px; display: block; }
+
+        /* Container */
+        .container-main {
+            max-width: 1000px; margin: 30px auto; padding: 30px 20px;
+            background-color: var(--color-white); border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 2px solid #E2E8F0;
+        }
+
+        .lesson-main-title {
+            font-size: 2.5em; font-weight: 800; color: var(--color-primary); 
+            margin-bottom: 10px; letter-spacing: -0.02em;
+        }
+
+        .lesson-section {
+            background-color: #F8FAFC; padding: 30px; border-radius: 10px;
+            border: 1px solid #E2E8F0; margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: var(--color-secondary); font-size: 1.8em; font-weight: 800;
+            margin-bottom: 20px; padding-bottom: 5px; border-bottom: 2px dashed #94A3B8;
+        }
+        
+        /* Reading Text */
+        .reading-text {
+            background: #FFFFFF; border-left: 5px solid var(--color-accent);
+            padding: 20px; border-radius: 0 8px 8px 0; font-size: 1.1em;
+            color: #334155; line-height: 1.8; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .highlight-word {
+            color: #6D28D9; font-weight: 700; cursor: help;
+            border-bottom: 2px dotted #A78BFA; transition: all 0.2s;
+        }
+        .highlight-word:hover { background-color: #F3E8FF; color: #5B21B6; border-radius: 4px; }
+        
+        /* Match Cards */
+        .match-card {
+            border: 2px solid transparent; transition: all 0.5s ease;
+            cursor: pointer; user-select: none; border-radius: 0.75rem; 
+            padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); font-weight: 600;
+            opacity: 1; transform: scale(1); min-height: 80px; display: flex; align-items: center; justify-content: center;
+        }
+        .match-card.term {
+            background-color: #F3E8FF; border: 2px solid #8B5CF6; 
+            text-align: center; color: #5B21B6; font-size: 1.1em;
+        }
+        .match-card.definition {
+            background-color: #FFFFFF; text-align: left; border: 2px solid #CBD5E1; color: #475569; font-size: 0.95em;
+        }
+        .match-card.selected {
+            border-color: #7C3AED; background-color: #EDE9FE; 
+            box-shadow: 0 0 0 4px #DDD6FE; transform: scale(1.02); color: #6D28D9;
+        }
+        .match-card.matched { 
+            pointer-events: none; opacity: 0; transform: scale(0.9); 
+        }
+        .match-card.temp-matched {
+            background-color: #DCFCE7 !important; border-color: #059669 !important; 
+            box-shadow: 0 0 0 4px #059669 !important; color: #064E3B !important;
+        }
+
+        /* Quiz Buttons */
+        .comp-btn-group .option-button {
+            transition: all 0.2s; background-color: #FFFFFF; color: #334155;
+            font-weight: 600; padding: 12px 15px; border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); border: 1px solid #E2E8F0;
+            text-align: left; width: 100%; cursor: pointer; margin-bottom: 10px;
+        }
+        .comp-btn-group .option-button:hover { border-color: var(--color-accent); background-color: #F5F3FF; }
+        .comp-btn-group .option-button.selected { background-color: #F3E8FF; color: #6D28D9 !important; border-color: #8B5CF6; box-shadow: 0 0 0 4px #DDD6FE; }
+        .comp-btn-group .option-button.correct { background-color: #D1FAE5 !important; color: #047857 !important; border-color: #059669 !important; box-shadow: 0 0 0 4px #059669 !important; }
+        .comp-btn-group .option-button.incorrect { background-color: #FEE2E2 !important; color: #B91C1C !important; border-color: #EF4444 !important; box-shadow: 0 0 0 4px #EF4444 !important; }
+
+        .result-message { margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: 700; display: none; text-align: center; }
+        .result-message.correct { background-color: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; }
+        .result-message.incorrect { background-color: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+        
+        /* Gap-Fill */
+        .word-bank { background: #F3E8FF; border: 2px dashed #8B5CF6; border-radius: 10px; padding: 20px; margin-bottom: 25px; }
+        .word-options { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .word-option {
+            background-color: #FFFFFF; color: #334155; padding: 8px 16px;
+            border-radius: 8px; cursor: pointer; transition: all 0.2s; font-weight: 700;
+            box-shadow: 0 2px 0 rgba(0,0,0,0.1); border: 2px solid #94A3B8;
+        }
+        .word-option:hover { background-color: #F1F5F9; border-color: #8B5CF6; color: #6D28D9; transform: translateY(-2px); }
+        .word-option.selected { background-color: #8B5CF6 !important; color: white !important; border-color: #8B5CF6 !important; transform: scale(1.05); }
+        .word-option.used { opacity: 0.4; pointer-events: none; background-color: #94A3B8; border-color: #94A3B8; color: white; transform: none; }
+
+        .gap-input {
+            display: inline-block; text-align: center; padding: 0 10px; min-width: 120px; 
+            height: 32px; line-height: 30px; background-color: #FFFFFF; border-bottom: 3px solid #334155; 
+            color: #1E293B; font-weight: 700; cursor: pointer; margin: 0 4px; transition: all 0.2s;
+        }
+        .gap-input:empty { background-color: #F8FAFC; }
+        .gap-input.filled { background-color: #F3E8FF; border-bottom-color: #8B5CF6; }
+        .gap-input.correct { background-color: var(--color-correct) !important; color: white !important; border-bottom-color: var(--color-correct) !important; pointer-events: none; }
+        .gap-input.incorrect { background-color: var(--color-incorrect) !important; color: white !important; border-bottom-color: var(--color-incorrect) !important; }
+
+        /* Buttons & Save */
+        .button-group { margin-top: 20px; display: flex; gap: 15px; justify-content: center; }
+        .check-button {
+            background: var(--color-primary); color: white; border: none; padding: 12px 25px;
+            border-radius: 8px; cursor: pointer; font-size: 1em; font-weight: 700;
+            transition: all 0.3s; box-shadow: 0 4px 0 #000; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .check-button:hover { background: #1E293B; transform: translateY(-2px); box-shadow: 0 6px 0 #000; }
+        .check-button:active { transform: translateY(2px); box-shadow: 0 0 0 #000; }
+        .reset-button { background: #64748B; box-shadow: 0 4px 0 #334155; }
+        .reset-button:hover { background: #475569; box-shadow: 0 6px 0 #334155; }
+
+        #save-words-section { background: #F8FAFC; border: 2px solid #E2E8F0; padding: 25px; border-radius: 12px; margin-top: 40px; text-align: center; }
+        #save-words-btn {
+            background-color: var(--color-save-btn); color: white; padding: 14px 30px;
+            border-radius: 9999px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+            display: block; width: 100%; border: none; box-shadow: 0 4px #6D28D9;
+            text-transform: uppercase; font-size: 1.1em;
+        }
+        #save-words-btn:hover:not(:disabled) { background-color: #6D28D9; transform: translateY(-2px); box-shadow: 0 6px #6D28D9; }
+        #save-words-btn:active:not(:disabled) { box-shadow: 0 0 #6D28D9; transform: translateY(2px); }
+        
+        #learned-words-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; margin-bottom: 20px; text-align: center; list-style: none; }
+        #learned-words-list li {
+            background: white; padding: 12px 15px; border-radius: 8px; border: 1px solid #E2E8F0;
+            font-size: 0.95em; cursor: pointer; transition: all 0.2s; font-weight: 700; color: #334155;
+        }
+        #learned-words-list li:hover { transform: translateY(-2px); border-color: var(--color-accent); color: #6D28D9; box-shadow: 0 4px 10px rgba(0,0,0,0.05); background-color: #F3E8FF; }
+
+        /* Popups */
+        #feedback-popup {
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            padding: 25px 40px; border-radius: 16px; font-weight: 700; color: white;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3); z-index: 2000; display: none;
+            text-align: center; font-size: 1.2em; border: 4px solid white; min-width: 300px;
+        }
+        #dictionary-popup {
+            position: fixed; max-width: 300px; padding: 20px; background: #FFFFFF;
+            border: 3px solid var(--color-primary); border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 2001; display: none;
+            font-size: 1em; color: #334155; line-height: 1.5;
+        }
+        @media (max-width: 768px) { .user-greeting { display: none; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">⚖️</span>
+                <a href="/legal/" class="site-title">English For Cool Dudes</a>
+            </div>
+            <div id="logged-out-buttons" class="header-buttons" style="display: none;">
+                <a href="/login/" class="header-button login">Login</a>
+                <a href="/signup/" class="header-button signup">Sign Up</a>
+            </div>
+            <div id="logged-in-buttons" class="header-buttons" style="display: none;">
+                <span class="user-greeting" id="user-greeting">Hey Cool Dude! 👋</span>
+                <a href="/dashboard/" class="header-button dashboard">My Dashboard</a>
+                <button id="logout-btn" class="header-button logout">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-main">
+        <h1 class="lesson-main-title">🎵 Music vs. AI: The GEMA Ruling</h1>
+        <p class="text-lg text-gray-500 mb-8">Upper-Intermediate (B2) | Topic: Copyright, AI & Law</p>
+
+        <main class="space-y-8">
+            
+            <section class="lesson-section shadow-lg">
+                <h2 class="section-title">📜 1. Case Summary: GEMA vs. OpenAI</h2>
+                <div class="reading-text">
+                    <h3 class="font-bold text-xl mb-4 text-gray-800">The Case of the Memorised Lyrics</h3>
+                    <p class="mb-4">In a landmark decision, the Munich Regional Court ruled in favor of GEMA, Germany's music <span class="highlight-word" onclick="showDictionaryPopup(this, 'Collecting Society')">collecting society</span>. GEMA argued that OpenAI used the lyrics of famous songs like "Atemlos" to train its GPT-4 models without obtaining a <span class="highlight-word" onclick="showDictionaryPopup(this, 'Licence')">licence</span>. They proved that the AI could reproduce the lyrics almost verbatim when prompted.</p>
+                    
+                    <p class="mb-4">OpenAI argued that their models do not store copies but only learn statistical correlations. They claimed this falls under the <span class="highlight-word" onclick="showDictionaryPopup(this, 'TDM')">TDM</span> (Text and Data Mining) exception for scientific research. However, the court found that the "hallucinations" or minor errors in the output did not change the fact that the original work was recognizable.</p>
+                    
+                    <p>The court ruled that the <span class="highlight-word" onclick="showDictionaryPopup(this, 'Memorisation')">memorisation</span> of the lyrics in the model's parameters constituted an unauthorized <span class="highlight-word" onclick="showDictionaryPopup(this, 'Fixation')">fixation</span> (or reproduction). As a result, the court granted an <span class="highlight-word" onclick="showDictionaryPopup(this, 'Injunction')">injunction</span>, ordering OpenAI to stop using the lyrics, and opened the door for potential damages.</p>
+                </div>
+            </section>
+
+            <section id="exercise-1" class="lesson-section shadow-lg">
+                <h2 class="section-title">🔗 2. Legal Terminology Match</h2>
+                <p class="text-gray-600 mb-6 font-medium">Match the legal term to its definition. Correct pairs will disappear and reappear at the end!</p>
+
+                <div id="vocab-match-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </section>
+        
+            <section id="exercise-2" class="lesson-section shadow-lg">
+                <h2 class="section-title">⚖️ 3. Understanding the Verdict</h2>
+                <p class="text-gray-600 mb-4 font-medium">Select the correct interpretation based on the Munich ruling.</p>
+                
+                <div class="question" data-question="1">
+                    <p class="font-bold text-gray-800 mb-3">1. Why did the court reject OpenAI's "TDM" defense?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="1">
+                        <li class="option-button" data-correct="false">Because OpenAI is an American company.</li>
+                        <li class="option-button" data-correct="true">Because the AI "memorised" and reproduced the text, which exceeds simple data evaluation.</li>
+                        <li class="option-button" data-correct="false">Because TDM is illegal in Germany.</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="2">
+                    <p class="font-bold text-gray-800 mb-3">2. What did the court decide regarding the "hallucinations" (errors) in the lyrics?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="2">
+                        <li class="option-button" data-correct="true">They were minor; the lyrics were still clearly recognizable as the original work.</li>
+                        <li class="option-button" data-correct="false">They proved that the AI created something entirely new.</li>
+                        <li class="option-button" data-correct="false">They meant OpenAI was not liable for copyright infringement.</li>
+                    </ul>
+                </div>
+
+                <div class="button-group">
+                    <button class="check-button" onclick="checkComprehension()">Check Facts</button>
+                    <button class="check-button reset-button" onclick="resetComprehension()">Reset</button>
+                </div>
+                <div id="comprehension-result" class="result-message"></div>
+            </section>
+
+            <section id="exercise-3" class="lesson-section shadow-lg">
+                <h2 class="section-title">📝 4. Legal Context Gap Fill</h2>
+                <p class="text-gray-600 mb-6 font-medium">Complete the summary of the case logic.</p>
+                
+                <div class="word-bank">
+                    <p class="font-bold mb-2 text-xs text-gray-500 uppercase w-full text-center">Word Bank</p>
+                    <div class="word-options" id="gap-fill-options">
+                        <div class="word-option" data-word="injunction">injunction</div>
+                        <div class="word-option" data-word="memorisation">memorisation</div>
+                        <div class="word-option" data-word="licence">licence</div>
+                        <div class="word-option" data-word="fixation">fixation</div>
+                        <div class="word-option" data-word="statistical">statistical</div>
+                    </div>
+                </div>
+
+                <div class="gap-fill-text text-lg leading-loose space-y-4">
+                    <p>1. GEMA successfully applied for an <span class="gap-input" data-answer="injunction">____</span> to stop the use of the lyrics.</p>
+                    <p>2. The court found that the <span class="gap-input" data-answer="memorisation">____</span> of training data occurred in the model parameters.</p>
+                    <p>3. OpenAI claimed the model only learns <span class="gap-input" data-answer="statistical">____</span> correlations, not actual text.</p>
+                    <p>4. Storing the lyrics in the model weights counts as a <span class="gap-input" data-answer="fixation">____</span> of the work.</p>
+                    <p>5. To use protected songs legally, AI companies usually need a <span class="gap-input" data-answer="licence">____</span>.</p>
+                </div>
+                <div class="button-group">
+                    <button class="check-button" onclick="checkGaps()">Check Vocabulary</button>
+                    <button class="check-button reset-button" onclick="resetGaps()">Reset</button>
+                </div>
+                <div id="gap-result" class="result-message"></div>
+            </section>
+
+            <section class="lesson-section shadow-lg border-t-4 border-purple-600">
+                <h2 class="section-title">🎉 Case Closed!</h2>
+                <p class="mb-4 text-gray-600">You have analyzed the GEMA vs. OpenAI ruling. Review terms below:</p>
+                
+                <ul id="learned-words-list">
+                    <li data-word="Collecting Society">Collecting Society</li><li data-word="Injunction">Injunction</li><li data-word="Fixation">Fixation</li><li data-word="Memorisation">Memorisation</li>
+                    <li data-word="Reproduction">Reproduction</li><li data-word="Licence">Licence</li><li data-word="TDM">TDM</li><li data-word="Liability">Liability</li>
+                </ul>
+
+                <div id="save-words-section">
+                    <h3 class="text-xl font-bold mb-3" style="color: var(--color-accent);">💾 Save Your Progress</h3>
+                    
+                    <div id="save-feature-loggedin" style="display: none;">
+                        <p class="text-gray-700 mb-4">Save these legal terms to your personal dashboard.</p>
+                        <button id="save-words-btn" onclick="saveWordsToDashboard()">Save 8 Words to Inventory</button>
+                        <p id="save-status" class="text-center mt-3 font-semibold"></p>
+                    </div>
+                    
+                    <div id="login-prompt" style="display: none;">
+                        <p class="text-red-600 font-bold mb-2">🔒 Login to save your progress!</p>
+                        <a href="/login/" class="inline-block bg-slate-800 text-white font-bold py-2 px-4 rounded hover:bg-black transition">Log In / Sign Up</a>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    
+    <div id="feedback-popup"></div>
+    <div id="dictionary-popup"></div>
+
+    <script>
+        // --- CONFIG ---
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null;
+
+        const lessonTitle = "Music & AI: The GEMA Ruling";
+        const lessonLink = "/aicopyright/";
+        const lessonLevel = "B2";
+
+        const wordsToSave = [
+            { word: "Collecting Society", type: "noun", definition: "Org. that manages copyright and royalties for artists (e.g. GEMA)." },
+            { word: "Injunction", type: "noun", definition: "A court order requiring a person/company to stop doing something." },
+            { word: "Fixation", type: "noun", definition: "The embodiment of a work in a material object (storage)." },
+            { word: "Memorisation", type: "noun", definition: "When an AI model retains and can output specific training data." },
+            { word: "Reproduction", type: "noun", definition: "The action of copying a protected work." },
+            { word: "Licence", type: "noun", definition: "Official permission to use, copy, or own something." },
+            { word: "TDM", type: "acronym", definition: "Text and Data Mining: analyzing large data sets for patterns." },
+            { word: "Liability", type: "noun", definition: "The state of being responsible for something by law." }
+        ];
+
+        // --- AUTH ---
+        async function checkUser() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('logged-in-buttons').style.display = 'flex';
+                    document.getElementById('logged-out-buttons').style.display = 'none';
+                    document.getElementById('save-feature-loggedin').style.display = 'block';
+                    document.getElementById('login-prompt').style.display = 'none';
+                    const name = user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Counselor';
+                    document.getElementById('user-greeting').textContent = `Hey ${name}! 👋`;
+                } else {
+                    document.getElementById('logged-in-buttons').style.display = 'none';
+                    document.getElementById('logged-out-buttons').style.display = 'flex';
+                    document.getElementById('save-feature-loggedin').style.display = 'none';
+                    document.getElementById('login-prompt').style.display = 'block';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function saveWordsToDashboard() {
+            if (!currentUser) return;
+            const btn = document.getElementById('save-words-btn');
+            const status = document.getElementById('save-status');
+            btn.disabled = true; btn.textContent = "Processing...";
+
+            const { error } = await supabase.from('lessons').upsert([{
+                user_id: currentUser.id, lesson_title: lessonTitle, lesson_link: lessonLink,
+                lesson_level: lessonLevel, vocabulary: wordsToSave, completed_at: new Date().toISOString()
+            }], { onConflict: 'user_id,lesson_title' });
+
+            if (!error) {
+                btn.textContent = "✅ Inventory Saved!"; btn.style.backgroundColor = "#10B981";
+                status.textContent = "Legal terms secured! Check your dashboard.";
+                setTimeout(() => window.location.href = '/dashboard/', 1500);
+            } else {
+                btn.textContent = "❌ Error"; btn.disabled = false;
+                status.textContent = "Error saving. Please try again.";
+            }
+        }
+        
+        async function saveMistake(word) {
+            if(!currentUser) return;
+            const wObj = wordsToSave.find(w=>w.word.toLowerCase()===word.toLowerCase()) || {word, definition:'Legal Terminology', type:'noun'};
+            await supabase.from('user_mistakes').upsert({
+                user_id: currentUser.id, word: wObj.word, definition: wObj.definition, word_type: wObj.type,
+                lesson: lessonTitle, lesson_link: lessonLink, last_made_at: new Date().toISOString()
+            }, {onConflict: 'user_id,word'});
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await supabase.auth.signOut(); window.location.href = '/';
+        });
+
+        // --- UTILS ---
+        function showFeedback(msg, type) {
+            const el = document.getElementById('feedback-popup');
+            el.textContent = msg; el.style.display = 'block';
+            el.style.backgroundColor = type === 'correct' ? '#10B981' : '#EF4444';
+            el.style.borderColor = type === 'correct' ? '#047857' : '#B91C1C';
+            setTimeout(() => { el.style.display = 'none'; }, 1800);
+        }
+
+        function showDictionaryPopup(target, word) {
+            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase());
+            const popup = document.getElementById('dictionary-popup');
+            if(wordObj) popup.innerHTML = `<strong>${wordObj.word}</strong> <span style="font-size:0.85em; color:#8B5CF6;">(${wordObj.type})</span><br>${wordObj.definition}`;
+            else popup.innerHTML = `<strong>${word}</strong><br>Definition not found.`;
+            popup.style.display = 'block';
+            const rect = target.getBoundingClientRect();
+            let topPos = rect.top - popup.offsetHeight - 10;
+            if (topPos < 10) topPos = rect.bottom + 10;
+            popup.style.top = topPos + 'px';
+            popup.style.left = (rect.left + (rect.width/2) - (popup.offsetWidth/2)) + 'px';
+        }
+        document.body.addEventListener('click', (e) => {
+            if (!e.target.closest('#dictionary-popup') && !e.target.closest('#learned-words-list li') && !e.target.closest('.highlight-word')) {
+                document.getElementById('dictionary-popup').style.display = 'none';
+            }
+        });
+
+        // --- EXERCISES ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        function cleanText(text) { return text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z]/g, '').toLowerCase() : ''; }
+
+        /* MATCHING */
+        const newVocabData = [
+            { type: 'term', content: "Collecting Society", key: 'A' }, { type: 'definition', content: "Org. managing artist rights (e.g. GEMA).", key: 'A' },
+            { type: 'term', content: "Injunction", key: 'B' }, { type: 'definition', content: "Court order to stop an action.", key: 'B' },
+            { type: 'term', content: "Fixation", key: 'C' }, { type: 'definition', content: "Storing/embedding work in a medium.", key: 'C' },
+            { type: 'term', content: "Memorisation", key: 'D' }, { type: 'definition', content: "AI retaining exact training data.", key: 'D' },
+            { type: 'term', content: "Reproduction", key: 'E' }, { type: 'definition', content: "Making a copy of a work.", key: 'E' },
+            { type: 'term', content: "Licence", key: 'F' }, { type: 'definition', content: "Official permission to use.", key: 'F' },
+            { type: 'term', content: "TDM", key: 'G' }, { type: 'definition', content: "Text & Data Mining (analyzing patterns).", key: 'G' },
+            { type: 'term', content: "Liability", key: 'H' }, { type: 'definition', content: "Legal responsibility.", key: 'H' }
+        ];
+        let selectedTermCard = null, selectedDefinitionCard = null, matchedPairs = 0;
+
+        const funCorrect = [
+            "Objection Overruled! ✅", 
+            "Justice Served! ⚖️", 
+            "Case Solved! 🔎", 
+            "Legal Eagle! 🦅"
+        ];
+        const funIncorrect = [
+            "Objection! ❌", 
+            "Out of Order! 🔨", 
+            "Mistrial! 🚫", 
+            "Rephrase the question! 📝"
+        ];
+
+        function initVocab() {
+            const matchContainer = document.getElementById('vocab-match-container');
+            matchContainer.innerHTML = ''; shuffleArray(newVocabData);
+            newVocabData.forEach(item => {
+                const card = document.createElement('div'); 
+                card.className = `match-card interactive-element ${item.type}`;
+                card.innerHTML = item.type === 'term' ? `<span>${item.content}</span>` : `<span>${item.content}</span>`; 
+                card.dataset.key = item.key; card.dataset.type = item.type;
+                card.addEventListener('click', () => handleMatchClick(card));
+                matchContainer.appendChild(card);
+            });
+            selectedTermCard = null; selectedDefinitionCard = null; matchedPairs = 0;
+        }
+
+        function handleMatchClick(card) {
+            if (card.classList.contains('matched')) return;
+            const type = card.dataset.type;
+            let currentSelection = type === 'term' ? selectedTermCard : selectedDefinitionCard;
+            if (currentSelection) currentSelection.classList.remove('selected');
+            if (currentSelection === card) {
+                if (type === 'term') selectedTermCard = null; else selectedDefinitionCard = null;
+                return;
+            }
+            if (type === 'term') selectedTermCard = card; else selectedDefinitionCard = card;
+            card.classList.add('selected');
+
+            if (selectedTermCard && selectedDefinitionCard) {
+                if (selectedTermCard.dataset.key === selectedDefinitionCard.dataset.key) {
+                    [selectedTermCard, selectedDefinitionCard].forEach(el => { el.classList.remove('selected'); el.classList.add('temp-matched'); });
+                    showFeedback(funCorrect[Math.floor(Math.random() * funCorrect.length)], 'correct');
+                    
+                    const t = selectedTermCard; const d = selectedDefinitionCard;
+                    setTimeout(() => {
+                        t.classList.remove('temp-matched'); t.classList.add('matched');
+                        d.classList.remove('temp-matched'); d.classList.add('matched');
+                    }, 800);
+
+                    matchedPairs++;
+                    if (matchedPairs === newVocabData.length / 2) {
+                        setTimeout(() => {
+                            showFeedback("🎉 Court Adjourned! Resetting...", 'correct');
+                            setTimeout(() => {
+                                document.querySelectorAll('.match-card').forEach((card, index) => {
+                                    setTimeout(() => {
+                                        card.classList.remove('matched');
+                                    }, index * 100);
+                                });
+                                matchedPairs = 0;
+                            }, 1000);
+                        }, 1000);
+                    }
+                    selectedTermCard = null; selectedDefinitionCard = null;
+                } else {
+                    showFeedback(funIncorrect[Math.floor(Math.random() * funIncorrect.length)], 'incorrect');
+                    setTimeout(() => {
+                        if(selectedTermCard) selectedTermCard.classList.remove('selected'); 
+                        if(selectedDefinitionCard) selectedDefinitionCard.classList.remove('selected');
+                        selectedTermCard = null; selectedDefinitionCard = null;
+                    }, 800);
+                }
+            }
+        }
+        function resetVocab() { initVocab(); }
+
+        /* COMPREHENSION */
+        function checkComprehension() {
+            const questions = document.querySelectorAll('.question'); let correctAnswers = 0;
+            questions.forEach(q => {
+                const selected = q.querySelector('.option-button.selected');
+                q.querySelectorAll('.option-button').forEach(opt => {
+                    opt.classList.remove('correct', 'incorrect');
+                    if (opt.dataset.correct === 'true') opt.classList.add('correct');
+                });
+                if (selected) {
+                    if (selected.dataset.correct === 'true') correctAnswers++; else selected.classList.add('incorrect');
+                }
+            });
+            const resultDiv = document.getElementById('comprehension-result'); resultDiv.style.display = 'block';
+            if (correctAnswers === questions.length) { resultDiv.textContent = '🎉 Correct! The evidence supports your findings.'; resultDiv.className = 'result-message correct'; }
+            else { resultDiv.textContent = `You got ${correctAnswers}/${questions.length} correct.`; resultDiv.className = 'result-message incorrect'; }
+        }
+        function resetComprehension() {
+            document.querySelectorAll('.option-button').forEach(item => item.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById('comprehension-result').style.display = 'none';
+        }
+
+        /* GAP FILL */
+        const gapAnswers = ['injunction', 'memorisation', 'statistical', 'fixation', 'licence']; 
+        let selectedGapWord = null; 
+        
+        function initGaps() {
+            const wordOptionsContainer = document.getElementById('gap-fill-options');
+            const options = Array.from(wordOptionsContainer.children);
+            shuffleArray(options);
+            options.forEach(option => { wordOptionsContainer.appendChild(option); option.classList.remove('used', 'selected'); });
+            document.querySelectorAll('.gap-input').forEach(blank => { blank.textContent = '____'; blank.classList.remove('correct', 'incorrect', 'selected'); });
+            selectedGapWord = null; document.getElementById('gap-result').style.display = 'none';
+        }
+        
+        function handleGapBlankClick(blank) {
+            if (blank.textContent.trim() !== '' && blank.textContent.trim() !== '____') { 
+                const cleanedWord = blank.textContent; 
+                const btn = Array.from(document.querySelectorAll('.word-option')).find(b => b.textContent === cleanedWord);
+                if (btn) btn.classList.remove('used');
+                blank.textContent = '____'; blank.classList.remove('correct', 'incorrect', 'filled');
+                return;
+            } 
+            if (selectedGapWord) {
+                blank.textContent = selectedGapWord.textContent.trim();
+                blank.classList.add('filled');
+                selectedGapWord.classList.remove('selected'); selectedGapWord.classList.add('used');
+                selectedGapWord = null;
+            } 
+        }
+        
+        function checkGaps() {
+            let correctCount = 0;
+            let attemptedCount = 0;
+            const blanks = document.querySelectorAll('.gap-input');
+            
+            blanks.forEach(blank => { 
+                const answerWord = blank.dataset.answer;
+                const extractedWord = blank.textContent.trim();
+                
+                // Clear state
+                blank.classList.remove('selected', 'incorrect');
+                
+                // SKIP IF EMPTY: logic to handle partial completion
+                if (!extractedWord || extractedWord === '____' || extractedWord === '') {
+                    return;
+                }
+                
+                attemptedCount++;
+
+                if (extractedWord.toLowerCase() === answerWord.toLowerCase()) { 
+                    blank.classList.add('correct'); correctCount++; 
+                } else { 
+                    blank.classList.add('incorrect');
+                    saveMistake(answerWord); // Only save if they actually attempted it
+                }
+            });
+
+            const resultDiv = document.getElementById('gap-result'); resultDiv.style.display = 'block';
+            
+            if (correctCount === blanks.length) { 
+                resultDiv.textContent = '🎉 Perfect! Legal arguments sound.'; 
+                resultDiv.className = 'result-message correct';
+                resultDiv.style.backgroundColor = ''; resultDiv.style.color = ''; resultDiv.style.borderColor = '';
+            } else if (attemptedCount === 0) {
+                resultDiv.textContent = 'Please fill in a word first.'; 
+                resultDiv.className = 'result-message incorrect';
+                resultDiv.style.backgroundColor = '#F1F5F9'; resultDiv.style.color = '#64748B'; resultDiv.style.borderColor = '#CBD5E1';
+            } else if (correctCount === attemptedCount) {
+                resultDiv.textContent = `Good start! ${correctCount} correct so far.`; 
+                resultDiv.className = 'result-message correct';
+                resultDiv.style.backgroundColor = '#FEF3C7'; resultDiv.style.color = '#B45309'; resultDiv.style.borderColor = '#FCD34D';
+            } else { 
+                resultDiv.textContent = `You got ${correctCount} correct out of ${attemptedCount} attempted.`; 
+                resultDiv.className = 'result-message incorrect'; 
+                resultDiv.style.backgroundColor = ''; resultDiv.style.color = ''; resultDiv.style.borderColor = '';
+            }
+        }
+
+        function resetGaps() {
+            initGaps();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkUser(); initVocab(); initGaps();
+            document.querySelectorAll('#learned-words-list li').forEach(li => li.addEventListener('click', (e) => { e.stopPropagation(); showDictionaryPopup(li, li.dataset.word); }));
+            document.querySelectorAll('.option-button').forEach(item => item.addEventListener('click', () => {
+                item.closest('.question').querySelectorAll('.option-button').forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect'));
+                item.classList.add('selected'); document.getElementById('comprehension-result').style.display = 'none';
+            }));
+            document.querySelectorAll('.word-option').forEach(option => option.addEventListener('click', () => {
+                if (option.classList.contains('used')) return;
+                if (selectedGapWord) selectedGapWord.classList.remove('selected');
+                if (selectedGapWord === option) selectedGapWord = null;
+                else { selectedGapWord = option; selectedGapWord.classList.add('selected'); }
+            }));
+            document.querySelectorAll('.gap-input').forEach(blank => blank.addEventListener('click', () => handleGapBlankClick(blank)));
+        });
+    </script>
+</body>
+</html>
