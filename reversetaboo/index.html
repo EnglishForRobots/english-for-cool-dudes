@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taboo Challenge - English For Cool Dudes</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* --- COOL DUDES BRANDING (Exact copy from Matching Game) --- */
+        :root {
+            --color-primary: #0EA5E9; /* Sky Blue */
+            --color-secondary: #8B5CF6; /* Violet */
+            --color-accent: #F472B6; /* Pink */
+            --color-background: #F0F9FF; /* Very Light Blue */
+            --color-text: #0F172A; /* Dark Slate */
+            --color-correct: #10B981;
+            --color-incorrect: #EF4444;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background: var(--color-background); 
+            color: var(--color-text); 
+            margin: 0; 
+            overflow-x: hidden; 
+        }
+
+        /* Header Styles */
+        .header {
+            background: #FFFFFF;
+            border-bottom: 1px solid #E2E8F0;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            margin-bottom: 20px;
+        }
+
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .site-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--color-text);
+            letter-spacing: -0.02em;
+            text-decoration: none;
+        }
+
+        .container { 
+            max-width: 800px; /* Slightly narrower for this game type */
+            margin: 0 auto; 
+            padding: 20px; 
+            text-align: center; 
+            min-height: 80vh; 
+        }
+        
+        /* Game Controls */
+        .controls {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #E5E9F2;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+        }
+        
+        label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        select {
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 2px solid #E2E8F0;
+            font-size: 15px;
+            background: #FFFFFF;
+            color: #2C3E50;
+            cursor: pointer;
+            min-width: 200px;
+            transition: border-color 0.2s;
+        }
+        select:hover, select:focus {
+            border-color: var(--color-secondary);
+            outline: none;
+        }
+
+        .btn { 
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%); 
+            color: white; 
+            padding: 12px 30px; 
+            border-radius: 8px; 
+            text-decoration: none; 
+            border: none; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-weight: 700;
+            transition: transform 0.2s, box-shadow 0.2s;
+            height: 46px;
+            margin-top: 19px; 
+        }
+        .btn:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); 
+        }
+
+        /* --- NEW GAME STYLES (Specific to Taboo) --- */
+        
+        /* The "Question" Box */
+        .definition-card {
+            background: #FFFFFF;
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid #E2E8F0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            display: none; /* Hidden until start */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+        }
+
+        .definition-text {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2C3E50;
+            line-height: 1.5;
+        }
+
+        .hint-text {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #A0AEC0;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* The Options Grid */
+        .options-grid {
+            display: none; /* Hidden until start */
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid #E2E8F0;
+            border-bottom: 4px solid #E2E8F0;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #4A5568;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .option-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+        .option-btn:active {
+            transform: translateY(2px);
+            border-bottom-width: 2px;
+        }
+
+        /* Feedback States */
+        .option-btn.correct {
+            background: #C6F6D5 !important;
+            border-color: var(--color-correct) !important;
+            color: #065F46 !important;
+            pointer-events: none;
+        }
+        .option-btn.incorrect {
+            background: #FEE2E2 !important;
+            border-color: var(--color-incorrect) !important;
+            color: #991B1B !important;
+            animation: shake 0.4s;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: #E2E8F0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            display: none;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--color-primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+        
+        /* Footer match */
+        footer { background: #FFFFFF; border-top: 1px solid #E5E9F2; padding: 32px 20px; margin-top: 60px; text-align: center; }
+        footer p { font-size: 14px; color: #718096; }
+        footer a { color: var(--color-secondary); margin: 0 10px; text-decoration: none; }
+        
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed; top:0; left:0; right:0; bottom:0;
+            background: rgba(255,255,255,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            font-weight: bold;
+            color: var(--color-secondary);
+        }
+
+        /* --- CONFETTI & MODAL (Kept same) --- */
+        .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5000; overflow: hidden; display: none; }
+        .confetti-piece { position: absolute; top: -50px; font-size: 2rem; animation: fall linear forwards; }
+        @keyframes fall { 0% { transform: translateY(-50px) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
+
+        /* Win Modal */
+        #win-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 6000; }
+        .win-content { background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 500px; width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: pop 0.4s ease-out; }
+        .win-title { font-size: 32px; font-weight: 800; color: var(--color-secondary); margin-bottom: 10px; }
+        .win-text { font-size: 18px; color: #4A5568; margin-bottom: 30px; }
+        .win-buttons { display: flex; flex-direction: column; gap: 10px; }
+        .win-btn { padding: 12px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; font-size: 16px; transition: transform 0.2s; }
+        .btn-primary { background: var(--color-correct); color: white; }
+        .btn-secondary { background: #EDF2F7; color: #4A5568; }
+        .win-btn:hover { transform: scale(1.02); }
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left" style="display: flex; align-items: center; gap: 15px;">
+                <span class="logo">🧠</span>
+                <a href="/games/" class="site-title">English For Cool Dudes</a>
+            </div>
+        </div>
+    </header>
+
+    <div id="loading-overlay">Loading your challenge...</div>
+    <div id="confettiContainer" class="confetti-container"></div>
+
+    <div id="win-modal">
+        <div class="win-content">
+            <div class="win-title">🎉 Taboo Master!</div>
+            <div class="win-text" id="win-message">You scored X points!</div>
+            <div class="win-buttons">
+                <button class="win-btn btn-primary" onclick="closeModalAndRestart()">🔄 Play Again</button>
+                <button class="win-btn btn-secondary" onclick="closeModalAndNewLevel()">📈 Change Level</button>
+                <button class="win-btn btn-secondary" onclick="closeModalAndNewTheme()">🎨 Change Topic</button>
+                <button class="win-btn btn-secondary" onclick="window.location.href='/games/'" style="border: 2px solid #E2E8F0; color: #2C3E50;">☕ Back to The Break Room</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1 style="color:#1A202C; margin-bottom:10px;">🤫 Taboo Challenge</h1>
+        <p style="color:#718096; margin-bottom:20px; font-size: 1.1rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+            Read the definition. <strong>Guess the word.</strong><br>
+            Don't let the distractors fool you!
+        </p>
+        
+        <div class="controls" id="controls-area">
+            <div class="control-group">
+                <label for="themeSelect">Choose Topic</label>
+                <select id="themeSelect" onchange="handleThemeChange()">
+                    <option value="business">Business English</option>
+                    <option value="tax">Tax & Finance</option>
+                    <option value="legal">Legal English</option>
+                    <option value="holidays">Holidays & Travel</option>
+                    <option value="work">Office Life</option>
+                    <option value="geography">Geography & Culture</option>
+                    <option value="mistakes" style="font-weight:bold; color:#E53E3E;">🚨 My Personal Mistakes</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="levelSelect">Choose Level</label>
+                <select id="levelSelect">
+                    <option value="beginner">Beginner (A1-A2)</option>
+                    <option value="intermediate">Intermediate (B1-B2)</option>
+                    <option value="advanced">Advanced (C1-C2)</option>
+                </select>
+            </div>
+            
+            <button class="btn" id="startBtn" onclick="initGame()">Start Game</button>
+        </div>
+
+        <div class="progress-container" id="progressBar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div id="gameArea">
+            <div class="definition-card" id="defCard">
+                <div class="hint-text">Definition</div>
+                <div class="definition-text" id="defText">Select a theme to start...</div>
+            </div>
+
+            <div class="options-grid" id="optionsGrid">
+                </div>
+        </div>
+
+        <a href="/games/" style="display:inline-block; margin-top:30px; color: var(--color-secondary); text-decoration: none; font-weight:600;">&larr; Back to Break Room ☕</a>
+    </div>
+
+    <footer>
+        <p>© 2025 English For Cool Dudes - 😎</p>
+        <div style="margin-top: 10px;">
+            <a href="/impressum/">Impressum</a>
+            <a href="/datenschutz/">Datenschutzerklärung</a>
+        </div>
+    </footer>
+
+    <script>
+        // --- SUPABASE CONFIG ---
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // --- VOCABULARY DATABASE (EXACT SAME AS MEMORY GAME) ---
+        const vocabulary = {
+            business: {
+                beginner: [{w:"Boss", m:"Manager"}, {w:"Job", m:"Work"}, {w:"Staff", m:"Employees"}, {w:"Salary", m:"Pay"}, {w:"Office", m:"Workplace"}, {w:"Desk", m:"Table"}, {w:"Meeting", m:"Discussion"}, {w:"Email", m:"Digital Mail"}, {w:"Client", m:"Customer"}, {w:"Bonus", m:"Extra Pay"}, {w:"Sales", m:"Selling"}, {w:"Team", m:"Group"}, {w:"Buy", m:"Purchase"}, {w:"Sell", m:"Exchange money"}, {w:"Cost", m:"Price"}, {w:"Plan", m:"Strategy"}, {w:"Goal", m:"Target"}, {w:"Risk", m:"Danger"}, {w:"Safe", m:"Secure"}, {w:"Growth", m:"Getting bigger"}, {w:"Shop", m:"Store"}, {w:"Market", m:"Place to trade"}, {w:"Cheap", m:"Low price"}, {w:"Expensive", m:"High price"}, {w:"Cashier", m:"Takes money"}, {w:"Open", m:"Start business"}, {w:"Close", m:"End business"}, {w:"Win", m:"Succeed"}, {w:"Lose", m:"Fail"}, {w:"Busy", m:"Lots to do"}, {w:"Time", m:"Hours/Minutes"}, {w:"Date", m:"Calendar day"}, {w:"Manager", m:"Boss"}, {w:"Worker", m:"Staff member"}, {w:"File", m:"Document holder"}, {w:"Copy", m:"Duplicate"}, {w:"Print", m:"Put on paper"}, {w:"Call", m:"Phone someone"}, {w:"Talk", m:"Speak"}, {w:"Help", m:"Assist"}, {w:"Idea", m:"Thought"}, {w:"New", m:"Not old"}, {w:"Good", m:"Positive"}, {w:"Bad", m:"Negative"}, {w:"Money", m:"Currency"}, {w:"Cash", m:"Coins/Notes"}, {w:"Card", m:"Plastic payment"}, {w:"Bank", m:"Money store"}, {w:"Save", m:"Keep money"}, {w:"Spend", m:"Use money"}, {w:"Rich", m:"Wealthy"}, {w:"Poor", m:"No money"}, {w:"Bill", m:"Payment request"}, {w:"Learn", m:"Gain knowledge"}, {w:"Teach", m:"Give knowledge"}, {w:"Write", m:"Put text down"}, {w:"Read", m:"Look at text"}, {w:"Sign", m:"Write name"}, {w:"Name", m:"What you are called"}, {w:"Number", m:"Digit"}],
+                intermediate: [{w:"Agenda", m:"Plan for meeting"}, {w:"Deadline", m:"Due date"}, {w:"Invoice", m:"Bill"}, {w:"Colleague", m:"Co-worker"}, {w:"Resign", m:"Quit job"}, {w:"Apply", m:"Ask for job"}, {w:"Promotion", m:"Better job"}, {w:"Budget", m:"Spending plan"}, {w:"Strategy", m:"Long-term plan"}, {w:"Negotiate", m:"Discuss deal"}, {w:"Recruit", m:"Hire people"}, {w:"Contract", m:"Legal agreement"}, {w:"Marketing", m:"Promoting products"}, {w:"Forecast", m:"Prediction"}, {w:"Competitor", m:"Market rival"}, {w:"Expansion", m:"Growth"}, {w:"Retail", m:"Selling to public"}, {w:"Wholesale", m:"Selling to shops"}, {w:"Supply Chain", m:"Flow of goods"}, {w:"Brand", m:"Company image"}, {w:"Launch", m:"Start product"}, {w:"Investment", m:"Putting money in"}, {w:"Profit Margin", m:"Percentage gain"}, {w:"CEO", m:"Chief Executive"}, {w:"Consumer", m:"End user"}, {w:"Demand", m:"Need for product"}, {w:"Supply", m:"Available product"}, {w:"Warranty", m:"Repair promise"}, {w:"Guarantee", m:"Promise of quality"}, {w:"Refund", m:"Money back"}, {w:"Feedback", m:"Customer opinion"}, {w:"Inventory", m:"Stock list"}, {w:"Shipment", m:"Sent goods"}, {w:"Startup", m:"New company"}, {w:"Franchise", m:"Licence to operate"}, {w:"Administration", m:"Management tasks"}, {w:"Advertising", m:"Public promotion"}, {w:"Campaign", m:"Planned actions"}, {w:"Clause", m:"Contract section"}, {w:"Consultant", m:"Expert advisor"}, {w:"Currency", m:"Type of money"}, {w:"Deficit", m:"Loss amount"}, {w:"Distribution", m:"Delivery process"}, {w:"Employer", m:"Job giver"}, {w:"Employee", m:"Job holder"}, {w:"Executive", m:"Senior manager"}, {w:"Facilities", m:"Buildings/Equipment"}, {w:"Headquarters", m:"Main office"}, {w:"Human Resources", m:"Staff dept"}, {w:"Insurance", m:"Protection policy"}, {w:"Interest", m:"Cost of borrowing"}, {w:"Leadership", m:"Guiding others"}, {w:"Logistics", m:"Organizing transport"}, {w:"Objective", m:"Specific goal"}, {w:"Opportunity", m:"Chance for success"}, {w:"Partnership", m:"Joint business"}, {w:"Proposal", m:"Suggestion plan"}, {w:"Quarterly", m:"Every 3 months"}, {w:"Recession", m:"Economic decline"}, {w:"Regulation", m:"Official rule"}],
+                advanced: [{w:"Merger", m:"Joining companies"}, {w:"Acquisition", m:"Buying a company"}, {w:"Stakeholder", m:"Interested party"}, {w:"Revenue", m:"Income"}, {w:"Quarter", m:"3 month period"}, {w:"Liabilities", m:"Debts"}, {w:"Assets", m:"Items of value"}, {w:"Turnover", m:"Total sales"}, {w:"Bankruptcy", m:"Financial ruin"}, {w:"Dividend", m:"Profit share"}, {w:"Equity", m:"Ownership value"}, {w:"Outsource", m:"Use external help"}, {w:"Diversification", m:"New variety"}, {w:"Subsidiary", m:"Child company"}, {w:"Conglomerate", m:"Multi-industry co"}, {w:"Benchmark", m:"Standard point"}, {w:"Niche", m:"Specialized market"}, {w:"Monopoly", m:"Dominant seller"}, {w:"Oligopoly", m:"Few sellers"}, {w:"Fiscal Policy", m:"Gov spend/tax"}, {w:"Macroeconomics", m:"Large scale econ"}, {w:"Headhunter", m:"Talent scout"}, {w:"Golden Handshake", m:"Severance pay"}, {w:"Blue Chip", m:"Reliable stock"}, {w:"IPO", m:"Initial Public Offer"}, {w:"Venture Capital", m:"Risk money"}, {w:"Crowdfunding", m:"Public funding"}, {w:"Scalability", m:"Ability to grow"}, {w:"Disruptive", m:"Changing the market"}, {w:"ROI", m:"Return on Invest"}, {w:"Bottleneck", m:"Process blockage"}, {w:"Logistics", m:"Organization"}, {w:"Procurement", m:"Obtaining goods"}, {w:"B2B", m:"Business to Business"}, {w:"B2C", m:"Business to Client"}, {w:"Amortization", m:"Spreading cost"}, {w:"Arbitration", m:"Dispute settling"}, {w:"Audit", m:"Official inspection"}, {w:"Bailout", m:"Financial rescue"}, {w:"Bear Market", m:"Falling prices"}, {w:"Bull Market", m:"Rising prices"}, {w:"Bureaucracy", m:"Red tape"}, {w:"Capitalism", m:"Free market system"}, {w:"Commodity", m:"Raw material"}, {w:"Compliance", m:"Obeying laws"}, {w:"Copyright", m:"Intellectual right"}, {w:"Corporate Governance", m:"Company control"}, {w:"Depreciation", m:"Loss of value"}, {w:"Economies of Scale", m:"Savings by growth"}, {w:"Embargo", m:"Trade ban"}, {w:"Fiscal Year", m:"Financial year"}, {w:"Fluctuate", m:"Change often"}, {w:"Globalization", m:"World interaction"}, {w:"Infrastructure", m:"Basic systems"}, {w:"Insolvency", m:"Cannot pay debts"}, {w:"Joint Venture", m:"Shared project"}, {w:"Lucrative", m:"Very profitable"}, {w:"Market Saturation", m:"No more demand"}, {w:"Offshoring", m:"Moving overseas"}, {w:"Patent", m:"Invention right"}]
+            },
+            tax: {
+                beginner: [{w:"Tax", m:"Money to gov"}, {w:"Pay", m:"Give money"}, {w:"Year", m:"12 Months"}, {w:"Money", m:"Cash/Coin"}, {w:"Bank", m:"Money store"}, {w:"Save", m:"Keep money"}, {w:"Bill", m:"Request for pay"}, {w:"Price", m:"Cost"}, {w:"Rich", m:"Wealthy"}, {w:"Poor", m:"No money"}, {w:"Cash", m:"Physical money"}, {w:"Card", m:"Plastic money"}, {w:"Spend", m:"Use money"}, {w:"Work", m:"Earn money"}, {w:"Date", m:"Day/Month/Year"}, {w:"High", m:"A lot"}, {w:"Low", m:"A little"}, {w:"Free", m:"No cost"}, {w:"Buy", m:"Purchase"}, {w:"Check", m:"Review"}, {w:"Sign", m:"Write name"}, {w:"Form", m:"Paper to fill"}, {w:"Help", m:"Assist"}, {w:"Wait", m:"Stay for time"}, {w:"Give", m:"Provide"}, {w:"Take", m:"Receive"}, {w:"Paper", m:"Document"}, {w:"Office", m:"Work place"}, {w:"Home", m:"House"}, {w:"Car", m:"Vehicle"}, {w:"Job", m:"Employment"}, {w:"Boss", m:"Manager"}, {w:"Time", m:"Clock"}, {w:"Late", m:"Not early"}, {w:"Pen", m:"Ink tool"}, {w:"Safe", m:"Secure box"}, {w:"Count", m:"Find number"}, {w:"Total", m:"Sum"}, {w:"Add", m:"Plus"}, {w:"Less", m:"Minus"}, {w:"Cost", m:"Value"}, {w:"List", m:"Series of names"}],
+                intermediate: [{w:"VAT", m:"Value Added Tax"}, {w:"Refund", m:"Money back"}, {w:"Income Tax", m:"Tax on earnings"}, {w:"Receipt", m:"Proof of buy"}, {w:"Audit", m:"Check records"}, {w:"Deduction", m:"Lowers tax"}, {w:"Profit", m:"Earnings"}, {w:"Loss", m:"Lost money"}, {w:"Declare", m:"Report income"}, {w:"Gross", m:"Before tax"}, {w:"Net", m:"After tax"}, {w:"Bracket", m:"Tax category"}, {w:"Allowance", m:"Tax-free limit"}, {w:"Duty", m:"Import tax"}, {w:"Fine", m:"Penalty fee"}, {w:"Interest", m:"Bank bonus/fee"}, {w:"Loan", m:"Borrowed money"}, {w:"Debt", m:"Owed money"}, {w:"Accountant", m:"Tax expert"}, {w:"Bookkeeping", m:"Recording money"}, {w:"Deadline", m:"Final day"}, {w:"Penalty", m:"Punishment fee"}, {w:"Reimburse", m:"Pay back"}, {w:"Expenses", m:"Costs incurred"}, {w:"Salary", m:"Monthly pay"}, {w:"Wage", m:"Hourly pay"}, {w:"Overhead", m:"Running costs"}, {w:"Currency", m:"Type of money"}, {w:"Exchange", m:"Swap currency"}, {w:"Resident", m:"Living in place"}, {w:"Non-resident", m:"Living abroad"}, {w:"Spouse", m:"Husband/Wife"}, {w:"Dependent", m:"Child/Reliant"}, {w:"Property", m:"Building/Land"}, {w:"Rental", m:"Leased property"}, {w:"Donation", m:"Gift to charity"}, {w:"Invest", m:"Put money to grow"}, {w:"Pension", m:"Retirement fund"}, {w:"Bonus", m:"Extra payment"}, {w:"Commission", m:"Sales pay"}, {w:"Freelancer", m:"Self-employed"}, {w:"Client", m:"Customer"}, {w:"Consultancy", m:"Expert advice"}, {w:"Invoice", m:"Request for payment"}, {w:"Ledger", m:"Account book"}],
+                advanced: [{w:"Jurisdiction", m:"Legal territory"}, {w:"Compliance", m:"Following rules"}, {w:"Exempt", m:"Tax free"}, {w:"Remittance", m:"Sending money"}, {w:"Fiscal Year", m:"Financial year"}, {w:"Threshold", m:"Limit"}, {w:"Liability", m:"Legal debt"}, {w:"Evasion", m:"Illegal non-pay"}, {w:"Avoidance", m:"Legal reducing"}, {w:"Offshore", m:"Foreign country"}, {w:"Capital Gains", m:"Profit on assets"}, {w:"Levy", m:"Impose tax"}, {w:"Amortization", m:"Intangible loss"}, {w:"Depreciation", m:"Asset value loss"}, {w:"Solvency", m:"Ability to pay"}, {w:"Liquidity", m:"Cash availability"}, {w:"Loophole", m:"Legal gap"}, {w:"Rebate", m:"Retroactive refund"}, {w:"Subsidy", m:"Gov support"}, {w:"Tariff", m:"Trade tax"}, {w:"Withholding", m:"Retained tax"}, {w:"Inheritance Tax", m:"Death duty"}, {w:"Excise", m:"Goods tax"}, {w:"Tax Haven", m:"Low tax country"}, {w:"Double Taxation", m:"Taxed twice"}, {w:"Write-off", m:"Cancel debt"}, {w:"Fiscal Drag", m:"Inflation tax rise"}, {w:"Hidden Economy", m:"Untaxed work"}, {w:"Provisional", m:"Temporary"}, {w:"Arrears", m:"Late payments"}, {w:"Insolvent", m:"Cannot pay debts"}, {w:"Creditor", m:"Lender"}, {w:"Debtor", m:"Borrower"}, {w:"Dividend", m:"Shareholder pay"}, {w:"Domicile", m:"Permanent home"}, {w:"Expatriate", m:"Living abroad"}, {w:"Fringe Benefit", m:"Non-cash pay"}, {w:"Tax Bracket", m:"Rate band"}, {w:"Surcharge", m:"Extra charge"}, {w:"Audit Trail", m:"Proof path"}, {w:"Beneficiary", m:"Receiver of funds"}, {w:"Disbursement", m:"Paying out"}, {w:"Encumbrance", m:"Claim on asset"}, {w:"Fiduciary", m:"Trustee"}, {w:"Indemnity", m:"Security against loss"}, {w:"Liquidation", m:"Selling assets"}, {w:"Yield", m:"Return on invest"}]
+            },
+            legal: {
+                beginner: [{w:"Law", m:"Rules"}, {w:"Judge", m:"Decision maker"}, {w:"Police", m:"Enforcers"}, {w:"Crime", m:"Bad act"}, {w:"Jail", m:"Prison"}, {w:"Rules", m:"Regulations"}, {w:"Fair", m:"Just"}, {w:"Vote", m:"Choose"}, {w:"Fine", m:"Money penalty"}, {w:"Stop", m:"Halt"}, {w:"Right", m:"Correct/Just"}, {w:"Wrong", m:"Incorrect"}, {w:"Steal", m:"Take illegally"}, {w:"Kill", m:"End life"}, {w:"Lie", m:"Untruth"}, {w:"Truth", m:"Fact"}, {w:"Help", m:"Assist"}, {w:"Bad", m:"Not good"}, {w:"Good", m:"Not bad"}, {w:"Hit", m:"Strike"}, {w:"Run", m:"Flee"}, {w:"See", m:"Witness"}, {w:"Say", m:"Speak"}, {w:"Paper", m:"Document"}, {w:"Name", m:"Identity"}, {w:"Sign", m:"Write name"}, {w:"Date", m:"Time"}, {w:"Place", m:"Location"}, {w:"Man", m:"Male person"}, {w:"Woman", m:"Female person"}, {w:"Child", m:"Young person"}, {w:"Family", m:"Relatives"}, {w:"House", m:"Home"}, {w:"Car", m:"Vehicle"}, {w:"Money", m:"Cash"}, {w:"Bank", m:"Finance place"}, {w:"Work", m:"Job"}, {w:"Time", m:"Duration"}, {w:"Day", m:"24 hours"}, {w:"Ask", m:"Question"}, {w:"Tell", m:"Inform"}, {w:"Listen", m:"Hear"}],
+                intermediate: [{w:"Contract", m:"Agreement"}, {w:"Lawyer", m:"Attorney"}, {w:"Guilty", m:"Did it"}, {w:"Innocent", m:"Didn't do it"}, {w:"Witness", m:"Saw the crime"}, {w:"Court", m:"Place of trial"}, {w:"Sue", m:"Legal action"}, {w:"Trial", m:"Legal process"}, {w:"Evidence", m:"Proof"}, {w:"Jury", m:"Citizen judges"}, {w:"Verdict", m:"Final decision"}, {w:"Sentence", m:"Punishment"}, {w:"Bail", m:"Release money"}, {w:"Warrant", m:"Police permission"}, {w:"Arrest", m:"Take into custody"}, {w:"Plea", m:"Formal answer"}, {w:"Hearing", m:"Court session"}, {w:"Appeal", m:"Request review"}, {w:"Custody", m:"Care/Control"}, {w:"Divorce", m:"End marriage"}, {w:"Tenant", m:"Renter"}, {w:"Landlord", m:"Property owner"}, {w:"Evict", m:"Kick out"}, {w:"Will", m:"Death wish"}, {w:"Estate", m:"Total property"}, {w:"Valid", m:"Legally correct"}, {w:"Void", m:"Invalid"}, {w:"Signature", m:"Signed name"}, {w:"Statement", m:"Written account"}, {w:"Rights", m:"Entitlements"}, {w:"Obligation", m:"Duty"}, {w:"Terms", m:"Conditions"}, {w:"Party", m:"Person in contract"}, {w:"Dispute", m:"Argument"}, {w:"Claim", m:"Demand"}, {w:"Damage", m:"Harm"}, {w:"Compensation", m:"Payment for harm"}, {w:"Insurance", m:"Protection"}, {w:"Policy", m:"Rules"}, {w:"Regulation", m:"Official rule"}, {w:"Compliance", m:"Obeying rules"}, {w:"Violation", m:"Breaking rule"}, {w:"Fine", m:"Money penalty"}, {w:"Fee", m:"Cost for service"}, {w:"Tax", m:"Gov money"}],
+                advanced: [{w:"Plaintiff", m:"Accuser"}, {w:"Defendant", m:"Accused"}, {w:"Litigation", m:"Legal action"}, {w:"Clause", m:"Contract part"}, {w:"Breach", m:"Break contract"}, {w:"Liability", m:"Responsibility"}, {w:"Intellectual Property", m:"Ideas/Creations"}, {w:"Due Diligence", m:"Careful check"}, {w:"Arbitration", m:"Private settling"}, {w:"Jurisprudence", m:"Theory of law"}, {w:"Statute", m:"Written law"}, {w:"Precedent", m:"Previous case"}, {w:"Affidavit", m:"Sworn statement"}, {w:"Subpoena", m:"Order to attend"}, {w:"Indictment", m:"Formal charge"}, {w:"Perjury", m:"Lying in court"}, {w:"Negligence", m:"Lack of care"}, {w:"Settlement", m:"Agreed resolution"}, {w:"Injunction", m:"Court order to stop"}, {w:"Tort", m:"Civil wrong"}, {w:"Misdemeanor", m:"Minor crime"}, {w:"Felony", m:"Major crime"}, {w:"Parole", m:"Early release"}, {w:"Probation", m:"Monitored freedom"}, {w:"Acquit", m:"Declare innocent"}, {w:"Alibi", m:"Proof of absence"}, {w:"Power of Attorney", m:"Legal proxy"}, {w:"Class Action", m:"Group lawsuit"}, {w:"Pro Bono", m:"Free legal work"}, {w:"Barrister", m:"Court lawyer (UK)"}, {w:"Solicitor", m:"Advisor lawyer (UK)"}, {w:"Libel", m:"Written defamation"}, {w:"Slander", m:"Spoken defamation"}, {w:"Habeas Corpus", m:"Right to trial"}, {w:"Act of God", m:"Natural disaster"}, {w:"Force Majeure", m:"Unforeseeable event"}, {w:"Copyright", m:"Creative right"}, {w:"Trademark", m:"Brand right"}, {w:"Patent", m:"Invention right"}, {w:"Confidentiality", m:"Secrecy"}, {w:"Non-disclosure", m:"Secret agreement"}, {w:"Non-compete", m:"Rivalry ban"}, {w:"Jurisdiction", m:"Legal territory"}, {w:"Malpractice", m:"Professional fail"}, {w:"Testimony", m:"Witness statement"}, {w:"Deposition", m:"Pre-trial statement"}, {w:"Contempt", m:"Disrespect court"}, {w:"Extradition", m:"Send prisoner back"}]
+            },
+            holidays: {
+                beginner: [{w:"Hotel", m:"Place to sleep"}, {w:"Beach", m:"Sand and sea"}, {w:"Sun", m:"Hot star"}, {w:"Swim", m:"Move in water"}, {w:"Plane", m:"Air travel"}, {w:"Ticket", m:"Pass"}, {w:"Bag", m:"Suitcase"}, {w:"Map", m:"Guide"}, {w:"Bus", m:"Transport"}, {w:"Train", m:"Rail transport"}, {w:"Trip", m:"Journey"}, {w:"Tent", m:"Camping house"}, {w:"Walk", m:"Go on foot"}, {w:"Eat", m:"Consume food"}, {w:"Rest", m:"Relax"}, {w:"Photo", m:"Picture"}, {w:"Taxi", m:"Car service"}, {w:"Fly", m:"Travel by air"}, {w:"Drive", m:"Operate car"}, {w:"Ship", m:"Big boat"}, {w:"Boat", m:"Small ship"}, {w:"Sea", m:"Ocean"}, {w:"Pool", m:"Swimming area"}, {w:"Bed", m:"Sleep furniture"}, {w:"Food", m:"Meal"}, {w:"Drink", m:"Beverage"}, {w:"Water", m:"Liquid"}, {w:"Hot", m:"High temp"}, {w:"Cold", m:"Low temp"}, {w:"Rain", m:"Wet weather"}, {w:"Snow", m:"White weather"}, {w:"Friend", m:"Pal"}, {w:"Fun", m:"Enjoyment"}, {w:"Happy", m:"Good feeling"}, {w:"Tired", m:"Sleepy"}, {w:"Sleep", m:"Rest eyes"}, {w:"Door", m:"Entrance"}, {w:"Key", m:"Opener"}, {w:"Room", m:"Space"}, {w:"View", m:"Look out"}, {w:"City", m:"Big town"}, {w:"Town", m:"Small city"}],
+                intermediate: [{w:"Reservation", m:"Booking"}, {w:"Passport", m:"Travel ID"}, {w:"Luggage", m:"Bags"}, {w:"Sightseeing", m:"Visiting places"}, {w:"Souvenir", m:"Keepsake"}, {w:"Customs", m:"Border check"}, {w:"Delayed", m:"Late"}, {w:"Boarding", m:"Getting on"}, {w:"Arrival", m:"Coming in"}, {w:"Departure", m:"Leaving"}, {w:"Resort", m:"Holiday complex"}, {w:"Cruise", m:"Ship holiday"}, {w:"Hostel", m:"Cheap stay"}, {w:"Backpack", m:"Rucksack"}, {w:"Terminal", m:"Airport building"}, {w:"Guide", m:"Tour leader"}, {w:"Local", m:"Native person"}, {w:"Foreign", m:"From abroad"}, {w:"Currency", m:"Local money"}, {w:"Passenger", m:"Traveler"}, {w:"Cabin", m:"Room on ship"}, {w:"Suite", m:"Luxury room"}, {w:"Vacancy", m:"Empty room"}, {w:"Direct", m:"No stops"}, {w:"Reception", m:"Front desk"}, {w:"Check-in", m:"Register arrival"}, {w:"Check-out", m:"Register leaving"}, {w:"View", m:"Scenery"}, {w:"Tour", m:"Planned trip"}, {w:"Monument", m:"Historic statue"}, {w:"Museum", m:"History house"}, {w:"Gallery", m:"Art house"}, {w:"Restaurant", m:"Eating place"}, {w:"Cafe", m:"Coffee shop"}, {w:"Bar", m:"Drink shop"}, {w:"Nightlife", m:"Evening fun"}, {w:"Adventure", m:"Exciting trip"}, {w:"Relax", m:"Calm down"}, {w:"Explore", m:"Discover"}, {w:"Culture", m:"Local way"}, {w:"Tradition", m:"Old custom"}, {w:"Language", m:"Speech"}, {w:"Translate", m:"Change language"}, {w:"Lost", m:"Don't know where"}, {w:"Map", m:"Plan of area"}],
+                advanced: [{w:"Itinerary", m:"Travel plan"}, {w:"Accommodation", m:"Place to stay"}, {w:"Excursion", m:"Short trip"}, {w:"Embark", m:"Get on ship"}, {w:"Heritage", m:"History/Culture"}, {w:"Destination", m:"End place"}, {w:"Jet lag", m:"Time zone tiredness"}, {w:"Layover", m:"Stop between flights"}, {w:"Visa", m:"Entry permit"}, {w:"Vaccination", m:"Health shot"}, {w:"Insurance", m:"Travel cover"}, {w:"Expedition", m:"Adventure trip"}, {w:"Pilgrimage", m:"Religious journey"}, {w:"Cuisine", m:"Local food style"}, {w:"Stopover", m:"Short stay"}, {w:"Eco-tourism", m:"Nature travel"}, {w:"Sabbatical", m:"Long work break"}, {w:"Unwind", m:"Relax deeply"}, {w:"All-inclusive", m:"Everything paid"}, {w:"Self-catering", m:"Cook yourself"}, {w:"Glamping", m:"Luxury camping"}, {w:"Staycation", m:"Holiday at home"}, {w:"Duty-free", m:"Tax-free shop"}, {w:"Disembark", m:"Get off ship"}, {w:"Consulate", m:"Gov office abroad"}, {w:"Embassy", m:"Main diplomat office"}, {w:"Repatriation", m:"Return to home"}, {w:"Globetrotter", m:"World traveler"}, {w:"Wanderlust", m:"Desire to travel"}, {w:"Off-peak", m:"Quiet season"}, {w:"Peak Season", m:"Busy time"}, {w:"Sustainable", m:"Eco-friendly"}, {w:"Authentic", m:"Real/Genuine"}, {w:"Hospitality", m:"Welcoming service"}, {w:"Amenities", m:"Facilities"}, {w:"Concierge", m:"Hotel helper"}, {w:"Valet", m:"Car parker"}, {w:"Upgrade", m:"Better level"}, {w:"Complimentary", m:"Free of charge"}, {w:"Transit", m:"Moving through"}, {w:"Voucher", m:"Coupon"}, {w:"Cancellation", m:"Stopping booking"}, {w:"Reimbursement", m:"Money back"}, {w:"Quarantine", m:"Health isolation"}, {w:"Immunization", m:"Disease protection"}, {w:"Interpreter", m:"Oral translator"}, {w:"Etiquette", m:"Polite behavior"}]
+            },
+            work: {
+                beginner: [{w:"Computer", m:"PC"}, {w:"Pen", m:"Writing tool"}, {w:"Lunch", m:"Midday meal"}, {w:"Break", m:"Rest time"}, {w:"Start", m:"Begin"}, {w:"Finish", m:"End"}, {w:"Phone", m:"Call tool"}, {w:"Help", m:"Assist"}, {w:"Task", m:"Job to do"}, {w:"Chair", m:"Seat"}, {w:"Screen", m:"Monitor"}, {w:"Type", m:"Use keyboard"}, {w:"File", m:"Document holder"}, {w:"Busy", m:"Active"}, {w:"Late", m:"Not on time"}, {w:"Paper", m:"Sheet to write"}, {w:"Coffee", m:"Morning drink"}, {w:"Talk", m:"Speak"}, {w:"Listen", m:"Hear"}, {w:"Read", m:"Look at text"}, {w:"Write", m:"Create text"}, {w:"Week", m:"Mon-Fri"}, {w:"Day", m:"Morning to night"}, {w:"Sick", m:"Ill/Unwell"}, {w:"Monday", m:"Day 1"}, {w:"Friday", m:"Day 5"}, {w:"Weekend", m:"Sat & Sun"}, {w:"Morning", m:"AM"}, {w:"Afternoon", m:"PM"}, {w:"Night", m:"Dark time"}, {w:"Desk", m:"Table"}, {w:"Door", m:"Entrance"}, {w:"Room", m:"Office space"}, {w:"Team", m:"Group"}, {w:"Boss", m:"Chief"}, {w:"Note", m:"Short writing"}, {w:"Book", m:"Pages"}, {w:"Send", m:"Dispatch"}, {w:"Get", m:"Receive"}, {w:"Make", m:"Create"}, {w:"Do", m:"Perform"}, {w:"Go", m:"Move"}],
+                intermediate: [{w:"Remote", m:"Work from home"}, {w:"Schedule", m:"Timetable"}, {w:"Shift", m:"Work hours"}, {w:"Overtime", m:"Extra hours"}, {w:"Payroll", m:"Salary list"}, {w:"Recruit", m:"Hire"}, {w:"Interview", m:"Job meeting"}, {w:"Resume", m:"CV/History"}, {w:"Training", m:"Learning"}, {w:"Supervisor", m:"Manager"}, {w:"Intern", m:"Trainee"}, {w:"Department", m:"Section"}, {w:"Project", m:"Specific task"}, {w:"Feedback", m:"Comments"}, {w:"Workshop", m:"Class"}, {w:"Conference", m:"Large meeting"}, {w:"Network", m:"Contacts"}, {w:"Retire", m:"Stop working age"}, {w:"Vacancy", m:"Open job"}, {w:"Application", m:"Request for job"}, {w:"Reference", m:"Previous boss rec"}, {w:"Notice", m:"Warning of leaving"}, {w:"Dismiss", m:"Fire someone"}, {w:"Employ", m:"Give job"}, {w:"Occupation", m:"Profession"}, {w:"Career", m:"Life work path"}, {w:"Assistant", m:"Helper"}, {w:"Secretary", m:"Admin helper"}, {w:"Manager", m:"Team leader"}, {w:"Director", m:"Head of dept"}, {w:"Contract", m:"Work agreement"}, {w:"Permanent", m:"Forever job"}, {w:"Temporary", m:"Short job"}, {w:"Part-time", m:"Half week"}, {w:"Full-time", m:"Whole week"}, {w:"Flexitime", m:"Flexible hours"}, {w:"Bonus", m:"Extra pay"}, {w:"Raise", m:"Pay increase"}, {w:"Strike", m:"Stop work protest"}, {w:"Union", m:"Worker group"}, {w:"Meeting", m:"Group talk"}, {w:"Minutes", m:"Meeting notes"}, {w:"Agenda", m:"Meeting plan"}, {w:"Presentation", m:"Showing info"}, {w:"Report", m:"Written info"}],
+                advanced: [{w:"Collaborate", m:"Work together"}, {w:"Efficiency", m:"Good work rate"}, {w:"Delegate", m:"Give tasks"}, {w:"Micro-manage", m:"Control too much"}, {w:"Appraisal", m:"Performance review"}, {w:"Burnout", m:"Exhaustion"}, {w:"Freelance", m:"Self-employed"}, {w:"Incentive", m:"Motivation"}, {w:"Redundant", m:"Not needed"}, {w:"Workflow", m:"Process steps"}, {w:"Synergy", m:"Combined effect"}, {w:"Paradigm", m:"Model/Pattern"}, {w:"Deliverable", m:"Product result"}, {w:"Proactive", m:"Taking initiative"}, {w:"Resilience", m:"Toughness"}, {w:"Brainstorm", m:"Idea generation"}, {w:"Hierarchy", m:"Rank structure"}, {w:"Nepotism", m:"Favoring family"}, {w:"Coworking", m:"Shared office"}, {w:"Hot-desking", m:"No fixed seat"}, {w:"Telecommute", m:"Work remotely"}, {w:"Gig economy", m:"Short-term jobs"}, {w:"Blue-collar", m:"Manual labor"}, {w:"White-collar", m:"Office labor"}, {w:"Headquarters", m:"Main office"}, {w:"Personnel", m:"HR/Staff"}, {w:"Qualifications", m:"Skills/Degrees"}, {w:"Tenure", m:"Job security"}, {w:"Severance", m:"End pay"}, {w:"Glass Ceiling", m:"Invisible barrier"}, {w:"Multitask", m:"Many jobs at once"}, {w:"Prioritize", m:"Rank importance"}, {w:"Deadline", m:"Time limit"}, {w:"Stakeholder", m:"Involved person"}, {w:"Entrepreneur", m:"Business starter"}, {w:"Innovation", m:"New creation"}, {w:"Automation", m:"Machine work"}, {w:"Outsourcing", m:"Contracting out"}, {w:"Downsizing", m:"Cutting staff"}, {w:"Restructuring", m:"Changing org"}, {w:"Mentorship", m:"Guiding others"}, {w:"Internship", m:"Work experience"}, {w:"Apprenticeship", m:"Learning trade"}, {w:"Probation", m:"Trial period"}, {w:"Sabbatical", m:"Career break"}, {w:"Workaholic", m:"Addicted to work"}, {w:"Turnover", m:"Staff leaving rate"}]
+            },
+            geography: {
+                beginner: [{w:"City", m:"Large town"}, {w:"River", m:"Flowing water"}, {w:"Mountain", m:"High land"}, {w:"Sea", m:"Ocean"}, {w:"Map", m:"Guide"}, {w:"World", m:"Earth"}, {w:"North", m:"Direction up"}, {w:"South", m:"Direction down"}, {w:"Lake", m:"Water body"}, {w:"East", m:"Direction right"}, {w:"West", m:"Direction left"}, {w:"Hill", m:"Small mountain"}, {w:"Road", m:"Street"}, {w:"Farm", m:"Food land"}, {w:"Park", m:"Green space"}, {w:"Snow", m:"Frozen rain"}, {w:"Rain", m:"Water from sky"}, {w:"Wind", m:"Moving air"}, {w:"Hot", m:"High temp"}, {w:"Cold", m:"Low temp"}, {w:"Ice", m:"Frozen water"}, {w:"Town", m:"Small city"}, {w:"Village", m:"Very small town"}, {w:"Field", m:"Green land"}, {w:"Grass", m:"Green plant"}, {w:"Tree", m:"Tall plant"}, {w:"Flower", m:"Pretty plant"}, {w:"Sand", m:"Beach soil"}, {w:"Rock", m:"Hard stone"}, {w:"Sky", m:"Blue above"}, {w:"Star", m:"Night light"}, {w:"Sun", m:"Day light"}, {w:"Moon", m:"Night rock"}, {w:"Cloud", m:"White puff"}, {w:"Storm", m:"Bad weather"}, {w:"Dry", m:"No water"}, {w:"Wet", m:"Has water"}, {w:"Big", m:"Large"}, {w:"Small", m:"Little"}, {w:"High", m:"Tall"}, {w:"Low", m:"Short"}, {w:"Far", m:"Distant"}, {w:"Near", m:"Close"}],
+                intermediate: [{w:"Capital", m:"Main city"}, {w:"Border", m:"Country line"}, {w:"Population", m:"People count"}, {w:"Island", m:"Land in water"}, {w:"Climate", m:"Weather pattern"}, {w:"Valley", m:"Low land"}, {w:"Coast", m:"Sea edge"}, {w:"Forest", m:"Tree area"}, {w:"Desert", m:"Dry land"}, {w:"Volcano", m:"Lava mountain"}, {w:"Glacier", m:"Ice river"}, {w:"Canal", m:"Man-made river"}, {w:"Strait", m:"Narrow sea"}, {w:"Port", m:"Ship place"}, {w:"Rural", m:"Countryside"}, {w:"Urban", m:"City area"}, {w:"Region", m:"Area"}, {w:"District", m:"Part of city"}, {w:"Continent", m:"Massive land"}, {w:"Country", m:"Nation"}, {w:"Landscape", m:"View of land"}, {w:"Cave", m:"Hole in mountain"}, {w:"Cliff", m:"Steep rock face"}, {w:"Ocean", m:"Largest sea"}, {w:"Stream", m:"Small river"}, {w:"Jungle", m:"Thick forest"}, {w:"Waterfall", m:"Falling river"}, {w:"Bay", m:"Curved coast"}, {w:"Harbor", m:"Boat park"}, {w:"Path", m:"Walking way"}, {w:"Highway", m:"Fast road"}, {w:"Tunnel", m:"Underground road"}, {w:"Bridge", m:"Over water road"}, {w:"Dam", m:"Water wall"}, {w:"Mine", m:"Underground dig"}, {w:"Factory", m:"Making place"}, {w:"Pollution", m:"Dirty air/water"}, {w:"Nature", m:"The wild"}, {w:"Wildlife", m:"Animals"}, {w:"Environment", m:"Surroundings"}, {w:"Global", m:"Worldwide"}, {w:"Local", m:"Nearby"}, {w:"Tide", m:"Sea movement"}, {w:"Wave", m:"Moving water"}, {w:"Current", m:"Water flow"}],
+                advanced: [{w:"Peninsula", m:"Land sticking out"}, {w:"Urbanisation", m:"City growth"}, {w:"Demographics", m:"Pop. stats"}, {w:"Hemisphere", m:"Half of earth"}, {w:"Topography", m:"Land shape"}, {w:"Archipelago", m:"Island group"}, {w:"Tributary", m:"River branch"}, {w:"Equator", m:"Middle line"}, {w:"Plateau", m:"High flat land"}, {w:"Sovereignty", m:"Self-rule"}, {w:"Longitude", m:"Vertical lines"}, {w:"Latitude", m:"Horizontal lines"}, {w:"Estuary", m:"River mouth"}, {w:"Tundra", m:"Frozen plain"}, {w:"Savannah", m:"Grassland"}, {w:"Oasis", m:"Desert water"}, {w:"Altitude", m:"Height"}, {w:"Continental", m:"Land mass"}, {w:"Ecosystem", m:"Nature community"}, {w:"Biome", m:"Major habitat"}, {w:"Meteorology", m:"Weather science"}, {w:"Fault line", m:"Earthquake zone"}, {w:"Erosion", m:"Wearing away"}, {w:"Delta", m:"River end fan"}, {w:"Fjord", m:"Inlet between cliffs"}, {w:"Canyon", m:"Deep gorge"}, {w:"Reef", m:"Coral ridge"}, {w:"Geopolitics", m:"Politics & land"}, {w:"Time Zone", m:"Clock region"}, {w:"Cartography", m:"Map making"}, {w:"Indigenous", m:"Native people"}, {w:"Migration", m:"Moving populations"}, {w:"Sustainability", m:"Long-term care"}, {w:"Biodiversity", m:"Variety of life"}, {w:"Conservation", m:"Protecting nature"}, {w:"Deforestation", m:"Cutting trees"}, {w:"Desertification", m:"Becoming desert"}, {w:"Reservoir", m:"Water store"}, {w:"Irrigation", m:"Watering crops"}, {w:"Summit", m:"Mountain top"}, {w:"Crater", m:"Volcano mouth"}, {w:"Gorge", m:"Narrow valley"}, {w:"Lagoon", m:"Shallow water"}, {w:"Atoll", m:"Coral ring"}, {w:"Isthmus", m:"Narrow land strip"}, {w:"Hinterland", m:"Remote inland"}, {w:"Confluence", m:"Rivers joining"}]
+            }
+        };
+
+        // --- GAME VARIABLES ---
+        let currentRound = 0;
+        let totalRounds = 10;
+        let gameData = [];
+        let currentItem = null;
+        let score = 0;
+        let isProcessing = false;
+
+        // --- UI HANDLERS ---
+        function handleThemeChange() {
+            const theme = document.getElementById('themeSelect').value;
+            const levelSelect = document.getElementById('levelSelect');
+            
+            if (theme === 'mistakes') {
+                levelSelect.disabled = true;
+                levelSelect.innerHTML = '<option>Personalized</option>';
+            } else {
+                levelSelect.disabled = false;
+                levelSelect.innerHTML = `
+                    <option value="beginner">Beginner (A1-A2)</option>
+                    <option value="intermediate">Intermediate (B1-B2)</option>
+                    <option value="advanced">Advanced (C1-C2)</option>
+                `;
+            }
+        }
+
+        // --- GAME INIT LOGIC ---
+        async function initGame() {
+            const theme = document.getElementById('themeSelect').value;
+            const level = document.getElementById('levelSelect').value;
+            
+            document.getElementById('loading-overlay').style.display = 'flex';
+            let pool = [];
+
+            if (theme === 'mistakes') {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    alert("🔒 You need to log in to play with your mistakes!");
+                    window.location.href = '/login/'; 
+                    return;
+                }
+
+                const { data: mistakes, error } = await supabase
+                    .from('user_mistakes')
+                    .select('word, definition')
+                    .eq('user_id', user.id);
+
+                if (error || !mistakes || mistakes.length < 4) {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    alert("⚠️ You need at least 4 recorded mistakes to play this mode!");
+                    return;
+                }
+
+                pool = mistakes.map(m => ({ w: m.word, m: m.definition || "Definition" }));
+            } else {
+                pool = vocabulary[theme][level];
+            }
+
+            // Prepare Game Data (Random 10 rounds)
+            gameData = pool.sort(() => 0.5 - Math.random());
+            if (gameData.length > 10) gameData = gameData.slice(0, 10);
+            totalRounds = gameData.length;
+            currentRound = 0;
+            score = 0;
+
+            document.getElementById('loading-overlay').style.display = 'none';
+            document.getElementById('controls-area').style.display = 'none';
+            document.getElementById('progressBar').style.display = 'block';
+            document.getElementById('optionsGrid').style.display = 'grid';
+            document.getElementById('defCard').style.display = 'flex';
+
+            loadRound();
+        }
+
+        function loadRound() {
+            if (currentRound >= totalRounds) {
+                endGame();
+                return;
+            }
+
+            isProcessing = false;
+            currentItem = gameData[currentRound];
+            
+            // UI Updates
+            document.getElementById('defText').textContent = currentItem.m;
+            document.getElementById('progressFill').style.width = `${(currentRound / totalRounds) * 100}%`;
+
+            // Generate Distractors
+            // Find 3 random wrong answers from the full vocabulary set of current theme
+            // (Or just shuffle existing gameData if using mistakes)
+            let options = [currentItem]; 
+            
+            // To find good distractors, we look at the whole current gameData set first
+            let potentialDistractors = gameData.filter(i => i.w !== currentItem.w);
+            potentialDistractors.sort(() => 0.5 - Math.random());
+            
+            // If we don't have enough distractors in gameData (e.g. only 4 mistakes total),
+            // we use what we have.
+            options = [...options, ...potentialDistractors.slice(0, 3)];
+            
+            // Shuffle options
+            options.sort(() => 0.5 - Math.random());
+
+            // Render Buttons
+            const grid = document.getElementById('optionsGrid');
+            grid.innerHTML = '';
+            
+            options.forEach(opt => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                btn.textContent = opt.w;
+                btn.onclick = () => checkAnswer(btn, opt.w);
+                grid.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(btnElement, selectedWord) {
+            if (isProcessing) return;
+            isProcessing = true;
+
+            if (selectedWord === currentItem.w) {
+                // CORRECT
+                btnElement.classList.add('correct');
+                score += 1;
+                
+                // If in mistakes mode, remove the mistake from DB
+                if (document.getElementById('themeSelect').value === 'mistakes') {
+                   removeMistakeFromDB(currentItem.w);
+                }
+
+                setTimeout(() => {
+                    currentRound++;
+                    loadRound();
+                }, 1000);
+            } else {
+                // INCORRECT
+                btnElement.classList.add('incorrect');
+                isProcessing = false; // Allow retry
+            }
+        }
+
+        async function removeMistakeFromDB(word) {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    await supabase.from('user_mistakes').delete().eq('user_id', user.id).eq('word', word);
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        // --- CONFETTI & MODAL LOGIC ---
+        const emojis = ['🐹', '👑', '🚌', '☔', '💂', '🫖', '🇬🇧', '🏰', '🎡', '🚇', '🎓', '🧠'];
+        let confettiInterval;
+
+        function endGame() {
+            document.getElementById('win-message').textContent = `You scored ${score}/${totalRounds}!`;
+            document.getElementById('progressFill').style.width = '100%';
+            
+            const container = document.getElementById('confettiContainer');
+            container.style.display = 'block';
+            
+            confettiInterval = setInterval(() => {
+                const piece = document.createElement('div');
+                piece.classList.add('confetti-piece');
+                piece.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                piece.style.left = Math.random() * 100 + 'vw';
+                piece.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                container.appendChild(piece);
+                setTimeout(() => piece.remove(), 5000);
+            }, 150);
+
+            setTimeout(() => {
+                document.getElementById('win-modal').style.display = 'flex';
+            }, 800);
+        }
+
+        function closeModal() {
+            document.getElementById('win-modal').style.display = 'none';
+            document.getElementById('confettiContainer').style.display = 'none';
+            document.getElementById('confettiContainer').innerHTML = '';
+            clearInterval(confettiInterval);
+        }
+
+        function closeModalAndRestart() {
+            closeModal();
+            // Reset UI
+            document.getElementById('optionsGrid').style.display = 'none';
+            document.getElementById('defCard').style.display = 'none';
+            document.getElementById('progressBar').style.display = 'none';
+            document.getElementById('controls-area').style.display = 'flex';
+            initGame();
+        }
+
+        function closeModalAndNewTheme() {
+            closeModal();
+            window.location.reload();
+        }
+      function closeModalAndNewLevel() {
+            closeModalAndRestart();
+            document.getElementById('levelSelect').focus();
+        }
+    </script>
+</body>
+</html>
