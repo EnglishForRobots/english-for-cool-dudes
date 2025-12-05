@@ -101,7 +101,7 @@
         .match-card.selected { border-color: #F59E0B; background: #FFFBEB; box-shadow: 0 0 0 3px #FCD34D; transform: scale(1.02); }
         
         .match-card.matched { 
-            opacity: 0; transform: scale(0.8); pointer-events: none; 
+            pointer-events: none; opacity: 0; transform: scale(0.8); 
         }
         
         /* ANIMATIONS */
@@ -408,7 +408,7 @@
                 }
             }
 
-            // 4. Render Widget
+            // 4. Render Widget (UPDATED LOGIC HERE)
             const widget = document.getElementById('repair-shop-widget');
             const title = document.getElementById('repair-title');
             const desc = document.getElementById('repair-desc');
@@ -421,16 +421,32 @@
                 widget.style.borderColor = '#BAE6FD';
                 widget.style.borderLeft = '4px solid #0EA5E9'; 
 
-                title.innerHTML = `🚀 Daily Brain Boost`;
-                title.style.color = '#0369A1';
-                
                 const mistakeCount = practiceBatch.filter(x => !x.is_review).length;
                 const reviewCount = practiceBatch.filter(x => x.is_review).length;
                 
-                desc.innerHTML = `Science-backed Spaced Repetition. We calculated the perfect time for you to review these words:<br>
-                                  <span style="font-size:12px; color:#64748B;">
-                                  (🎯 ${mistakeCount} Focus Words + 🧠 ${reviewCount} Reviews)
-                                  </span>`;
+                let headline = "🚀 Daily Brain Boost";
+                let subtext = "";
+                let statsHtml = "";
+
+                if (mistakeCount > 0 && reviewCount > 0) {
+                    subtext = "Stay sharp, Cool Dude. Don't let those words escape!";
+                    statsHtml = `(🎯 <span style="font-weight:bold; color:#B91C1C;">${mistakeCount} Focus Words</span> + 🧠 <span style="font-weight:bold; color:#15803D;">${reviewCount} Reviews</span>)`;
+                } else if (mistakeCount === 0 && reviewCount > 0) {
+                    subtext = "Keep your streak alive! Master what you've learned.";
+                    statsHtml = `(🧠 <span style="font-weight:bold; color:#15803D;">${reviewCount} Words ready for review!</span>)`;
+                } else if (mistakeCount > 0 && reviewCount === 0) {
+                    subtext = "Expand your world today. Learn something new!";
+                    statsHtml = `(🎯 <span style="font-weight:bold; color:#B91C1C;">${mistakeCount} New Words to learn!</span>)`;
+                } else {
+                    headline = "🎉 All Caught Up!";
+                    subtext = "You are crushing it! Enjoy your day.";
+                    statsHtml = `(🌟 <span style="font-weight:bold; color:#D97706;">Zero pending tasks</span>)`;
+                }
+
+                title.innerHTML = headline;
+                title.style.color = '#0369A1';
+                
+                desc.innerHTML = `${subtext}<br><span style="font-size:12px; color:#64748B;">${statsHtml}</span>`;
                 
                 btn.style.display = 'inline-flex';
                 btn.innerHTML = "🧩 Play Match Game (1 min)";
