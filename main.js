@@ -393,8 +393,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if(typeof startTickerAnimation === 'function') startTickerAnimation();
 
     // 3. DEPENDENT EXECUTION
-    // Only check for mistakes AFTER auth is done, but don't block the rest of the page while waiting
+    // Run immediately when Auth is finished. No extra waiting.
     authPromise.then(() => {
-        setTimeout(() => checkForMistakesOnHomepage(), 500);
+        checkForMistakesOnHomepage(); 
     });
 });
