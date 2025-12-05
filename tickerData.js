@@ -1,6 +1,5 @@
 // --- Shared Data Source ---
 const LESSON_STATES = [
-    
     { text: "🎵 NEW! LEGAL: Music vs. AI: The GEMA Ruling 😎", href: "/aicopyright/" },
     { text: "📦 NEW! ADVANCED: Alibaba: The E-Commerce Empire 😎", href: "/alibaba/" },
     { text: "🎤 NEW! BUSINESS: The Elevator Pitch 😎", href: "/elevator/" },
@@ -9,11 +8,17 @@ const LESSON_STATES = [
     { text: "🌐 NEW! TAX: The Netflix Tax 🎬🍿", href: "/VATdigital/" },
     { text: "🚩 NEW! LEGAL: Due Diligence in M&A 💼", href: "/duediligence/" },
     { text: "🐢 NEW! BEGINNER: Amazing Animals: Jonathan T 🐢", href: "/tortoise/" },
-    
-    // **IMPORTANT:** In the future, you ONLY update this list here.
 ];
 
-// --- Shared Ticker Logic ---
+// --- 1. INSTANT LOAD HELPER (Crucial for Speed) ---
+// This grabs the first item from your list and makes it available 
+// to the inline script in index.html immediately.
+const latestTickerData = {
+    title: LESSON_STATES[0].text,
+    link: LESSON_STATES[0].href
+};
+
+// --- 2. ANIMATION LOGIC ---
 let currentTickerIndex = 0;
 
 function updateTicker() {
@@ -34,10 +39,6 @@ function updateTicker() {
 function startTickerAnimation() {
     const ticker = document.getElementById('latest-updates-ticker');
     if (!ticker) return;
-
-    // Set initial state
-    ticker.textContent = LESSON_STATES[0].text;
-    ticker.href = LESSON_STATES[0].href;
 
     // Start interval
     setInterval(updateTicker, 4000);
