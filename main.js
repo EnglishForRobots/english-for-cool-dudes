@@ -373,16 +373,8 @@ async function initializeAuthHeader() {
 
 // --- MAIN INIT (NON-BLOCKING) ---
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // 1. UPDATE TICKER (Synchronous/Instant)
-    const tickerEl = document.getElementById('latest-updates-ticker');
-    if (tickerEl && typeof latestTickerData !== 'undefined') {
-        tickerEl.href = latestTickerData.link;
-        tickerEl.innerText = latestTickerData.title;
-        tickerEl.style.opacity = 1; 
-    }
 
-    // 2. PARALLEL EXECUTION (Async)
+   
     // Start Auth Check
     const authPromise = initializeAuthHeader();
 
@@ -392,7 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Start Animation if it exists
     if(typeof startTickerAnimation === 'function') startTickerAnimation();
 
-    // 3. DEPENDENT EXECUTION
+    
     // Run immediately when Auth is finished. No extra waiting.
     authPromise.then(() => {
         checkForMistakesOnHomepage(); 
