@@ -75,7 +75,11 @@ const htmlPages = [
   '/impressum/',
   '/datenschutz/',
   '/jonathan/',
-  
+  '/alibaba/',
+  '/aicopyright/',
+  '/fixit/',
+  '/reversetaboo/',
+  '/wealthtax/',
   
   
 ];
