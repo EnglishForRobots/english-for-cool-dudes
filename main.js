@@ -208,7 +208,17 @@ function startMatchGame(batch) {
 
     practicePopup.querySelectorAll('.match-card').forEach(card => {
         card.addEventListener('click', () => {
-            if (card.classList.contains('matched') || card.classList.contains('selected')) return;
+            // 1. Ignore if already matched
+            if (card.classList.contains('matched')) return;
+
+            // 2. NEW LOGIC: Allow Deselecting
+            if (card.classList.contains('selected')) {
+                card.classList.remove('selected');
+                selectedCards = selectedCards.filter(c => c !== card); // Remove from array
+                return;
+            }
+
+            // 3. Normal Select Logic (only if fewer than 2 selected)
             if (selectedCards.length >= 2) return;
 
             card.classList.add('selected');
@@ -275,8 +285,10 @@ function startMatchGame(batch) {
             feedbackEl.textContent = failMsg;
             feedbackEl.style.color = "#EF4444"; 
             setTimeout(() => {
-                card1.classList.remove('selected');
-                card2.classList.remove('selected');
+                // Only remove selection if they are still part of the game
+                // (This prevents weird bugs if user clicks furiously)
+                if(card1) card1.classList.remove('selected');
+                if(card2) card2.classList.remove('selected');
             }, 1000);
         }
         
