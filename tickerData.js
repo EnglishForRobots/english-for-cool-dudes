@@ -1,24 +1,14 @@
 // --- Shared Data Source ---
 const LESSON_STATES = [
     
+    { text: "🎵 NEW! LEGAL: Music vs. AI: The GEMA Ruling 😎", href: "/aicopyright/" },
+    { text: "📦 NEW! ADVANCED: Alibaba: The E-Commerce Empire 😎", href: "/alibaba/" },
     { text: "🐢 NEW! INTERMEDIATE: Meet Jonathan the Tortoise 😎", href: "/jonathan/" },
     { text: "🧩 NEW! INTERMEDIATE: Top 10 Phrasal Verbs For Work 😎", href: "/phrasals/" },
     { text: "🌐 NEW! TAX: The Netflix Tax 🎬🍿", href: "/VATdigital/" },
     { text: "🚩 NEW! LEGAL: Due Diligence in M&A 💼", href: "/duediligence/" },
     { text: "🐢 NEW! BEGINNER: Amazing Animals: Jonathan T 🐢", href: "/tortoise/" },
-    { text: "🔥 NEW! BEGINNER: Bonfire Night and Guy Fawkes 🎆", href: "/bonfire/" },
-    { text: "🏧 NEW! INTERMEDIATE: The Bank of England 💰", href: "/boe/" },
-    { text: "🏧 NEW! TAX: Tax Audit Essentials 🔍", href: "/audit/" },
-    { text: "🚀 NEW! BUSINESS: Career Progression 🎯", href: "/feedback/" },
-    { text: "👻 NEW! BEGINNER: Trick or Treat! 🎃", href: "/trickortreat/" },
-    { text: "🎃 NEW! INTERMEDIATE: Beware The Black Cat! 👻", href: "/halloween/" },
-    { text: "🧟‍♂️ NEW! ADVANCED: The Creation's Ruin - Frankenstein ⚰️", href: "/frank/" },
-    { text: "😎 NEW! ADVANCED: Unusual European Foods 🍴", href: "/weirdeurofoods/" },
-    { text: "😎 NEW! BUSINESS: Change Management 🧭", href: "/changemanagement/" },
-    { text: "😎 NEW! TAX: International Tax Essentials 🌎", href: "/internationaltaxation/" },
-    { text: "😎 NEW! BEGINNER: What's The Weather Like? ☔", href: "/weather/" },
-    { text: "😎 NEW! INTERMEDIATE: Fortune Cookie English 🥠", href: "/fortunecookies/" },
-    { text: "😎 NEW! LEGAL: Intellectual Property Law 🏛️", href: "/iplaw/" },
+    
     // **IMPORTANT:** In the future, you ONLY update this list here.
 ];
 
