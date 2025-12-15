@@ -58,7 +58,6 @@
             font-weight: 900;
         }
 
-        /* USERNAME PILL */
         .user-greeting {
             color: white !important;
             font-weight: bold;
@@ -92,7 +91,6 @@
             border-color: var(--xmas-green);
         }
 
-        /* Snow Cap on Cards */
         .course-card::before {
             content: '';
             position: absolute;
@@ -128,25 +126,25 @@
             color: var(--xmas-green);
         }
 
-        /* --- 4. FALLING SNOW ANIMATION (FIXED) --- */
+        /* --- 4. HIGH CONTRAST SNOW --- */
         #snowflake-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
+            height: 100vh; /* Changed to vh to guarantee full height */
             pointer-events: none;
-            z-index: 10000; /* Ultra High Z-Index */
+            z-index: 2147483647; /* Maximum possible Z-Index */
             overflow: hidden;
         }
 
         .snowflake {
             position: absolute;
-            /* Changed from White to Ice Blue for visibility */
-            color: #bde0ff; 
-            /* Added stronger shadow so they pop against white bg */
-            text-shadow: 0 0 2px #5ea1e3; 
-            top: -50px; /* Start higher up */
+            color: #fff; 
+            /* Dark shadow to make it visible on white backgrounds */
+            text-shadow: 0 0 3px #444, 0 0 5px #000; 
+            top: -50px; 
+            font-size: 20px; /* Base size */
         }
 
         @keyframes drift {
@@ -156,8 +154,8 @@
         }
 
         @keyframes fall {
-            0% { transform: translateY(-50px); }
-            100% { transform: translateY(110vh); }
+            0% { top: -50px; }
+            100% { top: 110vh; }
         }
     </style>
 </head>
@@ -348,7 +346,7 @@
     <script>
         function createSnowflake() {
             const container = document.getElementById('snowflake-container');
-            if (!container) return; // Safety check
+            if (!container) return;
 
             const snowflake = document.createElement('div');
             snowflake.classList.add('snowflake');
@@ -356,28 +354,33 @@
             const flakes = ['❄', '❅', '❆', '•'];
             snowflake.textContent = flakes[Math.floor(Math.random() * flakes.length)];
             
-            const size = Math.random() * 15 + 10 + 'px';
+            const size = Math.random() * 15 + 15 + 'px'; // Slightly larger
             const leftPos = Math.random() * 95 + 'vw'; 
-            // Fall duration between 4 and 8 seconds
-            const durationFall = Math.random() * 4 + 4 + 's'; 
+            const durationFall = Math.random() * 5 + 3 + 's'; 
             
             snowflake.style.fontSize = size;
             snowflake.style.left = leftPos;
             snowflake.style.opacity = Math.random() * 0.7 + 0.3;
             
-            // Animation combo: Fall + Drift
-            snowflake.style.animation = `fall ${durationFall} linear forwards, drift 3s ease-in-out infinite alternate`;
+            // Reverting to simpler Top animation to ensure it moves
+            snowflake.style.transition = `top ${durationFall} linear`;
+            
+            // Drift animation
+            snowflake.style.animation = `drift 3s ease-in-out infinite alternate`;
             
             container.appendChild(snowflake);
+
+            // Force reflow to trigger transition
+            requestAnimationFrame(() => {
+                snowflake.style.top = '110vh';
+            });
             
-            // Cleanup based on the calculated duration
             setTimeout(() => {
                 snowflake.remove();
             }, parseFloat(durationFall) * 1000);
         }
 
-        // Run the snow creation every 150ms
-        setInterval(createSnowflake, 150);
+        setInterval(createSnowflake, 200);
     </script>
 </body>
 </html>
