@@ -1,21 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
-    <link rel="icon" type="image/png" href="/android-chrome-192x192.png" sizes="192x192">
-    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" href="favicon.png" sizes="32x32">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180">
+    <link rel="icon" type="image/png" href="android-chrome-192x192.png" sizes="192x192">
+    <link rel="manifest" href="manifest.json">
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English For Cool Dudes - Holiday Edition</title>
+    <title>English For Cool Dudes - Snow Globe Edition</title>
     
     <link rel="stylesheet" href="styles.css">
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-    
     <script src="tickerData.js"></script>
-    
     <script src="main.js" defer></script>
 
     <style>
@@ -24,21 +22,48 @@
             --xmas-green: #165B33;
             --xmas-gold: #F8B229;
             --snow-white: #ffffff;
-            --winter-bg: #f0f7ff;
+            --winter-bg: #eef7ff;
         }
 
         body {
             background-color: var(--winter-bg);
-            /* Cute subtle snowflake background pattern */
-            background-image: radial-gradient(#dbe9f6 15%, transparent 16%), radial-gradient(#dbe9f6 15%, transparent 16%);
-            background-size: 60px 60px;
-            background-position: 0 0, 30px 30px;
+            /* A subtle radial gradient for the center of the globe */
+            background-image: radial-gradient(circle at center, #ffffff 0%, #e3f2fd 100%);
+            min-height: 100vh;
+            overflow-x: hidden; /* Important so snow doesn't stretch screen */
+        }
+
+        /* --- THE SNOW GLOBE GLASS EFFECT --- */
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none; /* Allows clicking through the "glass" */
+            z-index: 9990;
+            /* Creates the glass reflection/shadow around edges */
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.1), inset 0 0 20px rgba(255,255,255,0.5);
+            background: radial-gradient(circle at 50% 50%, transparent 85%, rgba(220, 240, 255, 0.4) 100%);
+        }
+
+        /* --- THE SNOW PILE AT THE BOTTOM --- */
+        .snow-pile {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: linear-gradient(to top, white 40%, transparent 100%);
+            z-index: 9980;
+            pointer-events: none;
+            filter: blur(3px);
         }
 
         .header {
             background: linear-gradient(to right, var(--xmas-green), var(--xmas-red));
             border-bottom: 4px solid var(--xmas-gold);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 10;
         }
 
         .site-title {
@@ -50,6 +75,7 @@
         .info-box {
             border: 2px dashed var(--xmas-red);
             background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 10px rgba(212, 36, 38, 0.1);
         }
 
         /* Festive Cards */
@@ -57,7 +83,9 @@
             border: 1px solid #e1e1e1;
             position: relative;
             overflow: hidden;
+            background: rgba(255,255,255,0.95); /* Slightly transparent */
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            z-index: 5;
         }
 
         .course-card:hover {
@@ -66,7 +94,6 @@
             border-color: var(--xmas-green);
         }
 
-        /* Add a little "snow" on top of cards */
         .course-card::before {
             content: '';
             position: absolute;
@@ -75,7 +102,6 @@
             right: 0;
             height: 4px;
             background: var(--xmas-gold);
-            opacity: 0.7;
         }
 
         .section-title {
@@ -84,7 +110,6 @@
             display: inline-block;
         }
         
-        /* Add holly berries next to titles */
         .section-title::after {
             content: ' 🎄';
             font-size: 0.8em;
@@ -100,7 +125,7 @@
             color: var(--xmas-green);
         }
 
-        /* Snowflake Container for JS */
+        /* --- ADVANCED SNOWFLAKES --- */
         #snowflake-container {
             position: fixed;
             top: 0;
@@ -116,18 +141,26 @@
             position: absolute;
             color: #fff;
             text-shadow: 0 0 5px #b0c4de;
-            animation: fall linear forwards;
+            top: -20px;
         }
 
+        /* Drift animation handles the side-to-side movement */
+        @keyframes drift {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(50px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Fall animation handles the vertical movement */
         @keyframes fall {
-            to {
-                transform: translateY(105vh);
-            }
+            to { transform: translateY(105vh); }
         }
     </style>
 </head>
 <body>
     <div id="snowflake-container"></div>
+    
+    <div class="snow-pile"></div>
 
     <header class="header">
         <div class="header-content">
@@ -136,13 +169,13 @@
                 <a href="/" class="site-title">English For Cool Dudes</a>
                 
                 <div id="logged-out-buttons" class="header-buttons" style="display: none;">
-                    <a href="/login/" class="header-button login">Login</a>
-                    <a href="/signup/" class="header-button signup">Sign Up</a>
+                    <a href="login/" class="header-button login">Login</a>
+                    <a href="signup/" class="header-button signup">Sign Up</a>
                 </div>
 
                 <div id="logged-in-buttons" class="header-buttons" style="display: none;">
                     <span class="user-greeting" id="user-greeting">Ho Ho Ho, Cool Dude! 🎁</span>
-                    <a href="/dashboard/" class="header-button dashboard">My Dashboard</a>
+                    <a href="dashboard/" class="header-button dashboard">My Dashboard</a>
                     <button id="logout-btn" class="header-button logout">Sign Out</button>
                 </div>
             </div>
@@ -158,11 +191,10 @@
         Loading festive news...
     </a>
     <script>
-    // This runs immediately.
     const tEl = document.getElementById('latest-updates-ticker');
     if (typeof latestTickerData !== 'undefined' && tEl) {
         tEl.href = latestTickerData.link;
-        tEl.innerText = "❄️ " + latestTickerData.title + " ❄️"; // Added snowflakes
+        tEl.innerText = "❄️ " + latestTickerData.title + " ❄️";
         tEl.style.opacity = 1; 
     }
     </script>
@@ -190,7 +222,7 @@
                 <h2 class="section-title">Specialized English</h2>
             </div>
             <div class="course-grid">
-                <a href="/business/" class="course-card">
+                <a href="business/" class="course-card">
                     <div class="course-header">
                         <span class="course-icon">💼</span>
                         <h3 class="course-title">Business English</h3>
@@ -204,7 +236,7 @@
                         </div>
                     </div>
                 </a>
-                <a href="/tax/" class="course-card">
+                <a href="tax/" class="course-card">
                     <div class="course-header">
                         <span class="course-icon">💰</span>
                         <h3 class="course-title">Tax English</h3>
@@ -218,7 +250,7 @@
                         </div>
                     </div>
                 </a>
-                <a href="/legal/" class="course-card">
+                <a href="legal/" class="course-card">
                     <div class="course-header">
                         <span class="course-icon">⚖️</span>
                         <h3 class="course-title">Legal English</h3>
@@ -241,7 +273,7 @@
                 <h2 class="section-title">General English Courses</h2>
             </div>
             <div class="course-grid">
-                <a href="/beginner/" class="course-card">
+                <a href="beginner/" class="course-card">
                     <div class="course-header">
                         <span class="course-icon">☃️</span>
                         <h3 class="course-title">Beginner Course</h3>
@@ -255,7 +287,7 @@
                         </div>
                     </div>
                 </a>
-                <a href="/intermediate/" class="course-card">
+                <a href="intermediate/" class="course-card">
                     <div class="course-header">
                         <span class="course-icon">🦌</span>
                         <h3 class="course-title">Intermediate Course</h3>
@@ -269,7 +301,7 @@
                         </div>
                     </div>
                 </a>
-                <a href="/advanced/" class="course-card">
+                <a href="advanced/" class="course-card">
                     <div class="course-header">
                         <span class="course-icon">🎁</span>
                         <h3 class="course-title">Advanced Course</h3>
@@ -292,7 +324,7 @@
                 <h2 class="section-title">The Break Room</h2>
             </div>
             <div class="quick-links">
-                <a href="/games/" class="quick-link">
+                <a href="games/" class="quick-link">
                     <span class="quick-link-icon">🎮</span>
                     <div class="quick-link-text">
                         <div class="quick-link-title">Game Zone</div>
@@ -306,34 +338,43 @@
     <footer class="footer">
         <p class="footer-text">© 2025 English For Cool Dudes - 🎅 Merry Christmas!</p>
         <div style="margin-top: 10px;">
-            <a href="/impressum/" style="color: #667EEA; margin-right: 15px; text-decoration: none;">Impressum</a>
-            <a href="/datenschutz/" style="color: #667EEA; text-decoration: none;">Datenschutzerklärung</a>
+            <a href="impressum/" style="color: #667EEA; margin-right: 15px; text-decoration: none;">Impressum</a>
+            <a href="datenschutz/" style="color: #667EEA; text-decoration: none;">Datenschutzerklärung</a>
         </div>
     </footer>
 
     <script>
         function createSnowflake() {
+            const container = document.getElementById('snowflake-container');
             const snowflake = document.createElement('div');
             snowflake.classList.add('snowflake');
-            snowflake.textContent = '❄';
             
-            // Random size, position and duration
-            const size = Math.random() * 10 + 10 + 'px';
+            // Varied characters for more natural look
+            const flakes = ['❄', '❅', '❆', '•'];
+            snowflake.textContent = flakes[Math.floor(Math.random() * flakes.length)];
+            
+            // Random properties
+            const size = Math.random() * 15 + 10 + 'px';
+            const leftPos = Math.random() * 100 + 'vw';
+            const durationFall = Math.random() * 3 + 4 + 's'; // Slower falling (4-7s)
+            
             snowflake.style.fontSize = size;
-            snowflake.style.left = Math.random() * 100 + 'vw';
-            snowflake.style.animationDuration = Math.random() * 3 + 2 + 's'; 
-            snowflake.style.opacity = Math.random();
+            snowflake.style.left = leftPos;
+            snowflake.style.opacity = Math.random() * 0.7 + 0.3;
             
-            document.getElementById('snowflake-container').appendChild(snowflake);
+            // Apply animations: Fall down AND drift side-to-side
+            snowflake.style.animation = `fall ${durationFall} linear forwards, drift 3s ease-in-out infinite alternate`;
             
-            // Remove after animation finishes
+            container.appendChild(snowflake);
+            
+            // Cleanup
             setTimeout(() => {
                 snowflake.remove();
-            }, 5000);
+            }, parseFloat(durationFall) * 1000);
         }
 
-        // Create snow every 300ms
-        setInterval(createSnowflake, 300);
+        // Create snow frequently
+        setInterval(createSnowflake, 200);
     </script>
 </body>
 </html>
