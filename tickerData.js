@@ -2,6 +2,8 @@
 
 // --- 1. DATA SOURCE ---
 const LESSON_STATES = [
+    { text: "🎁 NEW! INTERMEDIATE: The History of Advent Calendars 😎", href: "/adventcalendarint/" },
+    { text: "🎅🏻 NEW! BEGINNER: The Advent Calendar 😎", href: "/adventcalendar/" },
     { text: "🎵 NEW! LEGAL: Music vs. AI: The GEMA Ruling 😎", href: "/aicopyright/" },
     { text: "📦 NEW! ADVANCED: Alibaba: The E-Commerce Empire 😎", href: "/alibaba/" },
     { text: "🎤 NEW! BUSINESS: The Elevator Pitch 😎", href: "/elevator/" },
