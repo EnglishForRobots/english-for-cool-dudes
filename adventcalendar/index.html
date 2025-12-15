@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christmas Traditions: The Advent Calendar - English For Cool Dudes</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* --- BRANDING & LAYOUT STYLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: #FFEBEE; /* Light Christmas Red Background */
+            color: #3E2723; /* Dark Brown Text */
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- THEME: CHRISTMAS PALETTE 🎄 --- */
+        :root {
+            --color-primary: #D32F2F; /* Christmas Red */
+            --color-secondary: #1B5E20; /* Forest Green (Text/Borders) */
+            --color-accent: #FFD700; /* Gold */
+            --color-light-bg: #FFFFFF; 
+            --color-white: #FFFFFF;
+            
+            /* Feedback Colors */
+            --color-correct: #2E7D32; /* Success Green */
+            --color-incorrect: #C62828; /* Red */
+            
+            /* UI Elements */
+            --color-panel-bg: #FFFFFF;
+            --color-save-btn: #D32F2F; /* Red for Save */
+        }
+
+        /* Header (Global Nav Bar) */
+        .header {
+            background: var(--color-white);
+            border-bottom: 2px solid #D32F2F;
+            padding: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-left { display: flex; align-items: center; gap: 15px; }
+
+        .logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #D32F2F 0%, #B71C1C 100%); 
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+        .site-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #1B5E20;
+            text-decoration: none;
+            letter-spacing: -0.02em;
+        }
+
+        /* Header Buttons */
+        .header-buttons { display: flex; align-items: center; gap: 8px; }
+        .header-button {
+            text-decoration: none; padding: 7px 14px; border-radius: 6px;
+            font-size: 14px; font-weight: 600; transition: all 0.2s;
+            white-space: nowrap; cursor: pointer; border: 1px solid #FFCDD2;
+            background: transparent;
+        }
+        .header-button.login { background: #FFEBEE; color: #B71C1C; }
+        .header-button.login:hover { background: #FFFFFF; color: #D32F2F; border-color: #D32F2F; }
+        
+        .header-button.signup { background: var(--color-secondary); color: white; border-color: var(--color-secondary); }
+        .header-button.signup:hover { background: #2E7D32; box-shadow: 0 2px 5px rgba(27, 94, 32, 0.4); }
+        
+        .header-button.dashboard { background: #FFF8E1; color: #F57F17; border-color: #FFD54F; }
+        
+        .header-button.logout { background: #FFEBEE; color: #C62828; border-color: #FFCDD2; }
+        .header-button.logout:hover { background: #FFCDD2; }
+        
+        .user-greeting { font-size: 14px; color: #1B5E20; font-weight: 600; margin-right: 5px; display: block; }
+
+        /* Main Container */
+        .container-main {
+            max-width: 1000px; 
+            margin: 30px auto;
+            padding: 30px 20px;
+            background-color: var(--color-white);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            border: 2px solid #FFCDD2;
+        }
+
+        /* Lesson Specific Styles */
+        .lesson-main-title {
+            font-size: 2.5em;
+            font-weight: 800;
+            color: var(--color-primary); 
+            margin-bottom: 10px;
+            letter-spacing: -0.02em;
+        }
+
+        .lesson-section {
+            background-color: #FFFDE7; /* Very pale yellow/gold bg */
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid #FFE082;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: var(--color-secondary);
+            font-size: 1.8em;
+            font-weight: 800;
+            margin-bottom: 20px;
+            padding-bottom: 5px;
+            border-bottom: 2px dashed #D32F2F;
+        }
+        
+        /* Reading Text Style */
+        .reading-text {
+            background: #FFFFFF;
+            border-left: 5px solid var(--color-primary);
+            padding: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 1.1em;
+            color: #3E2723;
+            line-height: 1.8;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .highlight-word {
+            color: var(--color-primary);
+            font-weight: 700;
+            cursor: help;
+            border-bottom: 2px dotted var(--color-primary);
+            transition: all 0.2s;
+        }
+        .highlight-word:hover {
+            background-color: #FFEBEE;
+            color: var(--color-secondary);
+            border-radius: 4px;
+        }
+        
+        /* Interactive Elements */
+        .interactive-element {
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            background-color: var(--color-white);
+            color: #1B5E20;
+            font-weight: 600;
+            padding: 12px 18px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .interactive-element:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        }
+        
+        /* --- MATCH CARD STYLES --- */
+        .match-card {
+            border: 2px solid transparent; 
+            transition: all 0.5s ease;
+            cursor: pointer;
+            user-select: none;
+            border-radius: 0.75rem; 
+            padding: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            font-weight: 600;
+            opacity: 1; 
+            transform: scale(1);
+            min-height: 80px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+        }
+
+        .match-card.term {
+            background-color: #FFEBEE; /* Light Red */
+            font-size: 1.125rem;
+            border: 2px solid var(--color-primary); /* Red Border */
+            text-align: center;
+            color: #B71C1C;
+        }
+        .match-card.definition {
+            background-color: #FFFFFF; 
+            text-align: left;
+            border: 2px solid #CFD8DC; /* Gray Border */
+            color: #37474F;
+            font-size: 0.95em;
+        }
+
+        .match-card.selected {
+            border-color: #FFD700; /* Gold */
+            background-color: #FFF9C4; /* Light Gold */
+            box-shadow: 0 0 0 4px #FFF59D;
+            transform: scale(1.02);
+        }
+        
+        .match-card.matched { 
+            pointer-events: none; 
+            opacity: 0; 
+            transform: scale(0.9); 
+        }
+        
+        .match-card.temp-matched {
+            background-color: #C8E6C9 !important; /* Green */
+            border-color: #2E7D32 !important; 
+            box-shadow: 0 0 0 4px #2E7D32 !important; 
+            color: #1B5E20 !important;
+        }
+
+        /* Comprehension Buttons */
+        .comp-btn-group .option-button {
+            transition: all 0.2s;
+            background-color: #FFFFFF;
+            color: #3E2723;
+            font-weight: 600;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 1px solid #FFCDD2;
+            text-align: left;
+            width: 100%;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .comp-btn-group .option-button:hover { border-color: var(--color-primary); background-color: #FFEBEE; }
+        .comp-btn-group .option-button.selected { background-color: #FFCDD2; color: #B71C1C !important; border-color: var(--color-primary); box-shadow: 0 0 0 4px #FFCDD2; }
+        .comp-btn-group .option-button.correct { background-color: #4CAF50 !important; color: white !important; border-color: #2E7D32 !important; box-shadow: 0 0 0 4px #2E7D32 !important; }
+        .comp-btn-group .option-button.incorrect { background-color: #EF5350 !important; color: white !important; border-color: #C62828 !important; box-shadow: 0 0 0 4px #C62828 !important; }
+
+        /* Feedback Box */
+        .result-message {
+            margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: 700; display: none; text-align: center;
+        }
+        .result-message.correct { background-color: #C8E6C9; color: #1B5E20; border: 1px solid #81C784; }
+        .result-message.incorrect { background-color: #FFCDD2; color: #B71C1C; border: 1px solid #E57373; }
+        
+        /* Gap-Fill */
+        .word-bank { background: #E8F5E9; border: 2px solid var(--color-secondary); border-radius: 10px; }
+        .word-options { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;}
+        .word-option {
+            background-color: var(--color-secondary); color: white; padding: 10px 15px;
+            border-radius: 6px; cursor: pointer; transition: all 0.2s; font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); border: none;
+        }
+        .word-option:hover { background-color: #2E7D32; transform: translateY(-2px); }
+        .word-option.selected { background-color: var(--color-primary) !important; transform: scale(1.05); box-shadow: 0 0 0 4px #FFCDD2 !important; }
+        .word-option.used { opacity: 0.4; pointer-events: none; background-color: #78909C; transform: none; }
+
+        .gap-input {
+            display: inline-block; text-align: center; padding: 0 10px; min-width: 120px; 
+            height: 32px; line-height: 30px; background-color: #FFFFFF; border-bottom: 3px solid #B71C1C; 
+            border-radius: 4px; color: #B71C1C; font-weight: 700; cursor: pointer; margin: 0 4px; transition: all 0.2s;
+        }
+        .gap-input:empty { background-color: #FFEBEE; }
+        .gap-input.filled { background-color: #FFCDD2; border-bottom-color: var(--color-primary); }
+        .gap-input.correct { background-color: var(--color-correct) !important; color: white !important; border-bottom-color: var(--color-correct) !important; pointer-events: none; }
+        .gap-input.incorrect { background-color: var(--color-incorrect) !important; color: white !important; border-bottom-color: var(--color-incorrect) !important; }
+
+        /* Buttons */
+        .button-group { margin-top: 20px; display: flex; gap: 15px; justify-content: center; }
+        .check-button {
+            background: var(--color-primary); color: white; border: none; padding: 12px 25px;
+            border-radius: 8px; cursor: pointer; font-size: 1em; font-weight: 600;
+            transition: all 0.3s; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .check-button:hover { background: #B71C1C; transform: translateY(-1px); }
+        .reset-button { background: #78909C; }
+        .reset-button:hover { background: #546E7A; }
+
+        /* Save Words Section */
+        #save-words-section {
+            background: #FFEBEE; border: 2px solid #FFCDD2; padding: 25px;
+            border-radius: 12px; margin-top: 40px; text-align: center;
+        }
+        #save-words-btn {
+            background-color: var(--color-save-btn); color: white; padding: 14px 30px;
+            border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color 0.2s;
+            display: block; width: 100%; border: none; box-shadow: 0 4px #B71C1C;
+            text-transform: uppercase; font-size: 1.1em;
+        }
+        #save-words-btn:hover:not(:disabled) { background-color: #B71C1C; }
+        #save-words-btn:active:not(:disabled) { box-shadow: 0 1px #B71C1C; transform: translateY(3px); }
+        #save-words-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        #learned-words-list {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px; margin-bottom: 20px; text-align: center; list-style: none;
+        }
+        #learned-words-list li {
+            background: white; padding: 12px 15px; border-radius: 8px;
+            border: 2px solid #D32F2F; font-size: 0.95em; cursor: pointer;
+            transition: all 0.2s; font-weight: 600; color: #D32F2F;
+        }
+        #learned-words-list li:hover {
+            transform: translateY(-2px); border-color: var(--color-secondary);
+            color: var(--color-secondary);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); background-color: #E8F5E9;
+        }
+
+        /* --- POPUP STYLES --- */
+        #feedback-popup {
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            padding: 25px 40px; border-radius: 16px; font-weight: 700; color: white;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3); z-index: 2000; display: none;
+            text-align: center; font-size: 1.2em; border: 4px solid white; min-width: 300px;
+        }
+
+        #dictionary-popup {
+            position: fixed; max-width: 280px; padding: 20px; background: #FFFFFF;
+            border: 3px solid var(--color-primary); border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 2001; display: none;
+            font-size: 0.95em; color: #3E2723; line-height: 1.5;
+        }
+
+        @media (max-width: 768px) { .user-greeting { display: none; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">🎄</span>
+                <a href="/beginner/" class="site-title">English For Cool Dudes</a>
+            </div>
+            
+            <div id="logged-out-buttons" class="header-buttons" style="display: none;">
+                <a href="/login/" class="header-button login">Login</a>
+                <a href="/signup/" class="header-button signup">Sign Up</a>
+            </div>
+
+            <div id="logged-in-buttons" class="header-buttons" style="display: none;">
+                <span class="user-greeting" id="user-greeting">Hey Cool Dude! 👋</span>
+                <a href="/dashboard/" class="header-button dashboard">My Dashboard</a>
+                <button id="logout-btn" class="header-button logout">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-main">
+        <h1 class="lesson-main-title">🎁 Christmas Traditions: The Advent Calendar</h1>
+        <p class="text-lg text-gray-500 mb-8">Beginner-level (A2) reading and vocabulary about counting down to Christmas!</p>
+
+        <main class="space-y-8">
+            
+            <section class="lesson-section shadow-lg">
+                <h2 class="section-title">📜 1. Reading: Counting the Days</h2>
+                <div class="reading-text">
+                    <p class="mb-4">The <span class="highlight-word" onclick="showDictionaryPopup(this, 'Advent Calendar')">Advent Calendar</span> is a very popular Christmas <span class="highlight-word" onclick="showDictionaryPopup(this, 'Tradition')">tradition</span> in many countries. It helps children (and adults!) <span class="highlight-word" onclick="showDictionaryPopup(this, 'Count')">count</span> the days until Christmas.</p>
+
+                    <p class="mb-4">The calendar starts on <span class="highlight-word" onclick="showDictionaryPopup(this, 'December')">December</span> 1st. It usually looks like a colorful box or a picture. It has 24 small <span class="highlight-word" onclick="showDictionaryPopup(this, 'Doors')">doors</span> or windows. Each door has a number on it, from 1 to 24.</p>
+
+                    <p class="mb-4">Every morning, you open one door. Behind the door, there is a small <span class="highlight-word" onclick="showDictionaryPopup(this, 'Surprise')">surprise</span>. In the past, the surprise was just a nice picture. Today, most calendars have a piece of <span class="highlight-word" onclick="showDictionaryPopup(this, 'Chocolate')">chocolate</span> inside! Some expensive calendars even have toys or beauty products.</p>
+
+                    <p>The last door, number 24, is opened on <span class="highlight-word" onclick="showDictionaryPopup(this, 'Christmas Eve')">Christmas Eve</span>. It is a fun way to get excited for the holiday!</p>
+                </div>
+            </section>
+
+            <section id="exercise-1" class="lesson-section shadow-lg">
+                <h2 class="section-title">🔗 2. Vocabulary Memory Match</h2>
+                <p class="text-gray-600 mb-6 font-medium">Match the term to its definition. Correct pairs will disappear and reappear at the end!</p>
+
+                <div id="vocab-match-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </section>
+        
+            <section id="exercise-2" class="lesson-section shadow-lg">
+                <h2 class="section-title">❓ 3. Fact Check</h2>
+                <p class="text-gray-600 mb-4 font-medium">Read the story above, then answer the questions.</p>
+                
+                <div class="question" data-question="1">
+                    <p class="font-semibold text-lg text-gray-600 mb-3">1. When do you start opening the calendar?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="1">
+                        <li class="option-button" data-correct="false">On Christmas Day</li>
+                        <li class="option-button" data-correct="true">On December 1st</li>
+                        <li class="option-button" data-correct="false">In November</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="2">
+                    <p class="font-semibold text-lg text-gray-600 mb-3">2. How many doors are usually on the calendar?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="2">
+                        <li class="option-button" data-correct="false">12 doors</li>
+                        <li class="option-button" data-correct="false">30 doors</li>
+                        <li class="option-button" data-correct="true">24 doors</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="3">
+                    <p class="font-semibold text-lg text-gray-600 mb-3">3. What is usually inside the doors today?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="3">
+                        <li class="option-button" data-correct="true">Chocolate</li>
+                        <li class="option-button" data-correct="false">Money</li>
+                        <li class="option-button" data-correct="false">Vegetables</li>
+                    </ul>
+                </div>
+
+                <div class="button-group">
+                    <button class="check-button" onclick="checkComprehension()">Check Answers</button>
+                    <button class="check-button reset-button" onclick="resetComprehension()">Reset</button>
+                </div>
+                <div id="comprehension-result" class="result-message"></div>
+            </section>
+
+            <section id="exercise-3" class="lesson-section shadow-lg">
+                <h2 class="section-title">📝 4. Story Completion</h2>
+                <p class="text-gray-600 mb-6 font-medium">Click a **Word** in the bank to select it, then click the blank space to finish the sentences.</p>
+                
+                <div class="word-bank p-4 mb-6">
+                    <h4 class="font-bold text-gray-600 mb-3 w-full text-center text-xs uppercase">Word Bank</h4>
+                    <div class="word-options" id="gap-fill-options">
+                        <span class="word-option" data-word="chocolate">chocolate</span>
+                        <span class="word-option" data-word="December">December</span>
+                        <span class="word-option" data-word="count">count</span>
+                        <span class="word-option" data-word="door">door</span>
+                        <span class="word-option" data-word="tradition">tradition</span>
+                    </div>
+                </div>
+
+                <div class="gap-fill-text text-lg leading-loose space-y-4">
+                    <p>1. The Advent Calendar is a fun Christmas <span class="gap-input" data-answer="tradition">____</span>.</p>
+                    <p>2. It helps us <span class="gap-input" data-answer="count">____</span> the days until the holiday.</p>
+                    <p>3. We start opening it in the month of <span class="gap-input" data-answer="December">____</span>.</p>
+                    <p>4. Every day, you open one small <span class="gap-input" data-answer="door">____</span>.</p>
+                    <p>5. I love eating the piece of <span class="gap-input" data-answer="chocolate">____</span> inside!</p>
+                </div>
+                <div class="button-group">
+                    <button class="check-button" onclick="checkGaps()">Check Vocabulary</button>
+                    <button class="check-button reset-button" onclick="resetGaps()">Reset</button>
+                </div>
+                <div id="gap-result" class="result-message"></div>
+            </section>
+
+            <section class="lesson-section shadow-lg border-t-4 border-red-600">
+                <h2 class="section-title">🎉 Lesson Complete & Summary</h2>
+                <p class="mb-4 text-gray-600">Great job! Click a word below to see its definition.</p>
+                
+                <ul id="learned-words-list">
+                    <li data-word="Tradition">Tradition</li><li data-word="Advent Calendar">Advent Calendar</li><li data-word="Door">Door</li><li data-word="Chocolate">Chocolate</li>
+                    <li data-word="Count">Count</li><li data-word="December">December</li><li data-word="Surprise">Surprise</li><li data-word="Christmas Eve">Christmas Eve</li>
+                </ul>
+
+                <div id="save-words-section">
+                    <h3 class="text-xl font-bold mb-3" style="color: var(--color-save-btn);">💾 Save Your Progress</h3>
+                    
+                    <div id="save-feature-loggedin" style="display: none;">
+                        <p class="text-gray-700 mb-4">Save these words to your personal dashboard to practice them later.</p>
+                        <button id="save-words-btn" onclick="saveWordsToDashboard()">Save Words to Dashboard</button>
+                        <p id="save-status" class="text-center mt-3 font-semibold"></p>
+                    </div>
+                    
+                    <div id="login-prompt" style="display: none;">
+                        <p class="text-red-600 font-bold mb-2">🔒 Login to save your progress!</p>
+                        <a href="/login/" class="inline-block bg-gray-800 text-white font-bold py-2 px-4 rounded hover:bg-black transition">Log In / Sign Up</a>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    
+    <div id="feedback-popup"></div>
+    <div id="dictionary-popup"></div>
+
+    <script>
+        // --- AUTH CONFIG ---
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null;
+
+        const lessonTitle = "Christmas Traditions: The Advent Calendar";
+        const lessonLink = "/advent/";
+        const lessonLevel = "A2";
+
+        // Words to Save
+        const wordsToSave = [
+            { word: "Tradition", type: "noun", definition: "Something people do every year for a special event." },
+            { word: "Advent Calendar", type: "noun", definition: "A special calendar to count down to Christmas." },
+            { word: "Door", type: "noun", definition: "You open this to see what is inside." },
+            { word: "Chocolate", type: "noun", definition: "A sweet brown candy made from cocoa." },
+            { word: "Count", type: "verb", definition: "To say numbers in order (1, 2, 3...)." },
+            { word: "December", type: "noun", definition: "The 12th month of the year." },
+            { word: "Surprise", type: "noun", definition: "Something nice that you did not expect." },
+            { word: "Christmas Eve", type: "noun", definition: "The day before Christmas (December 24th)." }
+        ];
+
+        // --- AUTH FUNCTIONS ---
+        async function checkUser() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('logged-in-buttons').style.display = 'flex';
+                    document.getElementById('logged-out-buttons').style.display = 'none';
+                    document.getElementById('save-feature-loggedin').style.display = 'block';
+                    document.getElementById('login-prompt').style.display = 'none';
+                    
+                    const name = user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Cool Dude';
+                    document.getElementById('user-greeting').textContent = `Hey ${name}! 👋`;
+                } else {
+                    document.getElementById('logged-in-buttons').style.display = 'none';
+                    document.getElementById('logged-out-buttons').style.display = 'flex';
+                    document.getElementById('save-feature-loggedin').style.display = 'none';
+                    document.getElementById('login-prompt').style.display = 'block';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function saveWordsToDashboard() {
+            if (!currentUser) return;
+            const btn = document.getElementById('save-words-btn');
+            const status = document.getElementById('save-status');
+            
+            btn.disabled = true;
+            btn.textContent = "Saving...";
+
+            const { error } = await supabase.from('lessons').upsert([{
+                user_id: currentUser.id,
+                lesson_title: lessonTitle,
+                lesson_link: lessonLink,
+                lesson_level: lessonLevel,
+                vocabulary: wordsToSave,
+                completed_at: new Date().toISOString()
+            }], { onConflict: 'user_id,lesson_title' });
+
+            if (!error) {
+                btn.textContent = "✅ Saved!";
+                btn.style.backgroundColor = "#2E7D32"; // Success Green
+                status.textContent = "Merry Christmas! Words added to your dashboard.";
+                setTimeout(() => window.location.href = '/dashboard/', 1500);
+            } else {
+                btn.textContent = "❌ Error";
+                btn.disabled = false;
+                status.textContent = "Error saving. Please try again.";
+            }
+        }
+        
+        async function saveMistake(word) {
+            if(!currentUser) return;
+            const wObj = wordsToSave.find(w=>w.word.toLowerCase()===word.toLowerCase()) || {word, definition:'Review this term', type:'word'};
+            await supabase.from('user_mistakes').upsert({
+                user_id: currentUser.id, word: wObj.word, definition: wObj.definition, word_type: wObj.type,
+                lesson: lessonTitle, lesson_link: lessonLink, last_made_at: new Date().toISOString()
+            }, {onConflict: 'user_id,word'});
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.href = '/';
+        });
+        
+        // --- POPUP FUNCTIONS ---
+        function showFeedback(msg, type) {
+            const el = document.getElementById('feedback-popup');
+            el.textContent = msg;
+            el.style.display = 'block';
+            
+            if (type === 'correct') {
+                el.style.backgroundColor = '#2E7D32'; // Green
+                el.style.borderColor = '#1B5E20';
+            } else {
+                el.style.backgroundColor = '#D32F2F'; // Red
+                el.style.borderColor = '#B71C1C';
+            }
+            setTimeout(() => { el.style.display = 'none'; }, 1800);
+        }
+
+        function showDictionaryPopup(target, word) {
+            let searchWord = word;
+            if (word === 'Advent Calendar') searchWord = 'Advent Calendar'; 
+            else if (word === 'Doors') searchWord = 'Door'; 
+            
+            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === searchWord.toLowerCase());
+            
+            const popup = document.getElementById('dictionary-popup');
+            if(wordObj) {
+                popup.innerHTML = `<strong>${wordObj.word}</strong> <span style="font-size:0.85em; color:#D32F2F;">(${wordObj.type})</span><br>${wordObj.definition}`;
+            } else {
+                 popup.innerHTML = `<strong>${word}</strong><br>Click to save this word later!`;
+            }
+            popup.style.display = 'block';
+
+            const rect = target.getBoundingClientRect();
+            let topPos = rect.top - popup.offsetHeight - 10;
+            if (topPos < 10) topPos = rect.bottom + 10;
+            
+            popup.style.top = topPos + 'px';
+            popup.style.left = (rect.left + (rect.width/2) - (popup.offsetWidth/2)) + 'px';
+        }
+        
+        // Close dictionary on outside click
+        document.body.addEventListener('click', (e) => {
+            if (!e.target.closest('#dictionary-popup') && !e.target.closest('#learned-words-list li') && !e.target.closest('.highlight-word')) {
+                document.getElementById('dictionary-popup').style.display = 'none';
+            }
+        });
+
+        // --- EXERCISE LOGIC ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        function cleanText(text) {
+            if (!text) return '';
+            return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z]/g, '').toLowerCase();
+        }
+
+        /* 1. MATCHING LOGIC */
+        const newVocabData = [
+            { type: 'term', content: "Tradition", key: 'A' }, { type: 'definition', content: "Something we do every year.", key: 'A' },
+            { type: 'term', content: "Calendar", key: 'B' }, { type: 'definition', content: "It shows the days and months.", key: 'B' },
+            { type: 'term', content: "Door", key: 'C' }, { type: 'definition', content: "Open this to see inside.", key: 'C' },
+            { type: 'term', content: "Chocolate", key: 'D' }, { type: 'definition', content: "A sweet brown candy.", key: 'D' },
+            { type: 'term', content: "December", key: 'E' }, { type: 'definition', content: "The month of Christmas.", key: 'E' },
+            { type: 'term', content: "Surprise", key: 'F' }, { type: 'definition', content: "Something unexpected.", key: 'F' }
+        ];
+        let selectedTermCard = null;
+        let selectedDefinitionCard = null;
+        let matchedPairs = 0;
+
+        const funCorrect = ["Merry Christmas! 🎄", "Correct! 🌟", "Ho Ho Ho! 🎅", "Good job! ✅"];
+        const funIncorrect = ["Try again! ❄️", "Not quite! ❌", "Check the list! 📜", "Oops! ⛄"];
+
+        function initVocab() {
+            const matchContainer = document.getElementById('vocab-match-container');
+            matchContainer.innerHTML = '';
+            shuffleArray(newVocabData);
+            newVocabData.forEach(item => {
+                const card = document.createElement('div'); 
+                card.className = `match-card interactive-element ${item.type}`;
+                card.innerHTML = item.type === 'term' ? `<span class="font-extrabold">${item.content}</span>` : `<span>${item.content}</span>`; 
+                card.dataset.key = item.key; card.dataset.type = item.type;
+                card.addEventListener('click', () => handleMatchClick(card));
+                matchContainer.appendChild(card);
+            });
+            selectedTermCard = null; selectedDefinitionCard = null; matchedPairs = 0;
+        }
+
+        function handleMatchClick(card) {
+            if (card.classList.contains('matched')) return;
+            
+            const type = card.dataset.type;
+            let currentSelection = type === 'term' ? selectedTermCard : selectedDefinitionCard;
+            if (currentSelection) currentSelection.classList.remove('selected');
+            
+            if (currentSelection === card) {
+                if (type === 'term') selectedTermCard = null; else selectedDefinitionCard = null;
+                return;
+            }
+            
+            if (type === 'term') selectedTermCard = card; else selectedDefinitionCard = card;
+            card.classList.add('selected');
+
+            if (selectedTermCard && selectedDefinitionCard) {
+                if (selectedTermCard.dataset.key === selectedDefinitionCard.dataset.key) {
+                    const matchKey = selectedTermCard.dataset.key; 
+                    [selectedTermCard, selectedDefinitionCard].forEach(el => {
+                        el.classList.remove('selected'); el.classList.add('temp-matched');
+                    });
+                    showFeedback(funCorrect[Math.floor(Math.random()*funCorrect.length)], 'correct');
+                    
+                    const t = selectedTermCard; const d = selectedDefinitionCard;
+                    setTimeout(() => {
+                        t.classList.remove('temp-matched'); t.classList.add('matched');
+                        d.classList.remove('temp-matched'); d.classList.add('matched');
+                    }, 800);
+
+                    matchedPairs++;
+                    if (matchedPairs === newVocabData.length / 2) {
+                        setTimeout(() => {
+                            showFeedback("🎉 All Matched! Resetting...", 'correct');
+                            setTimeout(() => {
+                                document.querySelectorAll('.match-card').forEach((card, index) => {
+                                    setTimeout(() => {
+                                        card.classList.remove('matched');
+                                    }, index * 100);
+                                });
+                                matchedPairs = 0;
+                            }, 1000);
+                        }, 1000);
+                    }
+                    selectedTermCard = null; selectedDefinitionCard = null;
+                } else {
+                    showFeedback(funIncorrect[Math.floor(Math.random()*funIncorrect.length)], 'incorrect');
+                    setTimeout(() => {
+                        if(selectedTermCard) selectedTermCard.classList.remove('selected'); 
+                        if(selectedDefinitionCard) selectedDefinitionCard.classList.remove('selected');
+                        selectedTermCard = null; selectedDefinitionCard = null;
+                    }, 800);
+                }
+            }
+        }
+        function resetVocab() { initVocab(); }
+
+        /* 2. COMPREHENSION LOGIC */
+        function checkComprehension() {
+            const questions = document.querySelectorAll('.question');
+            let correctAnswers = 0;
+            questions.forEach(q => {
+                const selected = q.querySelector('.option-button.selected');
+                const allOptions = q.querySelectorAll('.option-button');
+                allOptions.forEach(opt => {
+                    opt.classList.remove('correct', 'incorrect');
+                    if (opt.dataset.correct === 'true') opt.classList.add('correct');
+                });
+                if (selected) {
+                    if (selected.dataset.correct === 'true') correctAnswers++;
+                    else selected.classList.add('incorrect');
+                }
+            });
+            const resultDiv = document.getElementById('comprehension-result');
+            resultDiv.style.display = 'block';
+            if (correctAnswers === questions.length) {
+                resultDiv.textContent = '🎉 Great job! You know about Advent!'; resultDiv.className = 'result-message correct';
+            } else {
+                resultDiv.textContent = `You got ${correctAnswers} out of ${questions.length} correct.`; resultDiv.className = 'result-message incorrect';
+            }
+        }
+        function resetComprehension() {
+            document.querySelectorAll('.option-button').forEach(item => item.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById('comprehension-result').style.display = 'none';
+        }
+
+        /* 3. GAP FILL LOGIC */
+        const gapAnswers = ['tradition', 'count', 'december', 'door', 'chocolate']; 
+        let selectedGapWord = null; 
+        
+        function initGaps() {
+            const wordOptionsContainer = document.getElementById('gap-fill-options');
+            const options = Array.from(wordOptionsContainer.children);
+            shuffleArray(options);
+            options.forEach(option => {
+                wordOptionsContainer.appendChild(option);
+                option.classList.remove('used', 'selected'); 
+            });
+            document.querySelectorAll('.gap-input').forEach(blank => {
+                blank.textContent = ''; blank.classList.remove('correct', 'incorrect', 'selected', 'filled');
+            });
+            selectedGapWord = null; document.getElementById('gap-result').style.display = 'none';
+        }
+        
+        function handleGapBlankClick(blank) {
+            if (blank.textContent.trim() !== '' && blank.textContent.trim() !== '____') { 
+                const cleanedWord = blank.textContent; 
+                const btn = Array.from(document.querySelectorAll('.word-option')).find(b => b.textContent === cleanedWord);
+                if (btn) btn.classList.remove('used');
+                blank.textContent = '____'; blank.classList.remove('correct', 'incorrect', 'filled');
+                return;
+            } 
+            if (selectedGapWord) {
+                blank.textContent = selectedGapWord.textContent.trim();
+                blank.classList.add('filled');
+                selectedGapWord.classList.remove('selected'); selectedGapWord.classList.add('used');
+                selectedGapWord = null;
+            } 
+        }
+        
+        function checkGaps() {
+            let correctCount = 0;
+            const blanks = document.querySelectorAll('.gap-input'); 
+            blanks.forEach(blank => { 
+                const answerWord = blank.dataset.answer;
+                const extractedWord = blank.textContent.trim();
+                blank.classList.remove('selected', 'incorrect', 'correct');
+                
+                if (extractedWord === '____' || extractedWord === '') {
+                    // Do nothing
+                } else if (extractedWord.toLowerCase() === answerWord.toLowerCase()) { 
+                    blank.classList.add('correct'); correctCount++; 
+                } else { 
+                    blank.classList.add('incorrect');
+                    saveMistake(answerWord); // Save mistake
+                }
+            });
+            const resultDiv = document.getElementById('gap-result');
+            resultDiv.style.display = 'block';
+            if (correctCount === blanks.length) {
+                resultDiv.textContent = '🎉 Perfect! Story complete.'; resultDiv.className = 'result-message correct';
+            } else {
+                resultDiv.textContent = `You got ${correctCount} out of ${blanks.length} correct.`; resultDiv.className = 'result-message incorrect';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkUser();
+            initVocab();
+            // Dictionary Listeners
+            document.querySelectorAll('#learned-words-list li').forEach(li => {
+                li.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showDictionaryPopup(li, li.dataset.word);
+                });
+            });
+            // Comprehension Listeners
+            document.querySelectorAll('.option-button').forEach(item => {
+                item.addEventListener('click', () => {
+                    item.closest('.question').querySelectorAll('.option-button').forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect'));
+                    item.classList.add('selected'); document.getElementById('comprehension-result').style.display = 'none';
+                });
+            });
+            // Gap Fill Listeners
+            document.querySelectorAll('.word-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    if (option.classList.contains('used')) return;
+                    if (selectedGapWord) selectedGapWord.classList.remove('selected');
+                    if (selectedGapWord === option) selectedGapWord = null;
+                    else { selectedGapWord = option; selectedGapWord.classList.add('selected'); }
+                });
+            });
+            document.querySelectorAll('.gap-input').forEach(blank => {
+                blank.addEventListener('click', () => handleGapBlankClick(blank));
+            });
+            initGaps();
+        });
+    </script>
+</body>
+</html>
