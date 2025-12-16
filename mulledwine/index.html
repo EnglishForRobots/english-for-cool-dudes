@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Science of Mulled Wine - English For Cool Dudes</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* --- BRANDING & LAYOUT STYLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: #F3E5F5; /* Light Purple/Red Tint Background for Wine Theme */
+            color: #3E2723; /* Dark Brown Text */
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- THEME: MULLED WINE PALETTE (UPPER INTERMEDIATE) 🍷 --- */
+        :root {
+            --color-primary: #880E4F; /* Deep Wine Red */
+            --color-secondary: #4A148C; /* Deep Grape Purple */
+            --color-accent: #FFA000; /* Orange/Citrus (Spices) */
+            --color-white: #FFFFFF;
+            
+            /* Feedback Colors */
+            --color-correct: #2E7D32; 
+            --color-incorrect: #C62828; 
+            
+            --color-save-btn: #880E4F; 
+        }
+
+        /* Header */
+        .header {
+            background: var(--color-white);
+            border-bottom: 2px solid var(--color-primary);
+            padding: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header-content {
+            max-width: 1200px; margin: 0 auto; padding: 0 20px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+
+        .logo {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, #880E4F 0%, #4A148C 100%); 
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            font-size: 20px; color: white;
+        }
+        .site-title { font-size: 20px; font-weight: 800; color: var(--color-primary); text-decoration: none; letter-spacing: -0.02em; }
+
+        /* Buttons */
+        .header-buttons { display: flex; align-items: center; gap: 8px; }
+        .header-button {
+            text-decoration: none; padding: 7px 14px; border-radius: 6px;
+            font-size: 14px; font-weight: 600; transition: all 0.2s;
+            white-space: nowrap; cursor: pointer; border: 1px solid #E1BEE7;
+            background: transparent;
+        }
+        .header-button.login { background: #F3E5F5; color: var(--color-primary); }
+        .header-button.login:hover { background: #FFFFFF; color: var(--color-secondary); border-color: var(--color-secondary); }
+        
+        .header-button.signup { background: var(--color-secondary); color: white; border-color: var(--color-secondary); }
+        .header-button.signup:hover { background: #6A1B9A; box-shadow: 0 2px 5px rgba(74, 20, 140, 0.4); }
+        
+        .header-button.dashboard { background: #FFF8E1; color: #F57F17; border-color: #FFD54F; }
+        .header-button.logout { background: #F3E5F5; color: #C62828; border-color: #EF9A9A; }
+        
+        .user-greeting { font-size: 14px; color: var(--color-primary); font-weight: 600; margin-right: 5px; display: block; }
+
+        /* Container */
+        .container-main {
+            max-width: 1000px; margin: 30px auto; padding: 30px 20px;
+            background-color: var(--color-white); border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 2px solid #E1BEE7;
+        }
+
+        .lesson-main-title {
+            font-size: 2.5em; font-weight: 800; color: var(--color-primary); 
+            margin-bottom: 10px; letter-spacing: -0.02em;
+        }
+
+        .lesson-section {
+            background-color: #F8FAF5; padding: 30px; border-radius: 10px;
+            border: 1px solid #E0E0E0; margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: var(--color-secondary); font-size: 1.8em; font-weight: 800;
+            margin-bottom: 20px; padding-bottom: 5px; border-bottom: 2px dashed var(--color-primary);
+        }
+
+ /* --- OPTIMIZED VIDEO STYLES --- */
+        .video-wrapper {
+            width: 100%;
+            max-width: 800px; /* OPTIMIZATION: Limits width so it's not too tall on desktop */
+            margin: 0 auto 25px auto; /* Centers the video */
+        }
+        
+        /* Video Container */
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            background: #000;
+        }
+        .video-container iframe {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        }
+
+        /* Reading Text */
+        .reading-text {
+            background: #FFFFFF; border-left: 5px solid var(--color-primary);
+            padding: 20px; border-radius: 0 8px 8px 0; font-size: 1.1em;
+            color: #3E2723; line-height: 1.8; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .highlight-word {
+            color: var(--color-primary); font-weight: 700; cursor: help;
+            border-bottom: 2px dotted var(--color-primary); transition: all 0.2s;
+        }
+        .highlight-word:hover { background-color: #F3E5F5; color: var(--color-secondary); border-radius: 4px; }
+        
+        /* Match Cards */
+        .match-card {
+            border: 2px solid transparent; transition: all 0.5s ease;
+            cursor: pointer; user-select: none; border-radius: 0.75rem; 
+            padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); font-weight: 600;
+            opacity: 1; transform: scale(1); min-height: 80px; display: flex; align-items: center; justify-content: center;
+        }
+        .match-card.term {
+            background-color: #F3E5F5; border: 2px solid var(--color-primary); 
+            text-align: center; color: var(--color-primary);
+        }
+        .match-card.definition {
+            background-color: #FFFFFF; text-align: left; border: 2px solid #CFD8DC; color: #37474F;
+        }
+        .match-card.selected {
+            border-color: var(--color-accent); background-color: #FFF8E1; 
+            box-shadow: 0 0 0 4px #FFE082; transform: scale(1.02);
+        }
+        .match-card.matched { 
+            pointer-events: none; opacity: 0; transform: scale(0.9); 
+        }
+        .match-card.temp-matched {
+            background-color: #C8E6C9 !important; border-color: #2E7D32 !important; 
+            box-shadow: 0 0 0 4px #2E7D32 !important; color: #1B5E20 !important;
+        }
+
+        /* Quiz Buttons */
+        .comp-btn-group .option-button {
+            transition: all 0.2s; background-color: #FFFFFF; color: #3E2723;
+            font-weight: 600; padding: 10px 15px; border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); border: 1px solid #E1BEE7;
+            text-align: left; width: 100%; cursor: pointer; margin-bottom: 10px;
+        }
+        .comp-btn-group .option-button:hover { border-color: var(--color-primary); background-color: #F3E5F5; }
+        .comp-btn-group .option-button.selected { background-color: #E1BEE7; color: var(--color-primary) !important; border-color: var(--color-primary); box-shadow: 0 0 0 4px #E1BEE7; }
+        .comp-btn-group .option-button.correct { background-color: #4CAF50 !important; color: white !important; border-color: #2E7D32 !important; box-shadow: 0 0 0 4px #2E7D32 !important; }
+        .comp-btn-group .option-button.incorrect { background-color: #EF5350 !important; color: white !important; border-color: #C62828 !important; box-shadow: 0 0 0 4px #C62828 !important; }
+
+        .result-message { margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: 700; display: none; text-align: center; }
+        .result-message.correct { background-color: #C8E6C9; color: #1B5E20; border: 1px solid #81C784; }
+        .result-message.incorrect { background-color: #FFCDD2; color: #B71C1C; border: 1px solid #E57373; }
+        
+        /* Gap-Fill */
+        .word-bank { background: #EDE7F6; border: 2px solid var(--color-secondary); border-radius: 10px; }
+        .word-options { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .word-option {
+            background-color: var(--color-secondary); color: white; padding: 10px 15px;
+            border-radius: 6px; cursor: pointer; transition: all 0.2s; font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); border: none;
+        }
+        .word-option:hover { background-color: #6A1B9A; transform: translateY(-2px); }
+        .word-option.selected { background-color: var(--color-primary) !important; transform: scale(1.05); box-shadow: 0 0 0 4px #E1BEE7 !important; }
+        .word-option.used { opacity: 0.4; pointer-events: none; background-color: #78909C; transform: none; }
+
+        .gap-input {
+            display: inline-block; text-align: center; padding: 0 10px; min-width: 120px; 
+            height: 32px; line-height: 30px; background-color: #FFFFFF; border-bottom: 3px solid var(--color-primary); 
+            border-radius: 4px; color: var(--color-primary); font-weight: 700; cursor: pointer; margin: 0 4px; transition: all 0.2s;
+        }
+        .gap-input:empty { background-color: #F3E5F5; }
+        .gap-input.filled { background-color: #E1BEE7; border-bottom-color: var(--color-primary); }
+        .gap-input.correct { background-color: #A9DFBF !important; border-color: #2E7D32 !important; color: #1B5E20 !important; font-style: normal; pointer-events: none; }
+        .gap-input.incorrect { background-color: #EF9A9A !important; border-color: #C62828 !important; color: #B71C1C !important; font-style: normal; }
+
+        /* Buttons & Save */
+        .button-group { margin-top: 20px; display: flex; gap: 15px; justify-content: center; }
+        .check-button {
+            background: var(--color-primary); color: white; border: none; padding: 12px 25px;
+            border-radius: 8px; cursor: pointer; font-size: 1em; font-weight: 600;
+            transition: all 0.3s; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .check-button:hover { background: #AD1457; transform: translateY(-1px); }
+        .reset-button { background: #78909C; }
+        .reset-button:hover { background: #546E7A; }
+
+        #save-words-section { background: #F3E5F5; border: 2px solid #E1BEE7; padding: 25px; border-radius: 12px; margin-top: 40px; text-align: center; }
+        #save-words-btn {
+            background-color: var(--color-save-btn); color: white; padding: 14px 30px;
+            border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color 0.2s;
+            display: block; width: 100%; border: none; box-shadow: 0 4px #4A148C;
+            text-transform: uppercase; font-size: 1.1em;
+        }
+        #save-words-btn:hover:not(:disabled) { background-color: #AD1457; }
+        #save-words-btn:active:not(:disabled) { box-shadow: 0 1px #4A148C; transform: translateY(3px); }
+        #save-words-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        #learned-words-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px; text-align: center; list-style: none; }
+        #learned-words-list li {
+            background: white; padding: 10px 15px; border-radius: 8px; border: 2px solid var(--color-primary);
+            font-size: 0.95em; cursor: pointer; transition: all 0.2s; font-weight: 600; color: var(--color-primary);
+        }
+        #learned-words-list li:hover { transform: translateY(-2px); border-color: var(--color-secondary); color: var(--color-secondary); box-shadow: 0 4px 10px rgba(0,0,0,0.05); background-color: #E8F5E9; }
+
+        /* Popups */
+        #feedback-popup {
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            padding: 25px 40px; border-radius: 16px; font-weight: 700; color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 2000; display: none;
+            text-align: center; font-size: 1.3em; border: 4px solid white; min-width: 300px;
+        }
+        #dictionary-popup {
+            position: fixed; max-width: 280px; padding: 16px; background: #FFFFFF;
+            border: 3px solid var(--color-primary); border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 2001; display: none;
+            font-size: 0.95em; color: #3E2723; line-height: 1.5;
+        }
+        @media (max-width: 768px) { .user-greeting { display: none; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">🍷</span>
+                <a href="/advanced/" class="site-title">English For Cool Dudes</a>
+            </div>
+            <div id="logged-out-buttons" class="header-buttons" style="display: none;">
+                <a href="/login/" class="header-button login">Login</a>
+                <a href="/signup/" class="header-button signup">Sign Up</a>
+            </div>
+            <div id="logged-in-buttons" class="header-buttons" style="display: none;">
+                <span class="user-greeting" id="user-greeting">Hey Cool Dude! 👋</span>
+                <a href="/dashboard/" class="header-button dashboard">My Dashboard</a>
+                <button id="logout-btn" class="header-button logout">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-main">
+        <h1 class="lesson-main-title">🧪 The Science & Culture of Mulled Wine</h1>
+        <p class="text-lg text-gray-500 mb-8">Upper Intermediate (B2-C1) | Topic: Culture & Food Science</p>
+
+        <main class="space-y-8">
+            
+            <section class="lesson-section shadow-lg">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 border-b-2 border-dashed border-pink-900 pb-4">
+                    <h2 class="section-title" style="border: none; margin: 0;">📺 1. Watch & Learn</h2>
+                    <span class="text-sm bg-purple-100 text-purple-800 py-1 px-3 rounded-full font-bold mt-2 md:mt-0">Time: 6 mins</span>
+                </div>
+
+<div class="video-wrapper">
+                    <div class="video-container">
+                        <iframe src="https://www.youtube-nocookie.com/embed/WV8om35Rj4o?si=L76fVA8CAffIk1uB" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    </div>
+                </div>
+                
+                <h3 class="font-bold text-xl text-gray-800 mb-3">Reading</h3>
+                <div class="reading-text">
+                    <p class="mb-4">Whether you call it Glühwein, Glögi, or Mulled Wine, this hot alcoholic <span class="highlight-word" onclick="showDictionaryPopup(this, 'Beverage')">beverage</span> is an <span class="highlight-word" onclick="showDictionaryPopup(this, 'Essential')">essential</span> part of the European winter experience. The tradition is even older than Christmas markets themselves, dating back to ancient times.</p>
+
+                    <p class="mb-4">While delicious, it can quickly make you <span class="highlight-word" onclick="showDictionaryPopup(this, 'Tipsy')">tipsy</span> due to its hidden alcohol content and high sugar levels. Each region has its own variation; for instance, the Finnish version adds almonds and raisins, while the classic German style focuses on spices and citrus.</p>
+
+                    <p class="mb-4">Making it requires patience. You must only <span class="highlight-word" onclick="showDictionaryPopup(this, 'Simmer')">simmer</span> the wine; boiling it will kill the alcohol and create bitterness. Originally used as a medicinal <span class="highlight-word" onclick="showDictionaryPopup(this, 'Remedy')">remedy</span> in the Middle Ages, it now faces modern <span class="highlight-word" onclick="showDictionaryPopup(this, 'Rival')">rivals</span> like "Glüh-gin" and hot cider.</p>
+
+                    <p>Finally, if you visit a market, don't forget the <span class="highlight-word" onclick="showDictionaryPopup(this, 'Deposit')">deposit</span> system for the mugs—a sustainable way to enjoy this piece of cultural <span class="highlight-word" onclick="showDictionaryPopup(this, 'Heritage')">heritage</span>.</p>
+                </div>
+            </section>
+
+            <section id="exercise-1" class="lesson-section shadow-lg">
+                <h2 class="section-title">🔗 2. Vocabulary Memory Match</h2>
+                <p class="text-gray-600 mb-6 font-medium">Match the term to its definition. Correct pairs will disappear!</p>
+
+                <div id="vocab-match-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </section>
+        
+            <section id="exercise-2" class="lesson-section shadow-lg">
+                <h2 class="section-title">❓ 3. Comprehension Check</h2>
+                <p class="text-gray-600 mb-4 font-medium">Watch the video and select the correct answer.</p>
+                
+                <div class="question" data-question="1">
+                    <p class="font-semibold text-lg text-gray-600 mb-3">1. How does Finnish Glögi differ from standard German Glühwein?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="1">
+                        <li class="option-button" data-correct="false">It is made with white wine and has more sugar.</li>
+                        <li class="option-button" data-correct="true">It uses blackcurrant wine and has less sugar.</li>
+                        <li class="option-button" data-correct="false">It contains no alcohol and is served cold.</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="2">
+                    <p class="font-semibold text-lg text-gray-600 mb-3">2. According to Chef Olympia, what is the most important rule when making mulled wine?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="2">
+                        <li class="option-button" data-correct="true">Simmer it gently, never boil it.</li>
+                        <li class="option-button" data-correct="false">Always use the most expensive wine available.</li>
+                        <li class="option-button" data-correct="false">Add extra vodka to make it stronger.</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="3">
+                    <p class="font-semibold text-lg text-gray-600 mb-3">3. Historically, why did people in the Middle Ages drink mulled wine?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="3">
+                        <li class="option-button" data-correct="false">To celebrate the New Year exclusively.</li>
+                        <li class="option-button" data-correct="false">Because water was too expensive.</li>
+                        <li class="option-button" data-correct="true">As a medicine and to mask the taste of bad wine.</li>
+                    </ul>
+                </div>
+
+                <div class="button-group">
+                    <button class="check-button" onclick="checkComprehension()">Check Answers</button>
+                    <button class="check-button reset-button" onclick="resetComprehension()">Reset Exercise</button>
+                </div>
+                <div id="comprehension-result" class="result-message"></div>
+            </section>
+
+            <section id="exercise-3" class="lesson-section shadow-lg">
+                <h2 class="section-title">📝 4. Contextual Gap Fill</h2>
+                <p class="text-gray-600 mb-6 font-medium">Complete the summary using the vocabulary from the video.</p>
+                
+                <div class="word-bank p-4 mb-6">
+                    <h4 class="font-bold text-gray-600 mb-3 w-full text-center text-xs uppercase">Word Bank</h4>
+                    <div class="word-options" id="gap-fill-options">
+                        <span class="word-option" data-word="tipsy">tipsy</span>
+                        <span class="word-option" data-word="heritage">heritage</span>
+                        <span class="word-option" data-word="essential">essential</span>
+                        <span class="word-option" data-word="rivals">rivals</span>
+                        <span class="word-option" data-word="remedy">remedy</span>
+                        <span class="word-option" data-word="simmer">simmer</span>
+                    </div>
+                </div>
+
+                <div class="gap-fill-text text-lg leading-loose space-y-4">
+                    <p>1. Warm clothes are <span class="gap-input" data-answer="essential">____</span> if you visit a Christmas market in December.</p>
+                    <p>2. Be careful not to drink too much, or the alcohol will make you <span class="gap-input" data-answer="tipsy">____</span> very quickly.</p>
+                    <p>3. When cooking the sauce, let it <span class="gap-input" data-answer="simmer">____</span> on low heat so the flavors blend together.</p>
+                    <p>4. Honey and lemon tea is a common home <span class="gap-input" data-answer="remedy">____</span> for a sore throat.</p>
+                    <p>5. Although mulled wine is popular, it has many <span class="gap-input" data-answer="rivals">____</span> like hot chocolate and cider.</p>
+                    <p>6. Food is an important part of a country's cultural <span class="gap-input" data-answer="heritage">____</span>.</p>
+                </div>
+                <div class="button-group">
+                    <button class="check-button" onclick="checkGaps()">Check Answers</button>
+                    <button class="check-button reset-button" onclick="resetGaps()">Reset Exercise</button>
+                </div>
+                <div id="gap-result" class="result-message"></div>
+            </section>
+
+            <section class="lesson-section shadow-lg border-t-4 border-pink-800">
+                <h2 class="section-title">🎉 Lesson Complete & Summary</h2>
+                <p class="mb-4 text-gray-600">Well done! Review the definitions below.</p>
+                
+                <ul id="learned-words-list">
+                    <li data-word="Beverage">Beverage</li>
+                    <li data-word="Tipsy">Tipsy</li>
+                    <li data-word="Heritage">Heritage</li>
+                    <li data-word="Essential">Essential</li>
+                    <li data-word="Simmer">Simmer</li>
+                    <li data-word="Remedy">Remedy</li>
+                    <li data-word="Rival">Rival</li>
+                    <li data-word="Deposit">Deposit</li>
+                </ul>
+
+                <div id="save-words-section">
+                    <h3 class="text-xl font-bold mb-3" style="color: var(--color-save-btn);">💾 Save Your Progress</h3>
+                    
+                    <div id="save-feature-loggedin" style="display: none;">
+                        <p class="text-gray-700 mb-4">Add these upper-intermediate terms to your dashboard.</p>
+                        <button id="save-words-btn" onclick="saveWordsToDashboard()">Save Words to Dashboard</button>
+                        <p id="save-status" class="text-center mt-3 font-semibold"></p>
+                    </div>
+                    
+                    <div id="login-prompt" style="display: none;">
+                        <p class="text-red-600 font-bold mb-2">🔒 Login to save your progress!</p>
+                        <a href="/login/" class="inline-block bg-gray-800 text-white font-bold py-2 px-4 rounded hover:bg-black transition">Log In / Sign Up</a>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    
+    <div id="feedback-popup"></div>
+    <div id="dictionary-popup"></div>
+
+    <script>
+        // --- CONFIG ---
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null;
+
+        const lessonTitle = "The Science & Culture of Mulled Wine";
+        const lessonLink = "/mulled_wine_uppint/";
+        const lessonLevel = "B2-C1";
+
+        const wordsToSave = [
+            { word: "Beverage", type: "noun", definition: "A drink, especially one other than water." },
+            { word: "Tipsy", type: "adjective", definition: "Slightly drunk." },
+            { word: "Heritage", type: "noun", definition: "Valued traditions and qualities passed down from the past." },
+            { word: "Essential", type: "adjective", definition: "Absolutely necessary; extremely important." },
+            { word: "Simmer", type: "verb", definition: "To cook strictly below boiling point." },
+            { word: "Remedy", type: "noun", definition: "A medicine or treatment for a minor illness." },
+            { word: "Rival", type: "noun", definition: "A person or thing competing with another." },
+            { word: "Deposit", type: "noun", definition: "A sum of money returned when a rented item is returned." }
+        ];
+
+        // --- AUTH ---
+        async function checkUser() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('logged-in-buttons').style.display = 'flex';
+                    document.getElementById('logged-out-buttons').style.display = 'none';
+                    document.getElementById('save-feature-loggedin').style.display = 'block';
+                    document.getElementById('login-prompt').style.display = 'none';
+                    const name = user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Cool Dude';
+                    document.getElementById('user-greeting').textContent = `Hey ${name}! 👋`;
+                } else {
+                    document.getElementById('logged-in-buttons').style.display = 'none';
+                    document.getElementById('logged-out-buttons').style.display = 'flex';
+                    document.getElementById('save-feature-loggedin').style.display = 'none';
+                    document.getElementById('login-prompt').style.display = 'block';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function saveWordsToDashboard() {
+            if (!currentUser) return;
+            const btn = document.getElementById('save-words-btn');
+            const status = document.getElementById('save-status');
+            btn.disabled = true; btn.textContent = "Saving...";
+
+            const { error } = await supabase.from('lessons').upsert([{
+                user_id: currentUser.id, lesson_title: lessonTitle, lesson_link: lessonLink,
+                lesson_level: lessonLevel, vocabulary: wordsToSave, completed_at: new Date().toISOString()
+            }], { onConflict: 'user_id,lesson_title' });
+
+            if (!error) {
+                btn.textContent = "✅ Saved!"; btn.style.backgroundColor = "#2E7D32";
+                status.textContent = "Vocabulary secured! Check your dashboard.";
+                setTimeout(() => window.location.href = '/dashboard/', 1500);
+            } else {
+                btn.textContent = "❌ Error"; btn.disabled = false;
+                status.textContent = "Error saving. Please try again.";
+            }
+        }
+        
+        async function saveMistake(word) {
+            if(!currentUser) return;
+            const wObj = wordsToSave.find(w=>w.word.toLowerCase()===word.toLowerCase()) || {word, definition:'Review this term', type:'word'};
+            await supabase.from('user_mistakes').upsert({
+                user_id: currentUser.id, word: wObj.word, definition: wObj.definition, word_type: wObj.type,
+                lesson: lessonTitle, lesson_link: lessonLink, last_made_at: new Date().toISOString()
+            }, {onConflict: 'user_id,word'});
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await supabase.auth.signOut(); window.location.href = '/';
+        });
+
+        // --- UTILS ---
+        function showFeedback(msg, type) {
+            const el = document.getElementById('feedback-popup');
+            el.textContent = msg; el.style.display = 'block';
+            el.style.backgroundColor = type === 'correct' ? '#2E7D32' : '#D32F2F';
+            el.style.borderColor = type === 'correct' ? '#1B5E20' : '#B71C1C';
+            setTimeout(() => { el.style.display = 'none'; }, 1800);
+        }
+
+        function showDictionaryPopup(target, word) {
+            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase());
+            const popup = document.getElementById('dictionary-popup');
+            if(wordObj) popup.innerHTML = `<strong>${wordObj.word}</strong> <span style="font-size:0.85em; color:#880E4F;">(${wordObj.type})</span><br>${wordObj.definition}`;
+            else popup.innerHTML = `<strong>${word}</strong><br>Definition not found.`;
+            popup.style.display = 'block';
+            const rect = target.getBoundingClientRect();
+            let topPos = rect.top - popup.offsetHeight - 10;
+            if (topPos < 10) topPos = rect.bottom + 10;
+            popup.style.top = topPos + 'px';
+            popup.style.left = (rect.left + (rect.width/2) - (popup.offsetWidth/2)) + 'px';
+        }
+        document.body.addEventListener('click', (e) => {
+            if (!e.target.closest('#dictionary-popup') && !e.target.closest('#learned-words-list li') && !e.target.closest('.highlight-word')) {
+                document.getElementById('dictionary-popup').style.display = 'none';
+            }
+        });
+
+        // --- EXERCISES ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        function cleanText(text) { return text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z]/g, '').toLowerCase() : ''; }
+
+        /* MATCHING */
+        const newVocabData = [
+            { type: 'term', content: "Beverage", key: 'A' }, { type: 'definition', content: "A drink other than water.", key: 'A' },
+            { type: 'term', content: "Tipsy", key: 'B' }, { type: 'definition', content: "Slightly drunk.", key: 'B' },
+            { type: 'term', content: "Heritage", key: 'C' }, { type: 'definition', content: "Traditions from the past.", key: 'C' },
+            { type: 'term', content: "Essential", key: 'D' }, { type: 'definition', content: "Absolutely necessary.", key: 'D' },
+            { type: 'term', content: "Simmer", key: 'E' }, { type: 'definition', content: "Cook just below boiling.", key: 'E' },
+            { type: 'term', content: "Remedy", key: 'F' }, { type: 'definition', content: "Medicine for minor illness.", key: 'F' },
+            { type: 'term', content: "Rival", key: 'G' }, { type: 'definition', content: "A competitor.", key: 'G' },
+            { type: 'term', content: "Deposit", key: 'H' }, { type: 'definition', content: "Money returned after use.", key: 'H' }
+        ];
+        let selectedTermCard = null, selectedDefinitionCard = null, matchedPairs = 0;
+
+        const funCorrect = [
+            "Delicious! 🍷", 
+            "Tasty choice! 🍇", 
+            "Warm & Cozy! 🔥", 
+            "Correct! ✅"
+        ];
+        const funIncorrect = [
+            "Too sour! 🍋", 
+            "Try again! ❄️", 
+            "Not quite! 🥘", 
+            "Spilled it! 🥣"
+        ];
+
+        function initVocab() {
+            const matchContainer = document.getElementById('vocab-match-container');
+            matchContainer.innerHTML = ''; shuffleArray(newVocabData);
+            newVocabData.forEach(item => {
+                const card = document.createElement('div'); 
+                card.className = `match-card interactive-element ${item.type}`;
+                card.innerHTML = item.type === 'term' ? `<span class="font-extrabold">${item.content}</span>` : `<span>${item.content}</span>`; 
+                card.dataset.key = item.key; card.dataset.type = item.type;
+                card.addEventListener('click', () => handleMatchClick(card));
+                matchContainer.appendChild(card);
+            });
+            selectedTermCard = null; selectedDefinitionCard = null; matchedPairs = 0;
+        }
+
+        function handleMatchClick(card) {
+            if (card.classList.contains('matched')) return;
+            const type = card.dataset.type;
+            let currentSelection = type === 'term' ? selectedTermCard : selectedDefinitionCard;
+            if (currentSelection) currentSelection.classList.remove('selected');
+            if (currentSelection === card) {
+                if (type === 'term') selectedTermCard = null; else selectedDefinitionCard = null;
+                return;
+            }
+            if (type === 'term') selectedTermCard = card; else selectedDefinitionCard = card;
+            card.classList.add('selected');
+
+            if (selectedTermCard && selectedDefinitionCard) {
+                if (selectedTermCard.dataset.key === selectedDefinitionCard.dataset.key) {
+                    const matchKey = selectedTermCard.dataset.key; 
+                    [selectedTermCard, selectedDefinitionCard].forEach(el => { el.classList.remove('selected'); el.classList.add('temp-matched'); });
+                    showFeedback(funCorrect[Math.floor(Math.random() * funCorrect.length)], 'correct');
+                    
+                    const t = selectedTermCard; const d = selectedDefinitionCard;
+                    setTimeout(() => {
+                        t.classList.remove('temp-matched'); t.classList.add('matched');
+                        d.classList.remove('temp-matched'); d.classList.add('matched');
+                    }, 800);
+
+                    matchedPairs++;
+                    if (matchedPairs === newVocabData.length / 2) {
+                        setTimeout(() => {
+                            showFeedback("🎉 All Matched! Resetting...", 'correct');
+                            setTimeout(() => {
+                                document.querySelectorAll('.match-card').forEach((card, index) => {
+                                    setTimeout(() => {
+                                        card.classList.remove('matched');
+                                    }, index * 100);
+                                });
+                                matchedPairs = 0;
+                            }, 1000);
+                        }, 1000);
+                    }
+                    selectedTermCard = null; selectedDefinitionCard = null;
+                } else {
+                    showFeedback(funIncorrect[Math.floor(Math.random() * funIncorrect.length)], 'incorrect');
+                    setTimeout(() => {
+                        if(selectedTermCard) selectedTermCard.classList.remove('selected'); 
+                        if(selectedDefinitionCard) selectedDefinitionCard.classList.remove('selected');
+                        selectedTermCard = null; selectedDefinitionCard = null;
+                    }, 800);
+                }
+            }
+        }
+        function resetVocab() { initVocab(); }
+
+        /* COMPREHENSION */
+        function checkComprehension() {
+            const questions = document.querySelectorAll('.question'); let correctAnswers = 0;
+            questions.forEach(q => {
+                const selected = q.querySelector('.option-button.selected');
+                q.querySelectorAll('.option-button').forEach(opt => {
+                    opt.classList.remove('correct', 'incorrect');
+                    if (opt.dataset.correct === 'true') opt.classList.add('correct');
+                });
+                if (selected) {
+                    if (selected.dataset.correct === 'true') correctAnswers++; else selected.classList.add('incorrect');
+                }
+            });
+            const resultDiv = document.getElementById('comprehension-result'); resultDiv.style.display = 'block';
+            if (correctAnswers === questions.length) { resultDiv.textContent = '🎉 Excellent analysis!'; resultDiv.className = 'result-message correct'; }
+            else { resultDiv.textContent = `You got ${correctAnswers}/${questions.length} correct.`; resultDiv.className = 'result-message incorrect'; }
+        }
+        function resetComprehension() {
+            document.querySelectorAll('.option-button').forEach(item => item.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById('comprehension-result').style.display = 'none';
+        }
+
+        /* GAP FILL */
+        const gapAnswers = ['essential', 'tipsy', 'simmer', 'remedy', 'rivals', 'heritage']; 
+        let selectedGapWord = null; 
+        
+        function initGaps() {
+            const wordOptionsContainer = document.getElementById('gap-fill-options');
+            const options = Array.from(wordOptionsContainer.children);
+            shuffleArray(options);
+            options.forEach(option => { wordOptionsContainer.appendChild(option); option.classList.remove('used', 'selected'); });
+            document.querySelectorAll('.gap-input').forEach(blank => { blank.textContent = ''; blank.classList.remove('correct', 'incorrect', 'selected'); });
+            selectedGapWord = null; document.getElementById('gap-result').style.display = 'none';
+        }
+        
+        function handleGapBlankClick(blank) {
+            if (blank.textContent.trim() === '') {
+                 if (selectedGapWord) {
+                    blank.textContent = selectedGapWord.textContent.trim();
+                    selectedGapWord.classList.remove('selected'); 
+                    selectedGapWord.classList.add('used');
+                    selectedGapWord = null;
+                }
+                return;
+            }
+
+            const currentText = cleanText(blank.textContent); 
+            
+            const allOptions = Array.from(document.querySelectorAll('.word-option'));
+            const matchingBtn = allOptions.find(btn => cleanText(btn.textContent) === currentText);
+            
+            if (matchingBtn) {
+                matchingBtn.classList.remove('used'); 
+            }
+
+            blank.textContent = ''; 
+            blank.classList.remove('correct', 'incorrect', 'filled'); 
+        }
+
+        function checkGaps() {
+            let correctCount = 0; 
+            const blanks = document.querySelectorAll('.gap-input'); 
+            
+            blanks.forEach(blank => { 
+                const answerWord = blank.dataset.answer;
+                const extractedWord = blank.textContent.trim();
+                
+                const cleanExtracted = cleanText(extractedWord);
+                const cleanAnswer = cleanText(answerWord);
+
+                blank.classList.remove('selected', 'incorrect', 'correct');
+                
+                if (extractedWord === '') {
+                    // Empty
+                } else if (cleanExtracted === cleanAnswer) { 
+                    blank.classList.add('correct'); 
+                    correctCount++; 
+                } else { 
+                    blank.classList.add('incorrect');
+                    saveMistake(answerWord); 
+                }
+            });
+
+            const resultDiv = document.getElementById('gap-result'); 
+            resultDiv.style.display = 'block';
+            
+            if (correctCount === blanks.length) { 
+                resultDiv.textContent = '🎉 Perfect! Summary complete.'; 
+                resultDiv.className = 'result-message correct'; 
+            } else { 
+                resultDiv.textContent = `You got ${correctCount}/${blanks.length} correct.`; 
+                resultDiv.className = 'result-message incorrect'; 
+            }
+        }
+
+        function resetGaps() {
+            selectedGapWord = null;
+            document.getElementById('gap-result').style.display = 'none';
+
+            const wordOptions = document.querySelectorAll('.word-option');
+            wordOptions.forEach(opt => {
+                opt.classList.remove('used', 'selected');
+            });
+
+            const blanks = document.querySelectorAll('.gap-input');
+            blanks.forEach(blank => {
+                blank.textContent = '';
+                blank.classList.remove('correct', 'incorrect', 'selected', 'filled');
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkUser(); initVocab(); initGaps();
+            document.querySelectorAll('#learned-words-list li').forEach(li => li.addEventListener('click', (e) => { e.stopPropagation(); showDictionaryPopup(li, li.dataset.word); }));
+            document.querySelectorAll('.option-button').forEach(item => item.addEventListener('click', () => {
+                item.closest('.question').querySelectorAll('.option-button').forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect'));
+                item.classList.add('selected'); document.getElementById('comprehension-result').style.display = 'none';
+            }));
+            document.querySelectorAll('.word-option').forEach(option => option.addEventListener('click', () => {
+                if (option.classList.contains('used')) return;
+                if (selectedGapWord) selectedGapWord.classList.remove('selected');
+                if (selectedGapWord === option) selectedGapWord = null;
+                else { selectedGapWord = option; selectedGapWord.classList.add('selected'); }
+            }));
+            document.querySelectorAll('.gap-input').forEach(blank => blank.addEventListener('click', () => handleGapBlankClick(blank)));
+        });
+    </script>
+</body>
+</html>
