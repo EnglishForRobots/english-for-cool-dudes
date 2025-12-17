@@ -82,6 +82,8 @@ const htmlPages = [
   '/wealthtax/',
   '/adventcalendar/',
   '/adventcalendarint/',
+  '/mulledwine/',
+  '/iop/',
   
   
 ];
