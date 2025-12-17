@@ -7,8 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    
-    
     <style>
         /* --- COOL DUDES BRANDING & MOBILE-FIRST STYLES --- */
         :root {
@@ -671,25 +669,19 @@
     <div id="feedback-popup"></div>
     <div id="dictionary-popup"></div>
 
-   <script>
-        // === 1. SUPABASE INITIALIZATION ===
-        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-        
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        // === 2. GLOBAL STATE ===
+    <script>
+        // === 1. GLOBAL VARIABLES & CONSTANTS ===
         const TOTAL_STAGES = 5; 
         const FLASH_DURATION = 1500;
         let currentStage = 1;
         let selectedWordForGap = null;
         let currentUser = null;
         
-        // === 3. LESSON VOCABULARY DATA ===
         const lessonTitle = "The Bank of England";
         const lessonLink = "/boe/";
         const lessonLevel = "INTERMEDIATE";
         
+        // FIXED VOCABULARY LIST (No recursive definition for "vault")
         const learnedWords = [
             { word: "Threadneedle Street", definition: "A narrow street in London's financial district, where the Bank of England is located.", type: "noun" },
             { word: "Bank", definition: "A financial institution owned by the government that manages the state's currency and monetary policy.", type: "noun" },
@@ -715,50 +707,34 @@
             { word: "central", definition: "Most important; main.", type: "adjective" },
             { word: "banknotes", definition: "Paper money issued by a bank.", type: "noun" },
         ];
+
+        // === 2. SUPABASE SETUP (Safe Mode) ===
+        // We define 'supabase' as null first, then try to initialize it.
+        // This prevents the script from crashing if Supabase fails to load.
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
         
-        // === 4. MISTAKE TRACKING FUNCTIONS (FIXED) ===
-        function getWordDefinition(word) {
-            if (!word) return null;
-            // Robust search: trims whitespace and ignores case
-            return learnedWords.find(w => w.word.trim().toLowerCase() === word.trim().toLowerCase());
+        let supabase = null;
+
+        function initSupabase() {
+            try {
+                if (window.supabase) {
+                    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    console.log("✅ Supabase initialized successfully.");
+                } else {
+                    console.warn("⚠️ Supabase SDK not found. Lesson will work in offline mode.");
+                }
+            } catch (e) {
+                console.error("⚠️ Supabase initialization failed:", e);
+            }
         }
 
-        async function saveMistake(word) {
-            if (!currentUser) {
-                console.log('No user logged in, skipping mistake save');
-                return;
-            }
-            
-            const wordObj = getWordDefinition(word);
-            
-            // SECURITY GUARD: Prevents saving broken data that crashes the homepage
-            if (!wordObj) {
-                console.error(`🚨 CRITICAL: Could not find definition for "${word}". Mistake NOT saved to prevent database corruption.`);
-                return;
-            }
-            
-            try {
-                const { error } = await supabase.from('user_mistakes').upsert({
-                    user_id: currentUser.id,
-                    word: wordObj.word, 
-                    definition: wordObj.definition,
-                    word_type: wordObj.type,
-                    lesson: lessonTitle,
-                    lesson_link: lessonLink,
-                    last_made_at: new Date().toISOString()
-                }, {
-                    onConflict: 'user_id,word'
-                });
-                
-                if (error) throw error;
-                console.log(`✅ Saved mistake: ${wordObj.word}`);
-            } catch (error) {
-                console.error('Error saving mistake:', error);
-            }
-        }
-        
-        // === 5. AUTH HEADER INITIALIZATION ===
+        // === 3. CORE LOGIC FUNCTIONS ===
+
+        // --- Auth Handling ---
         async function initializeAuthHeader() {
+            if (!supabase) return; // Skip if offline
+
             const loggedOutButtons = document.getElementById('logged-out-buttons');
             const loggedInButtons = document.getElementById('logged-in-buttons');
             const userGreeting = document.getElementById('user-greeting');
@@ -771,7 +747,6 @@
 
                 if (user) {
                     currentUser = user;
-                    console.log('✅ User logged in:', user.email);
                     
                     let userName = 'Cool Dude';
                     if (user.user_metadata && user.user_metadata.full_name) {
@@ -787,8 +762,6 @@
                     if (loginPrompt) loginPrompt.style.display = 'none';
                 } else {
                     currentUser = null;
-                    console.log('ℹ️ No user logged in');
-                    
                     if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
                     if (loggedInButtons) loggedInButtons.style.display = 'none';
                     if (loggedInSave) loggedInSave.style.display = 'none';
@@ -796,41 +769,70 @@
                 }
             } catch (err) {
                 console.error('Error checking auth:', err);
-                if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
-                if (loggedInButtons) loggedInButtons.style.display = 'none';
-                if (loggedInSave) loggedInSave.style.display = 'none';
-                if (loginPrompt) loginPrompt.style.display = 'block';
             }
 
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', async () => {
                     try {
                         const { error } = await supabase.auth.signOut();
-                        if (error) {
-                            console.error('Logout error:', error);
-                            alert('Logout failed. Please try again.');
-                        } else {
-                            window.location.href = '/';
-                        }
+                        if (!error) window.location.href = '/';
                     } catch (err) {
-                        console.error('Unexpected logout error:', err);
+                        console.error('Logout error:', err);
                     }
                 });
             }
         }
-        
-        // === 6. SAVE WORDS TO DASHBOARD ===
+
+        // --- Mistake Saving ---
+        function getWordDefinition(word) {
+            if (!word) return null;
+            return learnedWords.find(w => w.word.trim().toLowerCase() === word.trim().toLowerCase());
+        }
+
+        async function saveMistake(word) {
+            if (!supabase || !currentUser) return; // Safe exit if offline or logged out
+            
+            const wordObj = getWordDefinition(word);
+            
+            // SECURITY GUARD: Prevents saving broken data that crashes the homepage
+            if (!wordObj) {
+                console.error(`🚨 CRITICAL: Could not find definition for "${word}". Mistake NOT saved.`);
+                return;
+            }
+            
+            try {
+                const { error } = await supabase.from('user_mistakes').upsert({
+                    user_id: currentUser.id,
+                    word: wordObj.word, 
+                    definition: wordObj.definition,
+                    word_type: wordObj.type,
+                    lesson: lessonTitle,
+                    lesson_link: lessonLink,
+                    last_made_at: new Date().toISOString()
+                }, {
+                    onConflict: 'user_id,word'
+                });
+            } catch (error) {
+                console.error('Error saving mistake:', error);
+            }
+        }
+
+        // --- Save Words to Dashboard ---
         async function saveWordsToDashboard() {
             const saveButton = document.getElementById('save-words-btn');
-            saveButton.disabled = true;
-            saveButton.textContent = "Saving...";
+            
+            if (!supabase) {
+                alert("⚠️ Cannot connect to database. Please check your internet connection.");
+                return;
+            }
 
             if (!currentUser) {
                 alert("🚨 You must be logged in to save your vocabulary!");
-                saveButton.disabled = false;
-                saveButton.textContent = "💾 Save My New Words to My Dashboard";
                 return;
             }
+            
+            saveButton.disabled = true;
+            saveButton.textContent = "Saving...";
             
             try {
                 const { data, error } = await supabase
@@ -846,45 +848,26 @@
                         }
                     ], { 
                         onConflict: 'user_id,lesson_title'
-                    })
-                    .select();
+                    });
 
                 if (error) {
-                    console.error('Supabase Save Error:', error);
-                    showPopup(false, "Save Failed: " + error.message);
-                    
+                    alert("Save Failed: " + error.message);
                     saveButton.disabled = false;
-                    saveButton.textContent = "💾 Try Saving Again (Error)";
-                    saveButton.style.backgroundColor = 'var(--color-incorrect)';
+                    saveButton.textContent = "💾 Try Saving Again";
                 } else {
-                    console.log('Save successful:', data);
-                    showPopup(true, "Words Saved! Redirecting to Dashboard... 🎉");
-                    
-                    saveButton.disabled = true;
+                    showPopup(true, "Words Saved! Redirecting... 🎉");
                     saveButton.textContent = "✅ Words Saved!";
                     saveButton.style.backgroundColor = 'var(--color-correct)';
-                    
-                    setTimeout(() => {
-                        window.location.href = '/dashboard/';
-                    }, 1500);
+                    setTimeout(() => { window.location.href = '/dashboard/'; }, 1500);
                 }
             } catch (err) {
                 console.error('Unexpected error saving:', err);
-                showPopup(false, "An unexpected error occurred.");
                 saveButton.disabled = false;
                 saveButton.textContent = "💾 Try Saving Again";
             }
         }
-        
-        // === 7. UTILITY FUNCTIONS ===
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
 
+        // --- UI Utilities ---
         function toggleCollapse(elementId) {
             const element = document.getElementById(elementId);
             const isVisible = element.style.display === 'block';
@@ -893,25 +876,13 @@
         
         function showPopup(isCorrect = true, customMessage = null) { 
             const popup = document.getElementById('feedback-popup');
-            let finalMessage = '';
-            
-            if (customMessage) {
-                finalMessage = customMessage;
-            } else if (isCorrect) {
-                finalMessage = "Brilliant! Correct! 🏦";
-            } else {
-                finalMessage = "Mistake! Keep practicing! 📉";
-            }
-
+            let finalMessage = customMessage || (isCorrect ? "Brilliant! Correct! 🏦" : "Mistake! Keep practicing! 📉");
             popup.style.background = isCorrect ? 'var(--color-secondary)' : 'var(--color-incorrect)'; 
             popup.textContent = finalMessage;
             popup.style.display = 'block';
-            setTimeout(() => {
-                popup.style.display = 'none';
-            }, FLASH_DURATION);
+            setTimeout(() => { popup.style.display = 'none'; }, FLASH_DURATION);
         }
 
-        // === 8. STAGE & PROGRESS CONTROL ===
         function updateProgress() {
             document.getElementById('current-stage').textContent = currentStage;
             document.getElementById('final-summary-card').style.display = 'none';
@@ -919,25 +890,22 @@
 
         function nextStage(nextStageNumber) {
             const currentStageElement = document.getElementById(`stage-${currentStage}`);
-            if (currentStageElement) {
-                currentStageElement.style.display = 'none';
-            }
+            if (currentStageElement) currentStageElement.style.display = 'none';
+            
             currentStage = nextStageNumber;
             const nextElement = document.getElementById(`stage-${currentStage}`);
-            if (nextElement) {
-                nextElement.style.display = 'block';
-            }
+            if (nextElement) nextElement.style.display = 'block';
+            
             updateProgress();
             window.scrollTo(0, 0); 
         }
 
+        // --- Final Summary & Dictionary ---
         function showFinalSummary() {
             const currentStageElement = document.getElementById(`stage-${currentStage}`);
-            if (currentStageElement) {
-                currentStageElement.style.display = 'none';
-            }
-            currentStage = TOTAL_STAGES; 
+            if (currentStageElement) currentStageElement.style.display = 'none';
             
+            currentStage = TOTAL_STAGES; 
             const listContainer = document.getElementById('learned-words-list');
             listContainer.innerHTML = '';
 
@@ -947,18 +915,15 @@
                 wordElement.className = 'dictionary-word'; 
                 wordElement.textContent = item.word;
                 wordElement.setAttribute('data-definition', item.definition);
-                
                 listItem.appendChild(wordElement);
                 listContainer.appendChild(listItem);
             });
             
             document.getElementById('final-summary-card').style.display = 'block';
             window.scrollTo(0, 0); 
-
             setupDictionaryListeners();
         }
-        
-        // === 9. DICTIONARY LOGIC ===
+
         function showDictionaryPopup(wordElement, popup) {
             const definition = wordElement.getAttribute('data-definition');
             const rect = wordElement.getBoundingClientRect();
@@ -975,10 +940,8 @@
             }
             
             popup.dataset.currentWord = wordElement.textContent;
-
             const popUpWidth = popup.offsetWidth || 250; 
             const popUpHeight = popup.offsetHeight || 100; 
-            
             let topPosition = rect.top - popUpHeight - 15;
             let leftPosition = rect.left + (rect.width / 2) - (popUpWidth / 2);
 
@@ -998,15 +961,11 @@
             const popup = document.getElementById('dictionary-popup');
             
             dictionaryWords.forEach(word => {
-                if (word.getAttribute('data-listener-bound') === 'true') {
-                    return;
-                }
-
+                if (word.getAttribute('data-listener-bound') === 'true') return;
                 word.addEventListener('click', (e) => {
                     e.stopPropagation(); 
                     showDictionaryPopup(word, popup);
                 });
-                
                 word.setAttribute('data-listener-bound', 'true');
             });
             
@@ -1020,20 +979,7 @@
             }
         }
 
-        // === 10. RADIO BUTTON QUIZ LOGIC (Stage 1 & 5) ===
-        function setupRadioListeners() {
-            const options = document.querySelectorAll('#stage-1 .quiz-option, #stage-5 .quiz-option');
-            options.forEach(option => {
-                option.addEventListener('click', () => {
-                    const questionBox = option.closest('.question-box');
-                    if (questionBox.getAttribute('data-solved-correctly') === 'true') return;
-
-                    questionBox.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
-                    option.classList.add('selected');
-                });
-            });
-        }
-        
+        // --- Stage 1 & 5: Radio Quiz ---
         function checkRadioQuestion(questionBox) {
             const stageElement = questionBox.closest('.content-card');
             const selectedOption = questionBox.querySelector('.quiz-option.selected');
@@ -1061,7 +1007,6 @@
             } else {
                 selectedOption.classList.remove('selected'); 
                 selectedOption.classList.add('incorrect');
-                
                 setTimeout(() => selectedOption.classList.remove('incorrect'), FLASH_DURATION); 
                 showPopup(false);
                 nextButton.style.display = 'none';
@@ -1069,124 +1014,93 @@
             updateProgress();
         }
 
-
-        // === 11. CHECKBOX QUIZ LOGIC (Stage 2) ===
-        function setupCheckboxListeners() {
-            const options = document.querySelectorAll('#stage-2 .quiz-option');
+        function setupRadioListeners() {
+            const options = document.querySelectorAll('#stage-1 .quiz-option, #stage-5 .quiz-option');
             options.forEach(option => {
                 option.addEventListener('click', () => {
-                    if (option.style.pointerEvents === 'none') return;
-                    
-                    option.classList.toggle('selected');
-                    if (option.classList.contains('incorrect')) {
-                        option.classList.remove('incorrect');
-                    }
+                    const questionBox = option.closest('.question-box');
+                    if (questionBox.getAttribute('data-solved-correctly') === 'true') return;
+                    questionBox.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+                    option.classList.add('selected');
                 });
             });
         }
 
+        // --- Stage 2: Checkbox Quiz ---
         function checkCheckboxQuestion(questionBoxes) {
-            let attemptFailedDueToWrongSelection = false; 
+            let attemptFailed = false; 
             const nextButton = document.querySelector('#stage-2 .next-btn');
             const stageElement = document.querySelector('#stage-2');
             
             questionBoxes.forEach(questionBox => {
                 const correctValues = questionBox.getAttribute('data-correct-values').split(',');
                 const options = questionBox.querySelectorAll('.quiz-option');
-                
-                options.forEach(o => {
-                    if (o.style.pointerEvents !== 'none') { 
-                        o.classList.remove('incorrect'); 
-                    }
-                });
-                
-                questionBox.removeAttribute('data-solved-correctly'); 
+                let incorrectSelected = []; 
+                let correctFound = 0;
+                let lockedCount = 0; 
 
-                let incorrectSelectedOptions = []; 
-                let correctAnswersFoundCount = 0;
-                let initialLockCount = 0; 
-
-                options.forEach(option => {
-                    if (option.style.pointerEvents === 'none') { 
-                        initialLockCount++; 
-                    }
-                });
-                correctAnswersFoundCount = initialLockCount;
+                options.forEach(o => { if(o.style.pointerEvents !== 'none') o.classList.remove('incorrect'); });
+                options.forEach(o => { if(o.style.pointerEvents === 'none') lockedCount++; });
+                correctFound = lockedCount;
                 
                 options.forEach(option => {
-                    const optionValue = option.getAttribute('data-value');
-                    const isCorrectChoice = correctValues.includes(optionValue);
-                    const isCurrentlySelected = option.classList.contains('selected');
-                    const optionText = option.textContent.trim().toLowerCase();
+                    const val = option.getAttribute('data-value');
+                    const isCorrect = correctValues.includes(val);
+                    const isSelected = option.classList.contains('selected');
                     
-                    if (isCurrentlySelected) {
-                        if (isCorrectChoice) {
+                    if (isSelected) {
+                        if (isCorrect) {
                             if (option.style.pointerEvents !== 'none') {
                                 option.classList.remove('selected');
                                 option.classList.add('correct');    
                                 option.style.pointerEvents = 'none';
-                                correctAnswersFoundCount++; 
+                                correctFound++; 
                             }
                         } else {
-                            incorrectSelectedOptions.push(option);
-                            attemptFailedDueToWrongSelection = true;
+                            incorrectSelected.push(option);
+                            attemptFailed = true;
                         }
                     } 
                 });
                 
-                if (incorrectSelectedOptions.length > 0) {
-                    incorrectSelectedOptions.forEach(el => {
+                if (incorrectSelected.length > 0) {
+                    incorrectSelected.forEach(el => {
                         el.classList.remove('selected'); 
                         el.classList.add('incorrect'); 
                         setTimeout(() => el.classList.remove('incorrect'), FLASH_DURATION); 
                     });
                 }
                 
-                if (incorrectSelectedOptions.length === 0 && correctAnswersFoundCount === correctValues.length) {
+                if (incorrectSelected.length === 0 && correctFound === correctValues.length) {
                     questionBox.setAttribute('data-solved-correctly', 'true');
                 }
             });
             
-            const unsolvedBoxes = document.querySelectorAll('#stage-2 .question-box:not([data-solved-correctly="true"])');
-            
-            if (unsolvedBoxes.length === 0) {
+            const unsolved = document.querySelectorAll('#stage-2 .question-box:not([data-solved-correctly="true"])');
+            if (unsolved.length === 0) {
                 stageElement.setAttribute('data-completed', 'true');
                 showPopup(true); 
                 nextButton.style.display = 'block';
             } else {
                 nextButton.style.display = 'none';
-                
-                if (attemptFailedDueToWrongSelection) {
-                    showPopup(false, 'Mistake! Check all details again. 📉');
-                } else {
-                    showPopup(false, "You're close! Choose all the correct answers. 🧐");
-                }
-                stageElement.removeAttribute('data-completed');
+                showPopup(false, attemptFailed ? 'Mistake! Check again. 📉' : "You're close! Choose all answers. 🧐");
             }
-            updateProgress();
         }
 
-
-        // === 12. GAP FILL LOGIC (Stage 3 & 4) ===
-
-        function bindGapFillListeners() {
-            const wordBanks = document.querySelectorAll('.word-options .word-option');
-            const gapInputs = document.querySelectorAll('.gap-input');
-
-            wordBanks.forEach(word => {
-                word.addEventListener('click', () => handleWordSelectGap(word));
-            });
-
-            gapInputs.forEach(gap => {
-                gap.addEventListener('click', () => handleGapFill(gap));
+        function setupCheckboxListeners() {
+            const options = document.querySelectorAll('#stage-2 .quiz-option');
+            options.forEach(option => {
+                option.addEventListener('click', () => {
+                    if (option.style.pointerEvents === 'none') return;
+                    option.classList.toggle('selected');
+                    if (option.classList.contains('incorrect')) option.classList.remove('incorrect');
+                });
             });
         }
 
+        // --- Stage 3 & 4: Gap Fills ---
         function handleWordSelectGap(word) {
-            if (selectedWordForGap) {
-                selectedWordForGap.classList.remove('selected');
-            }
-
+            if (selectedWordForGap) selectedWordForGap.classList.remove('selected');
             if (selectedWordForGap === word) {
                 selectedWordForGap = null;
             } else if (!word.classList.contains('used')) {
@@ -1201,9 +1115,7 @@
             
             if (currentWord) {
                 const wordElement = document.querySelector(`.word-option[data-word="${currentWord}"]`);
-                if (wordElement) {
-                    wordElement.classList.remove('used', 'selected');
-                }
+                if (wordElement) wordElement.classList.remove('used', 'selected');
                 gap.textContent = gap.getAttribute('data-original-text');
                 gap.setAttribute('data-filled-word', '');
                 gap.classList.remove('correct', 'incorrect');
@@ -1212,7 +1124,6 @@
 
             } else if (selectedWordForGap) {
                 const wordToFill = selectedWordForGap.getAttribute('data-word');
-                
                 cardElement.querySelectorAll('.gap-input[data-filled-word="' + wordToFill + '"]').forEach(otherGap => {
                     if (otherGap !== gap) {
                         otherGap.textContent = otherGap.getAttribute('data-original-text');
@@ -1235,9 +1146,7 @@
             const checkButton = stageElement.querySelector('.check-btn');
             const nextButton = stageElement.querySelector('.next-btn');
 
-            if (stageElement.getAttribute('data-answered') === 'true') {
-                return;
-            }
+            if (stageElement.getAttribute('data-answered') === 'true') return;
 
             const gaps = stageElement.querySelectorAll('.gap-input');
             let allCorrect = true;
@@ -1246,77 +1155,65 @@
 
             gaps.forEach(gap => {
                 gap.classList.remove('correct', 'incorrect');
-                
                 const filledWord = gap.getAttribute('data-filled-word');
                 const correctAnswer = gap.getAttribute('data-answer');
-                const isCorrect = filledWord === correctAnswer;
 
                 if (filledWord === "") {
                     allFilled = false;
                     allCorrect = false;
-                } else if (isCorrect) {
+                } else if (filledWord === correctAnswer) {
                     gap.classList.add('correct');
                     gap.setAttribute('data-solved-correctly', 'true');
                     correctCount++;
                 } else {
                     gap.classList.add('incorrect');
                     allCorrect = false;
-                    
-                    // 🔥 SAFE SAVE MISTAKE: Checks if definition exists first!
-                    saveMistake(correctAnswer);
-                    
-                    setTimeout(() => {
-                        if (gap.getAttribute('data-solved-correctly') !== 'true') {
-                            gap.classList.remove('incorrect');
-                        }
-                    }, FLASH_DURATION);
+                    saveMistake(correctAnswer); // Safe Mistake Saving
+                    setTimeout(() => { if (gap.getAttribute('data-solved-correctly') !== 'true') gap.classList.remove('incorrect'); }, FLASH_DURATION);
                 }
             });
 
-            if (!allFilled) {
-                showPopup(false, "Please fill all gaps! 📝");
-                return;
-            }
+            if (!allFilled) { showPopup(false, "Please fill all gaps! 📝"); return; }
 
             if (allCorrect) {
                 showPopup(true);
                 stageElement.setAttribute('data-answered', 'true');
                 stageElement.setAttribute('data-completed', 'true');
-                
                 const wordBank = stageElement.querySelector('.word-bank');
                 if (wordBank) wordBank.style.display = 'none';
-                
                 checkButton.style.display = 'none';
                 nextButton.style.display = 'block';
-                
-                gaps.forEach(gap => {
-                    gap.style.pointerEvents = 'none';
-                });
+                gaps.forEach(gap => { gap.style.pointerEvents = 'none'; });
             } else {
                 showPopup(false, `${correctCount} / ${gaps.length} correct. Try again! 🔄`);
             }
-            
             updateProgress();
         }
 
-        // === 13. INITIALIZATION (Safe Start) ===
+        function bindGapFillListeners() {
+            const wordBanks = document.querySelectorAll('.word-options .word-option');
+            const gapInputs = document.querySelectorAll('.gap-input');
+            wordBanks.forEach(word => word.addEventListener('click', () => handleWordSelectGap(word)));
+            gapInputs.forEach(gap => gap.addEventListener('click', () => handleGapFill(gap)));
+        }
+
+        // === 4. INITIALIZATION ===
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('🏦 Bank of England Lesson Loaded');
+            console.log('🏦 Lesson Loaded');
             
-            // Try to connect to user account, but don't break the lesson if it fails
-            try {
-                await initializeAuthHeader();
-            } catch (err) {
-                console.error("Auth failed, but continuing lesson:", err);
-            }
+            // 1. Setup Supabase (Fail-safe)
+            initSupabase();
             
-            // Setup all interactive elements (These must run!)
+            // 2. Setup Auth (Async)
+            initializeAuthHeader();
+            
+            // 3. Setup Listeners
             setupDictionaryListeners();
             setupRadioListeners();
             setupCheckboxListeners();
             bindGapFillListeners();
             
-            console.log('✅ All lesson features initialized');
+            console.log('✅ UI Initialized');
         });
     </script>
 </body>
