@@ -709,18 +709,16 @@
         ];
 
         // === 2. SUPABASE SETUP (Safe Mode) ===
-        // We define 'supabase' as null first, then try to initialize it.
-        // This prevents the script from crashing if Supabase fails to load.
         const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
         
-        let supabase = null;
+        let appClient = null; // RENAMED FROM supabase TO appClient TO FIX COLLISION
 
         function initSupabase() {
             try {
                 if (window.supabase) {
-                    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                    console.log("✅ Supabase initialized successfully.");
+                    appClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    console.log("✅ Supabase initialized successfully as appClient.");
                 } else {
                     console.warn("⚠️ Supabase SDK not found. Lesson will work in offline mode.");
                 }
@@ -733,7 +731,7 @@
 
         // --- Auth Handling ---
         async function initializeAuthHeader() {
-            if (!supabase) return; // Skip if offline
+            if (!appClient) return; // Skip if offline
 
             const loggedOutButtons = document.getElementById('logged-out-buttons');
             const loggedInButtons = document.getElementById('logged-in-buttons');
@@ -743,7 +741,7 @@
             const loginPrompt = document.getElementById('login-prompt');
 
             try {
-                const { data: { user }, error } = await supabase.auth.getUser();
+                const { data: { user }, error } = await appClient.auth.getUser();
 
                 if (user) {
                     currentUser = user;
@@ -774,7 +772,7 @@
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', async () => {
                     try {
-                        const { error } = await supabase.auth.signOut();
+                        const { error } = await appClient.auth.signOut();
                         if (!error) window.location.href = '/';
                     } catch (err) {
                         console.error('Logout error:', err);
@@ -790,7 +788,7 @@
         }
 
         async function saveMistake(word) {
-            if (!supabase || !currentUser) return; // Safe exit if offline or logged out
+            if (!appClient || !currentUser) return; // Safe exit if offline or logged out
             
             const wordObj = getWordDefinition(word);
             
@@ -801,7 +799,7 @@
             }
             
             try {
-                const { error } = await supabase.from('user_mistakes').upsert({
+                const { error } = await appClient.from('user_mistakes').upsert({
                     user_id: currentUser.id,
                     word: wordObj.word, 
                     definition: wordObj.definition,
@@ -821,7 +819,7 @@
         async function saveWordsToDashboard() {
             const saveButton = document.getElementById('save-words-btn');
             
-            if (!supabase) {
+            if (!appClient) {
                 alert("⚠️ Cannot connect to database. Please check your internet connection.");
                 return;
             }
@@ -835,7 +833,7 @@
             saveButton.textContent = "Saving...";
             
             try {
-                const { data, error } = await supabase
+                const { data, error } = await appClient
                     .from('lessons')
                     .upsert([
                         { 
