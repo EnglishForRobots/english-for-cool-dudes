@@ -127,7 +127,9 @@
         
         /* Match Cards */
         .match-card {
-            border: 2px solid #F1F5F9; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); cursor: pointer;
+            border: 2px solid #F1F5F9; 
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); 
+            cursor: pointer;
             user-select: none; border-radius: 12px; padding: 18px;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); font-weight: 600; font-size: 1.125rem;
             opacity: 1; transform: scale(1);
@@ -144,7 +146,7 @@
             transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.2); 
         }
         
-        /* Vanishing Style for Matches */
+        /* --- VANISHING MAGIC --- */
         .match-card.matched { 
             background-color: #D1FAE5 !important; 
             border-color: #059669 !important;
@@ -152,9 +154,9 @@
             transform: scale(1.05);
         }
         .match-card.vanished {
-            opacity: 0;
+            opacity: 0 !important;
             pointer-events: none;
-            transform: scale(0.8);
+            transform: scale(0.5);
         }
 
         /* Quiz Buttons */
@@ -272,6 +274,7 @@
     <div class="container-main">
         <h1 class="lesson-main-title">Ringing the Bell: The IPO</h1>
         <p class="lesson-subtitle">Business English (C1/C2) - Mastering the Language of Wall Street</p>
+        
 
         <main class="space-y-8">
             
@@ -559,7 +562,7 @@
             return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z]/g, '').toLowerCase();
         }
 
-        /* 1. MATCHING LOGIC (UPDATED: Staggered Load + Vanish) */
+        /* 1. MATCHING LOGIC (With Vanish & Stagger) */
         const newVocabData = [
             { type: 'term', content: "IPO", key: 'A' }, { type: 'definition', content: "The first sale of stock to the public.", key: 'A' },
             { type: 'term', content: "Bull", key: 'B' }, { type: 'definition', content: "Symbol of a rising, optimistic market.", key: 'B' },
@@ -580,26 +583,24 @@
             matchContainer.innerHTML = '';
             shuffleArray(newVocabData);
             
-            // New Staggered Animation Logic
             newVocabData.forEach((item, index) => {
                 const card = document.createElement('div'); 
                 card.className = `match-card interactive-element ${item.type}`;
                 card.innerHTML = item.type === 'term' ? item.content : item.content; 
-                card.dataset.key = item.key; 
-                card.dataset.type = item.type;
+                card.dataset.key = item.key; card.dataset.type = item.type;
                 
-                // Initialize hidden
+                // Animation Init
                 card.style.opacity = '0';
                 card.style.transform = 'scale(0.8)';
                 
                 card.addEventListener('click', () => handleMatchClick(card));
                 matchContainer.appendChild(card);
-
-                // Reveal with delay
+                
+                // Staggered Fade In
                 setTimeout(() => {
                     card.style.opacity = '1';
                     card.style.transform = 'scale(1)';
-                }, index * 100); // 100ms delay per card
+                }, index * 100);
             });
             
             selectedTermCard = null; selectedDefinitionCard = null; matchedPairs = 0;
@@ -621,12 +622,13 @@
             if (selectedTermCard && selectedDefinitionCard) {
                 if (selectedTermCard.dataset.key === selectedDefinitionCard.dataset.key) {
                     
-                    // Correct Match Logic
+                    // --- SUCCESS LOGIC: VANISH ---
+                    const matchKey = selectedTermCard.dataset.key; 
                     [selectedTermCard, selectedDefinitionCard].forEach(el => {
                         el.classList.remove('selected'); 
-                        el.classList.add('matched'); // Flash Green
+                        el.classList.add('matched'); // Flashes Green immediately
                         
-                        // Vanish
+                        // Vanish after delay
                         setTimeout(() => {
                             el.classList.add('vanished');
                         }, 500);
@@ -636,16 +638,15 @@
                     showFeedback(funCorrect[Math.floor(Math.random()*funCorrect.length)], 'correct');
                     selectedTermCard = null; selectedDefinitionCard = null;
                     
-                    // Auto-Reset Check
+                    // Auto Reset
                     if (matchedPairs === (newVocabData.length / 2)) {
                         setTimeout(() => {
-                            showFeedback("Board Cleared! Restarting...", 'correct');
-                            setTimeout(initVocab, 2000); 
+                            showFeedback("Market Closed! Resetting...", 'correct');
+                            setTimeout(initVocab, 2000);
                         }, 1000);
                     }
 
                 } else {
-                    // Incorrect Match Logic
                     showFeedback(funIncorrect[Math.floor(Math.random()*funIncorrect.length)], 'incorrect');
                     setTimeout(() => {
                         if(selectedTermCard) selectedTermCard.classList.remove('selected'); 
