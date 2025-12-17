@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="icon" type="image/png" href="/favicon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wealth Tax: The Global Debate - English For Cool Dudes</title>
+    
+    <link rel="icon" href="data:,">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -113,7 +114,8 @@
         
         /* Match Cards */
         .match-card {
-            border: 2px solid transparent; transition: all 0.5s ease;
+            border: 2px solid transparent; 
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             cursor: pointer; user-select: none; border-radius: 0.75rem; 
             padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); font-weight: 600;
             opacity: 1; transform: scale(1); min-height: 80px; display: flex; align-items: center; justify-content: center;
@@ -129,12 +131,18 @@
             border-color: var(--color-accent); background-color: #FEF3C7; 
             box-shadow: 0 0 0 4px #FDE68A; transform: scale(1.02); color: #D97706;
         }
-        .match-card.matched { 
-            pointer-events: none; opacity: 0; transform: scale(0.9); 
+        
+        /* Vanishing Style */
+        .match-card.matched {
+            background-color: #DCFCE7 !important; 
+            border-color: #059669 !important; 
+            color: #064E3B !important;
+            transform: scale(1.05);
         }
-        .match-card.temp-matched {
-            background-color: #DCFCE7 !important; border-color: #059669 !important; 
-            box-shadow: 0 0 0 4px #059669 !important; color: #064E3B !important;
+        .match-card.vanished {
+            opacity: 0 !important;
+            pointer-events: none;
+            transform: scale(0.5);
         }
 
         /* Quiz Buttons */
@@ -259,7 +267,7 @@
 
             <section id="exercise-1" class="lesson-section shadow-lg">
                 <h2 class="section-title">🔗 2. Vocabulary Memory Match</h2>
-                <p class="text-gray-600 mb-6 font-medium">Match the term to its definition. Correct pairs will disappear and reappear at the end!</p>
+                <p class="text-gray-600 mb-6 font-medium">Match the term to its definition. Correct pairs will vanish!</p>
 
                 <div id="vocab-match-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </section>
@@ -357,7 +365,9 @@
         // --- CONFIG ---
         const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // FIX: RENAMED TO wealthTaxClient to avoid conflict
+        const wealthTaxClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentUser = null;
 
         const lessonTitle = "Wealth Tax: The Global Debate";
@@ -378,7 +388,7 @@
         // --- AUTH ---
         async function checkUser() {
             try {
-                const { data: { user } } = await supabase.auth.getUser();
+                const { data: { user } } = await wealthTaxClient.auth.getUser();
                 if (user) {
                     currentUser = user;
                     document.getElementById('logged-in-buttons').style.display = 'flex';
@@ -402,7 +412,7 @@
             const status = document.getElementById('save-status');
             btn.disabled = true; btn.textContent = "Processing...";
 
-            const { error } = await supabase.from('lessons').upsert([{
+            const { error } = await wealthTaxClient.from('lessons').upsert([{
                 user_id: currentUser.id, lesson_title: lessonTitle, lesson_link: lessonLink,
                 lesson_level: lessonLevel, vocabulary: wordsToSave, completed_at: new Date().toISOString()
             }], { onConflict: 'user_id,lesson_title' });
@@ -420,14 +430,14 @@
         async function saveMistake(word) {
             if(!currentUser) return;
             const wObj = wordsToSave.find(w=>w.word.toLowerCase()===word.toLowerCase()) || {word, definition:'Review this term', type:'term'};
-            await supabase.from('user_mistakes').upsert({
+            await wealthTaxClient.from('user_mistakes').upsert({
                 user_id: currentUser.id, word: wObj.word, definition: wObj.definition, word_type: wObj.type,
                 lesson: lessonTitle, lesson_link: lessonLink, last_made_at: new Date().toISOString()
             }, {onConflict: 'user_id,word'});
         }
 
         document.getElementById('logout-btn').addEventListener('click', async () => {
-            await supabase.auth.signOut(); window.location.href = '/';
+            await wealthTaxClient.auth.signOut(); window.location.href = '/';
         });
 
         // --- UTILS ---
@@ -491,20 +501,34 @@
 
         function initVocab() {
             const matchContainer = document.getElementById('vocab-match-container');
-            matchContainer.innerHTML = ''; shuffleArray(newVocabData);
-            newVocabData.forEach(item => {
+            matchContainer.innerHTML = ''; 
+            shuffleArray(newVocabData);
+            
+            // Staggered Fade In Animation
+            newVocabData.forEach((item, index) => {
                 const card = document.createElement('div'); 
                 card.className = `match-card interactive-element ${item.type}`;
                 card.innerHTML = item.type === 'term' ? `<span>${item.content}</span>` : `<span>${item.content}</span>`; 
                 card.dataset.key = item.key; card.dataset.type = item.type;
+                
+                // Init hidden
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.8)';
+                
                 card.addEventListener('click', () => handleMatchClick(card));
                 matchContainer.appendChild(card);
+                
+                // Reveal
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'scale(1)';
+                }, index * 100);
             });
             selectedTermCard = null; selectedDefinitionCard = null; matchedPairs = 0;
         }
 
         function handleMatchClick(card) {
-            if (card.classList.contains('matched')) return;
+            if (card.classList.contains('matched') || card.classList.contains('vanished')) return;
             const type = card.dataset.type;
             let currentSelection = type === 'term' ? selectedTermCard : selectedDefinitionCard;
             if (currentSelection) currentSelection.classList.remove('selected');
@@ -517,27 +541,26 @@
 
             if (selectedTermCard && selectedDefinitionCard) {
                 if (selectedTermCard.dataset.key === selectedDefinitionCard.dataset.key) {
-                    [selectedTermCard, selectedDefinitionCard].forEach(el => { el.classList.remove('selected'); el.classList.add('temp-matched'); });
-                    showFeedback(funCorrect[Math.floor(Math.random() * funCorrect.length)], 'correct');
                     
-                    const t = selectedTermCard; const d = selectedDefinitionCard;
-                    setTimeout(() => {
-                        t.classList.remove('temp-matched'); t.classList.add('matched');
-                        d.classList.remove('temp-matched'); d.classList.add('matched');
-                    }, 800);
-
+                    // Match Success!
+                    [selectedTermCard, selectedDefinitionCard].forEach(el => { 
+                        el.classList.remove('selected'); 
+                        el.classList.add('matched'); // Green
+                        
+                        // Vanish
+                        setTimeout(() => {
+                            el.classList.add('vanished');
+                        }, 500);
+                    });
+                    
+                    showFeedback(funCorrect[Math.floor(Math.random() * funCorrect.length)], 'correct');
                     matchedPairs++;
+                    
+                    // Auto-Reset
                     if (matchedPairs === newVocabData.length / 2) {
                         setTimeout(() => {
                             showFeedback("🎉 All Matched! Resetting...", 'correct');
-                            setTimeout(() => {
-                                document.querySelectorAll('.match-card').forEach((card, index) => {
-                                    setTimeout(() => {
-                                        card.classList.remove('matched');
-                                    }, index * 100);
-                                });
-                                matchedPairs = 0;
-                            }, 1000);
+                            setTimeout(initVocab, 2000);
                         }, 1000);
                     }
                     selectedTermCard = null; selectedDefinitionCard = null;
@@ -613,12 +636,9 @@
                 const answerWord = blank.dataset.answer;
                 const extractedWord = blank.textContent.trim();
                 
-                // Clear state
                 blank.classList.remove('selected', 'incorrect');
                 
-                // SKIP IF EMPTY: logic to handle partial completion
                 if (!extractedWord || extractedWord === '____' || extractedWord === '') {
-                    // Do not increment attemptedCount, do not mark incorrect, do not save mistake
                     return;
                 }
                 
@@ -628,7 +648,7 @@
                     blank.classList.add('correct'); correctCount++; 
                 } else { 
                     blank.classList.add('incorrect');
-                    saveMistake(answerWord); // Only save if they actually attempted it
+                    saveMistake(answerWord); 
                 }
             });
 
@@ -645,7 +665,6 @@
             } else if (correctCount === attemptedCount) {
                 resultDiv.textContent = `Good start! ${correctCount} correct so far. Keep going!`; 
                 resultDiv.className = 'result-message correct';
-                // Use a "Warning/Info" color (Yellow/Gold) for partial success
                 resultDiv.style.backgroundColor = '#FEF3C7'; 
                 resultDiv.style.color = '#B45309'; 
                 resultDiv.style.borderColor = '#FCD34D';
