@@ -690,6 +690,11 @@
         const lessonLink = "/boe/";
         const lessonLevel = "INTERMEDIATE";
         
+      // === 3. LESSON VOCABULARY DATA ===
+        const lessonTitle = "The Bank of England";
+        const lessonLink = "/boe/";
+        const lessonLevel = "INTERMEDIATE";
+        
         const learnedWords = [
             { word: "Threadneedle Street", definition: "A narrow street in London's financial district, where the Bank of England is located.", type: "noun" },
             { word: "Bank", definition: "A financial institution owned by the government that manages the state's currency and monetary policy.", type: "noun" },
@@ -705,7 +710,7 @@
             { word: "issuance of banknotes", definition: "The issuing or creation of new banknotes and coins.", type: "phrase" },
             { word: "issue", definition: "To officially give someone the power or right to do something.", type: "verb" },
             { word: "reserves", definition: "A quantity of a resource (like gold or money) that is kept available for future use.", type: "noun" },
-            { word: "vault", definition: "A secure room or vault, especially one where money or valuables are kept.", type: "noun" },
+            { word: "vault", definition: "A secure steel room or chamber, especially one where money or valuables are kept.", type: "noun" },
             { word: "Governor", definition: "The highest-ranking official in the Bank of England.", type: "noun" },
             { word: "Monetary Policy Committee (MPC)", definition: "The group responsible for setting monetary policy, consisting of the Governor and other experts.", type: "noun" },
             { word: "adapt", definition: "To change in response to new conditions; to become adjusted.", type: "verb" },
@@ -716,9 +721,11 @@
             { word: "banknotes", definition: "Paper money issued by a bank.", type: "noun" },
         ];
         
-        // === 4. MISTAKE TRACKING FUNCTIONS ===
+       // === 4. MISTAKE TRACKING FUNCTIONS ===
         function getWordDefinition(word) {
-            return learnedWords.find(w => w.word === word || w.word.toLowerCase() === word.toLowerCase());
+            if (!word) return null;
+            // Robust search: trims whitespace and ignores case
+            return learnedWords.find(w => w.word.trim().toLowerCase() === word.trim().toLowerCase());
         }
 
         async function saveMistake(word) {
@@ -727,14 +734,20 @@
                 return;
             }
             
+            const wordObj = getWordDefinition(word);
+            
+            // SECURITY GUARD: Prevents saving broken data that crashes the homepage
+            if (!wordObj) {
+                console.error(`🚨 CRITICAL: Could not find definition for "${word}". Mistake NOT saved to prevent database corruption.`);
+                return;
+            }
+            
             try {
-                const wordObj = getWordDefinition(word);
-                
                 const { error } = await supabase.from('user_mistakes').upsert({
                     user_id: currentUser.id,
-                    word: word,
-                    definition: wordObj ? wordObj.definition : '',
-                    word_type: wordObj ? wordObj.type : '',
+                    word: wordObj.word, // Use the canonical spelling from the list
+                    definition: wordObj.definition,
+                    word_type: wordObj.type,
                     lesson: lessonTitle,
                     lesson_link: lessonLink,
                     last_made_at: new Date().toISOString()
@@ -743,7 +756,7 @@
                 });
                 
                 if (error) throw error;
-                console.log(`✅ Saved mistake: ${word}`);
+                console.log(`✅ Saved mistake: ${wordObj.word}`);
             } catch (error) {
                 console.error('Error saving mistake:', error);
             }
