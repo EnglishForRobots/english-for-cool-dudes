@@ -690,11 +690,6 @@
         const lessonLink = "/boe/";
         const lessonLevel = "INTERMEDIATE";
         
-      // === 3. LESSON VOCABULARY DATA ===
-        const lessonTitle = "The Bank of England";
-        const lessonLink = "/boe/";
-        const lessonLevel = "INTERMEDIATE";
-        
         const learnedWords = [
             { word: "Threadneedle Street", definition: "A narrow street in London's financial district, where the Bank of England is located.", type: "noun" },
             { word: "Bank", definition: "A financial institution owned by the government that manages the state's currency and monetary policy.", type: "noun" },
@@ -721,7 +716,7 @@
             { word: "banknotes", definition: "Paper money issued by a bank.", type: "noun" },
         ];
         
-       // === 4. MISTAKE TRACKING FUNCTIONS ===
+        // === 4. MISTAKE TRACKING FUNCTIONS (FIXED) ===
         function getWordDefinition(word) {
             if (!word) return null;
             // Robust search: trims whitespace and ignores case
@@ -745,7 +740,7 @@
             try {
                 const { error } = await supabase.from('user_mistakes').upsert({
                     user_id: currentUser.id,
-                    word: wordObj.word, // Use the canonical spelling from the list
+                    word: wordObj.word, 
                     definition: wordObj.definition,
                     word_type: wordObj.type,
                     lesson: lessonTitle,
@@ -1067,8 +1062,6 @@
                 selectedOption.classList.remove('selected'); 
                 selectedOption.classList.add('incorrect');
                 
-                // REMOVED HARD-CODED MISTAKE SAVING
-                
                 setTimeout(() => selectedOption.classList.remove('incorrect'), FLASH_DURATION); 
                 showPopup(false);
                 nextButton.style.display = 'none';
@@ -1137,12 +1130,8 @@
                         } else {
                             incorrectSelectedOptions.push(option);
                             attemptFailedDueToWrongSelection = true;
-                            
-                            // REMOVED HARD-CODED MISTAKE SAVING - Track wrong answers selected
                         }
-                    } else if (isCorrectChoice && option.style.pointerEvents !== 'none') {
-                        // REMOVED HARD-CODED MISTAKE SAVING - Track missed correct answers
-                    }
+                    } 
                 });
                 
                 if (incorrectSelectedOptions.length > 0) {
@@ -1273,7 +1262,7 @@
                     gap.classList.add('incorrect');
                     allCorrect = false;
                     
-                    // 🔥 SAVE MISTAKE - Save the correct answer they missed
+                    // 🔥 SAFE SAVE MISTAKE: Checks if definition exists first!
                     saveMistake(correctAnswer);
                     
                     setTimeout(() => {
@@ -1310,14 +1299,18 @@
             updateProgress();
         }
 
-        // === 13. INITIALIZATION ===
+        // === 13. INITIALIZATION (Safe Start) ===
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('🏦 Bank of England Lesson Loaded');
             
-            // Initialize authentication
-            await initializeAuthHeader();
+            // Try to connect to user account, but don't break the lesson if it fails
+            try {
+                await initializeAuthHeader();
+            } catch (err) {
+                console.error("Auth failed, but continuing lesson:", err);
+            }
             
-            // Setup all interactive elements
+            // Setup all interactive elements (These must run!)
             setupDictionaryListeners();
             setupRadioListeners();
             setupCheckboxListeners();
