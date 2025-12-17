@@ -1,6 +1,8 @@
 const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// FIX: Renamed variable to 'supabaseClient' to avoid conflict with the library
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // --- 1. DICTIONARY FUNCTIONS ---
 function showDictionary(word, definition, type) {
@@ -24,7 +26,7 @@ if(dictOverlay) dictOverlay.addEventListener('click', closeDictionary);
 // --- 2. BRAIN BOOST (MATCHING GAME LOGIC) ---
 async function checkForMistakesOnHomepage() {
     try {
-        const { data: { user } = {} } = await supabase.auth.getUser();
+        const { data: { user } = {} } = await supabaseClient.auth.getUser();
         if (!user) {
             const widget = document.getElementById('repair-shop-widget');
             if(widget) widget.style.display = 'none';
@@ -37,7 +39,7 @@ async function checkForMistakesOnHomepage() {
         const isoYesterday = yesterday.toISOString();
 
         // 2. Fetch Mistakes (Priority A - Red)
-        const { data: mistakes } = await supabase
+        const { data: mistakes } = await supabaseClient
             .from('user_mistakes')
             .select('word, definition, word_type, lesson, lesson_link')
             .eq('user_id', user.id)
@@ -49,7 +51,7 @@ async function checkForMistakesOnHomepage() {
         if (practiceBatch.length < 4) {
             const slotsNeeded = 4 - practiceBatch.length;
             
-            const { data: oldLessons } = await supabase
+            const { data: oldLessons } = await supabaseClient
                 .from('lessons')
                 .select('vocabulary')
                 .eq('user_id', user.id)
@@ -252,9 +254,9 @@ function startMatchGame(batch) {
             const originalItem = batch[matchId1]; 
             if (originalItem && !originalItem.is_review) {
                 try {
-                    const { data: { user } } = await supabase.auth.getUser();
+                    const { data: { user } } = await supabaseClient.auth.getUser();
                     if (user) {
-                        await supabase.from('user_mistakes').delete().eq('user_id', user.id).eq('word', originalItem.word);
+                        await supabaseClient.from('user_mistakes').delete().eq('user_id', user.id).eq('word', originalItem.word);
                     }
                 } catch (err) { console.error(err); }
             }
@@ -308,7 +310,7 @@ async function loadOfficePulse() {
     const pulseText = document.getElementById('pulse-ticker-text');
     if(!pulseText) return;
 
-    const { data: feed } = await supabase.from('office_pulse').select('*');
+    const { data: feed } = await supabaseClient.from('office_pulse').select('*');
     const messages = [];
 
     if (feed && feed.length > 0) {
@@ -360,7 +362,7 @@ async function initializeAuthHeader() {
     const userGreeting = document.getElementById('user-greeting');
 
      try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user } } = await supabaseClient.auth.getUser();
         if (user) {
             let userName = 'Cool Dude';
             if (user.user_metadata && user.user_metadata.full_name) userName = user.user_metadata.full_name.split(' ')[0];
@@ -377,7 +379,7 @@ async function initializeAuthHeader() {
 
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
-            await supabase.auth.signOut();
+            await supabaseClient.auth.signOut();
             window.location.reload();
         });
     }
