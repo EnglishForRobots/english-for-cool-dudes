@@ -99,7 +99,7 @@
             margin-bottom: 20px; padding-bottom: 5px; border-bottom: 2px dashed var(--color-primary);
         }
 
- /* --- OPTIMIZED VIDEO STYLES --- */
+        /* --- OPTIMIZED VIDEO STYLES --- */
         .video-wrapper {
             width: 100%;
             max-width: 800px; /* OPTIMIZATION: Limits width so it's not too tall on desktop */
@@ -272,7 +272,7 @@
                     <span class="text-sm bg-purple-100 text-purple-800 py-1 px-3 rounded-full font-bold mt-2 md:mt-0">Time: 6 mins</span>
                 </div>
 
-<div class="video-wrapper">
+                <div class="video-wrapper">
                     <div class="video-container">
                         <iframe src="https://www.youtube-nocookie.com/embed/WV8om35Rj4o?si=L76fVA8CAffIk1uB&hl=en" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                     </div>
@@ -407,7 +407,9 @@
         // --- CONFIG ---
         const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // **FIX:** Renamed to 'sb' to avoid namespace collision
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentUser = null;
 
         const lessonTitle = "The Science & Culture of Mulled Wine";
@@ -428,7 +430,8 @@
         // --- AUTH ---
         async function checkUser() {
             try {
-                const { data: { user } } = await supabase.auth.getUser();
+                // **FIX:** Using 'sb'
+                const { data: { user } } = await sb.auth.getUser();
                 if (user) {
                     currentUser = user;
                     document.getElementById('logged-in-buttons').style.display = 'flex';
@@ -452,7 +455,8 @@
             const status = document.getElementById('save-status');
             btn.disabled = true; btn.textContent = "Saving...";
 
-            const { error } = await supabase.from('lessons').upsert([{
+            // **FIX:** Using 'sb'
+            const { error } = await sb.from('lessons').upsert([{
                 user_id: currentUser.id, lesson_title: lessonTitle, lesson_link: lessonLink,
                 lesson_level: lessonLevel, vocabulary: wordsToSave, completed_at: new Date().toISOString()
             }], { onConflict: 'user_id,lesson_title' });
@@ -469,15 +473,17 @@
         
         async function saveMistake(word) {
             if(!currentUser) return;
-            const wObj = wordsToSave.find(w=>w.word.toLowerCase()===word.toLowerCase()) || {word, definition:'Review this term', type:'word'};
-            await supabase.from('user_mistakes').upsert({
+            const wObj = wordsToSave.find(w=>w.word.toLowerCase()===word.toLowerCase()) || {word: word, definition:'Review this term', type:'word'};
+            // **FIX:** Using 'sb'
+            await sb.from('user_mistakes').upsert({
                 user_id: currentUser.id, word: wObj.word, definition: wObj.definition, word_type: wObj.type,
                 lesson: lessonTitle, lesson_link: lessonLink, last_made_at: new Date().toISOString()
             }, {onConflict: 'user_id,word'});
         }
 
         document.getElementById('logout-btn').addEventListener('click', async () => {
-            await supabase.auth.signOut(); window.location.href = '/';
+            // **FIX:** Using 'sb'
+            await sb.auth.signOut(); window.location.href = '/';
         });
 
         // --- UTILS ---
@@ -490,10 +496,14 @@
         }
 
         function showDictionaryPopup(target, word) {
-            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase());
+            // **FIX:** Case Insensitive Search
+            const searchWord = word.toLowerCase();
+            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === searchWord);
+            
             const popup = document.getElementById('dictionary-popup');
-            if(wordObj) popup.innerHTML = `<strong>${wordObj.word}</strong> <span style="font-size:0.85em; color:#880E4F;">(${wordObj.type})</span><br>${wordObj.definition}`;
+            if(wordObj) popup.innerHTML = `<strong>${wordObj.word}</strong> <span style="font-size:0.85em; color:#D32F2F;">(${wordObj.type})</span><br>${wordObj.definition}`;
             else popup.innerHTML = `<strong>${word}</strong><br>Definition not found.`;
+            
             popup.style.display = 'block';
             const rect = target.getBoundingClientRect();
             let topPos = rect.top - popup.offsetHeight - 10;
@@ -516,7 +526,7 @@
         }
         function cleanText(text) { return text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z]/g, '').toLowerCase() : ''; }
 
-        /* MATCHING */
+        /* MATCHING - FIXED: Removed BR tags from array */
         const newVocabData = [
             { type: 'term', content: "Beverage", key: 'A' }, { type: 'definition', content: "A drink other than water.", key: 'A' },
             { type: 'term', content: "Tipsy", key: 'B' }, { type: 'definition', content: "Slightly drunk.", key: 'B' },
@@ -643,6 +653,7 @@
         }
         
         function handleGapBlankClick(blank) {
+            // Case 1: Gap is empty. If a word is selected, place it.
             if (blank.textContent.trim() === '') {
                  if (selectedGapWord) {
                     blank.textContent = selectedGapWord.textContent.trim();
@@ -653,15 +664,18 @@
                 return;
             }
 
+            // Case 2: Gap is filled. We want to remove the word and put it back in the bank.
             const currentText = cleanText(blank.textContent); 
             
+            // Find the matching button in the word bank to "reactivate" it
             const allOptions = Array.from(document.querySelectorAll('.word-option'));
             const matchingBtn = allOptions.find(btn => cleanText(btn.textContent) === currentText);
             
             if (matchingBtn) {
-                matchingBtn.classList.remove('used'); 
+                matchingBtn.classList.remove('used'); // Make it clickable again
             }
 
+            // Clear the gap
             blank.textContent = ''; 
             blank.classList.remove('correct', 'incorrect', 'filled'); 
         }
@@ -686,6 +700,7 @@
                     correctCount++; 
                 } else { 
                     blank.classList.add('incorrect');
+                    // **FIX:** Saving mistake correctly
                     saveMistake(answerWord); 
                 }
             });
@@ -706,11 +721,13 @@
             selectedGapWord = null;
             document.getElementById('gap-result').style.display = 'none';
 
+            // Reset Word Bank
             const wordOptions = document.querySelectorAll('.word-option');
             wordOptions.forEach(opt => {
                 opt.classList.remove('used', 'selected');
             });
 
+            // Reset Inputs
             const blanks = document.querySelectorAll('.gap-input');
             blanks.forEach(blank => {
                 blank.textContent = '';
