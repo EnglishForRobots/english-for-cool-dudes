@@ -444,11 +444,13 @@
         // --- AUTH CONFIG ---
         const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // **FIX:** Renamed to 'sb' to avoid namespace collision
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentUser = null;
 
         const lessonTitle = "Top 10 Phrasal Verbs for Work";
-        const lessonLink = "/phrasals/"; // Ensure this matches your file name
+        const lessonLink = "/phrasals/"; 
         const lessonLevel = "B1/B2";
 
         // Words to Save
@@ -464,7 +466,8 @@
         // --- AUTH FUNCTIONS ---
         async function checkUser() {
             try {
-                const { data: { user } } = await supabase.auth.getUser();
+                // **FIX:** Using 'sb'
+                const { data: { user } } = await sb.auth.getUser();
                 if (user) {
                     currentUser = user;
                     document.getElementById('logged-in-buttons').style.display = 'flex';
@@ -491,7 +494,8 @@
             btn.disabled = true;
             btn.textContent = "Saving...";
 
-            const { error } = await supabase.from('lessons').upsert([{
+            // **FIX:** Using 'sb'
+            const { error } = await sb.from('lessons').upsert([{
                 user_id: currentUser.id,
                 lesson_title: lessonTitle,
                 lesson_link: lessonLink,
@@ -513,9 +517,32 @@
         }
 
         document.getElementById('logout-btn').addEventListener('click', async () => {
-            await supabase.auth.signOut();
+            // **FIX:** Using 'sb'
+            await sb.auth.signOut();
             window.location.reload();
         });
+
+        // --- NEW FUNCTION: SAVE MISTAKES (SUPABASE VERSION) ---
+        // Replacing LocalStorage to match other fixed lessons
+        async function saveMistake(word) {
+            if (!currentUser) return; 
+
+            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase());
+
+            try {
+                // **FIX:** Using 'sb'
+                await sb.from('user_mistakes').upsert({
+                    user_id: currentUser.id,
+                    word: wordObj ? wordObj.word : word, 
+                    definition: wordObj ? wordObj.definition : '',
+                    word_type: wordObj ? wordObj.type : 'phrasal verb',
+                    lesson: lessonTitle,
+                    lesson_link: lessonLink,
+                    last_made_at: new Date().toISOString()
+                }, { onConflict: 'user_id,word' });
+                console.log('Saved mistake for:', word);
+            } catch (err) { console.error(err); }
+        }
         
         // --- POPUP FUNCTIONS ---
         function showFeedback(msg, type) {
@@ -655,8 +682,7 @@
             // Logic to clear a filled blank (return word to bank)
             if (blank.textContent.trim() !== '') { 
                 const cleanedWord = cleanText(blank.textContent).replace(/ /g, ''); 
-                // We strip spaces for matching because classLists don't handle spaces well, 
-                // but here we just need to match the text content roughly
+                
                 const btn = Array.from(document.querySelectorAll('.word-option')).find(b => cleanText(b.textContent).replace(/ /g, '') === cleanedWord);
                 
                 if (btn) btn.classList.remove('used');
@@ -673,7 +699,6 @@
         
         function checkGaps() {
             let correctCount = 0;
-            let mistakes = []; // Tracking mistakes for your Index Popup fix
             const blanks = document.querySelectorAll('.gap-input'); 
             
             blanks.forEach(blank => { 
@@ -688,17 +713,10 @@
                     correctCount++;
                 } else if (extractedWord) { 
                     blank.classList.add('incorrect');
-                    // !!! CRITICAL FIX !!! 
-                    // If they got it wrong, we save the CORRECT answer (the one they should have known)
-                    // so the index page can test them on it later.
-                    mistakes.push(gapAnswers[index]);
+                    // **FIX:** SAVE MISTAKE FOR INDEX POPUP
+                    saveMistake(gapAnswers[index]);
                 }
             });
-
-            // Trigger the storage update for the Index popup
-            if (mistakes.length > 0) {
-                updateMistakesStorage(mistakes);
-            }
 
             const resultDiv = document.getElementById('gap-result');
             resultDiv.style.display = 'block';
@@ -711,18 +729,6 @@
         }
         
         function resetGaps() { initGaps(); }
-
-        // === LOCAL STORAGE HELPER (From your saved preferences) ===
-        function updateMistakesStorage(newMistakes) {
-            let existingMistakes = JSON.parse(localStorage.getItem('cool_dude_mistakes')) || [];
-            newMistakes.forEach(word => {
-                if (!existingMistakes.includes(word)) {
-                    existingMistakes.push(word);
-                }
-            });
-            localStorage.setItem('cool_dude_mistakes', JSON.stringify(existingMistakes));
-            console.log("Saved mistakes for extra practice:", newMistakes);
-        }
 
         document.addEventListener('DOMContentLoaded', () => {
             checkUser();
