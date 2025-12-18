@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Audit Before Christmas - English For Cool Dudes</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎅</text></svg>">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Inter:wght@400;600;700&family=Special+Elite&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- BRANDING & LAYOUT --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDF2F8;
+            color: #1E293B;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        :root {
+            --color-primary: #991B1B; /* Holiday Red */
+            --color-secondary: #166534; /* Pine Green */
+            --color-accent: #D97706; /* Gold */
+            --color-white: #FFFFFF;
+            --color-save-btn: #166534;
+        }
+
+        /* SNOWFALL EFFECT */
+        .snowflake {
+            position: fixed; top: 0; z-index: 50; pointer-events: none;
+            color: #FFF; font-size: 1em; opacity: 0.6;
+            animation: fall linear forwards;
+        }
+        @keyframes fall { to { transform: translateY(100vh); } }
+
+        /* --- STANDARD HEADER STYLES (MATCHING OTHER PAGES) --- */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border-bottom: 3px solid var(--color-primary);
+            padding: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header-content {
+            max-width: 1200px; margin: 0 auto; padding: 0 20px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        
+        .logo {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, #991B1B 0%, #DC2626 100%); 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 22px; color: white; border: 2px solid #D97706;
+        }
+        .site-title { font-size: 20px; font-weight: 700; color: #1E293B; text-decoration: none; letter-spacing: -0.02em; }
+
+        .header-buttons { display: flex; align-items: center; gap: 8px; }
+        .header-button {
+            text-decoration: none; padding: 8px 16px; border-radius: 8px;
+            font-size: 14px; font-weight: 700; transition: all 0.2s;
+            white-space: nowrap; cursor: pointer; border: 1px solid #E2E8F0;
+            background: transparent;
+        }
+        
+        .header-button.login { background: #FFFFFF; color: #475569; }
+        .header-button.login:hover { background: #F1F5F9; color: var(--color-primary); border-color: var(--color-primary); }
+        
+        .header-button.signup { background: var(--color-secondary); color: white; border-color: var(--color-secondary); }
+        .header-button.signup:hover { background: #14532D; box-shadow: 0 4px 6px rgba(22, 101, 52, 0.2); }
+        
+        .header-button.dashboard { background: #F0FDF4; color: #166534; border-color: #86EFAC; }
+        .header-button.dashboard:hover { background: #DCFCE7; }
+        
+        .header-button.logout { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
+        .header-button.logout:hover { background: #FEE2E2; }
+        
+        .user-greeting { font-size: 14px; color: var(--color-secondary); font-weight: 700; margin-right: 10px; display: block; }
+
+        /* MAIN CONTAINER */
+        .container-main {
+            max-width: 900px; margin: 40px auto; padding: 40px 30px;
+            background-color: #FFFFFF; border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08); border: 1px solid #E2E8F0;
+            position: relative; z-index: 60;
+        }
+
+        .lesson-section {
+            background-color: #F8FAFC; padding: 35px; border-radius: 16px;
+            border: 1px solid #E2E8F0; margin-bottom: 40px;
+            transition: transform 0.3s ease;
+        }
+        .section-title {
+            color: var(--color-secondary); font-size: 1.8em; font-weight: 800;
+            margin-bottom: 25px; padding-bottom: 10px; border-bottom: 2px dashed #94A3B8;
+            display: flex; align-items: center; gap: 10px;
+        }
+        
+        /* 1. OFFICIAL LETTER */
+        .official-letter {
+            background: #FFFEFC; border: 1px solid #CBD5E1; padding: 40px; 
+            font-family: 'Special Elite', cursive; 
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.05); position: relative; 
+            border-top: 5px solid var(--color-primary);
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 29px, #E5E7EB 30px);
+            line-height: 30px;
+        }
+        .stamp {
+            border: 4px double var(--color-primary); color: var(--color-primary);
+            padding: 8px 15px; font-weight: 900; text-transform: uppercase;
+            font-family: 'Inter', sans-serif; position: absolute; top: 20px; right: 20px; 
+            transform: rotate(-15deg); opacity: 0.7; font-size: 1.2em; pointer-events: none;
+            mix-blend-mode: multiply;
+        }
+        .highlight-word {
+            background-color: #FEF3C7; color: #92400E; padding: 0 4px; border-radius: 4px;
+            cursor: pointer; border-bottom: 2px dotted #D97706; transition: 0.2s;
+        }
+        .highlight-word:hover { background-color: #FCD34D; color: #000; transform: scale(1.05); display: inline-block; }
+        
+        /* 2. MATCHING GAME */
+        .match-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+        .match-card {
+            border: 2px solid #E2E8F0; transition: all 0.3s;
+            cursor: pointer; user-select: none; border-radius: 12px; 
+            padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); 
+            font-weight: 700; text-align: center; background: white;
+            display: flex; align-items: center; justify-content: center; min-height: 100px;
+        }
+        .match-card:hover { transform: translateY(-3px); border-color: var(--color-secondary); }
+        .match-card.selected { border-color: var(--color-accent); background-color: #FFFBEB; transform: scale(0.95); }
+        .match-card.matched { 
+            background-color: #DCFCE7 !important; border-color: #166534 !important; color: #166534;
+            animation: popOut 0.5s forwards; 
+        }
+        @keyframes popOut { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(0); opacity: 0; } }
+
+        /* 3. GRAMMAR */
+        .option-button {
+            transition: 0.2s; background: white; padding: 15px; border-radius: 8px;
+            border: 2px solid #E2E8F0; width: 100%; cursor: pointer; text-align: left; 
+            margin-bottom: 10px; font-weight: 600; display: flex; align-items: center;
+        }
+        .option-button:hover { border-color: var(--color-secondary); background: #F0FDF4; }
+        .option-button.correct { background: #DCFCE7 !important; border-color: #166534 !important; color: #14532D; }
+        .option-button.incorrect { background: #FEE2E2 !important; border-color: #DC2626 !important; color: #7F1D1D; }
+
+        /* 4. SANTA LETTER */
+        .santa-letter-container {
+            background-color: #FFF1F2; padding: 40px; border-radius: 8px;
+            border: 4px dashed #991B1B; font-family: 'Mountains of Christmas', cursive; 
+            font-size: 1.4em; line-height: 1.8; letter-spacing: 0.5px; position: relative;
+        }
+        .word-bank { 
+            background: #F1F5F9; border-radius: 12px; padding: 20px; 
+            margin-bottom: 25px; text-align: center; border: 1px solid #CBD5E1;
+        }
+        .word-option {
+            display: inline-block; margin: 6px; padding: 10px 20px; background: white; 
+            color: #334155; border: 2px solid #CBD5E1; border-radius: 50px; 
+            cursor: pointer; font-weight: 700; font-family: 'Inter', sans-serif; font-size: 0.85em;
+            transition: all 0.2s; box-shadow: 0 2px 0 #CBD5E1;
+        }
+        .word-option.selected { 
+            background: var(--color-primary) !important; color: white !important; 
+            border-color: var(--color-primary) !important; transform: scale(1.05); 
+        }
+        .word-option.used { opacity: 0.4; pointer-events: none; background: #E2E8F0; border-color: transparent; box-shadow: none; color: #94A3B8; transform: scale(0.95); }
+
+        .gap-input {
+            display: inline-block; min-width: 120px; text-align: center; border-bottom: 3px dotted #991B1B;
+            color: #991B1B; font-weight: bold; cursor: pointer; padding: 0 8px; transition: 0.3s;
+            background: rgba(255,255,255,0.5); border-radius: 4px;
+        }
+        .gap-input.correct { color: #166534; border-bottom: 3px solid #166534; background: #DCFCE7; }
+        .gap-input.incorrect { color: #DC2626; background: #FEE2E2; border-bottom: 3px solid #DC2626; }
+
+        /* 5. STRATEGY CARDS */
+        .strategy-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .strategy-card {
+            background: white; border: 2px solid #E2E8F0; border-radius: 16px; padding: 25px;
+            cursor: pointer; transition: all 0.3s; text-align: center; position: relative; overflow: hidden;
+        }
+        .strategy-card:hover { transform: translateY(-8px); border-color: var(--color-accent); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        .verdict-box { 
+            margin-top: 15px; padding: 15px; border-radius: 8px; display: none; 
+            font-size: 0.95em; font-family: 'Inter', sans-serif; animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 6. AUDIT FILE (SAVE SECTION) */
+        #audit-file {
+            background: #F0FDF4; border: 2px dashed #166534; padding: 30px; 
+            border-radius: 16px; text-align: center; position: relative;
+        }
+        .compliance-list {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px; margin: 20px 0;
+        }
+        .compliance-item {
+            background: white; padding: 10px; border-radius: 8px; border: 1px solid #BBF7D0;
+            color: #166534; font-weight: 600; font-size: 0.9em; display: flex; align-items: center; gap: 8px;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .compliance-item:hover { background-color: #DCFCE7; border-color: #166534; transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .compliance-item::before { content: '✅'; font-size: 0.8em; }
+
+        /* BUTTONS */
+        .check-button {
+            background: var(--color-secondary); color: white; border: none; padding: 14px 35px;
+            border-radius: 50px; cursor: pointer; font-weight: 700; margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(22, 101, 52, 0.3); transition: 0.2s; font-size: 1.1em;
+        }
+        .check-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(22, 101, 52, 0.4); background: #14532D; }
+        
+        /* POPUPS */
+        #feedback-popup {
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            padding: 25px 50px; border-radius: 16px; font-weight: 800; color: white;
+            z-index: 2000; display: none; text-align: center; font-size: 1.5em; 
+            border: 6px solid rgba(255,255,255,0.3); box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+        }
+        #dictionary-popup {
+            position: fixed; background: white; padding: 20px; border-top: 5px solid var(--color-primary);
+            border-radius: 12px; z-index: 2001; display: none; max-width: 300px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15); font-size: 1em; color: #334155;
+        }
+        @media (max-width: 768px) { .user-greeting { display: none; } }
+    </style>
+</head>
+<body>
+
+    <div id="snow-container"></div>
+
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">🎅</span>
+                <a href="/tax/" class="site-title">English For Cool Dudes</a>
+            </div>
+            
+            <div id="logged-out-buttons" class="header-buttons" style="display: none;">
+                <a href="/login/" class="header-button login">Login</a>
+                <a href="/signup/" class="header-button signup">Sign Up</a>
+            </div>
+
+            <div id="logged-in-buttons" class="header-buttons" style="display: none;">
+                <span class="user-greeting" id="user-greeting">Hey Cool Dude! 👋</span>
+                <a href="/dashboard/" class="header-button dashboard">My Dashboard</a>
+                <button id="logout-btn" class="header-button logout">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-main">
+        <div class="text-center mb-10">
+            <span class="bg-red-100 text-red-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Level C1</span>
+            <h1 class="text-4xl md:text-5xl font-black text-slate-800 mt-2 mb-2 tracking-tight">The Audit Before Christmas</h1>
+            <p class="text-lg text-slate-500">Corporate Compliance, Tax Evasion & Risk Management</p>
+        </div>
+
+        <main>
+            <section class="lesson-section shadow-sm hover:shadow-md transition-shadow">
+                <h2 class="section-title"><span>📜</span> 1. The Notice</h2>
+                <div class="official-letter">
+                    <div class="stamp">FINAL NOTICE</div>
+                    <p class="font-bold mb-6 text-sm tracking-widest">REF: NP-2512-CLAUSE</p>
+                    <p class="font-bold mb-4">FROM: GLOBAL TAX ENFORCEMENT AGENCY (GTEA)</p>
+                    <p class="mb-4">It has come to our attention that your entity, <em>North Pole Logistics</em>, has significant compliance gaps. You currently hold substantial <span class="highlight-word" onclick="showDictionaryPopup(this, 'Assets')">Assets</span> (livestock, sleighs, and manufacturing plants) and valuable <span class="highlight-word" onclick="showDictionaryPopup(this, 'Intangible Assets')">Intangible Assets</span> (the "Nice List" database).</p>
+                    <p class="mb-4">Furthermore, your recurring activities constitute a <span class="highlight-word" onclick="showDictionaryPopup(this, 'Permanent Establishment')">Permanent Establishment</span> in almost every jurisdiction worldwide. We believe this is a clear case of <span class="highlight-word" onclick="showDictionaryPopup(this, 'Tax Evasion')">Tax Evasion</span>.</p>
+                    <p>Unless you can prove your <span class="highlight-word" onclick="showDictionaryPopup(this, 'Charitable Status')">Charitable Status</span> immediately, we will initiate <span class="highlight-word" onclick="showDictionaryPopup(this, 'Liquidation')">Liquidation</span> of the reindeer assets.</p>
+                    <p class="mt-8 text-right font-serif italic">Sincerely,<br> The Auditor</p>
+                </div>
+            </section>
+
+            <section id="exercise-1" class="lesson-section">
+                <h2 class="section-title"><span>🔗</span> 2. Vocabulary Match</h2>
+                <p class="text-gray-600 mb-6 font-medium">Match the financial term to its definition. <strong>Matches will vanish!</strong></p>
+                <div id="vocab-match-container" class="match-grid"></div>
+            </section>
+        
+            <section id="exercise-2" class="lesson-section">
+                <h2 class="section-title"><span>⚖️</span> 3. The "Bureaucratic Passive"</h2>
+                <p class="text-gray-600 mb-6">Tax authorities use the Passive Voice to sound objective and intimidating. Transform these sentences.</p>
+                
+                <div class="question mb-8 border-l-4 border-slate-200 pl-4" data-question="1">
+                    <p class="font-bold text-gray-800 mb-2 text-lg">1. Active: "We noticed an error in your file."</p>
+                    <div class="option-button" onclick="selectOption(this, false)">We have noticed your error.</div>
+                    <div class="option-button" onclick="selectOption(this, true)">An error has been noticed in your file.</div>
+                    <div class="option-button" onclick="selectOption(this, false)">The file had an error.</div>
+                </div>
+                
+                <div class="question border-l-4 border-slate-200 pl-4" data-question="2">
+                    <p class="font-bold text-gray-800 mb-2 text-lg">2. Active: "The court suspended the tax."</p>
+                    <div class="option-button" onclick="selectOption(this, true)">The tax was suspended by the court.</div>
+                    <div class="option-button" onclick="selectOption(this, false)">The court was suspending the tax.</div>
+                    <div class="option-button" onclick="selectOption(this, false)">Tax suspension happened.</div>
+                </div>
+            </section>
+
+            <section id="exercise-3" class="lesson-section">
+                <h2 class="section-title"><span>📝</span> 4. Santa's Reply</h2>
+                <p class="text-gray-600 mb-6">Help Santa write to his lawyer. Click a word, then click the gap.</p>
+                
+                <div class="word-bank">
+                    <div class="word-option" data-word="overhead">overhead</div>
+                    <div class="word-option" data-word="deductible">deductible</div>
+                    <div class="word-option" data-word="jurisdiction">jurisdiction</div>
+                    <div class="word-option" data-word="audit">audit</div>
+                    <div class="word-option" data-word="compliance">compliance</div>
+                </div>
+
+                <div class="santa-letter-container">
+                    <div style="position:absolute; top:10px; right:10px; font-size:2em;">🍪</div>
+                    <p>Dear Elf Legal Team,</p>
+                    <p>We have a code red! I just received notice of a full tax <span class="gap-input" data-answer="audit">____</span>. They want to see receipts from 1750!</p>
+                    <p>Please tell them the North Pole is international waters and outside their <span class="gap-input" data-answer="jurisdiction">____</span>.</p>
+                    <p>Also, my <span class="gap-input" data-answer="overhead">____</span> costs are skyrocketing. The Elf Union is demanding dental coverage for candy-cane cavities.</p>
+                    <p>They are also claiming the cookies I eat are "personal income." Are they not a tax <span class="gap-input" data-answer="deductible">____</span> fuel expense for the sleigh??</p>
+                    <p>Fix this! I thought we were in full <span class="gap-input" data-answer="compliance">____</span>!</p>
+                    <p class="mt-4 font-bold">- Nick</p>
+                </div>
+                
+                <div class="text-center">
+                    <button class="check-button" onclick="checkGaps()">Send Letter 📨</button>
+                    <button class="check-button bg-slate-400 hover:bg-slate-500 shadow-none ml-4" onclick="resetGaps()">Reset</button>
+                </div>
+            </section>
+
+            <section class="lesson-section bg-gradient-to-br from-slate-50 to-slate-100">
+                <h2 class="section-title"><span>🚀</span> 5. Strategy: The Future of Christmas</h2>
+                <p class="mb-6 text-gray-700 font-medium">The audit went badly. You are Santa's Crisis Manager. <strong>Click a card to choose the future business model.</strong></p>
+                
+                <div class="strategy-grid">
+                    <div class="strategy-card" onclick="showVerdict(this)">
+                        <span class="strategy-icon">🌴</span>
+                        <div class="strategy-title text-xl font-bold text-slate-800">The Offshore Move</div>
+                        <p class="text-sm text-gray-500 mt-2">Relocate HQ to the Cayman Islands. Transfer IP to a shell company.</p>
+                        <div class="verdict-box bg-red-100 text-red-800 border border-red-200">
+                            <strong>VERDICT: PR DISASTER! 📸</strong><br>
+                            The press leaks the "Santa Papers." Children cry. You are fined billions.
+                        </div>
+                    </div>
+
+                    <div class="strategy-card" onclick="showVerdict(this)">
+                        <span class="strategy-icon">🤖</span>
+                        <div class="strategy-title text-xl font-bold text-slate-800">Automation</div>
+                        <p class="text-sm text-gray-500 mt-2">Fire the elves to reduce payroll tax. Replace with AI Drones.</p>
+                        <div class="verdict-box bg-orange-100 text-orange-800 border border-orange-200">
+                            <strong>VERDICT: STRIKE! 🪧</strong><br>
+                            The Elf Union (Local 25) shuts down the factory. Christmas is cancelled.
+                        </div>
+                    </div>
+
+                    <div class="strategy-card" onclick="showVerdict(this)">
+                        <span class="strategy-icon">🕊️</span>
+                        <div class="strategy-title text-xl font-bold text-slate-800">Global NGO</div>
+                        <p class="text-sm text-gray-500 mt-2">Register as a non-profit. Joy is not taxable income.</p>
+                        <div class="verdict-box bg-green-100 text-green-800 border border-green-200">
+                            <strong>VERDICT: SUCCESS! ✅</strong><br>
+                            High paperwork, but zero tax liability. The reindeer are safe!
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mt-12 mb-8">
+                <div id="audit-file">
+                    <h3 class="text-2xl font-black mb-2 text-green-800">📂 The Audit File</h3>
+                    <p class="text-green-700 mb-6">Review your compliance terms (click to define) before filing.</p>
+                    <div id="compliance-checklist" class="compliance-list"></div>
+                    <div id="save-actions">
+                        <div id="save-feature-loggedin" style="display: none;">
+                            <button id="save-words-btn" onclick="saveWordsToDashboard()" class="check-button w-full md:w-auto hover:scale-105 transform transition">
+                                💾 File Return & Save Words
+                            </button>
+                            <p id="save-status" class="mt-4 font-bold text-green-800"></p>
+                        </div>
+                        <div id="login-prompt" style="display: none;">
+                            <p class="text-red-600 font-bold mb-2">🔒 Login to save your progress!</p>
+                            <a href="/login/" class="inline-block bg-slate-800 text-white font-bold py-2 px-4 rounded hover:bg-black transition">Log In</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    
+    <div id="feedback-popup"></div>
+    <div id="dictionary-popup"></div>
+
+    <script>
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null;
+
+        const lessonTitle = "The Audit Before Christmas";
+        const lessonLink = "/santatax/";
+        
+        const wordsToSave = [
+            { word: "Tax Evasion", type: "noun", definition: "Illegally not paying taxes." },
+            { word: "Assets", type: "noun", definition: "Property owned by a person or company." },
+            { word: "Permanent Establishment", type: "noun", definition: "A fixed place of business that triggers tax." },
+            { word: "Audit", type: "noun", definition: "Official financial inspection." },
+            { word: "Deductible", type: "adj", definition: "Subtractable from taxable income." },
+            { word: "Jurisdiction", type: "noun", definition: "The area where a legal authority has power." },
+            { word: "Liquidation", type: "noun", definition: "Selling assets to pay off debts." },
+            { word: "Compliance", type: "noun", definition: "The action of obeying laws/rules." },
+            { word: "Intangible Assets", type: "noun", definition: "Non-physical value (like brand or data)." },
+            { word: "Overhead", type: "noun", definition: "Ongoing business expenses (rent, utilities)." }
+        ];
+
+        async function checkUser() {
+            try {
+                const { data: { user } } = await sbClient.auth.getUser();
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('logged-in-buttons').style.display = 'flex';
+                    document.getElementById('logged-out-buttons').style.display = 'none';
+                    document.getElementById('save-feature-loggedin').style.display = 'block';
+                    document.getElementById('login-prompt').style.display = 'none';
+                    
+                    const name = user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Cool Dude';
+                    document.getElementById('user-greeting').textContent = `Hey ${name}! 👋`;
+                } else {
+                    document.getElementById('logged-in-buttons').style.display = 'none';
+                    document.getElementById('logged-out-buttons').style.display = 'flex';
+                    document.getElementById('save-feature-loggedin').style.display = 'none';
+                    document.getElementById('login-prompt').style.display = 'block';
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await sbClient.auth.signOut();
+            window.location.href = '/';
+        });
+
+        function initSaveList() {
+            const container = document.getElementById('compliance-checklist');
+            wordsToSave.forEach(w => {
+                const item = document.createElement('div');
+                item.className = 'compliance-item';
+                item.textContent = w.word;
+                item.onclick = (e) => { e.stopPropagation(); showDictionaryPopup(item, w.word); };
+                container.appendChild(item);
+            });
+        }
+
+        async function saveWordsToDashboard() {
+            if (!currentUser) return;
+            const btn = document.getElementById('save-words-btn');
+            const status = document.getElementById('save-status');
+            btn.disabled = true; btn.textContent = "Processing Audit...";
+            
+            const { error } = await sbClient.from('lessons').upsert([{
+                user_id: currentUser.id, lesson_title: lessonTitle, lesson_link: lessonLink,
+                lesson_level: "C1", vocabulary: wordsToSave, completed_at: new Date().toISOString()
+            }], { onConflict: 'user_id,lesson_title' });
+
+            if (!error) {
+                btn.textContent = "Audit Passed! ✅"; btn.style.backgroundColor = "#166534";
+                status.textContent = "All terms saved to your Inventory.";
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.8 }, colors: ['#166534', '#991B1B', '#D97706'] });
+                setTimeout(() => window.location.href = '/dashboard/', 1500);
+            } else {
+                btn.textContent = "System Error"; btn.disabled = false;
+                status.textContent = "Upload failed. Please try again.";
+            }
+        }
+
+        async function saveMistake(word) {
+            if(!currentUser) return;
+            const wObj = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase()) || {word: word, definition: 'Financial term', type: 'noun'};
+            await sbClient.from('user_mistakes').upsert({
+                user_id: currentUser.id, word: wObj.word, definition: wObj.definition, word_type: wObj.type,
+                lesson: lessonTitle, lesson_link: lessonLink, last_made_at: new Date().toISOString()
+            }, {onConflict: 'user_id,word'});
+        }
+
+        // MATCHING
+        const matchData = [
+            { t: "Tax Evasion", d: "Illegal non-payment" }, { t: "Assets", d: "Items of value" },
+            { t: "Audit", d: "Official inspection" }, { t: "Liabilities", d: "Debts owed" }
+        ];
+        let selectedCards = [];
+
+        function initMatch() {
+            const container = document.getElementById('vocab-match-container');
+            container.innerHTML = ''; 
+            let items = [];
+            matchData.forEach((m, i) => {
+                items.push({text:m.t, type:'term', id:i}); items.push({text:m.d, type:'definition', id:i});
+            });
+            for (let i = items.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [items[i], items[j]] = [items[j], items[i]]; }
+            
+            items.forEach(item => {
+                const el = document.createElement('div'); el.className = `match-card ${item.type}`;
+                el.textContent = item.text; el.onclick = () => handleMatch(el, item.id);
+                container.appendChild(el);
+            });
+        }
+
+        function handleMatch(el, id) {
+            if(el.classList.contains('matched') || selectedCards.includes(el)) return;
+            if(selectedCards.length >= 2) { selectedCards.forEach(c => c.el.classList.remove('selected')); selectedCards = []; }
+
+            el.classList.add('selected'); selectedCards.push({el, id});
+
+            if(selectedCards.length === 2) {
+                const [c1, c2] = selectedCards;
+                if(c1.id === c2.id && c1.el !== c2.el) {
+                    showFeedback("Verified! 🎅", "correct");
+                    c1.el.classList.remove('selected'); c2.el.classList.remove('selected');
+                    c1.el.classList.add('matched'); c2.el.classList.add('matched');
+                    setTimeout(() => { 
+                        c1.el.style.visibility = 'hidden'; c2.el.style.visibility = 'hidden'; 
+                        checkMatchComplete(); 
+                    }, 500);
+                } else {
+                    showFeedback("Mismatch! 🎄", "incorrect");
+                    setTimeout(() => { c1.el.classList.remove('selected'); c2.el.classList.remove('selected'); }, 800);
+                }
+                selectedCards = [];
+            }
+        }
+
+        function checkMatchComplete() {
+            const remaining = document.querySelectorAll('.match-card:not(.matched)').length;
+            if(remaining === 0) {
+                showFeedback("Board Cleared! Reloading... 🔄", "correct");
+                setTimeout(() => { initMatch(); }, 1500); // AUTO RELOAD
+            }
+        }
+
+        // GRAMMAR
+        window.selectOption = function(el, isCorrect) {
+            const parent = el.parentElement;
+            parent.querySelectorAll('.option-button').forEach(b => { b.classList.remove('correct', 'incorrect'); });
+            if(isCorrect) { el.classList.add('correct'); showFeedback("Correct Syntax! ✅", "correct"); }
+            else { el.classList.add('incorrect'); showFeedback("Too Active! ❌", "incorrect"); }
+        }
+
+        // GAP FILL
+        let currentGapWord = null;
+        document.querySelectorAll('.word-option').forEach(opt => {
+            opt.onclick = () => {
+                if(opt.classList.contains('used')) return;
+                document.querySelectorAll('.word-option').forEach(o => o.classList.remove('selected'));
+                opt.classList.add('selected'); currentGapWord = opt;
+            }
+        });
+
+        document.querySelectorAll('.gap-input').forEach(gap => {
+            gap.onclick = () => {
+                if(currentGapWord && (gap.textContent === '____' || gap.textContent === '')) {
+                    gap.textContent = currentGapWord.dataset.word;
+                    gap.classList.remove('incorrect');
+                    currentGapWord.classList.add('used'); currentGapWord.classList.remove('selected');
+                    currentGapWord = null;
+                } else if (gap.textContent !== '____') {
+                    const txt = gap.textContent; gap.textContent = '____'; gap.className = 'gap-input';
+                    const bankBtn = document.querySelector(`.word-option[data-word="${txt}"]`);
+                    if(bankBtn) bankBtn.classList.remove('used');
+                }
+            }
+        });
+
+        window.checkGaps = function() {
+            let correct = 0; const gaps = document.querySelectorAll('.gap-input');
+            gaps.forEach(gap => {
+                if(gap.textContent === gap.dataset.answer) { gap.classList.add('correct'); gap.classList.remove('incorrect'); correct++; }
+                else { gap.classList.add('incorrect'); saveMistake(gap.dataset.answer); }
+            });
+            if(correct === gaps.length) { showFeedback("Letter Sent! 📨", "correct"); confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); }
+            else showFeedback("Compliance Errors 🧐", "incorrect");
+        }
+
+        window.resetGaps = function() {
+            document.querySelectorAll('.gap-input').forEach(g => { g.textContent = '____'; g.className = 'gap-input'; });
+            document.querySelectorAll('.word-option').forEach(o => o.classList.remove('used', 'selected'));
+        }
+
+        // STRATEGY
+        window.showVerdict = function(card) {
+            const grid = card.parentElement;
+            grid.querySelectorAll('.verdict-box').forEach(b => b.style.display = 'none');
+            card.querySelector('.verdict-box').style.display = 'block';
+        }
+
+        // UTILS
+        function showFeedback(msg, type) {
+            const el = document.getElementById('feedback-popup');
+            el.textContent = msg; 
+            el.style.backgroundColor = type === 'correct' ? '#166534' : '#DC2626';
+            el.style.borderColor = type === 'correct' ? '#14532D' : '#991B1B';
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 1500);
+        }
+
+        window.showDictionaryPopup = function(target, word) {
+            const wObj = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase());
+            const def = wObj ? wObj.definition : "Definition loading...";
+            const type = wObj ? `(${wObj.type})` : '';
+            const popup = document.getElementById('dictionary-popup');
+            popup.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;"><strong style="color:#991B1B; font-size:1.1em;">${word}</strong><span style="font-size:0.8em; color:#64748B;">${type}</span></div><div style="color:#334155; line-height:1.4;">${def}</div><div class="mt-2 text-xs text-green-700 font-bold cursor-pointer" onclick="speakWord('${word}')">🔊 Listen</div>`;
+            popup.style.display = 'block';
+            const rect = target.getBoundingClientRect();
+            let top = rect.bottom + 10;
+            if(top + 150 > window.innerHeight) top = rect.top - 150; 
+            popup.style.top = top + 'px';
+            popup.style.left = (rect.left) + 'px';
+        }
+        
+        window.speakWord = function(text) {
+            const msg = new SpeechSynthesisUtterance(text);
+            msg.lang = 'en-GB'; window.speechSynthesis.speak(msg);
+        }
+
+        document.onclick = (e) => {
+            if(!e.target.closest('.highlight-word') && !e.target.closest('#dictionary-popup') && !e.target.closest('.compliance-item')) {
+                document.getElementById('dictionary-popup').style.display = 'none';
+            }
+        }
+
+        // SNOWFALL
+        function createSnow() {
+            const container = document.getElementById('snow-container');
+            const flakeCount = 20; 
+            for(let i=0; i<flakeCount; i++) {
+                const flake = document.createElement('div');
+                flake.className = 'snowflake'; flake.innerHTML = '❄';
+                flake.style.left = Math.random() * 100 + 'vw';
+                flake.style.animationDuration = (Math.random() * 3 + 5) + 's'; 
+                flake.style.fontSize = (Math.random() * 10 + 10) + 'px';
+                flake.style.opacity = Math.random();
+                container.appendChild(flake);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkUser(); initMatch(); initSaveList(); createSnow();
+        });
+    </script>
+</body>
+</html>
