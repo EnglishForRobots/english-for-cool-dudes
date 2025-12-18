@@ -359,7 +359,6 @@
                 <div id="gap-result" class="result-message"></div>
             </section>
 
-            <!-- SUMMARY & SAVE SECTION -->
             <section class="lesson-section shadow-lg border-t-4 border-red-700">
                 <h2 class="section-title">🎉 Lesson Complete & Summary</h2>
                 <p class="mb-4 text-gray-600">Delicious! Click a word below to review the menu:</p>
@@ -394,7 +393,6 @@
         </main>
     </div>
     
-    <!-- Popups -->
     <div id="feedback-popup"></div>
     <div id="dictionary-popup"></div>
 
@@ -402,7 +400,9 @@
         // --- AUTH CONFIG ---
         const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // **FIX:** Renamed to 'sb' to avoid namespace collision
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentUser = null;
 
         const lessonTitle = "British Food Vocabulary";
@@ -426,7 +426,8 @@
         // --- AUTH FUNCTIONS ---
         async function checkUser() {
             try {
-                const { data: { user } } = await supabase.auth.getUser();
+                // **FIX:** Using 'sb'
+                const { data: { user } } = await sb.auth.getUser();
                 if (user) {
                     currentUser = user;
                     document.getElementById('logged-in-buttons').style.display = 'flex';
@@ -452,7 +453,8 @@
             btn.disabled = true;
             btn.textContent = "Saving...";
 
-            const { error } = await supabase.from('lessons').upsert([{
+            // **FIX:** Using 'sb'
+            const { error } = await sb.from('lessons').upsert([{
                 user_id: currentUser.id,
                 lesson_title: lessonTitle,
                 lesson_link: lessonLink,
@@ -474,9 +476,31 @@
         }
 
         document.getElementById('logout-btn').addEventListener('click', async () => {
-            await supabase.auth.signOut();
+            // **FIX:** Using 'sb'
+            await sb.auth.signOut();
             window.location.href = '/';
         });
+
+        // --- NEW FUNCTION: SAVE MISTAKES (For extra practice) ---
+        async function saveMistake(word) {
+            if (!currentUser) return; 
+
+            // **FIX:** Case insensitive find
+            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase());
+
+            try {
+                // **FIX:** Using 'sb'
+                await sb.from('user_mistakes').upsert({
+                    user_id: currentUser.id,
+                    word: wordObj ? wordObj.word : word, 
+                    definition: wordObj ? wordObj.definition : '',
+                    word_type: wordObj ? wordObj.type : 'word',
+                    lesson: lessonTitle,
+                    lesson_link: lessonLink,
+                    last_made_at: new Date().toISOString()
+                }, { onConflict: 'user_id,word' });
+            } catch (err) { console.error(err); }
+        }
         
         // --- POPUP FUNCTIONS ---
         function showFeedback(msg, type) {
@@ -494,6 +518,7 @@
         }
 
         function showDictionaryPopup(target, word) {
+            // **FIX:** Case Insensitive Search
             const searchWord = word.toLowerCase();
             const wordObj = wordsToSave.find(w => w.word.toLowerCase() === searchWord);
             if(!wordObj) return;
@@ -529,14 +554,7 @@
         }
 
         /* 1. MATCHING LOGIC */
-        const newVocabData = [
-            { type: 'term', content: "Chip Butty", key: 'A' }, { type: 'definition', content: "A french fry sandwich.", key: 'A' },
-            { type: 'term', content: "Bangers", key: 'B' }, { type: 'definition', content: "Sausages.", key: 'B' },
-            { type: 'term', content: "Cuppa", key: 'C' }, { type: 'definition', content: "A cup of tea.", key: 'C' },
-            { type: 'term', content: "Biscuit", key: 'D' }, { type: 'definition', content: "A cookie.", key: 'D' },
-            { type: 'term', content: "Gravy", key: 'E' }, { type: 'definition', content: "Brown meat sauce.", key: 'E' },
-            { type: 'term', content: "Mash", key: 'F' }, { type: 'definition', content: "Mashed potatoes.", key: 'F' }
-        ];
+        const newVocabData = [<br>            { type: 'term', content: "Chip Butty", key: 'A' }, { type: 'definition', content: "A french fry sandwich.", key: 'A' },<br>            { type: 'term', content: "Bangers", key: 'B' }, { type: 'definition', content: "Sausages.", key: 'B' },<br>            { type: 'term', content: "Cuppa", key: 'C' }, { type: 'definition', content: "A cup of tea.", key: 'C' },<br>            { type: 'term', content: "Biscuit", key: 'D' }, { type: 'definition', content: "A cookie.", key: 'D' },<br>            { type: 'term', content: "Gravy", key: 'E' }, { type: 'definition', content: "Brown meat sauce.", key: 'E' },<br>            { type: 'term', content: "Mash", key: 'F' }, { type: 'definition', content: "Mashed potatoes.", key: 'F' }<br>        ];
         let selectedTermCard = null;
         let selectedDefinitionCard = null;
         let matchedPairs = 0;
@@ -628,6 +646,7 @@
         
         function initGaps() {
             const wordOptionsContainer = document.getElementById('gap-fill-options');
+            if(!wordOptionsContainer) return;
             const options = Array.from(wordOptionsContainer.children);
             shuffleArray(options);
             options.forEach(option => {
@@ -663,10 +682,13 @@
                 const extractedWord = cleanText(blank.textContent); 
                 const answerWord = cleanText(gapAnswers[index]);
                 blank.classList.remove('selected', 'incorrect', 'correct');
+                
                 if (extractedWord && (extractedWord === answerWord)) {
                     blank.classList.add('correct'); correctCount++;
                 } else if (extractedWord) { 
                     blank.classList.add('incorrect');
+                    // **FIX:** Saving mistake correctly
+                    saveMistake(gapAnswers[index]); 
                 }
             });
             const resultDiv = document.getElementById('gap-result');
