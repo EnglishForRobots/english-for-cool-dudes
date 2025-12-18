@@ -33,9 +33,6 @@
             /* Feedback Colors */
             --color-correct: #10B981; /* Emerald Green */
             --color-incorrect: #EF4444; /* Red */
-            
-            /* UI Elements */
-            --color-save-btn: #7C3AED; 
         }
 
         /* Header */
@@ -380,7 +377,7 @@
                     <li data-word="target audience">target audience</li>
                     <li data-word="call to action">call to action</li>
                     <li data-word="pitch deck">pitch deck</li>
-			<li data-word="value proposition">value proposition</li>
+                    <li data-word="value proposition">value proposition</li>
                 </ul>
 
                 <div id="save-area">
@@ -402,17 +399,19 @@
     <div id="dictionary-popup"></div>
 
     <script>
-        // --- AUTH CONFIG ---
+        // --- 1. CONFIG & DATA CONSTANTS ---
         const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // RENAMED TO 'sb' TO AVOID 'supabase' NAMESPACE CONFLICT
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentUser = null;
 
         const lessonTitle = "The Elevator Pitch (Upper Int)";
         const lessonLink = "/elevator/";
         const lessonLevel = "B2/C1";
 
-        // Words to Save
+        // Words to Save (Dictionary)
         const wordsToSave = [
             { word: "elevator pitch", type: "noun", definition: "A short, persuasive speech used to spark interest in what you do." },
             { word: "hook", type: "noun", definition: "A statement or question used to grab attention immediately." },
@@ -426,13 +425,23 @@
             { word: "target audience", type: "noun", definition: "The specific group of people you want to reach with your product." },
             { word: "call to action", type: "noun", definition: "An instruction to the audience to provoke an immediate response (e.g., 'Call now')." },
             { word: "pitch deck", type: "noun", definition: "A brief presentation used to provide a quick overview of your business plan." },
-		{ word: "value proposition", type: "noun", definition: "(In marketing) an innovation, service, or feature intended to make a company or product attractive to customers." },
+            { word: "value proposition", type: "noun", definition: "(In marketing) an innovation, service, or feature intended to make a company or product attractive to customers." },
         ];
 
-        // --- AUTH FUNCTIONS ---
+        // Matching Game Data
+        const newVocabData = [
+            { type: 'term', content: "Hook", key: 'A' }, { type: 'definition', content: "The opening sentence that grabs attention.", key: 'A' },
+            { type: 'term', content: "USP", key: 'B' }, { type: 'definition', content: "What makes you different (Unique Selling Point).", key: 'B' },
+            { type: 'term', content: "Traction", key: 'C' }, { type: 'definition', content: "Progress or momentum (e.g., sales).", key: 'C' },
+            { type: 'term', content: "Scalable", key: 'D' }, { type: 'definition', content: "Able to grow without problems.", key: 'D' },
+            { type: 'term', content: "Investors", key: 'E' }, { type: 'definition', content: "People who give money for profit.", key: 'E' },
+            { type: 'term', content: "Deck", key: 'F' }, { type: 'definition', content: "A presentation used to pitch.", key: 'F' }
+        ];
+
+        // --- 2. AUTH & DATABASE FUNCTIONS ---
         async function checkUser() {
             try {
-                const { data: { user } } = await supabase.auth.getUser();
+                const { data: { user } } = await sb.auth.getUser();
                 if (user) {
                     currentUser = user;
                     document.getElementById('logged-in-buttons').style.display = 'flex';
@@ -448,7 +457,7 @@
                     document.getElementById('save-feature-loggedin').style.display = 'none';
                     document.getElementById('login-prompt').style.display = 'block';
                 }
-            } catch (err) { console.error(err); }
+            } catch (err) { console.error("Auth check failed:", err); }
         }
 
         async function saveWordsToDashboard() {
@@ -458,7 +467,7 @@
             btn.disabled = true;
             btn.textContent = "Uploading...";
 
-            const { error } = await supabase.from('lessons').upsert([{
+            const { error } = await sb.from('lessons').upsert([{
                 user_id: currentUser.id,
                 lesson_title: lessonTitle,
                 lesson_link: lessonLink,
@@ -479,39 +488,30 @@
             }
         }
 
-        document.getElementById('logout-btn').addEventListener('click', async () => {
-            await supabase.auth.signOut();
-            window.location.href = '/';
-        });
+        // Save incorrect words for practice
+        async function saveMistake(word) {
+            if (!currentUser) return; 
 
-		// --- NEW FUNCTION: SAVE MISTAKES TO SUPABASE ---
-async function saveMistake(word) {
-    if (!currentUser) return; // Only save if logged in
+            const wObj = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase()) || {
+                word: word,
+                definition: '',
+                type: ''
+            };
 
-    // Find the full word details (definition/type) from your existing list
-    const wObj = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase()) || {
-        word: word,
-        definition: '',
-        type: ''
-    };
+            await sb.from('user_mistakes').upsert({
+                user_id: currentUser.id,
+                word: wObj.word,
+                definition: wObj.definition,
+                word_type: wObj.type,
+                lesson: lessonTitle,
+                lesson_link: lessonLink,
+                last_made_at: new Date().toISOString()
+            }, {
+                onConflict: 'user_id,word'
+            });
+        }
 
-    // Upsert into the user_mistakes table
-    await supabase.from('user_mistakes').upsert({
-        user_id: currentUser.id,
-        word: wObj.word,
-        definition: wObj.definition,
-        word_type: wObj.type,
-        lesson: lessonTitle,
-        lesson_link: lessonLink,
-        last_made_at: new Date().toISOString()
-    }, {
-        onConflict: 'user_id,word'
-    });
-    
-    console.log(`Saved mistake: ${word}`); // Optional for debugging
-}
-        
-        // --- POPUP FUNCTIONS ---
+        // --- 3. UI HELPER FUNCTIONS ---
         function showFeedback(msg, type) {
             const el = document.getElementById('feedback-popup');
             el.textContent = msg;
@@ -542,14 +542,7 @@ async function saveMistake(word) {
             popup.style.top = topPos + 'px';
             popup.style.left = (rect.left + (rect.width/2) - (popup.offsetWidth/2)) + 'px';
         }
-        
-        document.body.addEventListener('click', (e) => {
-            if (!e.target.closest('#dictionary-popup') && !e.target.closest('#learned-words-list li') && !e.target.closest('.highlight-word')) {
-                document.getElementById('dictionary-popup').style.display = 'none';
-            }
-        });
 
-        // --- EXERCISE LOGIC ---
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -561,50 +554,56 @@ async function saveMistake(word) {
             return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z]/g, '').toLowerCase();
         }
 
-        /* 1. MATCHING LOGIC */
-        const newVocabData = [
-            { type: 'term', content: "Hook", key: 'A' }, { type: 'definition', content: "The opening sentence that grabs attention.", key: 'A' },
-            { type: 'term', content: "USP", key: 'B' }, { type: 'definition', content: "What makes you different (Unique Selling Point).", key: 'B' },
-            { type: 'term', content: "Traction", key: 'C' }, { type: 'definition', content: "Progress or momentum (e.g., sales).", key: 'C' },
-            { type: 'term', content: "Scalable", key: 'D' }, { type: 'definition', content: "Able to grow without problems.", key: 'D' },
-            { type: 'term', content: "Investors", key: 'E' }, { type: 'definition', content: "People who give money for profit.", key: 'E' },
-            { type: 'term', content: "Deck", key: 'F' }, { type: 'definition', content: "A presentation used to pitch.", key: 'F' }
-        ];
+        // --- 4. EXERCISE LOGIC: MATCHING ---
         let selectedTermCard = null;
         let selectedDefinitionCard = null;
         let matchedPairs = 0;
-
         const funCorrect = ["You're hired! 🤝", "Great Pitch! 🚀", "Unicorn Status! 🦄", "Funding Secured! 💰"];
         const funIncorrect = ["Start Over! 📉", "Pivot! 🔄", "No Deal! 🛑"];
 
         function initVocab() {
             const matchContainer = document.getElementById('vocab-match-container');
+            if(!matchContainer) return;
             matchContainer.innerHTML = '';
+            
+            // Re-Shuffle and create
             shuffleArray(newVocabData);
             newVocabData.forEach(item => {
                 const card = document.createElement('div'); 
                 card.className = `match-card interactive-element ${item.type}`;
-                card.innerHTML = item.type === 'term' ? item.content : item.content; 
-                card.dataset.key = item.key; card.dataset.type = item.type;
-                card.addEventListener('click', () => handleMatchClick(card));
+                card.innerHTML = item.content; 
+                card.dataset.key = item.key; 
+                card.dataset.type = item.type;
+                
+                // Add click listener safely
+                card.onclick = function() { handleMatchClick(this); };
                 matchContainer.appendChild(card);
             });
             selectedTermCard = null; selectedDefinitionCard = null; matchedPairs = 0;
+            
+            // Clear success messages if any
+            const existingSuccess = matchContainer.querySelector('.result-message');
+            if(existingSuccess) existingSuccess.remove();
         }
 
         function handleMatchClick(card) {
             if (card.classList.contains('matched')) return;
             const type = card.dataset.type;
+            
             let currentSelection = type === 'term' ? selectedTermCard : selectedDefinitionCard;
             if (currentSelection) currentSelection.classList.remove('selected');
             
+            // Toggle off if clicking same card
             if (currentSelection === card) {
                 if (type === 'term') selectedTermCard = null; else selectedDefinitionCard = null;
                 return;
             }
+            
+            // Select new
             if (type === 'term') selectedTermCard = card; else selectedDefinitionCard = card;
             card.classList.add('selected');
 
+            // Check match
             if (selectedTermCard && selectedDefinitionCard) {
                 if (selectedTermCard.dataset.key === selectedDefinitionCard.dataset.key) {
                     const matchKey = selectedTermCard.dataset.key; 
@@ -612,20 +611,21 @@ async function saveMistake(word) {
                         el.classList.remove('selected'); el.classList.add('matched', `matched-color-${matchKey}`);
                     });
                     
-                    matchedPairs++; // Increment score
+                    matchedPairs++;
                     
-                    // --- COMPLETION CHECK ---
+                    // -- GAME WIN LOGIC --
                     const totalPairs = newVocabData.length / 2;
                     if (matchedPairs === totalPairs) {
                          showFeedback("🎉 All Paired! Activity Complete!", 'correct');
                          
-                         // Change Reset Button to Play Again
                          const resetBtn = document.querySelector('#exercise-1 .reset-button');
-                         resetBtn.textContent = "Play Again 🔄";
-                         resetBtn.style.backgroundColor = "#10B981"; 
-                         resetBtn.style.color = "white";
+                         if(resetBtn) {
+                             resetBtn.textContent = "Play Again 🔄";
+                             resetBtn.style.backgroundColor = "#10B981"; 
+                             resetBtn.style.color = "white";
+                         }
                          
-                         // Add Success Message
+                         // Success Message
                          setTimeout(() => {
                             const container = document.getElementById('vocab-match-container');
                             const successMsg = document.createElement('div');
@@ -638,7 +638,6 @@ async function saveMistake(word) {
                     } else {
                         showFeedback(funCorrect[Math.floor(Math.random()*funCorrect.length)], 'correct');
                     }
-                    // --- END COMPLETION CHECK ---
                     
                     selectedTermCard = null; selectedDefinitionCard = null;
                 } else {
@@ -654,14 +653,15 @@ async function saveMistake(word) {
         
         function resetVocab() { 
             initVocab(); 
-            // Reset button style
             const resetBtn = document.querySelector('#exercise-1 .reset-button');
-            resetBtn.textContent = "Reset Exercise";
-            resetBtn.style.backgroundColor = "";
-            resetBtn.style.color = "";
+            if(resetBtn) {
+                resetBtn.textContent = "Reset Exercise";
+                resetBtn.style.backgroundColor = "";
+                resetBtn.style.color = "";
+            }
         }
 
-        /* 2. COMPREHENSION LOGIC */
+        // --- 5. EXERCISE LOGIC: QUIZ ---
         function checkComprehension() {
             const questions = document.querySelectorAll('.question');
             let correctAnswers = 0;
@@ -685,17 +685,19 @@ async function saveMistake(word) {
                 resultDiv.textContent = `You got ${correctAnswers}/${questions.length} correct. Refine your strategy.`; resultDiv.className = 'result-message incorrect';
             }
         }
+        
         function resetComprehension() {
             document.querySelectorAll('.option-button').forEach(item => item.classList.remove('selected', 'correct', 'incorrect'));
             document.getElementById('comprehension-result').style.display = 'none';
         }
 
-        /* 3. GAP FILL LOGIC */
+        // --- 6. EXERCISE LOGIC: GAPS ---
         const gapAnswers = ['funding', 'usp', 'traction', 'concise', 'deck']; 
         let selectedGapWord = null; 
         
         function initGaps() {
             const wordOptionsContainer = document.getElementById('gap-fill-options');
+            if(!wordOptionsContainer) return;
             const options = Array.from(wordOptionsContainer.children);
             shuffleArray(options);
             options.forEach(option => {
@@ -705,7 +707,9 @@ async function saveMistake(word) {
             document.querySelectorAll('.gap-input').forEach(blank => {
                 blank.textContent = ''; blank.classList.remove('correct', 'incorrect', 'selected');
             });
-            selectedGapWord = null; document.getElementById('gap-result').style.display = 'none';
+            selectedGapWord = null; 
+            const gapRes = document.getElementById('gap-result');
+            if(gapRes) gapRes.style.display = 'none';
         }
         
         function handleGapBlankClick(blank) {
@@ -736,7 +740,7 @@ async function saveMistake(word) {
                     blank.classList.add('correct'); correctCount++;
                 } else if (extractedWord) { 
                     blank.classList.add('incorrect');
-                    // This sends the correct word to the database for future practice
+                    // Save mistake logic (CORRECT ANSWER SAVED)
                     saveMistake(gapAnswers[index]); 
                 }
             });
@@ -748,19 +752,36 @@ async function saveMistake(word) {
                 resultDiv.textContent = `Progress: ${correctCount}/${blanks.length} terms correct.`; resultDiv.className = 'result-message incorrect';
             }
         }
+        function resetGaps() { initGaps(); }
 
+        // --- 7. GLOBAL INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
+            // Auth
             checkUser();
+            const logoutBtn = document.getElementById('logout-btn');
+            if(logoutBtn) {
+                logoutBtn.addEventListener('click', async () => {
+                    if(sb) await sb.auth.signOut();
+                    window.location.href = '/';
+                });
+            }
+
+            // Init Exercises
             initVocab();
+            initGaps();
+
+            // Global Listeners (Delegation and specific)
             document.querySelectorAll('#learned-words-list li').forEach(li => {
                 li.addEventListener('click', (e) => { e.stopPropagation(); showDictionaryPopup(li, li.dataset.word); });
             });
+            
             document.querySelectorAll('.option-button').forEach(item => {
                 item.addEventListener('click', () => {
                     item.closest('.question').querySelectorAll('.option-button').forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect'));
                     item.classList.add('selected'); document.getElementById('comprehension-result').style.display = 'none';
                 });
             });
+            
             document.querySelectorAll('.word-option').forEach(option => {
                 option.addEventListener('click', () => {
                     if (option.classList.contains('used')) return;
@@ -769,11 +790,18 @@ async function saveMistake(word) {
                     else { selectedGapWord = option; selectedGapWord.classList.add('selected'); }
                 });
             });
+            
             document.querySelectorAll('.gap-input').forEach(blank => {
                 blank.addEventListener('click', () => handleGapBlankClick(blank));
             });
-            initGaps();
+            
+            document.body.addEventListener('click', (e) => {
+                if (!e.target.closest('#dictionary-popup') && !e.target.closest('#learned-words-list li') && !e.target.closest('.highlight-word')) {
+                    const popup = document.getElementById('dictionary-popup');
+                    if(popup) popup.style.display = 'none';
+                }
+            });
         });
     </script>
 </body>
-	</html>
+</html>
