@@ -2,6 +2,8 @@
 
 // --- 1. DATA SOURCE ---
 const LESSON_STATES = [
+    { text: "🎅🏻 NEW! TAX: The Audit Before Christmas 😎", href: "/santatax/" },
+    { text: "🍷 NEW! ADVANCED: The Science and Culture of Mulled Wine 😎", href: "/mulledwine/" },
     { text: "🎁 NEW! INTERMEDIATE: The History of Advent Calendars 😎", href: "/adventcalendarint/" },
     { text: "🎅🏻 NEW! BEGINNER: The Advent Calendar 😎", href: "/adventcalendar/" },
     { text: "🎵 NEW! LEGAL: Music vs. AI: The GEMA Ruling 😎", href: "/aicopyright/" },
