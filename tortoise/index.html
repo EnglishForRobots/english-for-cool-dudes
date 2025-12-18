@@ -32,7 +32,7 @@
             
             /* Feedback Colors */
             --color-correct: #2E7D32; /* Success Green */
-            --color-incorrect: #C62828; /* Red (kept for error visibility) */
+            --color-incorrect: #C62828; /* Red */
             
             /* UI Elements */
             --color-panel-bg: #FFFFFF;
@@ -367,7 +367,7 @@
 
                     <p class="mb-4">Because he is so old, Jonathan is very <span class="highlight-word" onclick="showDictionaryPopup(this, 'Slow')">slow</span>, but he is happy. He likes to <span class="highlight-word" onclick="showDictionaryPopup(this, 'Sleep')">sleep</span> in the sun to stay warm. He loves to eat <span class="highlight-word" onclick="showDictionaryPopup(this, 'Healthy')">healthy</span> food like carrots, cucumbers, and apples. He also eats fresh <span class="highlight-word" onclick="showDictionaryPopup(this, 'Grass')">grass</span> in his garden.</p>
 
-                    <p>Jonathan is very <span class="highlight-word" onclick="showDictionaryPopup(this, 'Famous')">famous</span> on the island. Sometimes, a <span class="highlight-word" onclick="showDictionaryPopup(this, 'Visitor')">visitor</span> comes to take a photo of him. Even though he is almost blind now, he still has good hearing and loves his life on the island.</p>
+                    <p class="mb-4">Jonathan is very <span class="highlight-word" onclick="showDictionaryPopup(this, 'Famous')">famous</span> on the island. Sometimes, a <span class="highlight-word" onclick="showDictionaryPopup(this, 'Visitor')">visitor</span> comes to take a photo of him. Even though he is almost blind now, he still has good hearing and loves his life on the island.</p>
                 </div>
             </section>
 
@@ -482,11 +482,11 @@
     <div id="dictionary-popup"></div>
 
     <script>
-        // --- AUTH CONFIG ---
+        // --- 1. CONFIG & DATA ---
         const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
         
-        // **FIX**: RENAMED TO 'sb' TO AVOID IDENTIFIER CONFLICT
+        // RENAMED TO 'sb' TO FIX CONFLICT
         const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentUser = null;
 
@@ -510,10 +510,10 @@
             { word: "record", type: "noun", definition: "The best result ever achieved (World Record)." }
         ];
 
-        // --- AUTH FUNCTIONS ---
+        // --- 2. AUTH & DB FUNCTIONS ---
         async function checkUser() {
             try {
-                // **FIX**: Using 'sb'
+                // Using 'sb'
                 const { data: { user } } = await sb.auth.getUser();
                 if (user) {
                     currentUser = user;
@@ -541,7 +541,7 @@
             btn.disabled = true;
             btn.textContent = "Saving...";
 
-            // **FIX**: Using 'sb'
+            // Using 'sb'
             const { error } = await sb.from('lessons').upsert([{
                 user_id: currentUser.id,
                 lesson_title: lessonTitle,
@@ -553,7 +553,7 @@
 
             if (!error) {
                 btn.textContent = "✅ Saved!";
-                btn.style.backgroundColor = "#2E7D32"; // Success Green
+                btn.style.backgroundColor = "#2E7D32"; 
                 status.textContent = "Great job! Words added to your dashboard.";
                 setTimeout(() => window.location.href = '/dashboard/', 1500);
             } else {
@@ -563,25 +563,16 @@
             }
         }
 
-        document.getElementById('logout-btn').addEventListener('click', async () => {
-            // **FIX**: Using 'sb'
-            await sb.auth.signOut();
-            window.location.href = '/';
-        });
-
-        // --- ADD THIS FUNCTION TO SAVE MISTAKES ---
+        // SAVE MISTAKE FUNCTION
         async function saveMistake(word) {
-            if (!currentUser) return; // Only save if logged in
+            if (!currentUser) return; 
 
-            // Find the word details (definition/type) from your existing words list
-            // We compare lowercase to match the gap answers correctly
             const wordObj = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase());
 
             try {
-                // **FIX**: Using 'sb'
-                const { error } = await sb.from('user_mistakes').upsert({
+                // Using 'sb'
+                await sb.from('user_mistakes').upsert({
                     user_id: currentUser.id,
-                    // Use the capitalized version from the list if found, otherwise use the input
                     word: wordObj ? wordObj.word : word, 
                     definition: wordObj ? wordObj.definition : '',
                     word_type: wordObj ? wordObj.type : 'word',
@@ -589,23 +580,20 @@
                     lesson_link: lessonLink,
                     last_made_at: new Date().toISOString()
                 }, { onConflict: 'user_id,word' });
-                
-                if (error) console.error('Error saving mistake:', error);
-                else console.log('Mistake saved:', word);
             } catch (err) { console.error(err); }
         }
         
-        // --- POPUP FUNCTIONS ---
+        // --- 3. UI HELPER FUNCTIONS (GLOBAL SCOPE) ---
         function showFeedback(msg, type) {
             const el = document.getElementById('feedback-popup');
             el.textContent = msg;
             el.style.display = 'block';
             
             if (type === 'correct') {
-                el.style.backgroundColor = '#43A047'; // Green
+                el.style.backgroundColor = '#43A047'; 
                 el.style.borderColor = '#2E7D32';
             } else {
-                el.style.backgroundColor = '#E57373'; // Red
+                el.style.backgroundColor = '#E57373'; 
                 el.style.borderColor = '#C62828';
             }
             setTimeout(() => { el.style.display = 'none'; }, 1800);
@@ -620,7 +608,6 @@
             popup.style.display = 'block';
 
             const rect = target.getBoundingClientRect();
-            // Position above the word if possible, otherwise below
             let topPos = rect.top - popup.offsetHeight - 10;
             if (topPos < 10) topPos = rect.bottom + 10;
             
@@ -628,14 +615,7 @@
             popup.style.left = (rect.left + (rect.width/2) - (popup.offsetWidth/2)) + 'px';
         }
         
-        // Close dictionary on outside click
-        document.body.addEventListener('click', (e) => {
-            if (!e.target.closest('#dictionary-popup') && !e.target.closest('#learned-words-list li') && !e.target.closest('.highlight-word')) {
-                document.getElementById('dictionary-popup').style.display = 'none';
-            }
-        });
-
-        // --- EXERCISE LOGIC ---
+        // --- 4. EXERCISE LOGIC ---
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -666,6 +646,7 @@
 
         function initVocab() {
             const matchContainer = document.getElementById('vocab-match-container');
+            if (!matchContainer) return;
             matchContainer.innerHTML = '';
             shuffleArray(newVocabData);
             newVocabData.forEach(item => {
@@ -681,7 +662,6 @@
 
         function handleMatchClick(card) {
             if (card.classList.contains('matched')) return;
-            
             const type = card.dataset.type;
             let currentSelection = type === 'term' ? selectedTermCard : selectedDefinitionCard;
             if (currentSelection) currentSelection.classList.remove('selected');
@@ -690,7 +670,6 @@
                 if (type === 'term') selectedTermCard = null; else selectedDefinitionCard = null;
                 return;
             }
-            
             if (type === 'term') selectedTermCard = card; else selectedDefinitionCard = card;
             card.classList.add('selected');
 
@@ -750,6 +729,7 @@
         
         function initGaps() {
             const wordOptionsContainer = document.getElementById('gap-fill-options');
+            if(!wordOptionsContainer) return;
             const options = Array.from(wordOptionsContainer.children);
             shuffleArray(options);
             options.forEach(option => {
@@ -792,11 +772,7 @@
                     blank.classList.add('correct'); 
                     correctCount++;
                 } else if (extractedWord) { 
-                    // The word is wrong!
                     blank.classList.add('incorrect');
-                    
-                    // --- SAVE THE MISTAKE ---
-                    // We save 'answerWord' (the word they SHOULD have known)
                     saveMistake(gapAnswers[index]); 
                 }
             });
@@ -812,9 +788,20 @@
             }
         }
 
+        // --- 5. INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
             checkUser();
             initVocab();
+            initGaps();
+
+            const logoutBtn = document.getElementById('logout-btn');
+            if(logoutBtn) {
+                 logoutBtn.addEventListener('click', async () => {
+                    await sb.auth.signOut();
+                    window.location.href = '/';
+                });
+            }
+
             // Dictionary Listeners
             document.querySelectorAll('#learned-words-list li').forEach(li => {
                 li.addEventListener('click', (e) => {
@@ -841,7 +828,13 @@
             document.querySelectorAll('.gap-input').forEach(blank => {
                 blank.addEventListener('click', () => handleGapBlankClick(blank));
             });
-            initGaps();
+            
+            // Close dictionary on outside click
+            document.body.addEventListener('click', (e) => {
+                if (!e.target.closest('#dictionary-popup') && !e.target.closest('#learned-words-list li') && !e.target.closest('.highlight-word')) {
+                    document.getElementById('dictionary-popup').style.display = 'none';
+                }
+            });
         });
     </script>
 </body>
