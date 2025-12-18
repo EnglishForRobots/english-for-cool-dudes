@@ -378,8 +378,8 @@
         const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
         
-        // **FIX:** Renamed to 'sb' to avoid collision
-        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // **FIX:** Renamed to 'dbClient' to avoid namespace collision
+        const dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentUser = null;
 
         const lessonTitle = "Living History: Jonathan the Tortoise";
@@ -405,8 +405,8 @@
         // --- AUTH FUNCTIONS ---
         async function checkUser() {
             try {
-                // **FIX:** Using 'sb'
-                const { data: { user } } = await sb.auth.getUser();
+                // **FIX:** Using 'dbClient'
+                const { data: { user } } = await dbClient.auth.getUser();
                 if (user) {
                     currentUser = user;
                     document.getElementById('logged-in-buttons').style.display = 'flex';
@@ -432,8 +432,8 @@
             btn.disabled = true;
             btn.textContent = "Saving...";
 
-            // **FIX:** Using 'sb'
-            const { error } = await sb.from('lessons').upsert([{
+            // **FIX:** Using 'dbClient'
+            const { error } = await dbClient.from('lessons').upsert([{
                 user_id: currentUser.id,
                 lesson_title: lessonTitle,
                 lesson_link: lessonLink,
@@ -455,8 +455,8 @@
         }
 
         document.getElementById('logout-btn').addEventListener('click', async () => {
-            // **FIX:** Using 'sb'
-            await sb.auth.signOut();
+            // **FIX:** Using 'dbClient'
+            await dbClient.auth.signOut();
             window.location.href = '/';
         });
 
@@ -468,8 +468,8 @@
             const wordObj = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase());
 
             try {
-                // **FIX:** Using 'sb'
-                await sb.from('user_mistakes').upsert({
+                // **FIX:** Using 'dbClient'
+                await dbClient.from('user_mistakes').upsert({
                     user_id: currentUser.id,
                     word: wordObj ? wordObj.word : word, 
                     definition: wordObj ? wordObj.definition : '',
@@ -690,18 +690,15 @@
         document.addEventListener('DOMContentLoaded', () => {
             checkUser();
             initVocab();
-            // Dictionary Listeners
             document.querySelectorAll('#learned-words-list li').forEach(li => {
                 li.addEventListener('click', (e) => { e.stopPropagation(); showDictionaryPopup(li, li.dataset.word); });
             });
-            // Comprehension Listeners
             document.querySelectorAll('.option-button').forEach(item => {
                 item.addEventListener('click', () => {
                     item.closest('.question').querySelectorAll('.option-button').forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect'));
                     item.classList.add('selected'); document.getElementById('comprehension-result').style.display = 'none';
                 });
             });
-            // Gap Fill Listeners
             document.querySelectorAll('.word-option').forEach(option => {
                 option.addEventListener('click', () => {
                     if (option.classList.contains('used')) return;
