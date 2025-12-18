@@ -704,10 +704,15 @@
     <script src="/tickerData.js"></script>
 
     <script>
-        // --- SUPABASE SETUP ---
-        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // --- SAFE SUPABASE SETUP (Fixes the crash) ---
+        // 1. Check if the client already exists to avoid the "Identifier declared" error
+        if (!window.mySupabaseClient) {
+            const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+            
+            // Create it and attach to window.mySupabaseClient
+            window.mySupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
 
         // --- AUTH HEADER LOGIC ---
         async function initializeAuthHeader() {
@@ -717,7 +722,10 @@
             const logoutBtn = document.getElementById('logout-btn');
 
             try {
-                const { data: { user }, error } = await supabase.auth.getUser();
+                // 2. Use the safe client (or the global one if created by a header)
+                const client = window.mySupabaseClient || window.supabase;
+                
+                const { data: { user }, error } = await client.auth.getUser();
 
                 if (user) {
                     let userName = 'Cool Dude';
@@ -736,14 +744,15 @@
                 }
             } catch (err) {
                 console.error('Error checking auth:', err);
+                // Fallback to showing logged out state
                 if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
-                if (loggedInButtons) loggedInButtons.style.display = 'none';
             }
 
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', async () => {
                     try {
-                        const { error } = await supabase.auth.signOut();
+                        const client = window.mySupabaseClient || window.supabase;
+                        const { error } = await client.auth.signOut();
                         if (error) console.error('Logout error:', error);
                         else window.location.reload();
                     } catch (err) {
@@ -755,8 +764,12 @@
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', async () => {
+            // 3. NOW this will actually run because the crash is gone!
             if (typeof startTickerAnimation === "function") {
+                console.log("Starting Ticker..."); // Debug message
                 startTickerAnimation();
+            } else {
+                console.warn("Ticker function not found");
             }
             await initializeAuthHeader();
         });
