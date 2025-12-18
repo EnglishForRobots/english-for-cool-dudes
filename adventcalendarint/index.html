@@ -367,7 +367,9 @@
         // --- CONFIG ---
         const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // **FIX:** Renamed to 'sb' to avoid namespace collision
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentUser = null;
 
         const lessonTitle = "The Evolution of Advent Calendars";
@@ -388,7 +390,8 @@
         // --- AUTH ---
         async function checkUser() {
             try {
-                const { data: { user } } = await supabase.auth.getUser();
+                // **FIX:** Using 'sb'
+                const { data: { user } } = await sb.auth.getUser();
                 if (user) {
                     currentUser = user;
                     document.getElementById('logged-in-buttons').style.display = 'flex';
@@ -412,7 +415,8 @@
             const status = document.getElementById('save-status');
             btn.disabled = true; btn.textContent = "Saving...";
 
-            const { error } = await supabase.from('lessons').upsert([{
+            // **FIX:** Using 'sb'
+            const { error } = await sb.from('lessons').upsert([{
                 user_id: currentUser.id, lesson_title: lessonTitle, lesson_link: lessonLink,
                 lesson_level: lessonLevel, vocabulary: wordsToSave, completed_at: new Date().toISOString()
             }], { onConflict: 'user_id,lesson_title' });
@@ -430,14 +434,16 @@
         async function saveMistake(word) {
             if(!currentUser) return;
             const wObj = wordsToSave.find(w=>w.word.toLowerCase()===word.toLowerCase()) || {word, definition:'Review this term', type:'word'};
-            await supabase.from('user_mistakes').upsert({
+            // **FIX:** Using 'sb'
+            await sb.from('user_mistakes').upsert({
                 user_id: currentUser.id, word: wObj.word, definition: wObj.definition, word_type: wObj.type,
                 lesson: lessonTitle, lesson_link: lessonLink, last_made_at: new Date().toISOString()
             }, {onConflict: 'user_id,word'});
         }
 
         document.getElementById('logout-btn').addEventListener('click', async () => {
-            await supabase.auth.signOut(); window.location.href = '/';
+            // **FIX:** Using 'sb'
+            await sb.auth.signOut(); window.location.href = '/';
         });
 
         // --- UTILS ---
@@ -450,10 +456,14 @@
         }
 
         function showDictionaryPopup(target, word) {
-            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase());
+            // **FIX:** Case insensitive search
+            const searchWord = word.toLowerCase();
+            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === searchWord);
+            
             const popup = document.getElementById('dictionary-popup');
             if(wordObj) popup.innerHTML = `<strong>${wordObj.word}</strong> <span style="font-size:0.85em; color:#D32F2F;">(${wordObj.type})</span><br>${wordObj.definition}`;
             else popup.innerHTML = `<strong>${word}</strong><br>Definition not found.`;
+            
             popup.style.display = 'block';
             const rect = target.getBoundingClientRect();
             let topPos = rect.top - popup.offsetHeight - 10;
@@ -489,7 +499,6 @@
         ];
         let selectedTermCard = null, selectedDefinitionCard = null, matchedPairs = 0;
 
-        // --- NEW FUN ARRAYS ADDED HERE ---
         const funCorrect = [
             "Christmas Cheer! 🎄", 
             "Festive Expert! 🎅", 
@@ -603,7 +612,6 @@
             selectedGapWord = null; document.getElementById('gap-result').style.display = 'none';
         }
         
-        // FIXED: handleGapBlankClick
         function handleGapBlankClick(blank) {
             // Case 1: Gap is empty. If a word is selected, place it.
             if (blank.textContent.trim() === '') {
@@ -632,7 +640,6 @@
             blank.classList.remove('correct', 'incorrect', 'filled'); 
         }
 
-        // FIXED: checkGaps
         function checkGaps() {
             let correctCount = 0; 
             const blanks = document.querySelectorAll('.gap-input'); 
@@ -653,6 +660,7 @@
                     correctCount++; 
                 } else { 
                     blank.classList.add('incorrect');
+                    // **FIX:** Saving mistake correctly
                     saveMistake(answerWord); 
                 }
             });
@@ -669,7 +677,6 @@
             }
         }
 
-        // FIXED: resetGaps
         function resetGaps() {
             selectedGapWord = null;
             document.getElementById('gap-result').style.display = 'none';
