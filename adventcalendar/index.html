@@ -378,7 +378,7 @@
 
                     <p class="mb-4">Every morning, you open one door. Behind the door, there is a small <span class="highlight-word" onclick="showDictionaryPopup(this, 'Surprise')">surprise</span>. In the past, the surprise was just a nice picture. Today, most calendars have a piece of <span class="highlight-word" onclick="showDictionaryPopup(this, 'Chocolate')">chocolate</span> inside! Some expensive calendars even have toys or beauty products.</p>
 
-                    <p>The last door, number 24, is opened on <span class="highlight-word" onclick="showDictionaryPopup(this, 'Christmas Eve')">Christmas Eve</span>. It is a fun way to get excited for the holiday!</p>
+                    <p class="mb-4">The last door, number 24, is opened on <span class="highlight-word" onclick="showDictionaryPopup(this, 'Christmas Eve')">Christmas Eve</span>. It is a fun way to get excited for the holiday!</p>
                 </div>
             </section>
 
@@ -491,7 +491,9 @@
         // --- AUTH CONFIG ---
         const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // **FIX:** Renamed variable to 'sb' to avoid conflict
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentUser = null;
 
         const lessonTitle = "Christmas Traditions: The Advent Calendar";
@@ -513,7 +515,8 @@
         // --- AUTH FUNCTIONS ---
         async function checkUser() {
             try {
-                const { data: { user } } = await supabase.auth.getUser();
+                // **FIX:** Using 'sb'
+                const { data: { user } } = await sb.auth.getUser();
                 if (user) {
                     currentUser = user;
                     document.getElementById('logged-in-buttons').style.display = 'flex';
@@ -540,7 +543,8 @@
             btn.disabled = true;
             btn.textContent = "Saving...";
 
-            const { error } = await supabase.from('lessons').upsert([{
+            // **FIX:** Using 'sb'
+            const { error } = await sb.from('lessons').upsert([{
                 user_id: currentUser.id,
                 lesson_title: lessonTitle,
                 lesson_link: lessonLink,
@@ -564,14 +568,16 @@
         async function saveMistake(word) {
             if(!currentUser) return;
             const wObj = wordsToSave.find(w=>w.word.toLowerCase()===word.toLowerCase()) || {word, definition:'Review this term', type:'word'};
-            await supabase.from('user_mistakes').upsert({
+            // **FIX:** Using 'sb'
+            await sb.from('user_mistakes').upsert({
                 user_id: currentUser.id, word: wObj.word, definition: wObj.definition, word_type: wObj.type,
                 lesson: lessonTitle, lesson_link: lessonLink, last_made_at: new Date().toISOString()
             }, {onConflict: 'user_id,word'});
         }
 
         document.getElementById('logout-btn').addEventListener('click', async () => {
-            await supabase.auth.signOut();
+            // **FIX:** Using 'sb'
+            await sb.auth.signOut();
             window.location.href = '/';
         });
         
