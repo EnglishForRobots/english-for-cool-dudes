@@ -317,7 +317,7 @@
 
     <div class="container-main">
         <h1 class="lesson-main-title">💰 Finance: Budgeting & Payments</h1>
-        <p class="text-lg text-gray-500 mb-8">Beginner-level (A2/B1) core vocabulary for managing company and personal money.</p>
+        <p class="text-lg text-gray-500 mb-8">Beginner-level (A2/B1) core vocabulary for managing company and personal money.</p><br>
 
         <main class="space-y-8">
 
@@ -436,14 +436,16 @@
         // --- AUTH CONFIG ---
         const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // **FIX:** Renamed to 'sb' to avoid namespace collision
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentUser = null;
 
         const lessonTitle = "Finance: Budgeting & Payments";
         const lessonLink = "/budgeting/";
         const lessonLevel = "A2/B1";
 
-        // Words to Save
+        // Words to Save (Lowercase for matching)
         const wordsToSave = [
             { word: "budget", type: "noun", definition: "A plan that estimates income and expenses." },
             { word: "expense", type: "noun", definition: "Money spent on something; a cost." },
@@ -462,7 +464,8 @@
         // --- AUTH FUNCTIONS ---
         async function checkUser() {
             try {
-                const { data: { user } } = await supabase.auth.getUser();
+                // **FIX:** Using 'sb'
+                const { data: { user } } = await sb.auth.getUser();
                 if (user) {
                     currentUser = user;
                     document.getElementById('logged-in-buttons').style.display = 'flex';
@@ -489,7 +492,8 @@
             btn.disabled = true;
             btn.textContent = "Saving...";
 
-            const { error } = await supabase.from('lessons').upsert([{
+            // **FIX:** Using 'sb'
+            const { error } = await sb.from('lessons').upsert([{
                 user_id: currentUser.id,
                 lesson_title: lessonTitle,
                 lesson_link: lessonLink,
@@ -511,34 +515,35 @@
         }
 
         document.getElementById('logout-btn').addEventListener('click', async () => {
-            await supabase.auth.signOut();
+            // **FIX:** Using 'sb'
+            await sb.auth.signOut();
             window.location.href = '/';
         });
 
-        // --- ADD THIS FUNCTION TO SAVE MISTAKES ---
-async function saveMistake(word) {
-    if (!currentUser) return; // Only save if logged in
+        // --- SAVE MISTAKE FUNCTION ---
+        async function saveMistake(word) {
+            if (!currentUser) return; // Only save if logged in
 
-    // Find the word details (definition/type) from your existing words list
-    // We compare lowercase to match the gap answers correctly
-    const wordObj = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase());
+            // Find the word details from your existing words list
+            // **FIX:** Case insensitive search
+            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase());
 
-    try {
-        const { error } = await supabase.from('user_mistakes').upsert({
-            user_id: currentUser.id,
-            // Use the capitalized version from the list if found, otherwise use the input
-            word: wordObj ? wordObj.word : word, 
-            definition: wordObj ? wordObj.definition : '',
-            word_type: wordObj ? wordObj.type : 'word',
-            lesson: lessonTitle,
-            lesson_link: lessonLink,
-            last_made_at: new Date().toISOString()
-        }, { onConflict: 'user_id,word' });
-        
-        if (error) console.error('Error saving mistake:', error);
-        else console.log('Mistake saved:', word);
-    } catch (err) { console.error(err); }
-}
+            try {
+                // **FIX:** Using 'sb'
+                const { error } = await sb.from('user_mistakes').upsert({
+                    user_id: currentUser.id,
+                    word: wordObj ? wordObj.word : word, 
+                    definition: wordObj ? wordObj.definition : '',
+                    word_type: wordObj ? wordObj.type : 'word',
+                    lesson: lessonTitle,
+                    lesson_link: lessonLink,
+                    last_made_at: new Date().toISOString()
+                }, { onConflict: 'user_id,word' });
+                
+                if (error) console.error('Error saving mistake:', error);
+                else console.log('Mistake saved:', word);
+            } catch (err) { console.error(err); }
+        }
         
         // --- POPUP FUNCTIONS ---
         function showFeedback(msg, type) {
@@ -557,7 +562,10 @@ async function saveMistake(word) {
         }
 
         function showDictionaryPopup(target, word) {
-            const wordObj = wordsToSave.find(w => w.word === word);
+            // **FIX:** Case insensitive search to match "Budget" (list) with "budget" (db)
+            const searchWord = word.toLowerCase();
+            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === searchWord);
+            
             if(!wordObj) return;
 
             const popup = document.getElementById('dictionary-popup');
@@ -565,7 +573,6 @@ async function saveMistake(word) {
             popup.style.display = 'block';
 
             const rect = target.getBoundingClientRect();
-            // Position above the word if possible, otherwise below
             let topPos = rect.top - popup.offsetHeight - 10;
             if (topPos < 10) topPos = rect.bottom + 10;
             
@@ -573,7 +580,6 @@ async function saveMistake(word) {
             popup.style.left = (rect.left + (rect.width/2) - (popup.offsetWidth/2)) + 'px';
         }
         
-        // Close dictionary on outside click
         document.body.addEventListener('click', (e) => {
             if (!e.target.closest('#dictionary-popup') && !e.target.closest('#learned-words-list li')) {
                 document.getElementById('dictionary-popup').style.display = 'none';
@@ -722,40 +728,41 @@ async function saveMistake(word) {
             } 
         }
         
-      function checkGaps() {
-    let correctCount = 0;
-    const blanks = document.querySelectorAll('.gap-input'); 
-    
-    blanks.forEach(blank => { 
-        const index = parseInt(blank.dataset.wordIndex, 10); 
-        const extractedWord = cleanText(blank.textContent); 
-        const answerWord = cleanText(gapAnswers[index]);
-        
-        blank.classList.remove('selected', 'incorrect', 'correct');
-        
-        if (extractedWord && (extractedWord === answerWord)) {
-            blank.classList.add('correct'); 
-            correctCount++;
-        } else if (extractedWord) { 
-            // The word is wrong!
-            blank.classList.add('incorrect');
+        function checkGaps() {
+            let correctCount = 0;
+            const blanks = document.querySelectorAll('.gap-input'); 
             
-            // --- NEW LINE: SAVE THE MISTAKE ---
-            // We save 'answerWord' (the word they SHOULD have known)
-            saveMistake(gapAnswers[index]); 
-        }
-    });
+            blanks.forEach(blank => { 
+                const index = parseInt(blank.dataset.wordIndex, 10); 
+                const extractedWord = cleanText(blank.textContent); 
+                const answerWord = cleanText(gapAnswers[index]);
+                
+                blank.classList.remove('selected', 'incorrect', 'correct');
+                
+                if (extractedWord && (extractedWord === answerWord)) {
+                    blank.classList.add('correct'); 
+                    correctCount++;
+                } else if (extractedWord) { 
+                    // The word is wrong!
+                    blank.classList.add('incorrect');
+                    
+                    // --- SAVE THE MISTAKE ---
+                    // We save 'answerWord' (the word they SHOULD have known)
+                    // The user's goal: ensure incorrect gap fills are saved to index page pop-up
+                    saveMistake(gapAnswers[index]); 
+                }
+            });
 
-    const resultDiv = document.getElementById('gap-result');
-    resultDiv.style.display = 'block';
-    if (correctCount === blanks.length) {
-        resultDiv.textContent = '🎉 Perfect! All correct.'; 
-        resultDiv.className = 'result-message correct';
-    } else {
-        resultDiv.textContent = `You got ${correctCount} out of ${blanks.length} correct.`; 
-        resultDiv.className = 'result-message incorrect';
-    }
-}
+            const resultDiv = document.getElementById('gap-result');
+            resultDiv.style.display = 'block';
+            if (correctCount === blanks.length) {
+                resultDiv.textContent = '🎉 Perfect! All correct.'; 
+                resultDiv.className = 'result-message correct';
+            } else {
+                resultDiv.textContent = `You got ${correctCount} out of ${blanks.length} correct.`; 
+                resultDiv.className = 'result-message incorrect';
+            }
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             checkUser();
