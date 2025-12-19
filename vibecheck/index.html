@@ -333,7 +333,7 @@
         ];
 
         // --- GAME DATA (15 STORIES) ---
-        // V12: INCLUDES ALL FIXES (Tourist, HR, Mike, Jessica, Sarah, Lily)
+        // V13: ALL FIXES + REGEX MATCHING (No more "hearingg")
         const scenarioDB = {
             business: [
                 {
@@ -419,7 +419,6 @@
                             { text: "Sometimes I focus too much on details.", vibe: +20, next: 2 },
                             { text: "I'm lazy in the mornings.", vibe: -40, feedback: "Never admit to being lazy!", next: "fail_lazy" }
                         ]},
-                        // V12: Added "fun", "like", "love", "good", "enjoy", "team", "people"
                         2: { text: "Interesting. And why do you want to work here?", type: "writing", correctKeywords: ["grow", "learn", "opportunity", "reputation", "company", "career", "skills", "challenge", "best", "great", "culture", "fun", "like", "love", "good", "enjoy", "team", "people"], hint: "Mention growth, learning, or the company reputation", next: 3 },
                         3: { text: "Good answer. Do you have any questions for me?", type: "choice", options: [
                             { text: "No, I'm good.", vibe: -20, feedback: "Always ask a question!", next: "fail_interest" },
@@ -875,10 +874,17 @@
             checkKeywords(text, lowerText);
         }
 
+        // V13 UPDATE: REGEX MATCHING FOR STRICT WHOLE WORDS
         function checkKeywords(text, lowerText) {
             const node = currentScenarioData.nodes[currentNodeId];
             const keywords = node.correctKeywords;
-            const isCorrect = keywords.some(k => lowerText.includes(k.toLowerCase()));
+            
+            // New Logic: Check if any keyword matches a whole word pattern
+            // The regex \bWORD\b ensures "hear" matches "I hear you" but not "hearingg"
+            const isCorrect = keywords.some(k => {
+                const regex = new RegExp(`\\b${k}\\b`, 'i');
+                return regex.test(text); // Check against original text to handle casing if needed, though 'i' flag handles it
+            });
 
             if (isCorrect) {
                 updateVibe(20, null);
@@ -899,7 +905,7 @@
                         } else {
                             addMessage("Huh? I don't understand.", 'npc');
                             
-                            // MERCY RULE: IF FAILED > 1 TIME, SHOW ANSWER
+                            // MERCY RULE
                             setTimeout(() => {
                                 if (nodeFailCount > 1) {
                                     showCoachMessage(`💡 Hint: Try using words like: ${keywords.slice(0, 3).join(", ")}`);
@@ -945,7 +951,7 @@
         function showCoachMessage(text) {
             const div = document.createElement('div');
             div.className = 'msg-coach';
-            div.innerText = text; // Removed double "Tip:" prefix
+            div.innerText = text; 
             chatArea.insertBefore(div, typingIndicator);
             scrollToBottom();
         }
