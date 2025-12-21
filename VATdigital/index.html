@@ -170,6 +170,7 @@
             border: 1px solid #F1F5F9;
             position: relative;
             z-index: 10;
+            pointer-events: auto;
         }
         
         /* Collapsible Header Style */
@@ -435,21 +436,22 @@
             border: 2px solid white;
         }
 
-        #dictionary-popup {
-            position: fixed; 
-            max-width: 280px;
-            padding: 20px;
-            background: #FFFFFF; 
-            color: #334155;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-            z-index: 9999; /* High Z-Index to fix visibility */
-            display: none;
-            font-size: 1em;
-            line-height: 1.5;
-            border: 1px solid #E2E8F0;
-            text-align: left;
-        }
+      #dictionary-popup {
+    position: fixed; 
+    max-width: 280px;
+    padding: 20px;
+    background: #FFFFFF; 
+    color: #334155;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    z-index: 10000; /* Higher than confetti */
+    display: none;
+    font-size: 1em;
+    line-height: 1.5;
+    border: 1px solid #E2E8F0;
+    text-align: left;
+    pointer-events: auto; /* Ensure it's clickable */
+}
         
         /* Final Words List Styling (Improved Design) */
         #learned-words-list {
@@ -504,17 +506,23 @@
         }
 
         /* --- CONFETTI ANIMATION STYLES --- */
-        .confetti-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 5000;
-            overflow: hidden;
-            display: none; /* Hidden by default */
-        }
+.confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* This prevents blocking clicks */
+    z-index: 9999; /* High but not blocking */
+    overflow: hidden;
+    display: none;
+    visibility: hidden; /* Extra safety */
+}
+.confetti-container.active {
+    display: block;
+    visibility: visible;
+}
+        
         .confetti-piece {
             position: absolute;
             top: -50px;
@@ -1036,10 +1044,10 @@
     const emojis = ['💸', '☁️', '💻', '📊', '😎', '🎉', '⚖️', '💼'];
     let celebrationInterval;
 
-    function startCelebration() {
-        const container = document.getElementById('confettiContainer');
-        container.style.display = 'block';
-        celebrationInterval = setInterval(() => {
+   function startCelebration() {
+    const container = document.getElementById('confettiContainer');
+    container.classList.add('active'); // Use class instead
+    celebrationInterval = setInterval(() => {
             const piece = document.createElement('div');
             piece.classList.add('confetti-piece');
             piece.textContent = emojis[Math.floor(Math.random() * emojis.length)];
@@ -1051,10 +1059,10 @@
         
         // Stop after 5 seconds
         setTimeout(() => {
-            clearInterval(celebrationInterval);
-            container.style.display = 'none';
-            container.innerHTML = '';
-        }, 5000);
+    clearInterval(celebrationInterval);
+    container.classList.remove('active'); // Use class instead
+    container.innerHTML = '';
+}, 5000);
     }
 
     // --- Stage Navigation ---
