@@ -750,7 +750,7 @@
     const lessonLink = "/VATdigital/";
     const lessonLevel = "ADVANCED";
 
-    // Vocabulary List (Includes Types for Index Page Popup)
+    // Vocabulary List
     const learnedWords = [
         { word: "VAT", definition: "A consumption tax placed on a product whenever value is added at each stage of the supply chain.", type: "noun" },
         { word: "digital services", definition: "Services delivered over the internet or an electronic network (e.g., streaming, software).", type: "noun" },
@@ -799,22 +799,25 @@
         
         const rect = targetElement.getBoundingClientRect();
         
-        // Ensure popup stays within viewport
-        let top = rect.bottom + 10;
-        if (top + 150 > window.innerHeight) {
-            top = rect.top - 150; // Flip up if too low
+        let top = rect.bottom + window.scrollY + 10;
+        if (top + 150 > window.innerHeight + window.scrollY) {
+            top = rect.top + window.scrollY - 150;
         }
         
         dictionaryPopup.style.top = `${top}px`;
-        dictionaryPopup.style.left = `${Math.max(10, rect.left - 100)}px`; // Center somewhat
+        dictionaryPopup.style.left = `${Math.max(10, rect.left - 100)}px`;
     }
 
-    document.body.addEventListener('click', (e) => {
-        // Close if clicking outside the popup and not on a word
-        if (!dictionaryPopup.contains(e.target) && !e.target.classList.contains('dictionary-word') && !e.target.closest('#learned-words-list li')) {
+    // FIXED: Close dictionary popup properly without blocking other clicks
+    document.addEventListener('click', (e) => {
+        // Only close if clicking OUTSIDE popup and NOT on a dictionary word
+        if (dictionaryPopup.style.display === 'block' && 
+            !dictionaryPopup.contains(e.target) && 
+            !e.target.classList.contains('dictionary-word') && 
+            !e.target.closest('#learned-words-list li')) {
             dictionaryPopup.style.display = 'none';
         }
-    });
+    }, true); // Use capture phase
 
     // --- Auth & Initialization ---
     async function initializeAuth() {
@@ -833,7 +836,7 @@
         }
     }
 
-    // --- Mistake Tracking (CRITICAL FOR INDEX POPUP) ---
+    // --- Mistake Tracking ---
     async function saveMistake(word) {
         if (!currentUser) return;
         try {
@@ -904,11 +907,9 @@
         }
     }
 
-    // --- Quiz Logic: Checkbox (MULTI-SELECT) ---
+    // --- Quiz Logic: Checkbox ---
     function checkCheckboxQuestion(boxes) {
-        // Check if ALL boxes are answered correctly
         let allCorrect = true;
-        let anyWrong = false;
         let anySelected = false;
 
         boxes.forEach(box => {
@@ -918,8 +919,6 @@
             
             if (selected.length > 0) anySelected = true;
 
-            // Check if selection matches exactly (no extras, no missing)
-            // Sort both arrays to ensure order doesn't matter
             const sortedCorrect = correctVals.sort();
             const sortedSelected = selectedVals.sort();
             
@@ -927,13 +926,11 @@
             
             if (!isMatch) allCorrect = false;
             
-            // Visual Feedback
             selected.forEach(opt => {
                 if (correctVals.includes(opt.dataset.value)) {
                     opt.classList.add('correct');
                 } else {
                     opt.classList.add('incorrect');
-                    anyWrong = true;
                 }
             });
         });
@@ -969,7 +966,8 @@
 
     function setupGapFill() {
         document.querySelectorAll('.word-option').forEach(opt => {
-            opt.addEventListener('click', () => {
+            opt.addEventListener('click', (e) => {
+                e.stopPropagation();
                 if (opt.classList.contains('used')) return;
                 if (selectedWord) selectedWord.classList.remove('selected');
                 selectedWord = opt;
@@ -978,8 +976,8 @@
         });
 
         document.querySelectorAll('.gap-input').forEach(gap => {
-            gap.addEventListener('click', () => {
-                // If gap is filled, clear it
+            gap.addEventListener('click', (e) => {
+                e.stopPropagation();
                 if (gap.classList.contains('filled')) {
                     const wordText = gap.dataset.filledWord;
                     const bank = gap.closest('.content-card').querySelector('.word-options');
@@ -991,7 +989,6 @@
                     delete gap.dataset.filledWord;
                     return;
                 }
-                // If selecting a word, fill gap
                 if (selectedWord) {
                     gap.textContent = selectedWord.dataset.word;
                     gap.dataset.filledWord = selectedWord.dataset.word;
@@ -1023,7 +1020,6 @@
             } else {
                 gap.classList.add('incorrect');
                 allCorrect = false;
-                // SAVE MISTAKE HERE
                 saveMistake(gap.dataset.answer); 
             }
         });
@@ -1044,10 +1040,10 @@
     const emojis = ['💸', '☁️', '💻', '📊', '😎', '🎉', '⚖️', '💼'];
     let celebrationInterval;
 
-   function startCelebration() {
-    const container = document.getElementById('confettiContainer');
-    container.classList.add('active'); // Use class instead
-    celebrationInterval = setInterval(() => {
+    function startCelebration() {
+        const container = document.getElementById('confettiContainer');
+        container.classList.add('active');
+        celebrationInterval = setInterval(() => {
             const piece = document.createElement('div');
             piece.classList.add('confetti-piece');
             piece.textContent = emojis[Math.floor(Math.random() * emojis.length)];
@@ -1057,32 +1053,22 @@
             setTimeout(() => piece.remove(), 5000);
         }, 200);
         
-        // Stop after 5 seconds
         setTimeout(() => {
-    clearInterval(celebrationInterval);
-    container.classList.remove('active'); // Use class instead
-    container.innerHTML = '';
-}, 5000);
+            clearInterval(celebrationInterval);
+            container.classList.remove('active');
+            container.innerHTML = '';
+        }, 5000);
     }
 
     // --- Stage Navigation ---
     function nextStage(num) {
-        // Hide all STAGE cards (IDs starting with 'stage-')
         document.querySelectorAll('.content-card[id^="stage-"]').forEach(c => c.style.display = 'none');
         
-        // DO NOT hide Section 0 (Reading Text)
-        // It stays visible because we only hide elements with ID 'stage-X'
-        
-        // Show the target stage
         const nextStageEl = document.getElementById(`stage-${num}`);
         if (nextStageEl) {
             nextStageEl.style.display = 'block';
-            
-            // Update Progress Text
             document.getElementById('current-stage').textContent = num;
             
-            // Scroll to just below the reading text so user sees the new question
-            // (Reading text is Section 0, usually about 400-500px tall depending on screen)
             const readingHeight = document.getElementById('reading-content').parentElement.offsetHeight;
             window.scrollTo({ top: readingHeight + 50, behavior: 'smooth' });
         }
@@ -1097,7 +1083,6 @@
         document.querySelectorAll('.content-card[id^="stage-"]').forEach(c => c.style.display = 'none');
         document.getElementById('stage-6').style.display = 'block';
         
-        // Trigger Confetti!
         startCelebration();
 
         const list = document.getElementById('learned-words-list');
@@ -1109,7 +1094,6 @@
             </li>`
         ).join('');
         
-        // Re-attach listeners to new list items
         list.querySelectorAll('li').forEach(li => {
             li.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1127,7 +1111,8 @@
         
         // Radio selection
         document.querySelectorAll('.question-box:not([data-type="checkbox"]) .quiz-option').forEach(opt => {
-            opt.addEventListener('click', () => {
+            opt.addEventListener('click', (e) => {
+                e.stopPropagation();
                 opt.parentNode.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
                 opt.classList.add('selected');
             });
@@ -1135,12 +1120,13 @@
 
         // Checkbox selection
         document.querySelectorAll('.question-box[data-type="checkbox"] .quiz-option').forEach(opt => {
-            opt.addEventListener('click', () => {
+            opt.addEventListener('click', (e) => {
+                e.stopPropagation();
                 opt.classList.toggle('selected');
             });
         });
         
-        // Dictionary click (Reading Text)
+        // Dictionary click
         document.querySelectorAll('.dictionary-word').forEach(w => {
             w.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1162,7 +1148,6 @@
 
         setupGapFill();
     });
-
 </script>
 </body>
 </html>
