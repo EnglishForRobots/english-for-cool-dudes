@@ -392,7 +392,7 @@
         // --- AUTH ---
         async function checkUser() {
             try {
-                const { data: { user } } = await supabase.auth.getUser();
+                const { data: { user } } = await sb.auth.getUser();
                 if (user) {
                     currentUser = user;
                     document.getElementById('logged-in-buttons').style.display = 'flex';
@@ -416,7 +416,7 @@
             const status = document.getElementById('save-status');
             btn.disabled = true; btn.textContent = "Saving...";
 
-            const { error } = await supabase.from('lessons').upsert([{
+            const { error } = await sb.from('lessons').upsert([{
                 user_id: currentUser.id, lesson_title: lessonTitle, lesson_link: lessonLink,
                 lesson_level: lessonLevel, vocabulary: wordsToSave, completed_at: new Date().toISOString()
             }], { onConflict: 'user_id,lesson_title' });
@@ -434,14 +434,14 @@
         async function saveMistake(word) {
             if(!currentUser) return;
             const wObj = wordsToSave.find(w=>w.word.toLowerCase()===word.toLowerCase()) || {word, definition:'Review this term', type:'word'};
-            await supabase.from('user_mistakes').upsert({
+            await sb.from('user_mistakes').upsert({
                 user_id: currentUser.id, word: wObj.word, definition: wObj.definition, word_type: wObj.type,
                 lesson: lessonTitle, lesson_link: lessonLink, last_made_at: new Date().toISOString()
             }, {onConflict: 'user_id,word'});
         }
 
         document.getElementById('logout-btn').addEventListener('click', async () => {
-            await supabase.auth.signOut(); window.location.href = '/';
+            await sb.auth.signOut(); window.location.href = '/';
         });
 
         // --- UTILS ---
