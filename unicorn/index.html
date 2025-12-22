@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>From Garage to Unicorn - English For Cool Dudes</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* --- BRANDING & LAYOUT STYLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: #F3F4F6;
+            color: #1F2937;
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- THEME: SILICON VALLEY / UNICORN 🦄 --- */
+        :root {
+            --color-primary: #7C3AED; /* Electric Purple */
+            --color-secondary: #4F46E5; /* Indigo */
+            --color-accent: #EC4899; /* Hot Pink (Unicorn) */
+            --color-white: #FFFFFF;
+            
+            /* Feedback Colors */
+            --color-correct: #10B981; 
+            --color-incorrect: #EF4444; 
+        }
+
+        /* Header */
+        .header {
+            background: var(--color-white);
+            border-bottom: 1px solid #E5E7EB;
+            padding: 20px 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-content {
+            max-width: 1200px; margin: 0 auto; padding: 0 20px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .logo {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, #7C3AED 0%, #EC4899 100%); 
+            color: white;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 10px rgba(124, 58, 237, 0.3);
+        }
+        .site-title { font-size: 20px; font-weight: 700; color: #111827; text-decoration: none; letter-spacing: -0.02em; }
+
+        /* Header Buttons */
+        .header-buttons { display: flex; align-items: center; gap: 8px; }
+        .header-button {
+            text-decoration: none; padding: 8px 16px; border-radius: 8px;
+            font-size: 14px; font-weight: 600; transition: all 0.2s;
+            white-space: nowrap; cursor: pointer; border: 1px solid #E5E7EB;
+            background: transparent;
+        }
+        .header-button.login { background: #FFFFFF; color: #374151; }
+        .header-button.login:hover { background: #F9FAFB; color: var(--color-primary); border-color: var(--color-primary); }
+        
+        .header-button.signup { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+        .header-button.signup:hover { background: #6D28D9; box-shadow: 0 4px 6px rgba(124, 58, 237, 0.3); }
+        
+        .header-button.dashboard { background: #F0FDF4; color: #047857; border-color: #34D399; }
+        .header-button.dashboard:hover { background: #DCFCE7; }
+        
+        .header-button.logout { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
+        .header-button.logout:hover { background: #FEE2E2; }
+        
+        .user-greeting { font-size: 14px; color: var(--color-primary); font-weight: 600; margin-right: 10px; display: block; }
+
+        /* Main Container */
+        .container-main {
+            max-width: 900px; margin: 40px auto; padding: 40px;
+            background-color: var(--color-white); border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); border-top: 5px solid var(--color-accent);
+        }
+
+        /* Lesson Styles */
+        .lesson-main-title { 
+            font-size: 2.8em; font-weight: 800; color: #111827; 
+            margin-bottom: 5px; letter-spacing: -0.03em;
+            background: -webkit-linear-gradient(0deg, #7C3AED, #EC4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .lesson-subtitle {
+            color: #6B7280; font-size: 1.1em; margin-bottom: 40px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.85em;
+        }
+
+        .lesson-section {
+            background-color: #FFFFFF; padding: 0; margin-bottom: 60px;
+        }
+        
+        .section-title {
+            color: var(--color-secondary); font-size: 1.5em; font-weight: 700;
+            margin-bottom: 25px; padding-bottom: 10px; border-bottom: 2px solid #E0E7FF;
+            display: flex; align-items: center; gap: 12px;
+        }
+        
+        /* Reading Text */
+        .reading-text {
+            background: #F5F3FF; border-left: 4px solid var(--color-primary);
+            padding: 30px; border-radius: 0 12px 12px 0; font-size: 1.15em;
+            color: #374151; line-height: 1.9;
+        }
+        .highlight-word {
+            color: var(--color-primary); font-weight: 700; cursor: help;
+            border-bottom: 2px dotted var(--color-accent); transition: all 0.2s;
+        }
+        .highlight-word:hover { background-color: #FBCFE8; color: #831843; }
+        
+        /* Match Cards */
+        .match-card {
+            border: 2px solid #F3F4F6; transition: all 0.3s ease; cursor: pointer;
+            user-select: none; border-radius: 12px; padding: 18px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); font-weight: 600; font-size: 1.125rem;
+            opacity: 1; transform: scale(1);
+        }
+        .match-card.term { 
+            background-color: #FFFFFF; color: var(--color-primary); text-align: center; font-weight: 700;
+            border-color: #E5E7EB;
+        }
+        .match-card.definition { 
+            background-color: #F9FAFB; text-align: left; color: #4B5563;
+        }
+        .match-card.selected { 
+            border-color: var(--color-accent); background-color: #FDF2F8; 
+            transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(236, 72, 153, 0.2); 
+        }
+        
+        /* Vanishing Style for Matches */
+        .match-card.matched { 
+            background-color: #D1FAE5 !important; 
+            border-color: #10B981 !important;
+            color: #065F46 !important;
+            transform: scale(1.05);
+        }
+        .match-card.vanished {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.8);
+        }
+
+        /* Quiz Buttons */
+        .comp-btn-group .option-button {
+            transition: all 0.2s; background-color: #FFFFFF; color: #374151;
+            font-weight: 600; padding: 16px 24px; border-radius: 10px;
+            border: 2px solid #E5E7EB; text-align: left; width: 100%; cursor: pointer; margin-bottom: 12px;
+        }
+        .comp-btn-group .option-button:hover { border-color: var(--color-primary); background-color: #F5F3FF; }
+        .comp-btn-group .option-button.selected { background-color: var(--color-primary); color: white !important; border-color: var(--color-primary); }
+        .comp-btn-group .option-button.correct { background-color: #10B981 !important; color: white !important; border-color: #10B981 !important; }
+        .comp-btn-group .option-button.incorrect { background-color: #EF4444 !important; color: white !important; border-color: #EF4444 !important; }
+
+        /* Results & Gaps */
+        .result-message { margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: 600; display: none; text-align: center; }
+        .result-message.correct { background-color: #D1FAE5; color: #065F46; }
+        .result-message.incorrect { background-color: #FEE2E2; color: #991B1B; }
+        
+        .word-bank { background: #EEF2FF; padding: 25px; border-radius: 12px; border: 1px solid #C7D2FE; }
+        .word-options { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;}
+        .word-option {
+            background-color: var(--color-white); color: var(--color-secondary); padding: 10px 20px;
+            border-radius: 30px; cursor: pointer; transition: all 0.2s; font-weight: 600;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); border: 2px solid #818CF8;
+        }
+        .word-option:hover { background-color: var(--color-secondary); color: white; border-color: var(--color-secondary); }
+        .word-option.selected { background-color: var(--color-accent) !important; border-color: var(--color-accent) !important; color: white !important; transform: scale(1.05); }
+        .word-option.used { opacity: 0.4; pointer-events: none; background-color: #E5E7EB; border-color: #E5E7EB; color: #9CA3AF; transform: none; }
+
+        .gap-input {
+            display: inline-block; text-align: center; padding: 0 8px; min-width: 120px; 
+            height: 34px; background-color: #FFF; border-bottom: 3px solid #818CF8; 
+            color: #1F2937; font-style: italic; cursor: pointer; font-size: 1em;
+            line-height: 30px; vertical-align: bottom; font-weight: 700; margin: 0 4px; transition: all 0.2s;
+        }
+        .gap-input:empty { background-color: #F3F4F6; border-bottom-style: dashed; }
+        .gap-input.correct { background-color: #D1FAE5 !important; border-color: #10B981 !important; color: #065F46 !important; font-style: normal; }
+        .gap-input.incorrect { background-color: #FEE2E2 !important; border-color: #EF4444 !important; color: #991B1B !important; font-style: normal; }
+
+        /* Buttons */
+        .button-group { margin-top: 35px; display: flex; gap: 15px; justify-content: center; }
+        .check-button {
+            background: var(--color-primary); color: white; border: none; padding: 14px 35px;
+            border-radius: 12px; cursor: pointer; font-size: 1em; font-weight: 600;
+            transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.3);
+        }
+        .check-button:hover { background: #6D28D9; transform: translateY(-2px); }
+        .reset-button { background: #FFFFFF; color: #6B7280; border: 1px solid #E5E7EB; box-shadow: none; }
+        .reset-button:hover { background: #F3F4F6; color: #374151; transform: none; }
+
+        /* Save Section */
+        #save-words-section { background: linear-gradient(135deg, #4C1D95 0%, #7C3AED 100%); color: white; padding: 50px; border-radius: 16px; margin-top: 80px; text-align: center; }
+        #save-words-btn {
+            background-color: #F59E0B; color: #78350F; padding: 16px 40px;
+            border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color 0.2s;
+            display: inline-block; border: none; box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.3);
+            text-transform: uppercase; font-size: 1.1em; letter-spacing: 0.05em;
+        }
+        #save-words-btn:hover:not(:disabled) { background-color: #D97706; transform: translateY(-2px); }
+        #save-words-btn:active:not(:disabled) { transform: translateY(1px); }
+        #save-words-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        #learned-words-list {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px; margin-bottom: 40px; text-align: left; list-style: none;
+        }
+        #learned-words-list li {
+            background: rgba(255,255,255,0.1); padding: 14px 18px; border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1); font-size: 0.95em; cursor: pointer;
+            transition: all 0.2s; font-weight: 600; color: #E0E7FF; display: flex; justify-content: space-between;
+        }
+        #learned-words-list li:hover {
+            background: rgba(255,255,255,0.25); color: white; border-color: white; transform: translateY(-2px);
+        }
+        #learned-words-list li::after { content: '🦄'; opacity: 0.7; font-size: 0.9em; }
+
+        /* Popups */
+        #feedback-popup {
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            padding: 25px 50px; border-radius: 12px; font-weight: 600; color: white;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); z-index: 2000; display: none;
+            text-align: center; font-size: 1.4em; border: 2px solid rgba(255,255,255,0.5);
+        }
+        #dictionary-popup {
+            position: fixed; max-width: 320px; padding: 25px; background: #FFFFFF;
+            border-top: 6px solid var(--color-primary); border-radius: 8px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); z-index: 2001; display: none;
+            font-size: 1em; color: #374151; line-height: 1.6;
+        }
+
+        @media (max-width: 768px) { .user-greeting { display: none; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">🦄</span>
+                <a href="/business/" class="site-title">English For Cool Dudes</a>
+            </div>
+            
+            <div id="logged-out-buttons" class="header-buttons" style="display: none;">
+                <a href="/login/" class="header-button login">Login</a>
+                <a href="/signup/" class="header-button signup">Sign Up</a>
+            </div>
+
+            <div id="logged-in-buttons" class="header-buttons" style="display: none;">
+                <span class="user-greeting" id="user-greeting">Hey Cool Dude! 👋</span>
+                <a href="/dashboard/" class="header-button dashboard">My Dashboard</a>
+                <button id="logout-btn" class="header-button logout">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-main">
+        <h1 class="lesson-main-title">From Garage to Unicorn</h1>
+        <p class="lesson-subtitle">Business English (C1) - The Startup Journey</p>
+
+        <main class="space-y-8">
+            
+            <section class="lesson-section">
+                <h2 class="section-title"><span>🚀</span> The Valley of Death</h2>
+                <div class="reading-text">
+                    <p>Every great startup story begins with the "hustle." Founders often <span class="highlight-word" onclick="showDictionaryPopup(this, 'Bootstrap')">bootstrap</span> their companies, using personal savings instead of outside money to keep full control. They work day and night to build an <span class="highlight-word" onclick="showDictionaryPopup(this, 'MVP')">MVP</span> (Minimum Viable Product) to test their idea in the real world.</p>
+
+                    <p>However, the initial idea rarely works perfectly. Founders must be willing to <span class="highlight-word" onclick="showDictionaryPopup(this, 'Pivot')">pivot</span>—changing their strategy based on user feedback. If they succeed, they might <span class="highlight-word" onclick="showDictionaryPopup(this, 'Disrupt')">disrupt</span> an entire industry, like Uber did to taxis.</p>
+
+                    <p>To grow, they need cash. They might join an <span class="highlight-word" onclick="showDictionaryPopup(this, 'Incubator')">incubator</span> for mentorship or seek an <span class="highlight-word" onclick="showDictionaryPopup(this, 'Angel Investor')">Angel Investor</span>. But with investment comes pressure. Investors watch the <span class="highlight-word" onclick="showDictionaryPopup(this, 'Burn Rate')">burn rate</span> (how fast the company spends cash) closely. In exchange for cash, founders give up <span class="highlight-word" onclick="showDictionaryPopup(this, 'Equity')">equity</span> (ownership).</p>
+
+                    <p>The ultimate dream? To reach a <span class="highlight-word" onclick="showDictionaryPopup(this, 'Valuation')">valuation</span> of $1 billion and become a <span class="highlight-word" onclick="showDictionaryPopup(this, 'Unicorn')">Unicorn</span>.</p>
+                </div>
+            </section>
+
+            <section id="exercise-1" class="lesson-section">
+                <h2 class="section-title"><span>🧩</span> 1. Startup Lingo Match</h2>
+                <p class="text-gray-600 mb-6">Match the **Startup Term** with its **Definition**. Matches will vanish!</p>
+
+                <div id="vocab-match-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                
+                <div class="button-group">
+                    <button class="check-button reset-button" onclick="resetVocab()">Reset Game</button>
+                </div>
+            </section>
+        
+            <section id="exercise-2" class="lesson-section">
+                <h2 class="section-title"><span>💡</span> 2. Founder Strategy</h2>
+                <p class="exercise-instructions mb-6 text-gray-600">Choose the best answer based on the text.</p>
+                
+                <div class="question mb-8" data-question="1">
+                    <p class="font-bold text-lg text-gray-800 mb-3">1. What does it mean to "bootstrap" a company?</p>
+                    <ul class="options-list space-y-2 comp-btn-group" data-question="1">
+                        <li class="option-button" data-correct="false">To buy nice boots for the staff.</li>
+                        <li class="option-button" data-correct="true">To fund the company using only personal savings/revenue.</li>
+                        <li class="option-button" data-correct="false">To sell the company immediately.</li>
+                    </ul>
+                </div>
+                
+                <div class="question mb-8" data-question="2">
+                    <p class="font-bold text-lg text-gray-800 mb-3">2. Why would a company "pivot"?</p>
+                    <ul class="options-list space-y-2 comp-btn-group" data-question="2">
+                        <li class="option-button" data-correct="true">Because the current strategy isn't working.</li>
+                        <li class="option-button" data-correct="false">Because they have too much money.</li>
+                        <li class="option-button" data-correct="false">To celebrate a holiday.</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="3">
+                    <p class="font-bold text-lg text-gray-800 mb-3">3. What defines a "Unicorn"?</p>
+                    <ul class="options-list space-y-2 comp-btn-group" data-question="3">
+                        <li class="option-button" data-correct="false">A company with a magical logo.</li>
+                        <li class="option-button" data-correct="false">A company that has gone bankrupt.</li>
+                        <li class="option-button" data-correct="true">A startup valued at over $1 billion.</li>
+                    </ul>
+                </div>
+
+                <div class="button-group">
+                    <button class="check-button" onclick="checkComprehension()">Check Strategy</button>
+                    <button class="check-button reset-button" onclick="resetComprehension()">Reset</button>
+                </div>
+                <div id="comprehension-result" class="result-message"></div>
+            </section>
+
+            <section id="exercise-3" class="lesson-section">
+                <h2 class="section-title"><span>📝</span> 3. The CEO's Diary</h2>
+                <p class="text-gray-600 mb-6">Complete the diary entry with the correct word.</p>
+                
+                <div class="word-bank mb-6">
+                    <div class="word-options" id="gap-fill-options">
+                        <span class="word-option">unicorn</span>
+                        <span class="word-option">pivot</span>
+                        <span class="word-option">bootstrapping</span>
+                        <span class="word-option">mvp</span>
+                        <span class="word-option">burn rate</span>
+                    </div>
+                </div>
+
+                <div class="gap-fill-text text-lg leading-loose text-gray-700">
+                    <p class="mb-4">Day 1: We are officially <span class="gap-input" data-word-index="2"></span>! No investors, just my credit card.</p>
+                    <p class="mb-4">Day 90: We launched our <span class="gap-input" data-word-index="3"></span> today. It's basic, but it works.</p>
+                    <p class="mb-4">Day 150: Users hate the features. We need to <span class="gap-input" data-word-index="1"></span> to a new model quickly.</p>
+                    <p class="mb-4">Day 200: Hiring new engineers is expensive. Our <span class="gap-input" data-word-index="4"></span> is getting dangerously high.</p>
+                    <p class="mb-4">Day 500: We did it! The new valuation makes us a <span class="gap-input" data-word-index="0"></span>!</p>
+                </div>
+                <div class="button-group">
+                    <button class="check-button" onclick="checkGaps()">Verify Diary</button>
+                    <button class="check-button reset-button" onclick="resetGaps()">Reset</button>
+                </div>
+                <div id="gap-result" class="result-message"></div>
+            </section>
+
+            <div id="save-words-section">
+                <h2 class="text-2xl font-bold mb-4 text-white">💼 Founder's Portfolio</h2>
+                <p class="mb-6 text-indigo-100">You have added 10 essential startup terms to your vocabulary.</p>
+                
+                <ul id="learned-words-list">
+                    <li data-word="Bootstrap">Bootstrap</li>
+                    <li data-word="MVP">MVP</li>
+                    <li data-word="Pivot">Pivot</li>
+                    <li data-word="Disrupt">Disrupt</li>
+                    <li data-word="Incubator">Incubator</li>
+                    <li data-word="Angel Investor">Angel Investor</li>
+                    <li data-word="Burn Rate">Burn Rate</li>
+                    <li data-word="Equity">Equity</li>
+                    <li data-word="Valuation">Valuation</li>
+                    <li data-word="Unicorn">Unicorn</li>
+                </ul>
+
+                <div id="save-area">
+                    <div id="save-feature-loggedin" style="display: none;">
+                        <button id="save-words-btn" onclick="saveWordsToDashboard()">Save to Dashboard</button>
+                        <p id="save-status" class="text-center mt-3 font-semibold text-indigo-200"></p>
+                    </div>
+                    <div id="login-prompt" style="display: none;">
+                        <p class="text-indigo-200 font-bold mb-2">Login to save your progress.</p>
+                        <a href="/login/" class="inline-block bg-white text-indigo-900 font-bold py-2 px-4 rounded hover:bg-gray-100 transition">Log In</a>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+    
+    <div id="feedback-popup"></div>
+    <div id="dictionary-popup"></div>
+
+    <script>
+        // --- AUTH CONFIG ---
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null;
+
+        const lessonTitle = "From Garage to Unicorn";
+        const lessonLink = "/unicorn/";
+        const lessonLevel = "C1";
+
+        // Words to Save
+        const wordsToSave = [
+            { word: "Bootstrap", type: "verb", definition: "To start a company with little or no money, using personal finances." },
+            { word: "MVP", type: "noun", definition: "Minimum Viable Product; a basic version of a product released to test an idea." },
+            { word: "Pivot", type: "verb", definition: "To change the strategic direction of a business." },
+            { word: "Disrupt", type: "verb", definition: "To radically change an industry or market with a new innovation." },
+            { word: "Incubator", type: "noun", definition: "An organization that helps new startups develop by providing services/mentorship." },
+            { word: "Angel Investor", type: "noun", definition: "A wealthy individual who provides capital for a startup usually in exchange for equity." },
+            { word: "Burn Rate", type: "noun", definition: "The rate at which a new company spends its venture capital before generating positive cash flow." },
+            { word: "Equity", type: "noun", definition: "The value of shares issued by a company." },
+            { word: "Valuation", type: "noun", definition: "An estimation of what a company is worth." },
+            { word: "Unicorn", type: "noun", definition: "A privately held startup company valued at over $1 billion." },
+        ];
+
+        // --- AUTH FUNCTIONS ---
+        async function checkUser() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('logged-in-buttons').style.display = 'flex';
+                    document.getElementById('logged-out-buttons').style.display = 'none';
+                    document.getElementById('save-feature-loggedin').style.display = 'block';
+                    document.getElementById('login-prompt').style.display = 'none';
+                    
+                    const name = user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Founder';
+                    document.getElementById('user-greeting').textContent = `Welcome, ${name}`;
+                } else {
+                    document.getElementById('logged-in-buttons').style.display = 'none';
+                    document.getElementById('logged-out-buttons').style.display = 'flex';
+                    document.getElementById('save-feature-loggedin').style.display = 'none';
+                    document.getElementById('login-prompt').style.display = 'block';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function saveWordsToDashboard() {
+            if (!currentUser) return;
+            const btn = document.getElementById('save-words-btn');
+            const status = document.getElementById('save-status');
+            btn.disabled = true;
+            btn.textContent = "Uploading...";
+
+            const { error } = await supabase.from('lessons').upsert([{
+                user_id: currentUser.id,
+                lesson_title: lessonTitle,
+                lesson_link: lessonLink,
+                lesson_level: lessonLevel,
+                vocabulary: wordsToSave,
+                completed_at: new Date().toISOString()
+            }], { onConflict: 'user_id,lesson_title' });
+
+            if (!error) {
+                btn.textContent = "Saved to Portfolio";
+                btn.style.backgroundColor = "#10B981"; 
+                status.textContent = "Funding Secured! Words saved.";
+                setTimeout(() => window.location.href = '/dashboard/', 1500);
+            } else {
+                btn.textContent = "Error";
+                btn.disabled = false;
+                status.textContent = "Upload failed. Try again.";
+            }
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.href = '/';
+        });
+
+        // --- NEW FUNCTION: SAVE MISTAKES TO SUPABASE ---
+        async function saveMistake(word) {
+            if (!currentUser) return; // Only save if logged in
+
+            // Find the full word details (definition/type) from your existing list
+            const wObj = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase()) || {
+                word: word,
+                definition: '',
+                type: ''
+            };
+
+            // Upsert into the user_mistakes table
+            await supabase.from('user_mistakes').upsert({
+                user_id: currentUser.id,
+                word: wObj.word,
+                definition: wObj.definition,
+                word_type: wObj.type,
+                lesson: lessonTitle,
+                lesson_link: lessonLink,
+                last_made_at: new Date().toISOString()
+            }, {
+                onConflict: 'user_id,word'
+            });
+            
+            console.log(`Saved mistake: ${word}`); // Optional for debugging
+        }
+        
+        // --- POPUP FUNCTIONS ---
+        function showFeedback(msg, type) {
+            const el = document.getElementById('feedback-popup');
+            el.textContent = msg;
+            el.style.display = 'block';
+            if (type === 'correct') {
+                el.style.backgroundColor = '#10B981'; 
+                el.style.borderColor = '#059669';
+            } else {
+                el.style.backgroundColor = '#EF4444';
+                el.style.borderColor = '#B91C1C';
+            }
+            setTimeout(() => { el.style.display = 'none'; }, 1500);
+        }
+
+        function showDictionaryPopup(target, word) {
+            const searchWord = word.toLowerCase();
+            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === searchWord);
+            if(!wordObj) return;
+
+            const popup = document.getElementById('dictionary-popup');
+            popup.innerHTML = `<strong>${wordObj.word}</strong> <span style="font-size:0.85em; color:#6B7280;">(${wordObj.type})</span><br>${wordObj.definition}`;
+            popup.style.display = 'block';
+
+            const rect = target.getBoundingClientRect();
+            let topPos = rect.top - popup.offsetHeight - 10;
+            if (topPos < 10) topPos = rect.bottom + 10;
+            
+            popup.style.top = topPos + 'px';
+            popup.style.left = (rect.left + (rect.width/2) - (popup.offsetWidth/2)) + 'px';
+        }
+        
+        document.body.addEventListener('click', (e) => {
+            if (!e.target.closest('#dictionary-popup') && !e.target.closest('#learned-words-list li') && !e.target.closest('.highlight-word')) {
+                document.getElementById('dictionary-popup').style.display = 'none';
+            }
+        });
+
+        // --- EXERCISE LOGIC ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        function cleanText(text) {
+            if (!text) return '';
+            return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z]/g, '').toLowerCase();
+        }
+
+        /* 1. MATCHING LOGIC (Vanish + Reset) */
+        const newVocabData = [
+            { type: 'term', content: "Bootstrap", key: 'A' }, { type: 'definition', content: "Starting with no money, just savings.", key: 'A' },
+            { type: 'term', content: "MVP", key: 'B' }, { type: 'definition', content: "A basic product to test an idea.", key: 'B' },
+            { type: 'term', content: "Pivot", key: 'C' }, { type: 'definition', content: "Changing strategy when things fail.", key: 'C' },
+            { type: 'term', content: "Burn Rate", key: 'D' }, { type: 'definition', content: "How fast a startup spends cash.", key: 'D' },
+            { type: 'term', content: "Equity", key: 'E' }, { type: 'definition', content: "Ownership shares in a company.", key: 'E' },
+            { type: 'term', content: "Unicorn", key: 'F' }, { type: 'definition', content: "A startup worth $1 billion.", key: 'F' }
+        ];
+        let selectedTermCard = null;
+        let selectedDefinitionCard = null;
+        let matchedPairs = 0;
+
+        const funCorrect = ["Disruptive! 🚀", "Unicorn Status! 🦄", "Funding Secured! 💰", "Great Pivot! 🔄", "Growth Hacked! 📈"];
+        const funIncorrect = ["Out of Cash! 📉", "Bad Product! 🚫", "Try Again! 🔄"];
+
+        function initVocab() {
+            const matchContainer = document.getElementById('vocab-match-container');
+            matchContainer.innerHTML = '';
+            shuffleArray(newVocabData);
+            newVocabData.forEach(item => {
+                const card = document.createElement('div'); 
+                card.className = `match-card interactive-element ${item.type}`;
+                card.innerHTML = item.type === 'term' ? item.content : item.content; 
+                card.dataset.key = item.key; card.dataset.type = item.type;
+                card.addEventListener('click', () => handleMatchClick(card));
+                matchContainer.appendChild(card);
+            });
+            selectedTermCard = null; selectedDefinitionCard = null; matchedPairs = 0;
+        }
+
+        function handleMatchClick(card) {
+            if (card.classList.contains('matched') || card.classList.contains('vanished')) return;
+            const type = card.dataset.type;
+            let currentSelection = type === 'term' ? selectedTermCard : selectedDefinitionCard;
+            if (currentSelection) currentSelection.classList.remove('selected');
+            
+            if (currentSelection === card) {
+                if (type === 'term') selectedTermCard = null; else selectedDefinitionCard = null;
+                return;
+            }
+            if (type === 'term') selectedTermCard = card; else selectedDefinitionCard = card;
+            card.classList.add('selected');
+
+            if (selectedTermCard && selectedDefinitionCard) {
+                if (selectedTermCard.dataset.key === selectedDefinitionCard.dataset.key) {
+                    
+                    // Correct Match Logic
+                    [selectedTermCard, selectedDefinitionCard].forEach(el => {
+                        el.classList.remove('selected'); 
+                        el.classList.add('matched'); // Flash Green
+                        
+                        // Vanish
+                        setTimeout(() => {
+                            el.classList.add('vanished');
+                        }, 500);
+                    });
+                    
+                    matchedPairs++;
+                    showFeedback(funCorrect[Math.floor(Math.random()*funCorrect.length)], 'correct');
+                    selectedTermCard = null; selectedDefinitionCard = null;
+                    
+                    // Auto-Reset Check
+                    if (matchedPairs === (newVocabData.length / 2)) {
+                        setTimeout(() => {
+                            showFeedback("Board Cleared! Restarting...", 'correct');
+                            setTimeout(initVocab, 2000); 
+                        }, 1000);
+                    }
+
+                } else {
+                    // Incorrect Match Logic
+                    showFeedback(funIncorrect[Math.floor(Math.random()*funIncorrect.length)], 'incorrect');
+                    setTimeout(() => {
+                        if(selectedTermCard) selectedTermCard.classList.remove('selected'); 
+                        if(selectedDefinitionCard) selectedDefinitionCard.classList.remove('selected');
+                        selectedTermCard = null; selectedDefinitionCard = null;
+                    }, 800);
+                }
+            }
+        }
+        function resetVocab() { initVocab(); }
+
+        /* 2. COMPREHENSION LOGIC */
+        function checkComprehension() {
+            const questions = document.querySelectorAll('.question');
+            let correctAnswers = 0;
+            questions.forEach(q => {
+                const selected = q.querySelector('.option-button.selected');
+                const allOptions = q.querySelectorAll('.option-button');
+                allOptions.forEach(opt => {
+                    opt.classList.remove('correct', 'incorrect');
+                    if (opt.dataset.correct === 'true') opt.classList.add('correct');
+                });
+                if (selected) {
+                    if (selected.dataset.correct === 'true') correctAnswers++;
+                    else selected.classList.add('incorrect');
+                }
+            });
+            const resultDiv = document.getElementById('comprehension-result');
+            resultDiv.style.display = 'block';
+            if (correctAnswers === questions.length) {
+                resultDiv.textContent = '🎉 Next Steve Jobs!'; resultDiv.className = 'result-message correct';
+            } else {
+                resultDiv.textContent = `You got ${correctAnswers}/${questions.length} correct. Check your pitch deck.`; resultDiv.className = 'result-message incorrect';
+            }
+        }
+        function resetComprehension() {
+            document.querySelectorAll('.option-button').forEach(item => item.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById('comprehension-result').style.display = 'none';
+        }
+
+        /* 3. GAP FILL LOGIC */
+        const gapAnswers = ['unicorn', 'pivot', 'bootstrapping', 'mvp', 'burn rate']; 
+        let selectedGapWord = null; 
+        
+        function initGaps() {
+            const wordOptionsContainer = document.getElementById('gap-fill-options');
+            const options = Array.from(wordOptionsContainer.children);
+            shuffleArray(options);
+            options.forEach(option => {
+                wordOptionsContainer.appendChild(option);
+                option.classList.remove('used', 'selected'); 
+            });
+            document.querySelectorAll('.gap-input').forEach(blank => {
+                blank.textContent = ''; blank.classList.remove('correct', 'incorrect', 'selected');
+            });
+            selectedGapWord = null; document.getElementById('gap-result').style.display = 'none';
+        }
+        
+        function handleGapBlankClick(blank) {
+            if (blank.textContent.trim() !== '') { 
+                const cleanedWord = cleanText(blank.textContent); 
+                const btn = Array.from(document.querySelectorAll('.word-option')).find(b => cleanText(b.textContent) === cleanedWord);
+                if (btn) btn.classList.remove('used');
+                blank.textContent = ''; blank.classList.remove('correct', 'incorrect');
+                return;
+            } 
+            if (selectedGapWord) {
+                blank.textContent = selectedGapWord.textContent.trim();
+                selectedGapWord.classList.remove('selected'); selectedGapWord.classList.add('used');
+                selectedGapWord = null;
+            } 
+        }
+        
+        function checkGaps() {
+            let correctCount = 0;
+            const blanks = document.querySelectorAll('.gap-input'); 
+            blanks.forEach(blank => { 
+                const index = parseInt(blank.dataset.wordIndex, 10); 
+                const extractedWord = cleanText(blank.textContent); 
+                const answerWord = cleanText(gapAnswers[index]);
+                blank.classList.remove('selected', 'incorrect', 'correct');
+                
+                if (extractedWord && (extractedWord === answerWord)) {
+                    blank.classList.add('correct'); correctCount++;
+                } else if (extractedWord) { 
+                    blank.classList.add('incorrect');
+                    // This sends the correct word to the database for future practice
+                    saveMistake(gapAnswers[index]); 
+                }
+            });
+            const resultDiv = document.getElementById('gap-result');
+            resultDiv.style.display = 'block';
+            if (correctCount === blanks.length) {
+                resultDiv.textContent = '🎉 IPO Ready!'; resultDiv.className = 'result-message correct';
+            } else {
+                resultDiv.textContent = `Progress: ${correctCount}/${blanks.length} terms correct.`; resultDiv.className = 'result-message incorrect';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkUser();
+            initVocab();
+            document.querySelectorAll('#learned-words-list li').forEach(li => {
+                li.addEventListener('click', (e) => { e.stopPropagation(); showDictionaryPopup(li, li.dataset.word); });
+            });
+            document.querySelectorAll('.option-button').forEach(item => {
+                item.addEventListener('click', () => {
+                    item.closest('.question').querySelectorAll('.option-button').forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect'));
+                    item.classList.add('selected'); document.getElementById('comprehension-result').style.display = 'none';
+                });
+            });
+            document.querySelectorAll('.word-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    if (option.classList.contains('used')) return;
+                    if (selectedGapWord) selectedGapWord.classList.remove('selected');
+                    if (selectedGapWord === option) selectedGapWord = null;
+                    else { selectedGapWord = option; selectedGapWord.classList.add('selected'); }
+                });
+            });
+            document.querySelectorAll('.gap-input').forEach(blank => {
+                blank.addEventListener('click', () => handleGapBlankClick(blank));
+            });
+            initGaps();
+        });
+    </script>
+</body>
+</html>
