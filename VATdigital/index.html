@@ -742,6 +742,7 @@
     const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
 
+    // Use 'sb' to avoid conflicts
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let currentUser = null;
 
@@ -790,34 +791,49 @@
         setTimeout(() => { feedbackPopup.style.display = 'none'; }, 2000);
     }
 
-    // --- Dictionary Popup ---
+    // --- Dictionary Popup (FIXED) ---
     const dictionaryPopup = document.getElementById('dictionary-popup');
+    
     function showDictionaryPopup(targetElement, definition) {
         if (!definition) return;
         dictionaryPopup.innerHTML = definition;
         dictionaryPopup.style.display = 'block';
         
+        // Get position relative to viewport
         const rect = targetElement.getBoundingClientRect();
         
-        let top = rect.bottom + window.scrollY + 10;
-        if (top + 150 > window.innerHeight + window.scrollY) {
-            top = rect.top + window.scrollY - 150;
+        // Calculate Top: Just use rect.bottom + margin. DO NOT add scrollY for fixed elements.
+        let top = rect.bottom + 15; 
+        
+        // Check if it runs off the bottom of the screen
+        if (top + dictionaryPopup.offsetHeight > window.innerHeight) {
+            // Flip to top if not enough space below
+            top = rect.top - dictionaryPopup.offsetHeight - 10;
+        }
+        
+        // Calculate Left
+        let left = rect.left + (rect.width / 2) - (dictionaryPopup.offsetWidth / 2);
+        
+        // Keep it inside the screen horizontally
+        if (left < 10) left = 10;
+        if (left + dictionaryPopup.offsetWidth > window.innerWidth - 10) {
+            left = window.innerWidth - dictionaryPopup.offsetWidth - 10;
         }
         
         dictionaryPopup.style.top = `${top}px`;
-        dictionaryPopup.style.left = `${Math.max(10, rect.left - 100)}px`;
+        dictionaryPopup.style.left = `${left}px`;
     }
 
-    // FIXED: Close dictionary popup properly without blocking other clicks
+    // Close dictionary popup properly
     document.addEventListener('click', (e) => {
-        // Only close if clicking OUTSIDE popup and NOT on a dictionary word
-        if (dictionaryPopup.style.display === 'block' && 
-            !dictionaryPopup.contains(e.target) && 
-            !e.target.classList.contains('dictionary-word') && 
-            !e.target.closest('#learned-words-list li')) {
+        // Only close if clicking OUTSIDE popup and NOT on a trigger word
+        const isTrigger = e.target.classList.contains('dictionary-word') || e.target.closest('#learned-words-list li');
+        const isPopup = dictionaryPopup.contains(e.target);
+        
+        if (dictionaryPopup.style.display === 'block' && !isPopup && !isTrigger) {
             dictionaryPopup.style.display = 'none';
         }
-    }, true); // Use capture phase
+    }, true); 
 
     // --- Auth & Initialization ---
     async function initializeAuth() {
@@ -841,6 +857,7 @@
         if (!currentUser) return;
         try {
             const wordObj = getWordDefinition(word);
+            // Use 'sb.from'
             const { error } = await sb.from('user_mistakes').upsert({
                 user_id: currentUser.id,
                 word: word,
@@ -852,7 +869,6 @@
             }, { onConflict: 'user_id,word' });
             
             if (error) console.error('Error saving mistake:', error);
-            else console.log('Mistake saved:', word);
         } catch (err) { console.error(err); }
     }
 
@@ -1020,7 +1036,7 @@
             } else {
                 gap.classList.add('incorrect');
                 allCorrect = false;
-                saveMistake(gap.dataset.answer); 
+                saveMistake(gap.dataset.answer); // Save mistake to DB
             }
         });
 
@@ -1069,6 +1085,7 @@
             nextStageEl.style.display = 'block';
             document.getElementById('current-stage').textContent = num;
             
+            // Scroll to the content for better UX
             const readingHeight = document.getElementById('reading-content').parentElement.offsetHeight;
             window.scrollTo({ top: readingHeight + 50, behavior: 'smooth' });
         }
@@ -1126,7 +1143,7 @@
             });
         });
         
-        // Dictionary click
+        // Dictionary click (Reading Text)
         document.querySelectorAll('.dictionary-word').forEach(w => {
             w.addEventListener('click', (e) => {
                 e.stopPropagation();
