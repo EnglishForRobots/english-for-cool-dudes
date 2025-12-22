@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Psychology of Shopping - English For Cool Dudes</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* --- BRANDING & LAYOUT STYLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: #FFF3E0; /* Light Orange Background */
+            color: #2C3E50;
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- THEME: SHOPPING PALETTE (ORANGE/TEAL) 🛍️ --- */
+        :root {
+            --color-primary: #E67E22; /* Strong Orange */
+            --color-secondary: #D35400; /* Darker Orange */
+            --color-accent: #16A085; /* Teal for intermediate vibe */
+            --color-white: #FFFFFF;
+            
+            /* Feedback Colors */
+            --color-correct: #27AE60; 
+            --color-incorrect: #C0392B; 
+            
+            --color-save-btn: #D35400; 
+        }
+
+        /* Header */
+        .header {
+            background: var(--color-white);
+            border-bottom: 2px solid var(--color-primary);
+            padding: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header-content {
+            max-width: 1200px; margin: 0 auto; padding: 0 20px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+
+        .logo {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, #F39C12 0%, #D35400 100%); 
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            font-size: 20px; color: white;
+        }
+        .site-title { font-size: 20px; font-weight: 800; color: #2C3E50; text-decoration: none; letter-spacing: -0.02em; }
+
+        /* Buttons */
+        .header-buttons { display: flex; align-items: center; gap: 8px; }
+        .header-button {
+            text-decoration: none; padding: 7px 14px; border-radius: 6px;
+            font-size: 14px; font-weight: 600; transition: all 0.2s;
+            white-space: nowrap; cursor: pointer; border: 1px solid #F39C12;
+            background: transparent;
+        }
+        .header-button.login { background: #FFF3E0; color: #E67E22; }
+        .header-button.login:hover { background: #FFFFFF; color: #D35400; border-color: #D35400; }
+        
+        .header-button.signup { background: var(--color-secondary); color: white; border-color: var(--color-secondary); }
+        .header-button.signup:hover { background: #D35400; box-shadow: 0 2px 5px rgba(230, 126, 34, 0.4); }
+        
+        .header-button.dashboard { background: #E8F6F3; color: #16A085; border-color: #1ABC9C; }
+        .header-button.logout { background: #FDEDEC; color: #C0392B; border-color: #E74C3C; }
+        
+        .user-greeting { font-size: 14px; color: #E67E22; font-weight: 600; margin-right: 5px; display: block; }
+
+        /* Container */
+        .container-main {
+            max-width: 1000px; margin: 30px auto; padding: 30px 20px;
+            background-color: var(--color-white); border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 2px solid #FFE0B2;
+        }
+
+        .lesson-main-title {
+            font-size: 2.5em; font-weight: 800; color: var(--color-secondary); 
+            margin-bottom: 10px; letter-spacing: -0.02em;
+        }
+
+        .lesson-section {
+            background-color: #FFF8E1; padding: 30px; border-radius: 10px;
+            border: 1px solid #FFECB3; margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: var(--color-secondary); font-size: 1.8em; font-weight: 800;
+            margin-bottom: 20px; padding-bottom: 5px; border-bottom: 2px dashed #F39C12;
+        }
+        
+        /* Reading Text */
+        .reading-text {
+            background: #FFFFFF; border-left: 5px solid var(--color-primary);
+            padding: 20px; border-radius: 0 8px 8px 0; font-size: 1.1em;
+            color: #2C3E50; line-height: 1.8; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .highlight-word {
+            color: #D35400; font-weight: 700; cursor: help;
+            border-bottom: 2px dotted #F39C12; transition: all 0.2s;
+        }
+        .highlight-word:hover { background-color: #FFE0B2; color: #E67E22; border-radius: 4px; }
+        
+        /* Match Cards */
+        .match-card {
+            border: 2px solid transparent; transition: all 0.5s ease; /* Slower transition for fade out */
+            cursor: pointer; user-select: none; border-radius: 0.75rem; 
+            padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); font-weight: 600;
+            opacity: 1; transform: scale(1); min-height: 80px; display: flex; align-items: center; justify-content: center;
+        }
+        .match-card.term {
+            background-color: #FFF3E0; border: 2px solid var(--color-primary); 
+            text-align: center; color: #D35400;
+        }
+        .match-card.definition {
+            background-color: #FFFFFF; text-align: left; border: 2px solid #BDC3C7; color: #34495E; font-size: 0.95em;
+        }
+        .match-card.selected {
+            border-color: #E67E22; background-color: #FFE0B2; 
+            box-shadow: 0 0 0 4px #FFCC80; transform: scale(1.02);
+        }
+        .match-card.matched { 
+            pointer-events: none; 
+            opacity: 0; /* Fade out completely */
+            transform: scale(0.9); 
+        }
+
+        /* Temp Match Color (before disappearing) */
+        .match-card.temp-matched {
+            background-color: #D5F5E3 !important; 
+            border-color: #27AE60 !important; 
+            box-shadow: 0 0 0 4px #27AE60 !important; color: #196F3D !important;
+        }
+
+        /* Quiz Buttons */
+        .comp-btn-group .option-button {
+            transition: all 0.2s; background-color: #FFFFFF; color: #2C3E50;
+            font-weight: 600; padding: 10px 15px; border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); border: 1px solid #FFE0B2;
+            text-align: left; width: 100%; cursor: pointer; margin-bottom: 10px;
+        }
+        .comp-btn-group .option-button:hover { border-color: var(--color-primary); background-color: #FFF3E0; }
+        .comp-btn-group .option-button.selected { background-color: #FFE0B2; color: #D35400 !important; border-color: var(--color-primary); box-shadow: 0 0 0 4px #FFE0B2; }
+        .comp-btn-group .option-button.correct { background-color: #2ECC71 !important; color: white !important; border-color: #27AE60 !important; box-shadow: 0 0 0 4px #27AE60 !important; }
+        .comp-btn-group .option-button.incorrect { background-color: #E74C3C !important; color: white !important; border-color: #C0392B !important; box-shadow: 0 0 0 4px #C0392B !important; }
+
+        .result-message { margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: 700; display: none; text-align: center; }
+        .result-message.correct { background-color: #D5F5E3; color: #196F3D; border: 1px solid #A9DFBF; }
+        .result-message.incorrect { background-color: #FADBD8; color: #943126; border: 1px solid #F5B7B1; }
+        
+        /* Gap-Fill */
+        .word-bank { background: #FFF3E0; border: 2px solid var(--color-secondary); border-radius: 10px; }
+        .word-options { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .word-option {
+            background-color: var(--color-secondary); color: white; padding: 10px 15px;
+            border-radius: 6px; cursor: pointer; transition: all 0.2s; font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); border: none;
+        }
+        .word-option:hover { background-color: #D35400; transform: translateY(-2px); }
+        .word-option.selected { background-color: var(--color-primary) !important; transform: scale(1.05); box-shadow: 0 0 0 4px #FFCC80 !important; }
+        .word-option.used { opacity: 0.4; pointer-events: none; background-color: #95A5A6; transform: none; }
+
+        .gap-input {
+            display: inline-block; text-align: center; padding: 0 10px; min-width: 120px; 
+            height: 32px; line-height: 30px; background-color: #FFFFFF; border-bottom: 3px solid #E67E22; 
+            border-radius: 4px; color: #E67E22; font-weight: 700; cursor: pointer; margin: 0 4px; transition: all 0.2s;
+        }
+        .gap-input:empty { background-color: #FFF3E0; }
+        .gap-input.filled { background-color: #FFE0B2; border-bottom-color: var(--color-primary); }
+        .gap-input.correct { background-color: #A9DFBF !important; border-color: #27AE60 !important; color: #196F3D !important; font-style: normal; pointer-events: none; }
+        .gap-input.incorrect { background-color: #FADBD8 !important; border-color: #C0392B !important; color: #943126 !important; font-style: normal; }
+
+        /* Buttons & Save */
+        .button-group { margin-top: 20px; display: flex; gap: 15px; justify-content: center; }
+        .check-button {
+            background: var(--color-primary); color: white; border: none; padding: 12px 25px;
+            border-radius: 9999px; cursor: pointer; font-size: 1em; font-weight: 600;
+            transition: all 0.3s; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .check-button:hover { background: #D35400; transform: translateY(-1px); }
+        .reset-button { background: #95A5A6; }
+        .reset-button:hover { background: #7F8C8D; }
+
+        #save-words-section { background: #FFF3E0; border: 2px solid #FFE0B2; padding: 25px; border-radius: 12px; margin-top: 40px; text-align: center; }
+        #save-words-btn {
+            background-color: var(--color-save-btn); color: white; padding: 14px 30px;
+            border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color 0.2s;
+            display: block; width: 100%; border: none; box-shadow: 0 4px #D35400;
+            text-transform: uppercase; font-size: 1.1em;
+        }
+        #save-words-btn:hover:not(:disabled) { background-color: #D35400; }
+        #save-words-btn:active:not(:disabled) { box-shadow: 0 1px #D35400; transform: translateY(3px); }
+        
+        #learned-words-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px; text-align: center; list-style: none; }
+        #learned-words-list li {
+            background: white; padding: 10px 15px; border-radius: 8px; border: 2px solid #F39C12;
+            font-size: 0.95em; cursor: pointer; transition: all 0.2s; font-weight: 600; color: #D35400;
+        }
+        #learned-words-list li:hover { transform: translateY(-2px); border-color: var(--color-secondary); color: var(--color-secondary); box-shadow: 0 4px 10px rgba(0,0,0,0.05); background-color: #FFF3E0; }
+
+        /* Popups */
+        #feedback-popup {
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            padding: 20px 40px; border-radius: 16px; font-weight: 700; color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 2000; display: none;
+            text-align: center; font-size: 1.3em; border: 4px solid white; min-width: 300px;
+        }
+        #dictionary-popup {
+            position: fixed; max-width: 280px; padding: 16px; background: #FFFFFF;
+            border: 3px solid var(--color-primary); border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 2001; display: none;
+            font-size: 0.95em; color: #2C3E50; line-height: 1.5;
+        }
+        @media (max-width: 768px) { .user-greeting { display: none; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">🧠</span>
+                <a href="/intermediate/" class="site-title">English For Cool Dudes</a>
+            </div>
+            <div id="logged-out-buttons" class="header-buttons" style="display: none;">
+                <a href="/login/" class="header-button login">Login</a>
+                <a href="/signup/" class="header-button signup">Sign Up</a>
+            </div>
+            <div id="logged-in-buttons" class="header-buttons" style="display: none;">
+                <span class="user-greeting" id="user-greeting">Hey Cool Dude! 👋</span>
+                <a href="/dashboard/" class="header-button dashboard">My Dashboard</a>
+                <button id="logout-btn" class="header-button logout">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-main">
+        <h1 class="lesson-main-title">🛍️ The Psychology of Shopping</h1>
+        <p class="text-lg text-gray-500 mb-8">Intermediate (B1-B2) | Topic: Retail Strategy & Consumerism</p>
+
+        <main class="space-y-8">
+            
+            <section class="lesson-section shadow-lg">
+                <h2 class="section-title">📜 Reading: Why We Buy</h2>
+                <div class="reading-text">
+                    <p class="mb-4">Shopping is rarely just about acquiring necessary goods; it is a complex psychological process. <span class="highlight-word" onclick="showDictionaryPopup(this, 'Retailer')">Retailers</span> know this and design their stores to encourage spending. For example, placing essential items like milk at the back of the store forces you to walk past tempting treats, increasing the likelihood of an <span class="highlight-word" onclick="showDictionaryPopup(this, 'Impulse')">impulse</span> buy.</p>
+
+                    <p class="mb-4">Modern commerce has also shifted heavily online. A digital <span class="highlight-word" onclick="showDictionaryPopup(this, 'Transaction')">transaction</span> is frictionless, making it easier to spend money without physically counting cash. However, buying online comes with risks. You cannot inspect the quality, so checking the <span class="highlight-word" onclick="showDictionaryPopup(this, 'Warranty')">warranty</span> and return policy is crucial.</p>
+
+                    <p class="mb-4">If a product arrives damaged, a smart <span class="highlight-word" onclick="showDictionaryPopup(this, 'Consumer')">consumer</span> will immediately request a <span class="highlight-word" onclick="showDictionaryPopup(this, 'Refund')">refund</span>. Knowing your rights protects you from losing money on bad products.</p>
+
+                    <p>Everyone loves a <span class="highlight-word" onclick="showDictionaryPopup(this, 'Bargain')">bargain</span>, but we must be careful. Sometimes a "special offer" or <span class="highlight-word" onclick="showDictionaryPopup(this, 'Promotion')">promotion</span> is just a marketing trick to make us buy things we don't actually need.</p>
+                </div>
+            </section>
+
+            <section id="exercise-1" class="lesson-section shadow-lg">
+                <h2 class="section-title">🔗 1. Vocabulary Memory Match</h2>
+                <p class="text-gray-600 mb-6">Find the matching pair! Correct matches will disappear and reappear at the end.</p>
+
+                <div id="vocab-match-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </section>
+        
+            <section id="exercise-2" class="lesson-section shadow-lg">
+                <h2 class="section-title">❓ 2. Critical Comprehension</h2>
+                <p class="exercise-instructions">Analyze the text to answer the questions.</p>
+                
+                <div class="question" data-question="1">
+                    <p class="font-semibold text-lg text-gray-600 mb-3">1. Why do stores put milk at the back?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="1">
+                        <li class="option-button" data-correct="false">To keep it cold.</li>
+                        <li class="option-button" data-correct="true">To make you walk past other products.</li>
+                        <li class="option-button" data-correct="false">Because the fridge is heavy.</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="2">
+                    <p class="font-semibold text-lg text-gray-600 mb-3">2. What is a potential downside of online shopping mentioned in the text?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="2">
+                        <li class="option-button" data-correct="false">It is too slow.</li>
+                        <li class="option-button" data-correct="true">You cannot physically inspect the quality.</li>
+                        <li class="option-button" data-correct="false">It is more expensive than physical stores.</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="3">
+                    <p class="font-semibold text-lg text-gray-600 mb-3">3. According to the text, why should we be careful with promotions?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="3">
+                        <li class="option-button" data-correct="true">They might trick us into buying unnecessary things.</li>
+                        <li class="option-button" data-correct="false">They usually sell expired goods.</li>
+                        <li class="option-button" data-correct="false">They are illegal in some countries.</li>
+                    </ul>
+                </div>
+
+                <div class="button-group">
+                    <button class="check-button" onclick="checkComprehension()">Check Answers</button>
+                    <button class="check-button reset-button" onclick="resetComprehension()">Reset Exercise</button>
+                </div>
+                <div id="comprehension-result" class="result-message"></div>
+            </section>
+
+            <section id="exercise-3" class="lesson-section shadow-lg">
+                <h2 class="section-title">📝 3. Contextual Gap Fill</h2>
+                <p class="text-gray-600 mb-6">Select the correct word to complete the sentence.</p>
+                
+                <div class="word-bank p-4 mb-6">
+                    <h4 class="font-bold text-gray-600 mb-3 w-full text-center text-xs uppercase">Word Bank</h4>
+                    <div class="word-options" id="gap-fill-options">
+                        <span class="word-option">transaction</span>
+                        <span class="word-option">refund</span>
+                        <span class="word-option">retailer</span>
+                        <span class="word-option">warranty</span>
+                        <span class="word-option">impulse</span>
+                    </div>
+                </div>
+
+                <div class="gap-fill-text text-lg leading-loose space-y-4">
+                    <p>1. The <span class="gap-input" data-answer="retailer">____</span> refused to accept the return without a receipt.</p>
+                    <p>2. Please wait while the bank processes your <span class="gap-input" data-answer="transaction">____</span>.</p>
+                    <p>3. Buying that expensive jacket was a total <span class="gap-input" data-answer="impulse">____</span> decision; I didn't plan it.</p>
+                    <p>4. The washing machine comes with a five-year <span class="gap-input" data-answer="warranty">____</span> for parts and labor.</p>
+                    <p>5. I demanded a full <span class="gap-input" data-answer="refund">____</span> because the hotel room was dirty.</p>
+                </div>
+                <div class="button-group">
+                    <button class="check-button" onclick="checkGaps()">Check Answers</button>
+                    <button class="check-button reset-button" onclick="resetGaps()">Reset Exercise</button>
+                </div>
+                <div id="gap-result" class="result-message"></div>
+            </section>
+
+            <section class="lesson-section shadow-lg border-t-4 border-orange-600">
+                <h2 class="section-title">🎉 Lesson Complete & Summary</h2>
+                <p class="mb-4 text-gray-600">Excellent work! Here is your new vocabulary.</p>
+                
+                <ul id="learned-words-list">
+                    <li data-word="Retailer">Retailer</li><li data-word="Transaction">Transaction</li><li data-word="Warranty">Warranty</li><li data-word="Refund">Refund</li>
+                    <li data-word="Impulse">Impulse</li><li data-word="Consumer">Consumer</li><li data-word="Bargain">Bargain</li><li data-word="Promotion">Promotion</li>
+                </ul>
+
+                <div id="save-words-section">
+                    <h3 class="text-xl font-bold mb-3" style="color: var(--color-save-btn);">💾 Save Your Progress</h3>
+                    
+                    <div id="save-feature-loggedin" style="display: none;">
+                        <p class="text-gray-700 mb-4">Add these intermediate terms to your dashboard.</p>
+                        <button id="save-words-btn" onclick="saveWordsToDashboard()">Save Words to Dashboard</button>
+                        <p id="save-status" class="text-center mt-3 font-semibold"></p>
+                    </div>
+                    
+                    <div id="login-prompt" style="display: none;">
+                        <p class="text-red-600 font-bold mb-2">🔒 Login to save your progress!</p>
+                        <a href="/login/" class="inline-block bg-gray-800 text-white font-bold py-2 px-4 rounded hover:bg-black transition">Log In / Sign Up</a>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    
+    <div id="feedback-popup"></div>
+    <div id="dictionary-popup"></div>
+
+    <script>
+        // --- CONFIG ---
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null;
+
+        const lessonTitle = "The Psychology of Shopping";
+        const lessonLink = "/shopping_intermediate/";
+        const lessonLevel = "B1-B2";
+
+        const wordsToSave = [
+            { word: "Retailer", type: "noun", definition: "A person or business that sells goods to the public." },
+            { word: "Transaction", type: "noun", definition: "An instance of buying or selling something." },
+            { word: "Warranty", type: "noun", definition: "A written guarantee promising to repair or replace an item." },
+            { word: "Refund", type: "noun", definition: "Pay back (money), typically to a dissatisfied customer." },
+            { word: "Impulse", type: "noun/adj", definition: "A sudden strong and unreflective urge to act." },
+            { word: "Consumer", type: "noun", definition: "A person who purchases goods and services for personal use." },
+            { word: "Bargain", type: "noun", definition: "Something bought or offered at a cheaper price than usual." },
+            { word: "Promotion", type: "noun", definition: "Activity that supports or provides active encouragement (sales/marketing)." }
+        ];
+
+        // --- AUTH ---
+        async function checkUser() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('logged-in-buttons').style.display = 'flex';
+                    document.getElementById('logged-out-buttons').style.display = 'none';
+                    document.getElementById('save-feature-loggedin').style.display = 'block';
+                    document.getElementById('login-prompt').style.display = 'none';
+                    const name = user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Cool Dude';
+                    document.getElementById('user-greeting').textContent = `Hey ${name}! 👋`;
+                } else {
+                    document.getElementById('logged-in-buttons').style.display = 'none';
+                    document.getElementById('logged-out-buttons').style.display = 'flex';
+                    document.getElementById('save-feature-loggedin').style.display = 'none';
+                    document.getElementById('login-prompt').style.display = 'block';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function saveWordsToDashboard() {
+            if (!currentUser) return;
+            const btn = document.getElementById('save-words-btn');
+            const status = document.getElementById('save-status');
+            btn.disabled = true; btn.textContent = "Saving...";
+
+            const { error } = await supabase.from('lessons').upsert([{
+                user_id: currentUser.id, lesson_title: lessonTitle, lesson_link: lessonLink,
+                lesson_level: lessonLevel, vocabulary: wordsToSave, completed_at: new Date().toISOString()
+            }], { onConflict: 'user_id,lesson_title' });
+
+            if (!error) {
+                btn.textContent = "✅ Saved!"; btn.style.backgroundColor = "#27AE60";
+                status.textContent = "Vocabulary secured! Check your dashboard.";
+                setTimeout(() => window.location.href = '/dashboard/', 1500);
+            } else {
+                btn.textContent = "❌ Error"; btn.disabled = false;
+                status.textContent = "Error saving. Please try again.";
+            }
+        }
+        
+        async function saveMistake(word) {
+            if(!currentUser) return;
+            const wObj = wordsToSave.find(w=>w.word.toLowerCase()===word.toLowerCase()) || {word, definition:'Review this term', type:'word'};
+            await supabase.from('user_mistakes').upsert({
+                user_id: currentUser.id, word: wObj.word, definition: wObj.definition, word_type: wObj.type,
+                lesson: lessonTitle, lesson_link: lessonLink, last_made_at: new Date().toISOString()
+            }, {onConflict: 'user_id,word'});
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await supabase.auth.signOut(); window.location.href = '/';
+        });
+
+        // --- UTILS ---
+        function showFeedback(msg, type) {
+            const el = document.getElementById('feedback-popup');
+            el.textContent = msg; el.style.display = 'block';
+            el.style.backgroundColor = type === 'correct' ? '#27AE60' : '#C0392B';
+            el.style.borderColor = type === 'correct' ? '#1E8449' : '#922B21';
+            setTimeout(() => { el.style.display = 'none'; }, 1800);
+        }
+
+        function showDictionaryPopup(target, word) {
+            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase());
+            const popup = document.getElementById('dictionary-popup');
+            if(wordObj) popup.innerHTML = `<strong>${wordObj.word}</strong> <span style="font-size:0.85em; color:#D35400;">(${wordObj.type})</span><br>${wordObj.definition}`;
+            else popup.innerHTML = `<strong>${word}</strong><br>Definition not found.`;
+            popup.style.display = 'block';
+            const rect = target.getBoundingClientRect();
+            let topPos = rect.top - popup.offsetHeight - 10;
+            if (topPos < 10) topPos = rect.bottom + 10;
+            popup.style.top = topPos + 'px';
+            popup.style.left = (rect.left + (rect.width/2) - (popup.offsetWidth/2)) + 'px';
+        }
+        document.body.addEventListener('click', (e) => {
+            if (!e.target.closest('#dictionary-popup') && !e.target.closest('#learned-words-list li') && !e.target.closest('.highlight-word')) {
+                document.getElementById('dictionary-popup').style.display = 'none';
+            }
+        });
+
+        // --- EXERCISES ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        function cleanText(text) { return text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z]/g, '').toLowerCase() : ''; }
+
+        /* MATCHING */
+        const newVocabData = [
+            { type: 'term', content: "Retailer", key: 'A' }, { type: 'definition', content: "A business selling to the public.", key: 'A' },
+            { type: 'term', content: "Transaction", key: 'B' }, { type: 'definition', content: "An act of buying or selling.", key: 'B' },
+            { type: 'term', content: "Warranty", key: 'C' }, { type: 'definition', content: "A promise to repair or replace.", key: 'C' },
+            { type: 'term', content: "Refund", key: 'D' }, { type: 'definition', content: "Money returned to a customer.", key: 'D' },
+            { type: 'term', content: "Impulse", key: 'E' }, { type: 'definition', content: "A sudden urge to act.", key: 'E' },
+            { type: 'term', content: "Consumer", key: 'F' }, { type: 'definition', content: "A person who buys things.", key: 'F' },
+            { type: 'term', content: "Bargain", key: 'G' }, { type: 'definition', content: "A good deal at a low price.", key: 'G' },
+            { type: 'term', content: "Promotion", key: 'H' }, { type: 'definition', content: "Activity to increase sales.", key: 'H' }
+        ];
+        let selectedTermCard = null, selectedDefinitionCard = null, matchedPairs = 0;
+
+        // --- NEW FUN ARRAYS ADDED HERE ---
+        const funCorrect = [
+            "Savvy Consumer! 🧠", 
+            "Retail Genius! 🛍️", 
+            "Smart Choice! 💡", 
+            "No Impulse Buys! 🛡️"
+        ];
+        const funIncorrect = [
+            "Impulse Buy! 💸", 
+            "Read the Fine Print! 📜", 
+            "Buyer Beware! ⚠️", 
+            "Return to Sender! 📦"
+        ];
+
+        function initVocab() {
+            const matchContainer = document.getElementById('vocab-match-container');
+            matchContainer.innerHTML = ''; shuffleArray(newVocabData);
+            newVocabData.forEach(item => {
+                const card = document.createElement('div'); 
+                card.className = `match-card interactive-element ${item.type}`;
+                card.innerHTML = item.type === 'term' ? `<span class="font-extrabold">${item.content}</span>` : `<span>${item.content}</span>`; 
+                card.dataset.key = item.key; card.dataset.type = item.type;
+                card.addEventListener('click', () => handleMatchClick(card));
+                matchContainer.appendChild(card);
+            });
+            selectedTermCard = null; selectedDefinitionCard = null; matchedPairs = 0;
+        }
+
+        function handleMatchClick(card) {
+            if (card.classList.contains('matched')) return;
+            const type = card.dataset.type;
+            let currentSelection = type === 'term' ? selectedTermCard : selectedDefinitionCard;
+            if (currentSelection) currentSelection.classList.remove('selected');
+            if (currentSelection === card) {
+                if (type === 'term') selectedTermCard = null; else selectedDefinitionCard = null;
+                return;
+            }
+            if (type === 'term') selectedTermCard = card; else selectedDefinitionCard = card;
+            card.classList.add('selected');
+
+            if (selectedTermCard && selectedDefinitionCard) {
+                if (selectedTermCard.dataset.key === selectedDefinitionCard.dataset.key) {
+                    [selectedTermCard, selectedDefinitionCard].forEach(el => {
+                        el.classList.remove('selected');
+                        el.classList.add('temp-matched'); // Show green briefly
+                    });
+                    
+                    showFeedback(funCorrect[Math.floor(Math.random() * funCorrect.length)], 'correct');
+                    
+                    // Fade out logic
+                    const term = selectedTermCard;
+                    const def = selectedDefinitionCard;
+                    setTimeout(() => {
+                        term.classList.remove('temp-matched');
+                        term.classList.add('matched');
+                        def.classList.remove('temp-matched');
+                        def.classList.add('matched');
+                    }, 800); 
+
+                    matchedPairs++;
+                    
+                    // --- AUTO RESET LOGIC FROM SMART SHOPPER LESSON ---
+                    if (matchedPairs === newVocabData.length / 2) {
+                        setTimeout(() => {
+                            showFeedback("🎉 All Matched! Resetting...", 'correct');
+                            setTimeout(() => {
+                                document.querySelectorAll('.match-card').forEach((card, index) => {
+                                    setTimeout(() => {
+                                        card.classList.remove('matched');
+                                    }, index * 100);
+                                });
+                                matchedPairs = 0;
+                            }, 1000);
+                        }, 1000);
+                    }
+                    
+                    selectedTermCard = null; selectedDefinitionCard = null;
+                } else {
+                    showFeedback(funIncorrect[Math.floor(Math.random() * funIncorrect.length)], 'incorrect');
+                    setTimeout(() => {
+                        if(selectedTermCard) selectedTermCard.classList.remove('selected'); 
+                        if(selectedDefinitionCard) selectedDefinitionCard.classList.remove('selected');
+                        selectedTermCard = null; selectedDefinitionCard = null;
+                    }, 800);
+                }
+            }
+        }
+        function resetVocab() { initVocab(); }
+
+        /* COMPREHENSION */
+        function checkComprehension() {
+            const questions = document.querySelectorAll('.question'); let correctAnswers = 0;
+            questions.forEach(q => {
+                const selected = q.querySelector('.option-button.selected');
+                q.querySelectorAll('.option-button').forEach(opt => {
+                    opt.classList.remove('correct', 'incorrect');
+                    if (opt.dataset.correct === 'true') opt.classList.add('correct');
+                });
+                if (selected) {
+                    if (selected.dataset.correct === 'true') correctAnswers++; else selected.classList.add('incorrect');
+                }
+            });
+            const resultDiv = document.getElementById('comprehension-result'); resultDiv.style.display = 'block';
+            if (correctAnswers === questions.length) { resultDiv.textContent = '🎉 Excellent analysis!'; resultDiv.className = 'result-message correct'; }
+            else { resultDiv.textContent = `You got ${correctAnswers}/${questions.length} correct.`; resultDiv.className = 'result-message incorrect'; }
+        }
+        function resetComprehension() {
+            document.querySelectorAll('.option-button').forEach(item => item.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById('comprehension-result').style.display = 'none';
+        }
+
+        /* GAP FILL */
+        let selectedGapWord = null; 
+        
+        function initGaps() {
+            const wordOptionsContainer = document.getElementById('gap-fill-options');
+            const options = Array.from(wordOptionsContainer.children);
+            shuffleArray(options);
+            options.forEach(option => { wordOptionsContainer.appendChild(option); option.classList.remove('used', 'selected'); });
+            document.querySelectorAll('.gap-input').forEach(blank => { blank.textContent = '____'; blank.classList.remove('correct', 'incorrect', 'filled'); });
+            selectedGapWord = null; document.getElementById('gap-result').style.display = 'none';
+        }
+        
+        function handleGapBlankClick(blank) {
+            if (blank.textContent.trim() !== '' && blank.textContent.trim() !== '____') { 
+                const cleanedWord = cleanText(blank.textContent); 
+                const btn = Array.from(document.querySelectorAll('.word-option')).find(b => cleanText(b.textContent) === cleanedWord);
+                if (btn) btn.classList.remove('used');
+                blank.textContent = '____'; blank.classList.remove('correct', 'incorrect', 'filled');
+                return;
+            } 
+            if (selectedGapWord) {
+                blank.textContent = selectedGapWord.textContent.trim();
+                blank.classList.add('filled');
+                selectedGapWord.classList.remove('selected'); selectedGapWord.classList.add('used');
+                selectedGapWord = null;
+            } 
+        }
+        
+        function checkGaps() {
+            let correctCount = 0; const blanks = document.querySelectorAll('.gap-input'); 
+            blanks.forEach(blank => { 
+                const answerWord = blank.dataset.answer; 
+                const extractedWord = cleanText(blank.textContent); 
+                const cleanAnswer = cleanText(answerWord);
+
+                blank.classList.remove('selected', 'incorrect', 'correct');
+                
+                if (extractedWord === '' || blank.textContent === '____') {
+                     // Do nothing
+                } else if (extractedWord === cleanAnswer) { 
+                    blank.classList.add('correct'); 
+                    correctCount++; 
+                } else { 
+                    blank.classList.add('incorrect'); 
+                    saveMistake(answerWord); // SAVES THE INCORRECT WORD FOR PRACTICE POPUP
+                }
+            });
+            const resultDiv = document.getElementById('gap-result'); resultDiv.style.display = 'block';
+            if (correctCount === blanks.length) { resultDiv.textContent = '🎉 Perfect! Story complete.'; resultDiv.className = 'result-message correct'; }
+            else { resultDiv.textContent = `You got ${correctCount}/${blanks.length} correct.`; resultDiv.className = 'result-message incorrect'; }
+        }
+        
+        function resetGaps() {
+            initGaps();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkUser(); initVocab(); initGaps();
+            document.querySelectorAll('#learned-words-list li').forEach(li => li.addEventListener('click', (e) => { e.stopPropagation(); showDictionaryPopup(li, li.dataset.word); }));
+            document.querySelectorAll('.option-button').forEach(item => item.addEventListener('click', () => {
+                item.closest('.question').querySelectorAll('.option-button').forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect'));
+                item.classList.add('selected'); document.getElementById('comprehension-result').style.display = 'none';
+            }));
+            document.querySelectorAll('.word-option').forEach(option => option.addEventListener('click', () => {
+                if (option.classList.contains('used')) return;
+                if (selectedGapWord) selectedGapWord.classList.remove('selected');
+                if (selectedGapWord === option) selectedGapWord = null;
+                else { selectedGapWord = option; selectedGapWord.classList.add('selected'); }
+            }));
+            document.querySelectorAll('.gap-input').forEach(blank => blank.addEventListener('click', () => handleGapBlankClick(blank)));
+        });
+    </script>
+</body>
+</html>
