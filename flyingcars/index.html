@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flying Cars - English for Cool Dudes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        /* --- COOL DUDES BRANDING & MOBILE-FIRST STYLES --- */
+        :root {
+            --color-primary: #1A5E7F;
+            --color-secondary: #00A896;
+            --color-accent: #FFC107;
+            --color-background: #F8F9FB;
+            --color-text: #2C3E50;
+            --color-correct: #2ECC71;
+            --color-incorrect: #E74C3C;
+            --color-new-feature: #8A2BE2;
+        }
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* === REUSABLE HEADER STYLES === */
+        .header {
+            background: #FFFFFF;
+            border-bottom: 1px solid #E5E9F2;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .site-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #1A202C;
+            letter-spacing: -0.02em;
+            text-decoration: none;
+        }
+
+        .header-buttons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-button {
+            text-decoration: none;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 700;
+            transition: all 0.2s;
+            white-space: nowrap;
+            cursor: pointer;
+            border: 1px solid #E5E9F2;
+            background: transparent;
+        }
+
+        .header-button.login {
+            background: #F8F9FB;
+            color: #4A5568;
+        }
+
+        .header-button.login:hover {
+            background: #FFFFFF;
+            color: #2C3E50;
+            border-color: #718096;
+        }
+
+        .header-button.signup {
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            color: white;
+            border: 1px solid transparent;
+        }
+
+        .header-button.signup:hover {
+            background: linear-gradient(135deg, #5A6AD0 0%, #6D4396 100%);
+            box-shadow: 0 2px 5px rgba(102, 126, 234, 0.4);
+        }
+
+        .header-button.dashboard {
+            background: #FFFBEA;
+            color: #92400E;
+            border-color: #FCD34D;
+        }
+
+        .header-button.dashboard:hover {
+            background: #FCD34D;
+            border-color: #F59E0B;
+        }
+
+        .header-button.logout {
+            background: #F8F9FB;
+            color: #E53E3E;
+        }
+
+        .header-button.logout:hover {
+            background: #FEEBEB;
+            color: #C53030;
+            border-color: #FBD3DA;
+        }
+
+        .user-greeting {
+            font-size: 14px;
+            color: #4A5568;
+            font-weight: 700;
+            margin-right: 5px;
+            white-space: nowrap;
+        }
+        
+        /* Lesson Layout */
+        .lesson-container {
+            max-width: 800px;
+            margin: 20px auto 40px;
+            padding: 0 15px;
+        }
+        
+        /* Content Blocks */
+        .content-card {
+            background-color: #FFFFFF;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 3px solid transparent; 
+        }
+        
+        /* Collapsible Header Style */
+        .collapsible-header {
+            color: var(--color-primary);
+            font-size: 1.8em;
+            font-weight: 800;
+            margin-bottom: 15px;
+            border-bottom: 3px solid var(--color-accent);
+            padding-bottom: 3px;
+            cursor: pointer; 
+            user-select: none;
+            transition: color 0.2s;
+        }
+        .collapsible-header:hover {
+            color: var(--color-secondary);
+        }
+
+        /* Reading Text Style */
+        .reading-text {
+            background: #F0F4F7; 
+            border: 1px solid #E5E9F2;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.05em;
+            white-space: pre-wrap;
+        }
+        
+        /* Dictionary Word Style */
+        .dictionary-word {
+            text-decoration: underline dashed var(--color-primary) 2px;
+            cursor: help;
+            font-weight: 700; 
+            color: var(--color-primary);
+        }
+
+        /* Quiz Options */
+        .quiz-option {
+            background: #FFFFFF;
+            border: 2px solid #E5E9F2;
+            padding: 15px; 
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            display: block;
+            user-select: none;
+            line-height: 1.4;
+        }
+        .quiz-option:hover {
+            background: #EEF2FF;
+            border-color: var(--color-primary);
+        }
+        .quiz-option.selected {
+            background: #e6ffe6;
+            border-color: var(--color-secondary);
+            box-shadow: 0 0 0 3px var(--color-secondary);
+            transform: scale(1.01);
+        }
+        /* Applied permanently for correct answers or temporarily for visual feedback */
+        .quiz-option.correct { 
+            background: var(--color-correct) !important;
+            color: white;
+            border-color: var(--color-correct) !important;
+        }
+        /* Applied temporarily for visual feedback, then cleared or removed by click in gap fill */
+        .quiz-option.incorrect { 
+            background: var(--color-incorrect) !important;
+            color: white;
+            border-color: var(--color-incorrect) !important;
+        }
+        
+        /* Gap Fill Styles */
+        .word-bank {
+            background: #EAF2F8;
+            border: 2px solid var(--color-primary);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .word-option {
+            background-color: var(--color-secondary); 
+            color: white;
+            padding: 10px 14px; 
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s, opacity 0.3s;
+            font-weight: 600;
+            transform: scale(1);
+            transition: transform 0.1s;
+        }
+        .word-option:active {
+            transform: scale(0.95);
+        }
+        .word-option.used {
+            opacity: 0.5;
+            pointer-events: none;
+            background-color: #AAB8C2;
+            transform: none;
+        }
+        .word-option.selected {
+            box-shadow: 0 0 0 4px var(--color-accent); 
+            background-color: #FF9800; 
+        }
+        .gap-input {
+            display: inline-block;
+            text-align: center;
+            padding: 6px 10px;
+            min-width: 110px; 
+            height: 40px; 
+            background-color: #E5E9F2;
+            border: 1px dashed var(--color-primary);
+            border-radius: 4px;
+            color: var(--color-text);
+            font-style: italic;
+            cursor: pointer;
+            line-height: 28px; 
+            vertical-align: middle;
+            font-weight: 600;
+            margin: 0 4px;
+            transition: all 0.2s ease;
+        }
+        .gap-input:hover {
+            border-color: var(--color-accent);
+        }
+        .gap-input.correct {
+             background-color: var(--color-correct) !important;
+             color: white;
+        }
+        .gap-input.incorrect {
+             background-color: var(--color-incorrect) !important;
+             color: white;
+        }
+
+        /* Check/Next Button */
+        .check-btn {
+            background-color: var(--color-primary);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 15px;
+            display: block;
+            width: 100%;
+            border: none;
+            box-shadow: 0 4px #104358; 
+            text-transform: uppercase;
+        }
+        .check-btn:hover {
+            background-color: #104358;
+        }
+        .check-btn:active {
+            box-shadow: 0 1px #104358;
+            transform: translateY(3px);
+        }
+        
+        /* Save to Dashboard Button */
+        #save-words-section {
+            background: #FFFBEA;
+            border: 2px solid #FCD34D;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        #save-words-btn {
+            background-color: var(--color-new-feature);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: block;
+            width: 100%;
+            border: none;
+            box-shadow: 0 4px #4B0082;
+            text-transform: uppercase;
+            font-size: 1.1em;
+            text-align: center;
+        }
+        #save-words-btn:hover:not(:disabled) {
+            background-color: #4B0082;
+        }
+        #save-words-btn:active:not(:disabled) {
+            box-shadow: 0 1px #4B0082;
+            transform: translateY(3px);
+        }
+        #save-words-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #login-prompt {
+            background: #EBF8FF;
+            border: 2px solid #90CDF4;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        #login-prompt p {
+            color: #2B6CB0;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        #login-prompt a {
+            color: #667EEA;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        /* Feedback Pop-up */
+        #feedback-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px 30px;
+            background: var(--color-secondary);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: none;
+            font-size: 1.2em;
+            font-weight: 700;
+            text-align: center;
+        }
+        /* Dictionary Pop-up */
+        #dictionary-popup {
+            position: fixed; 
+            max-width: 250px;
+            padding: 15px;
+            background: var(--color-primary); 
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            z-index: 1001;
+            display: none;
+            font-size: 0.95em;
+            line-height: 1.4;
+            border: 3px solid var(--color-accent);
+            text-align: left;
+        }
+        .next-btn {
+            background-color: var(--color-secondary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            float: right;
+            margin-top: 10px;
+        }
+        
+        /* Final Summary List Format */
+        #learned-words-list {
+            list-style: none;
+            padding-left: 0;
+            margin-left: 0;
+        }
+        #learned-words-list li {
+            margin-bottom: 5px; 
+            font-size: 1.05em;
+            line-height: 1.2;
+        }
+
+        @media (max-width: 768px) {
+            .user-greeting {
+                display: none;
+            }
+            
+            .header-button {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">😎</span>
+                <a href="/advanced/" class="site-title">English For Cool Dudes</a>
+            </div>
+            
+            <div id="logged-out-buttons" class="header-buttons" style="display: none;">
+                <a href="/login/" class="header-button login">Login</a>
+                <a href="/signup/" class="header-button signup">Sign Up</a>
+            </div>
+
+            <div id="logged-in-buttons" class="header-buttons" style="display: none;">
+                <span class="user-greeting" id="user-greeting">Hey Cool Dude! 👋</span>
+                <a href="/dashboard/" class="header-button dashboard">My Dashboard</a>
+                <button id="logout-btn" class="header-button logout">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="lesson-container">
+        <h1 class="text-3xl font-black text-gray-800 mb-5">✈️ Flying Cars: From Sci-Fi Dream to Urban Reality</h1>
+        <p class="text-gray-600 mb-8">Level: Intermediate | Topic: Technology/Future</p>
+        
+        <div class="flex justify-between items-center text-sm font-semibold mb-2 text-gray-600">
+            <span>Progress: Stage <span id="current-stage">1</span> of 5</span>
+        </div>
+        
+        <div class="content-card" data-section-id="0" data-completed="true">
+            <h2 class="collapsible-header" onclick="toggleCollapse('reading-content')">📜 Reading Text (Click to Read. Click <span class="dictionary-word" data-definition="Strong, thick, heavy type with a line underneath.">bold-underlined words</span> for definitions!)</h2>
+            <div class="reading-text text-justify" id="reading-content" style="display: none;">
+                <h4 class="text-xl font-extrabold text-gray-800 mb-3 mt-3">The Promise of the Sky: Flying Cars</h4>
+
+                The concept of a flying car, or <span class="dictionary-word" data-definition="An aircraft that can hover, take off, and land vertically.">Vertical Take-Off and Landing (VTOL)</span> aircraft, has captivated inventors and dreamers for over a century. Early attempts date back to the 1930s, but it was in post-war science fiction that the idea truly took <span class="dictionary-word" data-definition="To develop or become popular very quickly.">flight</span>. From *The Jetsons* to *Blade Runner*, these vehicles have become a <span class="dictionary-word" data-definition="A thing recognized as a classic or important symbol of a society.">cultural touchstone</span> for the future. Yet, decades later, they have not become <span class="dictionary-word" data-definition="Present, appearing, or found everywhere.">ubiquitous</span>.
+
+                Today, however, the dream is closer than ever, largely thanks to advancements in <span class="dictionary-word" data-definition="A system that uses electric power to generate the force needed to move an aircraft.">electric propulsion</span> and lightweight materials. The current development focus is on electric VTOLs (eVTOLs) designed for Urban Air Mobility (UAM), essentially acting as air taxis. Companies like Joby Aviation and Archer are conducting rigorous tests, aiming to <span class="dictionary-word" data-definition="To officially confirm that something meets a standard, especially a safety standard.">certify</span> their aircraft for commercial use within the next few years. These vehicles promise to <span class="dictionary-word" data-definition="To make a problem or suffering less severe.">alleviate</span> traffic <span class="dictionary-word" data-definition="Severe overcrowding causing a bottleneck or delay.">congestion</span> in major cities.
+
+                However, many <span class="dictionary-word" data-definition="Difficulties or obstacles.">hurdles</span> remain before flying cars become commonplace. The biggest challenges involve <span class="dictionary-word" data-definition="Rules or laws imposed by government bodies.">regulation</span>, infrastructure, and public <span class="dictionary-word" data-definition="The action of consenting to receive or undertake something offered.">acceptance</span>. Aviation authorities must establish new rules for air traffic management in dense urban areas, a complex task. Furthermore, we need "<span class="dictionary-word" data-definition="Dedicated take-off and landing sites for flying cars.">vertiports</span>" — dedicated take-off and landing sites. Safety is <span class="dictionary-word" data-definition="More important than anything else; supreme.">paramount</span>, and gaining the public's <span class="dictionary-word" data-definition="Firm belief in the reliability, truth, or ability of someone or something.">trust</span> in autonomous air travel is a high bar.
+
+                Despite these obstacles, experts <span class="dictionary-word" data-definition="Estimate or forecast (something) on the basis of present trends.">project</span> that the first commercial air taxi routes will launch in cities worldwide by 2028. Initially, these services will be expensive, catering primarily to the <span class="dictionary-word" data-definition="The market part dealing with high-quality, expensive products.">luxury segment</span>. However, as technology <span class="dictionary-word" data-definition="Develops and becomes ready for full use.">matures</span> and production scales up, prices are expected to drop. Flying cars may not replace ground vehicles entirely, but they are poised to <span class="dictionary-word" data-definition="To change the meaning or way of looking at something.">redefine</span> urban transport.
+            </div>
+        </div>
+
+        
+        <div id="stage-1" class="content-card" data-section-id="1" data-total-items="1">
+            <h2 class="mb-0 collapsible-header" onclick="this.removeAttribute('onclick'); this.textContent = '1 / 5: Main Idea';">1 / 5: Main Idea</h2>
+            <p class="text-gray-600 mb-4 font-semibold">What is the text mainly about? (Choose the best answer)</p>
+
+            <div class="question-box" data-correct-value="The history of flying car concepts from sci-fi to current commercial development and regulatory challenges.">
+                <div class="quiz-options space-y-2">
+                    <div class="quiz-option" data-value="The specific engineering challenges of designing lightweight eVTOL batteries.">The specific engineering challenges of designing lightweight eVTOL batteries.</div>
+                    <div class="quiz-option" data-value="A comparison of air taxi costs in different major cities around the world.">A comparison of air taxi costs in different major cities around the world.</div>
+                    <div class="quiz-option" data-value="The history of flying car concepts from sci-fi to current commercial development and regulatory challenges.">The history of flying car concepts from sci-fi to current commercial development and regulatory challenges.</div>
+                </div>
+            </div>
+            <button class="check-btn" onclick="checkRadioQuestion(document.querySelector('#stage-1 .question-box'))" id="check-btn-1">Check Answer</button>
+            <button class="next-btn" onclick="nextStage(2)" style="display:none;">Continue to Stage 2 / 5 &rarr;</button>
+        </div>
+
+
+        <div id="stage-2" class="content-card" data-section-id="2" data-total-items="6" style="display:none;">
+            <h2 class="mb-0 collapsible-header" onclick="this.removeAttribute('onclick'); this.textContent = '2 / 5: Detail Check';">2 / 5: Detail Check</h2>
+            <p class="text-gray-600 mb-4 font-semibold">What is stated in the text? (Choose all correct answers in each set)</p>
+
+            <p class="font-bold mt-4 mb-2">Set A: According to the text, current flying car development focuses on...</p>
+            <div class="question-box" data-correct-values="A,C" data-type="checkbox">
+                <div class="quiz-options space-y-2">
+                    <div class="quiz-option" data-value="A">electric VTOLs (eVTOLs).</div>
+                    <div class="quiz-option" data-value="B">vehicles designed to replace all ground cars immediately.</div>
+                    <div class="quiz-option" data-value="C">systems for Urban Air Mobility (UAM), operating as air taxis.</div>
+                </div>
+            </div>
+
+            <p class="font-bold mt-4 mb-2">Set B: The text mentions that obstacles to flying cars becoming common include...</p>
+            <div class="question-box" data-correct-values="E,F" data-type="checkbox">
+                <div class="quiz-options space-y-2">
+                    <div class="quiz-option" data-value="D">a lack of public interest in the concept.</div>
+                    <div class="quiz-option" data-value="E">the need for new air traffic rules from aviation authorities.</div>
+                    <div class="quiz-option" data-value="F">the requirement for new infrastructure called "vertiports."</div>
+                </div>
+            </div>
+            <button class="check-btn" onclick="checkCheckboxQuestion(document.querySelectorAll('#stage-2 .question-box'))" id="check-btn-2">Check Answers</button>
+            <button class="next-btn" onclick="nextStage(3)" style="display:none;">Continue to Stage 3 / 5 &rarr;</button>
+        </div>
+
+
+        <div id="stage-3" class="content-card" data-section-id="3" data-total-items="6" style="display:none;">
+            <h2 class="mb-0 collapsible-header" onclick="this.removeAttribute('onclick'); this.textContent = '3 / 5: Noun Builder';">3 / 5: Noun Builder</h2>
+            
+            <h4 class="text-xl font-bold mt-4">📝 Practice the Nouns!</h4>
+            <div class="word-bank mb-4">
+                <p class="font-bold mb-3 text-sm text-gray-700">Word Bank:</p>
+                <div class="word-options flex flex-wrap gap-2" id="noun-bank-gapfill">
+                    <div class="word-option" data-word="touchstone">touchstone</div>
+                    <div class="word-option" data-word="propulsion">propulsion</div>
+                    <div class="word-option" data-word="vertiports">vertiports</div>
+                    <div class="word-option" data-word="congestion">congestion</div>
+                    <div class="word-option" data-word="acceptance">acceptance</div>
+                    <div class="word-option" data-word="trust">trust</div>
+                </div>
+            </div>
+            <div class="gap-fill-text text-lg leading-loose space-y-3" id="gap-fill-nouns">
+                <p>1. The new vehicles use **electric** <span class="gap-input" data-answer="propulsion" data-original-text="____" data-filled-word="">____</span>.</p>
+                <p>2. The concept is a **cultural** <span class="gap-input" data-answer="touchstone" data-original-text="____" data-filled-word="">____</span> in sci-fi.</p>
+                <p>3. A key benefit is to alleviate traffic <span class="gap-input" data-answer="congestion" data-original-text="____" data-filled-word="">____</span>.</p>
+                <p>4. We need dedicated landing sites called <span class="gap-input" data-answer="vertiports" data-original-text="____" data-filled-word="">____</span>.</p>
+                <p>5. A major hurdle is gaining public <span class="gap-input" data-answer="acceptance" data-original-text="____" data-filled-word="">____</span>.</p>
+                <p>6. Companies must build public <span class="gap-input" data-answer="trust" data-original-text="____" data-filled-word="">____</span> in the technology.</p>
+            </div>
+
+            <button type="button" class="check-btn" onclick="checkGapFillStage(3)">Check Noun Gaps</button>
+            <button class="next-btn" onclick="nextStage(4)" style="display:none;">Continue to Stage 4 / 5 &rarr;</button>
+        </div>
+
+
+        <div id="stage-4" class="content-card" data-section-id="4" data-total-items="6" style="display:none;">
+            <h2 class="mb-0 collapsible-header" onclick="this.removeAttribute('onclick'); this.textContent = '4 / 5: Verb/Adjective Builder';">4 / 5: Verb/Adjective Builder</h2>
+            
+            <h4 class="text-xl font-bold mt-4">⏳ Practice the Verbs/Adjectives!</h4>
+            <div class="word-bank mb-4">
+                <p class="font-bold mb-3 text-sm text-gray-700">Word Bank:</p>
+                <div class="word-options flex flex-wrap gap-2" id="prep-bank-gapfill">
+                    <div class="word-option" data-word="paramount">paramount</div>
+                    <div class="word-option" data-word="alleviate">alleviate</div>
+                    <div class="word-option" data-word="certify">certify</div>
+                    <div class="word-option" data-word="project">project</div>
+                    <div class="word-option" data-word="matures">matures</div>
+                    <div class="word-option" data-word="redefine">redefine</div>
+                </div>
+            </div>
+            <div class="gap-fill-text text-lg leading-loose space-y-3" id="gap-fill-preps">
+                <p>1. Safety is considered <span class="gap-input" data-answer="paramount" data-original-text="____" data-filled-word="">____</span> for this industry.</p>
+                <p>2. Developers aim to <span class="gap-input" data-answer="certify" data-original-text="____" data-filled-word="">____</span> their aircraft for commercial use.</p>
+                <p>3. The new aircraft promise to <span class="gap-input" data-answer="alleviate" data-original-text="____" data-filled-word="">____</span> city traffic.</p>
+                <p>4. Experts <span class="gap-input" data-answer="project" data-original-text="____" data-filled-word="">____</span> the first routes will launch by 2028.</p>
+                <p>5. As the technology <span class="gap-input" data-answer="matures" data-original-text="____" data-filled-word="">____</span>, prices will drop.</p>
+                <p>6. Flying cars are poised to <span class="gap-input" data-answer="redefine" data-original-text="____" data-filled-word="">____</span> urban transport.</p>
+            </div>
+
+            <button type="button" class="check-btn" onclick="checkGapFillStage(4)">Check Verb/Adjective Gaps</button>
+            <button class="next-btn" onclick="nextStage(5)" style="display:none;">Continue to Stage 5 / 5 &rarr;</button>
+        </div>
+
+
+        <div id="stage-5" class="content-card" data-section-id="5" data-total-items="1" style="display:none;">
+            <h2 class="mb-0 collapsible-header" onclick="this.removeAttribute('onclick'); this.textContent = '5 / 5: Final Review';">5 / 5: Final Review</h2>
+            <p class="text-gray-600 mb-4 font-semibold">The text implies that the first commercial air taxi routes will be...</p>
+
+            <div class="question-box" data-correct-value="catering primarily to the luxury segment.">
+                <div class="quiz-options space-y-2">
+                    <div class="quiz-option" data-value="free to use, as a public test.">free to use, as a public test.</div>
+                    <div class="quiz-option" data-value="immediately affordable for everyone.">immediately affordable for everyone.</div>
+                    <div class="quiz-option" data-value="catering primarily to the luxury segment.">catering primarily to the luxury segment.</div>
+                </div>
+            </div>
+            <button class="check-btn" onclick="checkRadioQuestion(document.querySelector('#stage-5 .question-box'))" id="check-btn-5">Check Answer</button>
+            <button class="next-btn" onclick="showFinalSummary()" style="display:none;">View Final Summary &rarr;</button>
+        </div>
+        
+        <div id="final-summary-card" class="content-card bg-white p-6 mt-8 border-l-8 border-yellow-500" style="display:none;">
+            <h2 class="text-3xl font-black text-yellow-600 border-none">✈️ 🎉 Lesson Result: Completed!</h2>
+            <p class="text-lg mb-4 text-gray-700">You have completed all 5 stages of *Flying Cars: From Sci-Fi Dream to Urban Reality*.</p>
+            
+            <h4 class="text-xl font-bold mt-4 mb-2 text-gray-700 border-b pb-1">Key Vocabulary Review: Click to see definitions</h4>
+            <ul id="learned-words-list" class="list-disc list-inside text-gray-800 ml-4 grid grid-cols-2 sm:grid-cols-3 gap-y-1">
+                <li class="dictionary-word" data-definition="An aircraft that can hover, take off, and land vertically.">Vertical Take-Off and Landing (VTOL)</li>
+                <li class="dictionary-word" data-definition="A thing recognized as a classic or important symbol of a society.">cultural touchstone</li>
+                <li class="dictionary-word" data-definition="Present, appearing, or found everywhere.">ubiquitous</li>
+                <li class="dictionary-word" data-definition="A system that uses electric power to generate the force needed to move an aircraft.">electric propulsion</li>
+                <li class="dictionary-word" data-definition="To officially confirm that something meets a standard, especially a safety standard.">certify</li>
+                <li class="dictionary-word" data-definition="To make a problem or suffering less severe.">alleviate</li>
+                <li class="dictionary-word" data-definition="Severe overcrowding causing a bottleneck or delay.">congestion</li>
+                <li class="dictionary-word" data-definition="Difficulties or obstacles.">hurdles</li>
+                <li class="dictionary-word" data-definition="Rules or laws imposed by government bodies.">regulation</li>
+                <li class="dictionary-word" data-definition="The action of consenting to receive or undertake something offered.">acceptance</li>
+                <li class="dictionary-word" data-definition="More important than anything else; supreme.">paramount</li>
+                <li class="dictionary-word" data-definition="Dedicated take-off and landing sites for flying cars.">vertiports</li>
+            </ul>
+            
+            <div id="save-words-section">
+                <div id="logged-in-save" style="display: none;">
+                    <button id="save-words-btn" onclick="saveWordsToDashboard()">
+                        💾 Save My New Words to My Dashboard
+                    </button>
+                </div>
+
+                <div id="login-prompt" style="display: none;">
+                    <p>🔒 You must be logged in to save words to your dashboard!</p>
+                    <a href="/signup/">Sign Up</a> or <a href="/login/">Log In</a> to start saving vocabulary.
+                </div>
+            </div>
+
+            <p class="text-gray-600 font-semibold mt-4">Keep learning English, cool dude! ✈️ 🤘</p>
+        </div>
+    </main>
+    
+    <div id="feedback-popup"></div>
+    <div id="dictionary-popup"></div>
+
+   <script>
+        // === SUPABASE INITIALIZATION - FIXED ===
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwi';
+        
+       
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let user = null; 
+
+        // Placeholder for real logic (Simulate a logged-in/logged-out state)
+        async function checkAuth() {
+            try {
+                // In a real app, this would check Supabase auth state
+                // For this template, we simulate logged out status
+                user = null; 
+            } catch (error) {
+                user = null;
+            }
+
+            const loggedOutButtons = document.getElementById('logged-out-buttons');
+            const loggedInButtons = document.getElementById('logged-in-buttons');
+            const loggedInSave = document.getElementById('logged-in-save');
+            const loginPrompt = document.getElementById('login-prompt');
+            const saveBtn = document.getElementById('save-words-btn');
+
+            if (user) {
+                // Simulated Logged In State
+                document.getElementById('user-greeting').textContent = `Hey ${user.email.split('@')[0]}! 👋`;
+                loggedInButtons.style.display = 'flex';
+                loggedOutButtons.style.display = 'none';
+                loggedInSave.style.display = 'block';
+                loginPrompt.style.display = 'none';
+                saveBtn.disabled = false;
+            } else {
+                // Simulated Logged Out State
+                loggedInButtons.style.display = 'none';
+                loggedOutButtons.style.display = 'flex';
+                loggedInSave.style.display = 'none';
+                loginPrompt.style.display = 'block';
+                saveBtn.disabled = true;
+            }
+        }
+
+        // Placeholder for Logout Function
+        document.getElementById('logout-btn')?.addEventListener('click', async () => {
+            alert('Logout simulated. If integrated with Supabase, this would call supabase.auth.signOut()');
+            user = null; // Update simulated state
+            checkAuth();
+        });
+
+        // Placeholder for Save Words Function
+        function saveWordsToDashboard() {
+            if (!user) {
+                showPopup('Please log in to save your words!', 'incorrect');
+                return;
+            }
+            // Logic to collect all dictionary words and save to Supabase
+            const dictionaryWords = Array.from(document.querySelectorAll('.dictionary-word')).map(el => el.textContent.trim());
+            
+            // Simulated save function
+            console.log('Words to save:', dictionaryWords);
+            // In a real app: await supabase.from('vocabulary').insert([{ user_id: user.id, words: dictionaryWords, lesson: 'Flying Cars' }])
+            
+            showPopup('Vocabulary saved to your dashboard! 😎', 'correct');
+            document.getElementById('save-words-btn').disabled = true;
+        }
+
+
+        // === CORE LESSON LOGIC ===
+
+        let currentSelectedRadio = null; 
+        const allDictionaryWords = {};
+        let currentStage = 1;
+
+
+        // --- UI UTILITIES ---
+
+        function showPopup(message, type = 'correct') {
+            const popup = document.getElementById('feedback-popup');
+            let finalMessage = message;
+
+            if (type === 'correct') {
+                finalMessage = `Cleared for take-off! ✈️ ${message}`;
+                popup.style.backgroundColor = 'var(--color-correct)';
+            } else if (type === 'incorrect') {
+                finalMessage = `Rerouting! 🚧 ${message}`;
+                popup.style.backgroundColor = 'var(--color-incorrect)';
+            } else { // Use secondary for "Nearly there"
+                 finalMessage = `Heads up! 🚁 ${message}`;
+                 popup.style.backgroundColor = 'var(--color-secondary)';
+            }
+            
+            popup.textContent = finalMessage;
+            popup.style.display = 'block';
+
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 1500);
+        }
+
+        function updateProgress() {
+            const completedStages = document.querySelectorAll('.content-card[data-completed="true"]').length;
+            document.getElementById('current-stage').textContent = completedStages;
+        }
+
+        // --- STAGE PROGRESSION ---
+
+        function nextStage(nextStageNumber) {
+            // Hide current stage and show the next one
+            document.getElementById(`stage-${currentStage}`).style.display = 'none';
+            document.getElementById(`stage-${nextStageNumber}`).style.display = 'block';
+            currentStage = nextStageNumber;
+            updateProgress();
+        }
+
+        function showFinalSummary() {
+            document.getElementById('stage-5').style.display = 'none';
+            document.getElementById('final-summary-card').style.display = 'block';
+            
+            // Populate the learned words list
+            const wordList = document.getElementById('learned-words-list');
+            wordList.innerHTML = '';
+            
+            // Get all unique dictionary words
+            const words = Object.keys(allDictionaryWords).map(key => {
+                return `<li class="dictionary-word" data-definition="${allDictionaryWords[key]}">${key}</li>`;
+            });
+
+            wordList.innerHTML = words.join('');
+            setupDictionaryListeners(); // Re-bind listeners for the final list
+            checkAuth(); // Check auth state for save words section
+        }
+
+        function toggleCollapse(elementId) {
+            const content = document.getElementById(elementId);
+            if (content.style.display === "none") {
+                content.style.display = "block";
+            } else {
+                content.style.display = "none";
+            }
+        }
+
+        // --- DICTIONARY (CLICK/TAP) ---
+
+        function setupDictionaryListeners() {
+            const popup = document.getElementById('dictionary-popup');
+            let currentOpenWord = null;
+            
+            // Remove previous listeners (important for final summary re-binding)
+            document.querySelectorAll('.dictionary-word').forEach(wordEl => {
+                wordEl.onclick = null;
+            });
+
+            document.querySelectorAll('.dictionary-word').forEach(wordEl => {
+                const definition = wordEl.getAttribute('data-definition');
+                const word = wordEl.textContent.trim();
+                allDictionaryWords[word] = definition; // Store for final summary
+                
+                wordEl.onclick = (e) => { 
+                    e.stopPropagation(); // Stop click from bubbling up to document
+                    
+                    // Toggle functionality (Click the same word to close)
+                    if (currentOpenWord === wordEl) {
+                        popup.style.display = 'none';
+                        currentOpenWord = null;
+                        return;
+                    }
+
+                    // Show new popup
+                    popup.innerHTML = `<strong>${word}</strong>: ${definition}`;
+                    
+                    // --- Dictionary Positioning Fix (New Logic) ---
+                    const rect = e.target.getBoundingClientRect();
+                    let top = rect.bottom + 5;
+                    let left = rect.left;
+
+                    // Set popup dimensions for boundary check (max-width is 250px)
+                    popup.style.display = 'block';
+                    const popupWidth = 250; // Max width is 250
+                    const popupHeight = popup.offsetHeight; // Get rendered height
+
+                    // Simple boundary check for right edge
+                    if (left + popupWidth > window.innerWidth - 20) { 
+                        left = window.innerWidth - popupWidth - 20;
+                    }
+                    // Ensure it doesn't go off the left edge
+                    if (left < 10) {
+                        left = 10;
+                    }
+                    // If the word is near the bottom, display above
+                    if (rect.bottom + popupHeight > window.innerHeight - 20) {
+                        top = rect.top - popupHeight - 5;
+                        if (top < 10) { // If it can't fit above or below, use default below
+                            top = rect.bottom + 5;
+                        }
+                    }
+
+                    popup.style.top = `${top}px`;
+                    popup.style.left = `${left}px`;
+                    // --- End Dictionary Positioning Fix ---
+                    
+                    currentOpenWord = wordEl;
+                };
+            });
+            
+            // Global click listener to hide popup when clicking anywhere else
+            document.addEventListener('click', (e) => {
+                // If there's an open word and the click target is NOT the word or its content
+                if (currentOpenWord && !e.target.closest('.dictionary-word')) {
+                    document.getElementById('dictionary-popup').style.display = 'none';
+                    currentOpenWord = null;
+                }
+            });
+        }
+
+
+        // --- QUIZ LOGIC REFACTORED (Radio & Checkboxes) ---
+        
+        function setupQuizListeners() {
+            // 1. Radio Listeners (The default, non-data-type="checkbox" boxes)
+            document.querySelectorAll('.question-box:not([data-type="checkbox"]) .quiz-option').forEach(option => {
+                option.addEventListener('click', function(e) {
+                    const parentBox = this.closest('.question-box');
+                    if (parentBox.getAttribute('data-locked') === 'true') return;
+
+                    // Deselect previously selected in this box
+                    parentBox.querySelectorAll('.quiz-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Select current
+                    this.classList.add('selected');
+                });
+            });
+
+            // 2. Checkbox Listeners (data-type="checkbox" boxes)
+            document.querySelectorAll('.question-box[data-type="checkbox"] .quiz-option').forEach(option => {
+                option.addEventListener('click', function(e) {
+                    const parentBox = this.closest('.question-box');
+                    if (parentBox.getAttribute('data-locked') === 'true') return;
+
+                    // Toggle selected state for checkbox options
+                    this.classList.toggle('selected');
+                });
+            });
+        }
+
+        function checkRadioQuestion(questionBox) {
+            const selectedOption = questionBox.querySelector('.quiz-option.selected');
+            const correctValue = questionBox.getAttribute('data-correct-value');
+            const cardElement = questionBox.closest('.content-card');
+            const checkButton = document.getElementById(`check-btn-${cardElement.getAttribute('data-section-id')}`);
+            const nextButton = cardElement.querySelector('.next-btn');
+            const sectionId = cardElement.getAttribute('data-section-id');
+
+            if (!selectedOption) {
+                showPopup('Pre-flight check incomplete. Please select an answer first.', 'incorrect');
+                return;
+            }
+
+            if (selectedOption.getAttribute('data-value') === correctValue) {
+                selectedOption.classList.add('correct');
+                showPopup('Mission Accomplished!', 'correct');
+                questionBox.setAttribute('data-locked', 'true'); // Lock after correct answer
+                checkButton.style.display = 'none';
+                cardElement.setAttribute('data-completed', 'true');
+                nextButton.style.display = 'block';
+            } else {
+                selectedOption.classList.add('incorrect');
+                
+                // STAGE 1 & 5: Must try again (strict rule)
+                if (sectionId === '1' || sectionId === '5') {
+                    showPopup('Incorrect. Try again, cool dude.', 'incorrect');
+                    
+                    // Immediately remove selection/incorrect status to allow re-try
+                    setTimeout(() => {
+                        selectedOption.classList.remove('selected', 'incorrect');
+                    }, 500); 
+
+                } else { 
+                    // STAGE X (Future radio stages): Show correct answer and allow progression
+                    showPopup('Answer found! Proceeding to next stage.', 'incorrect');
+                    
+                    // Highlight the correct answer
+                    questionBox.querySelectorAll('.quiz-option').forEach(option => {
+                        if (option.getAttribute('data-value') === correctValue) {
+                            option.classList.add('correct');
+                        }
+                        option.style.pointerEvents = 'none'; // Disable clicking
+                    });
+                    nextButton.style.display = 'block'; 
+                    checkButton.style.display = 'none';
+                    cardElement.setAttribute('data-completed', 'true');
+                }
+            }
+            updateProgress();
+        }
+
+        function checkCheckboxQuestion(questionBoxes) {
+            let allCorrect = true;
+            let totalCorrectAnswersFound = 0;
+            let totalRequiredAnswers = 0;
+            let hasIncorrectSelection = false;
+            
+            // Step 1: Calculate state and apply temporary visual feedback
+            questionBoxes.forEach(questionBox => {
+                const correctValues = questionBox.getAttribute('data-correct-values').split(',');
+                totalRequiredAnswers += correctValues.length;
+                let setCorrect = true;
+                let selectedCorrectInSet = 0;
+
+                questionBox.querySelectorAll('.quiz-option').forEach(option => {
+                    option.classList.remove('correct', 'incorrect'); // Clear previous visual feedback (crucial for iterative check)
+
+                    const isSelected = option.classList.contains('selected');
+                    const isCorrect = correctValues.includes(option.getAttribute('data-value'));
+
+                    if (isSelected) {
+                        if (isCorrect) {
+                            selectedCorrectInSet++;
+                            option.classList.add('correct'); // Temporary visual feedback
+                        } else {
+                            hasIncorrectSelection = true;
+                            allCorrect = false;
+                            option.classList.add('incorrect'); // Temporary visual feedback
+                        }
+                    } else if (isCorrect) {
+                        // Missed correct answer
+                        setCorrect = false;
+                        allCorrect = false;
+                    }
+                });
+
+                // If number of correct selections does not match required
+                if (selectedCorrectInSet !== correctValues.length) {
+                    setCorrect = false;
+                    allCorrect = false;
+                }
+                
+                if (setCorrect) {
+                    // Accumulate for final success count
+                    totalCorrectAnswersFound += correctValues.length;
+                }
+            });
+
+            const cardElement = questionBoxes[0].closest('.content-card');
+            const checkButton = cardElement.querySelector('.check-btn');
+            const nextButton = cardElement.querySelector('.next-btn');
+
+            if (!document.querySelectorAll('#stage-2 .quiz-option.selected').length) {
+                 showPopup('Pre-flight check incomplete. Please select at least one answer.', 'incorrect');
+                 return;
+            }
+
+            // Step 2: Feedback and Progression Logic
+            if (allCorrect) {
+                // 100% Correct - Final progression is allowed.
+                showPopup('Mission Accomplished! All systems go!', 'correct');
+                
+                // Lock down completely
+                questionBoxes.forEach(questionBox => {
+                    const correctValues = questionBox.getAttribute('data-correct-values').split(','); // Need to access correct answers again
+                    
+                    questionBox.querySelectorAll('.quiz-option').forEach(option => {
+                        option.classList.remove('selected');
+                        
+                        // FIX: Only add 'correct' class to options that are actually correct (A, C, E, F)
+                        if (correctValues.includes(option.getAttribute('data-value'))) {
+                             option.classList.add('correct'); 
+                        }
+                        
+                        option.style.pointerEvents = 'none'; // Disable all further interaction
+                    });
+                });
+
+                cardElement.setAttribute('data-completed', 'true');
+                checkButton.style.display = 'none';
+                nextButton.style.display = 'block';
+
+            } else {
+                // Incorrect/Partial Attempt - No progression allowed.
+                
+                // Determine feedback message
+                if (hasIncorrectSelection) {
+                    showPopup('Rerouting! 🚧 Incorrect coordinates selected. Deselect the wrong ones and try again.', 'incorrect');
+                } else if (totalCorrectAnswersFound > 0) {
+                    // Some correct selections made, but not 100% (e.g., missed one or included an extra)
+                    showPopup('Nearly flying, check again 🚁. You are almost there!', 'secondary'); 
+                } else {
+                    showPopup('Rerouting! 🚧 Check your answers and try again.', 'incorrect');
+                }
+                
+                // Clear temporary visual feedback after a brief pause so user can re-select
+                setTimeout(() => {
+                    questionBoxes.forEach(questionBox => {
+                        questionBox.querySelectorAll('.quiz-option').forEach(option => {
+                            option.classList.remove('correct', 'incorrect');
+                        });
+                    });
+                }, 800);
+            }
+            updateProgress();
+        }
+
+        // --- GAP FILL LOGIC ---
+
+        let selectedWordOption = null;
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function handleWordSelectGap(event) {
+            const wordOption = event.currentTarget;
+            
+            // Deselect the previously selected word
+            if (selectedWordOption) {
+                selectedWordOption.classList.remove('selected');
+            }
+
+            // Select the new word
+            if (selectedWordOption === wordOption) {
+                // If the same word is clicked again, deselect it and clear the selection
+                selectedWordOption = null;
+            } else {
+                wordOption.classList.add('selected');
+                selectedWordOption = wordOption;
+            }
+        }
+
+        function handleGapFill(event) {
+            const gapInput = event.currentTarget;
+            
+            if (gapInput.hasAttribute('data-locked')) {
+                // If locked (correct), do nothing.
+                return;
+            }
+            
+            // If it was incorrect, clicking it should reset it and put the word back
+            const wasIncorrect = gapInput.classList.contains('incorrect');
+            const usedWord = gapInput.getAttribute('data-filled-word');
+
+            if (wasIncorrect) {
+                // Reset the gap
+                gapInput.textContent = gapInput.getAttribute('data-original-text');
+                gapInput.removeAttribute('data-filled-word');
+                gapInput.classList.remove('incorrect');
+                
+                // Put word back in bank
+                const wordOption = document.querySelector(`.word-option[data-word="${usedWord}"]`);
+                if (wordOption) {
+                    wordOption.classList.remove('used');
+                    wordOption.style.display = 'block';
+                }
+                
+                // If the user clicked to reset an incorrect gap, do not proceed with filling below
+                return;
+            }
+
+
+            // If a word is selected in the bank
+            if (selectedWordOption) {
+                const wordToFill = selectedWordOption.getAttribute('data-word');
+                
+                // Check if the gap is already filled by this word
+                if (gapInput.getAttribute('data-filled-word') === wordToFill) {
+                    return; 
+                }
+                
+                // If gap is filled by another word, put that word back in the bank
+                const existingWord = gapInput.getAttribute('data-filled-word');
+                if (existingWord) {
+                    const existingWordOption = document.querySelector(`.word-option[data-word="${existingWord}"]`);
+                    if (existingWordOption) {
+                        existingWordOption.classList.remove('used');
+                        existingWordOption.style.display = 'block';
+                    }
+                }
+
+                // Fill the gap
+                gapInput.textContent = wordToFill;
+                gapInput.setAttribute('data-filled-word', wordToFill);
+                
+                // Mark the word option as used/remove it from selection
+                selectedWordOption.classList.remove('selected');
+                selectedWordOption.classList.add('used');
+                selectedWordOption.style.display = 'none'; // Hide used word
+                selectedWordOption = null;
+                
+            } else {
+                // If no word is selected in the bank, clicking a filled gap puts the word back
+                const usedWord = gapInput.getAttribute('data-filled-word');
+                if (usedWord) {
+                    // Reset the gap
+                    gapInput.textContent = gapInput.getAttribute('data-original-text');
+                    gapInput.removeAttribute('data-filled-word');
+                    
+                    // Put word back in bank
+                    const wordOption = document.querySelector(`.word-option[data-word="${usedWord}"]`);
+                    if (wordOption) {
+                        wordOption.classList.remove('used');
+                        wordOption.style.display = 'block';
+                    }
+                }
+            }
+        }
+
+        function bindGapFillListeners() {
+            // Bind listeners for word bank options (Stage 3 & 4)
+            document.querySelectorAll('.word-option').forEach(word => {
+                word.addEventListener('click', handleWordSelectGap);
+            });
+
+            // Bind listeners for gap inputs (Stage 3 & 4)
+            document.querySelectorAll('.gap-input').forEach(gap => {
+                gap.addEventListener('click', handleGapFill);
+            });
+        }
+
+        function checkGapFillStage(stageNumber) {
+            const cardElement = document.getElementById(`stage-${stageNumber}`);
+            const gaps = cardElement.querySelectorAll('.gap-input');
+            const checkButton = cardElement.querySelector('.check-btn');
+            const nextButton = cardElement.querySelector('.next-btn');
+            
+            let allGapsFilled = true;
+            let allCorrect = true;
+            let firstUnfilled = null;
+
+            gaps.forEach(gap => {
+                if (!gap.getAttribute('data-filled-word')) {
+                    allGapsFilled = false;
+                    if (!firstUnfilled) firstUnfilled = gap;
+                    return;
+                }
+
+                const filledWord = gap.getAttribute('data-filled-word');
+                const correctAnswer = gap.getAttribute('data-answer');
+
+                if (filledWord === correctAnswer) {
+                    gap.classList.add('correct');
+                    gap.classList.remove('incorrect');
+                    gap.setAttribute('data-locked', 'true');
+                } else {
+                    gap.classList.add('incorrect');
+                    gap.classList.remove('correct');
+                    // DO NOT remove 'data-locked' here, let the handleGapFill reset it when clicked.
+                    allCorrect = false;
+                }
+            });
+
+            if (!allGapsFilled) {
+                showPopup('Pre-flight check incomplete. Please fill all the gaps first.', 'incorrect');
+                if (firstUnfilled) firstUnfilled.focus();
+                return;
+            }
+
+            if (allCorrect) {
+                showPopup('Excellent! All systems go!', 'correct');
+                cardElement.setAttribute('data-completed', 'true');
+                checkButton.style.display = 'none';
+                nextButton.style.display = 'block';
+                // Lock down all correct gaps/words
+                gaps.forEach(gap => {
+                     gap.setAttribute('data-locked', 'true');
+                });
+                
+            } else {
+                showPopup('Keep going! Click the incorrect answers to put the words back in the bank and try swapping them.', 'incorrect');
+                // The incorrect answers have the 'incorrect' class applied, and are unlocked (no 'data-locked' attribute)
+            }
+
+            updateProgress();
+        }
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth(); // Check user login status
+            setupQuizListeners(); // Refactored quiz listeners
+            bindGapFillListeners(); 
+            setupDictionaryListeners(); // Click/Tap dictionary 
+
+            // Shuffle the Word Bank for Stage 4
+            const prepBank = document.getElementById('prep-bank-gapfill');
+            if (prepBank) {
+                const words = Array.from(prepBank.children);
+                const shuffledWords = shuffleArray(words);
+                
+                prepBank.innerHTML = '';
+                shuffledWords.forEach(word => prepBank.appendChild(word));
+            }
+            
+            // Set initial state for all 5 stages
+            document.getElementById('reading-content').style.display = 'none'; 
+            document.getElementById('stage-1').style.display = 'block';
+            document.getElementById('stage-2').style.display = 'none';
+            document.getElementById('stage-3').style.display = 'none';
+            document.getElementById('stage-4').style.display = 'none';
+            document.getElementById('stage-5').style.display = 'none';
+            updateProgress(); // Initialize stage count
+        });
+    </script>
+</body>
+</html>
