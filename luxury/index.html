@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Psychology of Luxury - English For Cool Dudes</title>
+    
+    <link rel="icon" href="data:,">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* --- BRANDING & LAYOUT STYLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: #FDF4FF; /* Very light pink/purple background */
+            color: #1F2937;
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- THEME: GLAM / LUXURY 💎 --- */
+        :root {
+            --color-primary: #701A75; /* Royal Fuchsia/Purple */
+            --color-secondary: #BE185D; /* Dark Pink */
+            --color-accent: #F59E0B; /* Gold */
+            --color-white: #FFFFFF;
+            
+            /* Feedback Colors */
+            --color-correct: #059669; 
+            --color-incorrect: #DC2626; 
+        }
+
+        /* Header */
+        .header {
+            background: var(--color-white);
+            border-bottom: 2px solid var(--color-accent); /* Gold Border */
+            padding: 20px 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-content {
+            max-width: 1200px; margin: 0 auto; padding: 0 20px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .logo {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%); 
+            color: white;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            border: 2px solid var(--color-accent);
+        }
+        .site-title { font-size: 20px; font-weight: 700; color: var(--color-primary); text-decoration: none; letter-spacing: -0.02em; }
+
+        /* Header Buttons */
+        .header-buttons { display: flex; align-items: center; gap: 8px; }
+        .header-button {
+            text-decoration: none; padding: 8px 16px; border-radius: 8px;
+            font-size: 14px; font-weight: 600; transition: all 0.2s;
+            white-space: nowrap; cursor: pointer; border: 1px solid #E5E7EB;
+            background: transparent;
+        }
+        .header-button.login { background: #FFFFFF; color: #374151; }
+        .header-button.login:hover { background: #FDF2F8; color: var(--color-primary); border-color: var(--color-primary); }
+        
+        .header-button.signup { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+        .header-button.signup:hover { background: var(--color-secondary); box-shadow: 0 4px 6px rgba(190, 24, 93, 0.3); }
+        
+        .header-button.dashboard { background: #FFFBEB; color: #B45309; border-color: var(--color-accent); }
+        .header-button.dashboard:hover { background: #FDE68A; }
+        
+        .header-button.logout { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
+        .header-button.logout:hover { background: #FEE2E2; }
+        
+        .user-greeting { font-size: 14px; color: var(--color-primary); font-weight: 600; margin-right: 10px; display: block; }
+
+        /* Main Container */
+        .container-main {
+            max-width: 900px; margin: 40px auto; padding: 40px;
+            background-color: var(--color-white); border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); border-top: 6px solid var(--color-primary);
+        }
+
+        /* Lesson Styles */
+        .lesson-main-title { 
+            font-size: 2.8em; font-weight: 800; color: #111827; 
+            margin-bottom: 5px; letter-spacing: -0.03em;
+            background: -webkit-linear-gradient(0deg, var(--color-primary), var(--color-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .lesson-subtitle {
+            color: #64748B; font-size: 1.1em; margin-bottom: 40px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.85em;
+        }
+
+        .lesson-section {
+            background-color: #FFFFFF; padding: 0; margin-bottom: 60px;
+        }
+        
+        .section-title {
+            color: var(--color-primary); font-size: 1.5em; font-weight: 700;
+            margin-bottom: 25px; padding-bottom: 10px; border-bottom: 2px solid #FBCFE8;
+            display: flex; align-items: center; gap: 12px;
+        }
+        
+        /* Reading Text */
+        .reading-text {
+            background: #FAFAFA; border-left: 4px solid var(--color-accent);
+            padding: 30px; border-radius: 0 12px 12px 0; font-size: 1.15em;
+            color: #334155; line-height: 1.9;
+        }
+        .highlight-word {
+            color: var(--color-secondary); font-weight: 700; cursor: help;
+            border-bottom: 2px dotted var(--color-accent); transition: all 0.2s;
+        }
+        .highlight-word:hover { background-color: #FDF2F8; color: var(--color-primary); }
+        
+        /* Match Cards */
+        .match-card {
+            border: 2px solid #F3F4F6; 
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); 
+            cursor: pointer;
+            user-select: none; border-radius: 12px; padding: 18px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); font-weight: 600; font-size: 1.125rem;
+            opacity: 1; transform: scale(1);
+        }
+        .match-card.term { 
+            background-color: #FFFFFF; color: var(--color-primary); text-align: center; font-weight: 700;
+            border-color: #E5E7EB;
+        }
+        .match-card.definition { 
+            background-color: #F9FAFB; text-align: left; color: #4B5563;
+        }
+        .match-card.selected { 
+            border-color: var(--color-accent); background-color: #FFFBEB; 
+            transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.2); 
+        }
+        
+        /* VANISH LOGIC */
+        .match-card.matched { 
+            background-color: #ECFDF5 !important; 
+            border-color: var(--color-correct) !important;
+            color: var(--color-correct) !important;
+            transform: scale(1.05);
+        }
+        .match-card.vanished {
+            opacity: 0 !important;
+            pointer-events: none;
+            transform: scale(0.5);
+        }
+
+        /* Quiz Buttons */
+        .comp-btn-group .option-button {
+            transition: all 0.2s; background-color: #FFFFFF; color: #374151;
+            font-weight: 600; padding: 16px 24px; border-radius: 10px;
+            border: 2px solid #E5E7EB; text-align: left; width: 100%; cursor: pointer; margin-bottom: 12px;
+        }
+        .comp-btn-group .option-button:hover { border-color: var(--color-primary); background-color: #FDF2F8; }
+        .comp-btn-group .option-button.selected { background-color: var(--color-primary); color: white !important; border-color: var(--color-primary); }
+        .comp-btn-group .option-button.correct { background-color: #10B981 !important; color: white !important; border-color: #10B981 !important; }
+        .comp-btn-group .option-button.incorrect { background-color: #EF4444 !important; color: white !important; border-color: #EF4444 !important; }
+
+        /* Results & Gaps */
+        .result-message { margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: 600; display: none; text-align: center; }
+        .result-message.correct { background-color: #D1FAE5; color: #065F46; }
+        .result-message.incorrect { background-color: #FEE2E2; color: #991B1B; }
+        
+        .word-bank { background: #FDF2F8; padding: 25px; border-radius: 12px; border: 1px solid #FBCFE8; }
+        .word-options { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;}
+        .word-option {
+            background-color: var(--color-white); color: var(--color-primary); padding: 10px 20px;
+            border-radius: 30px; cursor: pointer; transition: all 0.2s; font-weight: 600;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); border: 2px solid var(--color-primary);
+        }
+        .word-option:hover { background-color: var(--color-primary); color: white; border-color: var(--color-primary); }
+        .word-option.selected { background-color: var(--color-accent) !important; border-color: var(--color-accent) !important; color: white !important; transform: scale(1.05); }
+        .word-option.used { opacity: 0.4; pointer-events: none; background-color: #E2E8F0; border-color: #E2E8F0; color: #9CA3AF; transform: none; }
+
+        .gap-input {
+            display: inline-block; text-align: center; padding: 0 8px; min-width: 120px; 
+            height: 34px; background-color: #FFF; border-bottom: 3px solid var(--color-primary); 
+            color: #1E293B; font-style: italic; cursor: pointer; font-size: 1em;
+            line-height: 30px; vertical-align: bottom; font-weight: 700; margin: 0 4px; transition: all 0.2s;
+        }
+        .gap-input:empty { background-color: #FDF2F8; border-bottom-style: dashed; }
+        .gap-input.correct { background-color: #D1FAE5 !important; border-color: #10B981 !important; color: #065F46 !important; font-style: normal; }
+        .gap-input.incorrect { background-color: #FEE2E2 !important; border-color: #EF4444 !important; color: #991B1B !important; font-style: normal; }
+
+        /* Buttons */
+        .button-group { margin-top: 35px; display: flex; gap: 15px; justify-content: center; }
+        .check-button {
+            background: var(--color-primary); color: white; border: none; padding: 14px 35px;
+            border-radius: 12px; cursor: pointer; font-size: 1em; font-weight: 600;
+            transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(112, 26, 117, 0.3);
+        }
+        .check-button:hover { background: var(--color-secondary); transform: translateY(-2px); }
+        .reset-button { background: #FFFFFF; color: #64748B; border: 1px solid #E2E8F0; box-shadow: none; }
+        .reset-button:hover { background: #F1F5F9; color: #334155; transform: none; }
+
+        /* Save Section */
+        #save-words-section { background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%); color: white; padding: 50px; border-radius: 16px; margin-top: 80px; text-align: center; }
+        #save-words-btn {
+            background-color: var(--color-accent); color: #78350F; padding: 16px 40px;
+            border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color 0.2s;
+            display: inline-block; border: none; box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.3);
+            text-transform: uppercase; font-size: 1.1em; letter-spacing: 0.05em;
+        }
+        #save-words-btn:hover:not(:disabled) { background-color: #D97706; transform: translateY(-2px); }
+        #save-words-btn:active:not(:disabled) { transform: translateY(1px); }
+        #save-words-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        #learned-words-list {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px; margin-bottom: 40px; text-align: left; list-style: none;
+        }
+        #learned-words-list li {
+            background: rgba(255,255,255,0.1); padding: 14px 18px; border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1); font-size: 0.95em; cursor: pointer;
+            transition: all 0.2s; font-weight: 600; color: #FBCFE8; display: flex; justify-content: space-between;
+        }
+        #learned-words-list li:hover {
+            background: rgba(255,255,255,0.25); color: white; border-color: white; transform: translateY(-2px);
+        }
+        #learned-words-list li::after { content: '💎'; opacity: 0.7; font-size: 0.9em; }
+
+        /* Popups */
+        #feedback-popup {
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            padding: 25px 50px; border-radius: 12px; font-weight: 600; color: white;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); z-index: 2000; display: none;
+            text-align: center; font-size: 1.4em; border: 2px solid rgba(255,255,255,0.5);
+        }
+        #dictionary-popup {
+            position: fixed; max-width: 320px; padding: 25px; background: #FFFFFF;
+            border-top: 6px solid var(--color-primary); border-radius: 8px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); z-index: 2001; display: none;
+            font-size: 1em; color: #334155; line-height: 1.6;
+        }
+
+        @media (max-width: 768px) { .user-greeting { display: none; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">💎</span>
+                <a href="/business/" class="site-title">English For Cool Dudes</a>
+            </div>
+            
+            <div id="logged-out-buttons" class="header-buttons" style="display: none;">
+                <a href="/login/" class="header-button login">Login</a>
+                <a href="/signup/" class="header-button signup">Sign Up</a>
+            </div>
+
+            <div id="logged-in-buttons" class="header-buttons" style="display: none;">
+                <span class="user-greeting" id="user-greeting">Hey Cool Dude! 👋</span>
+                <a href="/dashboard/" class="header-button dashboard">My Dashboard</a>
+                <button id="logout-btn" class="header-button logout">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-main">
+        <h1 class="lesson-main-title">The Psychology of Luxury</h1>
+        <p class="lesson-subtitle">Business English (C1/C2) - Selling Status & Exclusivity</p>
+
+        <main class="space-y-8">
+            
+            <section class="lesson-section">
+                <h2 class="section-title"><span>🥂</span> The Price of Status</h2>
+                <div class="reading-text">
+                    <p>Why do consumers pay $50,000 for a watch that tells the same time as a $50 one? In the luxury market, customers are not buying a product; they are buying a story of <span class="highlight-word" onclick="showDictionaryPopup(this, 'Heritage')">heritage</span> and tradition.</p>
+
+                    <p>Luxury brands rely heavily on <span class="highlight-word" onclick="showDictionaryPopup(this, 'Scarcity')">scarcity</span>. By producing fewer items than the market demands, they create a sense of <span class="highlight-word" onclick="showDictionaryPopup(this, 'Exclusivity')">exclusivity</span>. Owning these items becomes a <span class="highlight-word" onclick="showDictionaryPopup(this, 'Status Symbol')">status symbol</span>, signaling wealth and taste to others.</p>
+
+                    <p>True luxury is defined by exceptional <span class="highlight-word" onclick="showDictionaryPopup(this, 'Craftsmanship')">craftsmanship</span>. Many high-end brands offer <span class="highlight-word" onclick="showDictionaryPopup(this, 'Bespoke')">bespoke</span> services, creating custom-made items tailored exactly to the client's wishes. This justifies the <span class="highlight-word" onclick="showDictionaryPopup(this, 'Premium')">premium</span> price tag.</p>
+
+                    <p>However, companies must fiercely protect their <span class="highlight-word" onclick="showDictionaryPopup(this, 'Brand Equity')">brand equity</span> against cheap <span class="highlight-word" onclick="showDictionaryPopup(this, 'Counterfeit')">counterfeit</span> goods, which dilute the value of the original.</p>
+                </div>
+            </section>
+
+            <section id="exercise-1" class="lesson-section">
+                <h2 class="section-title"><span>🗝️</span> 1. The Language of Luxury</h2>
+                <p class="text-gray-600 mb-6">Match the **Term** with its **Definition**. Correct pairs will vanish.</p>
+
+                <div id="vocab-match-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </section>
+        
+            <section id="exercise-2" class="lesson-section">
+                <h2 class="section-title"><span>🧐</span> 2. Brand Strategy</h2>
+                <p class="exercise-instructions mb-6 text-gray-600">Select the sophisticated choice.</p>
+                
+                <div class="question mb-8" data-question="1">
+                    <p class="font-bold text-lg text-gray-800 mb-3">1. What is "Scarcity" in marketing?</p>
+                    <ul class="options-list space-y-2 comp-btn-group" data-question="1">
+                        <li class="option-button" data-correct="false">Having too much inventory in the warehouse.</li>
+                        <li class="option-button" data-correct="true">Limiting supply to increase demand and desire.</li>
+                        <li class="option-button" data-correct="false">Lowering prices to sell faster.</li>
+                    </ul>
+                </div>
+                
+                <div class="question mb-8" data-question="2">
+                    <p class="font-bold text-lg text-gray-800 mb-3">2. What does "Bespoke" mean?</p>
+                    <ul class="options-list space-y-2 comp-btn-group" data-question="2">
+                        <li class="option-button" data-correct="true">Custom-made specifically for one individual.</li>
+                        <li class="option-button" data-correct="false">Mass-produced in a factory.</li>
+                        <li class="option-button" data-correct="false">Available on sale at a discount.</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="3">
+                    <p class="font-bold text-lg text-gray-800 mb-3">3. Why are counterfeits dangerous to luxury brands?</p>
+                    <ul class="options-list space-y-2 comp-btn-group" data-question="3">
+                        <li class="option-button" data-correct="false">They are too expensive to make.</li>
+                        <li class="option-button" data-correct="false">They actually help marketing.</li>
+                        <li class="option-button" data-correct="true">They damage the brand's reputation and value.</li>
+                    </ul>
+                </div>
+
+                <div class="button-group">
+                    <button class="check-button" onclick="checkComprehension()">Verify Answers</button>
+                    <button class="check-button reset-button" onclick="resetComprehension()">Reset</button>
+                </div>
+                <div id="comprehension-result" class="result-message"></div>
+            </section>
+
+            <section id="exercise-3" class="lesson-section">
+                <h2 class="section-title"><span>✍️</span> 3. The Concierge</h2>
+                <p class="text-gray-600 mb-6">Complete the VIP request.</p>
+                
+                <div class="word-bank mb-6">
+                    <div class="word-options" id="gap-fill-options">
+                        <span class="word-option">premium</span>
+                        <span class="word-option">heritage</span>
+                        <span class="word-option">bespoke</span>
+                        <span class="word-option">exclusivity</span>
+                        <span class="word-option">status symbol</span>
+                    </div>
+                </div>
+
+                <div class="gap-fill-text text-lg leading-loose text-gray-700">
+                    <p class="mb-4">1. We do not sell off-the-shelf suits; every garment is <span class="gap-input" data-word-index="2"></span> for the client.</p>
+                    <p class="mb-4">2. The brand's 100-year <span class="gap-input" data-word-index="1"></span> appeals to traditional buyers.</p>
+                    <p class="mb-4">3. Clients are happy to pay a <span class="gap-input" data-word-index="0"></span> for superior service.</p>
+                    <p class="mb-4">4. Driving a Ferrari is the ultimate <span class="gap-input" data-word-index="4"></span> of success.</p>
+                    <p class="mb-4">5. The club maintains its <span class="gap-input" data-word-index="3"></span> by accepting only 5 new members a year.</p>
+                </div>
+                <div class="button-group">
+                    <button class="check-button" onclick="checkGaps()">Verify Request</button>
+                    <button class="check-button reset-button" onclick="resetGaps()">Reset</button>
+                </div>
+                <div id="gap-result" class="result-message"></div>
+            </section>
+
+            <div id="save-words-section">
+                <h2 class="text-2xl font-bold mb-4 text-white">💎 VIP Collection</h2>
+                <p class="mb-6 text-indigo-100">You have acquired 10 high-value assets.</p>
+                
+                <ul id="learned-words-list">
+                    <li data-word="Heritage">Heritage</li>
+                    <li data-word="Scarcity">Scarcity</li>
+                    <li data-word="Exclusivity">Exclusivity</li>
+                    <li data-word="Status Symbol">Status Symbol</li>
+                    <li data-word="Craftsmanship">Craftsmanship</li>
+                    <li data-word="Bespoke">Bespoke</li>
+                    <li data-word="Premium">Premium</li>
+                    <li data-word="Brand Equity">Brand Equity</li>
+                    <li data-word="Counterfeit">Counterfeit</li>
+                    <li data-word="High-end">High-end</li>
+                </ul>
+
+                <div id="save-area">
+                    <div id="save-feature-loggedin" style="display: none;">
+                        <button id="save-words-btn" onclick="saveWordsToDashboard()">Add to Portfolio</button>
+                        <p id="save-status" class="text-center mt-3 font-semibold text-indigo-200"></p>
+                    </div>
+                    <div id="login-prompt" style="display: none;">
+                        <p class="text-indigo-200 font-bold mb-2">Access Restricted. Login required.</p>
+                        <a href="/login/" class="inline-block bg-white text-indigo-900 font-bold py-2 px-4 rounded hover:bg-gray-100 transition">Log In</a>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+    
+    <div id="feedback-popup"></div>
+    <div id="dictionary-popup"></div>
+
+    <script>
+        // --- AUTH CONFIG ---
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        
+        // Use 'luxuryClient' to ensure no variable conflicts
+        const luxuryClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null;
+
+        const lessonTitle = "The Psychology of Luxury";
+        const lessonLink = "/luxury/";
+        const lessonLevel = "C1/C2";
+
+        // Words to Save
+        const wordsToSave = [
+            { word: "Heritage", type: "noun", definition: "Valued traditions, history, and qualities passed down from previous generations." },
+            { word: "Scarcity", type: "noun", definition: "The state of being scarce or in short supply; shortage." },
+            { word: "Exclusivity", type: "noun", definition: "The nature of being limited to a select group or area." },
+            { word: "Status Symbol", type: "noun", definition: "A possession that is taken to indicate a person's wealth or high social status." },
+            { word: "Craftsmanship", type: "noun", definition: "The quality of design and work shown in something made by hand; artistry." },
+            { word: "Bespoke", type: "adjective", definition: "Made for a particular customer or user; custom-made." },
+            { word: "Premium", type: "adjective", definition: "Relating to or denoting a commodity of superior quality and therefore a higher price." },
+            { word: "Brand Equity", type: "noun", definition: "The commercial value that derives from consumer perception of the brand name." },
+            { word: "Counterfeit", type: "adjective", definition: "Made in exact imitation of something valuable with the intention to deceive or defraud." },
+            { word: "High-end", type: "adjective", definition: "Denoting the most expensive of a range of products." },
+        ];
+
+        // --- AUTH FUNCTIONS ---
+        async function checkUser() {
+            try {
+                const { data: { user } } = await luxuryClient.auth.getUser();
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('logged-in-buttons').style.display = 'flex';
+                    document.getElementById('logged-out-buttons').style.display = 'none';
+                    document.getElementById('save-feature-loggedin').style.display = 'block';
+                    document.getElementById('login-prompt').style.display = 'none';
+                    
+                    const name = user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'VIP';
+                    document.getElementById('user-greeting').textContent = `Welcome, ${name}`;
+                } else {
+                    document.getElementById('logged-in-buttons').style.display = 'none';
+                    document.getElementById('logged-out-buttons').style.display = 'flex';
+                    document.getElementById('save-feature-loggedin').style.display = 'none';
+                    document.getElementById('login-prompt').style.display = 'block';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function saveWordsToDashboard() {
+            if (!currentUser) return;
+            const btn = document.getElementById('save-words-btn');
+            const status = document.getElementById('save-status');
+            btn.disabled = true;
+            btn.textContent = "Acquiring...";
+
+            const { error } = await luxuryClient.from('lessons').upsert([{
+                user_id: currentUser.id,
+                lesson_title: lessonTitle,
+                lesson_link: lessonLink,
+                lesson_level: lessonLevel,
+                vocabulary: wordsToSave,
+                completed_at: new Date().toISOString()
+            }], { onConflict: 'user_id,lesson_title' });
+
+            if (!error) {
+                btn.textContent = "Added to Portfolio";
+                btn.style.backgroundColor = "var(--color-correct)";
+                btn.style.borderColor = "var(--color-correct)";
+                status.textContent = "Asset Secured.";
+                setTimeout(() => window.location.href = '/dashboard/', 1500);
+            } else {
+                btn.textContent = "Error";
+                btn.disabled = false;
+                status.textContent = "Transaction failed.";
+            }
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await luxuryClient.auth.signOut();
+            window.location.href = '/';
+        });
+
+        // --- NEW FUNCTION: SAVE MISTAKES TO SUPABASE ---
+        async function saveMistake(word) {
+            if (!currentUser) return; // Only save if logged in
+
+            // Find the full word details (definition/type) from your existing list
+            const wObj = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase()) || {
+                word: word,
+                definition: '',
+                type: ''
+            };
+
+            // Upsert into the user_mistakes table
+            await luxuryClient.from('user_mistakes').upsert({
+                user_id: currentUser.id,
+                word: wObj.word,
+                definition: wObj.definition,
+                word_type: wObj.type,
+                lesson: lessonTitle,
+                lesson_link: lessonLink,
+                last_made_at: new Date().toISOString()
+            }, {
+                onConflict: 'user_id,word'
+            });
+            
+            console.log(`Saved mistake: ${word}`); // Optional for debugging
+        }
+        
+        // --- POPUP FUNCTIONS ---
+        function showFeedback(msg, type) {
+            const el = document.getElementById('feedback-popup');
+            el.textContent = msg;
+            el.style.display = 'block';
+            if (type === 'correct') {
+                el.style.backgroundColor = 'var(--color-correct)';
+                el.style.borderColor = 'var(--color-correct)';
+            } else {
+                el.style.backgroundColor = 'var(--color-incorrect)';
+                el.style.borderColor = 'var(--color-incorrect)';
+            }
+            setTimeout(() => { el.style.display = 'none'; }, 1500);
+        }
+
+        function showDictionaryPopup(target, word) {
+            const searchWord = word.toLowerCase();
+            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === searchWord);
+            if(!wordObj) return;
+
+            const popup = document.getElementById('dictionary-popup');
+            popup.innerHTML = `<strong style="color:var(--color-primary); font-size:1.2em;">${wordObj.word}</strong> <span style="font-size:0.85em; color:#6B7280;">(${wordObj.type})</span><br>${wordObj.definition}`;
+            popup.style.display = 'block';
+
+            const rect = target.getBoundingClientRect();
+            let topPos = rect.top - popup.offsetHeight - 10;
+            if (topPos < 10) topPos = rect.bottom + 10;
+            
+            popup.style.top = topPos + 'px';
+            popup.style.left = (rect.left + (rect.width/2) - (popup.offsetWidth/2)) + 'px';
+        }
+        
+        document.body.addEventListener('click', (e) => {
+            if (!e.target.closest('#dictionary-popup') && !e.target.closest('#learned-words-list li') && !e.target.closest('.highlight-word')) {
+                document.getElementById('dictionary-popup').style.display = 'none';
+            }
+        });
+
+        // --- EXERCISE LOGIC ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        function cleanText(text) {
+            if (!text) return '';
+            return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z]/g, '').toLowerCase();
+        }
+
+        /* 1. MATCHING LOGIC (With Vanish & Stagger) */
+        const newVocabData = [
+            { type: 'term', content: "Heritage", key: 'A' }, { type: 'definition', content: "Valued traditions passed down generations.", key: 'A' },
+            { type: 'term', content: "Scarcity", key: 'B' }, { type: 'definition', content: "Limited supply creating demand.", key: 'B' },
+            { type: 'term', content: "Bespoke", key: 'C' }, { type: 'definition', content: "Custom-made for one person.", key: 'C' },
+            { type: 'term', content: "Counterfeit", key: 'D' }, { type: 'definition', content: "Fake imitation to deceive.", key: 'D' },
+            { type: 'term', content: "Premium", key: 'E' }, { type: 'definition', content: "Higher price for superior quality.", key: 'E' },
+            { type: 'term', content: "Status Symbol", key: 'F' }, { type: 'definition', content: "Item showing wealth and rank.", key: 'F' }
+        ];
+        let selectedTermCard = null;
+        let selectedDefinitionCard = null;
+        let matchedPairs = 0;
+
+        const funCorrect = ["Exquisite! 🥂", "First Class! ✈️", "Tasteful! 🎨", "Exclusive! 🗝️", "Pure Gold! 🏆"];
+        const funIncorrect = ["Cheap! 🚫", "Fake! ⚠️", "Try Again! 🔄"];
+
+        function initVocab() {
+            const matchContainer = document.getElementById('vocab-match-container');
+            matchContainer.innerHTML = '';
+            shuffleArray(newVocabData);
+            
+            newVocabData.forEach((item, index) => {
+                const card = document.createElement('div'); 
+                card.className = `match-card interactive-element ${item.type}`;
+                card.innerHTML = item.type === 'term' ? item.content : item.content; 
+                card.dataset.key = item.key; card.dataset.type = item.type;
+                
+                // Animation Init
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.8)';
+                
+                card.addEventListener('click', () => handleMatchClick(card));
+                matchContainer.appendChild(card);
+                
+                // Staggered Fade In
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'scale(1)';
+                }, index * 100);
+            });
+            
+            selectedTermCard = null; selectedDefinitionCard = null; matchedPairs = 0;
+        }
+
+        function handleMatchClick(card) {
+            if (card.classList.contains('matched') || card.classList.contains('vanished')) return;
+            const type = card.dataset.type;
+            let currentSelection = type === 'term' ? selectedTermCard : selectedDefinitionCard;
+            if (currentSelection) currentSelection.classList.remove('selected');
+            
+            if (currentSelection === card) {
+                if (type === 'term') selectedTermCard = null; else selectedDefinitionCard = null;
+                return;
+            }
+            if (type === 'term') selectedTermCard = card; else selectedDefinitionCard = card;
+            card.classList.add('selected');
+
+            if (selectedTermCard && selectedDefinitionCard) {
+                if (selectedTermCard.dataset.key === selectedDefinitionCard.dataset.key) {
+                    
+                    // --- SUCCESS LOGIC: VANISH ---
+                    [selectedTermCard, selectedDefinitionCard].forEach(el => {
+                        el.classList.remove('selected'); 
+                        el.classList.add('matched'); 
+                        
+                        // Vanish after delay
+                        setTimeout(() => {
+                            el.classList.add('vanished');
+                        }, 500);
+                    });
+                    
+                    matchedPairs++;
+                    showFeedback(funCorrect[Math.floor(Math.random()*funCorrect.length)], 'correct');
+                    selectedTermCard = null; selectedDefinitionCard = null;
+                    
+                    // Auto Reset
+                    if (matchedPairs === (newVocabData.length / 2)) {
+                        setTimeout(() => {
+                            showFeedback("Collection Complete. Restocking...", 'correct');
+                            setTimeout(initVocab, 2000); 
+                        }, 1000);
+                    }
+
+                } else {
+                    showFeedback(funIncorrect[Math.floor(Math.random()*funIncorrect.length)], 'incorrect');
+                    setTimeout(() => {
+                        if(selectedTermCard) selectedTermCard.classList.remove('selected'); 
+                        if(selectedDefinitionCard) selectedDefinitionCard.classList.remove('selected');
+                        selectedTermCard = null; selectedDefinitionCard = null;
+                    }, 800);
+                }
+            }
+        }
+        function resetVocab() { initVocab(); }
+
+        /* 2. COMPREHENSION LOGIC */
+        function checkComprehension() {
+            const questions = document.querySelectorAll('.question');
+            let correctAnswers = 0;
+            questions.forEach(q => {
+                const selected = q.querySelector('.option-button.selected');
+                const allOptions = q.querySelectorAll('.option-button');
+                allOptions.forEach(opt => {
+                    opt.classList.remove('correct', 'incorrect');
+                    if (opt.dataset.correct === 'true') opt.classList.add('correct');
+                });
+                if (selected) {
+                    if (selected.dataset.correct === 'true') correctAnswers++;
+                    else selected.classList.add('incorrect');
+                }
+            });
+            const resultDiv = document.getElementById('comprehension-result');
+            resultDiv.style.display = 'block';
+            if (correctAnswers === questions.length) {
+                resultDiv.textContent = '🎉 Truly Elite!'; resultDiv.className = 'result-message correct';
+            } else {
+                resultDiv.textContent = `You got ${correctAnswers}/${questions.length} correct. Refine your taste.`; resultDiv.className = 'result-message incorrect';
+            }
+        }
+        function resetComprehension() {
+            document.querySelectorAll('.option-button').forEach(item => item.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById('comprehension-result').style.display = 'none';
+        }
+
+        /* 3. GAP FILL LOGIC */
+        const gapAnswers = ['premium', 'heritage', 'bespoke', 'exclusivity', 'status symbol']; 
+        let selectedGapWord = null; 
+        
+        function initGaps() {
+            const wordOptionsContainer = document.getElementById('gap-fill-options');
+            const options = Array.from(wordOptionsContainer.children);
+            shuffleArray(options);
+            options.forEach(option => {
+                wordOptionsContainer.appendChild(option);
+                option.classList.remove('used', 'selected'); 
+            });
+            document.querySelectorAll('.gap-input').forEach(blank => {
+                blank.textContent = ''; blank.classList.remove('correct', 'incorrect', 'selected');
+            });
+            selectedGapWord = null; document.getElementById('gap-result').style.display = 'none';
+        }
+        
+        function handleGapBlankClick(blank) {
+            if (blank.textContent.trim() !== '') { 
+                const cleanedWord = cleanText(blank.textContent); 
+                const btn = Array.from(document.querySelectorAll('.word-option')).find(b => cleanText(b.textContent) === cleanedWord);
+                if (btn) btn.classList.remove('used');
+                blank.textContent = ''; blank.classList.remove('correct', 'incorrect');
+                return;
+            } 
+            if (selectedGapWord) {
+                blank.textContent = selectedGapWord.textContent.trim();
+                selectedGapWord.classList.remove('selected'); selectedGapWord.classList.add('used');
+                selectedGapWord = null;
+            } 
+        }
+        
+        function checkGaps() {
+            let correctCount = 0;
+            const blanks = document.querySelectorAll('.gap-input'); 
+            blanks.forEach(blank => { 
+                const index = parseInt(blank.dataset.wordIndex, 10); 
+                const extractedWord = cleanText(blank.textContent); 
+                const answerWord = cleanText(gapAnswers[index]);
+                blank.classList.remove('selected', 'incorrect', 'correct');
+                
+                if (extractedWord && (extractedWord === answerWord)) {
+                    blank.classList.add('correct'); correctCount++;
+                } else if (extractedWord) { 
+                    blank.classList.add('incorrect');
+                    // This sends the correct word to the database for future practice
+                    saveMistake(gapAnswers[index]); 
+                }
+            });
+            const resultDiv = document.getElementById('gap-result');
+            resultDiv.style.display = 'block';
+            if (correctCount === blanks.length) {
+                resultDiv.textContent = '🎉 Connoisseur Level!'; resultDiv.className = 'result-message correct';
+            } else {
+                resultDiv.textContent = `Progress: ${correctCount}/${blanks.length} terms correct.`; resultDiv.className = 'result-message incorrect';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkUser();
+            initVocab();
+            document.querySelectorAll('#learned-words-list li').forEach(li => {
+                li.addEventListener('click', (e) => { e.stopPropagation(); showDictionaryPopup(li, li.dataset.word); });
+            });
+            document.querySelectorAll('.option-button').forEach(item => {
+                item.addEventListener('click', () => {
+                    item.closest('.question').querySelectorAll('.option-button').forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect'));
+                    item.classList.add('selected'); document.getElementById('comprehension-result').style.display = 'none';
+                });
+            });
+            document.querySelectorAll('.word-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    if (option.classList.contains('used')) return;
+                    if (selectedGapWord) selectedGapWord.classList.remove('selected');
+                    if (selectedGapWord === option) selectedGapWord = null;
+                    else { selectedGapWord = option; selectedGapWord.classList.add('selected'); }
+                });
+            });
+            document.querySelectorAll('.gap-input').forEach(blank => {
+                blank.addEventListener('click', () => handleGapBlankClick(blank));
+            });
+            initGaps();
+        });
+    </script>
+</body>
+</html>
