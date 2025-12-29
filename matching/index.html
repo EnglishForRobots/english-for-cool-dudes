@@ -400,7 +400,18 @@
         // --- SUPABASE CONFIG ---
         const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // SAFE INITIALIZATION: This prevents the game from breaking if Supabase doesn't load
+        let supabase = null;
+        try {
+            if (window.supabase) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            } else {
+                console.warn("Supabase library not loaded. Personalized features will be disabled.");
+            }
+        } catch (err) {
+            console.error("Supabase init failed:", err);
+        }
 
       // --- VOCABULARY DATABASE (GIGANTIC EDITION) ---
         const vocabulary = {
@@ -766,12 +777,54 @@
         }
 
         // --- GAME INIT LOGIC ---
-        async function initGame() {
+       async function initGame() {
             const theme = document.getElementById('themeSelect').value;
             const level = document.getElementById('levelSelect').value;
             
             document.getElementById('loading-overlay').style.display = 'flex';
             let rawPairs = [];
+
+            if (theme === 'mistakes') {
+                // --- MISTAKES MODE ---
+                
+                // 1. Check if Supabase loaded correctly
+                if (!supabase) {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    alert("⚠️ Service Unavailable: Could not connect to the database. Please check your internet or disable ad-blockers, then refresh.");
+                    return;
+                }
+
+                // 2. Check User (Reverted 'sb' to 'supabase' here)
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    alert("🔒 You need to log in to play with your mistakes!");
+                    window.location.href = '/login/'; 
+                    return;
+                }
+
+                // 3. Fetch Mistakes (Reverted 'sb' to 'supabase' here)
+                const { data: mistakes, error } = await supabase
+                    .from('user_mistakes')
+                    .select('word, definition')
+                    .eq('user_id', user.id);
+
+                if (error || !mistakes || mistakes.length < 2) {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    alert("⚠️ You don't have enough mistakes recorded yet! Go do some lessons and make mistakes first! 😉");
+                    return;
+                }
+
+                rawPairs = mistakes.map(m => ({ w: m.word, m: m.definition || "Definition" }));
+            } else {
+                // --- STANDARD MODE ---
+                // This will now work even if Supabase failed to load!
+                rawPairs = vocabulary[theme][level];
+            }
+
+            document.getElementById('loading-overlay').style.display = 'none';
+            startGameWithData(rawPairs);
+        }
 
             if (theme === 'mistakes') {
                 // --- MISTAKES MODE ---
