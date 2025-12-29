@@ -402,16 +402,16 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
         
         // SAFE INITIALIZATION: This prevents the game from breaking if Supabase doesn't load
-        let supabase = null;
-        try {
-            if (window.supabase) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            } else {
-                console.warn("Supabase library not loaded. Personalized features will be disabled.");
-            }
-        } catch (err) {
-            console.error("Supabase init failed:", err);
-        }
+let sb = null;
+try {
+    if (window.supabase) {
+        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } else {
+        console.warn("Supabase library not loaded. Personalized features will be disabled.");
+    }
+} catch (err) {
+    console.error("Supabase init failed:", err);
+}
 
       // --- VOCABULARY DATABASE (GIGANTIC EDITION) ---
         const vocabulary = {
@@ -788,14 +788,14 @@
                 // --- MISTAKES MODE ---
                 
                 // 1. Check if Supabase loaded correctly
-                if (!supabase) {
+                if (!sb) {
                     document.getElementById('loading-overlay').style.display = 'none';
                     alert("⚠️ Service Unavailable: Could not connect to the database. Please check your internet or disable ad-blockers, then refresh.");
                     return;
                 }
 
                 // 2. Check User (Reverted 'sb' to 'supabase' here)
-                const { data: { user } } = await supabase.auth.getUser();
+                const { data: { user } } = await sb.auth.getUser();
                 if (!user) {
                     document.getElementById('loading-overlay').style.display = 'none';
                     alert("🔒 You need to log in to play with your mistakes!");
@@ -804,7 +804,7 @@
                 }
 
                 // 3. Fetch Mistakes (Reverted 'sb' to 'supabase' here)
-                const { data: mistakes, error } = await supabase
+                const { data: mistakes, error } = await sb
                     .from('user_mistakes')
                     .select('word, definition')
                     .eq('user_id', user.id);
