@@ -365,7 +365,7 @@
         // --- SUPABASE CONFIG ---
         const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // --- VOCABULARY DATABASE (EXACT SAME AS MEMORY GAME) ---
         const vocabulary = {
@@ -436,7 +436,7 @@
             let pool = [];
 
             if (theme === 'mistakes') {
-                const { data: { user } } = await supabase.auth.getUser();
+                const { data: { user } } = await sb.auth.getUser();
                 if (!user) {
                     document.getElementById('loading-overlay').style.display = 'none';
                     alert("🔒 You need to log in to play with your mistakes!");
@@ -444,7 +444,7 @@
                     return;
                 }
 
-                const { data: mistakes, error } = await supabase
+                const { data: mistakes, error } = await sb
                     .from('user_mistakes')
                     .select('word, definition')
                     .eq('user_id', user.id);
@@ -545,9 +545,9 @@
 
         async function removeMistakeFromDB(word) {
             try {
-                const { data: { user } } = await supabase.auth.getUser();
+                const { data: { user } } = await sb.auth.getUser();
                 if (user) {
-                    await supabase.from('user_mistakes').delete().eq('user_id', user.id).eq('word', word);
+                    await sb.from('user_mistakes').delete().eq('user_id', user.id).eq('word', word);
                 }
             } catch (err) { console.error(err); }
         }
