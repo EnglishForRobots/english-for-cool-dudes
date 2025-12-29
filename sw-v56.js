@@ -1,9 +1,9 @@
 // =========================================================
-// SERVICE WORKER: cool-dudes-lessons-cache-v55
+// SERVICE WORKER: cool-dudes-lessons-cache-v56
 // Pre-caches ALL pages on first visit for full offline access
 // =========================================================
 
-const CACHE_NAME = 'cool-dudes-lessons-cache-v55';
+const CACHE_NAME = 'cool-dudes-lessons-cache-v56'; // ← INCREMENT THIS EVERY UPDATE!
 const FONT_CACHE_NAME = 'cool-dudes-font-cache-v3';
 
 // List of all HTML pages to pre-cache
@@ -96,9 +96,6 @@ const htmlPages = [
   '/flyingcars/',
   '/datacentres/',
   '/vibecheck/',
-  
-  
-  
 ];
 
 // Essential assets
@@ -110,68 +107,71 @@ const essentialAssets = [
   '/images/icon-180.png',
   '/images/favicon-32x32.png',
   '/favicon.png'
-  
 ];
 
-// --- INSTALL EVENT: Pre-cache everything ---
+// --- INSTALL EVENT: Pre-cache everything and take control immediately ---
 self.addEventListener('install', (event) => {
-  console.log('[SW v55] Installing and pre-caching ALL pages...');
+  console.log('[SW v56] Installing and pre-caching ALL pages...');
   
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(async (cache) => {
         // First, cache essential assets
-        console.log('[SW v55] Caching essential assets...');
+        console.log('[SW v56] Caching essential assets...');
         await Promise.all(
           essentialAssets.map(url => 
             cache.add(url).catch(err => 
-              console.warn('[SW v55] Failed to cache:', url, err)
+              console.warn('[SW v56] Failed to cache:', url, err)
             )
           )
         );
         
         // Then, cache all HTML pages
-        console.log('[SW v55] Pre-caching all lesson pages...');
+        console.log('[SW v56] Pre-caching all lesson pages...');
         let successCount = 0;
         let failCount = 0;
         
         for (const page of htmlPages) {
           try {
-            const response = await fetch(page);
+            const response = await fetch(page, { cache: 'no-cache' }); // ← Force fresh fetch
             if (response.ok) {
-              // Cache both the directory path and with index.html
               await cache.put(page, response.clone());
               
-              // Also cache the explicit index.html version
               if (page.endsWith('/') && page !== '/') {
                 await cache.put(page + 'index.html', response.clone());
               }
               
               successCount++;
-              console.log(`[SW v55] ✓ Cached: ${page} (${successCount}/${htmlPages.length})`);
+              console.log(`[SW v56] ✓ Cached: ${page} (${successCount}/${htmlPages.length})`);
             }
           } catch (err) {
             failCount++;
-            console.warn(`[SW v55] ✗ Failed: ${page}`, err);
+            console.warn(`[SW v56] ✗ Failed: ${page}`, err);
           }
         }
         
-        console.log(`[SW v55] Pre-caching complete: ${successCount} success, ${failCount} failed`);
+        console.log(`[SW v56] Pre-caching complete: ${successCount} success, ${failCount} failed`);
       })
       .then(() => {
-        console.log('[SW v55] Installation complete, taking control...');
-        return self.skipWaiting();
+        console.log('[SW v56] Installation complete, taking control immediately...');
+        return self.skipWaiting(); // ← Force immediate activation
       })
   );
+});
+
+// --- MESSAGE EVENT: Allow manual SW updates ---
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    console.log('[SW v56] Received SKIP_WAITING message');
+    self.skipWaiting();
+  }
 });
 
 // --- FETCH EVENT ---
 self.addEventListener('fetch', (event) => {
   const requestURL = new URL(event.request.url);
 
- 
-
-  // 3. HANDLE NAVIGATION REQUESTS (HTML pages)
+  // Handle navigation requests (HTML pages)
   const isNavigation = event.request.mode === 'navigate' || 
                        (event.request.method === 'GET' && 
                         event.request.headers.get('accept') && 
@@ -180,55 +180,43 @@ self.addEventListener('fetch', (event) => {
   if (isNavigation) {
     event.respondWith(
       (async () => {
-        // Try cache first (since we pre-cached everything)
-        let path = requestURL.pathname;
-        
-        const pathsToTry = [
-          path,
-          path + 'index.html',
-          path.replace(/\/$/, '') + '/index.html',
-          path.replace(/\/$/, ''),
-          '/index.html'
-        ];
-        
-        const uniquePaths = [...new Set(pathsToTry)];
-        
-        // Check cache first
-        for (const tryPath of uniquePaths) {
-          const cached = await caches.match(tryPath, { ignoreSearch: true });
-          if (cached) {
-            console.log('[SW v55] Serving from cache:', tryPath);
-            
-            // Update cache in background (stale-while-revalidate)
-            fetch(event.request)
-              .then(response => {
-                if (response.ok) {
-                  caches.open(CACHE_NAME).then(cache => {
-                    cache.put(event.request, response.clone());
-                  });
-                }
-              })
-              .catch(() => {}); // Ignore network errors
-            
-            return cached;
-          }
-        }
-        
-        // Not in cache, try network
+        // NETWORK FIRST for HTML (to always get latest content)
         try {
-          console.log('[SW v55] Fetching from network:', path);
-          const networkResponse = await fetch(event.request);
+          console.log('[SW v56] Fetching fresh HTML from network:', requestURL.pathname);
+          const networkResponse = await fetch(event.request, { cache: 'no-cache' }); // ← Force fresh
           
           if (networkResponse.ok) {
+            // Update cache with fresh content
             const cache = await caches.open(CACHE_NAME);
             cache.put(event.request, networkResponse.clone());
           }
           
           return networkResponse;
         } catch (error) {
-          console.log('[SW v55] Network failed, no cache available for:', path);
+          // Network failed, fallback to cache
+          console.log('[SW v56] Network failed, trying cache for:', requestURL.pathname);
           
-          // Return a more helpful offline page
+          let path = requestURL.pathname;
+          const pathsToTry = [
+            path,
+            path + 'index.html',
+            path.replace(/\/$/, '') + '/index.html',
+            path.replace(/\/$/, ''),
+            '/index.html'
+          ];
+          
+          const uniquePaths = [...new Set(pathsToTry)];
+          
+          for (const tryPath of uniquePaths) {
+            const cached = await caches.match(tryPath, { ignoreSearch: true });
+            if (cached) {
+              console.log('[SW v56] Serving from cache:', tryPath);
+              return cached;
+            }
+          }
+          
+          // No cache available
+          console.log('[SW v56] No cache available for:', path);
           return new Response(
             `<!DOCTYPE html>
             <html lang="en">
@@ -290,7 +278,7 @@ self.addEventListener('fetch', (event) => {
       })()
     );
   } else {
-    // 4. HANDLE STATIC ASSETS (CSS, JS, images, etc.)
+    // Handle static assets (CSS, JS, images) - Cache first is fine here
     event.respondWith(
       caches.match(event.request, { ignoreSearch: true })
         .then((response) => {
@@ -305,8 +293,7 @@ self.addEventListener('fetch', (event) => {
             }
             return networkResponse;
           }).catch(() => {
-            // Return null for failed asset requests
-            console.warn('[SW v55] Failed to fetch asset:', event.request.url);
+            console.warn('[SW v56] Failed to fetch asset:', event.request.url);
             return new Response('', { status: 404 });
           });
         })
@@ -314,9 +301,9 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
-// --- ACTIVATE EVENT ---
+// --- ACTIVATE EVENT: Clean old caches and take control immediately ---
 self.addEventListener('activate', (event) => {
-  console.log('[SW v55] Activating...');
+  console.log('[SW v56] Activating...');
   const cacheWhitelist = [CACHE_NAME, FONT_CACHE_NAME];
   
   event.waitUntil(
@@ -324,14 +311,14 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (!cacheWhitelist.includes(cacheName)) {
-            console.log('[SW v55] Deleting old cache:', cacheName);
+            console.log('[SW v56] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     }).then(() => {
-      console.log('[SW v55] Claiming clients');
-      return self.clients.claim();
+      console.log('[SW v56] Claiming all clients immediately');
+      return self.clients.claim(); // ← Take control of all pages immediately
     })
   );
 });
