@@ -401,19 +401,16 @@
         const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
         
-        // SAFE INITIALIZATION: This prevents the game from breaking if Supabase doesn't load
         let supabase = null;
         try {
             if (window.supabase) {
                 supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            } else {
-                console.warn("Supabase library not loaded. Personalized features will be disabled.");
             }
         } catch (err) {
             console.error("Supabase init failed:", err);
         }
 
-      // --- VOCABULARY DATABASE (GIGANTIC EDITION) ---
+        // --- VOCABULARY DATABASE (FULL RESTORED VERSION) ---
         const vocabulary = {
             business: {
                 beginner: [
@@ -662,7 +659,7 @@
                 intermediate: [
                     {w:"Remote", m:"Work from home"}, {w:"Schedule", m:"Timetable"}, {w:"Shift", m:"Work hours"},
                     {w:"Overtime", m:"Extra hours"}, {w:"Payroll", m:"Salary list"}, {w:"Recruit", m:"Hire"},
-                    {w:"Interview", m:"Job meeting"}, {w:"Resume", m:"CV/History"}, {w:"Training", m:"Learning"},
+                    {w:"Interview", m:"Job meeting"}, {w:"Training", m:"Learning"},
                     {w:"Supervisor", m:"Manager"}, {w:"Intern", m:"Trainee"}, {w:"Department", m:"Section"},
                     {w:"Project", m:"Specific task"}, {w:"Feedback", m:"Comments"}, {w:"Workshop", m:"Class"},
                     {w:"Conference", m:"Large meeting"}, {w:"Network", m:"Contacts"}, {w:"Retire", m:"Stop working age"},
@@ -751,18 +748,16 @@
             }
         };
 
-        // --- GAME VARIABLES ---
+        // --- GAME LOGIC ---
         let grid = document.getElementById('gameGrid');
-        let selectedCards = []; // Stores currently selected cards
+        let selectedCards = [];
         let moveCount = 0;
         let pairsFound = 0;
-        let totalGamePairs = 6; // Default pairs
+        let totalGamePairs = 6;
 
-        // --- UI HANDLERS ---
         function handleThemeChange() {
             const theme = document.getElementById('themeSelect').value;
             const levelSelect = document.getElementById('levelSelect');
-            
             if (theme === 'mistakes') {
                 levelSelect.disabled = true;
                 levelSelect.innerHTML = '<option>Personalized</option>';
@@ -776,105 +771,45 @@
             }
         }
 
-        // --- GAME INIT LOGIC ---
-       async function initGame() {
+        async function initGame() {
             const theme = document.getElementById('themeSelect').value;
             const level = document.getElementById('levelSelect').value;
-            
             document.getElementById('loading-overlay').style.display = 'flex';
             let rawPairs = [];
 
             if (theme === 'mistakes') {
-                // --- MISTAKES MODE ---
-                
-                // 1. Check if Supabase loaded correctly
                 if (!supabase) {
                     document.getElementById('loading-overlay').style.display = 'none';
-                    alert("⚠️ Service Unavailable: Could not connect to the database. Please check your internet or disable ad-blockers, then refresh.");
+                    alert("⚠️ Database error. Please disable ad-blockers and refresh.");
                     return;
                 }
-
-                // 2. Check User (Reverted 'sb' to 'supabase' here)
                 const { data: { user } } = await supabase.auth.getUser();
                 if (!user) {
                     document.getElementById('loading-overlay').style.display = 'none';
-                    alert("🔒 You need to log in to play with your mistakes!");
-                    window.location.href = '/login/'; 
+                    alert("🔒 Log in to see mistakes.");
+                    window.location.href = '/login/';
                     return;
                 }
-
-                // 3. Fetch Mistakes (Reverted 'sb' to 'supabase' here)
-                const { data: mistakes, error } = await supabase
-                    .from('user_mistakes')
-                    .select('word, definition')
-                    .eq('user_id', user.id);
-
+                const { data: mistakes, error } = await supabase.from('user_mistakes').select('word, definition').eq('user_id', user.id);
                 if (error || !mistakes || mistakes.length < 2) {
                     document.getElementById('loading-overlay').style.display = 'none';
-                    alert("⚠️ You don't have enough mistakes recorded yet! Go do some lessons and make mistakes first! 😉");
+                    alert("⚠️ Not enough mistakes yet!");
                     return;
                 }
-
                 rawPairs = mistakes.map(m => ({ w: m.word, m: m.definition || "Definition" }));
             } else {
-                // --- STANDARD MODE ---
-                // This will now work even if Supabase failed to load!
                 rawPairs = vocabulary[theme][level];
             }
-
-            document.getElementById('loading-overlay').style.display = 'none';
-            startGameWithData(rawPairs);
-        }
-
-            if (theme === 'mistakes') {
-                // --- MISTAKES MODE ---
-                const { data: { user } } = await supabase.auth.getUser();
-                if (!user) {
-                    document.getElementById('loading-overlay').style.display = 'none';
-                    alert("🔒 You need to log in to play with your mistakes!");
-                    window.location.href = '/login/'; 
-                    return;
-                }
-
-                const { data: mistakes, error } = await supabase
-                    .from('user_mistakes')
-                    .select('word, definition')
-                    .eq('user_id', user.id);
-
-                if (error || !mistakes || mistakes.length < 2) {
-                    document.getElementById('loading-overlay').style.display = 'none';
-                    alert("⚠️ You don't have enough mistakes recorded yet! Go do some lessons and make mistakes first! 😉");
-                    return;
-                }
-
-                // Format mistakes to match game structure
-                rawPairs = mistakes.map(m => ({ w: m.word, m: m.definition || "Definition" }));
-            } else {
-                // --- STANDARD MODE ---
-                rawPairs = vocabulary[theme][level];
-            }
-
             document.getElementById('loading-overlay').style.display = 'none';
             startGameWithData(rawPairs);
         }
 
         function startGameWithData(data) {
-            // Randomize Vocabulary (Prevent Repetition)
             let shuffledData = [...data].sort(() => 0.5 - Math.random());
-            
-            // Determine how many pairs to play with (max 8, min 2)
             totalGamePairs = Math.min(8, shuffledData.length);
             let selectedPairs = shuffledData.slice(0, totalGamePairs);
-
-            // Reset UI
             grid.innerHTML = '';
-            // Improve grid responsive layout based on count
-            if(totalGamePairs <= 4) {
-                grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(180px, 1fr))';
-            } else {
-                grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(140px, 1fr))';
-            }
-
+            grid.style.gridTemplateColumns = totalGamePairs <= 4 ? 'repeat(auto-fit, minmax(180px, 1fr))' : 'repeat(auto-fit, minmax(140px, 1fr))';
             document.getElementById('moves').innerText = '0';
             document.getElementById('pairs').innerText = '0';
             document.getElementById('totalPairs').innerText = totalGamePairs;
@@ -882,155 +817,55 @@
             pairsFound = 0;
             selectedCards = [];
 
-            // Create Cards Array
             let cardsArray = [];
             selectedPairs.forEach(item => {
-                // Truncate definitions if too long for card
-                let def = item.m;
-                if (def.length > 60) def = def.substring(0, 57) + "...";
-
                 cardsArray.push({ text: item.w, id: item.w, type: 'word' });
-                cardsArray.push({ text: def, id: item.w, type: 'match' });
+                cardsArray.push({ text: item.m.length > 60 ? item.m.substring(0, 57) + "..." : item.m, id: item.w, type: 'match' });
             });
-
-            // Shuffle Cards
             cardsArray.sort(() => 0.5 - Math.random());
-
-            // Render Cards
             cardsArray.forEach(item => {
                 const card = document.createElement('div');
                 card.classList.add('card');
                 card.dataset.id = item.id;
-                card.dataset.type = item.type;
-                
-                // Content visible immediately
                 card.innerHTML = `<span>${item.text}</span>`;
-                
-                card.addEventListener('click', function() {
-                    handleCardClick(this);
-                });
+                card.onclick = () => handleCardClick(card);
                 grid.appendChild(card);
             });
         }
 
-        function handleCardClick(cardElement) {
-            // Ignore clicks on matched cards or same card
-            if (cardElement.classList.contains('matched')) return;
-            if (selectedCards.includes(cardElement)) {
-                // Deselect if clicking the same active card
-                cardElement.classList.remove('selected');
-                selectedCards = selectedCards.filter(c => c !== cardElement);
-                return;
-            }
-
-            // Max 2 cards selected at a time
-            if (selectedCards.length >= 2) {
-                // If user clicks a 3rd card, clear previous selection logic if desired, 
-                // or force them to wait. Here we'll clear previous mismatched ones for smoother play.
-                clearSelection(); 
-            }
-
-            // Select Card
-            cardElement.classList.add('selected');
-            selectedCards.push(cardElement);
-
-            // If 2 cards selected, check match
+        function handleCardClick(card) {
+            if (card.classList.contains('matched') || selectedCards.includes(card) || selectedCards.length >= 2) return;
+            card.classList.add('selected');
+            selectedCards.push(card);
             if (selectedCards.length === 2) {
                 moveCount++;
                 document.getElementById('moves').innerText = moveCount;
-                checkForMatch();
-            }
-        }
-
-        function checkForMatch() {
-            const [card1, card2] = selectedCards;
-            let isMatch = card1.dataset.id === card2.dataset.id;
-
-            if (isMatch) {
-                card1.classList.remove('selected');
-                card2.classList.remove('selected');
-                card1.classList.add('matched');
-                card2.classList.add('matched');
-                
-                pairsFound++;
-                document.getElementById('pairs').innerText = pairsFound;
-                
-                selectedCards = []; // Clear selection
-
-                if (pairsFound === totalGamePairs) {
-                    triggerWin(moveCount);
+                if (selectedCards[0].dataset.id === selectedCards[1].dataset.id) {
+                    selectedCards.forEach(c => { c.classList.remove('selected'); c.classList.add('matched'); });
+                    pairsFound++;
+                    document.getElementById('pairs').innerText = pairsFound;
+                    selectedCards = [];
+                    if (pairsFound === totalGamePairs) triggerWin(moveCount);
+                } else {
+                    selectedCards.forEach(c => c.classList.add('incorrect'));
+                    setTimeout(() => {
+                        selectedCards.forEach(c => c.classList.remove('selected', 'incorrect'));
+                        selectedCards = [];
+                    }, 1000);
                 }
-            } else {
-                // Mismatch: Show 'incorrect' state briefly
-                card1.classList.add('incorrect');
-                card2.classList.add('incorrect');
-                
-                // Auto-clear after delay
-                setTimeout(() => {
-                    clearSelection();
-                }, 1000);
             }
         }
-
-        function clearSelection() {
-            selectedCards.forEach(card => {
-                card.classList.remove('selected', 'incorrect');
-            });
-            selectedCards = [];
-        }
-
-        // --- CONFETTI & MODAL LOGIC ---
-        const emojis = ['🐹', '👑', '🚌', '☔', '💂', '🫖', '🇬🇧', '🏰', '🎡', '🚇', '🎓', '🧠'];
-        let confettiInterval;
 
         function triggerWin(moves) {
-            // Update modal text
-            document.getElementById('win-message').textContent = `You matched all pairs in just ${moves} moves!`;
-            
-            // Show confetti
-            const container = document.getElementById('confettiContainer');
-            container.style.display = 'block';
-            
-            confettiInterval = setInterval(() => {
-                const piece = document.createElement('div');
-                piece.classList.add('confetti-piece');
-                piece.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-                piece.style.left = Math.random() * 100 + 'vw';
-                piece.style.animationDuration = (Math.random() * 2 + 3) + 's';
-                container.appendChild(piece);
-                setTimeout(() => piece.remove(), 5000);
-            }, 150);
-
-            // Show modal after brief delay
-            setTimeout(() => {
-                document.getElementById('win-modal').style.display = 'flex';
-            }, 800);
+            document.getElementById('win-message').textContent = `You matched all pairs in ${moves} moves!`;
+            document.getElementById('win-modal').style.display = 'flex';
         }
 
         function closeModal() {
             document.getElementById('win-modal').style.display = 'none';
-            document.getElementById('confettiContainer').style.display = 'none';
-            document.getElementById('confettiContainer').innerHTML = ''; // Clear confetti
-            clearInterval(confettiInterval);
         }
 
-        function closeModalAndRestart() {
-            closeModal();
-            initGame(); // Just re-runs with current dropdown settings
-        }
-
-        function closeModalAndNewTheme() {
-            closeModal();
-            // Focus theme selector
-            document.getElementById('themeSelect').focus();
-            // Optional: could simulate a click or just let user pick
-        }
-
-        function closeModalAndNewLevel() {
-            closeModal();
-            // Focus level selector
-            document.getElementById('levelSelect').focus();
-        }
+        function closeModalAndRestart() { closeModal(); initGame(); }
     </script>
 </body>
 </html>
