@@ -624,7 +624,7 @@
             document.getElementById('comprehension-result').style.display = 'none';
         }
 
-        /* 3. GAP FILL LOGIC */
+       /* 3. GAP FILL LOGIC */
         const gapAnswers = ['tradition', 'count', 'december', 'door', 'chocolate']; 
         let selectedGapWord = null; 
         
@@ -634,26 +634,67 @@
             shuffleArray(options);
             options.forEach(option => {
                 wordOptionsContainer.appendChild(option);
-                option.classList.remove('used', 'selected'); 
+                option.classList.remove('used', 'selected');
+                option.style.opacity = '1';
+                option.style.pointerEvents = 'auto';
             });
             document.querySelectorAll('.gap-input').forEach(blank => {
-                blank.textContent = ''; blank.classList.remove('correct', 'incorrect', 'selected', 'filled');
+                blank.textContent = '____';
+                blank.classList.remove('correct', 'incorrect', 'selected', 'filled');
             });
-            selectedGapWord = null; document.getElementById('gap-result').style.display = 'none';
+            selectedGapWord = null; 
+            document.getElementById('gap-result').style.display = 'none';
+        }
+        
+        function handleWordOptionClick(option) {
+            // If word is already used, do nothing
+            if (option.classList.contains('used')) return;
+            
+            // Deselect previous selection
+            if (selectedGapWord && selectedGapWord !== option) {
+                selectedGapWord.classList.remove('selected');
+            }
+            
+            // Toggle selection
+            if (selectedGapWord === option) {
+                selectedGapWord.classList.remove('selected');
+                selectedGapWord = null;
+            } else {
+                selectedGapWord = option;
+                selectedGapWord.classList.add('selected');
+            }
         }
         
         function handleGapBlankClick(blank) {
-            if (blank.textContent.trim() !== '' && blank.textContent.trim() !== '____') { 
-                const cleanedWord = blank.textContent; 
-                const btn = Array.from(document.querySelectorAll('.word-option')).find(b => b.textContent === cleanedWord);
-                if (btn) btn.classList.remove('used');
-                blank.textContent = '____'; blank.classList.remove('correct', 'incorrect', 'filled');
+            const currentWord = blank.textContent.trim();
+            
+            // If blank is filled, remove the word and restore it to word bank
+            if (currentWord !== '' && currentWord !== '____') { 
+                const btn = Array.from(document.querySelectorAll('.word-option')).find(
+                    b => b.dataset.word.toLowerCase() === currentWord.toLowerCase()
+                );
+                if (btn) {
+                    btn.classList.remove('used', 'selected');
+                    btn.style.opacity = '1';
+                    btn.style.pointerEvents = 'auto';
+                }
+                blank.textContent = '____'; 
+                blank.classList.remove('correct', 'incorrect', 'filled');
                 return;
             } 
+            
+            // If a word is selected, fill the blank
             if (selectedGapWord) {
-                blank.textContent = selectedGapWord.textContent.trim();
+                blank.textContent = selectedGapWord.dataset.word;
                 blank.classList.add('filled');
-                selectedGapWord.classList.remove('selected'); selectedGapWord.classList.add('used');
+                blank.classList.remove('correct', 'incorrect');
+                
+                // Mark word as used and visually disable it
+                selectedGapWord.classList.remove('selected'); 
+                selectedGapWord.classList.add('used');
+                selectedGapWord.style.opacity = '0.3';
+                selectedGapWord.style.pointerEvents = 'none';
+                
                 selectedGapWord = null;
             } 
         }
@@ -661,32 +702,52 @@
         function checkGaps() {
             let correctCount = 0;
             const blanks = document.querySelectorAll('.gap-input'); 
+            
             blanks.forEach(blank => { 
-                const answerWord = blank.dataset.answer;
-                const extractedWord = blank.textContent.trim();
-                blank.classList.remove('selected', 'incorrect', 'correct');
+                const correctAnswer = blank.dataset.answer.toLowerCase();
+                const userAnswer = blank.textContent.trim().toLowerCase();
                 
-                if (extractedWord === '____' || extractedWord === '') {
-                    // Do nothing
-                } else if (extractedWord.toLowerCase() === answerWord.toLowerCase()) { 
-                    blank.classList.add('correct'); correctCount++; 
+                blank.classList.remove('selected');
+                
+                if (userAnswer === '____' || userAnswer === '') {
+                    // Empty - do nothing
+                } else if (userAnswer === correctAnswer) { 
+                    blank.classList.add('correct');
+                    blank.classList.remove('incorrect');
+                    correctCount++; 
                 } else { 
                     blank.classList.add('incorrect');
-                    saveMistake(answerWord); // Save mistake
+                    blank.classList.remove('correct');
+                    saveMistake(correctAnswer);
                 }
             });
+            
             const resultDiv = document.getElementById('gap-result');
             resultDiv.style.display = 'block';
+            
             if (correctCount === blanks.length) {
-                resultDiv.textContent = '🎉 Perfect! Story complete.'; resultDiv.className = 'result-message correct';
+                resultDiv.textContent = '🎉 Perfect! Story complete.'; 
+                resultDiv.className = 'result-message correct';
+                resultDiv.style.color = 'var(--color-correct)';
+                resultDiv.style.fontWeight = 'bold';
+                resultDiv.style.marginTop = '20px';
             } else {
-                resultDiv.textContent = `You got ${correctCount} out of ${blanks.length} correct.`; resultDiv.className = 'result-message incorrect';
+                resultDiv.textContent = `You got ${correctCount} out of ${blanks.length} correct.`; 
+                resultDiv.className = 'result-message incorrect';
+                resultDiv.style.color = 'var(--color-incorrect)';
+                resultDiv.style.fontWeight = 'bold';
+                resultDiv.style.marginTop = '20px';
             }
+        }
+        
+        function resetGaps() {
+            initGaps();
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             checkUser();
             initVocab();
+            
             // Dictionary Listeners
             document.querySelectorAll('#learned-words-list li').forEach(li => {
                 li.addEventListener('click', (e) => {
@@ -694,25 +755,27 @@
                     showDictionaryPopup(li, li.dataset.word);
                 });
             });
+            
             // Comprehension Listeners
             document.querySelectorAll('.option-button').forEach(item => {
                 item.addEventListener('click', () => {
-                    item.closest('.question').querySelectorAll('.option-button').forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect'));
-                    item.classList.add('selected'); document.getElementById('comprehension-result').style.display = 'none';
+                    item.closest('.question').querySelectorAll('.option-button').forEach(opt => 
+                        opt.classList.remove('selected', 'correct', 'incorrect')
+                    );
+                    item.classList.add('selected'); 
+                    document.getElementById('comprehension-result').style.display = 'none';
                 });
             });
+            
             // Gap Fill Listeners
             document.querySelectorAll('.word-option').forEach(option => {
-                option.addEventListener('click', () => {
-                    if (option.classList.contains('used')) return;
-                    if (selectedGapWord) selectedGapWord.classList.remove('selected');
-                    if (selectedGapWord === option) selectedGapWord = null;
-                    else { selectedGapWord = option; selectedGapWord.classList.add('selected'); }
-                });
+                option.addEventListener('click', () => handleWordOptionClick(option));
             });
+            
             document.querySelectorAll('.gap-input').forEach(blank => {
                 blank.addEventListener('click', () => handleGapBlankClick(blank));
             });
+            
             initGaps();
         });
     </script>
