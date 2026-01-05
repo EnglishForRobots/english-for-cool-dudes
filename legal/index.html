@@ -2,15 +2,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
     <link rel="icon" type="image/png" href="/android-chrome-192x192.png" sizes="192x192">
     <link rel="manifest" href="/manifest.json">
-    
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>English For Cool Dudes</title>
-   
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
@@ -760,30 +761,51 @@
         });
     
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').then(reg => {
-    // Check for updates on every page load
+  // Add timestamp to force browser to check for new SW.js
+  const swUrl = '/sw.js?v=' + new Date().getTime();
+  
+  navigator.serviceWorker.register(swUrl).then(reg => {
+    console.log('✅ Service Worker registered');
+    
+    // Force immediate check for updates on page load
     reg.update();
     
-    console.log('Service Worker registered, checking for updates...');
+    // Check for updates when page becomes visible
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        console.log('🔄 Page visible, checking for SW updates...');
+        reg.update();
+      }
+    });
     
-    // If there's an update waiting, activate it immediately
+    // Handle new SW found
     reg.addEventListener('updatefound', () => {
       const newWorker = reg.installing;
+      console.log('🆕 New Service Worker found, installing...');
+      
       newWorker.addEventListener('statechange', () => {
-        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-          console.log('New Service Worker available, activating...');
-          newWorker.postMessage({ type: 'SKIP_WAITING' });
+        console.log('SW state changed to:', newWorker.state);
+        
+        if (newWorker.state === 'installed') {
+          if (navigator.serviceWorker.controller) {
+            console.log('📤 Telling new SW to skip waiting...');
+            newWorker.postMessage({ type: 'SKIP_WAITING' });
+          } else {
+            console.log('✅ First time install, content cached');
+          }
         }
       });
     });
+  }).catch(err => {
+    console.error('❌ Service Worker registration failed:', err);
   });
-  
+
   // Auto-reload when new SW takes control
   let refreshing = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (refreshing) return;
-    console.log('New Service Worker activated, reloading page...');
     refreshing = true;
+    console.log('🔄 New Service Worker activated! Reloading page...');
     window.location.reload();
   });
 }
