@@ -190,14 +190,7 @@
     </div>
 
     <a href="#" id="latest-updates-ticker" style="opacity: 0;"></a>
-    <script>
-    const tEl = document.getElementById('latest-updates-ticker');
-    if (typeof latestTickerData !== 'undefined' && tEl) {
-        tEl.href = latestTickerData.link;
-        tEl.innerText = "❄️ " + latestTickerData.title + " ❄️";
-        tEl.style.opacity = 1; 
-    }
-    </script>
+    
     
     <main class="container">
         <div class="info-box">
@@ -383,30 +376,51 @@
         setInterval(createSnowflake, 200);
     
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').then(reg => {
-    // Check for updates on every page load
+  // Add timestamp to force browser to check for new SW.js
+  const swUrl = '/sw.js?v=' + new Date().getTime();
+  
+  navigator.serviceWorker.register(swUrl).then(reg => {
+    console.log('✅ Service Worker registered');
+    
+    // Force immediate check for updates on page load
     reg.update();
     
-    console.log('Service Worker registered, checking for updates...');
+    // Check for updates when page becomes visible
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        console.log('🔄 Page visible, checking for SW updates...');
+        reg.update();
+      }
+    });
     
-    // If there's an update waiting, activate it immediately
+    // Handle new SW found
     reg.addEventListener('updatefound', () => {
       const newWorker = reg.installing;
+      console.log('🆕 New Service Worker found, installing...');
+      
       newWorker.addEventListener('statechange', () => {
-        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-          console.log('New Service Worker available, activating...');
-          newWorker.postMessage({ type: 'SKIP_WAITING' });
+        console.log('SW state changed to:', newWorker.state);
+        
+        if (newWorker.state === 'installed') {
+          if (navigator.serviceWorker.controller) {
+            console.log('📤 Telling new SW to skip waiting...');
+            newWorker.postMessage({ type: 'SKIP_WAITING' });
+          } else {
+            console.log('✅ First install, content cached');
+          }
         }
       });
     });
+  }).catch(err => {
+    console.error('❌ Service Worker registration failed:', err);
   });
-  
+
   // Auto-reload when new SW takes control
   let refreshing = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (refreshing) return;
-    console.log('New Service Worker activated, reloading page...');
     refreshing = true;
+    console.log('🔄 New Service Worker activated! Reloading page...');
     window.location.reload();
   });
 }
