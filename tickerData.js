@@ -26,13 +26,15 @@ const LESSON_STATES = [
 })();
 
 // --- 3. ANIMATION LOGIC ---
-let currentTickerIndex = 0;
+let currentTickerIndex = 0; // Start at 0, will show first item initially
 
 function updateTicker() {
     const ticker = document.getElementById('latest-updates-ticker');
     if (!ticker) return;
     
+    // Increment BEFORE updating, so next cycle shows index 1, then 2, etc.
     currentTickerIndex = (currentTickerIndex + 1) % LESSON_STATES.length;
+    
     ticker.style.opacity = '0';
     
     setTimeout(() => {
