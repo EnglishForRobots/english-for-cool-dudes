@@ -1,9 +1,9 @@
 // =========================================================
-// SERVICE WORKER: cool-dudes-lessons-cache-v57
+// SERVICE WORKER: cool-dudes-lessons-cache-v58
 // Pre-caches ALL pages on first visit for full offline access
 // =========================================================
 
-const CACHE_NAME = 'cool-dudes-lessons-cache-v57'; // ← INCREMENT THIS EVERY UPDATE!
+const CACHE_NAME = 'cool-dudes-lessons-cache-v58'; // ← INCREMENT THIS EVERY UPDATE!
 const FONT_CACHE_NAME = 'cool-dudes-font-cache-v3';
 
 // List of all HTML pages to pre-cache
@@ -111,23 +111,23 @@ const essentialAssets = [
 
 // --- INSTALL EVENT: Pre-cache everything and take control immediately ---
 self.addEventListener('install', (event) => {
-  console.log('[SW v57] Installing and pre-caching ALL pages...');
+  console.log('[SW v58] Installing and pre-caching ALL pages...');
   
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(async (cache) => {
         // First, cache essential assets
-        console.log('[SW v57] Caching essential assets...');
+        console.log('[SW v58] Caching essential assets...');
         await Promise.all(
           essentialAssets.map(url => 
             cache.add(url).catch(err => 
-              console.warn('[SW v57] Failed to cache:', url, err)
+              console.warn('[SW v58] Failed to cache:', url, err)
             )
           )
         );
         
         // Then, cache all HTML pages
-        console.log('[SW v57] Pre-caching all lesson pages...');
+        console.log('[SW v58] Pre-caching all lesson pages...');
         let successCount = 0;
         let failCount = 0;
         
@@ -145,18 +145,18 @@ self.addEventListener('install', (event) => {
               }
               
               successCount++;
-              console.log(`[SW v57] ✓ Cached: ${page} (${successCount}/${htmlPages.length})`);
+              console.log(`[SW v58] ✓ Cached: ${page} (${successCount}/${htmlPages.length})`);
             }
           } catch (err) {
             failCount++;
-            console.warn(`[SW v57] ✗ Failed: ${page}`, err);
+            console.warn(`[SW v58] ✗ Failed: ${page}`, err);
           }
         }
         
-        console.log(`[SW v57] Pre-caching complete: ${successCount} success, ${failCount} failed`);
+        console.log(`[SW v58] Pre-caching complete: ${successCount} success, ${failCount} failed`);
       })
       .then(() => {
-        console.log('[SW v57] Installation complete, taking control immediately...');
+        console.log('[SW v58] Installation complete, taking control immediately...');
         return self.skipWaiting(); // ← Force immediate activation
       })
   );
@@ -165,7 +165,7 @@ self.addEventListener('install', (event) => {
 // --- MESSAGE EVENT: Allow manual SW updates ---
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    console.log('[SW v57] Received SKIP_WAITING message');
+    console.log('[SW v58] Received SKIP_WAITING message');
     self.skipWaiting();
   }
 });
@@ -185,7 +185,7 @@ self.addEventListener('fetch', (event) => {
       (async () => {
         // NETWORK FIRST for HTML (to always get latest content)
         try {
-          console.log('[SW v57] Fetching fresh HTML from network:', requestURL.pathname);
+          console.log('[SW v58] Fetching fresh HTML from network:', requestURL.pathname);
           const networkResponse = await fetch(event.request, { cache: 'no-cache' }); // ← Force fresh
           
           if (networkResponse.ok) {
@@ -197,7 +197,7 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         } catch (error) {
           // Network failed, fallback to cache
-          console.log('[SW v57] Network failed, trying cache for:', requestURL.pathname);
+          console.log('[SW v58] Network failed, trying cache for:', requestURL.pathname);
           
           let path = requestURL.pathname;
           const pathsToTry = [
@@ -213,13 +213,13 @@ self.addEventListener('fetch', (event) => {
           for (const tryPath of uniquePaths) {
             const cached = await caches.match(tryPath, { ignoreSearch: true });
             if (cached) {
-              console.log('[SW v57] Serving from cache:', tryPath);
+              console.log('[SW v58] Serving from cache:', tryPath);
               return cached;
             }
           }
           
           // No cache available
-          console.log('[SW v57] No cache available for:', path);
+          console.log('[SW v58] No cache available for:', path);
           return new Response(
             `<!DOCTYPE html>
             <html lang="en">
@@ -296,7 +296,7 @@ self.addEventListener('fetch', (event) => {
             }
             return networkResponse;
           }).catch(() => {
-            console.warn('[SW v57] Failed to fetch asset:', event.request.url);
+            console.warn('[SW v58] Failed to fetch asset:', event.request.url);
             return new Response('', { status: 404 });
           });
         })
@@ -306,7 +306,7 @@ self.addEventListener('fetch', (event) => {
 
 // --- ACTIVATE EVENT: Clean old caches and take control immediately ---
 self.addEventListener('activate', (event) => {
-  console.log('[SW v57] Activating...');
+  console.log('[SW v58] Activating...');
   const cacheWhitelist = [CACHE_NAME, FONT_CACHE_NAME];
   
   event.waitUntil(
@@ -314,13 +314,13 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (!cacheWhitelist.includes(cacheName)) {
-            console.log('[SW v57] Deleting old cache:', cacheName);
+            console.log('[SW v58] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     }).then(() => {
-      console.log('[SW v57] Claiming all clients immediately');
+      console.log('[SW v58] Claiming all clients immediately');
       return self.clients.claim(); // ← Take control of all pages immediately
     })
   );
