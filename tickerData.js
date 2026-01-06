@@ -1,6 +1,7 @@
 // tickerData.js
 // --- 1. DATA SOURCE ---
 const LESSON_STATES = [
+    { text: "🔮 NEW! ADVANCED: The Future: Hopes and Fears 🤔", href: "/resolutions/" },
     { text: "🎅🏻 NEW! TAX: The Audit Before Christmas 🎄", href: "/santatax/" },
     { text: "🍷 NEW! ADVANCED: The Science and Culture of Mulled Wine 😎", href: "/mulledwine/" },
     { text: "🎁 NEW! INTERMEDIATE: The History of Advent Calendars 😎", href: "/adventcalendarint/" },
