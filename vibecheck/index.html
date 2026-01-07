@@ -906,10 +906,26 @@
             checkKeywords(text, lowerText);
         }
 
-        // V13 UPDATE: REGEX MATCHING FOR STRICT WHOLE WORDS
-        function checkKeywords(text, lowerText) {
-            const node = currentScenarioData.nodes[currentNodeId];
-            const keywords = node.correctKeywords;
+       // V14 UPDATE: ADDED NEGATIVE KEYWORD HANDLING
+function checkKeywords(text, lowerText) {
+    const node = currentScenarioData.nodes[currentNodeId];
+    const keywords = node.correctKeywords;
+    const negativeKeywords = node.negativeKeywords || []; // ← NEW
+    
+    // Check for negative keywords first (rejection/disagreement) ← NEW BLOCK
+    if (negativeKeywords.length > 0) {
+        const isNegative = negativeKeywords.some(k => {
+            const regex = new RegExp(`\\b${k}\\b`, 'i');
+            return regex.test(text);
+        });
+        
+        if (isNegative && node.negativeNext) {
+            updateVibe(-15, "That's not ideal, but let's see if you can recover.");
+            currentNodeId = node.negativeNext;
+            processNode();
+            return; // ← Stop here if negative keyword found
+        }
+    }
             
             // New Logic: Check if any keyword matches a whole word pattern
             // The regex \bWORD\b ensures "hear" matches "I hear you" but not "hearingg"
