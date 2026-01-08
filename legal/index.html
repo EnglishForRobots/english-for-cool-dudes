@@ -687,168 +687,174 @@
 
     <script src="/tickerData.js"></script>
 
-      <script>
+  <script>
+// ============================================
+// UNIVERSAL AUTH & INITIALIZATION SCRIPT
+// Place at the bottom of EVERY page
+// ============================================
 
-
-// --- COMPLETELY SAFE SUPABASE SETUP ---
 (function() {
-    // Use IIFE to avoid ANY global conflicts
+    'use strict';
     
-    if (!window.efcdSupabaseClient) {
-        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-        
-        // Create with unique name to avoid conflicts
-        window.efcdSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('✅ Supabase client initialized');
-    }
-})();
-
-// --- AUTH HEADER LOGIC ---
-async function initializeAuthHeader() {
-    const loggedOutButtons = document.getElementById('logged-out-buttons');
-    const loggedInButtons = document.getElementById('logged-in-buttons');
-    const userGreeting = document.getElementById('user-greeting');
-    const logoutBtn = document.getElementById('logout-btn');
-
-    try {
-        const client = window.efcdSupabaseClient;
-        
-        if (!client) {
-            console.error('Supabase client not found');
-            if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
-            return;
-        }
-        
-        const { data: { user }, error } = await client.auth.getUser();
-
-        if (user) {
-            let userName = 'Cool Dude';
-            if (user.user_metadata && user.user_metadata.full_name) {
-                userName = user.user_metadata.full_name.split(' ')[0];
-            } else if (user.email) {
-                userName = user.email.split('@')[0];
-            }
+    // --- SAFE SUPABASE INITIALIZATION ---
+    // This prevents the "already declared" error
+    if (typeof window.efcdSupabaseClient === 'undefined') {
+        try {
+            const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
             
-            if (userGreeting) userGreeting.textContent = `Hey ${userName}! 👋`;
-            if (loggedInButtons) loggedInButtons.style.display = 'flex';
-            if (loggedOutButtons) loggedOutButtons.style.display = 'none';
-        } else {
-            if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
-            if (loggedInButtons) loggedInButtons.style.display = 'none';
-        }
-    } catch (err) {
-        console.error('Error checking auth:', err);
-        if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
-    }
-
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-            try {
-                const client = window.efcdSupabaseClient;
-                const { error } = await client.auth.signOut();
-                if (error) console.error('Logout error:', error);
-                else window.location.reload();
-            } catch (err) {
-                console.error('Unexpected logout error:', err);
+            if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+                window.efcdSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('✅ Supabase client initialized');
+            } else {
+                console.error('❌ Supabase library not loaded');
             }
-        });
-    }
-}
-
-// --- CACHE BUSTING HELPER ---
-function bustCache() {
-    // Clear all caches on page load
-    if ('caches' in window) {
-        caches.keys().then(names => {
-            names.forEach(name => {
-                console.log('🗑️ Clearing cache:', name);
-                caches.delete(name);
-            });
-        });
-    }
-    
-    // Force reload from server (not cache) on next visit
-    if (performance.navigation.type !== 1) { // Not a refresh
-        console.log('🔄 Cache busted, page loaded fresh');
-    }
-}
-
-// --- INITIALIZATION ---
-document.addEventListener('DOMContentLoaded', async () => {
-    console.log('🚀 Page loaded');
-    
-    // Bust cache first
-    bustCache();
-    
-    // Start ticker
-    if (typeof startTickerAnimation === "function") {
-        console.log("✅ Starting Ticker...");
-        startTickerAnimation();
+        } catch (err) {
+            console.error('❌ Supabase initialization error:', err);
+        }
     } else {
-        console.warn("⚠️ Ticker function not found");
+        console.log('ℹ️ Supabase client already exists');
     }
     
-    // Initialize auth
-    await initializeAuthHeader();
-});
+    // --- AUTH HEADER LOGIC ---
+    async function initializeAuthHeader() {
+        const loggedOutButtons = document.getElementById('logged-out-buttons');
+        const loggedInButtons = document.getElementById('logged-in-buttons');
+        const userGreeting = document.getElementById('user-greeting');
+        const logoutBtn = document.getElementById('logout-btn');
 
-// --- SERVICE WORKER WITH AGGRESSIVE UPDATES ---
-if ('serviceWorker' in navigator) {
-    const swUrl = '/sw.js?v=' + Date.now(); // Always use latest timestamp
-    
-    navigator.serviceWorker.register(swUrl).then(reg => {
-        console.log('✅ Service Worker registered');
-        
-        // AGGRESSIVE: Check for updates every time
-        setInterval(() => {
-            console.log('🔄 Auto-checking for SW updates...');
-            reg.update();
-        }, 30000); // Check every 30 seconds
-        
-        // Check when page becomes visible
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) {
-                console.log('👁️ Page visible, checking for updates...');
-                reg.update();
+        try {
+            if (!window.efcdSupabaseClient) {
+                console.warn('⚠️ Supabase client not available');
+                if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
+                return;
             }
-        });
-        
-        // Handle new SW found
-        reg.addEventListener('updatefound', () => {
-            const newWorker = reg.installing;
-            console.log('🆕 New Service Worker installing...');
             
-            newWorker.addEventListener('statechange', () => {
-                console.log('📡 SW state:', newWorker.state);
+            const { data: { user }, error } = await window.efcdSupabaseClient.auth.getUser();
+
+            if (error) {
+                console.error('Auth error:', error);
+                if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
+                return;
+            }
+
+            if (user) {
+                let userName = 'Cool Dude';
+                if (user.user_metadata && user.user_metadata.full_name) {
+                    userName = user.user_metadata.full_name.split(' ')[0];
+                } else if (user.email) {
+                    userName = user.email.split('@')[0];
+                }
                 
-                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                    console.log('⚡ New content available! Activating...');
-                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                if (userGreeting) userGreeting.textContent = `Hey ${userName}! 👋`;
+                if (loggedInButtons) loggedInButtons.style.display = 'flex';
+                if (loggedOutButtons) loggedOutButtons.style.display = 'none';
+            } else {
+                if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
+                if (loggedInButtons) loggedInButtons.style.display = 'none';
+            }
+        } catch (err) {
+            console.error('❌ Auth check error:', err);
+            if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
+        }
+
+        // Logout handler
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                try {
+                    const { error } = await window.efcdSupabaseClient.auth.signOut();
+                    if (error) {
+                        console.error('Logout error:', error);
+                    } else {
+                        console.log('✅ Logged out successfully');
+                        window.location.reload();
+                    }
+                } catch (err) {
+                    console.error('❌ Logout error:', err);
                 }
             });
-        });
-    }).catch(err => {
-        console.error('❌ Service Worker error:', err);
-    });
-
-    // Auto-reload when new SW takes control
-    let refreshing = false;
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (refreshing) return;
-        refreshing = true;
-        console.log('🔄 Reloading with new content...');
-        window.location.reload();
-    });
-}
-
-// --- FORCE CACHE CLEAR ON UNLOAD ---
-window.addEventListener('beforeunload', () => {
-    if ('caches' in window) {
-        caches.keys().then(names => names.forEach(name => caches.delete(name)));
+        }
     }
-});
-</script>
+    
+    // --- SERVICE WORKER REGISTRATION ---
+    async function registerServiceWorker() {
+        if (!('serviceWorker' in navigator)) {
+            console.log('ℹ️ Service Worker not supported');
+            return;
+        }
 
+        try {
+            // Force check for new service worker
+            const swUrl = '/sw.js?v=' + Date.now();
+            const registration = await navigator.serviceWorker.register(swUrl);
+            
+            console.log('✅ Service Worker registered');
+            
+            // Check for updates every 30 seconds
+            setInterval(() => {
+                registration.update();
+            }, 30000);
+            
+            // Check when page becomes visible
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) {
+                    registration.update();
+                }
+            });
+            
+            // Handle updates
+            registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                console.log('🆕 New Service Worker found');
+                
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        console.log('⚡ New version available, activating...');
+                        newWorker.postMessage({ type: 'SKIP_WAITING' });
+                    }
+                });
+            });
+        } catch (error) {
+            console.error('❌ Service Worker registration failed:', error);
+        }
+        
+        // Auto-reload on controller change
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (refreshing) return;
+            refreshing = true;
+            console.log('🔄 New Service Worker activated, reloading...');
+            window.location.reload();
+        });
+    }
+    
+    // --- TICKER INITIALIZATION ---
+    function initializeTicker() {
+        if (typeof startTickerAnimation === 'function') {
+            console.log('✅ Starting ticker animation');
+            startTickerAnimation();
+        } else {
+            console.warn('⚠️ Ticker function not found');
+        }
+    }
+    
+    // --- RUN ON PAGE LOAD ---
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initializeAuthHeader();
+            await registerServiceWorker();
+            initializeTicker();
+        });
+    } else {
+        // DOM already loaded
+        (async () => {
+            await initializeAuthHeader();
+            await registerServiceWorker();
+            initializeTicker();
+        })();
+    }
+})();
+</script>
 </body>
 </html>
