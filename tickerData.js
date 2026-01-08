@@ -1,19 +1,14 @@
 // tickerData.js
 // --- 1. DATA SOURCE ---
 const LESSON_STATES = [
+    { text: "🤔 NEW! INTERMEDIATE: The Future: Resolutions 🔮", href: "/resolutionsint/" },
     { text: "🔮 NEW! ADVANCED: The Future: Hopes and Fears 🤔", href: "/resolutions/" },
     { text: "🎅🏻 NEW! TAX: The Audit Before Christmas 🎄", href: "/santatax/" },
     { text: "🍷 NEW! ADVANCED: The Science and Culture of Mulled Wine 😎", href: "/mulledwine/" },
     { text: "🎁 NEW! INTERMEDIATE: The History of Advent Calendars 😎", href: "/adventcalendarint/" },
     { text: "🎅🏻 NEW! BEGINNER: The Advent Calendar 😎", href: "/adventcalendar/" },
     { text: "🎵 NEW! LEGAL: Music vs. AI: The GEMA Ruling 😎", href: "/aicopyright/" },
-    { text: "📦 NEW! ADVANCED: Alibaba: The E-Commerce Empire 😎", href: "/alibaba/" },
-    { text: "🎤 NEW! BUSINESS: The Elevator Pitch 😎", href: "/elevator/" },
-    { text: "🐢 NEW! INTERMEDIATE: Meet Jonathan the Tortoise 😎", href: "/jonathan/" },
-    { text: "🧩 NEW! INTERMEDIATE: Top 10 Phrasal Verbs For Work 😎", href: "/phrasals/" },
-    { text: "🌐 NEW! TAX: The Netflix Tax 🎬🍿", href: "/VATdigital/" },
-    { text: "🚩 NEW! LEGAL: Due Diligence in M&A 💼", href: "/duediligence/" },
-    { text: "🐢 NEW! BEGINNER: Amazing Animals: Jonathan T 🐢", href: "/tortoise/" },
+    
 ];
 
 // --- 2. INITIALIZATION: Set ticker immediately when this script loads ---
