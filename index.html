@@ -12,7 +12,7 @@
     <link rel="manifest" href="/manifest.json">
     <title>English For Cool Dudes - Snow Globe Edition</title>
     
-    <link rel="stylesheet" href="styles.css">
+   
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="tickerData.js" defer></script>
@@ -453,95 +453,176 @@
             <a href="datenschutz/" style="color: #667EEA; text-decoration: none;">Datenschutzerklärung</a>
         </div>
     </footer>
+    <script src="/tickerData.js"></script>
 
     <script>
-        function createSnowflake() {
-            const container = document.getElementById('snowflake-container');
-            if (!container) return;
+// ============================================
+// UNIVERSAL AUTH & INITIALIZATION SCRIPT
+// Place at the bottom of EVERY page
+// ============================================
 
-            const snowflake = document.createElement('div');
-            snowflake.classList.add('snowflake');
+(function() {
+    'use strict';
+    
+    // --- SAFE SUPABASE INITIALIZATION ---
+    // This prevents the "already declared" error
+    if (typeof window.efcdSupabaseClient === 'undefined') {
+        try {
+            const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
             
-            const flakes = ['❄', '❅', '❆', '•'];
-            snowflake.textContent = flakes[Math.floor(Math.random() * flakes.length)];
-            
-            const size = Math.random() * 15 + 15 + 'px'; // Slightly larger
-            const leftPos = Math.random() * 95 + 'vw'; 
-            const durationFall = Math.random() * 5 + 3 + 's'; 
-            
-            snowflake.style.fontSize = size;
-            snowflake.style.left = leftPos;
-            snowflake.style.opacity = Math.random() * 0.7 + 0.3;
-            
-            // Reverting to simpler Top animation to ensure it moves
-            snowflake.style.transition = `top ${durationFall} linear`;
-            
-            // Drift animation
-            snowflake.style.animation = `drift 3s ease-in-out infinite alternate`;
-            
-            container.appendChild(snowflake);
+            if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+                window.efcdSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('✅ Supabase client initialized');
+            } else {
+                console.error('❌ Supabase library not loaded');
+            }
+        } catch (err) {
+            console.error('❌ Supabase initialization error:', err);
+        }
+    } else {
+        console.log('ℹ️ Supabase client already exists');
+    }
+    
+    // --- AUTH HEADER LOGIC ---
+    async function initializeAuthHeader() {
+        const loggedOutButtons = document.getElementById('logged-out-buttons');
+        const loggedInButtons = document.getElementById('logged-in-buttons');
+        const userGreeting = document.getElementById('user-greeting');
+        const logoutBtn = document.getElementById('logout-btn');
 
-            // Force reflow to trigger transition
-            requestAnimationFrame(() => {
-                snowflake.style.top = '110vh';
+        try {
+            if (!window.efcdSupabaseClient) {
+                console.warn('⚠️ Supabase client not available');
+                if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
+                return;
+            }
+            
+            const { data: { user }, error } = await window.efcdSupabaseClient.auth.getUser();
+
+            if (error) {
+                console.error('Auth error:', error);
+                if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
+                return;
+            }
+
+            if (user) {
+                let userName = 'Cool Dude';
+                if (user.user_metadata && user.user_metadata.full_name) {
+                    userName = user.user_metadata.full_name.split(' ')[0];
+                } else if (user.email) {
+                    userName = user.email.split('@')[0];
+                }
+                
+                if (userGreeting) userGreeting.textContent = `Hey ${userName}! 👋`;
+                if (loggedInButtons) loggedInButtons.style.display = 'flex';
+                if (loggedOutButtons) loggedOutButtons.style.display = 'none';
+            } else {
+                if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
+                if (loggedInButtons) loggedInButtons.style.display = 'none';
+            }
+        } catch (err) {
+            console.error('❌ Auth check error:', err);
+            if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
+        }
+
+        // Logout handler
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                try {
+                    const { error } = await window.efcdSupabaseClient.auth.signOut();
+                    if (error) {
+                        console.error('Logout error:', error);
+                    } else {
+                        console.log('✅ Logged out successfully');
+                        window.location.reload();
+                    }
+                } catch (err) {
+                    console.error('❌ Logout error:', err);
+                }
+            });
+        }
+    }
+    
+    // --- SERVICE WORKER REGISTRATION ---
+    async function registerServiceWorker() {
+        if (!('serviceWorker' in navigator)) {
+            console.log('ℹ️ Service Worker not supported');
+            return;
+        }
+
+        try {
+            // Force check for new service worker
+            const swUrl = '/sw.js?v=' + Date.now();
+            const registration = await navigator.serviceWorker.register(swUrl);
+            
+            console.log('✅ Service Worker registered');
+            
+            // Check for updates every 30 seconds
+            setInterval(() => {
+                registration.update();
+            }, 30000);
+            
+            // Check when page becomes visible
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) {
+                    registration.update();
+                }
             });
             
-            setTimeout(() => {
-                snowflake.remove();
-            }, parseFloat(durationFall) * 1000);
+            // Handle updates
+            registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                console.log('🆕 New Service Worker found');
+                
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        console.log('⚡ New version available, activating...');
+                        newWorker.postMessage({ type: 'SKIP_WAITING' });
+                    }
+                });
+            });
+        } catch (error) {
+            console.error('❌ Service Worker registration failed:', error);
         }
-
-        setInterval(createSnowflake, 200);
-    
-if ('serviceWorker' in navigator) {
-  // Add timestamp to force browser to check for new SW.js
-  const swUrl = '/sw.js?v=' + new Date().getTime();
-  
-  navigator.serviceWorker.register(swUrl).then(reg => {
-    console.log('✅ Service Worker registered');
-    
-    // Force immediate check for updates on page load
-    reg.update();
-    
-    // Check for updates when page becomes visible
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) {
-        console.log('🔄 Page visible, checking for SW updates...');
-        reg.update();
-      }
-    });
-    
-    // Handle new SW found
-    reg.addEventListener('updatefound', () => {
-      const newWorker = reg.installing;
-      console.log('🆕 New Service Worker found, installing...');
-      
-      newWorker.addEventListener('statechange', () => {
-        console.log('SW state changed to:', newWorker.state);
         
-        if (newWorker.state === 'installed') {
-          if (navigator.serviceWorker.controller) {
-            console.log('📤 Telling new SW to skip waiting...');
-            newWorker.postMessage({ type: 'SKIP_WAITING' });
-          } else {
-            console.log('✅ First install, content cached');
-          }
+        // Auto-reload on controller change
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (refreshing) return;
+            refreshing = true;
+            console.log('🔄 New Service Worker activated, reloading...');
+            window.location.reload();
+        });
+    }
+    
+    // --- TICKER INITIALIZATION ---
+    function initializeTicker() {
+        if (typeof startTickerAnimation === 'function') {
+            console.log('✅ Starting ticker animation');
+            startTickerAnimation();
+        } else {
+            console.warn('⚠️ Ticker function not found');
         }
-      });
-    });
-  }).catch(err => {
-    console.error('❌ Service Worker registration failed:', err);
-  });
-
-  // Auto-reload when new SW takes control
-  let refreshing = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (refreshing) return;
-    refreshing = true;
-    console.log('🔄 New Service Worker activated! Reloading page...');
-    window.location.reload();
-  });
-}
+    }
+    
+    // --- RUN ON PAGE LOAD ---
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initializeAuthHeader();
+            await registerServiceWorker();
+            initializeTicker();
+        });
+    } else {
+        // DOM already loaded
+        (async () => {
+            await initializeAuthHeader();
+            await registerServiceWorker();
+            initializeTicker();
+        })();
+    }
+})();
 </script>
 </body>
 </html>
