@@ -1,9 +1,9 @@
 // =========================================================
-// SERVICE WORKER: cool-dudes-lessons-cache-v63
+// SERVICE WORKER: cool-dudes-lessons-cache-v64
 // Optimized: Fast Install (Core only) + Cache-as-you-go
 // =========================================================
 
-const CACHE_NAME = 'cool-dudes-lessons-cache-v63'; // Increment this!
+const CACHE_NAME = 'cool-dudes-lessons-cache-v64'; // Increment this!
 const FONT_CACHE_NAME = 'cool-dudes-font-cache-v3';
 
 // Only cache the "Skeleton" of the app immediately.
@@ -24,7 +24,7 @@ const essentialAssets = [
 
 // --- INSTALL EVENT: Quick & Light ---
 self.addEventListener('install', (event) => {
-  console.log('[SW v63] Installing... (Core Assets Only)');
+  console.log('[SW v64] Installing... (Core Assets Only)');
   
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -33,7 +33,7 @@ self.addEventListener('install', (event) => {
         return cache.addAll(essentialAssets);
       })
       .then(() => {
-        console.log('[SW v63] Install complete. Skip waiting...');
+        console.log('[SW v64] Install complete. Skip waiting...');
         return self.skipWaiting();
       })
   );
@@ -72,7 +72,7 @@ self.addEventListener('fetch', (event) => {
 
         } catch (error) {
           // C. Network failed? Try Cache.
-          console.log('[SW v63] Offline mode. Checking cache for:', requestURL.pathname);
+          console.log('[SW v64] Offline mode. Checking cache for:', requestURL.pathname);
           const cache = await caches.open(CACHE_NAME);
           
           // Try to match the exact URL, or directory variations
@@ -136,7 +136,7 @@ self.addEventListener('fetch', (event) => {
 
 // --- ACTIVATE EVENT: Clean old caches ---
 self.addEventListener('activate', (event) => {
-  console.log('[SW v63] Activating & Cleaning old caches...');
+  console.log('[SW v64] Activating & Cleaning old caches...');
   const cacheWhitelist = [CACHE_NAME, FONT_CACHE_NAME];
   
   event.waitUntil(
@@ -144,7 +144,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (!cacheWhitelist.includes(cacheName)) {
-            console.log('[SW v63] Deleting:', cacheName);
+            console.log('[SW v64] Deleting:', cacheName);
             return caches.delete(cacheName);
           }
         })
