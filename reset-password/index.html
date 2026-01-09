@@ -124,150 +124,151 @@
     <script src="/tickerData.js"></script>
 
     <script>
-        (function() {
-            'use strict';
+    (function() {
+        'use strict';
 
-            // Initialize Supabase
-            if (window.supabaseClient) {
-                console.log('Supabase already initialized');
-                return;
-            }
+        // Initialize Supabase
+        if (window.supabaseClient) {
+            console.log('Supabase already initialized');
+            return;
+        }
 
-            const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co'; 
-            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-            
-            const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            window.supabaseClient = supabaseClient;
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        window.supabaseClient = supabaseClient;
 
-            const updateForm = document.getElementById('update-password-form');
-            const newPasswordInput = document.getElementById('new-password');
-            const confirmPasswordInput = document.getElementById('confirm-password');
-            const messageDiv = document.getElementById('message');
-            const updateButton = document.getElementById('update-btn');
+        const updateForm = document.getElementById('update-password-form');
+        const newPasswordInput = document.getElementById('new-password');
+        const confirmPasswordInput = document.getElementById('confirm-password');
+        const messageDiv = document.getElementById('message');
+        const updateButton = document.getElementById('update-btn');
 
-            // 1. Look at the "Ticket" in the URL
-            const urlParams = new URLSearchParams(window.location.hash.replace('#', '?'));
-            const errorCode = urlParams.get('error_code');
+        // --- ERROR CHECKING START ---
+        // 1. Look at the URL for errors (like expired links)
+        const urlParams = new URLSearchParams(window.location.hash.replace('#', '?'));
+        const errorCode = urlParams.get('error_code');
+        const errorDescription = urlParams.get('error_description');
 
-            // 2. If the ticket is broken or expired, STOP everything
-            if (errorCode === 'otp_expired' || errorCode === 'access_denied' || window.location.href.includes('error')) {
-                // Show error message
-                displayMessage('This password reset link has expired or is invalid. Please request a new one.', true);
-                
-                // Hide the form so the user cannot try to type a password
-                if (updateForm) updateForm.style.display = 'none';
-                
-                // Stop the rest of the script running
-                throw new Error("Stopping execution: Invalid or expired link."); 
-            }
-   
-    
-    // Hide the form so the "loop" doesn't trigger again
-    if (updateForm) updateForm.style.display = 'none';
-    
-    // THIS IS THE MOST IMPORTANT LINE: It stops the page from redirecting you!
-    throw new Error("Stopping execution to prevent redirect loop."); 
-}
-            
-            function displayMessage(text, isError = false) {
-                messageDiv.textContent = text;
-                messageDiv.style.color = isError ? '#E53E3E' : '#38A169';
-                messageDiv.style.backgroundColor = isError ? '#FFF5F5' : '#F0FFF4';
-                messageDiv.style.borderLeft = isError ? '4px solid #E53E3E' : '4px solid #38A169';
+        // 2. If the link is bad, show error and STOP.
+        if (errorCode === 'otp_expired' || errorCode === 'access_denied' || window.location.href.includes('error')) {
+            if (messageDiv) {
+                // Decode the error message from URL (e.g. replace + with spaces)
+                const msg = errorDescription ? decodeURIComponent(errorDescription.replace(/\+/g, ' ')) : 'Link expired or invalid.';
+                messageDiv.textContent = msg;
+                messageDiv.style.color = '#E53E3E';
+                messageDiv.style.backgroundColor = '#FFF5F5';
+                messageDiv.style.borderLeft = '4px solid #E53E3E';
                 messageDiv.style.display = 'block';
             }
             
-            async function handlePasswordUpdate(event) {
-                event.preventDefault();
-                event.stopPropagation();
-                
-                const newPassword = newPasswordInput.value;
-                const confirmPassword = confirmPasswordInput.value;
-                
-                if (!newPassword || !confirmPassword) {
-                    displayMessage('Please fill in both password fields.', true);
-                    return;
-                }
-                
-                if (newPassword !== confirmPassword) {
-                    displayMessage('Passwords do not match. Please try again.', true);
-                    return;
-                }
-
-                if (newPassword.length < 8) {
-                    displayMessage('Password must be at least 8 characters long.', true);
-                    return;
-                }
-
-                updateButton.disabled = true;
-                updateButton.textContent = 'Updating...';
-                displayMessage('Updating your password...', false);
-                
-                try {
-                    const { data, error } = await supabaseClient.auth.updateUser({
-                        password: newPassword
-                    });
-
-                    updateButton.disabled = false;
-                    updateButton.textContent = 'Update Password'; 
-
-                    if (error) {
-                        console.error('Password Update Error:', error);
-                        displayMessage('Failed to update password: ' + error.message, true);
-                    } else {
-                        console.log('Password updated successfully:', data);
-                        displayMessage('✅ Password updated! Redirecting to login...', false);
-                        updateForm.reset();
-                        
-                        // Redirect to login
-                        setTimeout(() => {
-                            window.location.href = '/login/';
-                        }, 2000);
-                    }
-                } catch (err) {
-                    console.error('Unexpected error:', err);
-                    displayMessage('An unexpected error occurred. Please try again.', true);
-                    updateButton.disabled = false;
-                    updateButton.textContent = 'Update Password';
-                }
-            }
-
-            // Check if user has valid recovery session
-            async function checkRecoverySession() {
-                try {
-                    const { data: { session } } = await supabaseClient.auth.getSession();
-                    
-                    if (!session) {
-                        displayMessage('Invalid or expired reset link. Please request a new one.', true);
-                        setTimeout(() => {
-                            window.location.href = '/forgot-password/';
-                        }, 3000);
-                    }
-                } catch (err) {
-                    console.error('Session check error:', err);
-                }
-            }
-
-            document.addEventListener('DOMContentLoaded', () => {
-                checkRecoverySession();
-                
-                if (typeof startTickerAnimation === "function") {
-                    startTickerAnimation();
-                }
-                
-                if (updateForm) {
-                    updateForm.addEventListener('submit', handlePasswordUpdate);
-                }
-            });
+            // Hide the form so you can't try to type a password
+            if (updateForm) updateForm.style.display = 'none';
             
-            // Service Worker
-            if ('serviceWorker' in navigator) {
-                const swUrl = '/sw.js?v=' + new Date().getTime();
-                navigator.serviceWorker.register(swUrl).catch(err => {
-                    console.log('Service Worker registration:', err.message);
-                });
+            // This return statement stops the script safely without crashing
+            return; 
+        }
+        // --- ERROR CHECKING END ---
+
+        function displayMessage(text, isError = false) {
+            messageDiv.textContent = text;
+            messageDiv.style.color = isError ? '#E53E3E' : '#38A169';
+            messageDiv.style.backgroundColor = isError ? '#FFF5F5' : '#F0FFF4';
+            messageDiv.style.borderLeft = isError ? '4px solid #E53E3E' : '4px solid #38A169';
+            messageDiv.style.display = 'block';
+        }
+        
+        async function handlePasswordUpdate(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const newPassword = newPasswordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            if (!newPassword || !confirmPassword) {
+                displayMessage('Please fill in both password fields.', true);
+                return;
             }
-        })();
-    </script>
+            
+            if (newPassword !== confirmPassword) {
+                displayMessage('Passwords do not match. Please try again.', true);
+                return;
+            }
+
+            if (newPassword.length < 8) {
+                displayMessage('Password must be at least 8 characters long.', true);
+                return;
+            }
+
+            updateButton.disabled = true;
+            updateButton.textContent = 'Updating...';
+            displayMessage('Updating your password...', false);
+            
+            try {
+                const { data, error } = await supabaseClient.auth.updateUser({
+                    password: newPassword
+                });
+
+                updateButton.disabled = false;
+                updateButton.textContent = 'Update Password'; 
+
+                if (error) {
+                    console.error('Password Update Error:', error);
+                    displayMessage('Failed to update password: ' + error.message, true);
+                } else {
+                    console.log('Password updated successfully:', data);
+                    displayMessage('✅ Password updated! Redirecting to login...', false);
+                    updateForm.reset();
+                    
+                    // Redirect to login
+                    setTimeout(() => {
+                        window.location.href = '/login/';
+                    }, 2000);
+                }
+            } catch (err) {
+                console.error('Unexpected error:', err);
+                displayMessage('An unexpected error occurred. Please try again.', true);
+                updateButton.disabled = false;
+                updateButton.textContent = 'Update Password';
+            }
+        }
+
+        // Check if user has valid recovery session
+        async function checkRecoverySession() {
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                
+                if (!session) {
+                    // Double check URL params didn't catch it earlier
+                    displayMessage('Invalid or expired reset link. Please request a new one.', true);
+                    if (updateForm) updateForm.style.display = 'none';
+                }
+            } catch (err) {
+                console.error('Session check error:', err);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkRecoverySession();
+            
+            if (typeof startTickerAnimation === "function") {
+                startTickerAnimation();
+            }
+            
+            if (updateForm) {
+                updateForm.addEventListener('submit', handlePasswordUpdate);
+            }
+        });
+        
+        // Service Worker
+        if ('serviceWorker' in navigator) {
+            const swUrl = '/sw.js?v=' + new Date().getTime();
+            navigator.serviceWorker.register(swUrl).catch(err => {
+                console.log('Service Worker registration:', err.message);
+            });
+        }
+    })();
+</script>
 </body>
 </html>
