@@ -1,20 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-<meta charset="UTF-8">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
-     <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
     <link rel="icon" type="image/png" href="/android-chrome-192x192.png" sizes="192x192">
     <link rel="manifest" href="/manifest.json">
     <title>Sign Up - English For Cool Dudes</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-
-        <style>
+    <style>
         /* --- GLOBAL STYLES --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif; background: #F8F9FB; color: #2C3E50; line-height: 1.6; font-weight: 400; -webkit-font-smoothing: antialiased; }
@@ -93,26 +92,25 @@
 
             <div id="message" style="display: none; margin-bottom: 20px; text-align: center; font-weight: 600;"></div>
 
-            <form id="signup-form">
-
+            <form id="signup-form" method="POST" action="javascript:void(0);">
                 <div class="form-group">
                     <label for="name">Your Name</label>
-                    <input type="text" id="name" name="name" placeholder="E.g., John Doe" required>
+                    <input type="text" id="name" name="name" placeholder="E.g., John Doe" required autocomplete="name">
                 </div>
 
                 <div class="form-group">
                     <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" placeholder="you@example.com" required>
+                    <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email">
                 </div>
 
                 <div class="form-group">
                     <label for="password">Choose a Password</label>
-                    <input type="password" id="password" name="password" placeholder="Minimum 8 characters" required>
+                    <input type="password" id="password" name="password" placeholder="Minimum 8 characters" required autocomplete="new-password">
                 </div>
 
                 <div class="form-group">
                     <label for="confirm-password">Confirm Password</label>
-                    <input type="password" id="confirm-password" name="confirm-password" placeholder="Repeat your password" required>
+                    <input type="password" id="confirm-password" name="confirm-password" placeholder="Repeat your password" required autocomplete="new-password">
                 </div>
 
                 <div class="terms-group">
@@ -131,7 +129,7 @@
         </div>
     </main>
 
-   <footer class="footer">
+    <footer class="footer">
         <p class="footer-text">© 2026 English For Cool Dudes - 😎</p>
         <div style="margin-top: 10px;">
             <a href="/impressum/" style="color: #667EEA; margin-right: 15px; text-decoration: none;">Impressum</a>
@@ -142,165 +140,178 @@
     <script src="/tickerData.js"></script>
 
     <script>
-        // --- SUPABASE SETUP ---
-        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co'; 
-         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Wrap everything in IIFE to avoid global scope pollution
+        (function() {
+            'use strict';
 
-        // --- DOM ELEMENTS ---
-        const signUpForm = document.getElementById('signup-form');
-        const nameInput = document.getElementById('name');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const confirmPasswordInput = document.getElementById('confirm-password');
-        const messageDiv = document.getElementById('message');
-        const signupButton = document.getElementById('signup-btn');
-        const termsCheckbox = document.getElementById('terms-agreed');
-        
-        // --- HELPER FUNCTIONS ---
-        function displayMessage(text, isError = false) {
-            messageDiv.textContent = text;
-            messageDiv.style.color = isError ? '#E53E3E' : '#38A169';
-            messageDiv.style.display = 'block';
-        }
-        
-        async function handleSignUp(event) {
-            event.preventDefault();
-            
-            if (!termsCheckbox.checked) {
-                displayMessage('You must agree to The Cool Dude Agreement.', true);
-                return;
-            }
-            
-            const name = nameInput.value.trim();
-            const email = emailInput.value.trim();
-            const password = passwordInput.value; 
-            const confirmPassword = confirmPasswordInput.value;
-            
-            if (!name || !email || !password || !confirmPassword) {
-                displayMessage('Please fill out all fields.', true);
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                displayMessage('The passwords you entered do not match. Try again!', true);
-                return;
-                    }
-
-            if (password.length < 8) {
-                displayMessage('Your password must be at least 8 characters long.', true);
+            // --- SUPABASE SETUP (only once) ---
+            if (window.supabaseClient) {
+                console.log('Supabase already initialized');
                 return;
             }
 
-            signupButton.disabled = true;
-            signupButton.textContent = 'Processing...';
-            displayMessage('Creating your account...', false);
-              try {
-                const { data, error } = await supabase.auth.signUp({
-                    email: email,
-                    password: password,
-                    options: {
-                        data: {
-                            full_name: name,
-                            is_first_login: true
+            const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co'; 
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+            
+            const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            window.supabaseClient = supabaseClient; // Store globally to prevent re-initialization
+
+            // --- DOM ELEMENTS ---
+            const signUpForm = document.getElementById('signup-form');
+            const nameInput = document.getElementById('name');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirm-password');
+            const messageDiv = document.getElementById('message');
+            const signupButton = document.getElementById('signup-btn');
+            const termsCheckbox = document.getElementById('terms-agreed');
+            
+            // --- HELPER FUNCTIONS ---
+            function displayMessage(text, isError = false) {
+                messageDiv.textContent = text;
+                messageDiv.style.color = isError ? '#E53E3E' : '#38A169';
+                messageDiv.style.display = 'block';
+            }
+            
+            async function handleSignUp(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                if (!termsCheckbox.checked) {
+                    displayMessage('You must agree to The Cool Dude Agreement.', true);
+                    return;
+                }
+                
+                const name = nameInput.value.trim();
+                const email = emailInput.value.trim();
+                const password = passwordInput.value; 
+                const confirmPassword = confirmPasswordInput.value;
+                
+                if (!name || !email || !password || !confirmPassword) {
+                    displayMessage('Please fill out all fields.', true);
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    displayMessage('The passwords you entered do not match. Try again!', true);
+                    return;
+                }
+
+                if (password.length < 8) {
+                    displayMessage('Your password must be at least 8 characters long.', true);
+                    return;
+                }
+
+                signupButton.disabled = true;
+                signupButton.textContent = 'Processing...';
+                displayMessage('Creating your account...', false);
+                
+                try {
+                    const { data, error } = await supabaseClient.auth.signUp({
+                        email: email,
+                        password: password,
+                        options: {
+                            data: {
+                                full_name: name,
+                                is_first_login: true
+                            }
                         }
+                    });
+
+                    signupButton.disabled = false;
+                    signupButton.textContent = 'Create My Account'; 
+
+                    if (error) {
+                        console.error('Sign Up Error:', error);
+                        
+                        if (error.message.toLowerCase().includes('password')) {
+                            displayMessage('Password too weak. Please use 8+ characters with variety.', true);
+                        } else if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('already exists')) {
+                            displayMessage('This email is already registered. Try logging in!', true);
+                        } else {
+                            displayMessage('Sign-up failed: ' + error.message, true);
+                        }
+                    } else {
+                        console.log('Sign-up successful:', data);
+                        displayMessage('Success! Redirecting to your dashboard...', false);
+                        
+                        // Clear form
+                        signUpForm.reset();
+                        
+                        // Redirect to dashboard
+                        setTimeout(() => {
+                            window.location.href = '/dashboard/'; 
+                        }, 1000);
                     }
+                } catch (err) {
+                    console.error('Unexpected error:', err);
+                    displayMessage('An unexpected error occurred. Please try again.', true);
+                    signupButton.disabled = false;
+                    signupButton.textContent = 'Create My Account';
+                }
+            }
+
+            // --- INITIALIZATION ---
+            document.addEventListener('DOMContentLoaded', () => {
+                // 1. Start Ticker
+                if (typeof startTickerAnimation === "function") {
+                    startTickerAnimation();
+                } else {
+                    console.warn("tickerData.js not loaded or startTickerAnimation not found");
+                }
+                
+                // 2. Setup Form Listener
+                if (signUpForm) {
+                    signUpForm.addEventListener('submit', handleSignUp);
+                }
+            });
+            
+            // Service Worker Registration
+            if ('serviceWorker' in navigator) {
+                const swUrl = '/sw.js?v=' + new Date().getTime();
+                
+                navigator.serviceWorker.register(swUrl).then(reg => {
+                    console.log('✅ Service Worker registered');
+                    
+                    reg.update();
+                    
+                    document.addEventListener('visibilitychange', () => {
+                        if (!document.hidden) {
+                            console.log('🔄 Page visible, checking for SW updates...');
+                            reg.update();
+                        }
+                    });
+                    
+                    reg.addEventListener('updatefound', () => {
+                        const newWorker = reg.installing;
+                        console.log('🆕 New Service Worker found, installing...');
+                        
+                        newWorker.addEventListener('statechange', () => {
+                            console.log('SW state changed to:', newWorker.state);
+                            
+                            if (newWorker.state === 'installed') {
+                                if (navigator.serviceWorker.controller) {
+                                    console.log('📤 Telling new SW to skip waiting...');
+                                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                } else {
+                                    console.log('✅ First time install, content cached');
+                                }
+                            }
+                        });
+                    });
+                }).catch(err => {
+                    console.error('❌ Service Worker registration failed:', err);
                 });
 
-                signupButton.disabled = false;
-                signupButton.textContent = 'Create My Account'; 
-
-                if (error) {
-                    console.error('Sign Up Error:', error);
-                    
-                    if (error.message.toLowerCase().includes('password')) {
-                        displayMessage('Password too weak. Please use 8+ characters with variety.', true);
-                    } else if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('already exists')) {
-                        displayMessage('This email is already registered. Try logging in!', true);
-                    } else {
-                        displayMessage('Sign-up failed: ' + error.message, true);
-                    }
-                } else {
-                    console.log('Sign-up successful:', data);
-                    displayMessage('Success! Redirecting to your dashboard...', false);
-                    
-                    // Redirect immediately to dashboard (user is now logged in)
-                    setTimeout(() => {
-                        window.location.href = '/dashboard/'; 
-                    }, 1000);
-                }
-                   } catch (err) {
-                console.error('Unexpected error:', err);
-                displayMessage('An unexpected error occurred. Please try again.', true);
-                signupButton.disabled = false;
-                signupButton.textContent = 'Create My Account';
+                let refreshing = false;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (refreshing) return;
+                    refreshing = true;
+                    console.log('🔄 New Service Worker activated! Reloading page...');
+                    window.location.reload();
+                });
             }
-        }
-
-        // --- INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', () => {
-            // 1. Start Ticker
-            if (typeof startTickerAnimation === "function") {
-                startTickerAnimation();
-            } else {
-                console.error("tickerData.js failed to load!");
-                  }
-            
-            // 2. Setup Form Listener
-            if (signUpForm) {
-                signUpForm.addEventListener('submit', handleSignUp);
-            }
-               });
-        
-if ('serviceWorker' in navigator) {
-  // Add timestamp to force browser to check for new SW.js
-  const swUrl = '/sw.js?v=' + new Date().getTime();
-  
-  navigator.serviceWorker.register(swUrl).then(reg => {
-    console.log('✅ Service Worker registered');
-      
-    // Force immediate check for updates on page load
-    reg.update();
-      
-    // Check for updates when page becomes visible
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) {
-        console.log('🔄 Page visible, checking for SW updates...');
-        reg.update();
-      }
-    });
-      
-    // Handle new SW found
-    reg.addEventListener('updatefound', () => {
-      const newWorker = reg.installing;
-      console.log('🆕 New Service Worker found, installing...');
-      
-      newWorker.addEventListener('statechange', () => {
-        console.log('SW state changed to:', newWorker.state);
-          
-        if (newWorker.state === 'installed') {
-          if (navigator.serviceWorker.controller) {
-            console.log('📤 Telling new SW to skip waiting...');
-            newWorker.postMessage({ type: 'SKIP_WAITING' });
-          } else {
-            console.log('✅ First time install, content cached');
-          }
-        }
-      });
-         });
-  }).catch(err => {
-    console.error('❌ Service Worker registration failed:', err);
-  });
-
-  // Auto-reload when new SW takes control
-  let refreshing = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (refreshing) return;
-    refreshing = true;
-    console.log('🔄 New Service Worker activated! Reloading page...');
-    window.location.reload();
-  });
-    }
-        </script>
-        </body>
+        })();
+    </script>
+</body>
 </html>
