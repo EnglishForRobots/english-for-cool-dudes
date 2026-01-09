@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cool-dudes-lessons-cache-v65'; // Increment this!
+const CACHE_NAME = 'cool-dudes-lessons-cache-v66'; // Increment version
 const FONT_CACHE_NAME = 'cool-dudes-font-cache-v3';
 
 const essentialAssets = [
@@ -8,6 +8,10 @@ const essentialAssets = [
   '/main.js',
   '/tickerData.js',
   '/manifest.json',
+  '/login/', // Add login page
+  '/login/index.html',
+  '/dashboard/',
+  '/dashboard/index.html',
   '/images/icon-192.png',
   '/images/icon-512.png',
   '/images/icon-180.png',
@@ -17,18 +21,22 @@ const essentialAssets = [
 
 // --- INSTALL EVENT ---
 self.addEventListener('install', (event) => {
-  console.log('[SW v65] Installing... (Core Assets Only)');
+  console.log('[SW v66] Installing... (Core Assets Only)');
   
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        return cache.addAll(essentialAssets).catch(err => {
-          console.warn('[SW v65] Some assets failed to cache:', err);
-          // Don't fail install if some assets are missing
-        });
+        // Cache assets individually to handle failures
+        return Promise.allSettled(
+          essentialAssets.map(asset => 
+            cache.add(asset).catch(err => {
+              console.warn(`[SW v66] Failed to cache ${asset}:`, err.message);
+            })
+          )
+        );
       })
       .then(() => {
-        console.log('[SW v65] Install complete. Skip waiting...');
+        console.log('[SW v66] Install complete. Skip waiting...');
         return self.skipWaiting();
       })
   );
@@ -37,17 +45,22 @@ self.addEventListener('install', (event) => {
 // --- MESSAGE EVENT ---
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    console.log('[SW v65] Received SKIP_WAITING, activating now...');
+    console.log('[SW v66] Received SKIP_WAITING, activating now...');
     self.skipWaiting();
   }
 });
 
-// --- FETCH EVENT: FIXED CLONING ISSUE ---
+// --- FETCH EVENT ---
 self.addEventListener('fetch', (event) => {
   const requestURL = new URL(event.request.url);
 
   // Skip non-GET requests
   if (event.request.method !== 'GET') {
+    return;
+  }
+
+  // Skip Supabase API calls - always go to network
+  if (requestURL.hostname.includes('supabase.co')) {
     return;
   }
 
@@ -63,14 +76,14 @@ self.addEventListener('fetch', (event) => {
           // Try Network First
           const networkResponse = await fetch(event.request, { cache: 'no-cache' });
           
-          // CRITICAL FIX: Clone BEFORE checking or using the response
+          // Clone BEFORE checking or using the response
           if (networkResponse && networkResponse.ok) {
             const responseToCache = networkResponse.clone();
             
-            // Cache in background (don't await)
+            // Cache in background
             caches.open(CACHE_NAME).then(cache => {
               cache.put(event.request, responseToCache).catch(err => {
-                console.warn('[SW v65] Cache put failed:', err);
+                console.warn('[SW v66] Cache put failed:', err);
               });
             });
           }
@@ -79,7 +92,7 @@ self.addEventListener('fetch', (event) => {
 
         } catch (error) {
           // Network failed - try cache
-          console.log('[SW v65] Offline mode. Checking cache for:', requestURL.pathname);
+          console.log('[SW v66] Offline mode. Checking cache for:', requestURL.pathname);
           const cache = await caches.open(CACHE_NAME);
           
           // Try exact match first
@@ -94,7 +107,7 @@ self.addEventListener('fetch', (event) => {
           }
 
           if (cachedResponse) {
-            console.log('[SW v65] Serving from cache:', requestURL.pathname);
+            console.log('[SW v66] Serving from cache:', requestURL.pathname);
             return cachedResponse;
           }
           
@@ -167,10 +180,10 @@ self.addEventListener('fetch', (event) => {
         
         // Fetch in background
         const fetchPromise = fetch(event.request).then((networkResponse) => {
-          // CRITICAL FIX: Clone before caching
+          // Clone before caching
           if (networkResponse && networkResponse.ok) {
             cache.put(event.request, networkResponse.clone()).catch(err => {
-              console.warn('[SW v65] Background cache failed:', err);
+              console.warn('[SW v66] Background cache failed:', err);
             });
           }
           return networkResponse;
@@ -188,7 +201,7 @@ self.addEventListener('fetch', (event) => {
 
 // --- ACTIVATE EVENT ---
 self.addEventListener('activate', (event) => {
-  console.log('[SW v65] Activating & cleaning old caches...');
+  console.log('[SW v66] Activating & cleaning old caches...');
   const cacheWhitelist = [CACHE_NAME, FONT_CACHE_NAME];
   
   event.waitUntil(
@@ -196,13 +209,13 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (!cacheWhitelist.includes(cacheName)) {
-            console.log('[SW v65] Deleting old cache:', cacheName);
+            console.log('[SW v66] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     }).then(() => {
-      console.log('[SW v65] Claiming clients...');
+      console.log('[SW v66] Claiming clients...');
       return self.clients.claim();
     })
   );
