@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cool-dudes-lessons-cache-v66'; // Increment version
+const CACHE_NAME = 'cool-dudes-lessons-cache-v67'; // Increment version
 const FONT_CACHE_NAME = 'cool-dudes-font-cache-v3';
 
 const essentialAssets = [
@@ -8,10 +8,10 @@ const essentialAssets = [
   '/main.js',
   '/tickerData.js',
   '/manifest.json',
-  '/login/', // Add login page
-  '/login/index.html',
+  '/login/', 
+  
   '/dashboard/',
-  '/dashboard/index.html',
+  
   '/images/icon-192.png',
   '/images/icon-512.png',
   '/images/icon-180.png',
@@ -21,7 +21,7 @@ const essentialAssets = [
 
 // --- INSTALL EVENT ---
 self.addEventListener('install', (event) => {
-  console.log('[SW v66] Installing... (Core Assets Only)');
+  console.log('[SW v67] Installing... (Core Assets Only)');
   
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -30,13 +30,13 @@ self.addEventListener('install', (event) => {
         return Promise.allSettled(
           essentialAssets.map(asset => 
             cache.add(asset).catch(err => {
-              console.warn(`[SW v66] Failed to cache ${asset}:`, err.message);
+              console.warn(`[SW v67] Failed to cache ${asset}:`, err.message);
             })
           )
         );
       })
       .then(() => {
-        console.log('[SW v66] Install complete. Skip waiting...');
+        console.log('[SW v67] Install complete. Skip waiting...');
         return self.skipWaiting();
       })
   );
@@ -45,7 +45,7 @@ self.addEventListener('install', (event) => {
 // --- MESSAGE EVENT ---
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    console.log('[SW v66] Received SKIP_WAITING, activating now...');
+    console.log('[SW v67] Received SKIP_WAITING, activating now...');
     self.skipWaiting();
   }
 });
@@ -83,7 +83,7 @@ self.addEventListener('fetch', (event) => {
             // Cache in background
             caches.open(CACHE_NAME).then(cache => {
               cache.put(event.request, responseToCache).catch(err => {
-                console.warn('[SW v66] Cache put failed:', err);
+                console.warn('[SW v67] Cache put failed:', err);
               });
             });
           }
@@ -92,7 +92,7 @@ self.addEventListener('fetch', (event) => {
 
         } catch (error) {
           // Network failed - try cache
-          console.log('[SW v66] Offline mode. Checking cache for:', requestURL.pathname);
+          console.log('[SW v67] Offline mode. Checking cache for:', requestURL.pathname);
           const cache = await caches.open(CACHE_NAME);
           
           // Try exact match first
@@ -107,7 +107,7 @@ self.addEventListener('fetch', (event) => {
           }
 
           if (cachedResponse) {
-            console.log('[SW v66] Serving from cache:', requestURL.pathname);
+            console.log('[SW v67] Serving from cache:', requestURL.pathname);
             return cachedResponse;
           }
           
@@ -183,7 +183,7 @@ self.addEventListener('fetch', (event) => {
           // Clone before caching
           if (networkResponse && networkResponse.ok) {
             cache.put(event.request, networkResponse.clone()).catch(err => {
-              console.warn('[SW v66] Background cache failed:', err);
+              console.warn('[SW v67] Background cache failed:', err);
             });
           }
           return networkResponse;
@@ -201,7 +201,7 @@ self.addEventListener('fetch', (event) => {
 
 // --- ACTIVATE EVENT ---
 self.addEventListener('activate', (event) => {
-  console.log('[SW v66] Activating & cleaning old caches...');
+  console.log('[SW v67] Activating & cleaning old caches...');
   const cacheWhitelist = [CACHE_NAME, FONT_CACHE_NAME];
   
   event.waitUntil(
@@ -209,13 +209,13 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (!cacheWhitelist.includes(cacheName)) {
-            console.log('[SW v66] Deleting old cache:', cacheName);
+            console.log('[SW v67] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     }).then(() => {
-      console.log('[SW v66] Claiming clients...');
+      console.log('[SW v67] Claiming clients...');
       return self.clients.claim();
     })
   );
