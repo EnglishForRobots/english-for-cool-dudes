@@ -146,14 +146,21 @@
             const updateButton = document.getElementById('update-btn');
 
             // 1. Look at the "Ticket" in the URL
-const urlParams = new URLSearchParams(window.location.hash.replace('#', '?'));
-const errorCode = urlParams.get('error_code');
+            const urlParams = new URLSearchParams(window.location.hash.replace('#', '?'));
+            const errorCode = urlParams.get('error_code');
 
-// 2. If the ticket is broken or expired, STOP the loop here
-if (errorCode === 'otp_expired' || errorCode === 'access_denied' || window.location.href.includes('error')) {
-    `;
+            // 2. If the ticket is broken or expired, STOP everything
+            if (errorCode === 'otp_expired' || errorCode === 'access_denied' || window.location.href.includes('error')) {
+                // Show error message
+                displayMessage('This password reset link has expired or is invalid. Please request a new one.', true);
+                
+                // Hide the form so the user cannot try to type a password
+                if (updateForm) updateForm.style.display = 'none';
+                
+                // Stop the rest of the script running
+                throw new Error("Stopping execution: Invalid or expired link."); 
+            }
    
-    }
     
     // Hide the form so the "loop" doesn't trigger again
     if (updateForm) updateForm.style.display = 'none';
