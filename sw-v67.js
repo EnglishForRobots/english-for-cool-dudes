@@ -58,6 +58,10 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') {
     return;
   }
+  // Skip Supabase API calls - CRITICAL!
+if (event.request.url.includes('supabase.co')) {
+    return; // Let browser handle it normally
+}
 
   // Skip Supabase API calls - always go to network
   if (requestURL.hostname.includes('supabase.co')) {
