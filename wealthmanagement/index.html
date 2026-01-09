@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <title>The Wealth Management Pitch - English For Cool Dudes</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* --- BRANDING & LAYOUT STYLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: #F8FAFC; /* Slate 50 - Clean Corporate Background */
+            color: #0F172A; /* Slate 900 - Dark Text */
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- THEME: WEALTH MANAGEMENT (Partner Level) 💼 --- */
+        :root {
+            --color-primary: #0F172A; /* Deep Navy (Corporate) */
+            --color-secondary: #B45309; /* Muted Gold/Bronze (Wealth) */
+            --color-accent: #0F766E; /* Teal (Growth/Stability) */
+            --color-white: #FFFFFF;
+            
+            /* Feedback Colors */
+            --color-correct: #15803D; 
+            --color-incorrect: #B91C1C; 
+            
+            --color-save-btn: #0F172A; 
+        }
+
+        /* Header */
+        .header {
+            background: var(--color-white);
+            border-bottom: 2px solid var(--color-secondary);
+            padding: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header-content {
+            max-width: 1200px; margin: 0 auto; padding: 0 20px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+
+        .logo {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, #0F172A 0%, #334155 100%); 
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            font-size: 20px; color: #FCD34D;
+        }
+        .site-title { font-size: 20px; font-weight: 800; color: var(--color-primary); text-decoration: none; letter-spacing: -0.02em; }
+
+        /* Buttons */
+        .header-buttons { display: flex; align-items: center; gap: 8px; }
+        .header-button {
+            text-decoration: none; padding: 7px 14px; border-radius: 6px;
+            font-size: 14px; font-weight: 600; transition: all 0.2s;
+            white-space: nowrap; cursor: pointer; border: 1px solid #CBD5E1;
+            background: transparent;
+        }
+        .header-button.login { background: #F8FAFC; color: var(--color-primary); }
+        .header-button.login:hover { background: #FFFFFF; color: var(--color-secondary); border-color: var(--color-secondary); }
+        
+        .header-button.signup { background: var(--color-secondary); color: white; border-color: var(--color-secondary); }
+        .header-button.signup:hover { background: #92400E; box-shadow: 0 2px 5px rgba(180, 83, 9, 0.4); }
+        
+        .header-button.dashboard { background: #F0FDF4; color: #15803D; border-color: #86EFAC; }
+        .header-button.logout { background: #FEF2F2; color: #B91C1C; border-color: #FECACA; }
+        
+        .user-greeting { font-size: 14px; color: var(--color-primary); font-weight: 600; margin-right: 5px; display: block; }
+
+        /* Container */
+        .container-main {
+            max-width: 1000px; margin: 30px auto; padding: 30px 20px;
+            background-color: var(--color-white); border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #E2E8F0;
+        }
+
+        .lesson-main-title {
+            font-size: 2.5em; font-weight: 800; color: var(--color-primary); 
+            margin-bottom: 10px; letter-spacing: -0.02em;
+        }
+
+        .lesson-section {
+            background-color: #F8FAFC; padding: 30px; border-radius: 10px;
+            border: 1px solid #E2E8F0; margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: var(--color-secondary); font-size: 1.8em; font-weight: 800;
+            margin-bottom: 20px; padding-bottom: 5px; border-bottom: 2px dashed var(--color-primary);
+        }
+
+        /* Reading Text (Client Email Style) */
+        .email-container {
+            background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 8px; overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px;
+        }
+        .email-header {
+            background: #F1F5F9; padding: 15px; border-bottom: 1px solid #E2E8F0;
+            font-size: 0.9em; color: #475569; font-family: -apple-system, system-ui, sans-serif;
+        }
+        .reading-text {
+            padding: 30px; font-size: 1.1em; color: #334155; line-height: 1.8;
+            font-family: 'Georgia', serif;
+        }
+        .highlight-word {
+            color: var(--color-secondary); font-weight: 700; cursor: help;
+            border-bottom: 2px dotted var(--color-secondary); transition: all 0.2s;
+            font-family: -apple-system, system-ui, sans-serif; /* Keep words readable */
+        }
+        .highlight-word:hover { background-color: #FEF3C7; color: #92400E; border-radius: 4px; }
+        
+        /* Match Cards */
+        .match-card {
+            border: 2px solid transparent; transition: all 0.5s ease;
+            cursor: pointer; user-select: none; border-radius: 0.75rem; 
+            padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); font-weight: 600;
+            opacity: 1; transform: scale(1); min-height: 80px; display: flex; align-items: center; justify-content: center;
+        }
+        .match-card.term {
+            background-color: #F1F5F9; border: 2px solid var(--color-primary); 
+            text-align: center; color: var(--color-primary);
+        }
+        .match-card.definition {
+            background-color: #FFFFFF; text-align: left; border: 2px solid #CBD5E1; color: #475569;
+        }
+        .match-card.selected {
+            border-color: var(--color-secondary); background-color: #FFFBEB; 
+            box-shadow: 0 0 0 4px #FDE68A; transform: scale(1.02);
+        }
+        .match-card.matched { 
+            pointer-events: none; opacity: 0; transform: scale(0.9);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        .match-card.temp-matched {
+            background-color: #DCFCE7 !important; border-color: #166534 !important; 
+            box-shadow: 0 0 0 4px #166534 !important; color: #14532D !important;
+        }
+
+        /* Quiz Buttons */
+        .comp-btn-group .option-button {
+            transition: all 0.2s; background-color: #FFFFFF; color: #0F172A;
+            font-weight: 600; padding: 15px 20px; border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); border: 1px solid #E2E8F0;
+            text-align: left; width: 100%; cursor: pointer; margin-bottom: 10px;
+        }
+        .comp-btn-group .option-button:hover { border-color: var(--color-primary); background-color: #F8FAFC; }
+        .comp-btn-group .option-button.selected { background-color: #E2E8F0; color: var(--color-primary) !important; border-color: var(--color-primary); box-shadow: 0 0 0 2px #0F172A; }
+        .comp-btn-group .option-button.correct { background-color: #DCFCE7 !important; color: #14532D !important; border-color: #15803D !important; }
+        .comp-btn-group .option-button.incorrect { background-color: #FEE2E2 !important; color: #991B1B !important; border-color: #B91C1C !important; }
+
+        .result-message { margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: 700; display: none; text-align: center; }
+        .result-message.correct { background-color: #DCFCE7; color: #14532D; border: 1px solid #86EFAC; }
+        .result-message.incorrect { background-color: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+        
+        /* Gap-Fill */
+        .word-bank { background: #F1F5F9; border: 2px solid var(--color-primary); border-radius: 10px; }
+        .word-options { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .word-option {
+            background-color: white; color: var(--color-primary); padding: 8px 16px;
+            border-radius: 50px; cursor: pointer; transition: all 0.2s; font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); border: 1px solid #CBD5E1;
+        }
+        .word-option:hover { border-color: var(--color-secondary); color: var(--color-secondary); transform: translateY(-2px); }
+        .word-option.selected { background-color: var(--color-primary) !important; color: white !important; transform: scale(1.05); border-color: var(--color-primary) !important; }
+        .word-option.used { opacity: 0.4; pointer-events: none; background-color: #CBD5E1; color: #64748B; transform: none; box-shadow: none; border-color: transparent; }
+
+        .gap-input {
+            display: inline-block; text-align: center; padding: 0 5px; min-width: 100px; 
+            height: 30px; line-height: 28px; background-color: #FFFFFF; border-bottom: 2px dashed #94A3B8; 
+            border-radius: 4px; color: var(--color-primary); font-weight: 700; cursor: pointer; margin: 0 4px; transition: all 0.2s;
+        }
+        .gap-input:empty::before { content: '____'; color: #CBD5E1; }
+        .gap-input.filled { background-color: #F1F5F9; border-bottom-color: var(--color-primary); }
+        .gap-input.correct { background-color: #DCFCE7 !important; border-color: #15803D !important; color: #14532D !important; pointer-events: none; border-bottom-style: solid; }
+        .gap-input.incorrect { background-color: #FEE2E2 !important; border-color: #B91C1C !important; color: #991B1B !important; border-bottom-style: solid; }
+
+        /* Buttons & Save */
+        .button-group { margin-top: 20px; display: flex; gap: 15px; justify-content: center; }
+        .check-button {
+            background: var(--color-primary); color: white; border: none; padding: 12px 30px;
+            border-radius: 50px; cursor: pointer; font-size: 1em; font-weight: 700;
+            transition: all 0.3s; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .check-button:hover { background: #1E293B; transform: translateY(-2px); }
+        .reset-button { background: #64748B; }
+        .reset-button:hover { background: #475569; }
+
+        #save-words-section { background: #F8FAFC; border: 2px solid #E2E8F0; padding: 25px; border-radius: 12px; margin-top: 40px; text-align: center; }
+        #save-words-btn {
+            background-color: var(--color-save-btn); color: white; padding: 14px 30px;
+            border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color 0.2s;
+            display: block; width: 100%; border: none; box-shadow: 0 4px #0F172A;
+            text-transform: uppercase; font-size: 1.1em;
+        }
+        #save-words-btn:hover:not(:disabled) { background-color: #334155; }
+        #save-words-btn:active:not(:disabled) { box-shadow: 0 1px #0F172A; transform: translateY(3px); }
+        #save-words-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        #learned-words-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; margin-bottom: 20px; text-align: center; list-style: none; }
+        #learned-words-list li {
+            background: white; padding: 12px 15px; border-radius: 8px; border: 1px solid #E2E8F0;
+            font-size: 0.95em; cursor: pointer; transition: all 0.2s; font-weight: 600; color: var(--color-primary);
+        }
+        #learned-words-list li:hover { transform: translateY(-2px); border-color: var(--color-secondary); color: var(--color-secondary); box-shadow: 0 4px 10px rgba(0,0,0,0.05); background-color: #FFFBEB; }
+        #learned-words-list li::before { content: '🔊 '; font-size: 0.8em; opacity: 0.6; }
+
+        /* Popups */
+        #feedback-popup {
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            padding: 25px 40px; border-radius: 16px; font-weight: 700; color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 2000; display: none;
+            text-align: center; font-size: 1.3em; border: 4px solid white; min-width: 300px;
+        }
+        #dictionary-popup {
+            position: fixed; max-width: 300px; padding: 20px; background: #FFFFFF;
+            border-top: 4px solid var(--color-secondary); border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 2001; display: none;
+            font-size: 0.95em; color: #334155; line-height: 1.5;
+        }
+        @media (max-width: 768px) { .user-greeting { display: none; } }
+        
+        .footer {
+            background: #FFFFFF;
+            border-top: 1px solid #E5E9F2;
+            padding: 32px 20px;
+            margin-top: 60px;
+            text-align: center;
+        }
+
+        .footer-text { font-size: 14px; color: #718096; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">💼</span>
+                <a href="/advanced/" class="site-title">English For Cool Dudes</a>
+            </div>
+            <div id="logged-out-buttons" class="header-buttons" style="display: none;">
+                <a href="/login/" class="header-button login">Login</a>
+                <a href="/signup/" class="header-button signup">Sign Up</a>
+            </div>
+            <div id="logged-in-buttons" class="header-buttons" style="display: none;">
+                <span class="user-greeting" id="user-greeting">Hey Partner! 👋</span>
+                <a href="/dashboard/" class="header-button dashboard">My Dashboard</a>
+                <button id="logout-btn" class="header-button logout">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-main">
+        <h1 class="lesson-main-title">The Wealth Management Pitch</h1>
+        <p class="text-lg text-gray-500 mb-8">Level C1 (Partner) | Topic: Passive Income & Investment Strategy</p>
+
+        <main class="space-y-8">
+            
+            <section class="lesson-section shadow-lg">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 border-b-2 border-dashed border-slate-300 pb-4">
+                    <h2 class="section-title" style="border: none; margin: 0;">📩 1. The Client Brief</h2>
+                    <span class="text-sm bg-slate-100 text-slate-700 py-1 px-3 rounded-full font-bold mt-2 md:mt-0">Read Carefully</span>
+                </div>
+
+                <div class="email-container">
+                    <div class="email-header">
+                        <strong>From:</strong> Arthur Sterling (arthur.sterling@wealthmail.com)<br>
+                        <strong>Subject:</strong> Relocation to Germany - Portfolio Review
+                    </div>
+                    <div class="reading-text">
+                        <p class="mb-4">Dear Partner,</p>
+                        <p class="mb-4">As discussed, I am relocating my tax residence to Munich next month. I need a clear strategy for my global <span class="highlight-word" onclick="showDictionaryPopup(this, 'Portfolio')">portfolio</span>.</p>
+
+                        <p class="mb-4">Currently, my primary income is generated via <span class="highlight-word" onclick="showDictionaryPopup(this, 'Passive Income')">passive income</span> streams. I hold significant positions in US-based <span class="highlight-word" onclick="showDictionaryPopup(this, 'REITs')">REITs</span> and a diversified basket of <span class="highlight-word" onclick="showDictionaryPopup(this, 'ETFs')">ETFs</span>. I am concerned that the German <span class="highlight-word" onclick="showDictionaryPopup(this, 'Tax Burden')">tax burden</span> will significantly erode my <span class="highlight-word" onclick="showDictionaryPopup(this, 'Yield')">yield</span>.</p>
+
+                        <p class="mb-4">Additionally, I have some accumulated losses from a failed venture in 2023. Can we <span class="highlight-word" onclick="showDictionaryPopup(this, 'Offset')">offset</span> these against my future dividend income? I am looking for tax efficiency, not evasion.</p>
+
+                        <p>I expect a preliminary assessment by Tuesday regarding my <span class="highlight-word" onclick="showDictionaryPopup(this, 'Liquidity')">liquidity</span> needs.</p>
+                        <p class="mt-4">Best regards,<br><strong>Arthur Sterling</strong></p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="exercise-1" class="lesson-section shadow-lg">
+                <h2 class="section-title">🔗 2. Terminology Match</h2>
+                <p class="text-gray-600 mb-6 font-medium">Match the financial term to its definition. Correct pairs will disappear.</p>
+
+                <div id="vocab-match-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </section>
+        
+            <section id="exercise-2" class="lesson-section shadow-lg">
+                <h2 class="section-title">⚖️ 3. Advisory Strategy</h2>
+                <p class="text-gray-600 mb-4 font-medium">Based on the email, what is the correct advisory approach?</p>
+                
+                <div class="question" data-question="1">
+                    <p class="font-semibold text-lg text-gray-800 mb-3">1. How should you handle Mr. Sterling's concern about the "Tax Burden"?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="1">
+                        <li class="option-button" data-correct="false">Tell him to keep the money in the US to avoid German tax completely.</li>
+                        <li class="option-button" data-correct="true">Explain the "Abgeltungsteuer" (25% flat rate) and how foreign tax credits apply.</li>
+                        <li class="option-button" data-correct="false">Advise him to buy more crypto to hide the wealth.</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="2">
+                    <p class="font-semibold text-lg text-gray-800 mb-3">2. Can he offset his 2023 losses against future income?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="2">
+                        <li class="option-button" data-correct="true">Potentially, but there are strict restrictions on "loss carry-forwards" in Germany.</li>
+                        <li class="option-button" data-correct="false">Yes, Germany allows unlimited loss offsets for all income types.</li>
+                        <li class="option-button" data-correct="false">No, losses can never be deducted in Germany.</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="3">
+                    <p class="font-semibold text-lg text-gray-800 mb-3">3. What is his main goal?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="3">
+                        <li class="option-button" data-correct="false">To evade taxes using offshore accounts.</li>
+                        <li class="option-button" data-correct="false">To sell all his assets before moving.</li>
+                        <li class="option-button" data-correct="true">To maintain tax efficiency while remaining compliant.</li>
+                    </ul>
+                </div>
+
+                <div class="button-group">
+                    <button class="check-button" onclick="checkComprehension()">Verify Strategy</button>
+                    <button class="check-button reset-button" onclick="resetComprehension()">Reset</button>
+                </div>
+                <div id="comprehension-result" class="result-message"></div>
+            </section>
+
+            <section id="exercise-3" class="lesson-section shadow-lg">
+                <h2 class="section-title">📝 4. The Partner's Reply</h2>
+                <p class="text-gray-600 mb-6 font-medium">Complete your email response using the correct phrasal verbs.</p>
+                
+                <div class="word-bank p-4 mb-6">
+                    <h4 class="font-bold text-gray-600 mb-3 w-full text-center text-xs uppercase">Word Bank</h4>
+                    <div class="word-options" id="gap-fill-options">
+                        <span class="word-option" data-word="subject to">subject to</span>
+                        <span class="word-option" data-word="offset against">offset against</span>
+                        <span class="word-option" data-word="yield a return">yield a return</span>
+                        <span class="word-option" data-word="wipe out">wipe out</span>
+                        <span class="word-option" data-word="look into">look into</span>
+                    </div>
+                </div>
+
+                <div class="email-container p-6 bg-white">
+                    <div class="gap-fill-text text-lg leading-loose space-y-4 font-serif text-slate-700">
+                        <p>Dear Mr. Sterling,</p>
+                        <p>Welcome to Munich. Regarding your US REITs, please note that these dividends are <span class="gap-input" data-answer="subject to"></span> German withholding tax.</p>
+                        <p>However, we can certainly <span class="gap-input" data-answer="look into"></span> structuring your portfolio efficiently. It may be possible for your previous losses to be <span class="gap-input" data-answer="offset against"></span> your future capital gains, though rules apply.</p>
+                        <p>Be careful with high-risk assets, as market volatility could <span class="gap-input" data-answer="wipe out"></span> your gains. Our goal is to ensure your assets continue to <span class="gap-input" data-answer="yield a return"></span> that beats inflation.</p>
+                        <p>Regards,<br>The Partner</p>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="check-button" onclick="checkGaps()">Send Email</button>
+                    <button class="check-button reset-button" onclick="resetGaps()">Reset</button>
+                </div>
+                <div id="gap-result" class="result-message"></div>
+            </section>
+
+            <section class="lesson-section shadow-lg border-t-4 border-slate-800">
+                <h2 class="section-title">🎉 Lesson Complete</h2>
+                <p class="mb-4 text-gray-600">Review the key terminology below. Click to verify definitions.</p>
+                
+                <ul id="learned-words-list">
+                    <li data-word="Portfolio">Portfolio</li>
+                    <li data-word="Passive Income">Passive Income</li>
+                    <li data-word="REITs">REITs</li>
+		    <li data-word="ETFs">ETFs</li>
+                    <li data-word="Tax Burden">Tax Burden</li>
+                    <li data-word="Yield">Yield</li>
+                    <li data-word="Offset">Offset</li>
+                    <li data-word="Liquidity">Liquidity</li>
+                    <li data-word="Volatility">Volatility</li>
+                </ul>
+
+                <div id="save-words-section">
+                    <h3 class="text-xl font-bold mb-3" style="color: var(--color-save-btn);">💾 Partner Dashboard</h3>
+                    
+                    <div id="save-feature-loggedin" style="display: none;">
+                        <p class="text-gray-700 mb-4">Save these terms to your professional inventory.</p>
+                        <button id="save-words-btn" onclick="saveWordsToDashboard()">Save to Dashboard</button>
+                        <p id="save-status" class="text-center mt-3 font-semibold text-green-700"></p>
+                    </div>
+                    
+                    <div id="login-prompt" style="display: none;">
+                        <p class="text-red-600 font-bold mb-2">🔒 Please Login to save progress</p>
+                        <a href="/login/" class="inline-block bg-slate-800 text-white font-bold py-2 px-4 rounded hover:bg-black transition">Log In / Sign Up</a>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+        <footer class="footer">
+            <p class="footer-text">© 2026 English For Cool Dudes - Tax & Legal English</p>
+            <div style="margin-top: 10px;">
+                <a href="/impressum/" style="color: #64748B; margin-right: 15px; text-decoration: none;">Impressum</a>
+                <a href="/datenschutz/" style="color: #64748B; text-decoration: none;">Privacy</a>
+            </div>
+        </footer>
+    </div>
+    
+    <div id="feedback-popup"></div>
+    <div id="dictionary-popup"></div>
+
+    <script>
+        // --- CONFIG ---
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null;
+
+        const lessonTitle = "The Wealth Management Pitch";
+        const lessonLink = "/wealth/";
+        const lessonLevel = "C1";
+
+        const wordsToSave = [
+            { word: "Portfolio", type: "noun", definition: "A range of investments held by a person or organization." },
+            { word: "Passive Income", type: "noun", definition: "Earnings from an enterprise in which a person is not actively involved (e.g., rent, dividends)." },
+            { word: "REITs", type: "acronym", definition: "Real Estate Investment Trusts - companies that own income-producing real estate." },
+	    { word: "ETFs", type: "acronym", definition: "Exchange Traded Fund - An investment fund that trades like stock on an exchange." },
+            { word: "Tax Burden", type: "noun", definition: "The total amount of tax that an individual or business must pay." },
+            { word: "Yield", type: "noun", definition: "The income returned on an investment (interest or dividends)." },
+            { word: "Offset", type: "verb", definition: "To use a loss to reduce the tax liability of a gain." },
+            { word: "Liquidity", type: "noun", definition: "How easily an asset can be converted into cash." },
+            { word: "Volatility", type: "noun", definition: "Liability to change rapidly and unpredictably (risk)." }
+        ];
+
+        // --- AUTH ---
+        async function checkUser() {
+            try {
+                const { data: { user } } = await sb.auth.getUser();
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('logged-in-buttons').style.display = 'flex';
+                    document.getElementById('logged-out-buttons').style.display = 'none';
+                    document.getElementById('save-feature-loggedin').style.display = 'block';
+                    document.getElementById('login-prompt').style.display = 'none';
+                    const name = user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Partner';
+                    document.getElementById('user-greeting').textContent = `Hey ${name}! 👋`;
+                } else {
+                    document.getElementById('logged-in-buttons').style.display = 'none';
+                    document.getElementById('logged-out-buttons').style.display = 'flex';
+                    document.getElementById('save-feature-loggedin').style.display = 'none';
+                    document.getElementById('login-prompt').style.display = 'block';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function saveWordsToDashboard() {
+            if (!currentUser) return;
+            const btn = document.getElementById('save-words-btn');
+            const status = document.getElementById('save-status');
+            btn.disabled = true; btn.textContent = "Saving...";
+
+            const { error } = await sb.from('lessons').upsert([{
+                user_id: currentUser.id, lesson_title: lessonTitle, lesson_link: lessonLink,
+                lesson_level: lessonLevel, vocabulary: wordsToSave, completed_at: new Date().toISOString()
+            }], { onConflict: 'user_id,lesson_title' });
+
+            if (!error) {
+                btn.textContent = "✅ Saved!"; btn.style.backgroundColor = "#15803D";
+                status.textContent = "Vocabulary secured! Check your dashboard.";
+                setTimeout(() => window.location.href = '/dashboard/', 1500);
+            } else {
+                btn.textContent = "❌ Error"; btn.disabled = false;
+                status.textContent = "Error saving. Please try again.";
+            }
+        }
+        
+        async function saveMistake(word) {
+            if(!currentUser) return;
+            const wObj = wordsToSave.find(w=>w.word.toLowerCase()===word.toLowerCase()) || {word: word, definition:'Review this term', type:'word'};
+            await sb.from('user_mistakes').upsert({
+                user_id: currentUser.id, word: wObj.word, definition: wObj.definition, word_type: wObj.type,
+                lesson: lessonTitle, lesson_link: lessonLink, last_made_at: new Date().toISOString()
+            }, {onConflict: 'user_id,word'});
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await sb.auth.signOut(); window.location.href = '/';
+        });
+
+        // --- UTILS ---
+        function playAudio(word) {
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.85;
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function showFeedback(msg, type) {
+            const el = document.getElementById('feedback-popup');
+            el.textContent = msg; el.style.display = 'block';
+            el.style.backgroundColor = type === 'correct' ? '#15803D' : '#B91C1C';
+            el.style.borderColor = type === 'correct' ? '#14532D' : '#991B1B';
+            setTimeout(() => { el.style.display = 'none'; }, 1800);
+        }
+
+        function showDictionaryPopup(target, word) {
+            const searchWord = word.toLowerCase();
+            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === searchWord);
+            
+            const popup = document.getElementById('dictionary-popup');
+            if(wordObj) {
+                popup.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                        <div>
+                            <strong>${wordObj.word}</strong> 
+                            <span style="font-size:0.85em; color:#B45309;">(${wordObj.type})</span>
+                        </div>
+                        <button onclick="playAudio('${wordObj.word}')" style="background: none; border: none; cursor: pointer; font-size: 1.3em; padding: 0; margin-left: 10px;" title="Listen">🔊</button>
+                    </div>
+                    ${wordObj.definition}
+                `;
+            } else {
+                popup.innerHTML = `<strong>${word}</strong><br>Definition not found.`;
+            }
+            
+            popup.style.display = 'block';
+            const rect = target.getBoundingClientRect();
+            let topPos = rect.top - popup.offsetHeight - 10;
+            if (topPos < 10) topPos = rect.bottom + 10;
+            
+            let leftPos = (rect.left + (rect.width/2) - (popup.offsetWidth/2));
+            if (leftPos < 10) leftPos = 10;
+            if (leftPos + popup.offsetWidth > window.innerWidth) leftPos = window.innerWidth - popup.offsetWidth - 10;
+
+            popup.style.top = topPos + 'px';
+            popup.style.left = leftPos + 'px';
+        }
+        
+        document.body.addEventListener('click', (e) => {
+            if (!e.target.closest('#dictionary-popup') && !e.target.closest('#learned-words-list li') && !e.target.closest('.highlight-word')) {
+                document.getElementById('dictionary-popup').style.display = 'none';
+            }
+        });
+
+        // --- EXERCISES ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        function cleanText(text) { return text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z]/g, '').toLowerCase() : ''; }
+
+        /* MATCHING GAME */
+        const newVocabData = [
+            { type: 'term', content: "Portfolio", key: 'A' }, { type: 'definition', content: "Range of investments held.", key: 'A' },
+            { type: 'term', content: "Yield", key: 'B' }, { type: 'definition', content: "Return on investment.", key: 'B' },
+            { type: 'term', content: "Offset", key: 'C' }, { type: 'definition', content: "Balance losses against gains.", key: 'C' },
+            { type: 'term', content: "Liquidity", key: 'D' }, { type: 'definition', content: "Access to cash.", key: 'D' },
+            { type: 'term', content: "Volatility", key: 'E' }, { type: 'definition', content: "Risk of rapid change.", key: 'E' },
+            { type: 'term', content: "REIT", key: 'F' }, { type: 'definition', content: "Real Estate Trust.", key: 'F' }
+        ];
+        let selectedTermCard = null, selectedDefinitionCard = null, matchedPairs = 0;
+
+        function initVocab() {
+            const matchContainer = document.getElementById('vocab-match-container');
+            matchContainer.innerHTML = ''; shuffleArray(newVocabData);
+            newVocabData.forEach(item => {
+                const card = document.createElement('div'); 
+                card.className = `match-card interactive-element ${item.type}`;
+                card.innerHTML = item.type === 'term' ? `<span class="font-bold">${item.content}</span>` : `<span>${item.content}</span>`; 
+                card.dataset.key = item.key; card.dataset.type = item.type;
+                card.addEventListener('click', () => handleMatchClick(card));
+                matchContainer.appendChild(card);
+            });
+            selectedTermCard = null; selectedDefinitionCard = null; matchedPairs = 0;
+        }
+
+        function handleMatchClick(card) {
+            if (card.classList.contains('matched')) return;
+            const type = card.dataset.type;
+            let currentSelection = type === 'term' ? selectedTermCard : selectedDefinitionCard;
+            if (currentSelection) currentSelection.classList.remove('selected');
+            if (currentSelection === card) {
+                if (type === 'term') selectedTermCard = null; else selectedDefinitionCard = null;
+                return;
+            }
+            if (type === 'term') selectedTermCard = card; else selectedDefinitionCard = card;
+            card.classList.add('selected');
+
+            if (selectedTermCard && selectedDefinitionCard) {
+                if (selectedTermCard.dataset.key === selectedDefinitionCard.dataset.key) {
+                    [selectedTermCard, selectedDefinitionCard].forEach(el => { el.classList.remove('selected'); el.classList.add('temp-matched'); });
+                    showFeedback("Correct! ✅", 'correct');
+                    
+                    const t = selectedTermCard; const d = selectedDefinitionCard;
+                    setTimeout(() => {
+                        t.classList.remove('temp-matched'); t.classList.add('matched');
+                        d.classList.remove('temp-matched'); d.classList.add('matched');
+                    }, 800);
+
+                    matchedPairs++;
+                    if (matchedPairs === newVocabData.length / 2) {
+                        setTimeout(() => {
+                            showFeedback("🎉 Complete! Restarting...", 'correct');
+                            setTimeout(() => initVocab(), 1500);
+                        }, 1000);
+                    }
+                    selectedTermCard = null; selectedDefinitionCard = null;
+                } else {
+                    showFeedback("Try again ❌", 'incorrect');
+                    setTimeout(() => {
+                        if(selectedTermCard) selectedTermCard.classList.remove('selected'); 
+                        if(selectedDefinitionCard) selectedDefinitionCard.classList.remove('selected');
+                        selectedTermCard = null; selectedDefinitionCard = null;
+                    }, 800);
+                }
+            }
+        }
+
+        /* COMPREHENSION */
+        function checkComprehension() {
+            const questions = document.querySelectorAll('.question'); 
+            let correctAnswers = 0;
+            questions.forEach(q => {
+                const selected = q.querySelector('.option-button.selected');
+                q.querySelectorAll('.option-button').forEach(opt => {
+                    opt.classList.remove('correct', 'incorrect');
+                    if (opt.dataset.correct === 'true') opt.classList.add('correct');
+                });
+                if (selected) {
+                    if (selected.dataset.correct === 'true') correctAnswers++; 
+                    else {
+                        selected.classList.add('incorrect');
+                    }
+                }
+            });
+            const resultDiv = document.getElementById('comprehension-result'); resultDiv.style.display = 'block';
+            if (correctAnswers === questions.length) { resultDiv.textContent = '🎉 Strategy Approved!'; resultDiv.className = 'result-message correct'; }
+            else { resultDiv.textContent = `You got ${correctAnswers}/${questions.length} correct.`; resultDiv.className = 'result-message incorrect'; }
+        }
+        
+        function resetComprehension() {
+            document.querySelectorAll('.option-button').forEach(item => item.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById('comprehension-result').style.display = 'none';
+        }
+
+        /* GAP FILL */
+        let selectedGapWord = null; 
+        
+        function initGaps() {
+            const wordOptionsContainer = document.getElementById('gap-fill-options');
+            const options = Array.from(wordOptionsContainer.children);
+            shuffleArray(options);
+            options.forEach(option => { wordOptionsContainer.appendChild(option); option.classList.remove('used', 'selected'); });
+            document.querySelectorAll('.gap-input').forEach(blank => { blank.textContent = ''; blank.classList.remove('correct', 'incorrect', 'selected'); });
+            selectedGapWord = null; document.getElementById('gap-result').style.display = 'none';
+        }
+        
+        function handleGapBlankClick(blank) {
+            if (blank.textContent.trim() === '') {
+                 if (selectedGapWord) {
+                    blank.textContent = selectedGapWord.textContent.trim();
+                    selectedGapWord.classList.remove('selected'); 
+                    selectedGapWord.classList.add('used');
+                    selectedGapWord = null;
+                }
+                return;
+            }
+            const currentText = cleanText(blank.textContent); 
+            const allOptions = Array.from(document.querySelectorAll('.word-option'));
+            const matchingBtn = allOptions.find(btn => cleanText(btn.textContent) === currentText);
+            if (matchingBtn) matchingBtn.classList.remove('used');
+            blank.textContent = ''; 
+            blank.classList.remove('correct', 'incorrect', 'filled'); 
+        }
+
+        function checkGaps() {
+            let correctCount = 0; 
+            const blanks = document.querySelectorAll('.gap-input'); 
+            blanks.forEach(blank => { 
+                const answerWord = blank.dataset.answer;
+                const extractedWord = blank.textContent.trim();
+                const cleanExtracted = cleanText(extractedWord);
+                const cleanAnswer = cleanText(answerWord);
+                blank.classList.remove('selected', 'incorrect', 'correct');
+                
+                if (extractedWord === '') {
+                } else if (cleanExtracted === cleanAnswer) { 
+                    blank.classList.add('correct'); 
+                    correctCount++; 
+                } else { 
+                    blank.classList.add('incorrect');
+                    saveMistake(answerWord); 
+                }
+            });
+
+            const resultDiv = document.getElementById('gap-result'); 
+            resultDiv.style.display = 'block';
+            if (correctCount === blanks.length) { 
+                resultDiv.textContent = '🎉 Email Sent! Perfect professional English.'; 
+                resultDiv.className = 'result-message correct'; 
+            } else { 
+                resultDiv.textContent = `You got ${correctCount}/${blanks.length} correct.`; 
+                resultDiv.className = 'result-message incorrect'; 
+            }
+        }
+
+        function resetGaps() {
+            selectedGapWord = null;
+            document.getElementById('gap-result').style.display = 'none';
+            document.querySelectorAll('.word-option').forEach(opt => opt.classList.remove('used', 'selected'));
+            document.querySelectorAll('.gap-input').forEach(blank => {
+                blank.textContent = '';
+                blank.classList.remove('correct', 'incorrect', 'selected', 'filled');
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkUser(); initVocab(); initGaps();
+            document.querySelectorAll('#learned-words-list li').forEach(li => li.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                const word = li.dataset.word;
+                showDictionaryPopup(li, word);
+                playAudio(word);
+            }));
+            
+            document.querySelectorAll('.option-button').forEach(item => item.addEventListener('click', () => {
+                item.closest('.question').querySelectorAll('.option-button').forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect'));
+                item.classList.add('selected'); 
+                document.getElementById('comprehension-result').style.display = 'none';
+            }));
+            
+            document.querySelectorAll('.word-option').forEach(option => option.addEventListener('click', () => {
+                if (option.classList.contains('used')) return;
+                if (selectedGapWord) selectedGapWord.classList.remove('selected');
+                if (selectedGapWord === option) selectedGapWord = null;
+                else { selectedGapWord = option; selectedGapWord.classList.add('selected'); }
+            }));
+            
+            document.querySelectorAll('.gap-input').forEach(blank => blank.addEventListener('click', () => handleGapBlankClick(blank)));
+        });
+    </script>
+</body>
+</html>
