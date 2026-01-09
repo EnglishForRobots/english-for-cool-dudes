@@ -118,13 +118,12 @@
 
     <script src="/tickerData.js"></script>
 
-    <script>
+  <script>
         (function() {
             'use strict';
 
             // Initialize Supabase
             if (window.supabaseClient) {
-                console.log('Supabase already initialized');
                 return;
             }
 
@@ -163,35 +162,34 @@
                 displayMessage('Sending password reset email...', false);
                 
                 try {
-                    // IMPORTANT: Use your actual production domain here
-                    // For production, replace with your actual domain
-                    const productionDomain = window.location.hostname === 'localhost' 
-                        ? 'http://localhost:3000' 
-                        : window.location.origin;
-                    
-                    const redirectUrl = `${productionDomain}/reset-password/`;
-                    
-                    console.log('Sending reset email with redirect to:', redirectUrl);
+                    // Force the redirect to your specific reset page
+                    const redirectUrl = 'https://www.englishforcooldudes.com/reset-password/';
                     
                     const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
                         redirectTo: redirectUrl,
                     });
 
-                    resetButton.disabled = false;
-                    resetButton.textContent = 'Send Reset Link'; 
-
                     if (error) {
                         console.error('Password Reset Error:', error);
-                        displayMessage('Failed to send reset email. Please try again.', true);
+                        
+                        // Handle the 429 Rate Limit error specifically
+                        if (error.status === 429 || error.message.includes('3 seconds')) {
+                            displayMessage('Too many requests. Please wait 60 seconds before trying again.', true);
+                        } else {
+                            displayMessage('Error: ' + error.message, true);
+                        }
+                        
+                        resetButton.disabled = false;
+                        resetButton.textContent = 'Send Reset Link';
                     } else {
-                        console.log('Password reset email sent:', data);
-                        displayMessage('✅ Check your email! We sent you a password reset link.', false);
+                        displayMessage('✅ Check your email! A fresh reset link has been sent.', false);
                         resetForm.reset();
                         
-                        // Optional: Redirect to login after 5 seconds
+                        // Keep button disabled to prevent spamming
                         setTimeout(() => {
-                            window.location.href = '/login/';
-                        }, 5000);
+                            resetButton.disabled = false;
+                            resetButton.textContent = 'Send Reset Link';
+                        }, 60000); 
                     }
                 } catch (err) {
                     console.error('Unexpected error:', err);
@@ -211,13 +209,14 @@
                 }
             });
             
-            // Service Worker
+            /* Commented out to stop 404 console errors until you have a sw.js file
             if ('serviceWorker' in navigator) {
                 const swUrl = '/sw.js?v=' + new Date().getTime();
                 navigator.serviceWorker.register(swUrl).catch(err => {
                     console.log('Service Worker registration:', err.message);
                 });
             }
+            */
         })();
     </script>
 </body>
