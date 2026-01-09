@@ -144,6 +144,35 @@
             const confirmPasswordInput = document.getElementById('confirm-password');
             const messageDiv = document.getElementById('message');
             const updateButton = document.getElementById('update-btn');
+
+            // 1. Look at the "Ticket" in the URL
+const urlParams = new URLSearchParams(window.location.hash.replace('#', '?'));
+const errorCode = urlParams.get('error_code');
+
+// 2. If the ticket is broken or expired, STOP the loop here
+if (errorCode === 'otp_expired' || errorCode === 'access_denied' || window.location.href.includes('error')) {
+    
+    // Show the user a clear message so they aren't confused
+    if (messageDiv) {
+        messageDiv.style.display = 'block';
+        messageDiv.innerHTML = `
+            <div style="color: #E53E3E; background: #FFF5F5; padding: 20px; border-radius: 12px; border: 2px solid #E53E3E; text-align: center;">
+                <h3 style="margin-bottom: 10px;">😎 Reset Link Expired</h3>
+                <p>Your email provider might have "clicked" the link to scan it, which used up your one-time ticket.</p>
+                <br>
+                <a href="/forgot-password/" style="background: #667EEA; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; display: inline-block; font-weight: bold;">
+                   Try again (Request New Link)
+                </a>
+            </div>
+        `;
+    }
+    
+    // Hide the form so the "loop" doesn't trigger again
+    if (updateForm) updateForm.style.display = 'none';
+    
+    // THIS IS THE MOST IMPORTANT LINE: It stops the page from redirecting you!
+    throw new Error("Stopping execution to prevent redirect loop."); 
+}
             
             function displayMessage(text, isError = false) {
                 messageDiv.textContent = text;
