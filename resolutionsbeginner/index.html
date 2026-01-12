@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+    <link rel="icon" type="image/png" href="/android-chrome-192x192.png" sizes="192x192">
+    <link rel="manifest" href="/manifest.json">
+    
+    <title>The Future: Hopes & Fears - English For Cool Dudes</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* --- BRANDING & LAYOUT STYLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: #E3F2FD; /* Light Blue Background for Future Theme */
+            color: #1A237E; /* Deep Indigo Text */
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- THEME: FUTURE PALETTE (A2 LEVEL) 🔮 --- */
+        :root {
+            --color-primary: #1565C0; /* Deep Blue */
+            --color-secondary: #7B1FA2; /* Deep Purple */
+            --color-accent: #00BFA5; /* Teal/Cyan (Hope) */
+            --color-white: #FFFFFF;
+            
+            /* Feedback Colors */
+            --color-correct: #2E7D32; 
+            --color-incorrect: #C62828; 
+            
+            --color-save-btn: #1565C0; 
+        }
+
+        /* Header */
+        .header {
+            background: var(--color-white);
+            border-bottom: 2px solid var(--color-primary);
+            padding: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header-content {
+            max-width: 1200px; margin: 0 auto; padding: 0 20px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+
+        .logo {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, #1565C0 0%, #7B1FA2 100%); 
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            font-size: 20px; color: white;
+        }
+        .site-title { font-size: 20px; font-weight: 800; color: var(--color-primary); text-decoration: none; letter-spacing: -0.02em; }
+
+        /* Buttons */
+        .header-buttons { display: flex; align-items: center; gap: 8px; }
+        .header-button {
+            text-decoration: none; padding: 7px 14px; border-radius: 6px;
+            font-size: 14px; font-weight: 600; transition: all 0.2s;
+            white-space: nowrap; cursor: pointer; border: 1px solid #BBDEFB;
+            background: transparent;
+        }
+        .header-button.login { background: #E3F2FD; color: var(--color-primary); }
+        .header-button.login:hover { background: #FFFFFF; color: var(--color-secondary); border-color: var(--color-secondary); }
+        
+        .header-button.signup { background: var(--color-secondary); color: white; border-color: var(--color-secondary); }
+        .header-button.signup:hover { background: #9C27B0; box-shadow: 0 2px 5px rgba(123, 31, 162, 0.4); }
+        
+        .header-button.dashboard { background: #FFF8E1; color: #F57F17; border-color: #FFD54F; }
+        .header-button.logout { background: #E3F2FD; color: #C62828; border-color: #EF9A9A; }
+        
+        .user-greeting { font-size: 14px; color: var(--color-primary); font-weight: 600; margin-right: 5px; display: block; }
+
+        /* Container */
+        .container-main {
+            max-width: 1000px; margin: 30px auto; padding: 30px 20px;
+            background-color: var(--color-white); border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 2px solid #BBDEFB;
+        }
+
+        .lesson-main-title {
+            font-size: 2.5em; font-weight: 800; color: var(--color-primary); 
+            margin-bottom: 10px; letter-spacing: -0.02em;
+        }
+
+        .lesson-section {
+            background-color: #F8FAF5; padding: 30px; border-radius: 10px;
+            border: 1px solid #E0E0E0; margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: var(--color-secondary); font-size: 1.8em; font-weight: 800;
+            margin-bottom: 20px; padding-bottom: 5px; border-bottom: 2px dashed var(--color-primary);
+        }
+
+    
+
+        /* Reading Text */
+        .reading-text {
+            background: #FFFFFF; border-left: 5px solid var(--color-primary);
+            padding: 20px; border-radius: 0 8px 8px 0; font-size: 1.1em;
+            color: #1A237E; line-height: 1.8; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .highlight-word {
+            color: var(--color-primary); font-weight: 700; cursor: help;
+            border-bottom: 2px dotted var(--color-primary); transition: all 0.2s;
+        }
+        .highlight-word:hover { background-color: #E3F2FD; color: var(--color-secondary); border-radius: 4px; }
+        
+        /* Match Cards */
+        .match-card {
+            border: 2px solid transparent; transition: all 0.5s ease;
+            cursor: pointer; user-select: none; border-radius: 0.75rem; 
+            padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); font-weight: 600;
+            opacity: 1; transform: scale(1); min-height: 80px; display: flex; align-items: center; justify-content: center;
+        }
+        .match-card.term {
+            background-color: #E3F2FD; border: 2px solid var(--color-primary); 
+            text-align: center; color: var(--color-primary);
+        }
+        .match-card.definition {
+            background-color: #FFFFFF; text-align: left; border: 2px solid #CFD8DC; color: #37474F;
+        }
+        .match-card.selected {
+            border-color: var(--color-accent); background-color: #E0F2F1; 
+            box-shadow: 0 0 0 4px #80CBC4; transform: scale(1.02);
+        }
+        .match-card.matched { 
+            pointer-events: none; opacity: 0; transform: scale(0.9); 
+        }
+        .match-card.temp-matched {
+            background-color: #C8E6C9 !important; border-color: #2E7D32 !important; 
+            box-shadow: 0 0 0 4px #2E7D32 !important; color: #1B5E20 !important;
+        }
+
+        /* Quiz Buttons */
+        .comp-btn-group .option-button {
+            transition: all 0.2s; background-color: #FFFFFF; color: #1A237E;
+            font-weight: 600; padding: 10px 15px; border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); border: 1px solid #BBDEFB;
+            text-align: left; width: 100%; cursor: pointer; margin-bottom: 10px;
+        }
+        .comp-btn-group .option-button:hover { border-color: var(--color-primary); background-color: #E3F2FD; }
+        .comp-btn-group .option-button.selected { background-color: #BBDEFB; color: var(--color-primary) !important; border-color: var(--color-primary); box-shadow: 0 0 0 4px #BBDEFB; }
+        .comp-btn-group .option-button.correct { background-color: #4CAF50 !important; color: white !important; border-color: #2E7D32 !important; box-shadow: 0 0 0 4px #2E7D32 !important; }
+        .comp-btn-group .option-button.incorrect { background-color: #EF5350 !important; color: white !important; border-color: #C62828 !important; box-shadow: 0 0 0 4px #C62828 !important; }
+
+        .result-message { margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: 700; display: none; text-align: center; }
+        .result-message.correct { background-color: #C8E6C9; color: #1B5E20; border: 1px solid #81C784; }
+        .result-message.incorrect { background-color: #FFCDD2; color: #B71C1C; border: 1px solid #E57373; }
+        
+        /* Gap-Fill */
+        .word-bank { background: #EDE7F6; border: 2px solid var(--color-secondary); border-radius: 10px; }
+        .word-options { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .word-option {
+            background-color: var(--color-secondary); color: white; padding: 10px 15px;
+            border-radius: 6px; cursor: pointer; transition: all 0.2s; font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); border: none;
+        }
+        .word-option:hover { background-color: #9C27B0; transform: translateY(-2px); }
+        .word-option.selected { background-color: var(--color-primary) !important; transform: scale(1.05); box-shadow: 0 0 0 4px #BBDEFB !important; }
+        .word-option.used { opacity: 0.4; pointer-events: none; background-color: #78909C; transform: none; }
+
+        .gap-input {
+            display: inline-block; text-align: center; padding: 0 10px; min-width: 100px; 
+            height: 32px; line-height: 30px; background-color: #FFFFFF; border-bottom: 3px solid var(--color-primary); 
+            border-radius: 4px; color: var(--color-primary); font-weight: 700; cursor: pointer; margin: 0 4px; transition: all 0.2s;
+        }
+        .gap-input:empty { background-color: #E3F2FD; }
+        .gap-input.filled { background-color: #BBDEFB; border-bottom-color: var(--color-primary); }
+        .gap-input.correct { background-color: #A9DFBF !important; border-color: #2E7D32 !important; color: #1B5E20 !important; font-style: normal; pointer-events: none; }
+        .gap-input.incorrect { background-color: #EF9A9A !important; border-color: #C62828 !important; color: #B71C1C !important; font-style: normal; }
+
+        /* Grammar Section */
+        .grammar-box {
+            background: linear-gradient(135deg, #E8EAF6 0%, #F3E5F5 100%);
+            border: 2px solid var(--color-secondary);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        .grammar-title {
+            color: var(--color-secondary);
+            font-size: 1.5em;
+            font-weight: 800;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .grammar-example {
+            background: white;
+            padding: 15px;
+            border-left: 4px solid var(--color-accent);
+            margin: 10px 0;
+            border-radius: 6px;
+        }
+        .grammar-highlight {
+            color: var(--color-secondary);
+            font-weight: 700;
+            font-style: italic;
+        }
+
+        /* Buttons & Save */
+        .button-group { margin-top: 20px; display: flex; gap: 15px; justify-content: center; }
+        .check-button {
+            background: var(--color-primary); color: white; border: none; padding: 12px 25px;
+            border-radius: 8px; cursor: pointer; font-size: 1em; font-weight: 600;
+            transition: all 0.3s; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .check-button:hover { background: #1976D2; transform: translateY(-1px); }
+        .reset-button { background: #78909C; }
+        .reset-button:hover { background: #546E7A; }
+
+        #save-words-section { background: #E3F2FD; border: 2px solid #BBDEFB; padding: 25px; border-radius: 12px; margin-top: 40px; text-align: center; }
+        #save-words-btn {
+            background-color: var(--color-save-btn); color: white; padding: 14px 30px;
+            border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color 0.2s;
+            display: block; width: 100%; border: none; box-shadow: 0 4px #7B1FA2;
+            text-transform: uppercase; font-size: 1.1em;
+        }
+        #save-words-btn:hover:not(:disabled) { background-color: #1976D2; }
+        #save-words-btn:active:not(:disabled) { box-shadow: 0 1px #7B1FA2; transform: translateY(3px); }
+        #save-words-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        #learned-words-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px; text-align: center; list-style: none; }
+        #learned-words-list li {
+            background: white; padding: 10px 15px; border-radius: 8px; border: 2px solid var(--color-primary);
+            font-size: 0.95em; cursor: pointer; transition: all 0.2s; font-weight: 600; color: var(--color-primary);
+        }
+        #learned-words-list li:hover { transform: translateY(-2px); border-color: var(--color-secondary); color: var(--color-secondary); box-shadow: 0 4px 10px rgba(0,0,0,0.05); background-color: #E8F5E9; }
+
+        /* Popups */
+        #feedback-popup {
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            padding: 25px 40px; border-radius: 16px; font-weight: 700; color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 2000; display: none;
+            text-align: center; font-size: 1.3em; border: 4px solid white; min-width: 300px;
+        }
+        #dictionary-popup {
+            position: fixed; max-width: 280px; padding: 16px; background: #FFFFFF;
+            border: 3px solid var(--color-primary); border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 2001; display: none;
+            font-size: 0.95em; color: #1A237E; line-height: 1.5;
+        }
+        @media (max-width: 768px) { .user-greeting { display: none; } }
+        
+        .footer {
+            background: #FFFFFF;
+            border-top: 1px solid #E5E9F2;
+            padding: 32px 20px;
+            margin-top: 60px;
+            text-align: center;
+        }
+
+        .footer-text {
+            font-size: 14px;
+            color: #718096;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">🔮</span>
+                <a href="/beginner/" class="site-title">English For Cool Dudes</a>
+            </div>
+            <div id="logged-out-buttons" class="header-buttons" style="display: none;">
+                <a href="/login/" class="header-button login">Login</a>
+                <a href="/signup/" class="header-button signup">Sign Up</a>
+            </div>
+            <div id="logged-in-buttons" class="header-buttons" style="display: none;">
+                <span class="user-greeting" id="user-greeting">Hey Cool Dude! 👋</span>
+                <a href="/dashboard/" class="header-button dashboard">My Dashboard</a>
+                <button id="logout-btn" class="header-button logout">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-main">
+        <h1 class="lesson-main-title">🔮 The Future: German Hopes & Fears</h1>
+        <p class="text-lg text-gray-500 mb-8">Elementary / Pre-Intermediate (A2) | Topic: Feelings & Future</p>
+
+        <main class="space-y-8">
+            
+            
+                
+                <h3 class="font-bold text-xl text-gray-800 mb-3">Reading</h3>
+                <div class="reading-text">
+                    <p class="mb-4">When we start a new year, we think about the future. Do we feel <span class="highlight-word" onclick="showDictionaryPopup(this, 'Happy')">happy</span> or <span class="highlight-word" onclick="showDictionaryPopup(this, 'Worried')">worried</span> about tomorrow? Germans have different feelings about the future.</p>
+
+                    <p class="mb-4">In Germany, only 40% of people feel positive about next year. They <span class="highlight-word" onclick="showDictionaryPopup(this, 'Hope')">hope</span> for good things, but many people have <span class="highlight-word" onclick="showDictionaryPopup(this, 'Problems')">problems</span>. What are their biggest worries? Money, climate, and technology.</p>
+
+                    <p class="mb-4">Many Germans think the world is <span class="highlight-word" onclick="showDictionaryPopup(this, 'Changing')">changing</span> too fast. Some people like new technology, but others think it is dangerous. One third of Germans believe artificial intelligence (AI) is bad for society.</p>
+
+                    <p class="mb-4">In different years, Germans worry about different things. In 2003, they worried about terrorism. In 2010, they worried about money and banks. But during COVID-19, Germans stayed <span class="highlight-word" onclick="showDictionaryPopup(this, 'Calm')">calm</span> and were very <span class="highlight-word" onclick="showDictionaryPopup(this, 'Strong')">strong</span>.</p>
+
+                    <p>When we make New Year's plans, we think: are we <span class="highlight-word" onclick="showDictionaryPopup(this, 'Ready')">ready</span> for problems, or are we hoping for a better future?</p>
+                </div>
+            </section>
+
+            <section id="exercise-1" class="lesson-section shadow-lg">
+                <h2 class="section-title">🔗 2. Vocabulary Memory Match</h2>
+                <p class="text-gray-600 mb-6 font-medium">Match the word to its meaning. Correct pairs will disappear!</p>
+
+                <div id="vocab-match-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </section>
+        
+            <section id="exercise-2" class="lesson-section shadow-lg">
+                <h2 class="section-title">❓ 3. Comprehension Check</h2>
+                <p class="text-gray-600 mb-4 font-medium">Watch the video and choose the correct answer.</p>
+                
+                <div class="question" data-question="1">
+                    <p class="font-semibold text-lg text-gray-600 mb-3">1. How many Germans feel positive about the future?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="1">
+                        <li class="option-button" data-correct="false">50% feel positive</li>
+                        <li class="option-button" data-correct="true">40% feel positive</li>
+                        <li class="option-button" data-correct="false">75% feel positive</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="2">
+                    <p class="font-semibold text-lg text-gray-600 mb-3">2. What do many Germans think about change?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="2">
+                        <li class="option-button" data-correct="true">The world is changing too fast</li>
+                        <li class="option-button" data-correct="false">Change is too slow</li>
+                        <li class="option-button" data-correct="false">They want more change</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="3">
+                    <p class="font-semibold text-lg text-gray-600 mb-3">3. How did Germans feel during COVID-19?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="3">
+                        <li class="option-button" data-correct="false">They were very scared</li>
+                        <li class="option-button" data-correct="true">They stayed calm</li>
+                        <li class="option-button" data-correct="false">They had the most fear ever</li>
+                    </ul>
+                </div>
+
+                <div class="button-group">
+                    <button class="check-button" onclick="checkComprehension()">Check Answers</button>
+                    <button class="check-button reset-button" onclick="resetComprehension()">Reset Exercise</button>
+                </div>
+                <div id="comprehension-result" class="result-message"></div>
+            </section>
+
+            <section id="exercise-3" class="lesson-section shadow-lg">
+                <h2 class="section-title">📝 4. Complete the Sentences</h2>
+                <p class="text-gray-600 mb-6 font-medium">Use the words from the word bank to complete the sentences.</p>
+                
+                <div class="word-bank p-4 mb-6">
+                    <h4 class="font-bold text-gray-600 mb-3 w-full text-center text-xs uppercase">Word Bank</h4>
+                    <div class="word-options" id="gap-fill-options">
+                        <span class="word-option" data-word="happy">happy</span>
+                        <span class="word-option" data-word="worried">worried</span>
+                        <span class="word-option" data-word="hope">hope</span>
+                        <span class="word-option" data-word="changing">changing</span>
+                        <span class="word-option" data-word="calm">calm</span>
+                        <span class="word-option" data-word="ready">ready</span>
+                    </div>
+                </div>
+
+                <div class="gap-fill-text text-lg leading-loose space-y-4">
+                    <p>1. I am <span class="gap-input" data-answer="happy">____</span> because tomorrow is my birthday!</p>
+                    <p>2. My mother is <span class="gap-input" data-answer="worried">____</span> about my exam results.</p>
+                    <p>3. I <span class="gap-input" data-answer="hope">____</span> the weather will be nice this weekend.</p>
+                    <p>4. The world is <span class="gap-input" data-answer="changing">____</span> very quickly with new technology.</p>
+                    <p>5. Please stay <span class="gap-input" data-answer="calm">____</span> - everything will be okay!</p>
+                    <p>6. Are you <span class="gap-input" data-answer="ready">____</span> for the test tomorrow?</p>
+                </div>
+                <div class="button-group">
+                    <button class="check-button" onclick="checkGaps()">Check Answers</button>
+                    <button class="check-button reset-button" onclick="resetGaps()">Reset Exercise</button>
+                </div>
+                <div id="gap-result" class="result-message"></div>
+            </section>
+
+            <section id="exercise-4" class="lesson-section shadow-lg">
+                <h2 class="section-title">📖 5. Grammar Focus: Talking About the Future</h2>
+                
+                <div class="grammar-box">
+                    <div class="grammar-title">
+                        <span>💡</span>
+                        <span>Simple Ways to Talk About the Future</span>
+                    </div>
+                    <p class="text-gray-700 mb-4">We can use different words to talk about the future:</p>
+                    
+                    <div class="grammar-example">
+                        <strong>WILL</strong> - For quick decisions and weak predictions/guesses<br>
+                        <span class="grammar-highlight">"I think it will rain tomorrow."</span><br>
+                        <span class="grammar-highlight">"I will help you with your homework."</span>
+                    </div>
+                    
+                    
+                    <div class="grammar-example">
+                        <strong>PRESENT CONTINUOUS</strong> - For definite arrangements<br>
+                        <span class="grammar-highlight">"We're meeting at 3pm."</span><br>
+                        <span class="grammar-highlight">"I'm starting my new job on Monday."</span>
+                    </div>
+
+		   <div class="grammar-example">
+                        <strong>BE GOING TO + infinitive</strong> - Plans, intentions, strong/likely predictions<br>
+                        <span class="grammar-highlight">"I'm going to exercise more this year."</span><br>
+                        <span class="grammar-highlight">"Germans are going to face economic challenges."</span><br>
+			<span class="grammar-highlight">"The weather forecast says it's going to snow later tonight."</span>
+                    </div>
+                </div>
+
+                <h3 class="font-bold text-xl text-gray-800 mt-6 mb-3">🎯 Practice: Choose the Correct Form</h3>
+                <p class="text-gray-600 mb-4 font-medium">Select the best answer for each sentence.</p>
+                
+                <div class="question" data-question="4">
+                    <p class="font-semibold text-lg text-gray-600 mb-3">1. "This year, I _______ exercise more." (New Year's plan)</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="4">
+                        <li class="option-button" data-correct="false">will</li>
+                        <li class="option-button" data-correct="true">am going to</li>
+                        <li class="option-button" data-correct="false">exercise</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="5">
+                    <p class="font-semibold text-lg text-gray-600 mb-3">2. "Look at the sky! It _______ rain." (Prediction)</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="5">
+                        <li class="option-button" data-correct="true">is going to</li>
+                        <li class="option-button" data-correct="false">will</li>
+                        <li class="option-button" data-correct="false">rains</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="6">
+                    <p class="font-semibold text-lg text-gray-600 mb-3">3. "We _______ by train tomorrow at 4pm." (Definite arrangement)</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="6">
+                        <li class="option-button" data-correct="false">travel</li>
+                        <li class="option-button" data-correct="false">are going to travel</li>
+                        <li class="option-button" data-correct="true">are travelling</li>
+                    </ul>
+                </div>
+
+		<div class="question" data-question="7">
+                    <p class="font-semibold text-lg text-gray-600 mb-3">4. "Don't worry, I _______ help you!" (Quick decision)</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="7">
+                        <li class="option-button" data-correct="true">will</li>
+                        <li class="option-button" data-correct="false">am going to</li>
+                        <li class="option-button" data-correct="false">am helping</li>
+                    </ul>
+                </div>
+
+                <div class="button-group">
+                    <button class="check-button" onclick="checkGrammar()">Check Answers</button>
+                    <button class="check-button reset-button" onclick="resetGrammar()">Reset Exercise</button>
+                </div>
+                <div id="grammar-result" class="result-message"></div>
+            </section>
+
+            <section class="lesson-section shadow-lg border-t-4 border-blue-800">
+                <h2 class="section-title">🎉 Lesson Complete!</h2>
+                <p class="mb-4 text-gray-600">Great job! Here are the words you learned today:</p>
+                
+                <ul id="learned-words-list">
+                    <li data-word="Happy">Happy</li>
+                    <li data-word="Worried">Worried</li>
+                    <li data-word="Hope">Hope</li>
+                    <li data-word="Problems">Problems</li>
+                    <li data-word="Changing">Changing</li>
+                    <li data-word="Calm">Calm</li>
+                    <li data-word="Strong">Strong</li>
+                    <li data-word="Ready">Ready</li>
+                </ul>
+
+                <div id="save-words-section">
+                    <h3 class="text-xl font-bold mb-3" style="color: var(--color-save-btn);">💾 Save Your Progress</h3>
+                    
+                    <div id="save-feature-loggedin" style="display: none;">
+                        <p class="text-gray-700 mb-4">Save these words to your dashboard to practice later!</p>
+                        <button id="save-words-btn" onclick="saveWordsToDashboard()">Save Words to Dashboard</button>
+                        <p id="save-status" class="text-center mt-3 font-semibold"></p>
+                    </div>
+                    
+                    <div id="login-prompt" style="display: none;">
+                        <p class="text-red-600 font-bold mb-2">🔒 Login to save your progress!</p>
+                        <a href="/login/" class="inline-block bg-gray-800 text-white font-bold py-2 px-4 rounded hover:bg-black transition">Log In / Sign Up</a>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+        <footer class="footer">
+            <p class="footer-text">© 2026 English For Cool Dudes - 😎</p>
+            <div style="margin-top: 10px;">
+                <a href="/impressum/" style="color: #667EEA; margin-right: 15px; text-decoration: none;">Impressum</a>
+                <a href="/datenschutz/" style="color: #667EEA; text-decoration: none;">Datenschutzerklärung</a>
+            </div>
+        </footer>
+    </div>
+    
+    <div id="feedback-popup"></div>
+    <div id="dictionary-popup"></div>
+
+    <script>
+        // --- CONFIG ---
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null;
+
+        const lessonTitle = "The Future: German Hopes & Fears";
+        const lessonLink = "/resolutionsbeginner/";
+        const lessonLevel = "A2";
+
+        const wordsToSave = [
+            { word: "Happy", type: "adjective", definition: "Feeling good and pleased." },
+            { word: "Worried", type: "adjective", definition: "Feeling afraid something bad will happen." },
+            { word: "Hope", type: "verb", definition: "To want something good to happen." },
+            { word: "Problems", type: "noun", definition: "Things that are difficult or cause trouble." },
+            { word: "Changing", type: "verb", definition: "Becoming different." },
+            { word: "Calm", type: "adjective", definition: "Peaceful and not worried." },
+            { word: "Strong", type: "adjective", definition: "Having power to deal with difficult things." },
+            { word: "Ready", type: "adjective", definition: "Prepared for something." }
+        ];
+
+        // --- AUTH ---
+        async function checkUser() {
+            try {
+                const { data: { user } } = await sb.auth.getUser();
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('logged-in-buttons').style.display = 'flex';
+                    document.getElementById('logged-out-buttons').style.display = 'none';
+                    document.getElementById('save-feature-loggedin').style.display = 'block';
+                    document.getElementById('login-prompt').style.display = 'none';
+                    const name = user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Cool Dude';
+                    document.getElementById('user-greeting').textContent = `Hey ${name}! 👋`;
+                } else {
+                    document.getElementById('logged-in-buttons').style.display = 'none';
+                    document.getElementById('logged-out-buttons').style.display = 'flex';
+                    document.getElementById('save-feature-loggedin').style.display = 'none';
+                    document.getElementById('login-prompt').style.display = 'block';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function saveWordsToDashboard() {
+            if (!currentUser) return;
+            const btn = document.getElementById('save-words-btn');
+            const status = document.getElementById('save-status');
+            btn.disabled = true; btn.textContent = "Saving...";
+
+            const { error } = await sb.from('lessons').upsert([{
+                user_id: currentUser.id, lesson_title: lessonTitle, lesson_link: lessonLink,
+                lesson_level: lessonLevel, vocabulary: wordsToSave, completed_at: new Date().toISOString()
+            }], { onConflict: 'user_id,lesson_title' });
+
+            if (!error) {
+                btn.textContent = "✅ Saved!"; btn.style.backgroundColor = "#2E7D32";
+                status.textContent = "Words saved! Check your dashboard.";
+                setTimeout(() => window.location.href = '/dashboard/', 1500);
+            } else {
+                btn.textContent = "❌ Error"; btn.disabled = false;
+                status.textContent = "Error saving. Please try again.";
+            }
+        }
+        
+        async function saveMistake(word) {
+            if(!currentUser) return;
+            const wObj = wordsToSave.find(w=>w.word.toLowerCase()===word.toLowerCase()) || {word: word, definition:'Review this word', type:'word'};
+            await sb.from('user_mistakes').upsert({
+                user_id: currentUser.id, word: wObj.word, definition: wObj.definition, word_type: wObj.type,
+                lesson: lessonTitle, lesson_link: lessonLink, last_made_at: new Date().toISOString()
+            }, {onConflict: 'user_id,word'});
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await sb.auth.signOut(); window.location.href = '/';
+        });
+
+        // --- UTILS ---
+        function showFeedback(msg, type) {
+            const el = document.getElementById('feedback-popup');
+            el.textContent = msg; el.style.display = 'block';
+            el.style.backgroundColor = type === 'correct' ? '#2E7D32' : '#D32F2F';
+            el.style.borderColor = type === 'correct' ? '#1B5E20' : '#B71C1C';
+            setTimeout(() => { el.style.display = 'none'; }, 1800);
+        }
+
+        function showDictionaryPopup(target, word) {
+            const searchWord = word.toLowerCase();
+            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === searchWord);
+            
+            const popup = document.getElementById('dictionary-popup');
+            if(wordObj) popup.innerHTML = `<strong>${wordObj.word}</strong> <span style="font-size:0.85em; color:#D32F2F;">(${wordObj.type})</span><br>${wordObj.definition}`;
+            else popup.innerHTML = `<strong>${word}</strong><br>Click to see meaning.`;
+            
+            popup.style.display = 'block';
+            const rect = target.getBoundingClientRect();
+            let topPos = rect.top - popup.offsetHeight - 10;
+            if (topPos < 10) topPos = rect.bottom + 10;
+            popup.style.top = topPos + 'px';
+            popup.style.left = (rect.left + (rect.width/2) - (popup.offsetWidth/2)) + 'px';
+        }
+        document.body.addEventListener('click', (e) => {
+            if (!e.target.closest('#dictionary-popup') && !e.target.closest('#learned-words-list li') && !e.target.closest('.highlight-word')) {
+                document.getElementById('dictionary-popup').style.display = 'none';
+            }
+        });
+
+        // --- EXERCISES ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        function cleanText(text) { return text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z]/g, '').toLowerCase() : ''; }
+
+        /* MATCHING */
+        const newVocabData = [
+            { type: 'term', content: "Happy", key: 'A' }, { type: 'definition', content: "Feeling good and pleased.", key: 'A' },
+            { type: 'term', content: "Worried", key: 'B' }, { type: 'definition', content: "Afraid something bad will happen.", key: 'B' },
+            { type: 'term', content: "Hope", key: 'C' }, { type: 'definition', content: "Want good things to happen.", key: 'C' },
+            { type: 'term', content: "Problems", key: 'D' }, { type: 'definition', content: "Difficult things or trouble.", key: 'D' },
+            { type: 'term', content: "Changing", key: 'E' }, { type: 'definition', content: "Becoming different.", key: 'E' },
+            { type: 'term', content: "Calm", key: 'F' }, { type: 'definition', content: "Peaceful and not worried.", key: 'F' },
+            { type: 'term', content: "Strong", key: 'G' }, { type: 'definition', content: "Has power to deal with problems.", key: 'G' },
+            { type: 'term', content: "Ready", key: 'H' }, { type: 'definition', content: "Prepared for something.", key: 'H' }
+        ];
+        let selectedTermCard = null, selectedDefinitionCard = null, matchedPairs = 0;
+
+        const funCorrect = [
+            "Great match! 🌟", 
+            "Perfect! ✅", 
+            "You got it! 🎯", 
+            "Excellent! 💪"
+        ];
+        const funIncorrect = [
+            "Try again! 🤔", 
+            "Not quite! 💭", 
+            "Keep trying! 🔄", 
+            "Almost! 💪"
+        ];
+
+        function initVocab() {
+            const matchContainer = document.getElementById('vocab-match-container');
+            matchContainer.innerHTML = ''; shuffleArray(newVocabData);
+            newVocabData.forEach(item => {
+                const card = document.createElement('div'); 
+                card.className = `match-card interactive-element ${item.type}`;
+                card.innerHTML = item.type === 'term' ? `<span class="font-extrabold">${item.content}</span>` : `<span>${item.content}</span>`; 
+                card.dataset.key = item.key; card.dataset.type = item.type;
+                card.addEventListener('click', () => handleMatchClick(card));
+                matchContainer.appendChild(card);
+            });
+            selectedTermCard = null; selectedDefinitionCard = null; matchedPairs = 0;
+        }
+
+        function handleMatchClick(card) {
+            if (card.classList.contains('matched')) return;
+            const type = card.dataset.type;
+            let currentSelection = type === 'term' ? selectedTermCard : selectedDefinitionCard;
+            if (currentSelection) currentSelection.classList.remove('selected');
+            if (currentSelection === card) {
+                if (type === 'term') selectedTermCard = null; else selectedDefinitionCard = null;
+                return;
+            }
+            if (type === 'term') selectedTermCard = card; else selectedDefinitionCard = card;
+            card.classList.add('selected');
+
+            if (selectedTermCard && selectedDefinitionCard) {
+                if (selectedTermCard.dataset.key === selectedDefinitionCard.dataset.key) {
+                    [selectedTermCard, selectedDefinitionCard].forEach(el => { el.classList.remove('selected'); el.classList.add('temp-matched'); });
+                    showFeedback(funCorrect[Math.floor(Math.random() * funCorrect.length)], 'correct');
+                    
+                    const t = selectedTermCard; const d = selectedDefinitionCard;
+                    setTimeout(() => {
+                        t.classList.remove('temp-matched'); t.classList.add('matched');
+                        d.classList.remove('temp-matched'); d.classList.add('matched');
+                    }, 800);
+
+                    matchedPairs++;
+                    if (matchedPairs === newVocabData.length / 2) {
+                        setTimeout(() => {
+                            showFeedback("🎉 All Matched! Resetting...", 'correct');
+                            setTimeout(() => {
+                                document.querySelectorAll('.match-card').forEach((card, index) => {
+                                    setTimeout(() => {
+                                        card.classList.remove('matched');
+                                    }, index * 100);
+                                });
+                                matchedPairs = 0;
+                            }, 1000);
+                        }, 1000);
+                    }
+                    selectedTermCard = null; selectedDefinitionCard = null;
+                } else {
+                    showFeedback(funIncorrect[Math.floor(Math.random() * funIncorrect.length)], 'incorrect');
+                    setTimeout(() => {
+                        if(selectedTermCard) selectedTermCard.classList.remove('selected'); 
+                        if(selectedDefinitionCard) selectedDefinitionCard.classList.remove('selected');
+                        selectedTermCard = null; selectedDefinitionCard = null;
+                    }, 800);
+                }
+            }
+        }
+
+        /* COMPREHENSION */
+        function checkComprehension() {
+            const questions = document.querySelectorAll('.question[data-question="1"], .question[data-question="2"], .question[data-question="3"]'); 
+            let correctAnswers = 0;
+            questions.forEach(q => {
+                const selected = q.querySelector('.option-button.selected');
+                q.querySelectorAll('.option-button').forEach(opt => {
+                    opt.classList.remove('correct', 'incorrect');
+                    if (opt.dataset.correct === 'true') opt.classList.add('correct');
+                });
+                if (selected) {
+                    if (selected.dataset.correct === 'true') correctAnswers++; 
+                    else {
+                        selected.classList.add('incorrect');
+                        const qNum = q.dataset.question;
+                        if(qNum === '1') saveMistake('hope');
+                        else if(qNum === '2') saveMistake('changing');
+                        else if(qNum === '3') saveMistake('calm');
+                    }
+                }
+            });
+            const resultDiv = document.getElementById('comprehension-result'); resultDiv.style.display = 'block';
+            if (correctAnswers === questions.length) { resultDiv.textContent = '🎉 Perfect! All correct!'; resultDiv.className = 'result-message correct'; }
+            else { resultDiv.textContent = `You got ${correctAnswers}/${questions.length} correct.`; resultDiv.className = 'result-message incorrect'; }
+        }
+        
+        function resetComprehension() {
+            document.querySelectorAll('.question[data-question="1"] .option-button, .question[data-question="2"] .option-button, .question[data-question="3"] .option-button').forEach(item => item.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById('comprehension-result').style.display = 'none';
+        }
+
+        /* GAP FILL */
+        let selectedGapWord = null; 
+        
+        function initGaps() {
+            const wordOptionsContainer = document.getElementById('gap-fill-options');
+            const options = Array.from(wordOptionsContainer.children);
+            shuffleArray(options);
+            options.forEach(option => { wordOptionsContainer.appendChild(option); option.classList.remove('used', 'selected'); });
+            document.querySelectorAll('.gap-input').forEach(blank => { blank.textContent = ''; blank.classList.remove('correct', 'incorrect', 'selected'); });
+            selectedGapWord = null; document.getElementById('gap-result').style.display = 'none';
+        }
+        
+        function handleGapBlankClick(blank) {
+            if (blank.textContent.trim() === '') {
+                 if (selectedGapWord) {
+                    blank.textContent = selectedGapWord.textContent.trim();
+                    selectedGapWord.classList.remove('selected'); 
+                    selectedGapWord.classList.add('used');
+                    selectedGapWord = null;
+                }
+                return;
+            }
+
+            const currentText = cleanText(blank.textContent); 
+            const allOptions = Array.from(document.querySelectorAll('.word-option'));
+            const matchingBtn = allOptions.find(btn => cleanText(btn.textContent) === currentText);
+            
+            if (matchingBtn) {
+                matchingBtn.classList.remove('used');
+            }
+
+            blank.textContent = ''; 
+            blank.classList.remove('correct', 'incorrect', 'filled'); 
+        }
+
+        function checkGaps() {
+            let correctCount = 0; 
+            const blanks = document.querySelectorAll('.gap-input'); 
+            
+            blanks.forEach(blank => { 
+                const answerWord = blank.dataset.answer;
+                const extractedWord = blank.textContent.trim();
+                
+                const cleanExtracted = cleanText(extractedWord);
+                const cleanAnswer = cleanText(answerWord);
+
+                blank.classList.remove('selected', 'incorrect', 'correct');
+                
+                if (extractedWord === '') {
+                } else if (cleanExtracted === cleanAnswer) { 
+                    blank.classList.add('correct'); 
+                    correctCount++; 
+                } else { 
+                    blank.classList.add('incorrect');
+                    saveMistake(answerWord); 
+                }
+            });
+
+            const resultDiv = document.getElementById('gap-result'); 
+            resultDiv.style.display = 'block';
+            
+            if (correctCount === blanks.length) { 
+                resultDiv.textContent = '🎉 Perfect! All correct!'; 
+                resultDiv.className = 'result-message correct'; 
+            } else { 
+                resultDiv.textContent = `You got ${correctCount}/${blanks.length} correct.`; 
+                resultDiv.className = 'result-message incorrect'; 
+            }
+        }
+
+        function resetGaps() {
+            selectedGapWord = null;
+            document.getElementById('gap-result').style.display = 'none';
+            const wordOptions = document.querySelectorAll('.word-option');
+            wordOptions.forEach(opt => {
+                opt.classList.remove('used', 'selected');
+            });
+            const blanks = document.querySelectorAll('.gap-input');
+            blanks.forEach(blank => {
+                blank.textContent = '';
+                blank.classList.remove('correct', 'incorrect', 'selected', 'filled');
+            });
+        }
+
+        /* GRAMMAR */
+        function checkGrammar() {
+            const questions = document.querySelectorAll('.question[data-question="4"], .question[data-question="5"], .question[data-question="6"], .question[data-question="7"]'); 
+            let correctAnswers = 0;
+            questions.forEach(q => {
+                const selected = q.querySelector('.option-button.selected');
+                q.querySelectorAll('.option-button').forEach(opt => {
+                    opt.classList.remove('correct', 'incorrect');
+                    if (opt.dataset.correct === 'true') opt.classList.add('correct');
+                });
+                if (selected && selected.dataset.correct === 'true') correctAnswers++;
+                else if(selected) selected.classList.add('incorrect');
+            });
+            const resultDiv = document.getElementById('grammar-result'); resultDiv.style.display = 'block';
+            if (correctAnswers === questions.length) { resultDiv.textContent = '🎉 Perfect grammar!'; resultDiv.className = 'result-message correct'; }
+            else { resultDiv.textContent = `You got ${correctAnswers}/${questions.length} correct.`; resultDiv.className = 'result-message incorrect'; }
+        }
+        
+        function resetGrammar() {
+            document.querySelectorAll('.question[data-question="4"] .option-button, .question[data-question="5"] .option-button, .question[data-question="6"] .option-button').forEach(item => item.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById('grammar-result').style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkUser(); initVocab(); initGaps();
+            document.querySelectorAll('#learned-words-list li').forEach(li => li.addEventListener('click', (e) => { e.stopPropagation(); showDictionaryPopup(li, li.dataset.word); }));
+            
+            document.querySelectorAll('.option-button').forEach(item => item.addEventListener('click', () => {
+                item.closest('.question').querySelectorAll('.option-button').forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect'));
+                item.classList.add('selected'); 
+                const questionNum = item.closest('.question').dataset.question;
+                if(questionNum <= 3) document.getElementById('comprehension-result').style.display = 'none';
+                else document.getElementById('grammar-result').style.display = 'none';
+            }));
+            
+            document.querySelectorAll('.word-option').forEach(option => option.addEventListener('click', () => {
+                if (option.classList.contains('used')) return;
+                if (selectedGapWord) selectedGapWord.classList.remove('selected');
+                if (selectedGapWord === option) selectedGapWord = null;
+                else { selectedGapWord = option; selectedGapWord.classList.add('selected'); }
+            }));
+            
+            document.querySelectorAll('.gap-input').forEach(blank => blank.addEventListener('click', () => handleGapBlankClick(blank)));
+        });
+    </script>
+</body>
+</html>
