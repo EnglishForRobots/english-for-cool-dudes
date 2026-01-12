@@ -317,7 +317,7 @@ async function loadOfficePulse() {
         feed.forEach(item => {
             const time = getTimeAgo(new Date(item.completed_at));
             const link = item.lesson_link || '#'; 
-            messages.push(`🥳 ${time}: A Cool Dude finished <a href="${link}" target="_blank">${item.lesson_title}</a> (+${item.word_count} words)`);
+            messages.push(`🥳 ${time}: A Cool Dude finished <a href="${link}" >${item.lesson_title}</a> (+${item.word_count} words)`);
         });
     } else {
         messages.push("🚀 Be the first Cool Dude to complete a lesson today!");
