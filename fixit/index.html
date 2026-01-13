@@ -125,7 +125,7 @@
                 <div class="hint-text">Broken Sentence:</div>
                 <div class="definition-text" id="defText">...</div>
                 <button class="hint-button" id="hintBtn" onclick="useHint()">💡 Get a Hint (50/50)</button>
-                <button class="hint-button" id="secondHintBtn" onclick="showSecondHint()" style="display: none;">🔍 Get Another Clue</button>
+                <button class="hint-button" id="secondHintBtn" onclick="showSecondHint()" style="display: none;">🔍 Get Final Clue</button>
                 <div class="explanation-box" id="secondHintBox" style="display: none;">
                     <div class="explanation-title">🔍 Grammar Clue</div>
                     <div class="explanation-text" id="secondHintText"></div>
@@ -134,6 +134,7 @@
                     <div class="explanation-title">📚 Grammar Explanation</div>
                     <div class="explanation-text" id="explanationText"></div>
                 </div>
+                <button class="hint-button" id="nextBtn" onclick="skipToNext()" style="display: none; background: #10B981; color: white; border-color: #10B981;">➡️ Next Sentence</button>
             </div>
             <div class="options-grid" id="optionsGrid"></div>
         </div>
@@ -201,11 +202,16 @@
             document.getElementById('explanationText').textContent = currentItem.explanation;
             document.getElementById('explanationBox').classList.remove('shown');
             document.getElementById('secondHintBox').style.display = 'none';
+            document.getElementById('secondHintBox').classList.remove('shown');
             document.getElementById('hintBtn').style.display = 'inline-block';
             document.getElementById('hintBtn').textContent = '💡 Get a Hint (50/50)';
             document.getElementById('hintBtn').style.opacity = '1';
             document.getElementById('hintBtn').style.cursor = 'pointer';
             document.getElementById('secondHintBtn').style.display = 'none';
+            document.getElementById('secondHintBtn').style.opacity = '1';
+            document.getElementById('secondHintBtn').style.cursor = 'pointer';
+            document.getElementById('secondHintBtn').textContent = '🔍 Get Final Clue';
+            document.getElementById('nextBtn').style.display = 'none';
             document.getElementById('progressFill').style.width = `${(currentRound / totalRounds) * 100}%`;
 
             let options = [{ text: currentItem.correct_answer, isCorrect: true }];
@@ -302,13 +308,28 @@
                 // Hide hint buttons when answer is revealed
                 document.getElementById('hintBtn').style.display = 'none';
                 document.getElementById('secondHintBtn').style.display = 'none';
+                
+                // Show Next button
+                document.getElementById('nextBtn').style.display = 'inline-block';
 
-                // Give more time to read explanation (5 seconds instead of 2)
-                setTimeout(() => { currentRound++; loadRound(); }, 5000);
+                // Auto-advance after 6 seconds (up from 5)
+                window.autoAdvanceTimeout = setTimeout(() => { 
+                    currentRound++; 
+                    loadRound(); 
+                }, 6000);
             } else {
                 btnElement.classList.add('incorrect');
                 isProcessing = false;
             }
+        }
+
+        function skipToNext() {
+            // Clear the auto-advance timeout if user clicks Next
+            if (window.autoAdvanceTimeout) {
+                clearTimeout(window.autoAdvanceTimeout);
+            }
+            currentRound++;
+            loadRound();
         }
 
         const emojis = ['🛠️', '✨', '🔥', '✅', '📈', '🚀', '🧠'];
