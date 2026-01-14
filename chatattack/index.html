@@ -316,242 +316,238 @@
     </footer>
 
     <script>
-        // --- CONFIG ---
-        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-        const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+    // --- CONFIG ---
+    const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+    const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
-        // --- FALLBACK DATA (If Supabase is empty or fails) ---
-        const fallbackTopics = [
-            {
-                category: 'business', level: 'intermediate',
-                question: "Should companies allow employees to work from home forever?",
-                vocab: ["Productivity", "Commute", "Zoom", "Isolation"],
-                points: ["Pro: No traffic.", "Con: Hard to make friends.", "Are you more productive at home?"]
-            },
-            {
-                category: 'legal', level: 'advanced',
-                question: "Is it fair to tax the rich at a higher percentage?",
-                vocab: ["Income", "Loophole", "Economy", "Fairness"],
-                points: ["Does high tax stop hard work?", "What should taxes pay for?", "Define 'Rich'."]
-            }
-        ];
+    // --- 1. MANUAL DEFINITION OVERRIDES ---
+    // Add words here if the dictionary gives the wrong context!
+    // Format: "word": "Your custom definition",
+    const customDefinitions = {
+        "fine": "A sum of money you must pay as a punishment for breaking a rule.",
+        "interest": "Money paid for the use of money lent, or for delaying the repayment of a debt.",
+        "capital": "Wealth in the form of money or other assets owned by a person or organization.",
+        "gross": "Income before tax or other deductions are taken out.",
+        "mean": "The average value of a set of numbers."
+    };
 
-        // --- STATE ---
-        let timerInterval;
-        let timeRemaining = 0;
-        let currentAudioUrl = null;
+    // --- STATE ---
+    let timerInterval;
+    let timeRemaining = 0;
+    let currentAudioUrl = null;
 
-        function handleThemeChange() {
-            const theme = document.getElementById('themeSelect').value;
-            const levelSelect = document.getElementById('levelSelect');
-            if (theme === 'mistakes') {
-                levelSelect.disabled = true;
-                levelSelect.innerHTML = '<option>Personalized</option>';
-            } else {
-                levelSelect.disabled = false;
-                levelSelect.innerHTML = `
-                    <option value="beginner">Beginner</option>
-                    <option value="intermediate">Intermediate</option>
-                    <option value="advanced">Advanced</option>
-                `;
-            }
+    function handleThemeChange() {
+        const theme = document.getElementById('themeSelect').value;
+        const levelSelect = document.getElementById('levelSelect');
+        if (theme === 'mistakes') {
+            levelSelect.disabled = true;
+            levelSelect.innerHTML = '<option>Personalized</option>';
+        } else {
+            levelSelect.disabled = false;
+            levelSelect.innerHTML = `
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+            `;
+        }
+    }
+
+    function showSetup() {
+        clearInterval(timerInterval);
+        document.getElementById('game-area').style.display = 'none';
+        document.getElementById('setup-panel').style.display = 'flex';
+    }
+
+    async function startGame() {
+        const theme = document.getElementById('themeSelect').value;
+        const level = document.getElementById('levelSelect').value;
+        const duration = parseInt(document.getElementById('timeSelect').value);
+        
+        document.getElementById('loading-overlay').style.display = 'flex';
+
+        // Fetch Data
+        let topicData = null;
+        if (theme === 'mistakes') {
+            topicData = await fetchMistakes();
+        } else {
+            topicData = await fetchTopicFromSupabase(theme, level);
         }
 
-        function showSetup() {
-            clearInterval(timerInterval);
-            document.getElementById('game-area').style.display = 'none';
-            document.getElementById('setup-panel').style.display = 'flex';
-        }
-
-        async function startGame() {
-            const theme = document.getElementById('themeSelect').value;
-            const level = document.getElementById('levelSelect').value;
-            const duration = parseInt(document.getElementById('timeSelect').value);
-            
-            document.getElementById('loading-overlay').style.display = 'flex';
-
-            // 1. Fetch Data
-            let topicData = null;
-
-            if (theme === 'mistakes') {
-                topicData = await fetchMistakes();
-            } else {
-                topicData = await fetchTopicFromSupabase(theme, level);
-            }
-
-            if (!topicData) {
-                // Use random fallback if fetch fails
-                topicData = fallbackTopics[Math.floor(Math.random() * fallbackTopics.length)];
-            }
-
-            // 2. Render Data
-            renderCard(topicData);
-
-            // 3. Setup Timer
-            setupTimer(duration);
-
-            // 4. Switch View
-            document.getElementById('loading-overlay').style.display = 'none';
-            document.getElementById('setup-panel').style.display = 'none';
-            document.getElementById('game-area').style.display = 'block';
-        }
-
-        async function fetchTopicFromSupabase(category, level) {
-            if (!sb) return null;
-
-            let query = sb.from('discussion_topics').select('*');
-            
-            if (category !== 'random') {
-                query = query.eq('category', category);
-            }
-            
-            // For random, we ignore level strictness to give variety, 
-            // otherwise filter by level
-            if (category !== 'random') {
-                query = query.eq('level', level);
-            }
-
-            const { data, error } = await query;
-
-            if (error || !data || data.length === 0) {
-                console.log("Supabase error or empty:", error);
-                return null;
-            }
-
-            // Pick random from results
-            return data[Math.floor(Math.random() * data.length)];
-        }
-
-        async function fetchMistakes() {
-            if (!sb) return null;
-            const { data: { user } } = await sb.auth.getUser();
-            if (!user) {
-                alert("Please log in to use 'My Mistakes'");
-                window.location.href = '/login/';
-                return null;
-            }
-
-            const { data: mistakes } = await sb.from('user_mistakes').select('word').limit(50);
-            if (!mistakes || mistakes.length < 3) return null;
-
-            const words = mistakes.sort(() => 0.5 - Math.random()).slice(0, 3).map(m => m.word);
-            return {
-                category: 'Review', level: 'Personal',
-                question: "Create a story using these words you struggled with:",
-                vocab: words,
-                points: ["Define the words first.", "Use them in a sentence.", "Create a dialogue."]
+        // Fallback if fetch fails
+        if (!topicData) {
+            topicData = {
+                category: 'System', level: 'Error',
+                question: "Could not load a topic. Check your connection.",
+                vocab: ["Error", "Wifi", "Retry"],
+                points: ["Try refreshing the page."]
             };
         }
 
-        function renderCard(data) {
-            document.getElementById('cardCategory').innerText = `${data.category.toUpperCase()} • ${data.level.toUpperCase()}`;
-            document.getElementById('cardQuestion').innerText = data.question;
+        renderCard(topicData);
+        setupTimer(duration);
 
-            const vocabList = document.getElementById('cardVocab');
-            vocabList.innerHTML = '';
-            data.vocab.forEach(word => {
-                const li = document.createElement('li');
-                li.className = 'vocab-item';
-                li.innerText = word;
-                li.onclick = () => showDefinition(word);
-                vocabList.appendChild(li);
-            });
+        document.getElementById('loading-overlay').style.display = 'none';
+        document.getElementById('setup-panel').style.display = 'none';
+        document.getElementById('game-area').style.display = 'block';
+    }
 
-            const pointsList = document.getElementById('cardPoints');
-            pointsList.innerHTML = '';
-            data.points.forEach(point => {
-                const div = document.createElement('div');
-                div.className = 'point-item';
-                div.innerText = point;
-                pointsList.appendChild(div);
-            });
+    async function fetchTopicFromSupabase(category, level) {
+        if (!sb) return null;
+        let query = sb.from('discussion_topics').select('*');
+        if (category !== 'random') {
+            query = query.eq('category', category).eq('level', level);
+        }
+        const { data, error } = await query;
+        if (error || !data || data.length === 0) return null;
+        return data[Math.floor(Math.random() * data.length)];
+    }
+
+    async function fetchMistakes() {
+        if (!sb) return null;
+        const { data: { user } } = await sb.auth.getUser();
+        if (!user) {
+            alert("Please log in to use 'My Mistakes'");
+            window.location.href = '/login/';
+            return null;
+        }
+        const { data: mistakes } = await sb.from('user_mistakes').select('word').limit(50);
+        if (!mistakes || mistakes.length < 3) return null;
+        const words = mistakes.sort(() => 0.5 - Math.random()).slice(0, 3).map(m => m.word);
+        return {
+            category: 'Review', level: 'Personal',
+            question: "Create a story using these words you struggled with:",
+            vocab: words,
+            points: ["Define the words first.", "Use them in a sentence.", "Create a dialogue."]
+        };
+    }
+
+    function renderCard(data) {
+        document.getElementById('cardCategory').innerText = `${data.category.toUpperCase()} • ${data.level.toUpperCase()}`;
+        document.getElementById('cardQuestion').innerText = data.question;
+
+        const vocabList = document.getElementById('cardVocab');
+        vocabList.innerHTML = '';
+        data.vocab.forEach(word => {
+            const li = document.createElement('li');
+            li.className = 'vocab-item';
+            li.innerText = word;
+            li.onclick = () => showDefinition(word);
+            vocabList.appendChild(li);
+        });
+
+        const pointsList = document.getElementById('cardPoints');
+        pointsList.innerHTML = '';
+        data.points.forEach(point => {
+            const div = document.createElement('div');
+            div.className = 'point-item';
+            div.innerText = point;
+            pointsList.appendChild(div);
+        });
+    }
+
+    function setupTimer(seconds) {
+        clearInterval(timerInterval);
+        const display = document.getElementById('timerDisplay');
+        const status = document.getElementById('timerStatus');
+        
+        if (seconds === 0) {
+            display.innerText = "∞";
+            status.innerText = "Discussion Time:";
+            return;
         }
 
-        // --- TIMER LOGIC ---
-        function setupTimer(seconds) {
-            clearInterval(timerInterval);
-            const display = document.getElementById('timerDisplay');
-            const status = document.getElementById('timerStatus');
-            
-            if (seconds === 0) {
-                display.innerText = "∞";
-                status.innerText = "Discussion Time:";
-                return;
-            }
+        timeRemaining = seconds;
+        updateTimerUI();
 
-            timeRemaining = seconds;
+        timerInterval = setInterval(() => {
+            timeRemaining--;
             updateTimerUI();
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                status.innerText = "TIME'S UP!";
+                display.style.color = "#EF4444";
+                playBeep();
+            }
+        }, 1000);
+    }
 
-            timerInterval = setInterval(() => {
-                timeRemaining--;
-                updateTimerUI();
-                if (timeRemaining <= 0) {
-                    clearInterval(timerInterval);
-                    status.innerText = "TIME'S UP!";
-                    display.style.color = "#EF4444";
-                    playBeep();
-                }
-            }, 1000);
-        }
+    function updateTimerUI() {
+        const m = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+        const s = (timeRemaining % 60).toString().padStart(2, '0');
+        document.getElementById('timerDisplay').innerText = `${m}:${s}`;
+    }
 
-        function updateTimerUI() {
-            const m = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
-            const s = (timeRemaining % 60).toString().padStart(2, '0');
-            document.getElementById('timerDisplay').innerText = `${m}:${s}`;
-        }
+    function playBeep() {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        osc.connect(ctx.destination);
+        osc.start();
+        osc.stop(0.5);
+    }
 
-        function playBeep() {
-            // Simple Audio Context beep
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            osc.connect(ctx.destination);
-            osc.start();
-            osc.stop(0.5);
-        }
+    // --- DICTIONARY LOGIC (UPDATED) ---
+    async function showDefinition(word) {
+        document.getElementById('dictModal').style.display = 'flex';
+        document.getElementById('dictWord').innerText = word;
+        document.getElementById('dictDef').innerText = "Loading definition...";
+        document.getElementById('dictPhonetic').innerText = "...";
+        currentAudioUrl = null;
+        document.getElementById('audioBtn').style.opacity = "0.3"; // Dim audio initially
 
-        // --- DICTIONARY LOGIC ---
-        async function showDefinition(word) {
-            document.getElementById('dictModal').style.display = 'flex';
-            document.getElementById('dictWord').innerText = word;
-            document.getElementById('dictDef').innerText = "Loading definition...";
-            document.getElementById('dictPhonetic').innerText = "...";
-            currentAudioUrl = null;
+        // 1. Check for Manual Override FIRST
+        const lowerWord = word.toLowerCase();
+        let manualDef = customDefinitions[lowerWord];
 
-            try {
-                const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
-                const data = await res.json();
+        try {
+            // 2. Always fetch API (we need it for Audio and Phonetics, even if we use manual text)
+            const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+            const data = await res.json();
 
-                if (Array.isArray(data)) {
-                    const entry = data[0];
-                    document.getElementById('dictPhonetic').innerText = entry.phonetic || "";
+            if (Array.isArray(data)) {
+                const entry = data[0];
+                document.getElementById('dictPhonetic').innerText = entry.phonetic || "";
+                
+                // If we have a manual definition, use it. Otherwise use the API definition.
+                if (manualDef) {
+                    document.getElementById('dictDef').innerText = "★ " + manualDef; // Star indicates custom
+                } else {
                     document.getElementById('dictDef').innerText = entry.meanings[0].definitions[0].definition;
-                    
-                    // Find audio
-                    const phoneticWithAudio = entry.phonetics.find(p => p.audio && p.audio.length > 0);
-                    if (phoneticWithAudio) {
-                        currentAudioUrl = phoneticWithAudio.audio;
-                        document.getElementById('audioBtn').style.opacity = "1";
-                    } else {
-                        document.getElementById('audioBtn').style.opacity = "0.3";
-                    }
+                }
+                
+                // Set up Audio
+                const phoneticWithAudio = entry.phonetics.find(p => p.audio && p.audio.length > 0);
+                if (phoneticWithAudio) {
+                    currentAudioUrl = phoneticWithAudio.audio;
+                    document.getElementById('audioBtn').style.opacity = "1";
+                }
+            } else {
+                // API failed, fallback to manual if available
+                if (manualDef) {
+                    document.getElementById('dictDef').innerText = manualDef;
                 } else {
                     document.getElementById('dictDef').innerText = "Definition not found.";
                 }
-            } catch (e) {
+            }
+        } catch (e) {
+            // Network error, fallback to manual if available
+            if (manualDef) {
+                document.getElementById('dictDef').innerText = manualDef;
+            } else {
                 document.getElementById('dictDef').innerText = "Could not fetch definition.";
             }
         }
+    }
 
-        function playAudio() {
-            if (currentAudioUrl) {
-                new Audio(currentAudioUrl).play();
-            }
+    function playAudio() {
+        if (currentAudioUrl) {
+            new Audio(currentAudioUrl).play();
         }
+    }
 
-        function closeDict() {
-            document.getElementById('dictModal').style.display = 'none';
-        }
-    </script>
+    function closeDict() {
+        document.getElementById('dictModal').style.display = 'none';
+    }
+</script>
 </body>
 </html>
