@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Chatterbox - English For Cool Dudes</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* --- BRANDING VARIABLES --- */
+        :root {
+            --color-primary: #0EA5E9; /* Sky Blue */
+            --color-secondary: #8B5CF6; /* Violet */
+            --color-accent: #F472B6; /* Pink */
+            --color-background: #F0F9FF;
+            --color-text: #0F172A;
+            --color-card-bg: #FFFFFF;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background: var(--color-background); 
+            color: var(--color-text); 
+            margin: 0; 
+        }
+
+        .container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            text-align: center; 
+            min-height: 80vh; 
+        }
+
+        /* Header */
+        .header { background: #FFFFFF; border-bottom: 1px solid #E2E8F0; padding: 20px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.04); margin-bottom: 20px; }
+        .header-content { max-width: 1000px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; gap: 15px; }
+        .logo { width: 36px; height: 36px; background: linear-gradient(135deg, #F59E0B, #D97706); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .site-title { font-size: 20px; font-weight: 600; color: var(--color-text); text-decoration: none; }
+
+        /* Setup Controls */
+        .controls {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 500px;
+            margin-inline: auto;
+            border: 1px solid #E5E9F2;
+        }
+        
+        .control-row { display: flex; gap: 15px; justify-content: space-between; }
+        .control-group { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; flex: 1; }
+        
+        label { font-size: 12px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; }
+        select { width: 100%; padding: 12px 16px; border-radius: 8px; border: 2px solid #E2E8F0; font-size: 15px; background: #FFFFFF; transition: border 0.2s; }
+        select:focus { border-color: var(--color-primary); outline: none; }
+        
+        .btn { 
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%); 
+            color: white; padding: 14px 30px; border-radius: 8px; border: none; cursor: pointer; 
+            font-size: 16px; font-weight: 700; transition: transform 0.2s, box-shadow 0.2s; 
+            width: 100%; margin-top: 10px;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); }
+
+        /* Game Area */
+        #game-area { display: none; text-align: left; }
+        
+        .topic-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border: 1px solid #E2E8F0;
+            overflow: hidden;
+            margin-bottom: 30px;
+            animation: slideUp 0.4s ease-out;
+            position: relative;
+        }
+
+        .topic-header {
+            background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-accent) 100%);
+            padding: 40px 30px;
+            color: white;
+            text-align: center;
+        }
+
+        .topic-label {
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            opacity: 0.9;
+            margin-bottom: 15px;
+            background: rgba(255,255,255,0.2);
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .main-question {
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1.3;
+        }
+
+        .topic-body {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .section-title {
+            color: var(--color-secondary);
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .vocab-list, .points-list { list-style: none; padding: 0; margin: 0; }
+
+        .vocab-item {
+            background: #F0F9FF;
+            color: #0369A1;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: inline-block;
+            margin-right: 5px;
+            border: 1px solid #BAE6FD;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .vocab-item:hover { background: #E0F2FE; transform: scale(1.05); }
+        .vocab-item::after { content: " 🔊"; font-size: 0.8em; opacity: 0.5; }
+
+        .point-item {
+            margin-bottom: 12px;
+            padding-left: 24px;
+            position: relative;
+            color: #475569;
+            line-height: 1.5;
+        }
+        .point-item::before { content: "💬"; position: absolute; left: 0; font-size: 14px; top: 3px; }
+
+        /* Timer & Action Bar */
+        .timer-bar {
+            background: #1E293B;
+            color: white;
+            padding: 10px;
+            border-radius: 0 0 20px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            font-weight: bold;
+            font-family: monospace;
+            font-size: 1.2rem;
+        }
+
+        .action-bar { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
+        .btn-outline {
+            background: transparent; border: 2px solid #CBD5E1; color: #64748B;
+            padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;
+        }
+        .btn-outline:hover { border-color: var(--color-secondary); color: var(--color-secondary); }
+
+        /* Modal for Dictionary */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+            backdrop-filter: blur(3px);
+        }
+        .dict-card {
+            background: white; width: 90%; max-width: 400px;
+            border-radius: 16px; padding: 30px;
+            text-align: left;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            animation: slideUp 0.3s;
+        }
+        .word-title { font-size: 2rem; font-weight: 800; margin: 0 0 10px 0; color: var(--color-primary); display: flex; justify-content: space-between; align-items: center; }
+        .word-phonetic { color: #64748B; font-family: monospace; font-size: 1.1rem; margin-bottom: 20px; }
+        .word-def { font-size: 1.1rem; line-height: 1.6; color: #334155; border-left: 4px solid #E2E8F0; padding-left: 15px; }
+        .audio-btn { 
+            background: #F1F5F9; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; font-size: 20px; transition: background 0.2s;
+        }
+        .audio-btn:hover { background: #E2E8F0; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Responsive */
+        @media (max-width: 700px) { .topic-body { grid-template-columns: 1fr; } .control-row { flex-direction: column; gap: 20px; } }
+        
+        #loading-overlay {
+            position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(255,255,255,0.9);
+            display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 50;
+            font-weight: bold; color: var(--color-secondary);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <span class="logo">🗣️</span>
+            <a href="/games/" class="site-title">English For Cool Dudes</a>
+        </div>
+    </header>
+
+    <div id="loading-overlay">
+        <div style="font-size: 40px; margin-bottom: 10px;">🎲</div>
+        <div>Picking a topic...</div>
+    </div>
+
+    <div class="container">
+        <h1 style="margin-bottom:10px;">💬 The Chatterbox</h1>
+        <p style="color:#64748B; margin-bottom:30px; max-width: 600px; margin-inline: auto;">
+            Generate a discussion topic, create a timer, and click words for definitions.
+        </p>
+
+        <div class="controls" id="setup-panel">
+            <div class="control-group">
+                <label for="themeSelect">Topic</label>
+                <select id="themeSelect" onchange="handleThemeChange()">
+                    <option value="random">🎲 Surprise Me (Random)</option>
+                    <option value="business">💼 Business & Work</option>
+                    <option value="social">🌍 Social & Travel</option>
+                    <option value="legal">⚖️ The Fine Print (Legal & Tax)</option>
+                    <option value="tech">🤖 Technology & Future</option>
+                    <option value="mistakes" style="color:#EF4444; font-weight:bold;">🚨 My Mistakes Review</option>
+                </select>
+            </div>
+            
+            <div class="control-row">
+                <div class="control-group">
+                    <label for="levelSelect">Level</label>
+                    <select id="levelSelect">
+                        <option value="intermediate">Intermediate</option>
+                        <option value="beginner">Beginner</option>
+                        <option value="advanced">Advanced</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="timeSelect">Duration</label>
+                    <select id="timeSelect">
+                        <option value="120">2 Minutes</option>
+                        <option value="300">5 Minutes</option>
+                        <option value="600">10 Minutes</option>
+                        <option value="0">Unlimited</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button class="btn" onclick="startGame()">Start Conversation</button>
+        </div>
+
+        <div id="game-area">
+            <div class="topic-card" id="cardContainer">
+                <div class="topic-header">
+                    <div class="topic-label" id="cardCategory">Business • Intermediate</div>
+                    <div class="main-question" id="cardQuestion">Loading...</div>
+                </div>
+                
+                <div class="topic-body">
+                    <div class="left-col">
+                        <div class="section-title">⚡ Power Vocabulary <small style="font-weight:400; font-size:0.8em; margin-left:auto; opacity:0.7;">(Click for def)</small></div>
+                        <ul class="vocab-list" id="cardVocab"></ul>
+                    </div>
+                    
+                    <div class="right-col">
+                        <div class="section-title">⚖️ Discussion Angles</div>
+                        <div id="cardPoints"></div>
+                    </div>
+                </div>
+
+                <div class="timer-bar">
+                    <span id="timerStatus">Time Remaining:</span>
+                    <span id="timerDisplay">00:00</span>
+                </div>
+            </div>
+
+            <div class="action-bar">
+                <button class="btn-outline" onclick="showSetup()">⚙️ Change Settings</button>
+                <button class="btn" style="width:auto; margin-top:0;" onclick="startGame()">🔄 New Topic</button>
+            </div>
+        </div>
+        
+        <br><br>
+        <a href="/games/" style="color: var(--color-secondary); text-decoration: none; font-weight:600;">&larr; Back to Break Room ☕</a>
+    </div>
+
+    <div class="modal-overlay" id="dictModal" onclick="closeDict()">
+        <div class="dict-card" onclick="event.stopPropagation()">
+            <div class="word-title">
+                <span id="dictWord">Word</span>
+                <button class="audio-btn" id="audioBtn" onclick="playAudio()">🔊</button>
+            </div>
+            <div class="word-phonetic" id="dictPhonetic">/wɜːd/</div>
+            <div class="word-def" id="dictDef">Definition goes here...</div>
+            <button class="btn" style="margin-top:20px; padding:10px;" onclick="closeDict()">Got it</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2026 English For Cool Dudes</p>
+    </footer>
+
+    <script>
+        // --- CONFIG ---
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+        // --- FALLBACK DATA (If Supabase is empty or fails) ---
+        const fallbackTopics = [
+            {
+                category: 'business', level: 'intermediate',
+                question: "Should companies allow employees to work from home forever?",
+                vocab: ["Productivity", "Commute", "Zoom", "Isolation"],
+                points: ["Pro: No traffic.", "Con: Hard to make friends.", "Are you more productive at home?"]
+            },
+            {
+                category: 'legal', level: 'advanced',
+                question: "Is it fair to tax the rich at a higher percentage?",
+                vocab: ["Income", "Loophole", "Economy", "Fairness"],
+                points: ["Does high tax stop hard work?", "What should taxes pay for?", "Define 'Rich'."]
+            }
+        ];
+
+        // --- STATE ---
+        let timerInterval;
+        let timeRemaining = 0;
+        let currentAudioUrl = null;
+
+        function handleThemeChange() {
+            const theme = document.getElementById('themeSelect').value;
+            const levelSelect = document.getElementById('levelSelect');
+            if (theme === 'mistakes') {
+                levelSelect.disabled = true;
+                levelSelect.innerHTML = '<option>Personalized</option>';
+            } else {
+                levelSelect.disabled = false;
+                levelSelect.innerHTML = `
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                `;
+            }
+        }
+
+        function showSetup() {
+            clearInterval(timerInterval);
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('setup-panel').style.display = 'flex';
+        }
+
+        async function startGame() {
+            const theme = document.getElementById('themeSelect').value;
+            const level = document.getElementById('levelSelect').value;
+            const duration = parseInt(document.getElementById('timeSelect').value);
+            
+            document.getElementById('loading-overlay').style.display = 'flex';
+
+            // 1. Fetch Data
+            let topicData = null;
+
+            if (theme === 'mistakes') {
+                topicData = await fetchMistakes();
+            } else {
+                topicData = await fetchTopicFromSupabase(theme, level);
+            }
+
+            if (!topicData) {
+                // Use random fallback if fetch fails
+                topicData = fallbackTopics[Math.floor(Math.random() * fallbackTopics.length)];
+            }
+
+            // 2. Render Data
+            renderCard(topicData);
+
+            // 3. Setup Timer
+            setupTimer(duration);
+
+            // 4. Switch View
+            document.getElementById('loading-overlay').style.display = 'none';
+            document.getElementById('setup-panel').style.display = 'none';
+            document.getElementById('game-area').style.display = 'block';
+        }
+
+        async function fetchTopicFromSupabase(category, level) {
+            if (!sb) return null;
+
+            let query = sb.from('discussion_topics').select('*');
+            
+            if (category !== 'random') {
+                query = query.eq('category', category);
+            }
+            
+            // For random, we ignore level strictness to give variety, 
+            // otherwise filter by level
+            if (category !== 'random') {
+                query = query.eq('level', level);
+            }
+
+            const { data, error } = await query;
+
+            if (error || !data || data.length === 0) {
+                console.log("Supabase error or empty:", error);
+                return null;
+            }
+
+            // Pick random from results
+            return data[Math.floor(Math.random() * data.length)];
+        }
+
+        async function fetchMistakes() {
+            if (!sb) return null;
+            const { data: { user } } = await sb.auth.getUser();
+            if (!user) {
+                alert("Please log in to use 'My Mistakes'");
+                window.location.href = '/login/';
+                return null;
+            }
+
+            const { data: mistakes } = await sb.from('user_mistakes').select('word').limit(50);
+            if (!mistakes || mistakes.length < 3) return null;
+
+            const words = mistakes.sort(() => 0.5 - Math.random()).slice(0, 3).map(m => m.word);
+            return {
+                category: 'Review', level: 'Personal',
+                question: "Create a story using these words you struggled with:",
+                vocab: words,
+                points: ["Define the words first.", "Use them in a sentence.", "Create a dialogue."]
+            };
+        }
+
+        function renderCard(data) {
+            document.getElementById('cardCategory').innerText = `${data.category.toUpperCase()} • ${data.level.toUpperCase()}`;
+            document.getElementById('cardQuestion').innerText = data.question;
+
+            const vocabList = document.getElementById('cardVocab');
+            vocabList.innerHTML = '';
+            data.vocab.forEach(word => {
+                const li = document.createElement('li');
+                li.className = 'vocab-item';
+                li.innerText = word;
+                li.onclick = () => showDefinition(word);
+                vocabList.appendChild(li);
+            });
+
+            const pointsList = document.getElementById('cardPoints');
+            pointsList.innerHTML = '';
+            data.points.forEach(point => {
+                const div = document.createElement('div');
+                div.className = 'point-item';
+                div.innerText = point;
+                pointsList.appendChild(div);
+            });
+        }
+
+        // --- TIMER LOGIC ---
+        function setupTimer(seconds) {
+            clearInterval(timerInterval);
+            const display = document.getElementById('timerDisplay');
+            const status = document.getElementById('timerStatus');
+            
+            if (seconds === 0) {
+                display.innerText = "∞";
+                status.innerText = "Discussion Time:";
+                return;
+            }
+
+            timeRemaining = seconds;
+            updateTimerUI();
+
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerUI();
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    status.innerText = "TIME'S UP!";
+                    display.style.color = "#EF4444";
+                    playBeep();
+                }
+            }, 1000);
+        }
+
+        function updateTimerUI() {
+            const m = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+            const s = (timeRemaining % 60).toString().padStart(2, '0');
+            document.getElementById('timerDisplay').innerText = `${m}:${s}`;
+        }
+
+        function playBeep() {
+            // Simple Audio Context beep
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            osc.connect(ctx.destination);
+            osc.start();
+            osc.stop(0.5);
+        }
+
+        // --- DICTIONARY LOGIC ---
+        async function showDefinition(word) {
+            document.getElementById('dictModal').style.display = 'flex';
+            document.getElementById('dictWord').innerText = word;
+            document.getElementById('dictDef').innerText = "Loading definition...";
+            document.getElementById('dictPhonetic').innerText = "...";
+            currentAudioUrl = null;
+
+            try {
+                const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+                const data = await res.json();
+
+                if (Array.isArray(data)) {
+                    const entry = data[0];
+                    document.getElementById('dictPhonetic').innerText = entry.phonetic || "";
+                    document.getElementById('dictDef').innerText = entry.meanings[0].definitions[0].definition;
+                    
+                    // Find audio
+                    const phoneticWithAudio = entry.phonetics.find(p => p.audio && p.audio.length > 0);
+                    if (phoneticWithAudio) {
+                        currentAudioUrl = phoneticWithAudio.audio;
+                        document.getElementById('audioBtn').style.opacity = "1";
+                    } else {
+                        document.getElementById('audioBtn').style.opacity = "0.3";
+                    }
+                } else {
+                    document.getElementById('dictDef').innerText = "Definition not found.";
+                }
+            } catch (e) {
+                document.getElementById('dictDef').innerText = "Could not fetch definition.";
+            }
+        }
+
+        function playAudio() {
+            if (currentAudioUrl) {
+                new Audio(currentAudioUrl).play();
+            }
+        }
+
+        function closeDict() {
+            document.getElementById('dictModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
