@@ -638,7 +638,16 @@
                             { text: " Totally! Any ideas?", vibe: +20, next: 2 },
                             { text: "I am busy studying grammar.", vibe: -30, feedback: "Boring!", next: "fail_nerd" }
                         ]},
-                        2: { text: "I was thinking maybe a road trip? Or the beach?", type: "writing", correctKeywords: ["beach", "sea", "sand", "swim", "sun", "ocean", "road", "trip", "drive", "car", "go", "sure", "cool", "either", "both"], hint: "Choose beach or road trip", next: 3 },
+                        2: { 
+    text: "I was thinking maybe a road trip? Or the beach?", 
+    type: "writing", 
+    correctKeywords: ["beach", "sea", "sand", "swim", "sun", "ocean", "road", "trip", "drive", "car", "go", "sure", "cool", "either", "both"], 
+    beachNext: 3,        // If they match 'beach', go to node 3
+    roadNext: "3_road",  // If they match 'road', go to a new node 3_road
+    tripNext: "3_road",  // If they match 'trip', also go to node 3_road
+    hint: "Choose beach or road trip", 
+    next: 3 
+}
                         3: { text: "Beach sounds perfect! But I don't have a car. 🚗", type: "choice", options: [
                             { text: "We can take the train.", vibe: +20, next: "win" },
                             { text: "I can drive us.", vibe: +30, next: "win" },
@@ -907,65 +916,134 @@
             checkKeywords(text, lowerText);
         }
 
-       // V14 UPDATE: ADDED NEGATIVE KEYWORD HANDLING
+// --- THE MASTER ENGINE FIX ---
+
+// 1. GLOBAL SYNONYM DICTIONARY (Handles common words everywhere)
+const GLOBAL_SYNONYMS = {
+    "yes": ["yeah", "yep", "ok", "sure", "definitely", "absolutely", "alright", "yup", "sounds good", "cool"],
+    "no": ["nah", "nope", "don't want", "not really", "can't", "no thanks"],
+    "sorry": ["apologize", "my bad", "mistake", "forgive"],
+    "fix": ["repair", "correct", "resend", "change"]
+};
+
+// 2. FUZZY MATCHING (Levenshtein Distance)
+function getSimilarity(s1, s2) {
+    let longer = s1, shorter = s2;
+    if (s1.length < s2.length) { longer = s2; shorter = s1; }
+    let longerLength = longer.length;
+    if (longerLength == 0) return 1.0;
+    return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
+}
+
+function editDistance(s1, s2) {
+    s1 = s1.toLowerCase(); s2 = s2.toLowerCase();
+    let costs = new Array();
+    for (let i = 0; i <= s1.length; i++) {
+        let lastValue = i;
+        for (let j = 0; j <= s2.length; j++) {
+            if (i == 0) costs[j] = j;
+            else {
+                if (j > 0) {
+                    let newValue = costs[j - 1];
+                    if (s1.charAt(i - 1) != s2.charAt(j - 1))
+                        newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+                    costs[j - 1] = lastValue; lastValue = newValue;
+                }
+            }
+        }
+        if (i > 0) costs[s2.length] = lastValue;
+    }
+    return costs[s2.length];
+}
+
+// 3. SMART INTENT CHECKER
 function checkKeywords(text, lowerText) {
     const node = currentScenarioData.nodes[currentNodeId];
     const keywords = node.correctKeywords;
-    const negativeKeywords = node.negativeKeywords || []; // ← NEW
+    const userWords = lowerText.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").split(/\s+/);
     
-    // Check for negative keywords first (rejection/disagreement) ← NEW BLOCK
-    if (negativeKeywords.length > 0) {
-        const isNegative = negativeKeywords.some(k => {
-            const regex = new RegExp(`\\b${k}\\b`, 'i');
-            return regex.test(text);
-        });
-        
-        if (isNegative && node.negativeNext) {
-            updateVibe(-15, "That's not ideal, but let's see if you can recover.");
+    // Check Negatives First
+    const negativeKeywords = node.negativeKeywords || [];
+    if (negativeKeywords.some(k => lowerText.includes(k))) {
+        if (node.negativeNext) {
+            updateVibe(-15, "Not quite what they were looking for.");
             currentNodeId = node.negativeNext;
-            processNode();
-            return; // ← Stop here if negative keyword found
+            processNode(); return;
         }
     }
-            
-            // New Logic: Check if any keyword matches a whole word pattern
-            // The regex \bWORD\b ensures "hear" matches "I hear you" but not "hearingg"
-            const isCorrect = keywords.some(k => {
-                const regex = new RegExp(`\\b${k}\\b`, 'i');
-                return regex.test(text); // Check against original text to handle casing if needed, though 'i' flag handles it
-            });
 
-            if (isCorrect) {
-                updateVibe(20, null);
-                currentNodeId = node.next;
-                processNode();
-            } else {
-                nodeFailCount++; // INCREMENT FAIL COUNT
-                updateVibe(-20, "Incorrect keyword/grammar.");
-                
-                setTimeout(() => {
-                    typingIndicator.style.display = 'flex';
-                    scrollToBottom();
-                    setTimeout(() => {
-                        typingIndicator.style.display = 'none';
-                        if (vibe <= 0) {
-                            addMessage("I don't get what you're saying. Bye.", 'npc');
-                            setTimeout(() => triggerGameOver(false), 2000);
-                        } else {
-                            addMessage("Huh? I don't understand.", 'npc');
-                            
-                            // MERCY RULE
-                            setTimeout(() => {
-                                if (nodeFailCount > 1) {
-                                    showCoachMessage(`💡 Hint: Try using words like: ${keywords.slice(0, 3).join(", ")}`);
-                                }
-                                showWritingInput(node.hint);
-                            }, 1500);
-                        }
-                    }, 1500);
-                }, 500);
+    // SCORING SYSTEM
+    let bestMatch = null;
+    let highestScore = 0;
+
+    keywords.forEach(target => {
+        let score = 0;
+        
+        // Check for exact phrase
+        if (lowerText.includes(target)) score = 1.0;
+
+        // Check for synonyms
+        for (let root in GLOBAL_SYNONYMS) {
+            if (target === root && GLOBAL_SYNONYMS[root].some(syn => lowerText.includes(syn))) {
+                score = 0.95;
             }
         }
+
+        // Check for Fuzzy matches (typos)
+        userWords.forEach(word => {
+            let sim = getSimilarity(word, target);
+            if (sim > 0.8 && sim > score) score = sim;
+        });
+
+        if (score > highestScore) {
+            highestScore = score;
+            bestMatch = target;
+        }
+    });
+
+    // DECISION
+    if (highestScore > 0.75) {
+        updateVibe(20, null);
+        
+        // FIX: SMART BRANCHING
+        // If the node has specific outcomes for words, use them.
+        // Example: if bestMatch is 'road' and node has 'roadNext', go there.
+        if (node[bestMatch + "Next"]) {
+            currentNodeId = node[bestMatch + "Next"];
+        } else {
+            currentNodeId = node.next;
+        }
+        
+        processNode();
+    } else {
+        nodeFailCount++;
+        handleFailure(node);
+    }
+}
+
+function handleFailure(node) {
+    updateVibe(-20, "They didn't quite understand you.");
+    typingIndicator.style.display = 'flex';
+    scrollToBottom();
+    
+    setTimeout(() => {
+        typingIndicator.style.display = 'none';
+        if (vibe <= 0) {
+            addMessage("I'm not following. Let's talk later.", 'npc');
+            setTimeout(() => triggerGameOver(false), 2000);
+        } else {
+            const confusion = ["Sorry, what?", "I don't get it.", "Can you say that differently?", "Huh?"];
+            addMessage(confusion[Math.floor(Math.random() * confusion.length)], 'npc');
+            
+            setTimeout(() => {
+                if (nodeFailCount >= 1) {
+                    showCoachMessage(`💡 Hint: ${node.hint || 'Try another way of saying it.'}`);
+                }
+                showWritingInput(node.hint);
+            }, 1000);
+        }
+    }, 1500);
+}
 
         // --- UI HELPERS ---
         function addMessage(text, type) {
