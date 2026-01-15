@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -183,19 +182,6 @@
         }
         .choice-btn:hover { background: #DBEAFE; border-color: #3B82F6; color: #1D4ED8; }
 
-        /* Writing Input */
-        .writing-container { display: none; width: 100%; gap: 10px; }
-        .text-input {
-            flex: 1; padding: 12px; border-radius: 25px; border: 1px solid #D1D5DB; outline: none; font-size: 15px;
-        }
-        .text-input:focus { border-color: #3B82F6; }
-        .send-btn {
-            width: 45px; height: 45px; border-radius: 50%; background: #3B82F6; color: white;
-            border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
-            font-size: 18px;
-        }
-        .send-btn:hover { background: #2563EB; }
-
         /* Overlays */
         #game-over-overlay, #menu-overlay {
             position: absolute; inset: 0; background: rgba(0,0,0,0.85);
@@ -252,7 +238,7 @@
         <div class="chat-header">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <button onclick="showMenu()" style="font-size: 20px; cursor: pointer; background:none; border:none;">⬅️</button>
-                <div class="avatar" id="npc-avatar">👔</div>
+                <div class="avatar" id="npc-avatar">💼</div>
                 <div>
                     <div style="font-weight: 700; font-size: 15px;" id="npc-name">The Boss</div>
                     <div style="font-size: 11px; color: #6B7280;"><span class="status-dot"></span>Online</div>
@@ -274,16 +260,11 @@
 
         <div class="input-area">
             <div class="choices-container" id="choices-area"></div>
-            
-            <div class="writing-container" id="writing-area">
-                <input type="text" class="text-input" id="user-input" placeholder="Type your reply..." autocomplete="off">
-                <button class="send-btn" onclick="submitWriting()">➤</button>
-            </div>
         </div>
 
        <div id="menu-overlay">
             <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 10px;">💬 Vibe Check</h1>
-            <p style="color: #9CA3AF; margin-bottom: 20px;">English for Cool Dudes</p>
+            <p style="color: #9CA3AF; margin-bottom: 20px; font-style: italic;">Keep the conversation vibe alive by choosing the best response - and don't get BLOCKED!</p>
             
             <div class="diff-selector">
                 <div class="diff-opt active" id="diff-chill" onclick="setDifficulty('chill')">😎 Chill (Normal)</div>
@@ -291,7 +272,7 @@
             </div>
             <p id="diff-desc" style="font-size:12px; color: #6B7280; margin-bottom: 20px; font-style: italic;">Training Mode: Coach ON, 50% Start</p>
 
-            <button class="menu-btn" onclick="pickRandomScenario('business')">👔 Business (5 Stories)</button>
+            <button class="menu-btn" onclick="pickRandomScenario('business')">💼 Business (5 Stories)</button>
             <button class="menu-btn" onclick="pickRandomScenario('dating')">🌹 Social / Dating (5 Stories)</button>
             <button class="menu-btn" onclick="pickRandomScenario('casual')">🧢 Slang / Friends (5 Stories)</button>
             
@@ -315,59 +296,21 @@
         <a href="/datenschutz/" style="color: #667EEA; text-decoration: none;">Datenschutzerklärung</a>
     </div>
 </footer>
-    <div id="dictionary-popup"></div>
-    <div id="feedback-popup"></div>
 
     <script>
         // --- GAME CONFIG ---
-        let difficulty = 'chill'; // 'chill' or 'pro'
-        let nodeFailCount = 0; // Tracks failures to trigger Mercy Rule
+        let difficulty = 'chill';
         
         // TIMINGS
         const TIME_INITIAL_PAUSE = 600;
         const TIME_TYPING = 2000;
         const TIME_READING = 2000;
 
-        // --- FILTER CONFIG ---
-        
-        // 1. TOXIC WORDS (Ban)
-        const toxicWords = [
-            "sex", "sexy", "porn", "nude", "naked", "xxx", "erotic",
-            "kill", "murder", "die", "death", "suicide", "gun", "shoot",
-            "rape", "assault", "beat", "hit", "abuse",
-            "cocaine", "heroin", "meth", "drugs", "dealer",
-            "racist", "nazi", "slave", "terrorist"
-        ];
-
-        // 2. EXCEPTION PHRASES (Allow these even if they contain rude words)
-        const exceptionPhrases = [
-            "terribly sorry", "so sorry", "my bad", "apologies", 
-            "feel terrible", "feel awful", "feel bad", "my mistake"
-        ];
-
-        // 3. RUDE WORDS (Penalty)
-        const rudeWords = [
-            // General
-            "shut up", "shut your mouth", "shutup",
-            "stupid", "idiot", "dumb", "fool", "moron", "retard",
-            "ugly", "fat", "gross", "disgusting", "smell", "stink",
-            "hate", "hate you", "loathe", "despise",
-            "shit", "fuck", "bitch", "ass", "asshole", "damn", "crap", "bullshit", "bastard", "dick", "cock", "pussy",
-            "boring", "lazy", "annoying", "whatever", "don't care", "who asked",
-            "terrible", "horrible", "awful", "worst", "trash", "garbage",
-            // Dating / Creep Specific
-            "back to mine", "my place", "your place", "come home", "sleep with", "have sex", "hotel", "bed",
-            "bikini", "undies", "panties", "bra", "skirt", "legs", "body", "sexy", "hot",
-            "skinny dip", "spank", "kiss", "touch",
-            "horny", "horn", "aroused", "turn on", "turned on", "hard", "wet", "lust", "kinky", "fetish"
-        ];
-
-        // --- GAME DATA (15 STORIES) ---
-        // V13: ALL FIXES + REGEX MATCHING (No more "hearingg")
+        // --- GAME DATA (15 STORIES - ALL MULTIPLE CHOICE) ---
         const scenarioDB = {
             business: [
                 {
-                    name: "Mr. Sterling", avatar: "👔", startNode: 1,
+                    name: "Mr. Sterling", avatar: "💼", startNode: 1,
                     nodes: {
                         1: { text: "Where is the quarterly report? It was due an hour ago. 😡", type: "choice", options: [
                             { text: "Chill out, I'm doing it.", vibe: -40, feedback: "Too casual/rude for a boss!", next: "fail_rude" },
@@ -379,8 +322,11 @@
                             { text: "Noted. I've double-checked the figures.", vibe: +20, next: 3 },
                             { text: "Whatever you say.", vibe: -30, feedback: "Passive aggressive attitude.", next: "fail_attitude" }
                         ]},
-                        3: { text: "Wait, I see a typo in the email you just sent. You wrote 'We look forward to hare from you'. Fix it.", type: "writing", correctKeywords: ["hearing", "apologize", "sorry", "correction", "fix", "fixed", "right", "change", "mistake", "my bad", "resend"], negativeKeywords: ["hearring", "haring", "hhearingg", "haering", "hearinng", "hear", "hearr", "hearinng"], negativeNext: "3b", hint: "Be more careful!", next: 4 },
-                        "3b": { text: "Oh, come on! I'll give you one more try.", type: "writing", correctKeywords: ["hearing"], hint: "Fix the verb 'hare' to 'hear'", next: 4 },
+                        3: { text: "Wait, I see a typo in the email you just sent. You wrote 'We look forward to hare from you'. Fix it.", type: "choice", options: [
+                            { text: "I'll correct it to 'hearing' right away.", vibe: +20, next: 4 },
+                            { text: "It's fine, they'll understand.", vibe: -30, feedback: "Unprofessional!", next: "fail_sloppy" },
+                            { text: "I don't see a mistake.", vibe: -20, feedback: "Pay attention to details.", next: "fail_sloppy" }
+                        ]},
                         4: { text: "Better. Are you available for a client call at 5 PM?", type: "choice", options: [
                             { text: "No, I'm going home.", vibe: -50, feedback: "Refusing a request directly is risky.", next: "fail_lazy" },
                             { text: "I can make myself available.", vibe: +20, next: "win" },
@@ -390,7 +336,8 @@
                         "fail_rude": { text: "Excuse me? Visit HR immediately. You're fired.", end: true, win: false },
                         "fail_weak": { text: "I need confidence, not apologies. Get out.", end: true, win: false },
                         "fail_attitude": { text: "I don't like your tone. Go home.", end: true, win: false },
-                        "fail_lazy": { text: "Then don't bother coming back tomorrow.", end: true, win: false }
+                        "fail_lazy": { text: "Then don't bother coming back tomorrow.", end: true, win: false },
+                        "fail_sloppy": { text: "Details matter. You're fired.", end: true, win: false }
                     }
                 },
                 {
@@ -401,7 +348,11 @@
                             { text: "I'd like to discuss a potential raise.", vibe: +10, next: 2 },
                             { text: "I'm broke, please help.", vibe: -20, feedback: "Too desperate/personal.", next: "fail_beg" }
                         ]},
-                        2: { text: "I see. Why do you think you deserve a raise right now?", type: "writing", correctKeywords: ["performance", "results", "value", "hard work", "worked hard", "work hard", "working hard", "sales", "numbers", "target", "dedicated", "dedication", "effort", "good", "best", "top", "deserve", "earned"], hint: "Mention your hard work or results", next: 3 },
+                        2: { text: "I see. Why do you think you deserve a raise right now?", type: "choice", options: [
+                            { text: "I've consistently exceeded my sales targets.", vibe: +20, next: 3 },
+                            { text: "Everyone else got one.", vibe: -30, feedback: "Don't compare yourself to others.", next: "fail_compare" },
+                            { text: "I just need more money.", vibe: -40, feedback: "Focus on your value, not needs.", next: "fail_beg" }
+                        ]},
                         3: { text: "Fair point. Your results have been good. What figure were you thinking?", type: "choice", options: [
                             { text: "10% increase.", vibe: +10, next: 4 },
                             { text: "Double my salary.", vibe: -50, feedback: "Unrealistic expectation.", next: "fail_unreal" },
@@ -418,7 +369,8 @@
                         "fail_beg": { text: "This is a business, not a charity.", end: true, win: false },
                         "fail_unreal": { text: "Get real. Meeting over.", end: true, win: false },
                         "fail_weak": { text: "If you don't value yourself, neither will I. No raise.", end: true, win: false },
-                        "fail_rude": { text: "Watch your attitude. Request denied.", end: true, win: false }
+                        "fail_rude": { text: "Watch your attitude. Request denied.", end: true, win: false },
+                        "fail_compare": { text: "I'm not discussing other people's salaries. Request denied.", end: true, win: false }
                     }
                 },
                 {
@@ -429,7 +381,11 @@
                             { text: "Oh no! Let me look into that immediately.", vibe: +20, next: 2 },
                             { text: "Maybe the postman dropped it.", vibe: -20, feedback: "Making excuses.", next: "fail_excuse" }
                         ]},
-                        2: { text: "You better fix this or we are cancelling the contract.", type: "writing", correctKeywords: ["refund", "replacement", "replace", "send new", "money back", "fix", "resolve", "solution", "sorry", "pay", "return", "apologies", "mistake"], hint: "Offer refund/replace", next: 3 },
+                        2: { text: "You better fix this or we are cancelling the contract.", type: "choice", options: [
+                            { text: "We'll send a full replacement immediately with express shipping.", vibe: +30, next: 3 },
+                            { text: "Would you prefer a refund or replacement?", vibe: +20, next: 3 },
+                            { text: "These things happen sometimes.", vibe: -30, feedback: "Don't minimize the problem!", next: "fail_dismiss" }
+                        ]},
                         3: { text: "A replacement sounds acceptable. When will it arrive?", type: "choice", options: [
                             { text: "Whenever the truck gets there.", vibe: -30, feedback: "Too vague/lazy.", next: "fail_lazy" },
                             { text: "We are shipping it express today.", vibe: +30, next: "win" },
@@ -439,7 +395,8 @@
                         "fail_rude": { text: "Wow. I'm calling your manager.", end: true, win: false },
                         "fail_excuse": { text: "I don't care whose fault it is. Fix it or we leave.", end: true, win: false },
                         "fail_lazy": { text: "Unacceptable. Contract cancelled.", end: true, win: false },
-                        "fail_slow": { text: "Too slow. We are going to a competitor.", end: true, win: false }
+                        "fail_slow": { text: "Too slow. We are going to a competitor.", end: true, win: false },
+                        "fail_dismiss": { text: "Not good enough. We're done here.", end: true, win: false }
                     }
                 },
                 {
@@ -450,7 +407,11 @@
                             { text: "Sometimes I focus too much on details.", vibe: +20, next: 2 },
                             { text: "I'm lazy in the mornings.", vibe: -40, feedback: "Never admit to being lazy!", next: "fail_lazy" }
                         ]},
-                        2: { text: "Interesting. And why do you want to work here?", type: "writing", correctKeywords: ["grow", "learn", "opportunity", "reputation", "company", "career", "skills", "challenge", "best", "great", "culture", "fun", "like", "love", "good", "enjoy", "team", "people"], hint: "Mention growth, learning, or the company reputation", next: 3 },
+                        2: { text: "Interesting. And why do you want to work here?", type: "choice", options: [
+                            { text: "Your company has an excellent reputation and I want to grow my skills.", vibe: +30, next: 3 },
+                            { text: "I need a job.", vibe: -40, feedback: "Show genuine interest!", next: "fail_generic" },
+                            { text: "The salary is good.", vibe: -20, feedback: "Money shouldn't be your only motivation.", next: "fail_money" }
+                        ]},
                         3: { text: "Good answer. Do you have any questions for me?", type: "choice", options: [
                             { text: "No, I'm good.", vibe: -20, feedback: "Always ask a question!", next: "fail_interest" },
                             { text: "How much vacation do I get?", vibe: -10, feedback: "Don't ask about perks first.", next: "fail_perks" },
@@ -459,7 +420,9 @@
                         "win": { text: "Great question! Let me introduce you to the team. You're hired!", end: true, win: true },
                         "fail_lazy": { text: "We need energetic people here. Goodbye.", end: true, win: false },
                         "fail_interest": { text: "You don't seem very interested. We'll call you.", end: true, win: false },
-                        "fail_perks": { text: "You should care about the work, not just the vacation.", end: true, win: false }
+                        "fail_perks": { text: "You should care about the work, not just the vacation.", end: true, win: false },
+                        "fail_generic": { text: "We need people who are passionate about what we do.", end: true, win: false },
+                        "fail_money": { text: "We want team members who care about more than just the paycheck.", end: true, win: false }
                     }
                 },
                 {
@@ -470,7 +433,11 @@
                             { text: "I think he looks fine.", vibe: +10, next: 2 },
                             { text: "I'm trying to focus on my work.", vibe: +20, next: 2 }
                         ]},
-                        2: { text: "You're no fun. Anyway, are you going to the meeting?", type: "writing", correctKeywords: ["yes", "attend", "going", "join", "be there", "busy", "later", "time", "yeah", "yep", "sure", "ok"], hint: "Confirm if you are going", next: 3 },
+                        2: { text: "You're no fun. Anyway, are you going to the meeting?", type: "choice", options: [
+                            { text: "Yes, I'll be there.", vibe: +20, next: 3 },
+                            { text: "Do I have to?", vibe: -10, feedback: "Show more enthusiasm.", next: 3 },
+                            { text: "What meeting?", vibe: -20, feedback: "Stay informed!", next: "fail_clueless" }
+                        ]},
                         3: { text: "I'm thinking of skipping it. It's so boring. You should skip it too.", type: "choice", options: [
                             { text: "Okay, let's skip it.", vibe: -40, feedback: "Bad influence!", next: "fail_skip" },
                             { text: "I can't, it's important.", vibe: +20, next: "win" },
@@ -478,7 +445,8 @@
                         ]},
                         "win": { text: "Fine, be a teacher's pet. See you there.", end: true, win: true },
                         "fail_gossip": { text: "Exactly! I'm going to tell everyone you said that.", end: true, win: false },
-                        "fail_skip": { text: "The boss noticed we were missing. We are in big trouble.", end: true, win: false }
+                        "fail_skip": { text: "The boss noticed we were missing. We are in big trouble.", end: true, win: false },
+                        "fail_clueless": { text: "How do you not know? It's been on the calendar for a week.", end: true, win: false }
                     }
                 }
             ],
@@ -496,9 +464,11 @@
                             { text: "That sucks. You should quit.", vibe: -20, feedback: "Bad advice.", next: 3 },
                             { text: "I hear that. We should do something fun then!", vibe: +20, next: 3 }
                         ]},
-                        3: { text: "Exactly! I love Italian food btw. 🍝", type: "writing", correctKeywords: ["dinner", "spanish", "turkish", "eat", "food", "italian", "pasta", "pizza", "weekend", "together", "meet", "fancy", "like", "go", "place", "restaurant", "grab", "let's", "hungry"], negativeKeywords: ["don't like", "dont like", "hate", "no thanks", "not interested", "rather not", "nah"], negativeNext: "3b", hint: "Ask her out for food", next: 4 },
-                        "3b": { text: "Oh, that's a shame! Well what kind of food do you like?", type: "writing", correctKeywords: ["chinese", "mexican", "thai", "japanese", "burger", "cafe", "anything", "surprise", "you pick", "your choice"], hint: "Suggest another type of food", next: 4 },
-                        
+                        3: { text: "Exactly! I love Italian food btw. 🍝", type: "choice", options: [
+                            { text: "Would you like to get Italian dinner this weekend?", vibe: +30, next: 4 },
+                            { text: "Me too! I know a great place.", vibe: +20, next: 4 },
+                            { text: "I don't really like Italian.", vibe: -30, feedback: "You just missed an easy connection!", next: "fail_mismatch" }
+                        ]},
                         4: { text: "Ooh I'd love that! Saturday night? 🥂", type: "choice", options: [
                             { text: "Saturday works perfectly.", vibe: +20, next: "win" },
                             { text: "Maybe. I might be busy.", vibe: -30, feedback: "Playing too hard to get.", next: "fail_cold" },
@@ -507,7 +477,8 @@
                         "win": { text: "Great! Can't wait! See you then 😘", end: true, win: true },
                         "fail_creep": { text: "Uhh... blocked.", end: true, win: false },
                         "fail_cold": { text: "Okay nevermind then...", end: true, win: false },
-                        "fail_cheap": { text: "Wow. Bye.", end: true, win: false }
+                        "fail_cheap": { text: "Wow. Bye.", end: true, win: false },
+                        "fail_mismatch": { text: "Oh... well this probably won't work out then.", end: true, win: false }
                     }
                 },
                 {
@@ -518,7 +489,11 @@
                             { text: "Let me get this.", vibe: +20, next: 2 },
                             { text: "Let's split it.", vibe: 0, next: 3 } 
                         ]},
-                        2: { text: "Are you sure? It's kind of expensive.", type: "writing", correctKeywords: ["worry", "fine", "okay", "treat", "my treat", "got this", "pay", "no problem", "pleasure", "yes", "sure", "definitely", "absolutely", "split", "share", "half", "actually", "change"], hint: "Confirm you are paying (e.g., 'My treat')", next: 3 },
+                        2: { text: "Are you sure? It's kind of expensive.", type: "choice", options: [
+                            { text: "My treat. Don't worry about it.", vibe: +30, next: 3 },
+                            { text: "Let's split it 50/50 then.", vibe: +10, next: 3 },
+                            { text: "Actually, can you pay?", vibe: -40, feedback: "Don't backtrack now!", next: "fail_backtrack" }
+                        ]},
                         3: { text: "Okay, all sorted! So... what do you want to do now?", type: "choice", options: [
                             { text: "Your place?", vibe: -50, feedback: "Moving too fast!", next: "fail_fast" },
                             { text: "We could grab a drink at a jazz bar?", vibe: +20, next: "win" },
@@ -527,7 +502,8 @@
                         "win": { text: "I love jazz! Let's go! 🎷", end: true, win: true },
                         "fail_cheap": { text: "Wow... okay. I'll pay for myself and leave.", end: true, win: false },
                         "fail_fast": { text: "Whoa, slow down. I'm going home alone.", end: true, win: false },
-                        "fail_boring": { text: "Oh. Okay. Goodnight then.", end: true, win: false }
+                        "fail_boring": { text: "Oh. Okay. Goodnight then.", end: true, win: false },
+                        "fail_backtrack": { text: "Seriously? That's disappointing. I'm going home.", end: true, win: false }
                     }
                 },
                 {
@@ -538,7 +514,11 @@
                             { text: "Who asks?", vibe: -30, feedback: "Too aggressive.", next: "fail_aggro" },
                             { text: "No.", vibe: -10, next: 2 }
                         ]},
-                        2: { text: "Cool! I'm playing a gig at a bar downtown tonight. You should come!", type: "writing", correctKeywords: ["love", "cool", "sound", "great", "fun", "what time", "where", "details", "address", "music", "really", "sure", "come", "go", "why not", "ok", "alright"], hint: "Ask details / Say yes", next: 3 },
+                        2: { text: "Cool! I'm playing a gig at a bar downtown tonight. You should come!", type: "choice", options: [
+                            { text: "That sounds awesome! What time?", vibe: +30, next: 3 },
+                            { text: "Maybe. Where is it?", vibe: +10, next: 3 },
+                            { text: "I'm not really into live music.", vibe: -30, feedback: "You're killing the vibe.", next: "fail_negative" }
+                        ]},
                         3: { text: "It starts at 9PM at The Blue Note. Bring friends!", type: "choice", options: [
                             { text: "I don't have friends.", vibe: -20, feedback: "A bit awkward.", next: "fail_awkward" },
                             { text: "Awesome, I'll be there!", vibe: +20, next: "win" },
@@ -547,7 +527,8 @@
                         "win": { text: "Sick! See you there! 🤘", end: true, win: true },
                         "fail_aggro": { text: "Whoa, relax. Just asking.", end: true, win: false },
                         "fail_awkward": { text: "Oh... uh, okay. Maybe next time.", end: true, win: false },
-                        "fail_rude": { text: "Nevermind then.", end: true, win: false }
+                        "fail_rude": { text: "Nevermind then.", end: true, win: false },
+                        "fail_negative": { text: "Oh well. Your loss.", end: true, win: false }
                     }
                 },
                 {
@@ -558,7 +539,11 @@
                             { text: "Oh! I'm so sorry, let me check.", vibe: +20, next: 2 },
                             { text: "Get your own.", vibe: -50, feedback: "Extremely rude!", next: "fail_rude" }
                         ]},
-                        2: { text: "It says 'Lily' on the cup. My name is Lily.", type: "writing", correctKeywords: ["sorry", "mistake", "wrong", "apologize", "my bad", "new one", "buy", "mine", "too", "name", "same", "coincidence", "funny", "wow", "really"], hint: "Apologize OR Explain", next: 3 },
+                        2: { text: "It says 'Lily' on the cup. My name is Lily.", type: "choice", options: [
+                            { text: "Oh my gosh! I'm so sorry. Let me buy you a new one.", vibe: +30, next: 3 },
+                            { text: "Wait, that's my name too! What a coincidence.", vibe: +20, next: 3 },
+                            { text: "Well, I grabbed it first.", vibe: -40, feedback: "Don't be difficult!", next: "fail_stubborn" }
+                        ]},
                         3: { text: "Oh... really? Well, mistakes happen. The line is so long though...", type: "choice", options: [
                             { text: "Yeah, bye.", vibe: -30, feedback: "Dismissive.", next: "fail_awkward" },
                             { text: "I'll buy you a new one. It's the least I can do.", vibe: +30, next: "win" },
@@ -566,19 +551,23 @@
                         ]},
                         "win": { text: "That is so nice of you! I'd love that. Thanks!", end: true, win: true },
                         "fail_rude": { text: "Ugh, people these days.", end: true, win: false },
-                        "fail_awkward": { text: "Okay... weirdo.", end: true, win: false }
+                        "fail_awkward": { text: "Okay... weirdo.", end: true, win: false },
+                        "fail_stubborn": { text: "Wow. Really mature.", end: true, win: false }
                     }
                 },
                 {
-                    name: "Mike", avatar: "👻", startNode: 1,
+                    name: "Mike", avatar: "💻", startNode: 1,
                     nodes: {
                         1: { text: "Hey... long time no see. Sorry I disappeared for 2 weeks.", type: "choice", options: [
                             { text: "You are the worst.", vibe: -40, feedback: "Too aggressive immediately.", next: "fail_angry" },
                             { text: "Yeah, what happened?", vibe: +10, next: 2 },
                             { text: "I didn't notice.", vibe: -10, feedback: "Playing it too cool.", next: 2 }
                         ]},
-                        // V11: Added "probs", "prob", "sweat"
-                        2: { text: "My phone broke and I lost all my contacts. I felt so bad! 😭", type: "writing", correctKeywords: ["believe", "i thought", "ghost", "ghosting", "okay", "ok", "fine", "worry", "worries", "problem", "probs", "prob", "cool", "good", "understand", "lie", "really", "true", "happen", "alright", "chill", "sweat", "whatever", "liar"], hint: "Say 'No worries' or 'I don't believe you'", next: 3 },
+                        2: { text: "My phone broke and I lost all my contacts. I felt so bad! 😭", type: "choice", options: [
+                            { text: "No worries! These things happen.", vibe: +20, next: 3 },
+                            { text: "I thought you were ghosting me!", vibe: +10, next: 3 },
+                            { text: "That's a terrible excuse.", vibe: -40, feedback: "Too harsh!", next: "fail_harsh" }
+                        ]},
                         3: { text: "I promise it's the truth! Can I make it up to you with a drink?", type: "choice", options: [
                             { text: "No thanks, bye.", vibe: -20, feedback: "End of story.", next: "fail_cold" },
                             { text: "One drink. But you are paying.", vibe: +20, next: "win" },
@@ -586,7 +575,8 @@
                         ]},
                         "win": { text: "Deal! I'll pick you up at 8. 🚗", end: true, win: true },
                         "fail_angry": { text: "Whoa, chill. I won't bother you again.", end: true, win: false },
-                        "fail_cold": { text: "Message received. Have a nice life.", end: true, win: false }
+                        "fail_cold": { text: "Message received. Have a nice life.", end: true, win: false },
+                        "fail_harsh": { text: "You know what? Forget I asked.", end: true, win: false }
                     }
                 }
             ],
@@ -599,7 +589,11 @@
                             { text: "Not much, just chilling. You?", vibe: +20, next: 2 },
                             { text: "Go away.", vibe: -50, feedback: "Just mean.", next: "fail_mean" }
                         ]},
-                        2: { text: "Just finished at the gym. I'm starving. 🍔", type: "writing", correctKeywords: ["eat", "food", "lunch", "hungry", "grab", "burger", "meal", "dinner", "snack", "same", "me too", "go", "sure"], hint: "Suggest getting food", next: 3 },
+                        2: { text: "Just finished at the gym. I'm starving. 🍔", type: "choice", options: [
+                            { text: "Let's grab some food! I'm hungry too.", vibe: +30, next: 3 },
+                            { text: "Want to get lunch together?", vibe: +20, next: 3 },
+                            { text: "Cool story.", vibe: -40, feedback: "Sarcastic and rude.", next: "fail_sarcastic" }
+                        ]},
                         3: { text: "Yes! Burger King? My treat.", type: "choice", options: [
                             { text: "I prefer a 5-star restaurant.", vibe: -30, feedback: "Snobbish.", next: "fail_snob" },
                             { text: "Sounds good, let's go!", vibe: +20, next: "win" },
@@ -608,7 +602,8 @@
                         "win": { text: "Sweet. Meet you there in 10 mins! 🍟", end: true, win: true },
                         "fail_mean": { text: "Rude...", end: true, win: false },
                         "fail_snob": { text: "Since when are you so fancy? Forget it.", end: true, win: false },
-                        "fail_boring": { text: "Ugh, you're no fun.", end: true, win: false }
+                        "fail_boring": { text: "Ugh, you're no fun.", end: true, win: false },
+                        "fail_sarcastic": { text: "Whatever, dude.", end: true, win: false }
                     }
                 },
                 {
@@ -619,7 +614,11 @@
                             { text: "Yeah! It's gonna be epic.", vibe: +20, next: 2 },
                             { text: "Sports are a waste of time.", vibe: -40, feedback: "Don't ruin the fun.", next: "fail_buzzkill" }
                         ]},
-                        2: { text: "United vs City! It's the final! I'm watching at home.", type: "writing", correctKeywords: ["come", "over", "watch", "join", "can i", "invite", "party", "beer", "bring", "sure", "ok", "cool"], hint: "Ask to come over / join", next: 3 },
+                        2: { text: "United vs City! It's the final! I'm watching at home.", type: "choice", options: [
+                            { text: "Can I come over and watch with you?", vibe: +30, next: 3 },
+                            { text: "Nice! Mind if I join?", vibe: +20, next: 3 },
+                            { text: "Who cares about soccer?", vibe: -50, feedback: "Don't insult their interests!", next: "fail_insult" }
+                        ]},
                         3: { text: "Yeah for sure! Bring some snacks though.", type: "choice", options: [
                             { text: "I will arrive with provisions.", vibe: -20, feedback: "You sound like a robot.", next: "fail_robot" },
                             { text: "I'll bring chips and beer.", vibe: +20, next: "win" },
@@ -628,7 +627,8 @@
                         "win": { text: "Legend! Door is open. ⚽", end: true, win: true },
                         "fail_buzzkill": { text: "You must be fun at parties...", end: true, win: false },
                         "fail_robot": { text: "Why are you talking like a textbook? 😂", end: true, win: false },
-                        "fail_cheap": { text: "Bro, don't be cheap. Forget it.", end: true, win: false }
+                        "fail_cheap": { text: "Bro, don't be cheap. Forget it.", end: true, win: false },
+                        "fail_insult": { text: "Wow. Don't bother coming over then.", end: true, win: false }
                     }
                 },
                 {
@@ -639,7 +639,11 @@
                             { text: " Totally! Any ideas?", vibe: +20, next: 2 },
                             { text: "I am busy studying grammar.", vibe: -30, feedback: "Boring!", next: "fail_nerd" }
                         ]},
-                        2: { text: "I was thinking maybe a road trip? Or the beach?", type: "writing", correctKeywords: ["beach", "sea", "sand", "swim", "sun", "ocean", "road", "trip", "drive", "car", "go", "sure", "cool", "either", "both"], hint: "Choose beach or road trip", next: 3 },
+                        2: { text: "I was thinking maybe a road trip? Or the beach?", type: "choice", options: [
+                            { text: "Beach sounds perfect!", vibe: +30, next: 3 },
+                            { text: "Either one works for me!", vibe: +20, next: 3 },
+                            { text: "Both sound boring.", vibe: -40, feedback: "Then suggest something!", next: "fail_negative" }
+                        ]},
                         3: { text: "Beach sounds perfect! But I don't have a car. 🚗", type: "choice", options: [
                             { text: "We can take the train.", vibe: +20, next: "win" },
                             { text: "I can drive us.", vibe: +30, next: "win" },
@@ -647,7 +651,8 @@
                         ]},
                         "win": { text: "Awesome plan! I'll pack the sunscreen. ☀️", end: true, win: true },
                         "fail_nerd": { text: "Okay... have fun with that.", end: true, win: false },
-                        "fail_lazy": { text: "Wow, helpful. Nevermind.", end: true, win: false }
+                        "fail_lazy": { text: "Wow, helpful. Nevermind.", end: true, win: false },
+                        "fail_negative": { text: "Well, you think of something then. Bye.", end: true, win: false }
                     }
                 },
                 {
@@ -658,7 +663,11 @@
                             { text: "Sorry! I was super busy. I'll do it now.", vibe: +20, next: 2 },
                             { text: "They aren't my dishes.", vibe: -30, feedback: "Don't lie!", next: "fail_lie" }
                         ]},
-                        2: { text: "You said you'd do it 'later' three days ago. It smells bad.", type: "writing", correctKeywords: ["now", "promise", "clean", "wash", "sorry", "right away", "tonight", "fix", "doing", "washing"], hint: "Promise to clean it NOW", next: 3 },
+                        2: { text: "You said you'd do it 'later' three days ago. It smells bad.", type: "choice", options: [
+                            { text: "You're right. I'll clean it right now.", vibe: +30, next: 3 },
+                            { text: "I promise I'll do it tonight after work.", vibe: +20, next: 3 },
+                            { text: "It's not that bad.", vibe: -30, feedback: "Don't deny the problem!", next: "fail_denial" }
+                        ]},
                         3: { text: "Fine. But if it's not clean by tonight, I'm throwing them out.", type: "choice", options: [
                             { text: "You wouldn't dare.", vibe: -50, feedback: "Don't challenge an angry roommate.", next: "fail_fight" },
                             { text: "Understood. I'm on it.", vibe: +20, next: "win" },
@@ -666,7 +675,8 @@
                         ]},
                         "win": { text: "Good. Thanks, man.", end: true, win: true },
                         "fail_lie": { text: "I saw you eating that pasta. Don't lie to me.", end: true, win: false },
-                        "fail_fight": { text: "Watch me. *Crash* There go your plates.", end: true, win: false }
+                        "fail_fight": { text: "Watch me. *Crash* There go your plates.", end: true, win: false },
+                        "fail_denial": { text: "Yes it is. I'm done being patient.", end: true, win: false }
                     }
                 },
                 {
@@ -677,8 +687,11 @@
                             { text: "Yeah, what's up?", vibe: +20, next: 2 },
                             { text: "I'm busy.", vibe: -30, feedback: "Rude.", next: "fail_rude" }
                         ]},
-                        // V11: Added "down", "up", "ahead", "way", "here", "there", "take", "past", "near", "next"
-                        2: { text: "I am looking for the train station. Google Maps is not working!", type: "writing", correctKeywords: ["straight", "left", "right", "turn", "block", "street", "corner", "walk", "minutes", "follow", "down", "up", "ahead", "way", "here", "there", "take", "past", "near", "next"], hint: "Give directions (Left/Right/Straight)", next: 3 },
+                        2: { text: "I am looking for the train station. Google Maps is not working!", type: "choice", options: [
+                            { text: "Go straight two blocks, then turn left.", vibe: +30, next: 3 },
+                            { text: "It's that way, about 5 minutes walking.", vibe: +20, next: 3 },
+                            { text: "I have no idea.", vibe: -20, feedback: "At least try to help!", next: "fail_unhelpful" }
+                        ]},
                         3: { text: "Okay, go straight and turn left. Is it far?", type: "choice", options: [
                             { text: "Nah, it's like a 5 min walk.", vibe: +20, next: "win" },
                             { text: "Yes, you should take a taxi.", vibe: +10, next: "win" },
@@ -686,7 +699,8 @@
                         ]},
                         "win": { text: "Thank you so much! You saved me! 🙏", end: true, win: true },
                         "fail_rude": { text: "Oh... okay. Sorry to bother you.", end: true, win: false },
-                        "fail_confused": { text: "I am more confused now. Bye.", end: true, win: false }
+                        "fail_confused": { text: "I am more confused now. Bye.", end: true, win: false },
+                        "fail_unhelpful": { text: "Okay, I'll ask someone else.", end: true, win: false }
                     }
                 }
             ]
@@ -702,10 +716,8 @@
         // --- DOM ELEMENTS ---
         const chatArea = document.getElementById('chat-area');
         const choicesArea = document.getElementById('choices-area');
-        const writingArea = document.getElementById('writing-area');
         const vibeBar = document.getElementById('vibe-bar');
         const typingIndicator = document.getElementById('typing-indicator');
-        const userInput = document.getElementById('user-input');
         const appContainer = document.getElementById('app-container');
         const diffDesc = document.getElementById('diff-desc');
 
@@ -748,7 +760,6 @@
             currentScenarioData = data;
             currentNodeId = data.startNode;
             vibe = (difficulty === 'chill') ? 50 : 20;
-            nodeFailCount = 0; // RESET FAIL COUNT
             
             document.getElementById('menu-overlay').style.display = 'none';
             document.getElementById('game-over-overlay').style.display = 'none';
@@ -766,8 +777,6 @@
         function processNode() {
             const node = currentScenarioData.nodes[currentNodeId];
             choicesArea.innerHTML = '';
-            writingArea.style.display = 'none';
-            nodeFailCount = 0; // Reset fails on new node
 
             setTimeout(() => {
                 typingIndicator.style.display = 'flex';
@@ -785,8 +794,6 @@
                     setTimeout(() => {
                         if (node.type === 'choice') {
                             showChoices(node.options);
-                        } else if (node.type === 'writing') {
-                            showWritingInput(node.hint);
                         }
                     }, TIME_READING);
 
@@ -826,148 +833,6 @@
             processNode();
         }
 
-        function showWritingInput(hint) {
-            writingArea.style.display = 'flex';
-            userInput.value = '';
-            // --- UPDATED: Always show hint if available ---
-            userInput.placeholder = hint || "Type your reply...";
-            userInput.focus();
-            scrollToBottom();
-        }
-
-        // --- UPDATED SUBMIT LOGIC ---
-        function submitWriting() {
-            const text = userInput.value.trim();
-            if (!text) return;
-
-            const lowerText = text.toLowerCase();
-            
-            // HIDE INPUT
-            writingArea.style.display = 'none';
-            addMessage(text, 'user');
-
-            // 1. TIER 1: TOXIC (Instant Fail)
-            if (toxicWords.some(word => lowerText.includes(word))) {
-                vibe = 0;
-                updateVibeUI();
-                shakeScreen();
-                
-                showCoachMessage("🚫 HARASSMENT DETECTED");
-
-                setTimeout(() => {
-                    typingIndicator.style.display = 'flex';
-                    scrollToBottom();
-                    setTimeout(() => {
-                        typingIndicator.style.display = 'none';
-                        const angryResponses = [
-                            "Excuse me? I'm not continuing this conversation.",
-                            "That is incredibly offensive. Goodbye.",
-                            "Wow. You're blocked.",
-                            "Don't speak to me like that."
-                        ];
-                        addMessage(angryResponses[Math.floor(Math.random() * angryResponses.length)], 'npc');
-                        setTimeout(() => triggerGameOver(false, "HARASSMENT"), 2000);
-                    }, 1500);
-                }, 500);
-                return;
-            }
-
-            // 2. CHECK EXCEPTIONS (Safelist)
-            const isException = exceptionPhrases.some(phrase => lowerText.includes(phrase));
-
-            // 3. TIER 2: RUDE (Massive Vibe Drop + Warning)
-            if (!isException && rudeWords.some(word => lowerText.includes(word))) {
-                const penalty = -40; // Heavy penalty
-                updateVibe(penalty, "That was rude! Watch your tone.");
-                
-                // If the penalty didn't kill the game...
-                if (vibe > 0) {
-                     setTimeout(() => {
-                        typingIndicator.style.display = 'flex';
-                        scrollToBottom();
-                        setTimeout(() => {
-                            typingIndicator.style.display = 'none';
-                            addMessage("Excuse me? That's very rude.", 'npc');
-                            
-                            // FORCE RETRY
-                            setTimeout(() => {
-                                const node = currentScenarioData.nodes[currentNodeId];
-                                showWritingInput(node.hint); // Show input again
-                            }, 1500);
-                            
-                        }, 1000);
-                     }, 500);
-                } else {
-                     // If penalty killed the vibe
-                     setTimeout(() => triggerGameOver(false, "RUDE"), 1500);
-                }
-                return; // STOP HERE. Don't run checkKeywords.
-            }
-
-            // 4. NORMAL LOGIC
-            checkKeywords(text, lowerText);
-        }
-
-       // V14 UPDATE: ADDED NEGATIVE KEYWORD HANDLING
-function checkKeywords(text, lowerText) {
-    const node = currentScenarioData.nodes[currentNodeId];
-    const keywords = node.correctKeywords;
-    const negativeKeywords = node.negativeKeywords || []; // ← NEW
-    
-    // Check for negative keywords first (rejection/disagreement) ← NEW BLOCK
-    if (negativeKeywords.length > 0) {
-        const isNegative = negativeKeywords.some(k => {
-            const regex = new RegExp(`\\b${k}\\b`, 'i');
-            return regex.test(text);
-        });
-        
-        if (isNegative && node.negativeNext) {
-            updateVibe(-15, "That's not ideal, but let's see if you can recover.");
-            currentNodeId = node.negativeNext;
-            processNode();
-            return; // ← Stop here if negative keyword found
-        }
-    }
-            
-            // New Logic: Check if any keyword matches a whole word pattern
-            // The regex \bWORD\b ensures "hear" matches "I hear you" but not "hearingg"
-            const isCorrect = keywords.some(k => {
-                const regex = new RegExp(`\\b${k}\\b`, 'i');
-                return regex.test(text); // Check against original text to handle casing if needed, though 'i' flag handles it
-            });
-
-            if (isCorrect) {
-                updateVibe(20, null);
-                currentNodeId = node.next;
-                processNode();
-            } else {
-                nodeFailCount++; // INCREMENT FAIL COUNT
-                updateVibe(-20, "Incorrect keyword/grammar.");
-                
-                setTimeout(() => {
-                    typingIndicator.style.display = 'flex';
-                    scrollToBottom();
-                    setTimeout(() => {
-                        typingIndicator.style.display = 'none';
-                        if (vibe <= 0) {
-                            addMessage("I don't get what you're saying. Bye.", 'npc');
-                            setTimeout(() => triggerGameOver(false), 2000);
-                        } else {
-                            addMessage("Huh? I don't understand.", 'npc');
-                            
-                            // MERCY RULE
-                            setTimeout(() => {
-                                if (nodeFailCount > 1) {
-                                    showCoachMessage(`💡 Hint: Try using words like: ${keywords.slice(0, 3).join(", ")}`);
-                                }
-                                showWritingInput(node.hint);
-                            }, 1500);
-                        }
-                    }, 1500);
-                }, 500);
-            }
-        }
-
         // --- UI HELPERS ---
         function addMessage(text, type) {
             const div = document.createElement('div');
@@ -986,7 +851,7 @@ function checkKeywords(text, lowerText) {
             if (amount < 0) {
                 shakeScreen();
                 if (feedback) {
-                    if (feedback.includes("rude") || difficulty === 'chill') {
+                    if (difficulty === 'chill') {
                         showCoachMessage(feedback);
                     }
                 }
@@ -1017,7 +882,7 @@ function checkKeywords(text, lowerText) {
             chatArea.scrollTop = chatArea.scrollHeight;
         }
 
-        function triggerGameOver(win, customReason = null) {
+        function triggerGameOver(win) {
             const overlay = document.getElementById('game-over-overlay');
             const title = document.getElementById('end-title');
             const reason = document.getElementById('end-reason');
@@ -1034,23 +899,11 @@ function checkKeywords(text, lowerText) {
                 emoji.innerText = "🚫";
                 title.innerText = "BLOCKED";
                 title.style.color = "#EF4444";
-                
-                if (customReason === "HARASSMENT") {
-                    reason.innerText = "Inappropriate language is not tolerated. Instant fail.";
-                    reason.style.fontWeight = "bold"; reason.style.color = "#F87171";
-                } else if (customReason === "RUDE") {
-                     reason.innerText = "You were too rude. They stopped replying.";
-                     reason.style.fontWeight = "bold"; reason.style.color = "#F87171";
-                } else {
-                    reason.innerText = "Your vibe dropped to zero. Conversation over.";
-                    reason.style.fontWeight = "normal"; reason.style.color = "#D1D5DB";
-                }
+                reason.innerText = "Your vibe dropped to zero. Conversation over.";
+                reason.style.fontWeight = "normal"; 
+                reason.style.color = "#D1D5DB";
             }
         }
-
-        userInput.addEventListener("keypress", function(event) {
-            if (event.key === "Enter") submitWriting();
-        });
 
     </script>
 </body>
