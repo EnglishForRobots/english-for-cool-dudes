@@ -1,6 +1,7 @@
 // tickerData.js
 // --- 1. DATA SOURCE ---
 const LESSON_STATES = [
+    { text: "💸 NEW! TAX: Crypto - Cashing Out! 😎", href: "/crypto/" },
     { text: "📺 NEW! ADVANCED: Hollywood 2.0: The AI Revolution 🎬", href: "/aivideos/" },
     { text: "🤔 NEW! INTERMEDIATE: The Future: Resolutions 🔮", href: "/resolutionsint/" },
     { text: "🔮 NEW! ADVANCED: The Future: Hopes and Fears 🤔", href: "/resolutions/" },
