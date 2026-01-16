@@ -1,0 +1,1039 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <title>Cashing Out: Off-Ramping & Liquidity - English For Cool Dudes</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* --- BRANDING & LAYOUT STYLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: #F0FDF4; /* Mint Green Background (Money/Fresh) */
+            color: #064E3B; /* Dark Emerald Text */
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- THEME: LIQUIDITY & CASH (Emerald/Slate) 💸 --- */
+        :root {
+            --color-primary: #065F46; /* Deep Emerald */
+            --color-secondary: #0EA5E9; /* Sky Blue (Tech/Crypto) */
+            --color-accent: #10B981; /* Bright Green */
+            --color-white: #FFFFFF;
+            
+            /* Feedback Colors */
+            --color-correct: #059669; 
+            --color-incorrect: #DC2626; 
+            
+            --color-save-btn: #065F46; 
+        }
+
+        /* Header */
+        .header {
+            background: var(--color-white);
+            border-bottom: 3px solid var(--color-secondary);
+            padding: 20px 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header-content {
+            max-width: 1200px; margin: 0 auto; padding: 0 20px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        
+        .logo {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, #0EA5E9 0%, #10B981 100%); 
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            font-size: 24px; color: white;
+        }
+        .site-title { font-size: 22px; font-weight: 800; color: var(--color-primary); text-decoration: none; margin-left: 10px; }
+
+        /* Buttons */
+        .header-buttons { display: flex; align-items: center; gap: 8px; }
+        .header-button {
+            text-decoration: none; padding: 7px 14px; border-radius: 6px;
+            font-size: 14px; font-weight: 700; transition: all 0.2s;
+            white-space: nowrap; cursor: pointer; border: 1px solid #D1FAE5;
+            background: transparent;
+        }
+        .header-button.login { background: #F0FDF4; color: var(--color-primary); }
+        .header-button.login:hover { background: #FFFFFF; color: var(--color-secondary); border-color: var(--color-secondary); }
+        
+        .header-button.signup { background: var(--color-secondary); color: white; border-color: var(--color-secondary); }
+        .header-button.signup:hover { background: #0284C7; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3); }
+        
+        .header-button.dashboard { background: #F0FDF4; color: #059669; border-color: #6EE7B7; }
+        .header-button.logout { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
+        
+        .user-greeting { font-size: 14px; color: var(--color-primary); font-weight: 700; margin-right: 5px; display: block; }
+
+        /* Container */
+        .container-main {
+            max-width: 900px; margin: 40px auto; padding: 40px 30px;
+            background-color: var(--color-white); border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #D1FAE5;
+        }
+
+        .lesson-main-title {
+            font-size: 2.8em; font-weight: 900; color: var(--color-primary); 
+            margin-bottom: 10px; letter-spacing: -0.03em; line-height: 1.2;
+        }
+
+        .lesson-section {
+            background-color: #F8FAFC; padding: 35px; border-radius: 12px;
+            border: 1px solid #E2E8F0; margin-bottom: 40px;
+        }
+
+        .section-title {
+            color: var(--color-secondary); font-size: 1.6em; font-weight: 800;
+            margin-bottom: 25px; padding-bottom: 10px; border-bottom: 2px dashed #CBD5E1;
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        /* Discussion Box */
+        .discussion-box {
+            background: #F0F9FF; border-left: 5px solid var(--color-secondary);
+            padding: 20px; margin-bottom: 30px; border-radius: 0 8px 8px 0;
+        }
+
+        /* Reading Text (Email Style) */
+        .email-container {
+            background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 8px; overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .email-header {
+            background: #F1F5F9; padding: 15px 25px; border-bottom: 1px solid #E2E8F0;
+            font-size: 0.9em; color: #64748B; font-family: monospace;
+        }
+        .reading-text {
+            padding: 30px; font-size: 1.15em; color: #334155; line-height: 1.8;
+        }
+        .highlight-word {
+            color: var(--color-primary); font-weight: 700; cursor: help;
+            border-bottom: 2px dotted var(--color-primary); transition: all 0.2s;
+            background-color: #D1FAE5; padding: 0 4px; border-radius: 4px;
+        }
+        .highlight-word:hover { background-color: var(--color-primary); color: white; }
+
+        /* Match Cards */
+        .match-card {
+            border: 2px solid transparent; transition: all 0.3s ease;
+            cursor: pointer; user-select: none; border-radius: 12px; 
+            padding: 1.2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); font-weight: 600;
+            display: flex; align-items: center; justify-content: center; text-align: center;
+            min-height: 90px; opacity: 1; transform: scale(1);
+        }
+        .match-card.term {
+            background-color: #ECFDF5; border: 2px solid #6EE7B7; color: #065F46;
+        }
+        .match-card.definition {
+            background-color: white; border: 2px solid #E2E8F0; color: #475569; font-size: 0.95em;
+        }
+        .match-card.selected {
+            border-color: var(--color-secondary); background-color: #E0F2FE; 
+            transform: translateY(-2px); box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+        }
+        .match-card.matched { opacity: 0; pointer-events: none; transform: scale(0.9); transition: all 0.5s; }
+        .match-card.temp-matched {
+            background-color: #D1FAE5 !important; border-color: #059669 !important;
+            box-shadow: 0 0 0 4px #6EE7B7 !important; color: #065F46 !important;
+        }
+
+        /* Quiz Buttons */
+        .comp-btn-group .option-button {
+            transition: all 0.2s; background-color: white; color: #334155;
+            font-weight: 600; padding: 16px 20px; border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); border: 1px solid #CBD5E1;
+            text-align: left; width: 100%; cursor: pointer; margin-bottom: 12px;
+        }
+        .comp-btn-group .option-button:hover { border-color: var(--color-secondary); background-color: #F0F9FF; }
+        .comp-btn-group .option-button.selected { background-color: #E0F2FE; border-color: var(--color-secondary); color: var(--color-secondary); }
+        .comp-btn-group .option-button.correct { background-color: #DCFCE7 !important; border-color: #10B981 !important; color: #065F46 !important; }
+        .comp-btn-group .option-button.incorrect { background-color: #FEE2E2 !important; border-color: #EF4444 !important; color: #991B1B !important; }
+
+        .result-message { margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: 700; display: none; text-align: center; }
+        .result-message.correct { background-color: #DCFCE7; color: #065F46; border: 1px solid #6EE7B7; }
+        .result-message.incorrect { background-color: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+
+        /* Grammar Box */
+        .grammar-box {
+            background: linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%);
+            border: 2px solid var(--color-primary); border-radius: 12px; padding: 25px;
+        }
+        .grammar-title { color: var(--color-primary); font-size: 1.4em; font-weight: 800; margin-bottom: 15px; }
+        .grammar-rule { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--color-secondary); }
+        .grammar-highlight { color: var(--color-secondary); font-weight: 700; font-style: italic; }
+
+        /* Gap Fill */
+        .word-bank { background: #E0F2FE; border: 2px solid var(--color-secondary); border-radius: 10px; }
+        .word-options { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .word-option {
+            background-color: var(--color-secondary); color: white; padding: 10px 18px;
+            border-radius: 8px; cursor: pointer; transition: all 0.2s; font-weight: 700;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); border: 1px solid #0EA5E9;
+        }
+        .word-option:hover { background-color: #0284C7; transform: translateY(-2px); }
+        .word-option.selected { background-color: var(--color-primary) !important; transform: scale(1.05); border-color: var(--color-primary) !important; }
+        .word-option.used { opacity: 0.5; pointer-events: none; background-color: #94A3B8; transform: none; box-shadow: none; }
+
+        .gap-input {
+            display: inline-block; text-align: center; padding: 0 10px; min-width: 120px; 
+            height: 34px; line-height: 32px; background-color: #FFFFFF; border-bottom: 3px solid var(--color-primary); 
+            border-radius: 6px; color: var(--color-primary); font-weight: 700; cursor: pointer; margin: 0 5px; transition: all 0.2s;
+        }
+        .gap-input:empty { background-color: #F0FDF4; border-bottom-style: dashed; }
+        .gap-input.filled { background-color: #ECFDF5; border-bottom-style: solid; }
+        .gap-input.correct { background-color: #D1FAE5 !important; border-color: #059669 !important; color: #065F46 !important; pointer-events: none; }
+        .gap-input.incorrect { background-color: #FEE2E2 !important; border-color: #DC2626 !important; color: #991B1B !important; }
+
+        /* Grammar Practice Styles */
+        .grammar-options { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+        .grammar-option-btn {
+            background: white; color: #334155; border: 2px solid #CBD5E1; padding: 8px 16px;
+            border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s;
+            font-size: 0.95em;
+        }
+        .grammar-option-btn:hover { border-color: var(--color-secondary); background: #F0F9FF; }
+        .grammar-option-btn.selected { background: #E0F2FE; border-color: var(--color-secondary); color: var(--color-secondary); }
+        .grammar-option-btn.correct { background: #DCFCE7 !important; border-color: #10B981 !important; color: #065F46 !important; }
+        .grammar-option-btn.incorrect { background: #FEE2E2 !important; border-color: #EF4444 !important; color: #991B1B !important; }
+        .grammar-gap { 
+            display: inline-block; min-width: 150px; text-align: center; padding: 2px 8px;
+            border-bottom: 2px dashed var(--color-primary); color: var(--color-primary); font-weight: 700;
+            background: #F0FDF4; border-radius: 4px; margin: 0 3px;
+        }
+        .grammar-gap.filled { background: #ECFDF5; border-bottom: 2px solid var(--color-primary); }
+        .grammar-gap.correct { background: #D1FAE5 !important; border-color: #059669 !important; }
+        .grammar-gap.incorrect { background: #FEE2E2 !important; border-color: #DC2626 !important; }
+
+        /* Footer & Popups */
+        .footer { text-align: center; margin-top: 60px; color: #94A3B8; font-size: 0.9em; padding-top: 20px; border-top: 1px solid #E2E8F0; }
+        
+        #dictionary-popup {
+            position: fixed; max-width: 300px; padding: 20px; background: white;
+            border-top: 4px solid var(--color-secondary); border-radius: 8px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15); z-index: 2000; display: none;
+        }
+
+        #feedback-popup {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            padding: 30px 50px; border-radius: 20px; font-weight: 800; color: white;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); z-index: 2001; display: none;
+            text-align: center; font-size: 1.5em; border: 4px solid white; min-width: 320px;
+        }
+        
+        /* Buttons */
+        .button-group { margin-top: 25px; display: flex; gap: 15px; justify-content: center; }
+        .check-button {
+            background: var(--color-primary); color: white; border: none; padding: 14px 32px;
+            border-radius: 10px; cursor: pointer; font-size: 1em; font-weight: 700;
+            transition: all 0.3s; box-shadow: 0 4px 6px -1px rgba(6, 95, 70, 0.3);
+        }
+        .check-button:hover { background: #047857; transform: translateY(-2px); }
+        .reset-button { background: #6B7280; box-shadow: none; }
+        .reset-button:hover { background: #4B5563; }
+
+        #save-words-section { background: #F0FDF4; border: 2px solid #6EE7B7; padding: 30px; border-radius: 16px; margin-top: 50px; text-align: center; }
+        #save-words-btn {
+            background-color: var(--color-save-btn); color: white; padding: 16px 30px;
+            border-radius: 10px; font-weight: 700; cursor: pointer; transition: background-color 0.2s;
+            display: block; width: 100%; border: none; box-shadow: 0 4px #065F46;
+            text-transform: uppercase; font-size: 1.1em; letter-spacing: 0.05em;
+        }
+        #save-words-btn:hover:not(:disabled) { background-color: #047857; }
+        #save-words-btn:active:not(:disabled) { box-shadow: 0 1px #065F46; transform: translateY(3px); }
+        #save-words-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        #learned-words-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px; text-align: center; list-style: none; }
+        #learned-words-list li {
+            background: white; padding: 12px 10px; border-radius: 8px; border: 1px solid #E2E8F0;
+            font-size: 0.95em; cursor: pointer; transition: all 0.2s; font-weight: 700; color: #065F46;
+        }
+        #learned-words-list li:hover { transform: translateY(-3px); border-color: var(--color-secondary); color: var(--color-secondary); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+/* Popups */
+        #feedback-popup {
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            padding: 25px 40px; border-radius: 16px; font-weight: 700; color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 2000; display: none;
+            text-align: center; font-size: 1.3em; border: 4px solid white; min-width: 300px;
+        }
+#dictionary-popup {
+    position: absolute; /* Changed from fixed to absolute */
+    max-width: 300px;
+    width: 250px;
+    padding: 20px;
+    background: white;
+    border-top: 4px solid var(--color-secondary);
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    z-index: 2000;
+    display: none;
+    pointer-events: auto;
+}
+
+        @media (max-width: 768px) { .user-greeting { display: none; } }
+.footer {
+            background: #FFFFFF;
+            border-top: 1px solid #E5E9F2;
+            padding: 32px 20px;
+            margin-top: 60px;
+            text-align: center;
+        }
+
+        .footer-text { font-size: 14px; color: #718096; }
+
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">💸</span>
+                <a href="/tax/" class="site-title">English For Cool Dudes</a>
+            </div>
+            <div id="logged-out-buttons" class="header-buttons" style="display: none;">
+                <a href="/login/" class="header-button login">Login</a>
+                <a href="/signup/" class="header-button signup">Sign Up</a>
+            </div>
+            <div id="logged-in-buttons" class="header-buttons" style="display: none;">
+                <span class="user-greeting" id="user-greeting">Hey Cool Dude! 👋</span>
+                <a href="/dashboard/" class="header-button dashboard">My Dashboard</a>
+                <button id="logout-btn" class="header-button logout">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-main">
+        <h1 class="lesson-main-title">Bridging the Gap:<br>Converting Crypto to Fiat</h1>
+        <p class="text-xl text-slate-500 font-medium mb-8">Upper Intermediate (B2) | Focus: Liquidity & Methods</p>
+
+        <section class="lesson-section">
+            <h2 class="section-title">💬 1. Warm Up Discussion</h2>
+            <div class="discussion-box">
+                <p class="mb-2 font-bold text-slate-700">Discuss these questions with your teacher or partner:</p>
+                <ul class="list-disc ml-5 space-y-2 text-slate-600">
+                    <li>Is it easy to spend crypto directly in Germany, or is "Cash King"?</li>
+                    <li>What is the biggest difficulty clients face when moving crypto back to a bank account?</li>
+                    <li>Have you ever had a bank block a transfer from a crypto exchange?</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="lesson-section">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="section-title" style="margin-bottom:0; border:none;">📩 2. The Client Request</h2>
+                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full uppercase">Email Read</span>
+            </div>
+
+            <div class="email-container">
+                <div class="email-header">
+                    <strong>Subject:</strong> Cashing out for house deposit?
+                </div>
+                <div class="reading-text">
+                    <p class="mb-4">Hi Team,</p>
+                    <p class="mb-4">I'm looking to buy a property next month, so I need some <span class="highlight-word" onclick="showPopup(this, 'Liquidity')">liquidity</span>. I plan to sell about 5 Bitcoin and transfer the Euros to my Sparkasse account.</p>
+                    
+                    <p class="mb-4">Most of these coins were bought years ago, but I did some trading last month. I'm worried about how we calculate the profit. If I convert to <span class="highlight-word" onclick="showPopup(this, 'Fiat')">fiat</span> now, which specific coins am I selling? The old cheap ones, or the new expensive ones?</p>
+                    
+                    <p class="mb-4">I want to minimize the taxable gain. Please explain how the <span class="highlight-word" onclick="showPopup(this, 'Cost Basis')">cost basis</span> is calculated in Germany. Also, is there a <span class="highlight-word" onclick="showPopup(this, 'Holding Period')">holding period</span> requirement? I've heard about <span class="highlight-word" onclick="showPopup(this, 'Capital Gains')">capital gains</span> tax.</p>
+                    
+                    <p>Thanks,<br>Sarah</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="lesson-section">
+            <h2 class="section-title">🔗 3. Terminology Match</h2>
+            <p class="text-slate-600 mb-6">Match the financial terms from the email to their definitions.</p>
+            <div id="vocab-match-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </section>
+
+        <section class="lesson-section">
+            <h2 class="section-title">🧠 4. Comprehension Check</h2>
+            
+            <div class="question" data-question="1">
+                <p class="font-bold text-slate-800 mb-3">1. Why does Sarah need to sell her Bitcoin?</p>
+                <ul class="comp-btn-group">
+                    <li class="option-button" data-correct="false">She is afraid the price will crash.</li>
+                    <li class="option-button" data-correct="true">She needs cash (liquidity) to buy a house.</li>
+                    <li class="option-button" data-correct="false">She wants to switch banks.</li>
+                </ul>
+            </div>
+
+            <div class="question" data-question="2">
+                <p class="font-bold text-slate-800 mb-3">2. What is her main worry?</p>
+                <ul class="comp-btn-group">
+                    <li class="option-button" data-correct="true">Which calculation method (FIFO/LIFO) applies to her profit.</li>
+                    <li class="option-button" data-correct="false">That the bank will block the transfer.</li>
+                    <li class="option-button" data-correct="false">That Bitcoin is illegal in Germany.</li>
+                </ul>
+            </div>
+
+            <div class="question" data-question="3">
+                <p class="font-bold text-slate-800 mb-3">3. What did Sarah do last month that complicates the tax calculation?</p>
+                <ul class="comp-btn-group">
+                    <li class="option-button" data-correct="false">She opened a new bank account.</li>
+                    <li class="option-button" data-correct="true">She did some trading and bought new Bitcoin.</li>
+                    <li class="option-button" data-correct="false">She moved to a different country.</li>
+                </ul>
+            </div>
+
+            <div class="button-group">
+                <button class="check-button" onclick="checkComprehension()">Check Answers</button>
+                <button class="check-button reset-button" onclick="resetComprehension()">Reset</button>
+            </div>
+            <div id="comprehension-result" class="result-message"></div>
+        </section>
+
+        <section class="lesson-section">
+            <h2 class="section-title">✏️ 5. The Advisor's Reply</h2>
+            <p class="text-slate-600 mb-6">Complete the reply to Sarah using the words below.</p>
+            
+            <div class="word-bank p-4 mb-6">
+                <h4 class="font-bold text-gray-600 mb-3 w-full text-center text-xs uppercase">Word Bank</h4>
+                <div class="word-options" id="gap-fill-options">
+                    <span class="word-option" data-word="FIFO">FIFO</span>
+                    <span class="word-option" data-word="realize">realize</span>
+                    <span class="word-option" data-word="hold">hold</span>
+                    <span class="word-option" data-word="tax-free">tax-free</span>
+                    <span class="word-option" data-word="exempt">exempt</span>
+                    <span class="word-option" data-word="dispose">dispose</span>
+                </div>
+            </div>
+
+            <div class="email-container p-8">
+                <p class="mb-4">Dear Sarah,</p>
+                <p class="mb-4">Regarding your question: Germany generally uses the <span class="gap-input" data-answer="FIFO">____</span> method (First-In-First-Out). This means we assume you are selling the oldest coins first.</p>
+                <p class="mb-4">This is actually good news. Since you bought those coins years ago, the profit is likely <span class="gap-input" data-answer="tax-free">____</span> if you <span class="gap-input" data-answer="hold">____</span> them for over 12 months.</p>
+                <p class="mb-4">However, if you <span class="gap-input" data-answer="dispose">____</span> of the coins you bought last month, you will <span class="gap-input" data-answer="realize">____</span> a taxable gain. Only gains on assets held over one year are <span class="gap-input" data-answer="exempt">____</span> from tax.</p>
+                <p>Best regards,<br>Tax Team</p>
+            </div>
+
+            <div class="button-group">
+                <button class="check-button" onclick="checkGaps()">Send Reply</button>
+                <button class="check-button reset-button" onclick="resetGaps()">Reset</button>
+            </div>
+            <div id="gap-result" class="result-message"></div>
+        </section>
+
+        <section class="lesson-section border-l-4 border-indigo-500">
+            <h2 class="section-title text-indigo-700">📖 6. Grammar: Third Conditional for Past Tax Scenarios</h2>
+            
+            <p class="mb-4 text-slate-600">When discussing past mistakes or hypothetical situations about taxes, we use the <strong>Third Conditional</strong> (unreal past).</p>
+
+            <div class="grammar-box mb-6">
+                <div class="grammar-rule">
+                    <strong>Third Conditional Structure:</strong><br>
+                    If + <span class="grammar-highlight">past perfect</span>, ... <span class="grammar-highlight">would have + past participle</span>
+                </div>
+                
+                <div class="grammar-rule">
+                    <strong>Example 1:</strong><br>
+                    <span class="grammar-highlight">"If you had held the Bitcoin for 12 months, you would have avoided the tax."</span><br>
+                    <em class="text-slate-500">(But you didn't hold it, so you must pay tax)</em>
+                </div>
+                
+                <div class="grammar-rule">
+                    <strong>Example 2:</strong><br>
+                    <span class="grammar-highlight">"If she had sold the coins last year, she would have realized a smaller gain."</span><br>
+                    <em class="text-slate-500">(But she didn't sell them, so the gain is now larger)</em>
+                </div>
+
+                <div class="grammar-rule">
+                    <strong>Example 3:</strong><br>
+                    <span class="grammar-highlight">"If they had kept better records, they wouldn't have had problems with the tax office."</span><br>
+                    <em class="text-slate-500">(But they didn't keep good records, so they had problems)</em>
+                </div>
+            </div>
+
+            <p class="font-bold text-slate-700 mb-4">Practice: Choose the correct verb forms to complete these third conditional sentences.</p>
+            
+            <div class="grammar-practice-question mb-6" data-question="1">
+                <p class="mb-3 text-slate-700">1. If the price <span class="grammar-gap" data-answer="hadn't crashed">______</span> in 2022, I <span class="grammar-gap" data-answer="would have made">______</span> a huge profit.</p>
+                <div class="grammar-options mb-2">
+                    
+                    <button class="grammar-option-btn" data-gap="1" data-value="didn't crash">didn't crash</button>
+                    <button class="grammar-option-btn" data-gap="1" data-value="hasn't crashed">hasn't crashed</button>
+<button class="grammar-option-btn" data-gap="1" data-value="hadn't crashed">hadn't crashed</button>
+                </div>
+                <div class="grammar-options">
+                    
+                    <button class="grammar-option-btn" data-gap="2" data-value="would make">would make</button>
+<button class="grammar-option-btn" data-gap="2" data-value="would have made">would have made</button>
+                    <button class="grammar-option-btn" data-gap="2" data-value="will make">will make</button>
+                </div>
+            </div>
+
+            <div class="grammar-practice-question mb-6" data-question="2">
+                <p class="mb-3 text-slate-700">2. She <span class="grammar-gap" data-answer="would have paid">______</span> less tax if she <span class="grammar-gap" data-answer="had waited">______</span> another month before selling.</p>
+                <div class="grammar-options mb-2">
+                    
+                    <button class="grammar-option-btn" data-gap="1" data-value="will pay">will pay</button>
+<button class="grammar-option-btn" data-gap="1" data-value="would have paid">would have paid</button>
+                    <button class="grammar-option-btn" data-gap="1" data-value="would pay">would pay</button>
+                </div>
+                <div class="grammar-options">
+                    <button class="grammar-option-btn" data-gap="2" data-value="had waited">had waited</button>
+                    <button class="grammar-option-btn" data-gap="2" data-value="waited">waited</button>
+                    <button class="grammar-option-btn" data-gap="2" data-value="waits">waits</button>
+                </div>
+            </div>
+
+            <div class="grammar-practice-question mb-6" data-question="3">
+                <p class="mb-3 text-slate-700">3. If we <span class="grammar-gap" data-answer="had used">______</span> LIFO instead of FIFO, the calculation <span class="grammar-gap" data-answer="would have been">______</span> completely different.</p>
+                <div class="grammar-options mb-2">
+                    <button class="grammar-option-btn" data-gap="1" data-value="had used">had used</button>
+                    <button class="grammar-option-btn" data-gap="1" data-value="used">used</button>
+                    <button class="grammar-option-btn" data-gap="1" data-value="have used">have used</button>
+                </div>
+                <div class="grammar-options">
+                    
+                    <button class="grammar-option-btn" data-gap="2" data-value="would be">would be</button>
+                    <button class="grammar-option-btn" data-gap="2" data-value="will be">will be</button>
+<button class="grammar-option-btn" data-gap="2" data-value="would have been">would have been</button>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="check-button" onclick="checkGrammar()">Check Grammar</button>
+                <button class="check-button reset-button" onclick="resetGrammar()">Reset</button>
+            </div>
+            <div id="grammar-result" class="result-message"></div>
+        </section>
+
+        <section class="lesson-section">
+            <h2 class="section-title">🎯 7. Wrap Up Discussion</h2>
+            <div class="discussion-box">
+                <ul class="list-disc ml-5 space-y-2 text-slate-600">
+                    <li>Do you think the "1-year rule" (Speculation Period) will stay forever in Germany?</li>
+                    <li>How do you advise clients to track their "Cost Basis"? Excel or Software?</li>
+                    <li>What would you have done differently if you had known about FIFO earlier?</li>
+                </ul>
+            </div>
+            
+            <div class="text-center mt-8 p-6 bg-slate-50 rounded-xl border border-slate-200">
+                <h3 class="font-bold text-lg mb-2">💾 New Vocabulary</h3>
+                <ul id="learned-words-list">
+                    <li data-word="Liquidity">Liquidity</li>
+                    <li data-word="Fiat">Fiat</li>
+                    <li data-word="Cost Basis">Cost Basis</li>
+                    <li data-word="Holding Period">Holding Period</li>
+                    <li data-word="Capital Gains">Capital Gains</li>
+                    
+                </ul>
+                
+                <div id="save-words-section" class="mt-6">
+                    <h3 class="text-xl font-bold mb-3" style="color: var(--color-save-btn);">💾 Save Your Progress</h3>
+                    
+                    <div id="save-feature-loggedin" style="display: none;">
+                        <p class="text-gray-700 mb-4">Save these terms to your dashboard.</p>
+                        <button id="save-words-btn" onclick="saveWordsToDashboard()">Save Words to Dashboard</button>
+                        <p id="save-status" class="text-center mt-3 font-semibold"></p>
+                    </div>
+                    
+                    <div id="login-prompt" style="display: none;">
+                        <p class="text-red-600 font-bold mb-2">🔒 Login to save your progress!</p>
+                        <a href="/login/" class="inline-block bg-gray-800 text-white font-bold py-2 px-4 rounded hover:bg-black transition">Log In / Sign Up</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+</main>
+        <footer class="footer">
+            <p class="footer-text">© 2026 English For Cool Dudes - Tax & Legal English</p>
+            <div style="margin-top: 10px;">
+                <a href="/impressum/" style="color: #64748B; margin-right: 15px; text-decoration: none;">Impressum</a>
+                <a href="/datenschutz/" style="color: #64748B; text-decoration: none;">Privacy</a>
+            </div>
+        </footer>
+    </div>
+    </div>
+
+    <div id="dictionary-popup"></div>
+    <div id="feedback-popup"></div>
+
+    
+    <script>
+        // --- CONFIG ---
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null;
+
+        const lessonTitle = "Converting Crypto to Fiat";
+        const lessonLink = "/crypto/";
+        const lessonLevel = "B2";
+
+        const wordsToSave = [
+            { word: "Liquidity", type: "noun", definition: "How easily an asset can be converted into cash." },
+            { word: "Fiat", type: "noun", definition: "Government-issued currency (Euro, USD)." },
+            { word: "Cost Basis", type: "noun", definition: "The original value of an asset for tax purposes." },
+            { word: "Holding Period", type: "noun", definition: "The length of time you own an asset before selling." },
+            { word: "Capital Gains", type: "noun", definition: "Profit from selling an asset at a higher price than purchased." },
+            
+        ];
+
+        // --- AUTH ---
+        async function checkUser() {
+            try {
+                const { data: { user } } = await sb.auth.getUser();
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('logged-in-buttons').style.display = 'flex';
+                    document.getElementById('logged-out-buttons').style.display = 'none';
+                    document.getElementById('save-feature-loggedin').style.display = 'block';
+                    document.getElementById('login-prompt').style.display = 'none';
+                    const name = user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Cool Dude';
+                    document.getElementById('user-greeting').textContent = `Hey ${name}! 👋`;
+                } else {
+                    document.getElementById('logged-in-buttons').style.display = 'none';
+                    document.getElementById('logged-out-buttons').style.display = 'flex';
+                    document.getElementById('save-feature-loggedin').style.display = 'none';
+                    document.getElementById('login-prompt').style.display = 'block';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function saveWordsToDashboard() {
+            if (!currentUser) return;
+            const btn = document.getElementById('save-words-btn');
+            const status = document.getElementById('save-status');
+            btn.disabled = true; btn.textContent = "Saving...";
+
+            const { error } = await sb.from('lessons').upsert([{
+                user_id: currentUser.id, lesson_title: lessonTitle, lesson_link: lessonLink,
+                lesson_level: lessonLevel, vocabulary: wordsToSave, completed_at: new Date().toISOString()
+            }], { onConflict: 'user_id,lesson_title' });
+
+            if (!error) {
+                btn.textContent = "✅ Saved!"; btn.style.backgroundColor = "#059669";
+                status.textContent = "Vocabulary secured! Check your dashboard.";
+                status.style.color = "#059669";
+                setTimeout(() => window.location.href = '/dashboard/', 1500);
+            } else {
+                btn.textContent = "❌ Error"; btn.disabled = false;
+                status.textContent = "Error saving. Please try again.";
+                status.style.color = "#DC2626";
+            }
+        }
+        
+        async function saveMistake(word) {
+            if(!currentUser) return;
+            const wObj = wordsToSave.find(w=>w.word.toLowerCase()===word.toLowerCase()) || {word: word, definition:'Review this term', type:'word'};
+            await sb.from('user_mistakes').upsert({
+                user_id: currentUser.id, word: wObj.word, definition: wObj.definition, word_type: wObj.type,
+                lesson: lessonTitle, lesson_link: lessonLink, last_made_at: new Date().toISOString()
+            }, {onConflict: 'user_id,word'});
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await sb.auth.signOut(); window.location.href = '/';
+        });
+
+        // --- UTILS ---
+function playAudio(word) {
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.85;
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function showFeedback(msg, type) {
+            const el = document.getElementById('feedback-popup');
+            el.textContent = msg; el.style.display = 'block';
+            el.style.backgroundColor = type === 'correct' ? '#059669' : '#DC2626';
+            el.style.borderColor = type === 'correct' ? '#34D399' : '#F87171';
+            setTimeout(() => { el.style.display = 'none'; }, 1800);
+        }
+
+         function showPopup(target, word) {
+    const searchWord = word.toLowerCase();
+    // Finding the word definition from the wordsToSave array
+    const wordObj = wordsToSave.find(w => w.word.toLowerCase() === searchWord);
+    
+    const popup = document.getElementById('dictionary-popup');
+    if(!popup) return;
+
+    if(wordObj) {
+        popup.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                <div>
+                    <strong style="font-size: 1.1em;">${wordObj.word}</strong> 
+                    <span style="font-size:0.85em; color:#0EA5E9;">(${wordObj.type})</span>
+                </div>
+                <button onclick="playAudio('${wordObj.word.replace(/'/g, "\\'")}')" style="background: var(--color-secondary); color: white; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                    🔊
+                </button>
+            </div>
+            <div style="color: #334155; line-height: 1.5; font-size: 0.95em;">${wordObj.definition}</div>
+        `;
+    } else {
+        popup.innerHTML = `<strong>${word}</strong><br>Definition not found.`;
+    }
+    
+    // Show and measure
+    popup.style.display = 'block';
+    const rect = target.getBoundingClientRect();
+    
+    // Calculate absolute position relative to the document
+    let leftPos = rect.left + window.scrollX;
+    let topPos = rect.bottom + 10 + window.scrollY; // Positioned 10px below the word
+    
+    // Quick boundary check for right edge of screen
+    if (leftPos + 250 > window.innerWidth) {
+        leftPos = window.innerWidth - 270;
+    }
+
+    popup.style.left = leftPos + 'px';
+    popup.style.top = topPos + 'px';
+}
+        
+        document.addEventListener('click', (e) => {
+    const popup = document.getElementById('dictionary-popup');
+    // Don't close if clicking a highlighted word or the popup itself
+    if (!e.target.closest('#dictionary-popup') && 
+        !e.target.classList.contains('highlight-word') && 
+        !e.target.closest('#learned-words-list li')) {
+        popup.style.display = 'none';
+    }
+});
+
+        // --- EXERCISES ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        function cleanText(text) { return text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z]/g, '').toLowerCase() : ''; }
+
+        /* MATCHING GAME */
+        const vocabData = [
+            { type: 'term', content: "Liquidity", key: 'A' }, { type: 'definition', content: "How easily an asset can be converted into cash without affecting its price.", key: 'A' },
+            { type: 'term', content: "Fiat", key: 'B' }, { type: 'definition', content: "Traditional government-issued currency like Euro or US Dollar.", key: 'B' },
+            { type: 'term', content: "Cost Basis", key: 'C' }, { type: 'definition', content: "The original purchase price of an asset used to calculate taxable profit.", key: 'C' },
+            { type: 'term', content: "Holding Period", key: 'D' }, { type: 'definition', content: "The duration between buying and selling an asset.", key: 'D' },
+            { type: 'term', content: "Capital Gains", key: 'E' }, { type: 'definition', content: "The profit made when selling an asset for more than its purchase price.", key: 'E' },
+            { type: 'term', content: "FIFO", key: 'F' }, { type: 'definition', content: "First-In-First-Out: accounting method assuming oldest assets are sold first.", key: 'F' }
+        ];
+        let selectedTermCard = null, selectedDefinitionCard = null, matchedPairs = 0;
+
+        function initVocab() {
+            const matchContainer = document.getElementById('vocab-match-container');
+            matchContainer.innerHTML = ''; 
+            shuffleArray(vocabData);
+            vocabData.forEach(item => {
+                const card = document.createElement('div'); 
+                card.className = `match-card ${item.type}`;
+                card.innerHTML = item.type === 'term' ? `<span class="font-bold">${item.content}</span>` : `<span>${item.content}</span>`; 
+                card.dataset.key = item.key; 
+                card.dataset.type = item.type;
+                card.addEventListener('click', () => handleMatchClick(card));
+                matchContainer.appendChild(card);
+            });
+            selectedTermCard = null; selectedDefinitionCard = null; matchedPairs = 0;
+        }
+
+        function handleMatchClick(card) {
+            if (card.classList.contains('matched')) return;
+            const type = card.dataset.type;
+            let currentSelection = type === 'term' ? selectedTermCard : selectedDefinitionCard;
+            if (currentSelection) currentSelection.classList.remove('selected');
+            if (currentSelection === card) {
+                if (type === 'term') selectedTermCard = null; else selectedDefinitionCard = null;
+                return;
+            }
+            if (type === 'term') selectedTermCard = card; else selectedDefinitionCard = card;
+            card.classList.add('selected');
+
+            if (selectedTermCard && selectedDefinitionCard) {
+                if (selectedTermCard.dataset.key === selectedDefinitionCard.dataset.key) {
+                    [selectedTermCard, selectedDefinitionCard].forEach(el => { el.classList.remove('selected'); el.classList.add('temp-matched'); });
+                    showFeedback("Perfect Match! ✅", 'correct');
+                    
+                    const t = selectedTermCard; const d = selectedDefinitionCard;
+                    setTimeout(() => {
+                        t.classList.remove('temp-matched'); t.classList.add('matched');
+                        d.classList.remove('temp-matched'); d.classList.add('matched');
+                    }, 800);
+
+                    matchedPairs++;
+                    if (matchedPairs === vocabData.length / 2) {
+                        setTimeout(() => {
+                            showFeedback("🎉 All Matched! Excellent!", 'correct');
+                            setTimeout(() => initVocab(), 2000);
+                        }, 1000);
+                    }
+                    selectedTermCard = null; selectedDefinitionCard = null;
+                } else {
+                    showFeedback("Try Again ❌", 'incorrect');
+                    setTimeout(() => {
+                        if(selectedTermCard) selectedTermCard.classList.remove('selected'); 
+                        if(selectedDefinitionCard) selectedDefinitionCard.classList.remove('selected');
+                        selectedTermCard = null; selectedDefinitionCard = null;
+                    }, 800);
+                }
+            }
+        }
+
+        /* COMPREHENSION */
+        function checkComprehension() {
+            const questions = document.querySelectorAll('.question'); 
+            let correctAnswers = 0;
+            questions.forEach(q => {
+                const selected = q.querySelector('.option-button.selected');
+                q.querySelectorAll('.option-button').forEach(opt => {
+                    opt.classList.remove('correct', 'incorrect');
+                    if (opt.dataset.correct === 'true') opt.classList.add('correct');
+                });
+                if (selected) {
+                    if (selected.dataset.correct === 'true') correctAnswers++; 
+                    else {
+                        selected.classList.add('incorrect');
+                        saveMistake('comprehension');
+                    }
+                }
+            });
+            const resultDiv = document.getElementById('comprehension-result'); 
+            resultDiv.style.display = 'block';
+            if (correctAnswers === questions.length) { 
+                resultDiv.textContent = '🎉 Perfect! All correct!'; 
+                resultDiv.className = 'result-message correct'; 
+            } else { 
+                resultDiv.textContent = `You got ${correctAnswers}/${questions.length} correct.`; 
+                resultDiv.className = 'result-message incorrect'; 
+            }
+        }
+        
+        function resetComprehension() {
+            document.querySelectorAll('.option-button').forEach(item => item.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById('comprehension-result').style.display = 'none';
+        }
+
+        /* GAP FILL */
+        let selectedGapWord = null; 
+        
+        function initGaps() {
+            const wordOptionsContainer = document.getElementById('gap-fill-options');
+            const options = Array.from(wordOptionsContainer.children);
+            shuffleArray(options);
+            options.forEach(option => { wordOptionsContainer.appendChild(option); option.classList.remove('used', 'selected'); });
+            document.querySelectorAll('.gap-input').forEach(blank => { blank.textContent = ''; blank.classList.remove('correct', 'incorrect', 'selected'); });
+            selectedGapWord = null; 
+            document.getElementById('gap-result').style.display = 'none';
+        }
+        
+        function handleGapBlankClick(blank) {
+            if (blank.textContent.trim() === '') {
+                 if (selectedGapWord) {
+                    blank.textContent = selectedGapWord.dataset.word;
+                    blank.classList.add('filled');
+                    selectedGapWord.classList.remove('selected'); 
+                    selectedGapWord.classList.add('used');
+                    selectedGapWord = null;
+                }
+                return;
+            }
+            const currentText = blank.textContent.trim();
+            const allOptions = Array.from(document.querySelectorAll('.word-option'));
+            const matchingBtn = allOptions.find(btn => btn.dataset.word === currentText);
+            if (matchingBtn) matchingBtn.classList.remove('used');
+            blank.textContent = ''; 
+            blank.classList.remove('correct', 'incorrect', 'filled'); 
+        }
+
+        function checkGaps() {
+            let correctCount = 0; 
+            const blanks = document.querySelectorAll('.gap-input'); 
+            blanks.forEach(blank => { 
+                const answerWord = blank.dataset.answer;
+                const extractedWord = blank.textContent.trim();
+                const cleanExtracted = cleanText(extractedWord);
+                const cleanAnswer = cleanText(answerWord);
+                blank.classList.remove('selected', 'incorrect', 'correct');
+                
+                if (extractedWord === '') {
+                } else if (cleanExtracted === cleanAnswer) { 
+                    blank.classList.add('correct'); 
+                    correctCount++; 
+                } else { 
+                    blank.classList.add('incorrect');
+                    saveMistake(answerWord); 
+                }
+            });
+
+            const resultDiv = document.getElementById('gap-result'); 
+            resultDiv.style.display = 'block';
+            if (correctCount === blanks.length) { 
+                resultDiv.textContent = '🎉 Perfect Email! 📨'; 
+                resultDiv.className = 'result-message correct'; 
+            } else { 
+                resultDiv.textContent = `You got ${correctCount}/${blanks.length} correct.`; 
+                resultDiv.className = 'result-message incorrect'; 
+            }
+        }
+
+        function resetGaps() {
+            selectedGapWord = null;
+            document.getElementById('gap-result').style.display = 'none';
+            document.querySelectorAll('.word-option').forEach(opt => opt.classList.remove('used', 'selected'));
+            document.querySelectorAll('.gap-input').forEach(blank => {
+                blank.textContent = '';
+                blank.classList.remove('correct', 'incorrect', 'selected', 'filled');
+            });
+        }
+
+        /* GRAMMAR PRACTICE */
+        const grammarAnswers = {
+            1: { 1: "hadn't crashed", 2: "would have made" },
+            2: { 1: "would have paid", 2: "had waited" },
+            3: { 1: "had used", 2: "would have been" }
+        };
+        let grammarSelections = { 1: {}, 2: {}, 3: {} };
+
+        function checkGrammar() {
+            let correctCount = 0;
+            let totalGaps = 0;
+            
+            document.querySelectorAll('.grammar-practice-question').forEach(question => {
+                const questionNum = question.dataset.question;
+                const gaps = question.querySelectorAll('.grammar-gap');
+                
+                gaps.forEach((gap, index) => {
+                    totalGaps++;
+                    const gapNum = index + 1;
+                    const correctAnswer = grammarAnswers[questionNum][gapNum];
+                    const userAnswer = grammarSelections[questionNum][gapNum];
+                    
+                    gap.classList.remove('correct', 'incorrect');
+                    
+                    if (userAnswer === correctAnswer) {
+                        gap.classList.add('correct');
+                        correctCount++;
+                        
+                        question.querySelectorAll(`.grammar-option-btn[data-gap="${gapNum}"]`).forEach(btn => {
+                            if (btn.dataset.value === correctAnswer) {
+                                btn.classList.add('correct');
+                            }
+                        });
+                    } else if (userAnswer) {
+                        gap.classList.add('incorrect');
+                        
+                        question.querySelectorAll(`.grammar-option-btn[data-gap="${gapNum}"]`).forEach(btn => {
+                            if (btn.dataset.value === userAnswer) {
+                                btn.classList.add('incorrect');
+                            }
+                            if (btn.dataset.value === correctAnswer) {
+                                btn.classList.add('correct');
+                            }
+                        });
+                        
+                        saveMistake('third conditional');
+                    }
+                });
+            });
+            
+            const resultDiv = document.getElementById('grammar-result');
+            resultDiv.style.display = 'block';
+            
+            if (correctCount === totalGaps) {
+                resultDiv.textContent = '🎉 Perfect Grammar! You\'ve mastered the Third Conditional!';
+                resultDiv.className = 'result-message correct';
+            } else {
+                resultDiv.textContent = `You got ${correctCount}/${totalGaps} correct. Review the incorrect answers.`;
+                resultDiv.className = 'result-message incorrect';
+            }
+        }
+
+        function resetGrammar() {
+            grammarSelections = { 1: {}, 2: {}, 3: {} };
+            
+            document.querySelectorAll('.grammar-option-btn').forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+            });
+            
+            document.querySelectorAll('.grammar-gap').forEach(gap => {
+                gap.textContent = '______';
+                gap.classList.remove('filled', 'correct', 'incorrect');
+            });
+            
+            document.getElementById('grammar-result').style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkUser(); 
+            initVocab(); 
+            initGaps();
+            
+            document.querySelectorAll('#learned-words-list li').forEach(li => li.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                const word = li.dataset.word;
+                showPopup(li, word);
+            }));
+            
+            document.querySelectorAll('.option-button').forEach(item => item.addEventListener('click', () => {
+                item.closest('.question').querySelectorAll('.option-button').forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect'));
+                item.classList.add('selected'); 
+                document.getElementById('comprehension-result').style.display = 'none';
+            }));
+            
+            document.querySelectorAll('.word-option').forEach(option => option.addEventListener('click', () => {
+                if (option.classList.contains('used')) return;
+                if (selectedGapWord) selectedGapWord.classList.remove('selected');
+                if (selectedGapWord === option) selectedGapWord = null;
+                else { selectedGapWord = option; selectedGapWord.classList.add('selected'); }
+            }));
+            
+            document.querySelectorAll('.gap-input').forEach(blank => blank.addEventListener('click', () => handleGapBlankClick(blank)));
+
+            // --- CONTINUATION OF DOMContentLoaded ---
+            document.querySelectorAll('.grammar-option-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const questionElement = this.closest('.grammar-practice-question');
+                    const questionNum = questionElement.dataset.question;
+                    const gapNum = this.dataset.gap;
+                    const value = this.dataset.value;
+                    
+                    // Remove 'selected' from other buttons in this specific gap group
+                    this.parentElement.querySelectorAll('.grammar-option-btn').forEach(b => {
+                        b.classList.remove('selected', 'correct', 'incorrect');
+                    });
+                    
+                    // Highlight the chosen button
+                    this.classList.add('selected');
+                    
+                    // Update the logic state
+                    grammarSelections[questionNum][gapNum] = value;
+                    
+                    // Update the visual gap in the sentence
+                    const gaps = questionElement.querySelectorAll('.grammar-gap');
+                    const targetGap = gaps[gapNum - 1]; // gaps are 1-indexed in data
+                    if (targetGap) {
+                        targetGap.textContent = value;
+                        targetGap.classList.add('filled');
+                        targetGap.classList.remove('correct', 'incorrect');
+                    }
+                    
+                    // Reset the result message if they change an answer
+                    document.getElementById('grammar-result').style.display = 'none';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
