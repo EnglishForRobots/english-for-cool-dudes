@@ -103,7 +103,7 @@ async function checkForMistakesOnHomepage() {
             let statsHtml = "";
 
             if (mistakeCount > 0 && reviewCount > 0) {
-                subtext = "Stay sharp, Cool Dude. Don't let those words escape!";
+                subtext = "Stay sharp, Cool Dude. Don't let your words escape!";
                 statsHtml = `(🎯 <span style="font-weight:bold; color:#B91C1C;">${mistakeCount} Focus Words</span> + 🧠 <span style="font-weight:bold; color:#15803D;">${reviewCount} Reviews</span>)`;
             } else if (mistakeCount === 0 && reviewCount > 0) {
                 subtext = "Keep your streak alive! Master what you've learned.";
