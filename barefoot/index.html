@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <title>Aussie Lifestyle: The Barefoot Phenomenon - English For Cool Dudes</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* --- BRANDING & LAYOUT STYLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: #FFF7ED; /* Warm Orange/Sand tint Background */
+            color: #111827; 
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- THEME: AUSTRALIAN OUTBACK & OCEAN (Upper Int/Advanced) 🇦🇺 --- */
+        :root {
+            --color-primary: #C2410C; /* Rust/Ochre (Outback) */
+            --color-secondary: #0891B2; /* Teal/Ocean Blue */
+            --color-accent: #F59E0B; /* Sunny Amber */
+            --color-white: #FFFFFF;
+            
+            /* Feedback Colors */
+            --color-correct: #059669; /* Emerald 600 */
+            --color-incorrect: #DC2626; /* Red 600 */
+            
+            --color-save-btn: #C2410C; 
+        }
+
+        /* Header */
+        .header {
+            background: var(--color-white);
+            border-bottom: 3px solid var(--color-primary);
+            padding: 20px 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header-content {
+            max-width: 1200px; margin: 0 auto; padding: 0 20px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+
+        .logo {
+            width: 38px; height: 38px;
+            background: linear-gradient(135deg, #C2410C 0%, #F59E0B 100%); 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 22px; color: white; box-shadow: 0 2px 5px rgba(194, 65, 12, 0.3);
+        }
+        .site-title { font-size: 20px; font-weight: 800; color: #431407; text-decoration: none; letter-spacing: -0.02em; }
+
+        /* Buttons */
+        .header-buttons { display: flex; align-items: center; gap: 8px; }
+        .header-button {
+            text-decoration: none; padding: 7px 14px; border-radius: 6px;
+            font-size: 14px; font-weight: 700; transition: all 0.2s;
+            white-space: nowrap; cursor: pointer; border: 1px solid #E5E7EB;
+            background: transparent;
+        }
+        .header-button.login { background: #FFF7ED; color: var(--color-primary); }
+        .header-button.login:hover { background: #FFFFFF; color: var(--color-secondary); border-color: var(--color-secondary); }
+        
+        .header-button.signup { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+        .header-button.signup:hover { background: #9A3412; box-shadow: 0 4px 12px rgba(194, 65, 12, 0.3); }
+        
+        .header-button.dashboard { background: #ECFEFF; color: #0E7490; border-color: #A5F3FC; }
+        .header-button.logout { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
+        
+        .user-greeting { font-size: 14px; color: #431407; font-weight: 700; margin-right: 5px; display: block; }
+
+        /* Container */
+        .container-main {
+            max-width: 1000px; margin: 30px auto; padding: 30px 20px;
+            background-color: var(--color-white); border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); border: 1px solid #FED7AA;
+        }
+
+        .lesson-main-title {
+            font-size: 2.5em; font-weight: 900; color: #431407;
+            margin-bottom: 10px; letter-spacing: -0.03em;
+            background: -webkit-linear-gradient(45deg, #C2410C, #F59E0B);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .lesson-section {
+            background-color: #FAFAFA; padding: 30px; border-radius: 12px;
+            border: 1px solid #E5E7EB; margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: var(--color-primary); font-size: 1.8em; font-weight: 800;
+            margin-bottom: 20px; padding-bottom: 5px; border-bottom: 2px dashed var(--color-secondary);
+        }
+
+        /* --- VIDEO STYLES --- */
+        .video-wrapper {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto 25px auto;
+        }
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            background: #000;
+            border: 4px solid #78350F;
+        }
+        .video-container iframe {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        }
+
+        /* Reading Text */
+        .reading-text {
+            background: #FFFFFF; border-left: 5px solid var(--color-secondary);
+            padding: 25px; border-radius: 0 12px 12px 0; font-size: 1.1em;
+            color: #374151; line-height: 1.8; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .highlight-word {
+            color: var(--color-secondary); font-weight: 800; cursor: help;
+            border-bottom: 2px dotted var(--color-secondary); transition: all 0.2s;
+        }
+        .highlight-word:hover { background-color: #ECFEFF; color: #0E7490; border-radius: 4px; padding: 0 2px; }
+        
+        /* Match Cards */
+        .match-card {
+            border: 2px solid transparent; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer; user-select: none; border-radius: 12px; 
+            padding: 1rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); font-weight: 600;
+            opacity: 1; transform: scale(1); min-height: 90px; display: flex; align-items: center; justify-content: center;
+        }
+        .match-card.term {
+            background-color: #FFF7ED; border: 2px solid var(--color-primary); 
+            text-align: center; color: var(--color-primary);
+        }
+        .match-card.definition {
+            background-color: #FFFFFF; text-align: left; border: 2px solid #E5E7EB; color: #4B5563; font-size: 0.95em;
+        }
+        .match-card.selected {
+            border-color: var(--color-secondary); background-color: #ECFEFF; 
+            box-shadow: 0 0 0 4px #A5F3FC; transform: scale(1.02);
+        }
+        .match-card.matched { 
+            pointer-events: none; opacity: 0; transform: scale(0.9); transition: all 0.5s;
+        }
+        .match-card.temp-matched {
+            background-color: #D1FAE5 !important; border-color: #059669 !important; 
+            box-shadow: 0 0 0 4px #6EE7B7 !important; color: #065F46 !important;
+        }
+
+        /* Quiz Buttons */
+        .comp-btn-group .option-button {
+            transition: all 0.2s; background-color: #FFFFFF; color: #374151;
+            font-weight: 600; padding: 16px 20px; border-radius: 10px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); border: 1px solid #E5E7EB;
+            text-align: left; width: 100%; cursor: pointer; margin-bottom: 12px;
+        }
+        .comp-btn-group .option-button:hover { border-color: var(--color-accent); background-color: #FFFBEB; }
+        .comp-btn-group .option-button.selected { background-color: #FFF7ED; color: #C2410C !important; border-color: #9A3412; box-shadow: 0 0 0 3px #FED7AA; }
+        .comp-btn-group .option-button.correct { background-color: #D1FAE5 !important; color: #065F46 !important; border-color: #059669 !important; }
+        .comp-btn-group .option-button.incorrect { background-color: #FEE2E2 !important; color: #991B1B !important; border-color: #DC2626 !important; }
+
+        .result-message { margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: 700; display: none; text-align: center; }
+        .result-message.correct { background-color: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; }
+        .result-message.incorrect { background-color: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+        
+        /* Gap-Fill */
+        .word-bank { background: #ECFEFF; border: 2px solid #0891B2; border-radius: 12px; }
+        .word-options { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .word-option {
+            background-color: #FFFFFF; color: #0E7490; padding: 10px 18px;
+            border-radius: 8px; cursor: pointer; transition: all 0.2s; font-weight: 700;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); border: 1px solid #A5F3FC;
+        }
+        .word-option:hover { background-color: #0891B2; color: white; transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(8, 145, 178, 0.3); }
+        .word-option.selected { background-color: var(--color-primary) !important; color: white !important; transform: scale(1.05); border-color: var(--color-primary) !important; }
+        .word-option.used { opacity: 0.5; pointer-events: none; background-color: #9CA3AF; color: #F3F4F6; transform: none; box-shadow: none; border-color: transparent; }
+
+        .gap-input {
+            display: inline-block; text-align: center; padding: 0 10px; min-width: 120px; 
+            height: 34px; line-height: 32px; background-color: #FFFFFF; border-bottom: 3px solid var(--color-primary); 
+            border-radius: 6px; color: var(--color-primary); font-weight: 700; cursor: pointer; margin: 0 5px; transition: all 0.2s;
+        }
+        .gap-input:empty { background-color: #F3F4F6; border-bottom-style: dashed; }
+        .gap-input.filled { background-color: #FFF7ED; border-bottom-style: solid; }
+        .gap-input.correct { background-color: #D1FAE5 !important; border-color: #059669 !important; color: #065F46 !important; pointer-events: none; }
+        .gap-input.incorrect { background-color: #FEE2E2 !important; border-color: #DC2626 !important; color: #991B1B !important; }
+
+        /* Grammar Box */
+        .grammar-box {
+            background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+            border: 2px solid #F59E0B;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        .grammar-title {
+            color: #92400E; font-size: 1.5em; font-weight: 800;
+            margin-bottom: 15px; display: flex; align-items: center; gap: 10px;
+        }
+        .grammar-example {
+            background: white; padding: 15px; border-left: 5px solid var(--color-secondary);
+            margin: 10px 0; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .grammar-highlight { color: var(--color-secondary); font-weight: 700; }
+
+        /* Buttons & Save */
+        .button-group { margin-top: 25px; display: flex; gap: 15px; justify-content: center; }
+        .check-button {
+            background: var(--color-primary); color: white; border: none; padding: 14px 32px;
+            border-radius: 10px; cursor: pointer; font-size: 1em; font-weight: 700;
+            transition: all 0.3s; box-shadow: 0 4px 6px -1px rgba(194, 65, 12, 0.3);
+        }
+        .check-button:hover { background: #9A3412; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(194, 65, 12, 0.4); }
+        .reset-button { background: #6B7280; box-shadow: none; }
+        .reset-button:hover { background: #4B5563; }
+
+        #save-words-section { background: #FFF7ED; border: 2px dashed #FDBA74; padding: 30px; border-radius: 16px; margin-top: 50px; text-align: center; }
+        #save-words-btn {
+            background-color: var(--color-save-btn); color: white; padding: 16px 30px;
+            border-radius: 10px; font-weight: 700; cursor: pointer; transition: background-color 0.2s;
+            display: block; width: 100%; border: none; box-shadow: 0 4px #7C2D12;
+            text-transform: uppercase; font-size: 1.1em; letter-spacing: 0.05em;
+        }
+        #save-words-btn:hover:not(:disabled) { background-color: #9A3412; }
+        #save-words-btn:active:not(:disabled) { box-shadow: 0 1px #7C2D12; transform: translateY(3px); }
+        #save-words-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        #learned-words-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px; text-align: center; list-style: none; }
+        #learned-words-list li {
+            background: white; padding: 12px 10px; border-radius: 8px; border: 1px solid #FED7AA;
+            font-size: 0.95em; cursor: pointer; transition: all 0.2s; font-weight: 700; color: #374151;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+        }
+        #learned-words-list li:hover { transform: translateY(-3px); border-color: var(--color-secondary); color: var(--color-secondary); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        #learned-words-list li::after { content: '🔊'; font-size: 1.2em; opacity: 0.5; margin-top: 2px;}
+        #learned-words-list li:hover::after { opacity: 1; }
+
+        /* Popups */
+        #feedback-popup {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            padding: 30px 50px; border-radius: 20px; font-weight: 800; color: white;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); z-index: 2000; display: none;
+            text-align: center; font-size: 1.5em; border: 4px solid white; min-width: 320px;
+        }
+        #dictionary-popup {
+            position: fixed; max-width: 300px; padding: 20px; background: #FFFFFF;
+            border-top: 5px solid var(--color-secondary); border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); 
+            z-index: 2001; display: none; font-size: 0.95em; color: #1F2937; line-height: 1.5;
+        }
+        @media (max-width: 768px) { .user-greeting { display: none; } }
+        
+        .footer {
+            background: #FFFFFF;
+            border-top: 1px solid #E5E7EB;
+            padding: 40px 20px;
+            margin-top: 80px;
+            text-align: center;
+        }
+        .footer-text { font-size: 14px; color: #6B7280; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">🦶</span>
+                <a href="/advanced/" class="site-title">English For Cool Dudes</a>
+            </div>
+            <div id="logged-out-buttons" class="header-buttons" style="display: none;">
+                <a href="/login/" class="header-button login">Login</a>
+                <a href="/signup/" class="header-button signup">Sign Up</a>
+            </div>
+            <div id="logged-in-buttons" class="header-buttons" style="display: none;">
+                <span class="user-greeting" id="user-greeting">Hey Creator! 👋</span>
+                <a href="/dashboard/" class="header-button dashboard">My Dashboard</a>
+                <button id="logout-btn" class="header-button logout">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-main">
+        <h1 class="lesson-main-title">Aussie Lifestyle: The Barefoot Phenomenon</h1>
+        <p class="text-lg text-gray-500 mb-8 font-medium">Upper Intermediate (B2-C1) | Topic: Culture & Travel</p>
+
+        <main class="space-y-8">
+            
+            <section class="lesson-section shadow-lg">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 border-b-2 border-dashed border-gray-300 pb-4">
+                    <h2 class="section-title" style="border: none; margin: 0;">📺 1. Watch & Analyze</h2>
+                    <span class="text-sm bg-orange-100 text-orange-800 py-1 px-3 rounded-full font-bold mt-2 md:mt-0">Time: 6 mins</span>
+                </div>
+
+                <div class="video-wrapper">
+                    <div class="video-container">
+                        <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/-ojRWeRhdJc?si=SeIfpOmZvWJdLC-3" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    </div>
+                </div>
+                
+                <h3 class="font-bold text-xl text-gray-800 mb-3">Context & Reading</h3>
+                <div class="reading-text">
+                    <p class="mb-4">For most of the world, shoes are a necessity. But in Australia, going barefoot is a cultural habit that visitors often find <span class="highlight-word" onclick="showDictionaryPopup(this, 'Perplexing')">perplexing</span>. It is not uncommon to see Aussies shopping, driving, or even boarding planes without footwear. The Wiggles even have a famous song about it!</p>
+
+                    <p class="mb-4">Historically, Australia was marketed to British migrants as a warm, relaxed paradise where you could <span class="highlight-word" onclick="showDictionaryPopup(this, 'Cast off')">cast off</span> the rigid clothes of the cold north. Today, while some critics find the habit <span class="highlight-word" onclick="showDictionaryPopup(this, 'Sloppy')">sloppy</span>, many locals view it as a symbol of freedom.</p>
+
+                    <p class="mb-4">Physiologically, proponents argue that barefoot walking improves spinal <span class="highlight-word" onclick="showDictionaryPopup(this, 'Alignment')">alignment</span> and stimulates the nerve endings. However, despite the myth that "everyone does it," Australia is highly <span class="highlight-word" onclick="showDictionaryPopup(this, 'Urbanised')">urbanised</span>, and city streets aren't always friendly to unprotected feet.</p>
+
+                    <p>Whether you love it or <span class="highlight-word" onclick="showDictionaryPopup(this, 'Loathe')">loathe</span> it, the barefoot lifestyle continues to <span class="highlight-word" onclick="showDictionaryPopup(this, 'Typify')">typify</span> the relaxed Australian attitude.</p>
+                </div>
+            </section>
+
+            <section id="exercise-1" class="lesson-section shadow-lg">
+                <h2 class="section-title">🔗 2. Vocabulary Match</h2>
+                <p class="text-gray-600 mb-6 font-medium">Match the term to its definition. Correct pairs will vanish.</p>
+
+                <div id="vocab-match-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </section>
+        
+            <section id="exercise-2" class="lesson-section shadow-lg">
+                <h2 class="section-title">❓ 3. Comprehension Check</h2>
+                <p class="text-gray-600 mb-4 font-medium">Based on the video, select the correct answer.</p>
+                
+                <div class="question" data-question="1">
+                    <p class="font-semibold text-lg text-gray-800 mb-3">1. Why was the image of going barefoot originally promoted?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="1">
+                        <li class="option-button" data-correct="false">Because shoes were too expensive to import.</li>
+                        <li class="option-button" data-correct="true">To attract migrants from cold, miserable British cities.</li>
+                        <li class="option-button" data-correct="false">To promote better foot health in the 1950s.</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="2">
+                    <p class="font-semibold text-lg text-gray-800 mb-3">2. What does the "anti-barefoot" speaker think about the habit?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="2">
+                        <li class="option-button" data-correct="false">It is dangerous because of snakes.</li>
+                        <li class="option-button" data-correct="true">It is sloppy and inappropriate for shops and restaurants.</li>
+                        <li class="option-button" data-correct="false">It is only acceptable on the beach.</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="3">
+                    <p class="font-semibold text-lg text-gray-800 mb-3">3. According to the conclusion, where does most barefoot walking actually happen?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="3">
+                        <li class="option-button" data-correct="true">Around beaches, parks, or indoors.</li>
+                        <li class="option-button" data-correct="false">In the business districts of Sydney.</li>
+                        <li class="option-button" data-correct="false">On public transport and airplanes.</li>
+                    </ul>
+                </div>
+
+                <div class="button-group">
+                    <button class="check-button" onclick="checkComprehension()">Check Answers</button>
+                    <button class="check-button reset-button" onclick="resetComprehension()">Reset</button>
+                </div>
+                <div id="comprehension-result" class="result-message"></div>
+            </section>
+
+            <section id="exercise-3" class="lesson-section shadow-lg">
+                <h2 class="section-title">📝 4. Contextual Gap Fill</h2>
+                <p class="text-gray-600 mb-6 font-medium">Complete the sentences using the vocabulary from the video.</p>
+                
+                <div class="word-bank p-4 mb-6">
+                    <h4 class="font-bold text-gray-600 mb-3 w-full text-center text-xs uppercase">Word Bank</h4>
+                    <div class="word-options" id="gap-fill-options">
+                        <span class="word-option" data-word="typify">typify</span>
+                        <span class="word-option" data-word="perplexing">perplexing</span>
+                        <span class="word-option" data-word="sloppy">sloppy</span>
+                        <span class="word-option" data-word="alignment">alignment</span>
+                        <span class="word-option" data-word="protocol">protocol</span>
+                        <span class="word-option" data-word="loathe">loathe</span>
+                    </div>
+                </div>
+
+                <div class="gap-fill-text text-lg leading-loose space-y-4">
+                    <p>1. Kangaroos and koalas <span class="gap-input" data-answer="typify">____</span> the unique wildlife of Australia.</p>
+                    <p>2. I absolutely <span class="gap-input" data-answer="loathe">____</span> wearing a tie; it feels so restrictive.</p>
+                    <p>3. His work was very <span class="gap-input" data-answer="sloppy">____</span>; there were spelling mistakes everywhere.</p>
+                    <p>4. Walking without shoes can help improve the <span class="gap-input" data-answer="alignment">____</span> of your spine.</p>
+                    <p>5. It is <span class="gap-input" data-answer="perplexing">____</span> to me why anyone would walk barefoot in a dirty city.</p>
+                    <p>6. There is a strict <span class="gap-input" data-answer="protocol">____</span> for meeting the Royal Family.</p>
+                </div>
+                <div class="button-group">
+                    <button class="check-button" onclick="checkGaps()">Verify</button>
+                    <button class="check-button reset-button" onclick="resetGaps()">Reset</button>
+                </div>
+                <div id="gap-result" class="result-message"></div>
+            </section>
+
+            <section id="exercise-4" class="lesson-section shadow-lg">
+                <h2 class="section-title">📖 5. Grammar: Prepositions + Gerunds</h2>
+                
+                <div class="grammar-box">
+                    <div class="grammar-title">
+                        <span>⚙️</span>
+                        <span>Verbs/Nouns + Preposition + -ING</span>
+                    </div>
+                    <p class="text-gray-700 mb-4">In English, if a verb follows a preposition (like <em>of, in, about, for, with</em>), it <strong>must</strong> be in the <strong>-ing form</strong> (Gerund).</p>
+                    
+                    <div class="grammar-example">
+                        <strong>Example 1:</strong> The culture <span class="grammar-highlight">of removing</span> your shoes is unique.<br>
+                        <em class="text-sm text-gray-500">(Not: the culture of remove)</em>
+                    </div>
+                    
+                    <div class="grammar-example">
+                        <strong>Example 2:</strong> In <span class="grammar-highlight">so doing</span>, I am living out the culture.<br>
+                        <em class="text-sm text-gray-500">(Formal phrase: "In doing this...")</em>
+                    </div>
+                    
+                    <div class="grammar-example">
+                        <strong>Example 3:</strong> Associated <span class="grammar-highlight">with being</span> closer to nature.
+                    </div>
+                </div>
+
+                <h3 class="font-bold text-xl text-gray-800 mt-6 mb-3">🎯 Practice: Choose the correct form</h3>
+                <p class="text-gray-600 mb-4 font-medium">Select the correct option to complete the sentence.</p>
+                
+                <div class="question" data-question="4">
+                    <p class="font-semibold text-lg text-gray-600 mb-3">1. They marketed the benefit of _______ barefoot.</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="4">
+                        <li class="option-button" data-correct="false">go</li>
+                        <li class="option-button" data-correct="true">going</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="5">
+                    <p class="font-semibold text-lg text-gray-600 mb-3">2. She succeeded in _______ a new life in Australia.</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="5">
+                        <li class="option-button" data-correct="true">making</li>
+                        <li class="option-button" data-correct="false">make</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="6">
+                    <p class="font-semibold text-lg text-gray-600 mb-3">3. We are worried about _______ sloppy.</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="6">
+                        <li class="option-button" data-correct="false">look</li>
+                        <li class="option-button" data-correct="true">looking</li>
+                    </ul>
+                </div>
+
+                <div class="button-group">
+                    <button class="check-button" onclick="checkGrammar()">Check Grammar</button>
+                    <button class="check-button reset-button" onclick="resetGrammar()">Reset</button>
+                </div>
+                <div id="grammar-result" class="result-message"></div>
+            </section>
+
+            <section class="lesson-section shadow-lg border-t-4 border-orange-900">
+                <h2 class="section-title">🎉 Lesson Complete</h2>
+                <p class="mb-4 text-gray-600">Good on ya, mate! Review your new vocabulary below.</p>
+                
+                <ul id="learned-words-list">
+                    <li data-word="Typify">Typify</li>
+                    <li data-word="Perplexing">Perplexing</li>
+                    <li data-word="Tenement">Tenement</li>
+                    <li data-word="Sloppy">Sloppy</li>
+                    <li data-word="Alignment">Alignment</li>
+                    <li data-word="Urbanised">Urbanised</li>
+                    <li data-word="Protocol">Protocol</li>
+                    <li data-word="Loathe">Loathe</li>
+                </ul>
+
+                <div id="save-words-section">
+                    <h3 class="text-xl font-bold mb-3" style="color: var(--color-save-btn);">💾 Save Your Progress</h3>
+                    
+                    <div id="save-feature-loggedin" style="display: none;">
+                        <p class="text-gray-700 mb-4">Add these terms to your personal dashboard.</p>
+                        <button id="save-words-btn" onclick="saveWordsToDashboard()">Save Words to Dashboard</button>
+                        <p id="save-status" class="text-center mt-3 font-semibold"></p>
+                    </div>
+                    
+                    <div id="login-prompt" style="display: none;">
+                        <p class="text-red-600 font-bold mb-2">🔒 Login to save your progress!</p>
+                        <a href="/login/" class="inline-block bg-gray-800 text-white font-bold py-2 px-4 rounded hover:bg-black transition">Log In / Sign Up</a>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+        <footer class="footer">
+            <p class="footer-text">© 2026 English For Cool Dudes - Culture & Lifestyle</p>
+            <div style="margin-top: 10px;">
+                <a href="/impressum/" style="color: #C2410C; margin-right: 15px; text-decoration: none;">Impressum</a>
+                <a href="/datenschutz/" style="color: #C2410C; text-decoration: none;">Datenschutzerklärung</a>
+            </div>
+        </footer>
+    </div>
+    
+    <div id="feedback-popup"></div>
+    <div id="dictionary-popup"></div>
+
+    <script>
+        // --- CONFIG ---
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null;
+
+        const lessonTitle = "Aussie Lifestyle: The Barefoot Phenomenon";
+        const lessonLink = "/barefoot/";
+        const lessonLevel = "B2-C1";
+
+        const wordsToSave = [
+            { word: "Typify", type: "verb", definition: "To be a typical example of something." },
+            { word: "Perplexing", type: "adjective", definition: "Very confusing or baffling." },
+            { word: "Tenement", type: "noun", definition: "A run-down and often overcrowded apartment house." },
+            { word: "Sloppy", type: "adjective", definition: "Messy, careless, or unsystematic." },
+            { word: "Alignment", type: "noun", definition: "Arrangement in a straight line, or in correct relative positions." },
+            { word: "Urbanised", type: "adjective", definition: "Having taken on the characteristics of a city." },
+            { word: "Protocol", type: "noun", definition: "The official procedure or system of rules." },
+            { word: "Loathe", type: "verb", definition: "To feel intense dislike or disgust for something." },
+            { word: "Cast off", type: "verb", definition: "To throw off or away; discard." }
+        ];
+
+        // --- AUTH ---
+        async function checkUser() {
+            try {
+                const { data: { user } } = await sb.auth.getUser();
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('logged-in-buttons').style.display = 'flex';
+                    document.getElementById('logged-out-buttons').style.display = 'none';
+                    document.getElementById('save-feature-loggedin').style.display = 'block';
+                    document.getElementById('login-prompt').style.display = 'none';
+                    const name = user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Cool Dude';
+                    document.getElementById('user-greeting').textContent = `G'day ${name}! 🦘`;
+                } else {
+                    document.getElementById('logged-in-buttons').style.display = 'none';
+                    document.getElementById('logged-out-buttons').style.display = 'flex';
+                    document.getElementById('save-feature-loggedin').style.display = 'none';
+                    document.getElementById('login-prompt').style.display = 'block';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function saveWordsToDashboard() {
+            if (!currentUser) return;
+            const btn = document.getElementById('save-words-btn');
+            const status = document.getElementById('save-status');
+            btn.disabled = true; btn.textContent = "Saving...";
+
+            const { error } = await sb.from('lessons').upsert([{
+                user_id: currentUser.id, lesson_title: lessonTitle, lesson_link: lessonLink,
+                lesson_level: lessonLevel, vocabulary: wordsToSave, completed_at: new Date().toISOString()
+            }], { onConflict: 'user_id,lesson_title' });
+
+            if (!error) {
+                btn.textContent = "✅ Saved!"; btn.style.backgroundColor = "#059669";
+                status.textContent = "Vocabulary secured! Check your dashboard.";
+                setTimeout(() => window.location.href = '/dashboard/', 1500);
+            } else {
+                btn.textContent = "❌ Error"; btn.disabled = false;
+                status.textContent = "Error saving. Please try again.";
+            }
+        }
+        
+        async function saveMistake(word) {
+            if(!currentUser) return;
+            const wObj = wordsToSave.find(w=>w.word.toLowerCase()===word.toLowerCase()) || {word: word, definition:'Review this term', type:'word'};
+            await sb.from('user_mistakes').upsert({
+                user_id: currentUser.id, word: wObj.word, definition: wObj.definition, word_type: wObj.type,
+                lesson: lessonTitle, lesson_link: lessonLink, last_made_at: new Date().toISOString()
+            }, {onConflict: 'user_id,word'});
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await sb.auth.signOut(); window.location.href = '/';
+        });
+
+        // --- UTILS ---
+        function playAudio(word) {
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.lang = 'en-AU'; // Australian Accent
+            utterance.rate = 0.9;
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function showFeedback(msg, type) {
+            const el = document.getElementById('feedback-popup');
+            el.textContent = msg; el.style.display = 'block';
+            el.style.backgroundColor = type === 'correct' ? '#059669' : '#DC2626';
+            el.style.borderColor = type === 'correct' ? '#34D399' : '#F87171';
+            setTimeout(() => { el.style.display = 'none'; }, 1800);
+        }
+
+        function showDictionaryPopup(target, word) {
+            const searchWord = word.toLowerCase();
+            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === searchWord);
+            
+            const popup = document.getElementById('dictionary-popup');
+            if(wordObj) {
+                popup.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                        <div>
+                            <strong>${wordObj.word}</strong> 
+                            <span style="font-size:0.85em; color:#0891B2;">(${wordObj.type})</span>
+                        </div>
+                        <button onclick="playAudio('${wordObj.word}')" style="background: none; border: none; cursor: pointer; font-size: 1.3em; padding: 0; margin-left: 10px;" title="Listen">🔊</button>
+                    </div>
+                    ${wordObj.definition}
+                `;
+            } else {
+                popup.innerHTML = `<strong>${word}</strong><br>Definition not found.`;
+            }
+            
+            popup.style.display = 'block';
+            const rect = target.getBoundingClientRect();
+            let topPos = rect.top - popup.offsetHeight - 10;
+            if (topPos < 10) topPos = rect.bottom + 10;
+            
+            let leftPos = (rect.left + (rect.width/2) - (popup.offsetWidth/2));
+            if (leftPos < 10) leftPos = 10;
+            if (leftPos + popup.offsetWidth > window.innerWidth) leftPos = window.innerWidth - popup.offsetWidth - 10;
+
+            popup.style.top = topPos + 'px';
+            popup.style.left = leftPos + 'px';
+        }
+        
+        document.body.addEventListener('click', (e) => {
+            if (!e.target.closest('#dictionary-popup') && !e.target.closest('#learned-words-list li') && !e.target.closest('.highlight-word')) {
+                document.getElementById('dictionary-popup').style.display = 'none';
+            }
+        });
+
+        // --- EXERCISES ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        function cleanText(text) { return text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z]/g, '').toLowerCase() : ''; }
+
+        /* MATCHING GAME */
+        const newVocabData = [
+            { type: 'term', content: "Typify", key: 'A' }, { type: 'definition', content: "To be a perfect example of.", key: 'A' },
+            { type: 'term', content: "Perplexing", key: 'B' }, { type: 'definition', content: "Confusing or baffling.", key: 'B' },
+            { type: 'term', content: "Tenement", key: 'C' }, { type: 'definition', content: "Run-down apartment building.", key: 'C' },
+            { type: 'term', content: "Sloppy", key: 'D' }, { type: 'definition', content: "Messy or careless.", key: 'D' },
+            { type: 'term', content: "Alignment", key: 'E' }, { type: 'definition', content: "Positioning in a straight line.", key: 'E' },
+            { type: 'term', content: "Urbanised", key: 'F' }, { type: 'definition', content: "Developed into cities.", key: 'F' },
+            { type: 'term', content: "Protocol", key: 'G' }, { type: 'definition', content: "Official rules/procedure.", key: 'G' },
+            { type: 'term', content: "Loathe", key: 'H' }, { type: 'definition', content: "To hate intensely.", key: 'H' }
+        ];
+        let selectedTermCard = null, selectedDefinitionCard = null, matchedPairs = 0;
+
+        function initVocab() {
+            const matchContainer = document.getElementById('vocab-match-container');
+            matchContainer.innerHTML = ''; shuffleArray(newVocabData);
+            newVocabData.forEach(item => {
+                const card = document.createElement('div'); 
+                card.className = `match-card interactive-element ${item.type}`;
+                card.innerHTML = item.type === 'term' ? `<span class="font-bold">${item.content}</span>` : `<span>${item.content}</span>`; 
+                card.dataset.key = item.key; card.dataset.type = item.type;
+                card.addEventListener('click', () => handleMatchClick(card));
+                matchContainer.appendChild(card);
+            });
+            selectedTermCard = null; selectedDefinitionCard = null; matchedPairs = 0;
+        }
+
+        function handleMatchClick(card) {
+            if (card.classList.contains('matched')) return;
+            const type = card.dataset.type;
+            let currentSelection = type === 'term' ? selectedTermCard : selectedDefinitionCard;
+            if (currentSelection) currentSelection.classList.remove('selected');
+            if (currentSelection === card) {
+                if (type === 'term') selectedTermCard = null; else selectedDefinitionCard = null;
+                return;
+            }
+            if (type === 'term') selectedTermCard = card; else selectedDefinitionCard = card;
+            card.classList.add('selected');
+
+            if (selectedTermCard && selectedDefinitionCard) {
+                if (selectedTermCard.dataset.key === selectedDefinitionCard.dataset.key) {
+                    [selectedTermCard, selectedDefinitionCard].forEach(el => { el.classList.remove('selected'); el.classList.add('temp-matched'); });
+                    showFeedback("Fair Dinkum! (Correct) 🐨", 'correct');
+                    
+                    const t = selectedTermCard; const d = selectedDefinitionCard;
+                    setTimeout(() => {
+                        t.classList.remove('temp-matched'); t.classList.add('matched');
+                        d.classList.remove('temp-matched'); d.classList.add('matched');
+                    }, 800);
+
+                    matchedPairs++;
+                    if (matchedPairs === newVocabData.length / 2) {
+                        setTimeout(() => {
+                            showFeedback("🎉 Beauty! All matched!", 'correct');
+                            setTimeout(() => initVocab(), 1500);
+                        }, 1000);
+                    }
+                    selectedTermCard = null; selectedDefinitionCard = null;
+                } else {
+                    showFeedback("Have another go! ❌", 'incorrect');
+                    setTimeout(() => {
+                        if(selectedTermCard) selectedTermCard.classList.remove('selected'); 
+                        if(selectedDefinitionCard) selectedDefinitionCard.classList.remove('selected');
+                        selectedTermCard = null; selectedDefinitionCard = null;
+                    }, 800);
+                }
+            }
+        }
+
+        /* COMPREHENSION */
+        function checkComprehension() {
+            const questions = document.querySelectorAll('.question[data-question="1"], .question[data-question="2"], .question[data-question="3"]'); 
+            let correctAnswers = 0;
+            questions.forEach(q => {
+                const selected = q.querySelector('.option-button.selected');
+                q.querySelectorAll('.option-button').forEach(opt => {
+                    opt.classList.remove('correct', 'incorrect');
+                    if (opt.dataset.correct === 'true') opt.classList.add('correct');
+                });
+                if (selected) {
+                    if (selected.dataset.correct === 'true') correctAnswers++; 
+                    else {
+                        selected.classList.add('incorrect');
+                        saveMistake('comprehension_' + q.dataset.question);
+                    }
+                }
+            });
+            const resultDiv = document.getElementById('comprehension-result'); resultDiv.style.display = 'block';
+            if (correctAnswers === questions.length) { resultDiv.textContent = '🎉 You little ripper! (Perfect)'; resultDiv.className = 'result-message correct'; }
+            else { resultDiv.textContent = `You got ${correctAnswers}/${questions.length} correct.`; resultDiv.className = 'result-message incorrect'; }
+        }
+        
+        function resetComprehension() {
+            document.querySelectorAll('.question[data-question="1"] .option-button, .question[data-question="2"] .option-button, .question[data-question="3"] .option-button').forEach(item => item.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById('comprehension-result').style.display = 'none';
+        }
+
+        /* GAP FILL */
+        let selectedGapWord = null; 
+        
+        function initGaps() {
+            const wordOptionsContainer = document.getElementById('gap-fill-options');
+            const options = Array.from(wordOptionsContainer.children);
+            shuffleArray(options);
+            options.forEach(option => { wordOptionsContainer.appendChild(option); option.classList.remove('used', 'selected'); });
+            document.querySelectorAll('.gap-input').forEach(blank => { blank.textContent = ''; blank.classList.remove('correct', 'incorrect', 'selected'); });
+            selectedGapWord = null; document.getElementById('gap-result').style.display = 'none';
+        }
+        
+        function handleGapBlankClick(blank) {
+            if (blank.textContent.trim() === '') {
+                 if (selectedGapWord) {
+                    blank.textContent = selectedGapWord.textContent.trim();
+                    selectedGapWord.classList.remove('selected'); 
+                    selectedGapWord.classList.add('used');
+                    selectedGapWord = null;
+                }
+                return;
+            }
+            const currentText = cleanText(blank.textContent); 
+            const allOptions = Array.from(document.querySelectorAll('.word-option'));
+            const matchingBtn = allOptions.find(btn => cleanText(btn.textContent) === currentText);
+            if (matchingBtn) matchingBtn.classList.remove('used');
+            blank.textContent = ''; 
+            blank.classList.remove('correct', 'incorrect', 'filled'); 
+        }
+
+        function checkGaps() {
+            let correctCount = 0; 
+            const blanks = document.querySelectorAll('.gap-input'); 
+            blanks.forEach(blank => { 
+                const answerWord = blank.dataset.answer;
+                const extractedWord = blank.textContent.trim();
+                const cleanExtracted = cleanText(extractedWord);
+                const cleanAnswer = cleanText(answerWord);
+                blank.classList.remove('selected', 'incorrect', 'correct');
+                
+                if (extractedWord === '') {
+                } else if (cleanExtracted === cleanAnswer) { 
+                    blank.classList.add('correct'); 
+                    correctCount++; 
+                } else { 
+                    blank.classList.add('incorrect');
+                    saveMistake(answerWord); 
+                }
+            });
+
+            const resultDiv = document.getElementById('gap-result'); 
+            resultDiv.style.display = 'block';
+            if (correctCount === blanks.length) { 
+                resultDiv.textContent = '🎉 No worries! Perfect score.'; 
+                resultDiv.className = 'result-message correct'; 
+            } else { 
+                resultDiv.textContent = `You got ${correctCount}/${blanks.length} correct.`; 
+                resultDiv.className = 'result-message incorrect'; 
+            }
+        }
+
+        function resetGaps() {
+            selectedGapWord = null;
+            document.getElementById('gap-result').style.display = 'none';
+            document.querySelectorAll('.word-option').forEach(opt => opt.classList.remove('used', 'selected'));
+            document.querySelectorAll('.gap-input').forEach(blank => {
+                blank.textContent = '';
+                blank.classList.remove('correct', 'incorrect', 'selected', 'filled');
+            });
+        }
+
+        /* GRAMMAR */
+        function checkGrammar() {
+            const questions = document.querySelectorAll('.question[data-question="4"], .question[data-question="5"], .question[data-question="6"]'); 
+            let correctAnswers = 0;
+            questions.forEach(q => {
+                const selected = q.querySelector('.option-button.selected');
+                q.querySelectorAll('.option-button').forEach(opt => {
+                    opt.classList.remove('correct', 'incorrect');
+                    if (opt.dataset.correct === 'true') opt.classList.add('correct');
+                });
+                if (selected && selected.dataset.correct === 'true') correctAnswers++;
+                else if(selected) selected.classList.add('incorrect');
+            });
+            const resultDiv = document.getElementById('grammar-result'); resultDiv.style.display = 'block';
+            if (correctAnswers === questions.length) { resultDiv.textContent = '🎉 Ace!'; resultDiv.className = 'result-message correct'; }
+            else { resultDiv.textContent = `You got ${correctAnswers}/${questions.length} correct.`; resultDiv.className = 'result-message incorrect'; }
+        }
+        
+        function resetGrammar() {
+            document.querySelectorAll('.question[data-question="4"] .option-button, .question[data-question="5"] .option-button, .question[data-question="6"] .option-button').forEach(item => item.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById('grammar-result').style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkUser(); initVocab(); initGaps();
+            document.querySelectorAll('#learned-words-list li').forEach(li => li.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                const word = li.dataset.word;
+                showDictionaryPopup(li, word);
+                playAudio(word);
+            }));
+            
+            document.querySelectorAll('.option-button').forEach(item => item.addEventListener('click', () => {
+                item.closest('.question').querySelectorAll('.option-button').forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect'));
+                item.classList.add('selected'); 
+                const qNum = item.closest('.question').dataset.question;
+                if(qNum <= 3) document.getElementById('comprehension-result').style.display = 'none';
+                else document.getElementById('grammar-result').style.display = 'none';
+            }));
+            
+            document.querySelectorAll('.word-option').forEach(option => option.addEventListener('click', () => {
+                if (option.classList.contains('used')) return;
+                if (selectedGapWord) selectedGapWord.classList.remove('selected');
+                if (selectedGapWord === option) selectedGapWord = null;
+                else { selectedGapWord = option; selectedGapWord.classList.add('selected'); }
+            }));
+            
+            document.querySelectorAll('.gap-input').forEach(blank => blank.addEventListener('click', () => handleGapBlankClick(blank)));
+        });
+    </script>
+</body>
+</html>
