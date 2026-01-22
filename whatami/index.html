@@ -151,6 +151,9 @@
             <label>Category</label>
             <select id="category">
     <option value="random">🎲 Random</option>
+<option value="business">💼 Business & Office</option>
+<option value="tax">📊 Tax & Finance</option>
+<option value="legal">⚖️ Legal</option>
     <option value="everyday">🏠 Everyday Objects</option>
     <option value="animals">🦁 Animals</option>
     <option value="food">🍕 Food & Drink</option>
@@ -293,22 +296,30 @@
         }
 
         async function startGame() {
-            if (game.isMulti && game.players.length < 2) {
-                alert('Add at least 2 players!');
-                return;
-            }
-            game.target = parseInt(document.getElementById('points').value);
-            game.playerIdx = 0;
-            game.round = 1;
-            game.players.forEach(p => p.score = 0);
-            
-            document.getElementById('loading').style.display = 'flex';
-            await loadRiddle();
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('setup').style.display = 'none';
-            document.getElementById('game-area').style.display = 'block';
-            updateUI();
-        }
+    if (game.isMulti && game.players.length < 2) {
+        alert('Add at least 2 players!');
+        return;
+    }
+    
+    // Reset all game state variables
+    game.target = parseInt(document.getElementById('points').value);
+    game.playerIdx = 0;
+    game.round = 1;
+    
+    // Ensure players exist and reset their scores
+    if (!game.isMulti) {
+        game.players = [{ name: 'You', score: 0 }];
+    } else {
+        game.players.forEach(p => p.score = 0);
+    }
+    
+    document.getElementById('loading').style.display = 'flex';
+    await loadRiddle();
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('setup').style.display = 'none';
+    document.getElementById('game-area').style.display = 'block';
+    updateUI();
+}
 
         async function loadRiddle() {
             const cat = document.getElementById('category').value;
@@ -399,28 +410,30 @@ for (let i = 1; i <= 4; i++) {
         }
 
         function showModal(correct, pts) {
-            const modal = document.getElementById('modal');
-            document.getElementById('icon').textContent = correct ? '🎉' : '❌';
-            document.getElementById('title').textContent = correct ? 'Correct!' : 'Not Quite!';
-            document.getElementById('message').textContent = correct ? `You earned ${pts} points!` : 'Try again or reveal another clue.';
-            document.getElementById('answerText').textContent = correct ? `Answer: ${game.riddle.answer}` : `Hint: ${game.riddle.answer.substring(0,3)}...`;
-            
-            if (!correct) {
-                setTimeout(() => modal.style.display = 'none', 2000);
-                return;
-            }
-            
-            if (game.isMulti) {
-                const div = document.getElementById('scores');
-                div.style.display = 'block';
-                div.innerHTML = '<div style="font-weight:700;margin-bottom:10px;color:#64748B">SCORES</div>' +
-                    game.players.map(p => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #E2E8F0"><span>${p.name}</span><span style="font-weight:700;color:var(--secondary)">${p.score}</span></div>`).join('');
-            } else {
-                document.getElementById('scores').style.display = 'none';
-            }
-            
-            modal.style.display = 'flex';
-        }
+    const modal = document.getElementById('modal');
+    // Show the modal first so the user sees the feedback
+    modal.style.display = 'flex'; 
+    
+    document.getElementById('icon').textContent = correct ? '🎉' : '❌';
+    document.getElementById('title').textContent = correct ? 'Correct!' : 'Not Quite!';
+    document.getElementById('message').textContent = correct ? `You earned ${pts} points!` : 'Try again or reveal another clue.';
+    document.getElementById('answerText').textContent = correct ? `Answer: ${game.riddle.answer}` : `Hint: ${game.riddle.answer.substring(0,3)}...`;
+    
+    if (!correct) {
+        // Auto-close after 1.5 seconds if wrong so they can keep trying
+        setTimeout(() => modal.style.display = 'none', 1500);
+        return;
+    }
+    
+    if (game.isMulti) {
+        const div = document.getElementById('scores');
+        div.style.display = 'block';
+        div.innerHTML = '<div style="font-weight:700;margin-bottom:10px;color:#64748B">SCORES</div>' +
+            game.players.map(p => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #E2E8F0"><span>${p.name}</span><span style="font-weight:700;color:var(--secondary)">${p.score}</span></div>`).join('');
+    } else {
+        document.getElementById('scores').style.display = 'none';
+    }
+}
 
         function closeModal() {
             document.getElementById('modal').style.display = 'none';
