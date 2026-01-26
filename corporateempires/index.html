@@ -283,6 +283,10 @@
                 <li data-word="Acquisition">Acquisition</li>
                 <li data-word="Capital">Capital</li>
                 <li data-word="Shareholder">Shareholder</li>
+<li data-word="Assets">Assets</li>
+<li data-word="Declare">Declare</li>
+<li data-word="Acquire">Acquire</li>
+<li data-word="Raise">Raise</li>
             </ul>
 
             <div id="loggedin-content" style="display:none; margin-top: 25px;">
@@ -311,8 +315,7 @@
         const lessonLink = "/corporateempires/";
         const lessonLevel = "Legal B1-B2";
 
-        const wordsToSave = [
-            // Main Lesson Vocabulary
+        const VOCAB_LIST = [
             { word: "Holding Company", type: "noun", definition: "A company created to buy and possess the shares of other companies, which it then controls." },
             { word: "Majority Stake", type: "noun", definition: "Ownership of more than 50% of a company's shares, giving control." },
             { word: "Equity", type: "noun", definition: "The value of the shares issued by a company." },
@@ -322,54 +325,41 @@
             { word: "Issue", type: "verb", definition: "To supply or distribute shares to investors." },
             { word: "Acquisition", type: "noun", definition: "An asset or object bought or obtained, typically by a library or museum." }, 
             { word: "Capital", type: "noun", definition: "Wealth in the form of money or other assets owned by a person or organization." },
-            { word: "Shareholder", type: "noun", definition: "An owner of shares in a company." }
+            { word: "Shareholder", type: "noun", definition: "An owner of shares in a company." },
+            
+            // --- NEW WORDS ADDED TO FIX EXERCISES ---
+            { word: "Assets", type: "noun", definition: "Items of value owned by a company (cash, equipment, patents)." },
+            { word: "Declare", type: "verb", definition: "To officially state the intention to pay a dividend." },
+            { word: "Acquire", type: "verb", definition: "To buy or obtain an asset or company." },
+            { word: "Raise", type: "verb", definition: "To collect money (capital) from investors." }
+        
         ];
-
-     
 
         // --- AUTH ---
         async function checkUser() {
-            try {
-                const { data: { user } } = await sb.auth.getUser();
-                if (user) {
-                    currentUser = user;
-                    document.getElementById('logged-in-buttons').style.display = 'flex';
-                    document.getElementById('logged-out-buttons').style.display = 'none';
-                    document.getElementById('save-feature-loggedin').style.display = 'block';
-                    document.getElementById('login-prompt').style.display = 'none';
-                    const name = user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Cool Dude';
-                    document.getElementById('user-greeting').textContent = `Hey ${name}! 👋`;
-                } else {
-                    document.getElementById('logged-in-buttons').style.display = 'none';
-                    document.getElementById('logged-out-buttons').style.display = 'flex';
-                    document.getElementById('save-feature-loggedin').style.display = 'none';
-                    document.getElementById('login-prompt').style.display = 'block';
-                }
-            } catch (err) { console.error(err); }
-        }
-         async function saveWordsToDashboard() {
-            if (!currentUser) return;
-            const btn = document.getElementById('save-words-btn');
-            const status = document.getElementById('save-status');
-            btn.disabled = true; btn.textContent = "Saving...";
+            const { data: { user } } = await sb.auth.getUser();
+            const authContainer = document.getElementById('auth-container');
+            const loggedInContent = document.getElementById('loggedin-content');
+            const loggedOutContent = document.getElementById('loggedout-content');
 
-            const { error } = await sb.from('lessons').upsert([{
-                user_id: currentUser.id, lesson_title: lessonTitle, lesson_link: lessonLink,
-                lesson_level: lessonLevel, vocabulary: wordsToSave, completed_at: new Date().toISOString()
-            }], { onConflict: 'user_id,lesson_title' });
-
-            if (!error) {
-                btn.textContent = "✅ Saved!"; btn.style.backgroundColor = "#059669";
-                status.textContent = "Vocabulary secured! Check your dashboard.";
-                status.style.color = "#059669";
-                setTimeout(() => window.location.href = '/dashboard/', 1500);
+            if (user) {
+                currentUser = user;
+                authContainer.innerHTML = `
+                    <span class="user-greeting">Hi ${user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Pro'}!</span>
+                    <a href="/dashboard/" class="header-button dashboard">Dashboard</a>
+                    <button onclick="logout()" class="header-button logout">Sign Out</button>
+                `;
+                loggedInContent.style.display = 'block';
+                loggedOutContent.style.display = 'none';
             } else {
-                btn.textContent = "❌ Error"; btn.disabled = false;
-                status.textContent = "Error saving. Please try again.";
-                status.style.color = "#DC2626";
+                authContainer.innerHTML = `
+                    <a href="/login/" class="header-button login">Log In</a>
+                    <a href="/signup/" class="header-button signup">Sign Up</a>
+                `;
+                loggedInContent.style.display = 'none';
+                loggedOutContent.style.display = 'block';
             }
         }
-        
 
         async function logout() {
             await sb.auth.signOut();
@@ -539,7 +529,44 @@
             });
         });
 
-    
+        // --- SAVE ---
+      async function saveLesson() {
+            if (!currentUser) return;
+            
+            const btn = document.getElementById('save-btn');
+            const status = document.getElementById('save-status');
+            
+            // 1. Update UI to "Processing"
+            btn.disabled = true;
+            btn.textContent = "Processing...";
+            
+            // 2. Database Call using Global Variables
+            const { error } = await sb.from('lessons').upsert([{
+                user_id: currentUser.id,
+                lesson_title: lessonTitle,  // Uses variable defined at top
+                lesson_link: lessonLink,    // Uses variable defined at top
+                lesson_level: lessonLevel,  // Uses variable defined at top
+                vocabulary: VOCAB_LIST,
+                completed_at: new Date().toISOString()
+            }], { onConflict: 'user_id,lesson_title' });
+
+            // 3. Feedback & Redirect
+            if (error) {
+                console.error(error);
+                btn.textContent = "❌ Error";
+                status.textContent = "Connection failed. Retry.";
+                status.style.color = "#DC2626";
+                btn.disabled = false;
+            } else {
+                btn.textContent = "✅ Saved!";
+                btn.style.backgroundColor = "#16A34A"; // Green success
+                status.textContent = "Data uploaded securely.";
+                status.style.color = "#166534";
+                
+                // 4. The Missing Redirect
+                setTimeout(() => window.location.href = '/dashboard/', 1500);
+            }
+        }
 
         // Init
         checkUser();
