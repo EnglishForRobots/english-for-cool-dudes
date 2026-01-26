@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corporate Empires - English For Cool Dudes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* --- BRANDING & RESET --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; 
+            background: #F0F4F8; /* Light Corporate Blue */
+            color: #1E293B; /* Slate 800 */
+            line-height: 1.6; 
+        }
+
+        /* --- THEME: CORPORATE EQUITY (Navy/Gold) 🏢 --- */
+        :root {
+            --color-primary: #1E3A8A; /* Navy Blue */
+            --color-secondary: #D97706; /* Gold/Amber */
+            --color-accent: #3B82F6; /* Bright Blue */
+            --color-white: #FFFFFF;
+            --color-correct: #10B981; 
+            --color-incorrect: #EF4444; 
+        }
+
+        /* Header */
+        .header { background: white; border-bottom: 1px solid #CBD5E1; padding: 20px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .header-content { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .logo { width: 40px; height: 40px; background: linear-gradient(135deg, var(--color-primary) 0%, #172554 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; }
+        .site-title { font-size: 20px; font-weight: 800; color: var(--color-primary); text-decoration: none; }
+        
+        /* Auth Buttons */
+        .header-buttons { display: flex; align-items: center; gap: 8px; }
+        .header-button { text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; transition: all 0.2s; cursor: pointer; border: 1px solid #CBD5E1; background: transparent; }
+        .header-button.login { background: white; color: var(--color-primary); }
+        .header-button.signup { background: var(--color-secondary); color: white; border-color: var(--color-secondary); }
+        .header-button.dashboard { background: #DBEAFE; color: var(--color-primary); border-color: #BFDBFE; }
+        .header-button.logout { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
+        .user-greeting { font-size: 14px; color: var(--color-primary); font-weight: 600; margin-right: 10px; }
+
+        /* Main Layout */
+        .container-main { max-width: 900px; margin: 40px auto; padding: 40px 30px; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #E2E8F0; }
+        .lesson-main-title { font-size: 2.5em; font-weight: 900; color: var(--color-primary); margin-bottom: 10px; }
+        .lesson-subtitle { font-size: 1.1em; color: #64748B; margin-bottom: 40px; }
+        
+        /* Sections */
+        .lesson-section { background: #F8FAFC; padding: 35px; border-radius: 12px; border: 1px solid #E2E8F0; margin-bottom: 40px; }
+        .section-title { color: var(--color-primary); font-size: 1.6em; font-weight: 800; margin-bottom: 25px; border-bottom: 2px solid #E2E8F0; padding-bottom: 10px; }
+
+        /* Reading Text */
+        .reading-text { font-size: 1.1em; line-height: 1.8; color: #334155; border-left: 4px solid var(--color-secondary); padding-left: 20px; }
+        .highlight-word { background: #FEF3C7; color: #92400E; padding: 0 4px; font-weight: 700; cursor: help; border-radius: 4px; transition: 0.2s; border-bottom: 1px dashed #D97706; }
+        .highlight-word:hover { background: var(--color-secondary); color: white; }
+
+        /* Exercise 1: True/False */
+        .question-box { margin-bottom: 20px; }
+        .comp-btn-group .option-button { 
+            display: block; width: 100%; text-align: left; padding: 12px 15px; margin-bottom: 8px;
+            background: white; border: 1px solid #CBD5E1; border-radius: 8px; font-weight: 600; 
+            cursor: pointer; transition: 0.2s; color: #475569;
+        }
+        .comp-btn-group .option-button:hover { border-color: var(--color-primary); background: #EFF6FF; }
+        .comp-btn-group .option-button.selected { background: #DBEAFE; border-color: var(--color-primary); color: var(--color-primary); }
+        .comp-btn-group .option-button.correct { background: #DCFCE7 !important; border-color: #16A34A !important; color: #166534 !important; }
+        .comp-btn-group .option-button.incorrect { background: #FEE2E2 !important; border-color: #EF4444 !important; color: #991B1B !important; }
+
+        /* Exercise 2: Gap Fill */
+        .word-bank { background: #E2E8F0; padding: 20px; border-radius: 8px; margin-bottom: 25px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; border: 1px solid #CBD5E1; }
+        .bank-word { 
+            background: white; padding: 8px 16px; border-radius: 6px; 
+            font-weight: 700; cursor: pointer; color: var(--color-primary); 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #CBD5E1; transition: 0.2s;
+        }
+        .bank-word:hover { transform: translateY(-2px); border-color: var(--color-primary); }
+        .bank-word.selected { background: var(--color-primary); color: white; }
+        .bank-word.used { opacity: 0.4; pointer-events: none; background: #94A3B8; color: white; box-shadow: none; }
+
+        .gap-input { 
+            display: inline-block; min-width: 120px; height: 32px; border-bottom: 2px dashed var(--color-primary); 
+            text-align: center; font-weight: 700; cursor: pointer; margin: 0 4px; color: var(--color-primary); vertical-align: bottom;
+        }
+        .gap-input.filled { border-bottom-style: solid; background: #EFF6FF; }
+        .gap-input.correct { border-bottom-color: #16A34A !important; color: #16A34A !important; background: #F0FDF4; }
+        .gap-input.incorrect { border-bottom-color: #EF4444 !important; color: #EF4444 !important; background: #FEF2F2; }
+
+        /* Exercise 3: Collocations */
+        .collocation-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; background: white; padding: 15px; border-radius: 8px; border: 1px solid #E2E8F0; }
+        .collocation-text { font-weight: 600; font-size: 1.1em; }
+        .collocation-select { padding: 8px; border-radius: 6px; border: 1px solid #CBD5E1; font-size: 1em; background: #F8FAFC; cursor: pointer; }
+        .collocation-select.correct { border-color: #16A34A; background: #DCFCE7; color: #166534; }
+        .collocation-select.incorrect { border-color: #EF4444; background: #FEE2E2; color: #991B1B; }
+
+        /* Buttons & Feedback */
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-action { 
+            background: var(--color-primary); color: white; padding: 12px 24px; border: none; 
+            border-radius: 99px; font-weight: 700; cursor: pointer; font-size: 1em; transition: 0.2s;
+        }
+        .btn-action:hover { background: #172554; }
+        .btn-reset { background: #94A3B8; }
+        .btn-reset:hover { background: #64748B; }
+        .result-msg { margin-top: 15px; font-weight: 700; display: none; padding: 10px; border-radius: 8px; text-align: center; }
+        .result-msg.correct { background: #DCFCE7; color: #166534; border: 1px solid #86EFAC; }
+        .result-msg.incorrect { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+
+        /* NEW: Learned Words List (Recap) */
+        #learned-words-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; list-style: none; margin-bottom: 30px; }
+        #learned-words-list li { 
+            background: white; border: 2px solid #CBD5E1; color: var(--color-primary);
+            padding: 10px; border-radius: 8px; text-align: center; font-weight: 700; 
+            cursor: pointer; transition: all 0.2s; font-size: 0.9em;
+        }
+        #learned-words-list li:hover { border-color: var(--color-secondary); color: var(--color-secondary); transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+        /* Save Section */
+        #save-section { background: #EFF6FF; border: 2px solid #BFDBFE; padding: 30px; border-radius: 12px; text-align: center; margin-top: 40px; }
+        #save-btn { background: var(--color-secondary); color: white; width: 100%; max-width: 300px; padding: 14px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; font-size: 1.1em; transition: 0.2s; box-shadow: 0 4px #92400E; }
+        #save-btn:hover { background: #B45309; }
+        #save-btn:active { transform: translateY(4px); box-shadow: none; }
+
+        /* Popup */
+        #dictionary-popup {
+            position: fixed; max-width: 300px; background: white; border-left: 5px solid var(--color-secondary);
+            padding: 20px; border-radius: 8px; z-index: 2000; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.15); font-size: 0.95em;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">🏢</span>
+                <a href="/legal/" class="site-title">English For Cool Dudes</a>
+            </div>
+            <div id="auth-container" class="header-buttons">
+                </div>
+        </div>
+    </header>
+
+    <div class="container-main">
+        <h1 class="lesson-main-title">🏢 Corporate Empires</h1>
+        <p class="lesson-subtitle">Upper-Intermediate Legal English: Equity, Ownership, and Structure.</p>
+
+        <section class="lesson-section">
+            <h2 class="section-title">📊 1. Structure Analysis</h2>
+            <div class="reading-text">
+                <p class="mb-4"><strong>Scenario:</strong> OmniGroup Inc. is a large <span class="highlight-word" onclick="showPopup(this, 'Holding Company')">holding company</span> based in Delaware. It does not produce goods itself; instead, it owns a <span class="highlight-word" onclick="showPopup(this, 'Majority Stake')">majority stake</span> (51% or more) in several other businesses.</p>
+                <p class="mb-4">Recently, OmniGroup acquired 100% of the <span class="highlight-word" onclick="showPopup(this, 'Equity')">equity</span> in TechStart Ltd, making TechStart a <span class="highlight-word" onclick="showPopup(this, 'Wholly-owned Subsidiary')">wholly-owned subsidiary</span>. OmniGroup also purchased 40% of GreenEnergy Co., giving them significant influence but not full control. To finance these deals, OmniGroup <span class="highlight-word" onclick="showPopup(this, 'Issued')">issued</span> new shares to private investors.</p>
+                <p>Next month, the board of directors will meet to decide whether to reinvest profits or <span class="highlight-word" onclick="showPopup(this, 'Declare')">declare</span> a <span class="highlight-word" onclick="showPopup(this, 'Dividend')">dividend</span> for the shareholders.</p>
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <h3 class="font-bold text-lg mb-4 text-slate-700">Test Your Understanding:</h3>
+                
+                <div class="question-box">
+                    <p class="font-semibold mb-2">1. TechStart Ltd is partially owned by outside investors.</p>
+                    <div class="comp-btn-group">
+                        <button class="option-button" data-correct="false">True</button>
+                        <button class="option-button" data-correct="true">False (It is wholly-owned)</button>
+                    </div>
+                </div>
+
+                <div class="question-box">
+                    <p class="font-semibold mb-2">2. OmniGroup is the Parent Company of GreenEnergy Co.</p>
+                    <div class="comp-btn-group">
+                        <button class="option-button" data-correct="false">True</button>
+                        <button class="option-button" data-correct="true">False (They only own 40%)</button>
+                    </div>
+                </div>
+
+                <div class="question-box">
+                    <p class="font-semibold mb-2">3. A "Holding Company" usually manufactures products directly.</p>
+                    <div class="comp-btn-group">
+                        <button class="option-button" data-correct="false">True</button>
+                        <button class="option-button" data-correct="true">False</button>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn-action" onclick="checkComprehension()">Check Analysis</button>
+                    <button class="btn-action btn-reset" onclick="resetComprehension()">Reset</button>
+                </div>
+                <div id="comp-result" class="result-msg"></div>
+            </div>
+        </section>
+
+        <section class="lesson-section">
+            <h2 class="section-title">📧 2. The Shareholder Letter</h2>
+            <p class="mb-4 text-gray-600">Complete the formal letter using the correct equity terminology.</p>
+            
+            <div class="word-bank">
+                <span class="bank-word" data-word="subsidiary">subsidiary</span>
+                <span class="bank-word" data-word="dividends">dividends</span>
+                <span class="bank-word" data-word="shareholders">shareholders</span>
+                <span class="bank-word" data-word="assets">assets</span>
+                <span class="bank-word" data-word="acquisition">acquisition</span>
+                <span class="bank-word" data-word="capital">capital</span>
+            </div>
+
+            <div style="background: white; padding: 30px; border: 1px solid #CBD5E1; border-radius: 4px; box-shadow: 2px 2px 10px rgba(0,0,0,0.05);">
+                <p class="mb-4"><strong>Dear Investor,</strong></p>
+                <p class="mb-4">We are pleased to announce the successful <span class="gap-input" data-answer="acquisition"></span> of SolarFlow Inc.</p>
+                <p class="mb-4">SolarFlow will operate as a separate <span class="gap-input" data-answer="subsidiary"></span> within our group. This deal adds significant valuable <span class="gap-input" data-answer="assets"></span> to our portfolio, specifically their patented solar technology.</p>
+                <p class="mb-4">To raise the necessary <span class="gap-input" data-answer="capital"></span> for this purchase, we did not take on debt. Instead, we used retained earnings.</p>
+                <p class="mb-4">Because of this strong performance, the Board has approved a payment of <span class="gap-input" data-answer="dividends"></span> to all registered <span class="gap-input" data-answer="shareholders"></span> next quarter.</p>
+                <p>Sincerely,<br>The Board of Directors</p>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-action" onclick="checkGaps()">Check Letter</button>
+                <button class="btn-action btn-reset" onclick="resetGaps()">Reset</button>
+            </div>
+            <div id="gap-result" class="result-msg"></div>
+        </section>
+
+        <section class="lesson-section">
+            <h2 class="section-title">🔗 3. Corporate Collocations</h2>
+            <p class="mb-6 text-gray-600">Match the correct verb to the noun. In Legal English, precision is key.</p>
+
+            <div class="collocation-row">
+                <span class="collocation-text">1. To ___________ shares to new investors.</span>
+                <select class="collocation-select" data-answer="issue">
+                    <option value="">Select verb...</option>
+                    <option value="make">make</option>
+                    <option value="issue">issue</option>
+                    <option value="do">do</option>
+                </select>
+            </div>
+
+            <div class="collocation-row">
+                <span class="collocation-text">2. To ___________ a dividend.</span>
+                <select class="collocation-select" data-answer="declare">
+                    <option value="">Select verb...</option>
+                    <option value="say">say</option>
+                    <option value="speak">speak</option>
+                    <option value="declare">declare</option>
+                </select>
+            </div>
+
+            <div class="collocation-row">
+                <span class="collocation-text">3. To ___________ a stake in a company.</span>
+                <select class="collocation-select" data-answer="acquire">
+                    <option value="">Select verb...</option>
+                    <option value="acquire">acquire</option>
+                    <option value="catch">catch</option>
+                    <option value="win">win</option>
+                </select>
+            </div>
+
+            <div class="collocation-row">
+                <span class="collocation-text">4. To ___________ capital. (Get money for business)</span>
+                <select class="collocation-select" data-answer="raise">
+                    <option value="">Select verb...</option>
+                    <option value="rise">rise</option>
+                    <option value="raise">raise</option>
+                    <option value="lift">lift</option>
+                </select>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-action" onclick="checkCollocations()">Check Collocations</button>
+                <button class="btn-action btn-reset" onclick="resetCollocations()">Reset</button>
+            </div>
+            <div id="coll-result" class="result-msg"></div>
+        </section>
+
+        <section id="save-section">
+            <h2 class="text-xl font-bold mb-6 text-slate-800">📚 Words You've Learned</h2>
+            
+            <ul id="learned-words-list">
+                <li data-word="Holding Company">Holding Company</li>
+                <li data-word="Majority Stake">Majority Stake</li>
+                <li data-word="Equity">Equity</li>
+                <li data-word="Subsidiary">Subsidiary</li>
+                <li data-word="Wholly-owned">Wholly-owned</li>
+                <li data-word="Dividend">Dividend</li>
+                <li data-word="Issue">Issue (Shares)</li>
+                <li data-word="Acquisition">Acquisition</li>
+                <li data-word="Capital">Capital</li>
+                <li data-word="Shareholder">Shareholder</li>
+            </ul>
+
+            <div id="loggedin-content" style="display:none; margin-top: 25px;">
+                <p class="mb-4 text-slate-600">Save these 10 corporate terms to your personal dashboard.</p>
+                <button id="save-btn" onclick="saveLesson()">Save to Dashboard</button>
+                <p id="save-status" class="mt-3 font-bold"></p>
+            </div>
+            <div id="loggedout-content" style="margin-top: 25px;">
+                <p class="mb-4 text-slate-600">Log in to save your vocabulary list.</p>
+                <a href="/login/" class="inline-block bg-slate-800 text-white font-bold py-2 px-6 rounded hover:bg-black">Log In Now</a>
+            </div>
+        </section>
+
+    </div>
+
+    <div id="dictionary-popup"></div>
+
+    <script>
+        // CONFIG
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null;
+
+      const lessonTitle = "Corporate Empires";
+        const lessonLink = "/corporateempires/";
+        const lessonLevel = "Legal B1-B2";
+
+        const VOCAB_LIST = [
+            { word: "Holding Company", type: "noun", definition: "A company created to buy and possess the shares of other companies, which it then controls." },
+            { word: "Majority Stake", type: "noun", definition: "Ownership of more than 50% of a company's shares, giving control." },
+            { word: "Equity", type: "noun", definition: "The value of the shares issued by a company." },
+            { word: "Subsidiary", type: "noun", definition: "A company controlled by a holding company." },
+            { word: "Wholly-owned", type: "adjective", definition: "100% owned by the parent company." },
+            { word: "Dividend", type: "noun", definition: "A sum of money paid regularly by a company to its shareholders out of its profits." },
+            { word: "Issue", type: "verb", definition: "To supply or distribute shares to investors." },
+            { word: "Acquisition", type: "noun", definition: "An asset or object bought or obtained, typically by a library or museum." }, 
+            { word: "Capital", type: "noun", definition: "Wealth in the form of money or other assets owned by a person or organization." },
+            { word: "Shareholder", type: "noun", definition: "An owner of shares in a company." }
+        ];
+
+        // --- AUTH ---
+        async function checkUser() {
+            const { data: { user } } = await sb.auth.getUser();
+            const authContainer = document.getElementById('auth-container');
+            const loggedInContent = document.getElementById('loggedin-content');
+            const loggedOutContent = document.getElementById('loggedout-content');
+
+            if (user) {
+                currentUser = user;
+                authContainer.innerHTML = `
+                    <span class="user-greeting">Hi ${user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Pro'}!</span>
+                    <a href="/dashboard/" class="header-button dashboard">Dashboard</a>
+                    <button onclick="logout()" class="header-button logout">Sign Out</button>
+                `;
+                loggedInContent.style.display = 'block';
+                loggedOutContent.style.display = 'none';
+            } else {
+                authContainer.innerHTML = `
+                    <a href="/login/" class="header-button login">Log In</a>
+                    <a href="/signup/" class="header-button signup">Sign Up</a>
+                `;
+                loggedInContent.style.display = 'none';
+                loggedOutContent.style.display = 'block';
+            }
+        }
+
+        async function logout() {
+            await sb.auth.signOut();
+            window.location.reload();
+        }
+
+        // --- POPUP LOGIC ---
+        function showPopup(target, word) {
+            // Find rough match
+            const wObj = VOCAB_LIST.find(w => w.word.toLowerCase().includes(word.toLowerCase())) || VOCAB_LIST.find(w => word.toLowerCase().includes(w.word.toLowerCase()));
+            
+            if(!wObj) return;
+
+            const popup = document.getElementById('dictionary-popup');
+            popup.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <strong style="color:var(--color-primary); font-size:1.1em;">${wObj.word}</strong>
+                    <button onclick="playAudio('${wObj.word}')" style="background:#E2E8F0; border:none; width:28px; height:28px; border-radius:50%; cursor:pointer;">🔊</button>
+                </div>
+                <div style="color:#475569;">${wObj.definition}</div>
+            `;
+            
+            popup.style.display = 'block';
+            const rect = target.getBoundingClientRect();
+            popup.style.top = (rect.bottom + 8) + 'px';
+            popup.style.left = rect.left + 'px';
+
+            document.addEventListener('click', function close(e) {
+                if (!popup.contains(e.target) && e.target !== target) {
+                    popup.style.display = 'none';
+                    document.removeEventListener('click', close);
+                }
+            });
+        }
+
+        function playAudio(text) {
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+        }
+
+        // --- EXERCISE 1: TRUE/FALSE ---
+        document.querySelectorAll('.option-button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.parentElement.querySelectorAll('.option-button').forEach(b => b.classList.remove('selected', 'correct', 'incorrect'));
+                this.classList.add('selected');
+            });
+        });
+
+        function checkComprehension() {
+            let correct = 0;
+            const questions = document.querySelectorAll('.question-box');
+            questions.forEach(q => {
+                const sel = q.querySelector('.selected');
+                if (sel && sel.dataset.correct === 'true') {
+                    sel.classList.add('correct');
+                    correct++;
+                } else if (sel) {
+                    sel.classList.add('incorrect');
+                }
+            });
+            const res = document.getElementById('comp-result');
+            res.style.display = 'block';
+            res.className = correct === questions.length ? 'result-msg correct' : 'result-msg incorrect';
+            res.textContent = `You got ${correct} / ${questions.length} correct.`;
+        }
+        
+        function resetComprehension() {
+            document.querySelectorAll('.option-button').forEach(b => b.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById('comp-result').style.display = 'none';
+        }
+
+        // --- EXERCISE 2: GAP FILL ---
+        let selectedWord = null;
+        document.querySelectorAll('.bank-word').forEach(w => {
+            w.addEventListener('click', function() {
+                if (this.classList.contains('used')) return;
+                document.querySelectorAll('.bank-word').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedWord = this;
+            });
+        });
+
+        document.querySelectorAll('.gap-input').forEach(gap => {
+            gap.addEventListener('click', function() {
+                if (selectedWord) {
+                    // If filling a gap, return old word
+                    if (this.textContent) {
+                        const oldText = this.textContent;
+                        const oldBtn = Array.from(document.querySelectorAll('.bank-word')).find(b => b.dataset.word === oldText);
+                        if (oldBtn) oldBtn.classList.remove('used');
+                    }
+                    this.textContent = selectedWord.dataset.word;
+                    this.classList.add('filled');
+                    selectedWord.classList.add('used');
+                    selectedWord.classList.remove('selected');
+                    selectedWord = null;
+                } else if (this.textContent) {
+                    // Clearing a gap
+                    const text = this.textContent;
+                    const btn = Array.from(document.querySelectorAll('.bank-word')).find(b => b.dataset.word === text);
+                    if (btn) btn.classList.remove('used');
+                    this.textContent = '';
+                    this.classList.remove('filled');
+                }
+            });
+        });
+
+        function checkGaps() {
+            let correct = 0;
+            const gaps = document.querySelectorAll('.gap-input');
+            gaps.forEach(g => {
+                g.classList.remove('correct', 'incorrect');
+                if (g.textContent === g.dataset.answer) {
+                    g.classList.add('correct');
+                    correct++;
+                } else {
+                    g.classList.add('incorrect');
+                }
+            });
+            const res = document.getElementById('gap-result');
+            res.style.display = 'block';
+            res.className = correct === gaps.length ? 'result-msg correct' : 'result-msg incorrect';
+            res.textContent = `You got ${correct} / ${gaps.length} correct.`;
+        }
+
+        function resetGaps() {
+            document.querySelectorAll('.gap-input').forEach(g => {
+                g.textContent = '';
+                g.classList.remove('correct', 'incorrect', 'filled');
+            });
+            document.querySelectorAll('.bank-word').forEach(w => w.classList.remove('used', 'selected'));
+            document.getElementById('gap-result').style.display = 'none';
+        }
+
+        // --- EXERCISE 3: COLLOCATIONS ---
+        function checkCollocations() {
+            let correct = 0;
+            const selects = document.querySelectorAll('.collocation-select');
+            selects.forEach(s => {
+                s.classList.remove('correct', 'incorrect');
+                if (s.value === s.dataset.answer) {
+                    s.classList.add('correct');
+                    correct++;
+                } else {
+                    s.classList.add('incorrect');
+                }
+            });
+            const res = document.getElementById('coll-result');
+            res.style.display = 'block';
+            res.className = correct === selects.length ? 'result-msg correct' : 'result-msg incorrect';
+            res.textContent = `You got ${correct} / ${selects.length} correct.`;
+        }
+
+        function resetCollocations() {
+            document.querySelectorAll('.collocation-select').forEach(s => {
+                s.value = "";
+                s.classList.remove('correct', 'incorrect');
+            });
+            document.getElementById('coll-result').style.display = 'none';
+        }
+
+        // --- VOCAB LIST CLICKS ---
+        document.querySelectorAll('#learned-words-list li').forEach(li => {
+            li.addEventListener('click', function(e) {
+                e.stopPropagation();
+                showPopup(this, this.dataset.word);
+            });
+        });
+
+        // --- SAVE ---
+        async function saveLesson() {
+            if (!currentUser) return;
+            const btn = document.getElementById('save-btn');
+            const status = document.getElementById('save-status');
+            btn.disabled = true;
+            btn.textContent = "Saving...";
+            
+            const { error } = await sb.from('lessons').upsert([{
+                user_id: currentUser.id,
+                lesson_title: "Corporate Empires",
+                lesson_link: window.location.pathname,
+                lesson_level: "Upper-Intermediate",
+                vocabulary: VOCAB_LIST,
+                completed_at: new Date().toISOString()
+            }], { onConflict: 'user_id,lesson_title' });
+
+            if (error) {
+                btn.textContent = "Error";
+                status.textContent = "❌ Save failed.";
+                status.style.color = "red";
+                btn.disabled = false;
+            } else {
+                btn.textContent = "Saved!";
+                status.textContent = "✅ Added to dashboard!";
+                status.style.color = "#166534";
+            }
+        }
+
+        // Init
+        checkUser();
+
+    </script>
+</body>
+</html>
