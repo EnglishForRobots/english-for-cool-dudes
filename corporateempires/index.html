@@ -311,7 +311,8 @@
         const lessonLink = "/corporateempires/";
         const lessonLevel = "Legal B1-B2";
 
-        const VOCAB_LIST = [
+        const wordsToSave = [
+            // Main Lesson Vocabulary
             { word: "Holding Company", type: "noun", definition: "A company created to buy and possess the shares of other companies, which it then controls." },
             { word: "Majority Stake", type: "noun", definition: "Ownership of more than 50% of a company's shares, giving control." },
             { word: "Equity", type: "noun", definition: "The value of the shares issued by a company." },
@@ -323,6 +324,8 @@
             { word: "Capital", type: "noun", definition: "Wealth in the form of money or other assets owned by a person or organization." },
             { word: "Shareholder", type: "noun", definition: "An owner of shares in a company." }
         ];
+
+     
 
         // --- AUTH ---
         async function checkUser() {
@@ -518,45 +521,29 @@
             });
         });
 
-      async function saveLesson() {
+     async function saveWordsToDashboard() {
             if (!currentUser) return;
-            
-            const btn = document.getElementById('save-btn');
+            const btn = document.getElementById('save-words-btn');
             const status = document.getElementById('save-status');
-            
-            // 1. Update UI to "Processing" state
-            btn.disabled = true;
-            btn.textContent = "Processing...";
-            
-            // 2. Perform the Upsert using the GLOBAL variables defined at the top
-            // (Your previous version hardcoded strings which can cause mismatches)
+            btn.disabled = true; btn.textContent = "Saving...";
+
             const { error } = await sb.from('lessons').upsert([{
-                user_id: currentUser.id,
-                lesson_title: lessonTitle, 
-                lesson_link: lessonLink,
-                lesson_level: lessonLevel,
-                vocabulary: VOCAB_LIST,
-                completed_at: new Date().toISOString()
+                user_id: currentUser.id, lesson_title: lessonTitle, lesson_link: lessonLink,
+                lesson_level: lessonLevel, vocabulary: wordsToSave, completed_at: new Date().toISOString()
             }], { onConflict: 'user_id,lesson_title' });
 
             if (!error) {
-                // 3. Success Feedback (Match aipolicing style)
-                btn.textContent = "✅ Saved!";
-                btn.style.backgroundColor = "#15803D"; // Force Green Color
-                status.textContent = "Data uploaded securely.";
-                status.style.color = "#166534";
-
-                // 4. THE MISSING REDIRECT
+                btn.textContent = "✅ Saved!"; btn.style.backgroundColor = "#059669";
+                status.textContent = "Vocabulary secured! Check your dashboard.";
+                status.style.color = "#059669";
                 setTimeout(() => window.location.href = '/dashboard/', 1500);
             } else {
-                // Error Handling
-                console.error(error);
-                btn.textContent = "❌ Error";
-                btn.disabled = false;
-                status.textContent = "Connection failed. Retry.";
+                btn.textContent = "❌ Error"; btn.disabled = false;
+                status.textContent = "Error saving. Please try again.";
                 status.style.color = "#DC2626";
             }
         }
+        
 
         // Init
         checkUser();
