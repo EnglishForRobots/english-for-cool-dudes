@@ -329,29 +329,47 @@
 
         // --- AUTH ---
         async function checkUser() {
-            const { data: { user } } = await sb.auth.getUser();
-            const authContainer = document.getElementById('auth-container');
-            const loggedInContent = document.getElementById('loggedin-content');
-            const loggedOutContent = document.getElementById('loggedout-content');
+            try {
+                const { data: { user } } = await sb.auth.getUser();
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('logged-in-buttons').style.display = 'flex';
+                    document.getElementById('logged-out-buttons').style.display = 'none';
+                    document.getElementById('save-feature-loggedin').style.display = 'block';
+                    document.getElementById('login-prompt').style.display = 'none';
+                    const name = user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Cool Dude';
+                    document.getElementById('user-greeting').textContent = `Hey ${name}! 👋`;
+                } else {
+                    document.getElementById('logged-in-buttons').style.display = 'none';
+                    document.getElementById('logged-out-buttons').style.display = 'flex';
+                    document.getElementById('save-feature-loggedin').style.display = 'none';
+                    document.getElementById('login-prompt').style.display = 'block';
+                }
+            } catch (err) { console.error(err); }
+        }
+         async function saveWordsToDashboard() {
+            if (!currentUser) return;
+            const btn = document.getElementById('save-words-btn');
+            const status = document.getElementById('save-status');
+            btn.disabled = true; btn.textContent = "Saving...";
 
-            if (user) {
-                currentUser = user;
-                authContainer.innerHTML = `
-                    <span class="user-greeting">Hi ${user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Pro'}!</span>
-                    <a href="/dashboard/" class="header-button dashboard">Dashboard</a>
-                    <button onclick="logout()" class="header-button logout">Sign Out</button>
-                `;
-                loggedInContent.style.display = 'block';
-                loggedOutContent.style.display = 'none';
+            const { error } = await sb.from('lessons').upsert([{
+                user_id: currentUser.id, lesson_title: lessonTitle, lesson_link: lessonLink,
+                lesson_level: lessonLevel, vocabulary: wordsToSave, completed_at: new Date().toISOString()
+            }], { onConflict: 'user_id,lesson_title' });
+
+            if (!error) {
+                btn.textContent = "✅ Saved!"; btn.style.backgroundColor = "#059669";
+                status.textContent = "Vocabulary secured! Check your dashboard.";
+                status.style.color = "#059669";
+                setTimeout(() => window.location.href = '/dashboard/', 1500);
             } else {
-                authContainer.innerHTML = `
-                    <a href="/login/" class="header-button login">Log In</a>
-                    <a href="/signup/" class="header-button signup">Sign Up</a>
-                `;
-                loggedInContent.style.display = 'none';
-                loggedOutContent.style.display = 'block';
+                btn.textContent = "❌ Error"; btn.disabled = false;
+                status.textContent = "Error saving. Please try again.";
+                status.style.color = "#DC2626";
             }
         }
+        
 
         async function logout() {
             await sb.auth.signOut();
@@ -521,29 +539,7 @@
             });
         });
 
-     async function saveWordsToDashboard() {
-            if (!currentUser) return;
-            const btn = document.getElementById('save-words-btn');
-            const status = document.getElementById('save-status');
-            btn.disabled = true; btn.textContent = "Saving...";
-
-            const { error } = await sb.from('lessons').upsert([{
-                user_id: currentUser.id, lesson_title: lessonTitle, lesson_link: lessonLink,
-                lesson_level: lessonLevel, vocabulary: wordsToSave, completed_at: new Date().toISOString()
-            }], { onConflict: 'user_id,lesson_title' });
-
-            if (!error) {
-                btn.textContent = "✅ Saved!"; btn.style.backgroundColor = "#059669";
-                status.textContent = "Vocabulary secured! Check your dashboard.";
-                status.style.color = "#059669";
-                setTimeout(() => window.location.href = '/dashboard/', 1500);
-            } else {
-                btn.textContent = "❌ Error"; btn.disabled = false;
-                status.textContent = "Error saving. Please try again.";
-                status.style.color = "#DC2626";
-            }
-        }
-        
+    
 
         // Init
         checkUser();
