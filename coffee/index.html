@@ -409,27 +409,29 @@
             });
         });
 
-    async function saveLesson() {
+    async function saveWordsToDashboard() {
             if (!currentUser) return;
             
-            const btn = document.getElementById('save-btn');
+            // 1. Target the correct Button ID (save-words-btn)
+            const btn = document.getElementById('save-words-btn');
             const status = document.getElementById('save-status');
             
-            // 1. Update UI to "Processing"
+            // 2. Update UI to "Processing"
             btn.disabled = true;
             btn.textContent = "Processing...";
             
-            // 2. Database Call using Global Variables
+            // 3. Database Call 
             const { error } = await sb.from('lessons').upsert([{
                 user_id: currentUser.id,
-                lesson_title: lessonTitle,  // Uses variable defined at top
-                lesson_link: lessonLink,    // Uses variable defined at top
-                lesson_level: lessonLevel,  // Uses variable defined at top
-                vocabulary: VOCAB_LIST,
+                lesson_title: lessonTitle,
+                lesson_link: lessonLink,
+                lesson_level: lessonLevel,
+                // FIXED: Changed 'VOCAB_LIST' to 'wordsToSave'
+                vocabulary: wordsToSave, 
                 completed_at: new Date().toISOString()
             }], { onConflict: 'user_id,lesson_title' });
 
-            // 3. Feedback & Redirect
+            // 4. Feedback & Redirect
             if (error) {
                 console.error(error);
                 btn.textContent = "❌ Error";
@@ -442,7 +444,7 @@
                 status.textContent = "Data uploaded securely.";
                 status.style.color = "#166534";
                 
-                // 4. The Missing Redirect
+                // 5. Redirect to Dashboard
                 setTimeout(() => window.location.href = '/dashboard/', 1500);
             }
         }
