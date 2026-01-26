@@ -409,26 +409,41 @@
             });
         });
 
-    async function saveWordsToDashboard() {
+    async function saveLesson() {
             if (!currentUser) return;
-            const btn = document.getElementById('save-words-btn');
+            
+            const btn = document.getElementById('save-btn');
             const status = document.getElementById('save-status');
-            btn.disabled = true; btn.textContent = "Saving...";
-
+            
+            // 1. Update UI to "Processing"
+            btn.disabled = true;
+            btn.textContent = "Processing...";
+            
+            // 2. Database Call using Global Variables
             const { error } = await sb.from('lessons').upsert([{
-                user_id: currentUser.id, lesson_title: lessonTitle, lesson_link: lessonLink,
-                lesson_level: lessonLevel, vocabulary: wordsToSave, completed_at: new Date().toISOString()
+                user_id: currentUser.id,
+                lesson_title: lessonTitle,  // Uses variable defined at top
+                lesson_link: lessonLink,    // Uses variable defined at top
+                lesson_level: lessonLevel,  // Uses variable defined at top
+                vocabulary: VOCAB_LIST,
+                completed_at: new Date().toISOString()
             }], { onConflict: 'user_id,lesson_title' });
 
-            if (!error) {
-                btn.textContent = "✅ Saved!"; btn.style.backgroundColor = "#059669";
-                status.textContent = "Vocabulary secured! Check your dashboard.";
-                status.style.color = "#059669";
-                setTimeout(() => window.location.href = '/dashboard/', 1500);
-            } else {
-                btn.textContent = "❌ Error"; btn.disabled = false;
-                status.textContent = "Error saving. Please try again.";
+            // 3. Feedback & Redirect
+            if (error) {
+                console.error(error);
+                btn.textContent = "❌ Error";
+                status.textContent = "Connection failed. Retry.";
                 status.style.color = "#DC2626";
+                btn.disabled = false;
+            } else {
+                btn.textContent = "✅ Saved!";
+                btn.style.backgroundColor = "#16A34A"; // Green success
+                status.textContent = "Data uploaded securely.";
+                status.style.color = "#166534";
+                
+                // 4. The Missing Redirect
+                setTimeout(() => window.location.href = '/dashboard/', 1500);
             }
         }
     </script>
