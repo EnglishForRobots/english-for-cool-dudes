@@ -409,6 +409,25 @@
             });
         });
 
+        async function saveMistake(word) {
+            if (!currentUser) return;
+
+            // Find the word's definition from your list
+            const wordData = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase()) || 
+                             { definition: "Review this term" };
+
+            const { error } = await sb.from('mistakes').upsert([{
+                user_id: currentUser.id,
+                word: word,
+                definition: wordData.definition,
+                lesson: lessonTitle,
+                lesson_link: lessonLink,
+                last_made_at: new Date().toISOString()
+            }], { onConflict: 'user_id,word' });
+
+            if (error) console.error('Error saving mistake:', error);
+        }
+
     async function saveWordsToDashboard() {
             if (!currentUser) return;
             
