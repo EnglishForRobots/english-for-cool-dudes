@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cool-dudes-lessons-cache-v73'; // Increment version
+const CACHE_NAME = 'cool-dudes-lessons-cache-v74'; // Increment version
 const FONT_CACHE_NAME = 'cool-dudes-font-cache-v3';
 
 const essentialAssets = [
@@ -21,7 +21,7 @@ const essentialAssets = [
 
 // --- INSTALL EVENT ---
 self.addEventListener('install', (event) => {
-  console.log('[SW v73] Installing... (Core Assets Only)');
+  console.log('[SW v74] Installing... (Core Assets Only)');
   
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -30,13 +30,13 @@ self.addEventListener('install', (event) => {
         return Promise.allSettled(
           essentialAssets.map(asset => 
             cache.add(asset).catch(err => {
-              console.warn(`[SW v73] Failed to cache ${asset}:`, err.message);
+              console.warn(`[SW v74] Failed to cache ${asset}:`, err.message);
             })
           )
         );
       })
       .then(() => {
-        console.log('[SW v73] Install complete. Skip waiting...');
+        console.log('[SW v74] Install complete. Skip waiting...');
         return self.skipWaiting();
       })
   );
@@ -45,7 +45,7 @@ self.addEventListener('install', (event) => {
 // --- MESSAGE EVENT ---
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    console.log('[SW v73] Received SKIP_WAITING, activating now...');
+    console.log('[SW v74] Received SKIP_WAITING, activating now...');
     self.skipWaiting();
   }
 });
@@ -87,7 +87,7 @@ if (event.request.url.includes('supabase.co')) {
             // Cache in background
             caches.open(CACHE_NAME).then(cache => {
               cache.put(event.request, responseToCache).catch(err => {
-                console.warn('[SW v73] Cache put failed:', err);
+                console.warn('[SW v74] Cache put failed:', err);
               });
             });
           }
@@ -96,7 +96,7 @@ if (event.request.url.includes('supabase.co')) {
 
         } catch (error) {
           // Network failed - try cache
-          console.log('[SW v73] Offline mode. Checking cache for:', requestURL.pathname);
+          console.log('[SW v74] Offline mode. Checking cache for:', requestURL.pathname);
           const cache = await caches.open(CACHE_NAME);
           
           // Try exact match first
@@ -111,7 +111,7 @@ if (event.request.url.includes('supabase.co')) {
           }
 
           if (cachedResponse) {
-            console.log('[SW v73] Serving from cache:', requestURL.pathname);
+            console.log('[SW v74] Serving from cache:', requestURL.pathname);
             return cachedResponse;
           }
           
@@ -187,7 +187,7 @@ if (event.request.url.includes('supabase.co')) {
           // Clone before caching
           if (networkResponse && networkResponse.ok) {
             cache.put(event.request, networkResponse.clone()).catch(err => {
-              console.warn('[SW v73] Background cache failed:', err);
+              console.warn('[SW v74] Background cache failed:', err);
             });
           }
           return networkResponse;
@@ -205,7 +205,7 @@ if (event.request.url.includes('supabase.co')) {
 
 // --- ACTIVATE EVENT ---
 self.addEventListener('activate', (event) => {
-  console.log('[SW v73] Activating & cleaning old caches...');
+  console.log('[SW v74] Activating & cleaning old caches...');
   const cacheWhitelist = [CACHE_NAME, FONT_CACHE_NAME];
   
   event.waitUntil(
@@ -213,13 +213,13 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (!cacheWhitelist.includes(cacheName)) {
-            console.log('[SW v73] Deleting old cache:', cacheName);
+            console.log('[SW v74] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     }).then(() => {
-      console.log('[SW v73] Claiming clients...');
+      console.log('[SW v74] Claiming clients...');
       return self.clients.claim();
     })
   );
