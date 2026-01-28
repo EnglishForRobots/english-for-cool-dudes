@@ -1,16 +1,16 @@
 // tickerData.js
 // --- 1. DATA SOURCE ---
 const LESSON_STATES = [
+    { text: "☕ NEW! BEGINNER: The Legend of Coffee 🐐", href: "/coffee/" },
+    { text: "🚨 NEW! BUSINESS: Damage Control ❗", href: "/crisismanagement/" },
+    { text: "🐔 NEW! TAX: The Chicken Tax 🚚", href: "/chickentax/" },
+    { text: "🏢 NEW! LEGAL: Corporate Empires 💼", href: "/corporateempires/" },
+{ text: "🚨 NEW! INTERMEDIATE: AI on Patrol 👮", href: "/aipolicing/" },
+{ text: "🦶 NEW! ADVANCED: Aussie Lifestyle 📺", href: "/barefoot/" },
     { text: "🧠 NEW! ADVANCED: Advanced Discourse Markers 🖊️", href: "/discourse/" },
     { text: "💸 NEW! TAX: Crypto - Cashing Out! 😎", href: "/crypto/" },
     { text: "📺 NEW! ADVANCED: Hollywood 2.0: The AI Revolution 🎬", href: "/aivideos/" },
-    { text: "🤔 NEW! INTERMEDIATE: The Future: Resolutions 🔮", href: "/resolutionsint/" },
-    { text: "🔮 NEW! ADVANCED: The Future: Hopes and Fears 🤔", href: "/resolutions/" },
-    { text: "🎅🏻 NEW! TAX: The Audit Before Christmas 🎄", href: "/santatax/" },
-    { text: "🍷 NEW! ADVANCED: The Science and Culture of Mulled Wine 😎", href: "/mulledwine/" },
-    { text: "🎁 NEW! INTERMEDIATE: The History of Advent Calendars 😎", href: "/adventcalendarint/" },
-    { text: "🎅🏻 NEW! BEGINNER: The Advent Calendar 😎", href: "/adventcalendar/" },
-    { text: "🎵 NEW! LEGAL: Music vs. AI: The GEMA Ruling 😎", href: "/aicopyright/" },
+    
     
 ];
 
