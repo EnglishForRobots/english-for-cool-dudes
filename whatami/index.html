@@ -284,7 +284,8 @@
         clue: 1,
         riddle: null,
         isMulti: false,
-        usedIds: []
+        deck: [],     
+        deckIndex: 0
     };
 
     function setMode(isMulti) {
@@ -329,42 +330,68 @@
             alert('Add at least 2 players!');
             return;
         }
+        
+        // Reset Game State
         game.target = parseInt(document.getElementById('points').value);
         game.playerIdx = 0;
         game.round = 1;
+        game.deck = [];      // Clear the deck
+        game.deckIndex = 0;  // Reset position
+        
         if (!game.isMulti) game.players = [{ name: 'You', score: 0 }];
         else game.players.forEach(p => p.score = 0);
         
         document.getElementById('loading').style.display = 'flex';
-        await loadRiddle();
+
+        // --- NEW: BUILD THE DECK ---
+        const cat = document.getElementById('category').value;
+        const lvl = document.getElementById('level').value;
+        
+        let query = sb.from('riddles').select('*').eq('level', lvl);
+        if (cat !== 'random') query = query.eq('category', cat);
+        
+        const { data, error } = await query;
+        
+        if (error || !data || data.length === 0) {
+            document.getElementById('loading').style.display = 'none';
+            alert("No riddles found for these settings!");
+            return;
+        }
+
+        // Shuffle the data and save it
+        game.deck = shuffleArray(data);
+        // ---------------------------
+
+        // Load the first riddle from our new deck
+        loadRiddleFromDeck();
+        
         document.getElementById('loading').style.display = 'none';
         document.getElementById('setup').style.display = 'none';
         document.getElementById('game-area').style.display = 'block';
         updateUI();
     }
-
-    async function loadRiddle() {
-        const cat = document.getElementById('category').value;
-        const lvl = document.getElementById('level').value;
-        let query = sb.from('riddles').select('*').eq('level', lvl);
-        if (cat !== 'random') query = query.eq('category', cat);
-        if (game.usedIds.length > 0) query = query.not('id', 'in', `(${game.usedIds.join(',')})`);
-
-        const { data, error } = await query;
-        if (error || !data || data.length === 0) {
-            if (game.usedIds.length > 0) {
-                game.usedIds = [];
-                return loadRiddle();
-            }
-            alert("No more riddles available for this selection.");
+// Standard Fisher-Yates shuffle algorithm
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+    function loadRiddleFromDeck() {
+        // Check if we ran out of cards
+        if (game.deckIndex >= game.deck.length) {
+            alert("Wow! You've played every single riddle in this category! Game Over.");
             showSetup();
             return;
         }
 
-        game.riddle = data[Math.floor(Math.random() * data.length)];
-        game.usedIds.push(game.riddle.id);
+        // Pick the next card from the top of the deck
+        game.riddle = game.deck[game.deckIndex];
+        game.deckIndex++; // Move to next card for next round
+        
+        // Reset Clues UI
         game.clue = 1;
-
         for (let i = 1; i <= 4; i++) {
             const box = document.getElementById(`clue${i}`);
             const txt = document.getElementById(`clue${i}Text`);
@@ -524,7 +551,7 @@
             game.round++;
         }
         document.getElementById('loading').style.display = 'flex';
-        await loadRiddle();
+        loadRiddleFromDeck();
         document.getElementById('loading').style.display = 'none';
         updateUI();
     }
