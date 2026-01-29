@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <title>The Global Laundromat: AML Compliance - English For Cool Dudes</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* --- BRANDING & LAYOUT STYLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: #F1F5F9; /* Slate 100 - Cool Corporate Background */
+            color: #1E293B; /* Slate 800 */
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- THEME: COMPLIANCE & ALERT (Navy/Red) ⚖️ --- */
+        :root {
+            --color-primary: #1E3A8A; /* Corporate Navy Blue */
+            --color-secondary: #DC2626; /* Alert Red */
+            --color-accent: #64748B; /* Slate Grey */
+            --color-white: #FFFFFF;
+            
+            /* Feedback Colors */
+            --color-correct: #15803D; /* Green 700 */
+            --color-incorrect: #B91C1C; /* Red 700 */
+            
+            --color-save-btn: #1E3A8A; 
+        }
+
+        /* Header */
+        .header {
+            background: var(--color-white);
+            border-bottom: 3px solid var(--color-primary);
+            padding: 20px 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header-content {
+            max-width: 1200px; margin: 0 auto; padding: 0 20px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        
+        .logo {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, #1E3A8A 0%, #DC2626 100%); 
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            font-size: 24px; color: white; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .site-title { font-size: 22px; font-weight: 800; color: var(--color-primary); text-decoration: none; margin-left: 10px; }
+
+        /* Buttons */
+        .header-buttons { display: flex; align-items: center; gap: 8px; }
+        .header-button {
+            text-decoration: none; padding: 7px 14px; border-radius: 6px;
+            font-size: 14px; font-weight: 700; transition: all 0.2s;
+            white-space: nowrap; cursor: pointer; border: 1px solid #CBD5E1;
+            background: transparent;
+        }
+        .header-button.login { background: #F8FAFC; color: var(--color-primary); }
+        .header-button.login:hover { background: #FFFFFF; color: var(--color-secondary); border-color: var(--color-secondary); }
+        
+        .header-button.signup { background: var(--color-secondary); color: white; border-color: var(--color-secondary); }
+        .header-button.signup:hover { background: #991B1B; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3); }
+        
+        .header-button.dashboard { background: #EFF6FF; color: #1E40AF; border-color: #BFDBFE; }
+        .header-button.logout { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
+        
+        .user-greeting { font-size: 14px; color: var(--color-primary); font-weight: 700; margin-right: 5px; display: block; }
+
+        /* Container */
+        .container-main {
+            max-width: 900px; margin: 40px auto; padding: 40px 30px;
+            background-color: var(--color-white); border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #E2E8F0;
+        }
+
+        .lesson-main-title {
+            font-size: 2.8em; font-weight: 900; color: #0F172A; 
+            margin-bottom: 10px; letter-spacing: -0.03em; line-height: 1.2;
+        }
+
+        .lesson-section {
+            background-color: #F8FAFC; padding: 35px; border-radius: 12px;
+            border: 1px solid #E2E8F0; margin-bottom: 40px;
+        }
+
+        .section-title {
+            color: var(--color-primary); font-size: 1.6em; font-weight: 800;
+            margin-bottom: 25px; padding-bottom: 10px; border-bottom: 2px dashed #94A3B8;
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        /* Discussion Box */
+        .discussion-box {
+            background: #EFF6FF; border-left: 5px solid var(--color-primary);
+            padding: 20px; margin-bottom: 30px; border-radius: 0 8px 8px 0;
+        }
+
+        /* Reading Text (Email Style) */
+        .email-container {
+            background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 8px; overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .email-header {
+            background: #F1F5F9; padding: 15px 25px; border-bottom: 1px solid #E2E8F0;
+            font-size: 0.9em; color: #64748B; font-family: monospace; display: flex; justify-content: space-between;
+        }
+        .email-flag {
+            background: #FEE2E2; color: #991B1B; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8em; border: 1px solid #FECACA;
+        }
+        .reading-text {
+            padding: 30px; font-size: 1.15em; color: #334155; line-height: 1.8;
+        }
+        .highlight-word {
+            color: var(--color-secondary); font-weight: 700; cursor: help;
+            border-bottom: 2px dotted var(--color-secondary); transition: all 0.2s;
+            background-color: #FEF2F2; padding: 0 4px; border-radius: 4px;
+        }
+        .highlight-word:hover { background-color: var(--color-secondary); color: white; }
+
+        /* Match Cards */
+        .match-card {
+            border: 2px solid transparent; transition: all 0.3s ease;
+            cursor: pointer; user-select: none; border-radius: 12px; 
+            padding: 1.2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); font-weight: 600;
+            display: flex; align-items: center; justify-content: center; text-align: center;
+            min-height: 90px; opacity: 1; transform: scale(1);
+        }
+        .match-card.term {
+            background-color: #EFF6FF; border: 2px solid #BFDBFE; color: #1E3A8A;
+        }
+        .match-card.definition {
+            background-color: white; border: 2px solid #E2E8F0; color: #475569; font-size: 0.95em;
+        }
+        .match-card.selected {
+            border-color: var(--color-secondary); background-color: #FEE2E2; 
+            transform: translateY(-2px); box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2); color: #991B1B;
+        }
+        .match-card.matched { opacity: 0; pointer-events: none; transform: scale(0.9); transition: all 0.5s; }
+        .match-card.temp-matched {
+            background-color: #DCFCE7 !important; border-color: #059669 !important;
+            box-shadow: 0 0 0 4px #86EFAC !important; color: #065F46 !important;
+        }
+
+        /* Quiz Buttons */
+        .comp-btn-group .option-button {
+            transition: all 0.2s; background-color: white; color: #334155;
+            font-weight: 600; padding: 16px 20px; border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); border: 1px solid #CBD5E1;
+            text-align: left; width: 100%; cursor: pointer; margin-bottom: 12px;
+        }
+        .comp-btn-group .option-button:hover { border-color: var(--color-primary); background-color: #EFF6FF; }
+        .comp-btn-group .option-button.selected { background-color: #DBEAFE; border-color: var(--color-primary); color: var(--color-primary); }
+        .comp-btn-group .option-button.correct { background-color: #DCFCE7 !important; border-color: #15803D !important; color: #14532D !important; }
+        .comp-btn-group .option-button.incorrect { background-color: #FEE2E2 !important; border-color: #B91C1C !important; color: #991B1B !important; }
+
+        .result-message { margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: 700; display: none; text-align: center; }
+        .result-message.correct { background-color: #DCFCE7; color: #14532D; border: 1px solid #86EFAC; }
+        .result-message.incorrect { background-color: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+
+        /* Grammar Box */
+        .grammar-box {
+            background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+            border: 2px solid #64748B; border-radius: 12px; padding: 25px;
+        }
+        .grammar-title { color: #334155; font-size: 1.4em; font-weight: 800; margin-bottom: 15px; }
+        .grammar-rule { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--color-primary); }
+        .grammar-highlight { color: var(--color-primary); font-weight: 700; }
+
+        /* Gap Fill */
+        .word-bank { background: #F1F5F9; border: 2px solid #94A3B8; border-radius: 10px; }
+        .word-options { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .word-option {
+            background-color: white; color: #334155; padding: 10px 18px;
+            border-radius: 8px; cursor: pointer; transition: all 0.2s; font-weight: 700;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); border: 1px solid #CBD5E1;
+        }
+        .word-option:hover { background-color: var(--color-primary); color: white; transform: translateY(-2px); }
+        .word-option.selected { background-color: var(--color-secondary) !important; color: white !important; transform: scale(1.05); border-color: var(--color-secondary) !important; }
+        .word-option.used { opacity: 0.5; pointer-events: none; background-color: #94A3B8; color: #E2E8F0; transform: none; box-shadow: none; }
+
+        .gap-input {
+            display: inline-block; text-align: center; padding: 0 10px; min-width: 120px; 
+            height: 34px; line-height: 32px; background-color: #FFFFFF; border-bottom: 3px solid var(--color-secondary); 
+            border-radius: 6px; color: var(--color-secondary); font-weight: 700; cursor: pointer; margin: 0 5px; transition: all 0.2s;
+        }
+        .gap-input:empty { background-color: #F8FAFC; border-bottom-style: dashed; }
+        .gap-input.filled { background-color: #FEF2F2; border-bottom-style: solid; }
+        .gap-input.correct { background-color: #DCFCE7 !important; border-color: #15803D !important; color: #14532D !important; pointer-events: none; }
+        .gap-input.incorrect { background-color: #FEE2E2 !important; border-color: #B91C1C !important; color: #991B1B !important; }
+
+        /* Grammar Practice Styles */
+        .grammar-options { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+        .grammar-option-btn {
+            background: white; color: #334155; border: 2px solid #CBD5E1; padding: 8px 16px;
+            border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s;
+            font-size: 0.95em;
+        }
+        .grammar-option-btn:hover { border-color: var(--color-primary); background: #EFF6FF; }
+        .grammar-option-btn.selected { background: #DBEAFE; border-color: var(--color-primary); color: var(--color-primary); }
+        .grammar-option-btn.correct { background: #DCFCE7 !important; border-color: #15803D !important; color: #14532D !important; }
+        .grammar-option-btn.incorrect { background: #FEE2E2 !important; border-color: #B91C1C !important; color: #991B1B !important; }
+        .grammar-gap { 
+            display: inline-block; min-width: 150px; text-align: center; padding: 2px 8px;
+            border-bottom: 2px dashed var(--color-primary); color: var(--color-primary); font-weight: 700;
+            background: #EFF6FF; border-radius: 4px; margin: 0 3px;
+        }
+        .grammar-gap.filled { background: #DBEAFE; border-bottom: 2px solid var(--color-primary); }
+        .grammar-gap.correct { background: #DCFCE7 !important; border-color: #15803D !important; }
+        .grammar-gap.incorrect { background: #FEE2E2 !important; border-color: #B91C1C !important; }
+
+        /* Footer & Popups */
+        .footer { text-align: center; margin-top: 60px; color: #94A3B8; font-size: 0.9em; padding-top: 20px; border-top: 1px solid #E2E8F0; }
+        
+        #dictionary-popup {
+            position: absolute; max-width: 300px; width: 250px; padding: 20px; background: white;
+            border-top: 4px solid var(--color-secondary); border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 2000; display: none; pointer-events: auto;
+        }
+
+        #feedback-popup {
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            padding: 25px 40px; border-radius: 16px; font-weight: 700; color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 2000; display: none;
+            text-align: center; font-size: 1.3em; border: 4px solid white; min-width: 300px;
+        }
+        
+        /* Buttons */
+        .button-group { margin-top: 25px; display: flex; gap: 15px; justify-content: center; }
+        .check-button {
+            background: var(--color-primary); color: white; border: none; padding: 14px 32px;
+            border-radius: 10px; cursor: pointer; font-size: 1em; font-weight: 700;
+            transition: all 0.3s; box-shadow: 0 4px 6px -1px rgba(30, 58, 138, 0.3);
+        }
+        .check-button:hover { background: #172554; transform: translateY(-2px); }
+        .reset-button { background: #64748B; box-shadow: none; }
+        .reset-button:hover { background: #475569; }
+
+        #save-words-section { background: #F1F5F9; border: 2px solid #94A3B8; padding: 30px; border-radius: 16px; margin-top: 50px; text-align: center; }
+        #save-words-btn {
+            background-color: var(--color-save-btn); color: white; padding: 16px 30px;
+            border-radius: 10px; font-weight: 700; cursor: pointer; transition: background-color 0.2s;
+            display: block; width: 100%; border: none; box-shadow: 0 4px #172554;
+            text-transform: uppercase; font-size: 1.1em; letter-spacing: 0.05em;
+        }
+        #save-words-btn:hover:not(:disabled) { background-color: #172554; }
+        #save-words-btn:active:not(:disabled) { box-shadow: 0 1px #172554; transform: translateY(3px); }
+        #save-words-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        #learned-words-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px; text-align: center; list-style: none; }
+        #learned-words-list li {
+            background: white; padding: 12px 10px; border-radius: 8px; border: 1px solid #E2E8F0;
+            font-size: 0.9em; cursor: pointer; transition: all 0.2s; font-weight: 700; color: #1E293B;
+        }
+        #learned-words-list li:hover { transform: translateY(-3px); border-color: var(--color-secondary); color: var(--color-secondary); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        
+        @media (max-width: 768px) { .user-greeting { display: none; } }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">🧼</span>
+                <a href="/tax/" class="site-title">English For Cool Dudes</a>
+            </div>
+            <div id="logged-out-buttons" class="header-buttons" style="display: none;">
+                <a href="/login/" class="header-button login">Login</a>
+                <a href="/signup/" class="header-button signup">Sign Up</a>
+            </div>
+            <div id="logged-in-buttons" class="header-buttons" style="display: none;">
+                <span class="user-greeting" id="user-greeting">Welcome, Officer! 🕵️</span>
+                <a href="/dashboard/" class="header-button dashboard">My Dashboard</a>
+                <button id="logout-btn" class="header-button logout">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-main">
+        <h1 class="lesson-main-title">The Global Laundromat:<br>AML Compliance</h1>
+        <p class="text-xl text-slate-500 font-medium mb-8">Upper Intermediate (B2) | Focus: Reporting & Risk</p>
+
+        <section class="lesson-section">
+            <h2 class="section-title">🚨 1. Warm Up Discussion</h2>
+            <div class="discussion-box">
+                <p class="mb-2 font-bold text-slate-700">Discuss these questions with your team:</p>
+                <ul class="list-disc ml-5 space-y-2 text-slate-600">
+                    <li>How strict are the KYC (Know Your Customer) rules in Germany compared to other countries?</li>
+                    <li>What are the most common "Red Flags" you look for when reviewing a new client?</li>
+                    <li>Have you ever had to file a "Verdachtsmeldung" (Suspicious Activity Report)?</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="lesson-section">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="section-title" style="margin-bottom:0; border:none;">📧 2. Internal Compliance Memo</h2>
+                <span class="bg-red-100 text-red-800 text-xs font-bold px-3 py-1 rounded-full uppercase">Urgent Read</span>
+            </div>
+
+            <div class="email-container">
+                <div class="email-header">
+                    <div><strong>From:</strong> Head of Compliance<br><strong>To:</strong> Account Managers</div>
+                    <span class="email-flag">HIGH PRIORITY</span>
+                </div>
+                <div class="reading-text">
+                    <p class="mb-4">Team,</p>
+                    <p class="mb-4">We have flagged some concerning activity regarding the new corporate client, <em>Oceanic Trade Ltd</em>. Our system detected multiple cash deposits just under the €10,000 threshold. This looks like a classic case of <span class="highlight-word" onclick="showPopup(this, 'Smurfing')">smurfing</span> designed to avoid detection.</p>
+                    
+                    <p class="mb-4">Furthermore, the funds were immediately transferred to shell companies in offshore jurisdictions. This suggests the <span class="highlight-word" onclick="showPopup(this, 'Layering')">layering</span> stage of money laundering, intended to confuse the audit trail.</p>
+                    
+                    <p class="mb-4">We have not yet identified the <span class="highlight-word" onclick="showPopup(this, 'Beneficial Owner')">beneficial owner</span> of these entities. Until we complete our <span class="highlight-word" onclick="showPopup(this, 'Due Diligence')">due diligence</span>, all transactions are frozen.</p>
+                    
+                    <p class="mb-4"><strong>IMPORTANT:</strong> Do not inform the client about this investigation. Notifying them would constitute <span class="highlight-word" onclick="showPopup(this, 'Tipping off')">tipping off</span>, which is a criminal offense.</p>
+                    
+                    <p>Please submit all relevant documents by EOD.</p>
+                    <p>Regards,<br>Compliance Desk</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="lesson-section">
+            <h2 class="section-title">🔗 3. Terminology Match</h2>
+            <p class="text-slate-600 mb-6">Match the AML terms to their correct legal definitions.</p>
+            <div id="vocab-match-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </section>
+
+        <section class="lesson-section">
+            <h2 class="section-title">🧠 4. Risk Assessment (Comprehension)</h2>
+            
+            <div class="question" data-question="1">
+                <p class="font-bold text-slate-800 mb-3">1. Why were the cash deposits flagged by the system?</p>
+                <ul class="comp-btn-group">
+                    <li class="option-button" data-correct="false">They were made in a foreign currency.</li>
+                    <li class="option-button" data-correct="true">They were just under the reporting threshold (Smurfing).</li>
+                    <li class="option-button" data-correct="false">The client forgot to sign the deposit slip.</li>
+                </ul>
+            </div>
+
+            <div class="question" data-question="2">
+                <p class="font-bold text-slate-800 mb-3">2. What is the main problem with "Oceanic Trade Ltd"?</p>
+                <ul class="comp-btn-group">
+                    <li class="option-button" data-correct="true">The bank doesn't know who the real human owner (Beneficial Owner) is.</li>
+                    <li class="option-button" data-correct="false">They are trading in illegal goods.</li>
+                    <li class="option-button" data-correct="false">They are not paying enough fees.</li>
+                </ul>
+            </div>
+
+            <div class="question" data-question="3">
+                <p class="font-bold text-slate-800 mb-3">3. Why must the account manager remain silent?</p>
+                <ul class="comp-btn-group">
+                    <li class="option-button" data-correct="false">Because it is rude to discuss money.</li>
+                    <li class="option-button" data-correct="false">Because the investigation is not finished yet.</li>
+                    <li class="option-button" data-correct="true">Because warning the client (Tipping off) is a crime.</li>
+                </ul>
+            </div>
+
+            <div class="button-group">
+                <button class="check-button" onclick="checkComprehension()">Verify Answers</button>
+                <button class="check-button reset-button" onclick="resetComprehension()">Reset</button>
+            </div>
+            <div id="comprehension-result" class="result-message"></div>
+        </section>
+
+        <section class="lesson-section">
+            <h2 class="section-title">📝 5. Filing the Report (Gap Fill)</h2>
+            <p class="text-slate-600 mb-6">Complete the Suspicious Activity Report (SAR) using the correct terms.</p>
+            
+            <div class="word-bank p-4 mb-6">
+                <h4 class="font-bold text-gray-600 mb-3 w-full text-center text-xs uppercase">Word Bank</h4>
+                <div class="word-options" id="gap-fill-options">
+                    <span class="word-option" data-word="origin">origin</span>
+                    <span class="word-option" data-word="integrated">integrated</span>
+                    <span class="word-option" data-word="placement">placement</span>
+                    <span class="word-option" data-word="illicit">illicit</span>
+                    <span class="word-option" data-word="laundering">laundering</span>
+                    <span class="word-option" data-word="structuring">structuring</span>
+                </div>
+            </div>
+
+            <div class="email-container p-8">
+                <p class="mb-4"><strong>SAR Report #8944</strong></p>
+                <p class="mb-4"><strong>Observation:</strong> The client attempted to deposit €50,000 via six separate transactions at different branches. This appears to be <span class="gap-input" data-answer="structuring">____</span> (also known as smurfing).</p>
+                <p class="mb-4"><strong>Analysis:</strong> This corresponds to the initial <span class="gap-input" data-answer="placement">____</span> stage of money laundering, where dirty cash enters the financial system.</p>
+                <p class="mb-4"><strong>Risk:</strong> There is a high probability that these funds have an <span class="gap-input" data-answer="illicit">____</span> source. If the transfers continue, the funds could be <span class="gap-input" data-answer="integrated">____</span> into the legitimate economy, making the <span class="gap-input" data-answer="origin">____</span> impossible to trace.</p>
+                <p class="mb-4"><strong>Conclusion:</strong> We suspect money <span class="gap-input" data-answer="laundering">____</span> activities.</p>
+            </div>
+
+            <div class="button-group">
+                <button class="check-button" onclick="checkGaps()">Submit Report</button>
+                <button class="check-button reset-button" onclick="resetGaps()">Reset</button>
+            </div>
+            <div id="gap-result" class="result-message"></div>
+        </section>
+
+        <section class="lesson-section border-l-4 border-slate-600">
+            <h2 class="section-title text-slate-800">⚖️ 6. Grammar: Passive Voice in Reporting</h2>
+            
+            <p class="mb-4 text-slate-600">In legal and compliance reporting, we often use the <strong>Passive Voice</strong> to focus on the action or the funds, rather than the person doing it (who might be unknown).</p>
+
+            <div class="grammar-box mb-6">
+                <div class="grammar-rule">
+                    <strong>Structure:</strong><br>
+                    Object + <span class="grammar-highlight">be (was/were/has been)</span> + <span class="grammar-highlight">Past Participle</span>
+                </div>
+                
+                <div class="grammar-rule">
+                    <strong>Active:</strong> The criminal moved the funds.<br>
+                    <strong>Passive:</strong> The funds <span class="grammar-highlight">were moved</span> (by the criminal).
+                </div>
+                
+                <div class="grammar-rule">
+                    <strong>Active:</strong> We must freeze the account.<br>
+                    <strong>Passive:</strong> The account <span class="grammar-highlight">must be frozen</span>.
+                </div>
+
+                <div class="grammar-rule">
+                    <strong>Active:</strong> Someone has laundered the money.<br>
+                    <strong>Passive:</strong> The money <span class="grammar-highlight">has been laundered</span>.
+                </div>
+            </div>
+
+            <p class="font-bold text-slate-700 mb-4">Practice: Select the correct Passive form for the report.</p>
+            
+            <div class="grammar-practice-question mb-6" data-question="1">
+                <p class="mb-3 text-slate-700">1. The suspicious transaction <span class="grammar-gap" data-answer="was flagged">______</span> by the automated system yesterday.</p>
+                <div class="grammar-options mb-2">
+                    <button class="grammar-option-btn" data-gap="1" data-value="flagged">flagged</button>
+                    <button class="grammar-option-btn" data-gap="1" data-value="was flagged">was flagged</button>
+                    <button class="grammar-option-btn" data-gap="1" data-value="is flagging">is flagging</button>
+                </div>
+            </div>
+
+            <div class="grammar-practice-question mb-6" data-question="2">
+                <p class="mb-3 text-slate-700">2. All documents <span class="grammar-gap" data-answer="must be submitted">______</span> to the authorities within 24 hours.</p>
+                <div class="grammar-options mb-2">
+                    <button class="grammar-option-btn" data-gap="1" data-value="must submit">must submit</button>
+                    <button class="grammar-option-btn" data-gap="1" data-value="must be submitted">must be submitted</button>
+                    <button class="grammar-option-btn" data-gap="1" data-value="submitted">submitted</button>
+                </div>
+            </div>
+
+            <div class="grammar-practice-question mb-6" data-question="3">
+                <p class="mb-3 text-slate-700">3. It appears that the cash <span class="grammar-gap" data-answer="has been integrated">______</span> into the real estate market.</p>
+                <div class="grammar-options mb-2">
+                    <button class="grammar-option-btn" data-gap="1" data-value="has been integrated">has been integrated</button>
+                    <button class="grammar-option-btn" data-gap="1" data-value="has integrated">has integrated</button>
+                    <button class="grammar-option-btn" data-gap="1" data-value="was integrate">was integrate</button>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="check-button" onclick="checkGrammar()">Check Grammar</button>
+                <button class="check-button reset-button" onclick="resetGrammar()">Reset</button>
+            </div>
+            <div id="grammar-result" class="result-message"></div>
+        </section>
+
+        <section class="lesson-section">
+            <h2 class="section-title">🎯 7. Wrap Up Discussion</h2>
+            <div class="discussion-box">
+                <ul class="list-disc ml-5 space-y-2 text-slate-600">
+                    <li>Is it ethical for lawyers to defend clients accused of money laundering?</li>
+                    <li>Do you think the "Transparency Register" (Transparenzregister) in Germany is effective?</li>
+                    <li>What is the penalty for a bank employee who accidentally "tips off" a client?</li>
+                </ul>
+            </div>
+            
+            <div class="text-center mt-8 p-6 bg-white rounded-xl border border-slate-200 shadow-sm">
+                <h3 class="font-bold text-lg mb-2 text-slate-800">💾 Critical Vocabulary</h3>
+                <ul id="learned-words-list">
+                    <li data-word="Beneficial Owner">Beneficial Owner</li>
+                    <li data-word="Smurfing">Smurfing</li>
+                    <li data-word="Layering">Layering</li>
+                    <li data-word="Tipping off">Tipping off</li>
+                    <li data-word="Due Diligence">Due Diligence</li>
+                    <li data-word="Integration">Integration</li>
+                </ul>
+                
+                <div id="save-words-section" class="mt-6">
+                    <h3 class="text-xl font-bold mb-3" style="color: var(--color-save-btn);">💾 Save to Database</h3>
+                    
+                    <div id="save-feature-loggedin" style="display: none;">
+                        <p class="text-gray-700 mb-4">Secure these terms in your personal dashboard.</p>
+                        <button id="save-words-btn" onclick="saveWordsToDashboard()">Save Words</button>
+                        <p id="save-status" class="text-center mt-3 font-semibold"></p>
+                    </div>
+                    
+                    <div id="login-prompt" style="display: none;">
+                        <p class="text-red-600 font-bold mb-2">🔒 Authentication Required</p>
+                        <a href="/login/" class="inline-block bg-slate-800 text-white font-bold py-2 px-4 rounded hover:bg-black transition">Log In / Sign Up</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+        <footer class="footer">
+            <p class="footer-text">© 2026 English For Cool Dudes - Legal & Compliance Training</p>
+            <div style="margin-top: 10px;">
+                <a href="/impressum/" style="color: #64748B; margin-right: 15px; text-decoration: none;">Impressum</a>
+                <a href="/datenschutz/" style="color: #64748B; text-decoration: none;">Privacy</a>
+            </div>
+        </footer>
+    </div>
+    </div>
+
+    <div id="dictionary-popup"></div>
+    <div id="feedback-popup"></div>
+
+    <script>
+        // --- CONFIG ---
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null;
+
+        const lessonTitle = "Money Laundering & AML";
+        const lessonLink = "/laundry/";
+        const lessonLevel = "B2";
+
+        const wordsToSave = [
+            { word: "Beneficial Owner", type: "noun", definition: "The real person who ultimately owns or controls a company (German: Wirtschaftlich Berechtigter)." },
+            { word: "Smurfing", type: "noun", definition: "Breaking large amounts of cash into small deposits to avoid detection (German: Strukturierung/Smurfing)." },
+            { word: "Layering", type: "noun", definition: "Moving money through complex transactions to hide its origin (German: Verschleierung)." },
+            { word: "Tipping off", type: "verb", definition: "Illegally warning a suspect that they are being investigated (German: Verbot der Informationsweitergabe)." },
+            { word: "Due Diligence", type: "noun", definition: "Detailed investigation of a person or business before signing a contract (German: Sorgfaltspflicht)." },
+            { word: "Integration", type: "noun", definition: "The final stage where 'cleaned' money re-enters the legitimate economy." }
+        ];
+
+        // --- AUTH ---
+        async function checkUser() {
+            try {
+                const { data: { user } } = await sb.auth.getUser();
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('logged-in-buttons').style.display = 'flex';
+                    document.getElementById('logged-out-buttons').style.display = 'none';
+                    document.getElementById('save-feature-loggedin').style.display = 'block';
+                    document.getElementById('login-prompt').style.display = 'none';
+                    const name = user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Officer';
+                    document.getElementById('user-greeting').textContent = `Welcome ${name}! 🕵️`;
+                } else {
+                    document.getElementById('logged-in-buttons').style.display = 'none';
+                    document.getElementById('logged-out-buttons').style.display = 'flex';
+                    document.getElementById('save-feature-loggedin').style.display = 'none';
+                    document.getElementById('login-prompt').style.display = 'block';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function saveWordsToDashboard() {
+            if (!currentUser) return;
+            const btn = document.getElementById('save-words-btn');
+            const status = document.getElementById('save-status');
+            btn.disabled = true; btn.textContent = "Processing...";
+
+            const { error } = await sb.from('lessons').upsert([{
+                user_id: currentUser.id, lesson_title: lessonTitle, lesson_link: lessonLink,
+                lesson_level: lessonLevel, vocabulary: wordsToSave, completed_at: new Date().toISOString()
+            }], { onConflict: 'user_id,lesson_title' });
+
+            if (!error) {
+                btn.textContent = "✅ Saved!"; btn.style.backgroundColor = "#15803D";
+                status.textContent = "Vocabulary secured in database.";
+                status.style.color = "#15803D";
+                setTimeout(() => window.location.href = '/dashboard/', 1500);
+            } else {
+                btn.textContent = "❌ Error"; btn.disabled = false;
+                status.textContent = "Connection failed. Retry.";
+                status.style.color = "#B91C1C";
+            }
+        }
+        
+        async function saveMistake(word) {
+            if(!currentUser) return;
+            const wObj = wordsToSave.find(w=>w.word.toLowerCase()===word.toLowerCase()) || {word: word, definition:'Review this term', type:'word'};
+            await sb.from('user_mistakes').upsert({
+                user_id: currentUser.id, word: wObj.word, definition: wObj.definition, word_type: wObj.type,
+                lesson: lessonTitle, lesson_link: lessonLink, last_made_at: new Date().toISOString()
+            }, {onConflict: 'user_id,word'});
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await sb.auth.signOut(); window.location.href = '/';
+        });
+
+        // --- UTILS ---
+        function playAudio(word) {
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.85;
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function showFeedback(msg, type) {
+            const el = document.getElementById('feedback-popup');
+            el.textContent = msg; el.style.display = 'block';
+            el.style.backgroundColor = type === 'correct' ? '#15803D' : '#B91C1C';
+            el.style.borderColor = type === 'correct' ? '#86EFAC' : '#FCA5A5';
+            setTimeout(() => { el.style.display = 'none'; }, 1800);
+        }
+
+        function showPopup(target, word) {
+            const searchWord = word.toLowerCase();
+            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === searchWord);
+            
+            const popup = document.getElementById('dictionary-popup');
+            if(!popup) return;
+
+            if(wordObj) {
+                popup.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                        <div>
+                            <strong style="font-size: 1.1em;">${wordObj.word}</strong> 
+                            <span style="font-size:0.85em; color:#1E40AF;">(${wordObj.type})</span>
+                        </div>
+                        <button onclick="playAudio('${wordObj.word.replace(/'/g, "\\'")}')" style="background: var(--color-primary); color: white; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                            🔊
+                        </button>
+                    </div>
+                    <div style="color: #334155; line-height: 1.5; font-size: 0.95em;">${wordObj.definition}</div>
+                `;
+            } else {
+                popup.innerHTML = `<strong>${word}</strong><br>Definition not found.`;
+            }
+            
+            popup.style.display = 'block';
+            const rect = target.getBoundingClientRect();
+            
+            let leftPos = rect.left + window.scrollX;
+            let topPos = rect.bottom + 10 + window.scrollY;
+            
+            if (leftPos + 250 > window.innerWidth) {
+                leftPos = window.innerWidth - 270;
+            }
+
+            popup.style.left = leftPos + 'px';
+            popup.style.top = topPos + 'px';
+        }
+        
+        document.addEventListener('click', (e) => {
+            const popup = document.getElementById('dictionary-popup');
+            if (!e.target.closest('#dictionary-popup') && 
+                !e.target.classList.contains('highlight-word') && 
+                !e.target.closest('#learned-words-list li')) {
+                popup.style.display = 'none';
+            }
+        });
+
+        // --- EXERCISES ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        function cleanText(text) { return text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z]/g, '').toLowerCase() : ''; }
+
+        /* MATCHING GAME */
+        const vocabData = [
+            { type: 'term', content: "Placement", key: 'A' }, { type: 'definition', content: "Putting 'dirty' cash into the financial system (Einschleusen).", key: 'A' },
+            { type: 'term', content: "Layering", key: 'B' }, { type: 'definition', content: "Moving funds through complex layers to hide origin (Verschleierung).", key: 'B' },
+            { type: 'term', content: "Integration", key: 'C' }, { type: 'definition', content: "Money re-enters the economy as 'clean' funds (Integration).", key: 'C' },
+            { type: 'term', content: "Beneficial Owner", key: 'D' }, { type: 'definition', content: "The real human who owns a company (Wirtschaftlich Berechtigter).", key: 'D' },
+            { type: 'term', content: "Tipping Off", key: 'E' }, { type: 'definition', content: "Warning a suspect they are under investigation (Warnen).", key: 'E' },
+            { type: 'term', content: "Smurfing", key: 'F' }, { type: 'definition', content: "Breaking large cash sums into small deposits (Strukturierung).", key: 'F' }
+        ];
+        let selectedTermCard = null, selectedDefinitionCard = null, matchedPairs = 0;
+
+        function initVocab() {
+            const matchContainer = document.getElementById('vocab-match-container');
+            matchContainer.innerHTML = ''; 
+            shuffleArray(vocabData);
+            vocabData.forEach(item => {
+                const card = document.createElement('div'); 
+                card.className = `match-card ${item.type}`;
+                card.innerHTML = item.type === 'term' ? `<span class="font-bold">${item.content}</span>` : `<span>${item.content}</span>`; 
+                card.dataset.key = item.key; 
+                card.dataset.type = item.type;
+                card.addEventListener('click', () => handleMatchClick(card));
+                matchContainer.appendChild(card);
+            });
+            selectedTermCard = null; selectedDefinitionCard = null; matchedPairs = 0;
+        }
+
+        function handleMatchClick(card) {
+            if (card.classList.contains('matched')) return;
+            const type = card.dataset.type;
+            let currentSelection = type === 'term' ? selectedTermCard : selectedDefinitionCard;
+            if (currentSelection) currentSelection.classList.remove('selected');
+            if (currentSelection === card) {
+                if (type === 'term') selectedTermCard = null; else selectedDefinitionCard = null;
+                return;
+            }
+            if (type === 'term') selectedTermCard = card; else selectedDefinitionCard = card;
+            card.classList.add('selected');
+
+            if (selectedTermCard && selectedDefinitionCard) {
+                if (selectedTermCard.dataset.key === selectedDefinitionCard.dataset.key) {
+                    [selectedTermCard, selectedDefinitionCard].forEach(el => { el.classList.remove('selected'); el.classList.add('temp-matched'); });
+                    showFeedback("Verified! ✅", 'correct');
+                    
+                    const t = selectedTermCard; const d = selectedDefinitionCard;
+                    setTimeout(() => {
+                        t.classList.remove('temp-matched'); t.classList.add('matched');
+                        d.classList.remove('temp-matched'); d.classList.add('matched');
+                    }, 800);
+
+                    matchedPairs++;
+                    if (matchedPairs === vocabData.length / 2) {
+                        setTimeout(() => {
+                            showFeedback("🎉 All Clear! Compliance achieved.", 'correct');
+                            setTimeout(() => initVocab(), 2000);
+                        }, 1000);
+                    }
+                    selectedTermCard = null; selectedDefinitionCard = null;
+                } else {
+                    showFeedback("Mismatch! ❌", 'incorrect');
+                    setTimeout(() => {
+                        if(selectedTermCard) selectedTermCard.classList.remove('selected'); 
+                        if(selectedDefinitionCard) selectedDefinitionCard.classList.remove('selected');
+                        selectedTermCard = null; selectedDefinitionCard = null;
+                    }, 800);
+                }
+            }
+        }
+
+        /* COMPREHENSION */
+        function checkComprehension() {
+            const questions = document.querySelectorAll('.question'); 
+            let correctAnswers = 0;
+            questions.forEach(q => {
+                const selected = q.querySelector('.option-button.selected');
+                q.querySelectorAll('.option-button').forEach(opt => {
+                    opt.classList.remove('correct', 'incorrect');
+                    if (opt.dataset.correct === 'true') opt.classList.add('correct');
+                });
+                if (selected) {
+                    if (selected.dataset.correct === 'true') correctAnswers++; 
+                    else {
+                        selected.classList.add('incorrect');
+                        saveMistake('comprehension');
+                    }
+                }
+            });
+            const resultDiv = document.getElementById('comprehension-result'); 
+            resultDiv.style.display = 'block';
+            if (correctAnswers === questions.length) { 
+                resultDiv.textContent = '🎉 Analysis Complete. 100% Accuracy.'; 
+                resultDiv.className = 'result-message correct'; 
+            } else { 
+                resultDiv.textContent = `Alert: Only ${correctAnswers}/${questions.length} correct.`; 
+                resultDiv.className = 'result-message incorrect'; 
+            }
+        }
+        
+        function resetComprehension() {
+            document.querySelectorAll('.option-button').forEach(item => item.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById('comprehension-result').style.display = 'none';
+        }
+
+        /* GAP FILL */
+        let selectedGapWord = null; 
+        
+        function initGaps() {
+            const wordOptionsContainer = document.getElementById('gap-fill-options');
+            const options = Array.from(wordOptionsContainer.children);
+            shuffleArray(options);
+            options.forEach(option => { wordOptionsContainer.appendChild(option); option.classList.remove('used', 'selected'); });
+            document.querySelectorAll('.gap-input').forEach(blank => { blank.textContent = ''; blank.classList.remove('correct', 'incorrect', 'selected'); });
+            selectedGapWord = null; 
+            document.getElementById('gap-result').style.display = 'none';
+        }
+        
+        function handleGapBlankClick(blank) {
+            if (blank.textContent.trim() === '') {
+                 if (selectedGapWord) {
+                    blank.textContent = selectedGapWord.dataset.word;
+                    blank.classList.add('filled');
+                    selectedGapWord.classList.remove('selected'); 
+                    selectedGapWord.classList.add('used');
+                    selectedGapWord = null;
+                }
+                return;
+            }
+            const currentText = blank.textContent.trim();
+            const allOptions = Array.from(document.querySelectorAll('.word-option'));
+            const matchingBtn = allOptions.find(btn => btn.dataset.word === currentText);
+            if (matchingBtn) matchingBtn.classList.remove('used');
+            blank.textContent = ''; 
+            blank.classList.remove('correct', 'incorrect', 'filled'); 
+        }
+
+        function checkGaps() {
+            let correctCount = 0; 
+            const blanks = document.querySelectorAll('.gap-input'); 
+            blanks.forEach(blank => { 
+                const answerWord = blank.dataset.answer;
+                const extractedWord = blank.textContent.trim();
+                const cleanExtracted = cleanText(extractedWord);
+                const cleanAnswer = cleanText(answerWord);
+                blank.classList.remove('selected', 'incorrect', 'correct');
+                
+                if (extractedWord === '') {
+                } else if (cleanExtracted === cleanAnswer) { 
+                    blank.classList.add('correct'); 
+                    correctCount++; 
+                } else { 
+                    blank.classList.add('incorrect');
+                    saveMistake(answerWord); 
+                }
+            });
+
+            const resultDiv = document.getElementById('gap-result'); 
+            resultDiv.style.display = 'block';
+            if (correctCount === blanks.length) { 
+                resultDiv.textContent = '🎉 SAR Report Filed Successfully.'; 
+                resultDiv.className = 'result-message correct'; 
+            } else { 
+                resultDiv.textContent = `Errors in Report: ${correctCount}/${blanks.length} correct.`; 
+                resultDiv.className = 'result-message incorrect'; 
+            }
+        }
+
+        function resetGaps() {
+            selectedGapWord = null;
+            document.getElementById('gap-result').style.display = 'none';
+            document.querySelectorAll('.word-option').forEach(opt => opt.classList.remove('used', 'selected'));
+            document.querySelectorAll('.gap-input').forEach(blank => {
+                blank.textContent = '';
+                blank.classList.remove('correct', 'incorrect', 'selected', 'filled');
+            });
+        }
+
+        /* GRAMMAR PRACTICE */
+        const grammarAnswers = {
+            1: { 1: "was flagged" },
+            2: { 1: "must be submitted" },
+            3: { 1: "has been integrated" }
+        };
+        let grammarSelections = { 1: {}, 2: {}, 3: {} };
+
+        function checkGrammar() {
+            let correctCount = 0;
+            let totalGaps = 0;
+            
+            document.querySelectorAll('.grammar-practice-question').forEach(question => {
+                const questionNum = question.dataset.question;
+                const gaps = question.querySelectorAll('.grammar-gap');
+                
+                gaps.forEach((gap, index) => {
+                    totalGaps++;
+                    const gapNum = index + 1;
+                    const correctAnswer = grammarAnswers[questionNum][gapNum];
+                    const userAnswer = grammarSelections[questionNum][gapNum];
+                    
+                    gap.classList.remove('correct', 'incorrect');
+                    
+                    if (userAnswer === correctAnswer) {
+                        gap.classList.add('correct');
+                        correctCount++;
+                        
+                        question.querySelectorAll(`.grammar-option-btn[data-gap="${gapNum}"]`).forEach(btn => {
+                            if (btn.dataset.value === correctAnswer) {
+                                btn.classList.add('correct');
+                            }
+                        });
+                    } else if (userAnswer) {
+                        gap.classList.add('incorrect');
+                        
+                        question.querySelectorAll(`.grammar-option-btn[data-gap="${gapNum}"]`).forEach(btn => {
+                            if (btn.dataset.value === userAnswer) {
+                                btn.classList.add('incorrect');
+                            }
+                            if (btn.dataset.value === correctAnswer) {
+                                btn.classList.add('correct');
+                            }
+                        });
+                        saveMistake('passive voice');
+                    }
+                });
+            });
+            
+            const resultDiv = document.getElementById('grammar-result');
+            resultDiv.style.display = 'block';
+            
+            if (correctCount === totalGaps) {
+                resultDiv.textContent = '🎉 Grammar Verified. Excellent Passive Voice usage.';
+                resultDiv.className = 'result-message correct';
+            } else {
+                resultDiv.textContent = `Grammar Issues Detected: ${correctCount}/${totalGaps} correct.`;
+                resultDiv.className = 'result-message incorrect';
+            }
+        }
+
+        function resetGrammar() {
+            grammarSelections = { 1: {}, 2: {}, 3: {} };
+            
+            document.querySelectorAll('.grammar-option-btn').forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+            });
+            
+            document.querySelectorAll('.grammar-gap').forEach(gap => {
+                gap.textContent = '______';
+                gap.classList.remove('filled', 'correct', 'incorrect');
+            });
+            
+            document.getElementById('grammar-result').style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkUser(); 
+            initVocab(); 
+            initGaps();
+            
+            document.querySelectorAll('#learned-words-list li').forEach(li => li.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                const word = li.dataset.word;
+                showPopup(li, word);
+            }));
+            
+            document.querySelectorAll('.option-button').forEach(item => item.addEventListener('click', () => {
+                item.closest('.question').querySelectorAll('.option-button').forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect'));
+                item.classList.add('selected'); 
+                document.getElementById('comprehension-result').style.display = 'none';
+            }));
+            
+            document.querySelectorAll('.word-option').forEach(option => option.addEventListener('click', () => {
+                if (option.classList.contains('used')) return;
+                if (selectedGapWord) selectedGapWord.classList.remove('selected');
+                if (selectedGapWord === option) selectedGapWord = null;
+                else { selectedGapWord = option; selectedGapWord.classList.add('selected'); }
+            }));
+            
+            document.querySelectorAll('.gap-input').forEach(blank => blank.addEventListener('click', () => handleGapBlankClick(blank)));
+
+            document.querySelectorAll('.grammar-option-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const questionElement = this.closest('.grammar-practice-question');
+                    const questionNum = questionElement.dataset.question;
+                    const gapNum = this.dataset.gap;
+                    const value = this.dataset.value;
+                    
+                    this.parentElement.querySelectorAll('.grammar-option-btn').forEach(b => {
+                        b.classList.remove('selected', 'correct', 'incorrect');
+                    });
+                    
+                    this.classList.add('selected');
+                    grammarSelections[questionNum][gapNum] = value;
+                    
+                    const gaps = questionElement.querySelectorAll('.grammar-gap');
+                    const targetGap = gaps[gapNum - 1]; 
+                    if (targetGap) {
+                        targetGap.textContent = value;
+                        targetGap.classList.add('filled');
+                        targetGap.classList.remove('correct', 'incorrect');
+                    }
+                    
+                    document.getElementById('grammar-result').style.display = 'none';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
