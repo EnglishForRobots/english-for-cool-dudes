@@ -407,13 +407,65 @@
 
     function revealAnswer() { showModal(true, 0, true); }
 
-    function checkAnswer() {
-        const ans = document.getElementById('answer').value.trim().toLowerCase();
-        if (!ans) return;
-        const correct = game.riddle.answer.toLowerCase();
-        const isRight = correct.includes(ans) || ans.includes(correct.replace(/^(a|an|the) /,''));
+    // Calculates how many letters are different between two words
+    function getLevenshteinDistance(a, b) {
+        const matrix = [];
+        for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+        for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+
+        for (let i = 1; i <= b.length; i++) {
+            for (let j = 1; j <= a.length; j++) {
+                if (b.charAt(i - 1) == a.charAt(j - 1)) {
+                    matrix[i][j] = matrix[i - 1][j - 1];
+                } else {
+                    matrix[i][j] = Math.min(
+                        matrix[i - 1][j - 1] + 1, // substitution
+                        Math.min(
+                            matrix[i][j - 1] + 1, // insertion
+                            matrix[i - 1][j] + 1  // deletion
+                        )
+                    );
+                }
+            }
+        }
+        return matrix[b.length][a.length];
+    }
+
+   function checkAnswer() {
+        const rawInput = document.getElementById('answer').value.trim().toLowerCase();
+        if (!rawInput) return;
+
+        // 1. Get the "clean" version of the correct answer (remove a/an/the)
+        const correctOriginal = game.riddle.answer.toLowerCase();
+        const correctClean = correctOriginal.replace(/^(a|an|the) /,'');
         
-        if (isRight) {
+        // 2. SAFETY CHECK: Is the input too short?
+        // The user's guess must be at least 50% of the length of the real answer.
+        // This stops "e" (length 1) matching "elephant" (length 8).
+        if (rawInput.length < (correctClean.length * 0.5)) {
+            showModal(false, 0);
+            return;
+        }
+
+        // 3. EXACT or SUBSTRING MATCH (For "Tige" -> "Tiger")
+        // We still allow substrings, but only if they passed the length check above.
+        const isSubstring = correctClean.includes(rawInput);
+
+        // 4. FUZZY MATCH (For "Elefent" -> "Elephant")
+        const distance = getLevenshteinDistance(rawInput, correctClean);
+        
+        // Allow more mistakes for longer words:
+        // Length 1-4: 0 mistakes allowed (strict)
+        // Length 5-8: 2 mistakes allowed
+        // Length 9+:  3 mistakes allowed
+        let allowedErrors = 0;
+        if (correctClean.length > 8) allowedErrors = 3;
+        else if (correctClean.length > 4) allowedErrors = 2;
+        
+        const isFuzzyMatch = distance <= allowedErrors;
+
+        // 5. Final Decision
+        if (isSubstring || isFuzzyMatch) {
             const pts = POINTS[game.clue];
             game.players[game.playerIdx].score += pts;
             showModal(true, pts);
