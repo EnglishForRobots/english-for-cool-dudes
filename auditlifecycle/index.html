@@ -310,7 +310,7 @@
                 </ul>
 
                  <div id="loggedin-content" style="display:none; margin-top: 30px;">
-                    <button class="btn-action" onclick="saveLesson()">Add to Dashboard</button>
+                    <button id="save-btn" class="btn-action" onclick="saveLesson()">Add to Dashboard</button>
                     <p id="save-status" class="mt-3 font-bold"></p>
                 </div>
                 <div id="loggedout-content" style="margin-top: 30px;">
@@ -494,27 +494,54 @@
             document.getElementById('gap-result').style.display = 'none';
         }
 
-     async function saveWordsToDashboard() {
-            if (!currentUser) return;
-            const btn = document.getElementById('save-words-btn');
-            const status = document.getElementById('save-status');
-            btn.disabled = true; btn.textContent = "Saving...";
+  async function saveLesson() {
+    if (!currentUser) {
+        alert("Please log in to save your progress.");
+        return;
+    }
 
-            const { error } = await sb.from('lessons').upsert([{
-                user_id: currentUser.id, lesson_title: lessonTitle, lesson_link: lessonLink,
-                lesson_level: lessonLevel, vocabulary: wordsToSave, completed_at: new Date().toISOString()
-            }], { onConflict: 'user_id,lesson_title' });
+    const btn = document.getElementById('save-btn');
+    const status = document.getElementById('save-status');
+    
+    // 1. UI Feedback: Disable button while saving
+    btn.disabled = true; 
+    btn.textContent = "Saving...";
 
-            if (!error) {
-                btn.textContent = "✅ Saved!"; btn.style.backgroundColor = "#059669";
-                status.textContent = "Vocabulary secured! Check your dashboard.";
-                setTimeout(() => window.location.href = '/dashboard/', 1500);
-            } else {
-                btn.textContent = "❌ Error"; btn.disabled = false;
-                status.textContent = "Error saving. Please try again.";
-            }
-        }
+    // 2. Prepare the data packet
+    const lessonData = {
+        user_id: currentUser.id,
+        lesson_title: lessonTitle, // "Asset Lifecycle"
+        lesson_link: lessonLink,   // "/assetlifecycle/"
+        lesson_level: lessonLevel, // "B2-C1"
+        vocabulary: VOCAB_LIST,    // The array of words/definitions
+        completed_at: new Date().toISOString()
+    };
 
+    // 3. Send to Supabase
+    // This uses 'upsert' to either create a new record or update the existing one
+    const { error } = await sb.from('lessons').upsert([lessonData], { 
+        onConflict: 'user_id,lesson_title' 
+    });
+
+    // 4. Handle Response
+    if (!error) {
+        btn.textContent = "✅ Saved!";
+        btn.style.backgroundColor = "#059669"; // Success Green
+        status.textContent = "Vocabulary secured! Check your dashboard.";
+        status.style.color = "#059669";
+        
+        // Optional: Redirect to dashboard after a short delay
+        setTimeout(() => {
+            window.location.href = '/dashboard/';
+        }, 2000);
+    } else {
+        console.error("Save error:", error);
+        btn.textContent = "❌ Error";
+        btn.disabled = false;
+        status.textContent = "Error saving. Please check your connection.";
+        status.style.color = "#dc2626"; // Error Red
+    }
+}
         // Init
         checkUser();
 
