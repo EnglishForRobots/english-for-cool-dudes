@@ -503,6 +503,21 @@
         alert("Please log in to save your progress.");
         return;
     }
+       async function saveMistake(word) {
+            if (!currentUser) return;
+            const wObj = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase()) || {
+                word: word, definition: '', type: ''
+            };
+            await crisisClient.from('user_mistakes').upsert({
+                user_id: currentUser.id,
+                word: wObj.word,
+                definition: wObj.definition,
+                word_type: wObj.type,
+                lesson: lessonTitle,
+                lesson_link: lessonLink,
+                last_made_at: new Date().toISOString()
+            }, { onConflict: 'user_id,word' });
+        }
 
     const btn = document.getElementById('save-btn');
     const status = document.getElementById('save-status');
