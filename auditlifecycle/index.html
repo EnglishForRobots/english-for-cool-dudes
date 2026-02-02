@@ -524,77 +524,45 @@
     const btn = document.getElementById('save-btn');
     const status = document.getElementById('save-status');
     
-   // --- DASHBOARD SAVE ---
-        async function saveWordsToDashboard() {
-            if (!currentUser) {
-                alert("Please log in to save your progress!");
-                return;
-            }
-            
-            const btn = document.getElementById('save-words-btn');
-            const status = document.getElementById('save-status');
-            
-            btn.disabled = true;
-            btn.textContent = "Processing...";
-            
-            const { error } = await sb.from('lessons').upsert([{
-                user_id: currentUser.id,
-                lesson_title: lessonTitle,
-                lesson_link: lessonLink,
-                lesson_level: lessonLevel,
-                vocabulary: wordsToSave, 
-                completed_at: new Date().toISOString()
-            }], { onConflict: 'user_id,lesson_title' });
+    // 1. UI Feedback: Disable button while saving
+    btn.disabled = true; 
+    btn.textContent = "Saving...";
 
-            if (error) {
-                console.error(error);
-                btn.textContent = "❌ Error";
-                status.textContent = "Connection failed. Please retry.";
-                status.style.color = "#DC2626";
-                btn.disabled = false;
-            } else {
-                btn.textContent = "✅ Saved!";
-                btn.style.backgroundColor = "#16A34A";
-                status.textContent = "Data uploaded securely.";
-                status.style.color = "#166534";
-                
-                // Redirect after success
-                setTimeout(() => window.location.href = '/dashboard/', 1500);
-            }
-        }
+    // 2. Prepare the data packet
+    const lessonData = {
+        user_id: currentUser.id,
+        lesson_title: lessonTitle, // "Asset Lifecycle"
+        lesson_link: lessonLink,   // "/assetlifecycle/"
+        lesson_level: lessonLevel, // "B2-C1"
+        vocabulary: VOCAB_LIST,    // The array of words/definitions
+        completed_at: new Date().toISOString()
+    };
 
-        // --- UI INIT ---
-        document.addEventListener('DOMContentLoaded', () => {
-            checkUser();
+    // 3. Send to Supabase
+    // This uses 'upsert' to either create a new record or update the existing one
+    const { error } = await sb.from('lessons').upsert([lessonData], { 
+        onConflict: 'user_id,lesson_title' 
+    });
 
-            const wordList = document.getElementById('learned-words-list');
-            wordsToSave.forEach(item => {
-                const li = document.createElement('li');
-                li.textContent = item.word;
-                li.onclick = (e) => showPopup(e.target, item.word);
-                wordList.appendChild(li);
-            });
-
-            document.querySelectorAll('.word-option').forEach(option => {
-                option.onclick = () => {
-                    if (selectedGapWord) selectedGapWord.classList.remove('selected');
-                    selectedGapWord = option;
-                    option.classList.add('selected');
-                };
-            });
-
-            document.querySelectorAll('.gap-input').forEach(blank => {
-                blank.onclick = () => handleGapBlankClick(blank);
-            });
-
-            document.querySelectorAll('.option-button').forEach(btn => {
-                btn.onclick = () => {
-                    btn.parentElement.querySelectorAll('.option-button').forEach(b => b.classList.remove('selected'));
-                    btn.classList.add('selected');
-                    document.getElementById('comprehension-result').style.display = 'none';
-                };
-            });
-        });
+    // 4. Handle Response
+    if (!error) {
+        btn.textContent = "✅ Saved!";
+        btn.style.backgroundColor = "#059669"; // Success Green
+        status.textContent = "Vocabulary secured! Check your dashboard.";
+        status.style.color = "#059669";
+        
+        // Optional: Redirect to dashboard after a short delay
+        setTimeout(() => {
+            window.location.href = '/dashboard/';
+        }, 2000);
+    } else {
+        console.error("Save error:", error);
+        btn.textContent = "❌ Error";
+        btn.disabled = false;
+        status.textContent = "Error saving. Please check your connection.";
+        status.style.color = "#dc2626"; // Error Red
+    }
+}
         // Init
         checkUser();
 
