@@ -214,6 +214,7 @@
                         <option value="beginner">Beginner</option>
                         <option value="intermediate">Intermediate</option>
                         <option value="advanced">Advanced</option>
+                        <option value="random">🎲 Surprise Me!</option>
                     </select>
                 </div>
                 <button class="btn" onclick="initGame()">Start Evolving</button>
@@ -252,8 +253,6 @@
 
     <script>
         // --- CONFIG ---
-        // I've included the logic to check Supabase, but also a HUGE local fallback 
-        // so the game works instantly without you needing to populate the DB first.
         const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co'; 
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
         
@@ -272,70 +271,6 @@
                             { instruction: "Add an adjective before 'meeting'", options: ["Quarterly", "Soft", "Blue"], correct: "Quarterly", result: "The Quarterly meeting was good." },
                             { instruction: "Upgrade 'Good'", options: ["Productive", "Nice", "Okay"], correct: "Productive", result: "The Quarterly meeting was Productive." },
                             { instruction: "Add a timeframe", options: ["Yesterday", "Slowly", "Happily"], correct: "Yesterday", result: "The Quarterly meeting was Productive yesterday." }
-                        ]
-                    },
-                    {
-                        base: "I sent the email.",
-                        stages: [
-                            { instruction: "Who did you send it to?", options: ["Client", "Dog", "Table"], correct: "Client", result: "I sent the Client email." },
-                            { instruction: "Fix the grammar!", options: ["email to the Client", "Client to email", "email Client"], correct: "email to the Client", result: "I sent the email to the Client." },
-                            { instruction: "Make 'Sent' more formal", options: ["Forwarded", "Threw", "Gave"], correct: "Forwarded", result: "I Forwarded the email to the Client." }
-                        ]
-                    }
-                ],
-                advanced: [
-                    {
-                        base: "We need to change the plan.",
-                        stages: [
-                            { instruction: "Make 'Change' stronger", options: ["Pivot", "Move", "Touch"], correct: "Pivot", result: "We need to Pivot the plan." },
-                            { instruction: "Describe the plan", options: ["Strategic", "Nice", "Fun"], correct: "Strategic", result: "We need to Pivot the Strategic plan." },
-                            { instruction: "Why? Add a reason.", options: ["Due to market volatility", "Because I say so", "For fun"], correct: "Due to market volatility", result: "We need to Pivot the Strategic plan due to market volatility." }
-                        ]
-                    }
-                ]
-            },
-            tax: {
-                intermediate: [
-                    {
-                        base: "You must pay tax.",
-                        stages: [
-                            { instruction: "What kind of tax?", options: ["Income", "Happy", "Fast"], correct: "Income", result: "You must pay Income tax." },
-                            { instruction: "Change 'Pay' to legal term", options: ["Remit", "Give", "Buy"], correct: "Remit", result: "You must Remit Income tax." },
-                            { instruction: "Add a deadline", options: ["Before the fiscal deadline", "Tomorrow maybe", "When you want"], correct: "Before the fiscal deadline", result: "You must Remit Income tax before the fiscal deadline." }
-                        ]
-                    }
-                ],
-                advanced: [
-                    {
-                        base: "The company owes money.",
-                        stages: [
-                            { instruction: "Use a formal word for 'Owes'", options: ["Is liable for", "Has", "Wants"], correct: "Is liable for", result: "The company is liable for money." },
-                            { instruction: "Specify 'Money' (Tax context)", options: ["Capital Gains Tax", "Cash", "Dollars"], correct: "Capital Gains Tax", result: "The company is liable for Capital Gains Tax." },
-                            { instruction: "Add detail about assets", options: ["On overseas assets", "On toys", "On lunch"], correct: "On overseas assets", result: "The company is liable for Capital Gains Tax on overseas assets." }
-                        ]
-                    }
-                ]
-            },
-            legal: {
-                intermediate: [
-                    {
-                        base: "The contract is broken.",
-                        stages: [
-                            { instruction: "Use a legal term for 'Broken'", options: ["Breached", "Smashed", "Hurt"], correct: "Breached", result: "The contract is Breached." },
-                            { instruction: "Fix the passive voice", options: ["The defendant breached the contract", "The contract was breached", "Breached was the contract"], correct: "The defendant breached the contract", result: "The defendant breached the contract." },
-                            { instruction: "Add a consequence", options: ["Causing significant damages", "Making us sad", "Which is bad"], correct: "Causing significant damages", result: "The defendant breached the contract, causing significant damages." }
-                        ]
-                    }
-                ]
-            },
-             everyday: {
-                beginner: [
-                    {
-                        base: "I eat pizza.",
-                        stages: [
-                            { instruction: "When do you eat it?", options: ["Sometimes", "Quickly", "Blue"], correct: "Sometimes", result: "I Sometimes eat pizza." },
-                            { instruction: "Describe the pizza", options: ["Delicious", "Fast", "Loud"], correct: "Delicious", result: "I Sometimes eat Delicious pizza." },
-                            { instruction: "Who with?", options: ["With my family", "With the wall", "Alone happy"], correct: "With my family", result: "I Sometimes eat Delicious pizza with my family." }
                         ]
                     }
                 ]
@@ -357,46 +292,77 @@
             document.getElementById('setup-panel').style.display = 'none';
             document.getElementById('game-area').style.display = 'block';
 
-            // 1. Try Supabase First
             let questions = [];
             
             if (sb) {
                 try {
-                    const { data, error } = await sb
-                        .from('much_more_questions')
-                        .select('*')
-                        .eq('theme', theme)
-                        .eq('level', level);
+                    let query = sb.from('much_more_questions').select('*').eq('theme', theme);
+                    
+                    // Handle Random Level
+                    if (level !== 'random') {
+                        query = query.eq('level', level);
+                    }
+
+                    const { data, error } = await query;
+                    
+                    if (error) {
+                        console.error("Supabase Error:", error);
+                    }
                         
                     if (data && data.length > 0) {
-                        questions = data.map(q => ({
-                            base: q.base_sentence,
-                            stages: q.stages // Assumes JSONB column
-                        }));
+                        questions = data.map(q => {
+                            // SAFE PARSING: Check if stages is a string or object
+                            let parsedStages = q.stages;
+                            if (typeof q.stages === 'string') {
+                                try {
+                                    parsedStages = JSON.parse(q.stages);
+                                } catch (e) {
+                                    console.error("Failed to parse JSON for question:", q.id, e);
+                                    parsedStages = []; // invalid entry
+                                }
+                            }
+                            return {
+                                base: q.base_sentence,
+                                stages: parsedStages
+                            };
+                        });
                     }
                 } catch (e) {
                     console.log("Supabase fetch failed or empty, falling back to local.");
+                    console.error(e);
                 }
             }
 
-            // 2. Fallback to Local Data if DB is empty/fails
+            // Fallback to Local Data if DB is empty/fails
             if (questions.length === 0) {
-                // Check if specific level exists, if not fallback to intermediate or first avail
-                if (localData[theme] && localData[theme][level]) {
-                    questions = localData[theme][level];
-                } else if (localData[theme]) {
-                     // Flatten all levels if exact match missing
-                     questions = Object.values(localData[theme]).flat();
-                } else {
+                if (localData[theme]) {
+                    if (level === 'random') {
+                        // Flatten all levels for this theme
+                        questions = Object.values(localData[theme]).flat();
+                    } else if (localData[theme][level]) {
+                        questions = localData[theme][level];
+                    }
+                }
+                
+                if (questions.length === 0) {
                     // Total fallback
                     questions = localData['business']['intermediate'];
                 }
             }
 
-            // Shuffle
-            currentQueue = questions.sort(() => 0.5 - Math.random());
+            // Improved Shuffle (Fisher-Yates)
+            currentQueue = shuffleArray(questions);
             currentQuestionIndex = 0;
             loadQuestion();
+        }
+
+        // Standard Fisher-Yates shuffle algorithm
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
         }
 
         function loadQuestion() {
@@ -433,8 +399,8 @@
             const grid = document.getElementById('optionsGrid');
             grid.innerHTML = '';
             
-            // Shuffle options
-            let opts = [...stage.options].sort(() => 0.5 - Math.random());
+            // Shuffle options using the new shuffle function
+            let opts = shuffleArray([...stage.options]);
             
             opts.forEach(opt => {
                 const btn = document.createElement('div');
@@ -452,11 +418,6 @@
             if (choice === correct) {
                 // Correct Logic
                 btnElement.classList.add('correct');
-                
-                // Highlight the new word in the sentence
-                // We crudely find the difference or just use the result
-                // To make it look cool, let's just use the result but wrap the inserted part if possible
-                // For simplicity in this robust version, we just render the new sentence
                 
                 setTimeout(() => {
                     currentSentence = resultSentence;
