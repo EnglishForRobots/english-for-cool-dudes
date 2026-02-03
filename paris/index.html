@@ -753,49 +753,61 @@
             }
         }
 
-        /* FIXED: DICTIONARY POPUP */
-        function showDictionaryPopup(element, word) {
-            const popup = document.getElementById('dictionary-popup');
-            const data = vocabData[word.toLowerCase()];
-            
-            if (!data) {
-                // If not found in local data, minimal fallback
-                popup.innerHTML = `<div class="dict-word">${word}</div><div style="font-size:0.9em;color:#666;">Definition not available</div>`;
-                popup.style.display = 'block';
-            } else {
-                popup.innerHTML = `
-                    <div class="dict-word">${word}</div>
-                    <div class="dict-pronunciation">${data.pronunciation}</div>
-                    <div class="dict-type">${data.type}</div>
-                    <div class="dict-definition">${data.definition}</div>
-                    <div class="dict-german">
-                        <div class="dict-german-label">🇩🇪 German:</div>
-                        <div class="dict-german-text">${data.german}</div>
-                    </div>
-                    <button class="dict-audio-btn" onclick="playAudio('${word}')">🔊 Listen</button>
-                `;
-            }
+        // REPLACE your showDictionaryPopup function with this:
+function showDictionaryPopup(element, word) {
+    if (!word) return;
+    const popup = document.getElementById('dictionary-popup');
+    const data = dictionaryData[word.toLowerCase()];
 
-            const rect = element.getBoundingClientRect();
-            // Better positioning logic to keep it on screen
-            let top = rect.bottom + window.scrollY + 10;
-            let left = rect.left + window.scrollX;
-            
-            // Adjust if goes off right edge
-            if (left + 320 > window.innerWidth) {
-                left = window.innerWidth - 340;
-            }
+    if (data) {
+        popup.innerHTML = `
+            <div class="dict-word">${word}</div>
+            <div class="dict-pronunciation">${data.pronunciation}</div>
+            <div class="dict-type">${data.type}</div>
+            <div class="dict-definition">${data.definition}</div>
+            <div class="dict-german">
+                <div class="dict-german-label">German Translation:</div>
+                <div class="dict-german-text">${data.german}</div>
+            </div>
+            <button class="dict-audio-btn" onclick="playAudio('${word}')">
+                <span>🔊</span> Listen
+            </button>
+        `;
 
-            popup.style.top = top + 'px';
-            popup.style.left = left + 'px';
-            popup.style.display = 'block';
+        // Position logic to prevent "off-screen" display
+        const rect = element.getBoundingClientRect();
+        popup.style.display = 'block';
+        
+        let top = rect.bottom + window.scrollY + 10;
+        let left = rect.left + window.scrollX;
 
-            // Prevent immediate close
-            setTimeout(() => {
-                document.addEventListener('click', closeDictionary);
-            }, 100);
+        // Prevent overflow on right side of screen
+        if (left + 320 > window.innerWidth) {
+            left = window.innerWidth - 340;
         }
 
+        popup.style.top = `${top}px`;
+        popup.style.left = `${left}px`;
+    }
+}
+
+// FIX THE LISTENER (Ensures it picks up the data-word correctly)
+document.querySelectorAll('#learned-words-list li').forEach(li => {
+    li.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const word = li.getAttribute('data-word'); // Uses the attribute we added
+        showDictionaryPopup(li, word);
+        playAudio(word);
+    });
+});
+
+// ADD THIS TO CLOSE POPUP WHEN CLICKING AWAY
+document.addEventListener('click', (e) => {
+    const popup = document.getElementById('dictionary-popup');
+    if (popup && !popup.contains(e.target)) {
+        popup.style.display = 'none';
+    }
+});
         function closeDictionary(e) {
             const popup = document.getElementById('dictionary-popup');
             // Don't close if clicking inside popup, or on a highlight word
