@@ -557,43 +557,46 @@
             setTimeout(() => { el.style.display = 'none'; }, 1800);
         }
 
-        function showDictionaryPopup(target, word) {
-            const searchWord = word.toLowerCase();
-            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === searchWord);
-            
-            const popup = document.getElementById('dictionary-popup');
-            if(wordObj) {
-                popup.innerHTML = `
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                        <div>
-                            <strong>${wordObj.word}</strong> 
-                            <span style="font-size:0.85em; color:#DB2777;">(${wordObj.type})</span>
+       function showDictionaryPopup(target, word) {
+            // 1. Force a tiny delay so this runs AFTER any 'close' clicks finish
+            setTimeout(() => {
+                const searchWord = word.toLowerCase();
+                const wordObj = wordsToSave.find(w => w.word.toLowerCase() === searchWord);
+                
+                const popup = document.getElementById('dictionary-popup');
+                if(wordObj) {
+                    popup.innerHTML = `
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <div>
+                                <strong>${wordObj.word}</strong> 
+                                <span style="font-size:0.85em; color:#DB2777;">(${wordObj.type})</span>
+                            </div>
+                            <button onclick="playAudio('${wordObj.word}')" style="background: none; border: none; cursor: pointer; font-size: 1.3em; padding: 0; margin-left: 10px;" title="Listen">🔊</button>
                         </div>
-                        <button onclick="playAudio('${wordObj.word}')" style="background: none; border: none; cursor: pointer; font-size: 1.3em; padding: 0; margin-left: 10px;" title="Listen">🔊</button>
-                    </div>
-                    ${wordObj.definition}
-                `;
-            } else {
-                popup.innerHTML = `<strong>${word}</strong><br>Definition not found.`;
-            }
-            
-            popup.style.display = 'block';
-            const rect = target.getBoundingClientRect();
-            let topPos = rect.top - popup.offsetHeight - 10;
-            if (topPos < 10) topPos = rect.bottom + 10;
-            
-            let leftPos = (rect.left + (rect.width/2) - (popup.offsetWidth/2));
-            if (leftPos < 10) leftPos = 10;
-            if (leftPos + popup.offsetWidth > window.innerWidth) leftPos = window.innerWidth - popup.offsetWidth - 10;
+                        ${wordObj.definition}
+                    `;
+                } else {
+                    popup.innerHTML = `<strong>${word}</strong><br>Definition not found.`;
+                }
+                
+                // 2. Show the popup
+                popup.style.display = 'block';
 
-            popup.style.top = topPos + 'px';
-            popup.style.left = leftPos + 'px';
+                // 3. Position it
+                const rect = target.getBoundingClientRect();
+                let topPos = rect.top - popup.offsetHeight - 10;
+                if (topPos < 10) topPos = rect.bottom + 10;
+                
+                let leftPos = (rect.left + (rect.width/2) - (popup.offsetWidth/2));
+                if (leftPos < 10) leftPos = 10;
+                if (leftPos + popup.offsetWidth > window.innerWidth) leftPos = window.innerWidth - popup.offsetWidth - 10;
+
+                popup.style.top = topPos + 'px';
+                popup.style.left = leftPos + 'px';
+            }, 10); // 10ms delay is invisible to the eye but fixes the bug
         }
         
-        document.body.addEventListener('click', (e) => {
-            if (!e.target.closest('#dictionary-popup') && !e.target.closest('#learned-words-list li') && !e.target.closest('.highlight-word')) {
-                document.getElementById('dictionary-popup').style.display = 'none';
-            }
+        
         });
 
         /* VOCAB MATCH */
@@ -737,8 +740,20 @@
                 playAudio(li.dataset.word);
             });
            
-document.body.onclick = () => document.getElementById('dictionary-popup').style.display = 'none';
-           });
+// --- EVENT LISTENERS ---
+        
+        // This is the correct listener for closing the popup
+        document.body.addEventListener('click', (e) => {
+            // Only close if we didn't click the popup, the list, or a word
+            if (!e.target.closest('#dictionary-popup') && 
+                !e.target.closest('#learned-words-list li') && 
+                !e.target.closest('.highlight-word')) {
+                document.getElementById('dictionary-popup').style.display = 'none';
+            }
+        });
+
+        // Ensure no conflicting "onclick" exists on the body
+        document.body.onclick = null;
     </script>
 </body>
 </html>
