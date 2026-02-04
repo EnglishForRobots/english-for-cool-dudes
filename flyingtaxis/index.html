@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <title>Sky High: The Future of Flying Taxis - English For Cool Dudes</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* --- BRANDING & LAYOUT STYLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: #F0F9FF; /* Light Sky Blue */
+            color: #1E293B; /* Slate 800 */
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- THEME: AVIATION & FUTURE TRAVEL 🚁 --- */
+        :root {
+            --color-primary: #0369A1; /* Sky Blue 700 */
+            --color-secondary: #F97316; /* Aviation Orange */
+            --color-accent: #0EA5E9; /* Electric Blue */
+            --color-white: #FFFFFF;
+            
+            /* Feedback Colors */
+            --color-correct: #059669; /* Emerald 600 */
+            --color-incorrect: #DC2626; /* Red 600 */
+            
+            --color-save-btn: #0369A1; 
+        }
+
+        /* Header */
+        .header {
+            background: var(--color-white);
+            border-bottom: 3px solid var(--color-primary);
+            padding: 20px 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header-content {
+            max-width: 1200px; margin: 0 auto; padding: 0 20px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+
+        .logo {
+            width: 38px; height: 38px;
+            background: linear-gradient(135deg, #0369A1 0%, #0EA5E9 100%); 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 22px; color: white; box-shadow: 0 2px 5px rgba(3, 105, 161, 0.3);
+        }
+        .site-title { font-size: 20px; font-weight: 800; color: var(--color-primary); text-decoration: none; letter-spacing: -0.02em; }
+
+        /* Buttons */
+        .header-buttons { display: flex; align-items: center; gap: 8px; }
+        .header-button {
+            text-decoration: none; padding: 7px 14px; border-radius: 6px;
+            font-size: 14px; font-weight: 700; transition: all 0.2s;
+            white-space: nowrap; cursor: pointer; border: 1px solid #E2E8F0;
+            background: transparent;
+        }
+      .header-button.login { background: #F8FAFC; color: var(--color-primary); }
+        .header-button.signup { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+        
+        /* Container */
+        .container-main {
+            max-width: 1000px; margin: 30px auto; padding: 30px 20px;
+            background-color: var(--color-white); border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border: 1px solid #E2E8F0;
+        }
+
+        .lesson-main-title {
+            font-size: 2.5em; font-weight: 900; color: #0F172A;
+            margin-bottom: 10px; letter-spacing: -0.03em;
+            background: -webkit-linear-gradient(45deg, #0369A1, #0EA5E9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .lesson-section {
+            background-color: #F8FAFC; padding: 30px; border-radius: 12px;
+            border: 1px solid #E2E8F0; margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: var(--color-primary); font-size: 1.8em; font-weight: 800;
+            margin-bottom: 20px; padding-bottom: 5px; border-bottom: 2px dashed var(--color-accent);
+        }
+
+        /* --- VIDEO STYLES --- */
+        .video-wrapper {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto 25px auto;
+        }
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            background: #000;
+            border: 4px solid #334155;
+        }
+        .video-container iframe {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        }
+
+        /* Reading Text */
+        .reading-text {
+            background: #FFFFFF; border-left: 5px solid var(--color-primary);
+            padding: 25px; border-radius: 0 12px 12px 0; font-size: 1.1em;
+            color: #334155; line-height: 1.8;
+        }
+        .highlight-word {
+            color: var(--color-primary); font-weight: 800; cursor: help;
+            border-bottom: 2px dotted var(--color-primary); transition: all 0.2s;
+        }
+        .highlight-word:hover { background-color: #E0F2FE; color: #0369A1; border-radius: 4px; padding: 0 2px; }
+        
+        /* Match Cards */
+        .match-card {
+            border: 2px solid transparent; transition: all 0.3s;
+            cursor: pointer; user-select: none; border-radius: 12px; 
+            padding: 1rem; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); font-weight: 600;
+            min-height: 90px; display: flex; align-items: center; justify-content: center;
+        }
+        .match-card.term {
+            background-color: #E0F2FE; border: 2px solid var(--color-primary); 
+            text-align: center; color: var(--color-primary);
+        }
+        .match-card.definition {
+            background-color: #FFFFFF; text-align: left; border: 2px solid #E2E8F0; color: #475569; font-size: 0.95em;
+        }
+        .match-card.selected {
+            border-color: var(--color-secondary); background-color: #FFF7ED; 
+            box-shadow: 0 0 0 4px #FFEDD5; transform: scale(1.02);
+        }
+        .match-card.matched { pointer-events: none; opacity: 0; transform: scale(0.9); transition: all 0.5s; }
+        .match-card.temp-matched {
+            background-color: #D1FAE5 !important; border-color: #059669 !important; 
+            box-shadow: 0 0 0 4px #6EE7B7 !important; color: #065F46 !important;
+        }
+
+        /* Quiz Buttons */
+        .comp-btn-group .option-button {
+            transition: all 0.2s; background-color: #FFFFFF; color: #334155;
+            font-weight: 600; padding: 16px 20px; border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); border: 1px solid #E2E8F0;
+            text-align: left; width: 100%; cursor: pointer; margin-bottom: 12px;
+        }
+        .comp-btn-group .option-button:hover { border-color: var(--color-accent); background-color: #F0F9FF; }
+        .comp-btn-group .option-button.selected { background-color: #E0F2FE; color: #0369A1 !important; border-color: #0EA5E9; }
+        .comp-btn-group .option-button.correct { background-color: #D1FAE5 !important; color: #065F46 !important; border-color: #059669 !important; }
+        .comp-btn-group .option-button.incorrect { background-color: #FEE2E2 !important; color: #991B1B !important; border-color: #DC2626 !important; }
+
+        .result-message { margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: 700; display: none; text-align: center; }
+        .result-message.correct { background-color: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; }
+        .result-message.incorrect { background-color: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+        
+        /* Gap-Fill */
+        .word-bank { background: #E0F2FE; border: 2px solid #0EA5E9; border-radius: 12px; }
+        .word-options { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .word-option {
+            background-color: #FFFFFF; color: #0369A1; padding: 10px 18px;
+            border-radius: 8px; cursor: pointer; transition: all 0.2s; font-weight: 700;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); border: 1px solid #BAE6FD;
+        }
+        .word-option:hover { background-color: #0369A1; color: white; transform: translateY(-2px); }
+        .word-option.selected { background-color: var(--color-secondary) !important; color: white !important; border-color: var(--color-secondary) !important; }
+        .word-option.used { opacity: 0.5; pointer-events: none; background-color: #CBD5E1; color: #F8FAFC; border-color: transparent; }
+
+        .gap-input {
+            display: inline-block; text-align: center; padding: 0 10px; min-width: 120px; 
+            height: 34px; line-height: 32px; background-color: #FFFFFF; border-bottom: 3px solid var(--color-primary); 
+            border-radius: 6px; color: var(--color-primary); font-weight: 700; cursor: pointer; margin: 0 5px; transition: all 0.2s;
+        }
+        .gap-input:empty { background-color: #F1F5F9; border-bottom-style: dashed; }
+        .gap-input.correct { background-color: #D1FAE5 !important; border-color: #059669 !important; color: #065F46 !important; }
+        .gap-input.incorrect { background-color: #FEE2E2 !important; border-color: #DC2626 !important; color: #991B1B !important; }
+
+        /* Grammar Box */
+        .grammar-box {
+            background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+            border: 2px solid var(--color-secondary);
+            border-radius: 12px; padding: 25px; margin: 25px 0;
+        }
+        .grammar-title {
+            color: #9A3412; font-size: 1.5em; font-weight: 800;
+            margin-bottom: 15px; display: flex; align-items: center; gap: 10px;
+        }
+        .grammar-example {
+            background: white; padding: 15px; border-left: 5px solid var(--color-primary);
+            margin: 10px 0; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .grammar-highlight { color: var(--color-primary); font-weight: 700; }
+
+        /* Buttons & Save */
+        .button-group { margin-top: 25px; display: flex; gap: 15px; justify-content: center; }
+        .check-button {
+            background: var(--color-primary); color: white; border: none; padding: 14px 32px;
+            border-radius: 10px; cursor: pointer; font-size: 1em; font-weight: 700;
+            transition: all 0.3s; box-shadow: 0 4px 6px -1px rgba(3, 105, 161, 0.3);
+        }
+        .check-button:hover { background: #075985; transform: translateY(-2px); }
+        .reset-button { background: #64748B; box-shadow: none; }
+
+        #save-words-section { background: #F1F5F9; border: 2px dashed #94A3B8; padding: 30px; border-radius: 16px; margin-top: 50px; text-align: center; }
+        #save-words-btn {
+            background-color: var(--color-save-btn); color: white; padding: 16px 30px;
+            border-radius: 10px; font-weight: 700; cursor: pointer; transition: background-color 0.2s;
+            display: block; width: 100%; border: none; box-shadow: 0 4px #075985;
+            text-transform: uppercase; font-size: 1.1em; letter-spacing: 0.05em;
+        }
+        
+        #learned-words-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px; list-style: none; }
+        #learned-words-list li {
+            background: white; padding: 12px 10px; border-radius: 8px; border: 1px solid #E2E8F0;
+            font-size: 0.95em; cursor: pointer; transition: all 0.2s; font-weight: 700; color: #334155;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+        }
+        #learned-words-list li:hover { transform: translateY(-3px); border-color: var(--color-primary); color: var(--color-primary); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        #learned-words-list li::after { content: '🔊'; font-size: 1.2em; opacity: 0.5; margin-top: 2px;}
+
+        /* Popups */
+        #feedback-popup {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            padding: 30px 50px; border-radius: 20px; font-weight: 800; color: white;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); z-index: 2000; display: none;
+            text-align: center; font-size: 1.5em; border: 4px solid white; min-width: 320px;
+        }
+        #dictionary-popup {
+            position: fixed; max-width: 300px; padding: 20px; background: #FFFFFF;
+            border-top: 5px solid var(--color-primary); border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); z-index: 2001; display: none; font-size: 0.95em;
+        }
+        
+        .footer { background: #FFFFFF; border-top: 1px solid #E2E8F0; padding: 40px 20px; margin-top: 80px; text-align: center; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">🚁</span>
+                <a href="/advanced/" class="site-title">English For Cool Dudes</a>
+            </div>
+            <div id="logged-out-buttons" class="header-buttons" style="display: none;">
+                <a href="/login/" class="header-button login">Login</a>
+                <a href="/signup/" class="header-button signup">Sign Up</a>
+            </div>
+            <div id="logged-in-buttons" class="header-buttons" style="display: none;">
+                <span class="user-greeting" id="user-greeting" style="font-size: 14px; color: var(--color-primary); font-weight: 700; margin-right: 5px;">Hey Pilot! 👋</span>
+                <a href="/dashboard/" class="header-button dashboard" style="background: #F0FDFA; color: #0D9488; border-color: #99F6E4;">My Dashboard</a>
+                <button id="logout-btn" class="header-button logout" style="background: #FEF2F2; color: #DC2626; border-color: #FECACA;">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-main">
+        <h1 class="lesson-main-title">Sky High: The Future of Flying Taxis</h1>
+        <p class="text-lg text-slate-500 mb-8 font-medium">Upper Intermediate (B2-C1) | Topic: Tech & Transportation</p>
+
+        <main class="space-y-8">
+            
+            <section class="lesson-section shadow-lg">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 border-b-2 border-dashed border-sky-200 pb-4">
+                    <h2 class="section-title" style="border: none; margin: 0;">📺 1. Watch & Analyze</h2>
+                    <span class="text-sm bg-sky-100 text-sky-800 py-1 px-3 rounded-full font-bold mt-2 md:mt-0">Time: 6 mins</span>
+                </div>
+
+                <div class="video-wrapper">
+                    <div class="video-container">
+                        <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/oBp96YGStIQ?si=kx6mYOeKHD6PbjW3" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    </div>
+                </div>
+                
+                <h3 class="font-bold text-xl text-slate-800 mb-3">Context & Reading</h3>
+                <div class="reading-text">
+                    <p class="mb-4">Is the era of the flying car finally here? In China, the government is heavily backing the <span class="highlight-word" onclick="showDictionaryPopup(this, 'Low-altitude')">low-altitude</span> economy. This refers to aircraft flying below 1,000 meters. The E-Hung electric vehicle has become the first in the world to be <span class="highlight-word" onclick="showDictionaryPopup(this, 'Certified')">certified</span> for <span class="highlight-word" onclick="showDictionaryPopup(this, 'Commercial')">commercial</span> use by a national aviation authority.</p>
+
+                    <p class="mb-4">These air taxis take off vertically, meaning no runway is required. While the experience can be slightly <span class="highlight-word" onclick="showDictionaryPopup(this, 'Unnerving')">unnerving</span> due to the lack of human controls, manufacturers argue that automation reduces accidents. However, the <span class="highlight-word" onclick="showDictionaryPopup(this, 'Widespread')">widespread</span> adoption of this technology still depends on building the necessary <span class="highlight-word" onclick="showDictionaryPopup(this, 'Infrastructure')">infrastructure</span>.</p>
+
+                    <p>Other companies are developing "land aircraft carriers"—vans that can transport and charge a flying vehicle. While current prices are high, experts believe that once they gain <span class="highlight-word" onclick="showDictionaryPopup(this, 'Regulatory')">regulatory</span> approval, the sky really is the limit.</p>
+                </div>
+            </section>
+
+            <section id="exercise-1" class="lesson-section shadow-lg">
+                <h2 class="section-title">🔗 2. Aviation Vocabulary Match</h2>
+                <p class="text-slate-600 mb-6 font-medium">Match the term to its definition. Correct pairs will disappear.</p>
+                <div id="vocab-match-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </section>
+        
+            <section id="exercise-2" class="lesson-section shadow-lg">
+                <h2 class="section-title">❓ 3. Flight Check: Comprehension</h2>
+                <p class="text-slate-600 mb-4 font-medium">Test your understanding of the report.</p>
+                
+                <div class="question" data-question="1">
+                    <p class="font-semibold text-lg text-slate-800 mb-3">1. What is the definition of the "low-altitude economy"?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="1">
+                        <li class="option-button" data-correct="false">Aircraft flying at hypersonic speeds.</li>
+                        <li class="option-button" data-correct="true">Flights occurring below 1,000 meters.</li>
+                        <li class="option-button" data-correct="false">Ground-based transportation in hilly areas.</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="2">
+                    <p class="font-semibold text-lg text-slate-800 mb-3">2. Why does the reporter describe the experience as "unnerving"?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="2">
+                        <li class="option-button" data-correct="false">The aircraft was too loud to talk.</li>
+                        <li class="option-button" data-correct="true">There were no pilot controls inside the taxi.</li>
+                        <li class="option-button" data-correct="false">The doors didn't close properly.</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="3">
+                    <p class="font-semibold text-lg text-slate-800 mb-3">3. How much does the "land aircraft carrier" (the van and flying unit) cost?</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="3">
+                        <li class="option-button" data-correct="false">$90,000</li>
+                        <li class="option-button" data-correct="true">$300,000 - $400,000</li>
+                        <li class="option-button" data-correct="false">Over $1 million</li>
+                    </ul>
+                </div>
+
+                <div class="button-group">
+                    <button class="check-button" onclick="checkComprehension()">Check Answers</button>
+                    <button class="check-button reset-button" onclick="resetComprehension()">Reset</button>
+                </div>
+                <div id="comprehension-result" class="result-message"></div>
+            </section>
+
+            <section id="exercise-3" class="lesson-section shadow-lg">
+                <h2 class="section-title">📝 4. Contextual Gap Fill</h2>
+                <p class="text-slate-600 mb-6 font-medium">Fill the gaps with the correct aviation vocabulary.</p>
+                
+                <div class="word-bank p-4 mb-6">
+                    <div class="word-options" id="gap-fill-options">
+                        <span class="word-option" data-word="certified">certified</span>
+                        <span class="word-option" data-word="widespread">widespread</span>
+                        <span class="word-option" data-word="infrastructure">infrastructure</span>
+                        <span class="word-option" data-word="regulatory">regulatory</span>
+                        <span class="word-option" data-word="commercial">commercial</span>
+                        <span class="word-option" data-word="unnerving">unnerving</span>
+                    </div>
+                </div>
+
+                <div class="gap-fill-text text-lg leading-loose space-y-4">
+                    <p>1. Flying in an automated aircraft can be quite <span class="gap-input" data-answer="unnerving">____</span> for first-time passengers.</p>
+                    <p>2. The vehicle is the first in the world to be <span class="gap-input" data-answer="certified">____</span> for carrying passengers.</p>
+                    <p>3. We need to build more charging stations and <span class="gap-input" data-answer="infrastructure">____</span> before these fly everywhere.</p>
+                    <p>4. The company is currently waiting for <span class="gap-input" data-answer="regulatory">____</span> approval from the government.</p>
+                    <p>5. Experts predict that air taxis will eventually become <span class="gap-input" data-answer="widespread">____</span> in major cities.</p>
+                    <p>6. Most companies are targeting the <span class="gap-input" data-answer="commercial">____</span> market, such as tourism and firefighting.</p>
+                </div>
+                <div class="button-group">
+                    <button class="check-button" onclick="checkGaps()">Verify Flight Path</button>
+                    <button class="check-button reset-button" onclick="resetGaps()">Reset</button>
+                </div>
+                <div id="gap-result" class="result-message"></div>
+            </section>
+
+            <section id="exercise-4" class="lesson-section shadow-lg">
+                <h2 class="section-title">📖 5. Grammar: Future Possibility</h2>
+                
+                <div class="grammar-box">
+                    <div class="grammar-title">
+                        <span>🛰️</span>
+                        <span>May, Could & Will</span>
+                    </div>
+                    <p class="text-slate-700 mb-4">When discussing future technology, we use different modals to show how certain we are about a prediction.</p>
+                    
+                    <div class="grammar-example">
+                        <strong>Will (Certainty):</strong> Flying taxis <span class="grammar-highlight">will become</span> a daily mode of transport.
+                    </div>
+                    
+                    <div class="grammar-example">
+                        <strong>May / Might (Possibility):</strong> That reality <span class="grammar-highlight">may not be</span> so far away.
+                    </div>
+                    
+                    <div class="grammar-example">
+                        <strong>Could (Theoretical Potential):</strong> This <span class="grammar-highlight">could</span> reduce traffic in big cities.
+                    </div>
+                </div>
+
+                <h3 class="font-bold text-xl text-slate-800 mt-6 mb-3">🎯 Prediction Practice</h3>
+                <p class="text-slate-600 mb-4 font-medium">Choose the best word based on the context of the video.</p>
+                
+                <div class="question" data-question="4">
+                    <p class="font-semibold text-lg text-slate-600 mb-3">1. According to the company, these taxis _______ a lifestyle to enjoy in the future.</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="4">
+                        <li class="option-button" data-correct="true">will become</li>
+                        <li class="option-button" data-correct="false">couldn't be</li>
+                    </ul>
+                </div>
+                
+                <div class="question" data-question="5">
+                    <p class="font-semibold text-lg text-slate-600 mb-3">2. If you are afraid of heights, flying _______ be a scary experience for you.</p>
+                    <ul class="options-list space-y-3 comp-btn-group" data-question="5">
+                        <li class="option-button" data-correct="true">might</li>
+                        <li class="option-button" data-correct="false">will not</li>
+                    </ul>
+                </div>
+
+                <div class="button-group">
+                    <button class="check-button" onclick="checkGrammar()">Check Grammar</button>
+                    <button class="check-button reset-button" onclick="resetGrammar()">Reset</button>
+                </div>
+                <div id="grammar-result" class="result-message"></div>
+            </section>
+
+            <section class="lesson-section shadow-lg border-t-4 border-sky-700">
+                <h2 class="section-title">🎉 Mission Accomplished</h2>
+                <p class="mb-4 text-slate-600">You've cleared the airspace! Review your new vocabulary below.</p>
+                
+                <ul id="learned-words-list">
+<li data-word="Low-altitude">Low-altitude</li>
+                    <li data-word="Certified">Certified</li>
+                    <li data-word="Commercial">Commercial</li>
+<li data-word="Unnerving">Unnerving</li>
+  <li data-word="Widespread">Widespread</li>
+                    <li data-word="Infrastructure">Infrastructure</li>
+                    
+                    <li data-word="Regulatory">Regulatory</li>
+                  
+                    
+                </ul>
+
+                <div id="save-words-section">
+                    <h3 class="text-xl font-bold mb-3" style="color: var(--color-save-btn);">💾 Save Progress</h3>
+                    
+                    <div id="save-feature-loggedin" style="display: none;">
+                        <button id="save-words-btn" onclick="saveWordsToDashboard()">Save to Dashboard</button>
+                        <p id="save-status" class="text-center mt-3 font-semibold"></p>
+                    </div>
+                    
+                    <div id="login-prompt" style="display: none;">
+                        <p class="text-orange-600 font-bold mb-2">🔒 Login to save your progress!</p>
+                        <a href="/login/" class="inline-block bg-slate-800 text-white font-bold py-2 px-4 rounded hover:bg-black transition">Log In</a>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+        <footer class="footer">
+            <p class="text-sm text-slate-400">© 2026 English For Cool Dudes - Future Mobility</p>
+        </footer>
+    </div>
+    
+    <div id="feedback-popup"></div>
+    <div id="dictionary-popup"></div>
+
+    <script>
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null;
+
+
+        const lessonTitle = "Sky High: The Future of Flying Taxis";
+        const lessonLink = "/flyingtaxis/";
+        const lessonLevel = "B2-C1";
+
+        const wordsToSave = [
+{ word: "Low-altitude", type: "noun", definition: "Niedrige Flughöhe (below 1,000 meters)." },
+            { word: "Certified", type: "adj", definition: "Offiziell anerkannt (Often a false friend for Germans: certified ≠ attestiert in all cases)." },
+            { word: "Commercial", type: "adj", definition: "Kommerziell; for business/profit purposes." },
+{ word: "Unnerving", type: "adj", definition: "Beunruhigend; making you feel nervous or worried." },
+{ word: "Widespread", type: "adj", definition: "Weit verbreitet; existing or happening in many places." },
+            { word: "Infrastructure", type: "noun", definition: "Infrastruktur; roads, power lines, charging stations." },
+            
+            { word: "Regulatory", type: "adj", definition: "Regulatorisch; relating to rules and laws." }
+            
+            
+        ];
+
+        async function checkUser() {
+            try {
+                const { data: { user } } = await sb.auth.getUser();
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('logged-in-buttons').style.display = 'flex';
+                    document.getElementById('logged-out-buttons').style.display = 'none';
+                    document.getElementById('save-feature-loggedin').style.display = 'block';
+                    document.getElementById('login-prompt').style.display = 'none';
+                    const name = user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Cool Dude';
+                    document.getElementById('user-greeting').textContent = `Hey ${name}! 👋`;
+                } else {
+                    document.getElementById('logged-in-buttons').style.display = 'none';
+                    document.getElementById('logged-out-buttons').style.display = 'flex';
+                    document.getElementById('save-feature-loggedin').style.display = 'none';
+                    document.getElementById('login-prompt').style.display = 'block';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function saveWordsToDashboard() {
+            if (!currentUser) return;
+            const btn = document.getElementById('save-words-btn');
+            const status = document.getElementById('save-status');
+            btn.disabled = true; btn.textContent = "Saving...";
+
+            const { error } = await sb.from('lessons').upsert([{
+                user_id: currentUser.id, lesson_title: lessonTitle, lesson_link: lessonLink,
+                lesson_level: lessonLevel, vocabulary: wordsToSave, completed_at: new Date().toISOString()
+            }], { onConflict: 'user_id,lesson_title' });
+
+            if (!error) {
+                btn.textContent = "✅ Saved!"; btn.style.backgroundColor = "#059669";
+                status.textContent = "Vocabulary secured! Check your dashboard.";
+                setTimeout(() => window.location.href = '/dashboard/', 1500);
+            } else {
+                btn.textContent = "❌ Error"; btn.disabled = false;
+                status.textContent = "Error saving. Please try again.";
+            }
+        }
+        
+        async function saveMistake(word) {
+            if(!currentUser) return;
+            const wObj = wordsToSave.find(w=>w.word.toLowerCase()===word.toLowerCase()) || {word: word, definition:'Review this term', type:'word'};
+            await sb.from('user_mistakes').upsert({
+                user_id: currentUser.id, word: wObj.word, definition: wObj.definition, word_type: wObj.type,
+                lesson: lessonTitle, lesson_link: lessonLink, last_made_at: new Date().toISOString()
+            }, {onConflict: 'user_id,word'});
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await sb.auth.signOut(); window.location.href = '/';
+        });
+
+        // --- UTILS ---
+        function playAudio(word) {
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9;
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function showFeedback(msg, type) {
+            const el = document.getElementById('feedback-popup');
+            el.textContent = msg; el.style.display = 'block';
+            el.style.backgroundColor = type === 'correct' ? '#059669' : '#DC2626';
+            el.style.borderColor = type === 'correct' ? '#34D399' : '#F87171';
+            setTimeout(() => { el.style.display = 'none'; }, 1800);
+        }
+
+        function showDictionaryPopup(target, word) {
+            const searchWord = word.toLowerCase();
+            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === searchWord);
+            
+            const popup = document.getElementById('dictionary-popup');
+            if(wordObj) {
+                popup.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                        <div>
+                            <strong>${wordObj.word}</strong> 
+                            <span style="font-size:0.85em; color:#DB2777;">(${wordObj.type})</span>
+                        </div>
+                        <button onclick="playAudio('${wordObj.word}')" style="background: none; border: none; cursor: pointer; font-size: 1.3em; padding: 0; margin-left: 10px;" title="Listen">🔊</button>
+                    </div>
+                    ${wordObj.definition}
+                `;
+            } else {
+                popup.innerHTML = `<strong>${word}</strong><br>Definition not found.`;
+            }
+            
+            popup.style.display = 'block';
+            const rect = target.getBoundingClientRect();
+            let topPos = rect.top - popup.offsetHeight - 10;
+            if (topPos < 10) topPos = rect.bottom + 10;
+            
+            let leftPos = (rect.left + (rect.width/2) - (popup.offsetWidth/2));
+            if (leftPos < 10) leftPos = 10;
+            if (leftPos + popup.offsetWidth > window.innerWidth) leftPos = window.innerWidth - popup.offsetWidth - 10;
+
+            popup.style.top = topPos + 'px';
+            popup.style.left = leftPos + 'px';
+        }
+        
+        document.body.addEventListener('click', (e) => {
+            if (!e.target.closest('#dictionary-popup') && !e.target.closest('#learned-words-list li') && !e.target.closest('.highlight-word')) {
+                document.getElementById('dictionary-popup').style.display = 'none';
+            }
+        });
+
+        /* VOCAB MATCH */
+        const vocabData = [
+            { type: 'term', content: "Certified", key: 'A' }, { type: 'definition', content: "Officially recognized.", key: 'A' },
+            { type: 'term', content: "Unnerving", key: 'B' }, { type: 'definition', content: "Making you feel anxious.", key: 'B' },
+            { type: 'term', content: "Regulatory", key: 'C' }, { type: 'definition', content: "Relating to rules/laws.", key: 'C' },
+            { type: 'term', content: "Conquer", key: 'D' }, { type: 'definition', content: "To overcome a fear.", key: 'D' }
+        ];
+        let selectedTermCard = null, selectedDefinitionCard = null, matchedPairs = 0;
+
+        function initVocab() {
+            const container = document.getElementById('vocab-match-container');
+            container.innerHTML = '';
+            const shuffled = [...vocabData].sort(() => 0.5 - Math.random());
+            shuffled.forEach(item => {
+                const card = document.createElement('div');
+                card.className = `match-card ${item.type}`;
+                card.textContent = item.content;
+                card.dataset.key = item.key;
+                card.dataset.type = item.type;
+                card.onclick = () => handleMatchClick(card);
+                container.appendChild(card);
+            });
+        }
+
+        function handleMatchClick(card) {
+            if (card.classList.contains('matched')) return;
+            if (card.dataset.type === 'term') {
+                if(selectedTermCard) selectedTermCard.classList.remove('selected');
+                selectedTermCard = card;
+            } else {
+                if(selectedDefinitionCard) selectedDefinitionCard.classList.remove('selected');
+                selectedDefinitionCard = card;
+            }
+            card.classList.add('selected');
+
+            if (selectedTermCard && selectedDefinitionCard) {
+                if (selectedTermCard.dataset.key === selectedDefinitionCard.dataset.key) {
+                    showFeedback("Systems Check: Clear! 🌤️", 'correct');
+                    selectedTermCard.classList.add('temp-matched');
+                    selectedDefinitionCard.classList.add('temp-matched');
+                    const t = selectedTermCard; const d = selectedDefinitionCard;
+                    setTimeout(() => { t.classList.add('matched'); d.classList.add('matched'); }, 600);
+                    matchedPairs++;
+                } else {
+                    showFeedback("Turbulence! ❌", 'incorrect');
+                    const t = selectedTermCard; const d = selectedDefinitionCard;
+                    setTimeout(() => { t.classList.remove('selected'); d.classList.remove('selected'); }, 600);
+                }
+                selectedTermCard = null; selectedDefinitionCard = null;
+            }
+        }
+
+        /* COMPREHENSION */
+        function checkComprehension() {
+            let correct = 0;
+            const qs = document.querySelectorAll('.question[data-question="1"], .question[data-question="2"], .question[data-question="3"]');
+            qs.forEach(q => {
+                const sel = q.querySelector('.option-button.selected');
+                q.querySelectorAll('.option-button').forEach(o => {
+                    o.classList.remove('correct', 'incorrect');
+                    if(o.dataset.correct === 'true') o.classList.add('correct');
+                });
+                if(sel && sel.dataset.correct === 'true') correct++;
+                else if(sel) sel.classList.add('incorrect');
+            });
+            const res = document.getElementById('comprehension-result');
+            res.style.display = 'block';
+            res.textContent = `Scored: ${correct}/3`;
+            res.className = correct === 3 ? 'result-message correct' : 'result-message incorrect';
+        }
+
+        /* GAP FILL */
+        let selectedGapWord = null;
+        function handleGapBlankClick(blank) {
+            if (selectedGapWord) {
+                blank.textContent = selectedGapWord.dataset.word;
+                selectedGapWord.classList.add('used');
+                selectedGapWord.classList.remove('selected');
+                selectedGapWord = null;
+            } else if (blank.textContent !== '') {
+                const word = blank.textContent;
+                const opt = document.querySelector(`.word-option[data-word="${word}"]`);
+                if(opt) opt.classList.remove('used');
+                blank.textContent = '';
+            }
+        }
+
+        function checkGaps() {
+            let correct = 0;
+            const blanks = document.querySelectorAll('.gap-input');
+            blanks.forEach(b => {
+                b.classList.remove('correct', 'incorrect');
+                if(b.textContent.trim() === b.dataset.answer) { b.classList.add('correct'); correct++; }
+                else b.classList.add('incorrect');
+            });
+            const res = document.getElementById('gap-result');
+            res.style.display = 'block';
+            res.textContent = `Flight Data: ${correct}/${blanks.length} Correct`;
+            res.className = correct === blanks.length ? 'result-message correct' : 'result-message incorrect';
+        }
+
+        /* GRAMMAR */
+        function checkGrammar() {
+            let correct = 0;
+            const qs = document.querySelectorAll('.question[data-question="4"], .question[data-question="5"]');
+            qs.forEach(q => {
+                const sel = q.querySelector('.option-button.selected');
+                q.querySelectorAll('.option-button').forEach(o => {
+                    o.classList.remove('correct', 'incorrect');
+                    if(o.dataset.correct === 'true') o.classList.add('correct');
+                });
+                if(sel && sel.dataset.correct === 'true') correct++;
+                else if(sel) sel.classList.add('incorrect');
+            });
+            const res = document.getElementById('grammar-result');
+            res.style.display = 'block';
+            res.textContent = `Predictions Check: ${correct}/2`;
+            res.className = correct === 2 ? 'result-message correct' : 'result-message incorrect';
+        }
+
+        function resetComprehension() { location.reload(); }
+        function resetGaps() { location.reload(); }
+        function resetGrammar() { location.reload(); }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkUser(); initVocab();
+            document.querySelectorAll('.word-option').forEach(o => o.onclick = () => {
+                document.querySelectorAll('.word-option').forEach(x => x.classList.remove('selected'));
+                selectedGapWord = o; o.classList.add('selected');
+            });
+            document.querySelectorAll('.gap-input').forEach(b => b.onclick = () => handleGapBlankClick(b));
+            document.querySelectorAll('.option-button').forEach(b => b.onclick = () => {
+                b.closest('.question').querySelectorAll('.option-button').forEach(x => x.classList.remove('selected'));
+                b.classList.add('selected');
+            });
+            document.querySelectorAll('#learned-words-list li').forEach(li => li.onclick = (e) => {
+                e.stopPropagation();
+                showDictionaryPopup(li, li.dataset.word);
+                playAudio(li.dataset.word);
+            });
+            document.body.onclick = () => document.getElementById('dictionary-popup').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
