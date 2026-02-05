@@ -1,15 +1,23 @@
-// Cool Picks Widget - Auto-Discovery Version
-// Automatically finds lessons and mixes landing pages with actual content
-// Zero maintenance - just add lessons to your site and they'll be discovered!
+// Cool Picks Widget - GitHub Lessons Version
+// Simple config-based system that mixes landing pages with actual lessons
 
 const coolPicksWidget = {
-    lessons: [],
-    currentLesson: null,
-    isAnimating: false,
-    initialized: false,
+    // CONFIGURATION: Add your actual lesson URLs here
+    // Just add them to this array and they'll automatically be included in rotation
+    actualLessons: [
+       
+        '/invisibleoffice/',
+        '/flyingtaxis/',
+        '/sandwich/',
+        '/coffee/',
+       '/crisismanagement/',
+        '/corporateempires/',
+        '/paris/',
+        '/transferpricing/',
+    ],
 
-    // Base lesson categories with their landing pages
-    baseLessons: [
+    // Landing pages (keep these as they are)
+    landingPages: [
         {
             name: 'Business English',
             url: 'business/',
@@ -19,8 +27,7 @@ const coolPicksWidget = {
             time: '8 min',
             preview: 'Master meetings, emails & presentations',
             keyLearnings: ['Professional communication', 'Business vocabulary', 'Formal writing'],
-            funFact: 'Did you know? "Think outside the box" originated in the 1970s!',
-            hasSubLessons: true
+            funFact: 'Did you know? "Think outside the box" originated in the 1970s!'
         },
         {
             name: 'Tax English',
@@ -31,8 +38,7 @@ const coolPicksWidget = {
             time: '6 min',
             preview: 'Navigate tax terminology with confidence',
             keyLearnings: ['Tax vocabulary', 'Accounting terms', 'Financial documentation'],
-            funFact: 'Fun fact: The word "tax" comes from Latin "taxare" meaning "to assess"!',
-            hasSubLessons: true
+            funFact: 'Fun fact: The word "tax" comes from Latin "taxare" meaning "to assess"!'
         },
         {
             name: 'Legal English',
@@ -43,8 +49,7 @@ const coolPicksWidget = {
             time: '7 min',
             preview: 'Understand contracts & legal documents',
             keyLearnings: ['Contract language', 'Legal terminology', 'Court procedures'],
-            funFact: 'Cool fact: "Hereby" and "herein" date back to Old English legal documents!',
-            hasSubLessons: true
+            funFact: 'Cool fact: "Hereby" and "herein" date back to Old English legal documents!'
         },
         {
             name: 'Beginner Course',
@@ -55,8 +60,7 @@ const coolPicksWidget = {
             time: '5 min',
             preview: 'Build your foundation from scratch',
             keyLearnings: ['Basic grammar', 'Common phrases', 'Essential vocabulary'],
-            funFact: 'Every expert was once a beginner! You\'ve got this! 💪',
-            hasSubLessons: true
+            funFact: 'Every expert was once a beginner! You\'ve got this! 💪'
         },
         {
             name: 'Intermediate Course',
@@ -67,8 +71,7 @@ const coolPicksWidget = {
             time: '10 min',
             preview: 'Expand your vocabulary & confidence',
             keyLearnings: ['Complex grammar', 'Idioms & expressions', 'Real-world situations'],
-            funFact: 'English has over 170,000 words in current use - let\'s learn them! 📚',
-            hasSubLessons: true
+            funFact: 'English has over 170,000 words in current use - let\'s learn them! 📚'
         },
         {
             name: 'Advanced Course',
@@ -79,8 +82,7 @@ const coolPicksWidget = {
             time: '12 min',
             preview: 'Perfect your fluency & sophistication',
             keyLearnings: ['Native-like fluency', 'Advanced idioms', 'Subtle nuances'],
-            funFact: 'Shakespeare invented over 1,700 words we still use today! 🎭',
-            hasSubLessons: true
+            funFact: 'Shakespeare invented over 1,700 words we still use today! 🎭'
         },
         {
             name: 'Game Zone',
@@ -91,158 +93,52 @@ const coolPicksWidget = {
             time: '3 min',
             preview: 'Challenge yourself with fun games',
             keyLearnings: ['Interactive learning', 'Quick practice', 'Test your skills'],
-            funFact: 'Playing games boosts memory retention by 40%! Time to play! 🎲',
-            hasSubLessons: false
+            funFact: 'Playing games boosts memory retention by 40%! Time to play! 🎲'
         }
     ],
 
-    // Common lesson patterns to look for
-    lessonPatterns: [
-        { pattern: 'lesson', icon: '📖', type: 'lesson' },
-        { pattern: 'unit', icon: '📚', type: 'lesson' },
-        { pattern: 'chapter', icon: '📝', type: 'lesson' },
-        { pattern: 'module', icon: '🎓', type: 'lesson' },
-        { pattern: 'exercise', icon: '✏️', type: 'practice' },
-        { pattern: 'quiz', icon: '❓', type: 'practice' },
-        { pattern: 'practice', icon: '💪', type: 'practice' },
-        { pattern: 'test', icon: '📋', type: 'practice' }
-    ],
+    allOptions: [],
+    currentLesson: null,
+    isAnimating: false,
 
-    // Auto-discover lessons from the current directory structure
-    async discoverLessons() {
-        console.log('🔍 Starting lesson discovery...');
-        const allLessons = [...this.baseLessons];
+    // Convert lesson URLs to nice display objects
+    createLessonObjects() {
+        const lessonIcons = ['📖', '✨', '🎯', '💡', '⚡', '🌟', '🔥', '💪', '🚀', '✏️'];
+        const lessonPreviews = [
+            'Jump right into learning!',
+            'Direct lesson content awaits',
+            'Start learning immediately',
+            'Quick and focused practice',
+            'Get straight to the good stuff',
+            'No intro needed - let\'s go!',
+            'Instant learning experience'
+        ];
 
-        // For each base lesson that has sub-lessons, try to discover them
-        for (const baseLesson of this.baseLessons) {
-            if (!baseLesson.hasSubLessons) continue;
+        return this.actualLessons.map((url, index) => {
+            // Extract name from URL
+            const lessonName = url.replace(/\//g, '')
+                .replace(/-/g, ' ')
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
 
-            try {
-                // Try to fetch the landing page to find links
-                const response = await fetch(baseLesson.url);
-                if (!response.ok) continue;
-
-                const html = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-
-                // Find all links in the page
-                const links = doc.querySelectorAll('a[href]');
-                
-                links.forEach(link => {
-                    const href = link.getAttribute('href');
-                    const text = link.textContent.trim();
-                    
-                    // Skip if empty, external, or hash link
-                    if (!href || href.startsWith('http') || href.startsWith('#') || href === '../') return;
-                    
-                    // Check if it matches our lesson patterns
-                    const lowerHref = href.toLowerCase();
-                    const lowerText = text.toLowerCase();
-                    
-                    for (const {pattern, icon, type} of this.lessonPatterns) {
-                        if (lowerHref.includes(pattern) || lowerText.includes(pattern)) {
-                            // Build full URL
-                            let fullUrl = baseLesson.url;
-                            if (!fullUrl.endsWith('/')) fullUrl += '/';
-                            fullUrl += href;
-
-                            // Extract lesson number/name if possible
-                            const lessonName = this.extractLessonName(text, baseLesson.name, pattern);
-                            
-                            allLessons.push({
-                                name: lessonName,
-                                url: fullUrl,
-                                icon: icon,
-                                category: baseLesson.category,
-                                tagline: `Part of ${baseLesson.name}`,
-                                time: this.estimateTime(type),
-                                preview: `Direct ${type} content - jump right in!`,
-                                keyLearnings: baseLesson.keyLearnings,
-                                funFact: `🎯 This takes you straight to the content!`,
-                                isDirectLesson: true,
-                                parentLesson: baseLesson.name
-                            });
-
-                            console.log(`✅ Found: ${lessonName} at ${fullUrl}`);
-                            break; // Only match first pattern
-                        }
-                    }
-                });
-
-            } catch (error) {
-                console.log(`⚠️ Could not scan ${baseLesson.name}:`, error.message);
-            }
-        }
-
-        console.log(`🎉 Discovery complete! Found ${allLessons.length} total lessons (${allLessons.filter(l => l.isDirectLesson).length} direct lessons)`);
-        return allLessons;
-    },
-
-    // Extract a nice lesson name from link text
-    extractLessonName(text, parentName, pattern) {
-        // Clean up the text
-        let name = text.replace(/\s+/g, ' ').trim();
-        
-        // If it's too short or generic, enhance it
-        if (name.length < 3 || name.toLowerCase() === pattern) {
-            const match = text.match(/\d+/);
-            if (match) {
-                name = `${parentName} - Part ${match[0]}`;
-            } else {
-                name = `${parentName} - ${pattern.charAt(0).toUpperCase() + pattern.slice(1)}`;
-            }
-        }
-        
-        // Limit length
-        if (name.length > 50) {
-            name = name.substring(0, 47) + '...';
-        }
-        
-        return name;
-    },
-
-    // Estimate time based on lesson type
-    estimateTime(type) {
-        const times = {
-            'lesson': ['8 min', '10 min', '12 min', '15 min'],
-            'practice': ['5 min', '7 min', '10 min']
-        };
-        const timeArray = times[type] || times['lesson'];
-        return timeArray[Math.floor(Math.random() * timeArray.length)];
-    },
-
-    // Recommendation strategies (now includes direct lessons)
-    strategies: {
-        random: function(lessons) {
-            return lessons[Math.floor(Math.random() * lessons.length)];
-        },
-        directLesson: function(lessons) {
-            const direct = lessons.filter(l => l.isDirectLesson);
-            return direct.length > 0 
-                ? direct[Math.floor(Math.random() * direct.length)]
-                : lessons[Math.floor(Math.random() * lessons.length)];
-        },
-        landingPage: function(lessons) {
-            const landing = lessons.filter(l => !l.isDirectLesson);
-            return landing[Math.floor(Math.random() * landing.length)];
-        },
-        specialized: function(lessons) {
-            const specialized = lessons.filter(l => l.category === 'specialized');
-            return specialized[Math.floor(Math.random() * specialized.length)];
-        },
-        general: function(lessons) {
-            const general = lessons.filter(l => l.category === 'general');
-            return general[Math.floor(Math.random() * general.length)];
-        },
-        fun: function(lessons) {
-            const fun = lessons.filter(l => l.category === 'fun');
-            return fun.length > 0 ? fun[0] : lessons[0];
-        }
+            return {
+                name: lessonName,
+                url: url,
+                icon: lessonIcons[index % lessonIcons.length],
+                category: 'lesson',
+                tagline: 'Direct lesson access',
+                time: ['5 min', '8 min', '10 min'][Math.floor(Math.random() * 3)],
+                preview: lessonPreviews[Math.floor(Math.random() * lessonPreviews.length)],
+                keyLearnings: ['Practical skills', 'Real examples', 'Hands-on practice'],
+                funFact: '🎯 This takes you straight to the lesson!',
+                isDirectLesson: true
+            };
+        });
     },
 
     // Initialize the widget
-    async init() {
+    init() {
         const picksBtn = document.getElementById('picks-btn');
         const picksDesc = document.getElementById('picks-desc');
         const picksContainer = document.getElementById('cool-picks-widget');
@@ -252,16 +148,11 @@ const coolPicksWidget = {
             return;
         }
 
-        console.log('🚀 Cool Picks Enhanced Auto-Discovery starting...');
+        // Combine landing pages with actual lessons
+        const lessonObjects = this.createLessonObjects();
+        this.allOptions = [...this.landingPages, ...lessonObjects];
 
-        // Show loading state
-        picksDesc.innerHTML = '<div class="picks-loading">🔍 Finding awesome lessons...</div>';
-
-        // Discover all lessons
-        this.lessons = await this.discoverLessons();
-        this.initialized = true;
-
-        console.log('✅ Cool Picks initialized with', this.lessons.length, 'lessons');
+        console.log(`✅ Cool Picks initialized with ${this.landingPages.length} landing pages and ${lessonObjects.length} direct lessons`);
 
         // Set initial recommendation
         this.updateRecommendation();
@@ -282,7 +173,7 @@ const coolPicksWidget = {
 
         // Change recommendation every 15 seconds
         setInterval(() => {
-            if (!this.isAnimating && this.initialized) {
+            if (!this.isAnimating) {
                 this.updateRecommendation();
             }
         }, 15000);
@@ -306,12 +197,12 @@ const coolPicksWidget = {
         const picksBtn = document.getElementById('picks-btn');
         const picksWidget = document.getElementById('cool-picks-widget');
 
-        // If "Surprise Me" button, always pick a random direct lesson
+        // If "Surprise Me" button, ALWAYS pick a direct lesson
         if (picksBtn.innerHTML.includes('Surprise Me')) {
-            const directLessons = this.lessons.filter(l => l.isDirectLesson);
+            const directLessons = this.allOptions.filter(l => l.isDirectLesson);
             if (directLessons.length > 0) {
                 this.currentLesson = directLessons[Math.floor(Math.random() * directLessons.length)];
-                console.log('🎁 Surprise Me! Picked:', this.currentLesson.name);
+                console.log('🎁 Surprise Me! Picked direct lesson:', this.currentLesson.name);
             }
         }
 
@@ -338,25 +229,23 @@ const coolPicksWidget = {
     updateRecommendation() {
         const picksDesc = document.getElementById('picks-desc');
         const picksBtn = document.getElementById('picks-btn');
-        if (!picksDesc || this.lessons.length === 0) return;
+        if (!picksDesc || this.allOptions.length === 0) return;
 
-        // Weight strategies to favor direct lessons
-        const strategyPool = [
-            'directLesson', 'directLesson', 'directLesson', // 3x weight for direct lessons
-            'random', 'random', // 2x weight for random
-            'landingPage', // 1x weight for landing pages
-            'specialized',
-            'general',
-            'fun'
-        ];
+        // 60% chance of direct lesson, 40% chance of landing page
+        const preferDirectLessons = Math.random() < 0.6;
         
-        const randomStrategy = strategyPool[Math.floor(Math.random() * strategyPool.length)];
-        
-        // Get recommendation
-        const lesson = this.strategies[randomStrategy](this.lessons);
-        this.currentLesson = lesson;
+        if (preferDirectLessons) {
+            const directLessons = this.allOptions.filter(l => l.isDirectLesson);
+            if (directLessons.length > 0) {
+                this.currentLesson = directLessons[Math.floor(Math.random() * directLessons.length)];
+            } else {
+                this.currentLesson = this.allOptions[Math.floor(Math.random() * this.allOptions.length)];
+            }
+        } else {
+            this.currentLesson = this.allOptions[Math.floor(Math.random() * this.allOptions.length)];
+        }
 
-        console.log(`🎲 New recommendation (${randomStrategy}):`, lesson.name, lesson.isDirectLesson ? '(Direct Lesson)' : '(Landing Page)');
+        console.log(`🎲 New recommendation:`, this.currentLesson.name, this.currentLesson.isDirectLesson ? '(Direct Lesson ⚡)' : '(Landing Page)');
 
         // Animate out
         picksDesc.style.opacity = '0';
@@ -368,7 +257,7 @@ const coolPicksWidget = {
             let content = '';
 
             // Add special badge for direct lessons
-            const directBadge = lesson.isDirectLesson 
+            const directBadge = this.currentLesson.isDirectLesson 
                 ? '<span class="picks-direct-badge">⚡ Direct Access</span>' 
                 : '';
 
@@ -377,46 +266,46 @@ const coolPicksWidget = {
                     content = `
                         <div class="picks-full-preview">
                             <div class="picks-header-row">
-                                ${lesson.icon} <span class="lesson-name-link">${lesson.name}</span>
-                                <span class="picks-time">${lesson.time}</span>
+                                ${this.currentLesson.icon} <span class="lesson-name-link">${this.currentLesson.name}</span>
+                                <span class="picks-time">${this.currentLesson.time}</span>
                             </div>
                             ${directBadge}
-                            <div class="picks-preview">${lesson.preview}</div>
+                            <div class="picks-preview">${this.currentLesson.preview}</div>
                             <div class="picks-learnings">
-                                💡 ${lesson.keyLearnings[0]} • ${lesson.keyLearnings[1]}
+                                💡 ${this.currentLesson.keyLearnings[0]} • ${this.currentLesson.keyLearnings[1]}
                             </div>
                         </div>
                     `;
-                    picksBtn.innerHTML = lesson.isDirectLesson ? '🎯 Jump In!' : '🎯 Let\'s Go!';
+                    picksBtn.innerHTML = this.currentLesson.isDirectLesson ? '🎯 Jump In!' : '🎯 Let\'s Go!';
                     break;
 
                 case 1: // Fun fact style
                     content = `
                         <div class="picks-funfact">
                             <div class="picks-header-row">
-                                ${lesson.icon} <span class="lesson-name-link">${lesson.name}</span>
+                                ${this.currentLesson.icon} <span class="lesson-name-link">${this.currentLesson.name}</span>
                             </div>
                             ${directBadge}
-                            <div class="picks-fact">${lesson.funFact}</div>
-                            <div class="picks-time-badge">${lesson.time} • ${lesson.preview}</div>
+                            <div class="picks-fact">${this.currentLesson.funFact}</div>
+                            <div class="picks-time-badge">${this.currentLesson.time} • ${this.currentLesson.preview}</div>
                         </div>
                     `;
-                    picksBtn.innerHTML = lesson.isDirectLesson ? '⚡ Start Now!' : '🚀 Discover!';
+                    picksBtn.innerHTML = this.currentLesson.isDirectLesson ? '⚡ Start Now!' : '🚀 Discover!';
                     break;
 
                 case 2: // Mystery teaser style
                     content = `
                         <div class="picks-mystery">
-                            <div class="picks-mystery-text">✨ ${lesson.isDirectLesson ? 'Quick Lesson' : 'Mystery Pick'} Revealed!</div>
+                            <div class="picks-mystery-text">✨ ${this.currentLesson.isDirectLesson ? 'Quick Lesson' : 'Mystery Pick'} Revealed!</div>
                             <div class="picks-header-row">
-                                ${lesson.icon} <span class="lesson-name-link">${lesson.name}</span>
+                                ${this.currentLesson.icon} <span class="lesson-name-link">${this.currentLesson.name}</span>
                             </div>
                             ${directBadge}
-                            <div class="picks-tagline">${lesson.tagline}</div>
-                            <div class="picks-meta">${lesson.time} • ${lesson.keyLearnings.length} key skills</div>
+                            <div class="picks-tagline">${this.currentLesson.tagline}</div>
+                            <div class="picks-meta">${this.currentLesson.time} • ${this.currentLesson.keyLearnings.length} key skills</div>
                         </div>
                     `;
-                    picksBtn.innerHTML = lesson.isDirectLesson ? '⚡ Let\'s Learn!' : '🎁 Surprise Me!';
+                    picksBtn.innerHTML = this.currentLesson.isDirectLesson ? '⚡ Let\'s Learn!' : '🎁 Surprise Me!';
                     break;
             }
 
