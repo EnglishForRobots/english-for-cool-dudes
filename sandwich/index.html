@@ -321,18 +321,27 @@
             el.style.borderColor = type === 'correct' ? '#1B5E20' : '#B71C1C';
             setTimeout(() => { el.style.display = 'none'; }, 1800);
         }
-        /* POPUP LOGIC */
-        function showPopup(target, word) {
-            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase());
+       
+        function showDictionaryPopup(target, word) {
+            const searchWord = word.toLowerCase();
+            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === searchWord);
+            
             const popup = document.getElementById('dictionary-popup');
-            if (!popup || !wordObj) return;
-
-            popup.innerHTML = `<strong>${wordObj.word}</strong> <span style="font-size:0.8em; color:gray;">(${wordObj.type})</span><br><p style="font-size: 0.9em; margin-top:5px;">${wordObj.definition}</p>`;
+            if(wordObj) popup.innerHTML = `<strong>${wordObj.word}</strong> <span style="font-size:0.85em; color:#5E35B1;">(${wordObj.type})</span><br>${wordObj.definition}`;
+            else popup.innerHTML = `<strong>${word}</strong><br>Click to see meaning.`;
+            
             popup.style.display = 'block';
             const rect = target.getBoundingClientRect();
-            popup.style.left = `${rect.left}px`;
-            popup.style.top = `${rect.bottom + window.scrollY + 10}px`;
+            let topPos = rect.top - popup.offsetHeight - 10;
+            if (topPos < 10) topPos = rect.bottom + 10;
+            popup.style.top = topPos + 'px';
+            popup.style.left = (rect.left + (rect.width/2) - (popup.offsetWidth/2)) + 'px';
         }
+        document.body.addEventListener('click', (e) => {
+            if (!e.target.closest('#dictionary-popup') && !e.target.closest('#learned-words-list li') && !e.target.closest('.highlight-word')) {
+                document.getElementById('dictionary-popup').style.display = 'none';
+            }
+        });
 
         /* 1. TRUE/FALSE LOGIC */
         function checkComprehension() {
