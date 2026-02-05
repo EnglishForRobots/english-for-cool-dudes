@@ -84,7 +84,13 @@ async function initializeAuthHeader() {
     const userGreeting = document.getElementById('user-greeting');
 
      try {
-        const { data: { user } } = await supabaseClient.auth.getUser();
+        const { data: { user }, error } = await supabaseClient.auth.getUser();
+        
+        // Ignore "session missing" errors - this just means user is logged out
+        if (error && error.message !== 'Auth session missing!') {
+            console.error('Auth error:', error);
+        }
+        
         if (user) {
             let userName = 'Cool Dude';
             if (user.user_metadata && user.user_metadata.full_name) userName = user.user_metadata.full_name.split(' ')[0];
@@ -97,7 +103,12 @@ async function initializeAuthHeader() {
             if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
             if (loggedInButtons) loggedInButtons.style.display = 'none';
         }
-    } catch (err) { console.error('Error checking auth:', err); }
+    } catch (err) { 
+        // Only log real errors, not "session missing"
+        if (!err.message || !err.message.includes('Auth session missing')) {
+            console.error('Error checking auth:', err); 
+        }
+    }
 
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
