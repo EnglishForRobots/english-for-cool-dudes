@@ -1,7 +1,6 @@
 // Service Worker for English For Cool Dudes
-// Version 1.0
-
-const CACHE_NAME = 'cool-dudes-v1';
+// Version 1.1 - Improved with better navigation handling
+const CACHE_NAME = 'cool-dudes-v1.1';
 const urlsToCache = [
   '/',
   '/styles.css',
@@ -42,7 +41,31 @@ self.addEventListener('activate', (event) => {
 });
 
 // Fetch event - serve from cache, fallback to network
+// IMPROVED: Better handling for navigation requests
 self.addEventListener('fetch', (event) => {
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
+  // Skip chrome-extension and other non-http(s) requests
+  if (!event.request.url.startsWith('http')) {
+    return;
+  }
+
+  // For navigation requests (page loads), always go network-first
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => {
+          // If network fails, try cache
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
+
+  // For other requests, use cache-first strategy
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
@@ -50,6 +73,7 @@ self.addEventListener('fetch', (event) => {
         if (response) {
           return response;
         }
+        
         // Clone the request
         const fetchRequest = event.request.clone();
         
