@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Amazing Sandwich - English For Cool Dudes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; background: #FFF9C4; color: #4E342E; line-height: 1.6; }
+        :root { --color-primary: #FF9800; --color-secondary: #5D4037; --color-correct: #689F38; --color-incorrect: #D32F2F; }
+        
+        .header { background: white; border-bottom: 1px solid #FFE082; padding: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.04); position: sticky; top: 0; z-index: 100; }
+        .header-content { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .logo { width: 36px; height: 36px; background: linear-gradient(135deg, #FFB74D 0%, #F57C00 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .site-title { font-size: 20px; font-weight: 800; color: #5D4037; text-decoration: none; }
+        
+        .header-buttons { display: flex; align-items: center; gap: 8px; }
+        .header-button { text-decoration: none; padding: 7px 14px; border-radius: 6px; font-size: 14px; font-weight: 600; transition: all 0.2s; cursor: pointer; border: 1px solid #FFE082; background: transparent; }
+        .header-button.login { background: #FFF8E1; color: #795548; }
+        .header-button.signup { background: var(--color-primary); color: white; }
+
+        .container-main { max-width: 1000px; margin: 30px auto; padding: 30px 20px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #FFE082; }
+        .lesson-main-title { font-size: 2.5em; font-weight: 800; color: var(--color-secondary); margin-bottom: 10px; }
+        .lesson-section { background: #FFFDE7; padding: 30px; border-radius: 10px; border: 1px solid #FFF59D; margin-bottom: 30px; }
+        .section-title { color: var(--color-secondary); font-size: 1.8em; font-weight: 800; margin-bottom: 20px; padding-bottom: 5px; border-bottom: 2px dashed #FFCC80; }
+        
+        .reading-text { background: white; border-left: 5px solid var(--color-primary); padding: 20px; border-radius: 0 8px 8px 0; font-size: 1.2em; color: #3E2723; line-height: 1.8; }
+        .highlight-word { color: #E65100; font-weight: 700; cursor: help; border-bottom: 2px dotted #FFB74D; }
+
+        .comp-btn-group .option-button { transition: all 0.2s; background: white; color: #5D4037; font-weight: 600; padding: 10px 15px; border-radius: 8px; border: 1px solid #FFE082; text-align: left; width: 100%; cursor: pointer; margin-bottom: 8px; }
+        .comp-btn-group .option-button:hover { background: #FFF8E1; }
+        .comp-btn-group .option-button.selected { background: #FFE082; border-color: var(--color-secondary); }
+        .comp-btn-group .option-button.correct { background: #8BC34A !important; color: white !important; border-color: #689F38 !important; }
+        .comp-btn-group .option-button.incorrect { background: #EF5350 !important; color: white !important; border-color: #D32F2F !important; }
+
+        .word-bank { background: #FFF9C4; border: 2px solid var(--color-secondary); border-radius: 10px; padding: 15px; margin-bottom: 20px; }
+        .word-options { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .word-option { background: var(--color-secondary); color: white; padding: 10px 15px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-weight: 600; }
+        .word-option.selected { background: var(--color-primary); transform: scale(1.05); }
+        .word-option.used { opacity: 0.3; pointer-events: none; background: #A1887F; }
+
+        .gap-input { display: inline-block; text-align: center; padding: 6px 10px; min-width: 120px; height: 38px; background: #FFF; border: 2px dashed #FF9800; border-radius: 4px; font-weight: 700; cursor: pointer; margin: 0 4px; }
+        .gap-input.correct { background: #C5E1A5 !important; border-color: #689F38 !important; }
+        .gap-input.incorrect { background: #EF9A9A !important; border-color: #D32F2F !important; }
+
+        .button-group { margin-top: 20px; display: flex; gap: 15px; justify-content: center; }
+        .check-button { background: var(--color-secondary); color: white; border: none; padding: 12px 25px; border-radius: 9999px; cursor: pointer; font-weight: 600; transition: 0.3s; }
+        .check-button:hover { background: #3E2723; }
+        .reveal-button { background: #FFB300; color: #4E342E; border-radius: 9999px; padding: 12px 25px; font-weight: 600; cursor: pointer; }
+        .reset-button { background: #A1887F; color: white; border-radius: 9999px; padding: 12px 25px; font-weight: 600; cursor: pointer; }
+
+        .result-message { margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: 700; display: none; text-align: center; }
+        .result-message.correct { background: #DCEDC8; color: #33691E; border: 1px solid #8BC34A; }
+        .result-message.incorrect { background: #FFCDD2; color: #B71C1C; border: 1px solid #E57373; }
+
+        #learned-words-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; list-style: none; }
+        #learned-words-list li { background: white; padding: 10px 15px; border-radius: 8px; border: 2px solid #FFE082; text-align: center; font-weight: 600; color: #5D4037; cursor: pointer; }
+
+        #dictionary-popup { position: fixed; width: 280px; padding: 20px; background: white; border: 3px solid var(--color-secondary); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 2001; display: none; }
+        .word-form-input { width: 100%; padding: 12px; border: 2px solid #D1D5DB; border-radius: 8px; transition: 0.3s; }
+        .word-form-input.revealed { background: #E8F5E9 !important; font-weight: bold; color: #2E7D32; border-color: #A5D6A7; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">🥪</span>
+                <a href="/beginner/" class="site-title">English For Cool Dudes</a>
+            </div>
+            <div id="logged-out-buttons" class="header-buttons">
+                <a href="/login/" class="header-button login">Login</a>
+                <a href="/signup/" class="header-button signup">Sign Up</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-main">
+        <h1 class="lesson-main-title">🥪 The Amazing Sandwich</h1>
+        <p class="text-lg text-gray-500 mb-8">The story of a man who was too busy to stop for lunch!</p>
+
+        <section class="lesson-section">
+            <h2 class="section-title">📰 Reading: The Earl's Lunch</h2>
+            <div class="reading-text">
+                <p class="mb-4">In the 18th century, a man named John Montagu was the 4th Earl of Sandwich. He was a very <span class="highlight-word" onclick="showPopup(this, 'Busy')">busy</span> man. He loved playing <span class="highlight-word" onclick="showPopup(this, 'Cards')">cards</span> with his friends for many hours.</p>
+                <p class="mb-4">One night, he was very <span class="highlight-word" onclick="showPopup(this, 'Hungry')">hungry</span>, but he did not want to leave the game. He <span class="highlight-word" onclick="showPopup(this, 'Ordered')">ordered</span> his cook to bring him some <span class="highlight-word" onclick="showPopup(this, 'Meat')">meat</span> between two pieces of <span class="highlight-word" onclick="showPopup(this, 'Bread')">bread</span>.</p>
+                <p class="mb-4">This way, he could eat with one hand and play cards with the other! His friends saw this and said, "I want the same as Sandwich!" And that is how this <span class="highlight-word" onclick="showPopup(this, 'Famous')">famous</span> snack was <span class="highlight-word" onclick="showPopup(this, 'Named')">named</span>.</p>
+            </div>
+        </section>
+
+        <section class="lesson-section">
+            <h2 class="section-title">✅ 1. True or False?</h2>
+            <div class="question mb-6">
+                <p class="font-semibold text-lg mb-3">1. John Montagu was a cook.</p>
+                <ul class="comp-btn-group">
+                    <li class="option-button" data-correct="false">True</li>
+                    <li class="option-button" data-correct="true">False</li>
+                </ul>
+            </div>
+            <div class="question mb-6">
+                <p class="font-semibold text-lg mb-3">2. He wanted to eat while playing cards.</p>
+                <ul class="comp-btn-group">
+                    <li class="option-button" data-correct="true">True</li>
+                    <li class="option-button" data-correct="false">False</li>
+                </ul>
+            </div>
+            <div class="button-group">
+                <button class="check-button" onclick="checkComprehension()">Check Answers</button>
+                <button class="reset-button" onclick="resetComprehension()">Reset</button>
+            </div>
+            <div id="comprehension-result" class="result-message"></div>
+        </section>
+
+        <section class="lesson-section">
+            <h2 class="section-title">🧩 2. Past Simple: Gap Fill</h2>
+            <div class="word-bank">
+                <h4 class="font-bold mb-3 text-center">Word Bank:</h4>
+                <div class="word-options">
+                    <span class="word-option" data-word="loved">loved</span>
+                    <span class="word-option" data-word="said">said</span>
+                    <span class="word-option" data-word="ordered">ordered</span>
+                    <span class="word-option" data-word="wanted">wanted</span>
+                </div>
+            </div>
+            <div class="text-lg">
+                <p class="mb-5">1. John <span class="gap-input" data-answer="loved"></span> playing games.</p>
+                <p class="mb-5">2. He <span class="gap-input" data-answer="ordered"></span> meat and bread.</p>
+                <p class="mb-5">3. He <span class="gap-input" data-answer="wanted"></span> to eat with one hand.</p>
+                <p class="mb-5">4. His friends <span class="gap-input" data-answer="said"></span>, "I want the same!"</p>
+            </div>
+            <div class="button-group">
+                <button class="check-button" onclick="checkGaps()">Check Answers</button>
+                <button class="reset-button" onclick="resetGaps()">Reset</button>
+            </div>
+            <div id="gap-result" class="result-message"></div>
+        </section>
+
+        <section class="lesson-section">
+            <h2 class="section-title">🔤 3. Word Forms</h2>
+            <div class="space-y-4">
+                <div>
+                    <p class="font-semibold text-lg mb-2">1. He ate because of his __________. (hungry)</p>
+                    <input type="text" class="word-form-input" data-answer="hunger" placeholder="Type here...">
+                </div>
+                <div>
+                    <p class="font-semibold text-lg mb-2">2. He is the __________ of the sandwich. (invent)</p>
+                    <input type="text" class="word-form-input" data-answer="inventor" placeholder="Type here...">
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="check-button" onclick="checkWordForms()">Check Answers</button>
+                <button class="reveal-button" onclick="revealWordForms()">Reveal Answers</button>
+                <button class="reset-button" onclick="resetWordForms()">Reset</button>
+            </div>
+            <div id="wordform-result" class="result-message"></div>
+        </section>
+
+        <section class="text-center p-8 bg-orange-50 rounded-xl border-2 border-orange-200">
+            <h2 class="section-title">📚 Words You've Learned</h2>
+            <ul id="learned-words-list">
+                <li data-word="Busy">Busy</li>
+                <li data-word="Cards">Cards</li>
+                <li data-word="Hungry">Hungry</li>
+                <li data-word="Ordered">Ordered</li>
+                <li data-word="Meat">Meat</li>
+                <li data-word="Bread">Bread</li>
+                <li data-word="Famous">Famous</li>
+                <li data-word="Named">Named</li>
+            </ul>
+        </section>
+    </div>
+
+    <div id="dictionary-popup"></div>
+
+    <script>
+        let selectedGapWord = null;
+        const lessonTitle = "The Amazing Sandwich";
+        const lessonLink = "/sandwich/";
+        const lessonLevel = "Beginner";
+
+        const wordsToSave = [
+            { word: "Busy", type: "adjective", definition: "Having a lot of things to do." },
+            { word: "Cards", type: "noun", definition: "Small rectangular pieces of stiff paper used for games." },
+            { word: "Hungry", type: "adjective", definition: "Feeling a need to eat food." },
+            { word: "Ordered", type: "verb", definition: "Asked for food in a restaurant or from a cook." },
+            { word: "Meat", type: "noun", definition: "The flesh of an animal used as food." },
+            { word: "Bread", type: "noun", definition: "Food made of flour, water, and yeast baked together." },
+            { word: "Famous", type: "adjective", definition: "Known by many people." },
+            { word: "Named", type: "verb", definition: "Given a specific name." }
+        ];
+
+        /* POPUP LOGIC */
+        function showPopup(target, word) {
+            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase());
+            const popup = document.getElementById('dictionary-popup');
+            if (!popup || !wordObj) return;
+
+            popup.innerHTML = `<strong>${wordObj.word}</strong> <span style="font-size:0.8em; color:gray;">(${wordObj.type})</span><br><p style="font-size: 0.9em; margin-top:5px;">${wordObj.definition}</p>`;
+            popup.style.display = 'block';
+            const rect = target.getBoundingClientRect();
+            popup.style.left = `${rect.left}px`;
+            popup.style.top = `${rect.bottom + window.scrollY + 10}px`;
+        }
+
+        /* 1. TRUE/FALSE LOGIC */
+        function checkComprehension() {
+            let correct = 0;
+            const qs = document.querySelectorAll('.question');
+            qs.forEach(q => {
+                const sel = q.querySelector('.option-button.selected');
+                q.querySelectorAll('.option-button').forEach(opt => {
+                    opt.classList.remove('correct', 'incorrect');
+                    if (opt.dataset.correct === 'true') opt.classList.add('correct');
+                });
+                if (sel && sel.dataset.correct === 'true') correct++;
+                else if (sel) sel.classList.add('incorrect');
+            });
+            const res = document.getElementById('comprehension-result');
+            res.style.display = 'block';
+            res.className = `result-message ${correct === qs.length ? 'correct' : 'incorrect'}`;
+            res.textContent = correct === qs.length ? "🎉 Perfect!" : `${correct}/${qs.length} correct.`;
+        }
+
+        function resetComprehension() {
+            document.querySelectorAll('.option-button').forEach(b => b.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById('comprehension-result').style.display = 'none';
+        }
+
+        /* 2. GAP FILL LOGIC */
+        function handleGapBlankClick(blank) {
+            // Case A: User clicks a blank with a word already in it -> REMOVE WORD
+            if (blank.textContent) {
+                const wordValue = blank.textContent;
+                const bankOption = Array.from(document.querySelectorAll('.word-option')).find(o => o.dataset.word === wordValue);
+                if (bankOption) bankOption.classList.remove('used');
+                blank.textContent = '';
+                blank.classList.remove('correct', 'incorrect');
+            } 
+            // Case B: User has a word selected and clicks an empty blank -> PLACE WORD
+            else if (selectedGapWord) {
+                blank.textContent = selectedGapWord.dataset.word;
+                selectedGapWord.classList.add('used');
+                selectedGapWord.classList.remove('selected');
+                selectedGapWord = null;
+            }
+        }
+
+        function checkGaps() {
+            let correct = 0;
+            const blanks = document.querySelectorAll('.gap-input');
+            blanks.forEach(b => {
+                b.classList.remove('correct', 'incorrect');
+                if (b.textContent.trim().toLowerCase() === b.dataset.answer.toLowerCase()) {
+                    b.classList.add('correct'); correct++;
+                } else if (b.textContent) b.classList.add('incorrect');
+            });
+            const res = document.getElementById('gap-result');
+            res.style.display = 'block';
+            res.className = `result-message ${correct === blanks.length ? 'correct' : 'incorrect'}`;
+            res.textContent = correct === blanks.length ? "✨ Great job!" : `${correct}/${blanks.length} correct.`;
+        }
+
+        function resetGaps() {
+            document.querySelectorAll('.gap-input').forEach(b => { b.textContent = ''; b.classList.remove('correct', 'incorrect'); });
+            document.querySelectorAll('.word-option').forEach(o => o.classList.remove('used', 'selected'));
+            document.getElementById('gap-result').style.display = 'none';
+        }
+
+        /* 3. WORD FORMS LOGIC */
+        function checkWordForms() {
+            let correct = 0;
+            const inputs = document.querySelectorAll('.word-form-input');
+            inputs.forEach(i => {
+                i.classList.remove('revealed');
+                if (i.value.trim().toLowerCase() === i.dataset.answer.toLowerCase()) {
+                    i.style.background = '#DCEDC8'; correct++;
+                } else { i.style.background = '#FFCDD2'; }
+            });
+            const res = document.getElementById('wordform-result');
+            res.style.display = 'block';
+            res.className = `result-message ${correct === inputs.length ? 'correct' : 'incorrect'}`;
+            res.textContent = `${correct}/${inputs.length} correct.`;
+        }
+
+        function revealWordForms() {
+            document.querySelectorAll('.word-form-input').forEach(i => {
+                i.value = i.dataset.answer;
+                i.classList.add('revealed');
+                i.style.background = ''; 
+            });
+            document.getElementById('wordform-result').style.display = 'none';
+        }
+
+        function resetWordForms() {
+            document.querySelectorAll('.word-form-input').forEach(i => { 
+                i.value = ''; 
+                i.style.background = 'white'; 
+                i.classList.remove('revealed');
+            });
+            document.getElementById('wordform-result').style.display = 'none';
+        }
+
+        /* EVENT LISTENERS */
+        document.addEventListener('DOMContentLoaded', () => {
+            // True/False selection
+            document.querySelectorAll('.option-button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    btn.closest('.comp-btn-group').querySelectorAll('.option-button').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                });
+            });
+
+            // Word Bank selection
+            document.querySelectorAll('.word-option').forEach(opt => {
+                opt.addEventListener('click', () => {
+                    if (opt.classList.contains('used')) return;
+                    
+                    // Toggle selection: if clicking already selected word, deselect it
+                    if (opt.classList.contains('selected')) {
+                        opt.classList.remove('selected');
+                        selectedGapWord = null;
+                    } else {
+                        document.querySelectorAll('.word-option').forEach(o => o.classList.remove('selected'));
+                        selectedGapWord = opt;
+                        opt.classList.add('selected');
+                    }
+                });
+            });
+
+            // Gap Blank placing/removing
+            document.querySelectorAll('.gap-input').forEach(b => {
+                b.addEventListener('click', () => handleGapBlankClick(b));
+            });
+
+            // Learned words clicks
+            document.querySelectorAll('#learned-words-list li').forEach(li => {
+                li.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showPopup(li, li.dataset.word);
+                });
+            });
+
+            // Close popup on outside click
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#dictionary-popup') && !e.target.classList.contains('highlight-word')) {
+                    document.getElementById('dictionary-popup').style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
