@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Study: Transfer Pricing - English For Cool Dudes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* --- BRANDING & RESET --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif; 
+            background: #F8FAFC; 
+            color: #334155; 
+            line-height: 1.6; 
+        }
+
+        /* --- THEME: TRANSFER PRICING (Indigo/Slate/Alert Red) 📁 --- */
+        :root {
+            --color-primary: #334155; /* Slate 700 */
+            --color-secondary: #4F46E5; /* Indigo 600 - Corporate/Legal */
+            --color-accent: #EF4444; /* Alert Red */
+            --color-paper: #F3F4F6; /* Light Grey File */
+            --color-white: #FFFFFF;
+            --color-correct: #16A34A; 
+            --color-incorrect: #EF4444; 
+        }
+
+        /* Header */
+        .header { background: white; border-bottom: 3px solid var(--color-secondary); padding: 20px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .header-content { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .logo { width: 42px; height: 42px; background: var(--color-secondary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; }
+        .site-title { font-size: 20px; font-weight: 800; color: var(--color-primary); text-decoration: none; text-transform: uppercase; letter-spacing: -0.5px; }
+        
+        /* Auth Buttons */
+        .header-buttons { display: flex; align-items: center; gap: 8px; }
+        .header-button { text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 700; transition: all 0.2s; cursor: pointer; border: 2px solid transparent; }
+        .header-button.login { background: white; color: var(--color-primary); border-color: #CBD5E1; }
+        .header-button.signup { background: var(--color-secondary); color: white; }
+        .header-button.dashboard { background: #EEF2FF; color: #3730A3; }
+        .header-button.logout { background: #FEF2F2; color: #B91C1C; }
+        .user-greeting { font-size: 14px; color: var(--color-primary); font-weight: 700; margin-right: 10px; }
+
+        /* Main Layout */
+        .container-main { max-width: 900px; margin: 40px auto; padding: 40px 30px; background: white; border-top: 5px solid var(--color-secondary); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .lesson-main-title { font-size: 2.5em; font-weight: 900; color: #1E293B; margin-bottom: 10px; letter-spacing: -1px; }
+        .lesson-subtitle { font-size: 1.2em; color: #64748B; margin-bottom: 40px; font-weight: 500; display: inline-block; background: #F1F5F9; padding: 5px 15px; border-radius: 99px; }
+        
+        /* Sections */
+        .lesson-section { padding: 0 0 40px 0; border-bottom: 1px solid #E2E8F0; margin-bottom: 40px; }
+        .lesson-section:last-child { border-bottom: none; }
+        .section-title { color: var(--color-secondary); font-size: 1.6em; font-weight: 800; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; }
+        
+        /* CASE FILE STYLE (Reading) */
+        .case-file { 
+            background: var(--color-paper); border: 1px solid #CBD5E1; padding: 30px; 
+            border-radius: 4px; position: relative; font-family: 'Courier New', Courier, monospace;
+            box-shadow: 5px 5px 0px rgba(0,0,0,0.1); color: #1E293B;
+        }
+        .case-stamp {
+            position: absolute; top: 20px; right: 20px; border: 3px solid #DC2626; color: #DC2626;
+            font-weight: 900; font-size: 1.2em; padding: 5px 10px; transform: rotate(-10deg);
+            text-transform: uppercase; opacity: 0.7;
+        }
+        .highlight-word { background: #C7D2FE; color: #312E81; padding: 2px 5px; font-weight: 700; cursor: help; border-bottom: 1px dashed #4F46E5; }
+        .highlight-word:hover { background: #4F46E5; color: white; }
+
+        /* Interactive Elements */
+        .question-box { margin-bottom: 15px; background: #F8FAFC; padding: 15px; border-radius: 8px; border: 1px solid #E2E8F0; }
+        
+        /* Option Buttons */
+        .option-btn { 
+            display: block; width: 100%; text-align: left; padding: 12px; margin-top: 8px;
+            background: white; border: 1px solid #CBD5E1; border-radius: 6px; font-weight: 600; 
+            cursor: pointer; transition: 0.2s; color: #475569;
+        }
+        .option-btn:hover { border-color: var(--color-secondary); background: #EEF2FF; }
+        .option-btn.selected { background: var(--color-secondary); color: white; border-color: var(--color-secondary); }
+        .option-btn.correct { background: var(--color-correct); color: white; border-color: var(--color-correct); }
+        .option-btn.incorrect { background: var(--color-incorrect); color: white; border-color: var(--color-incorrect); }
+
+        /* Drag/Drop & Gap Fill */
+        .word-bank { background: #E0E7FF; padding: 20px; border-radius: 8px; margin-bottom: 25px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .bank-word { 
+            background: white; padding: 8px 16px; border-radius: 4px; border: 1px solid #C7D2FE; border-bottom: 3px solid #818CF8;
+            font-weight: 700; cursor: pointer; color: #312E81; transition: 0.2s;
+        }
+        .bank-word:hover { transform: translateY(-2px); border-bottom-color: var(--color-secondary); color: var(--color-secondary); }
+        .bank-word.selected { background: var(--color-secondary); color: white; border-bottom-color: #312E81; border-color: var(--color-secondary); }
+        .bank-word.used { opacity: 0.4; pointer-events: none; background: #E2E8F0; border-color: transparent; color: #94A3B8; box-shadow: none; transform: none; }
+        
+        .email-editor { background: white; border: 1px solid #CBD5E1; padding: 30px; border-radius: 8px; font-size: 1.05em; line-height: 1.8; }
+        .gap-input { 
+            display: inline-block; min-width: 120px; height: 30px; border-bottom: 2px dashed var(--color-secondary); 
+            text-align: center; font-weight: 700; cursor: pointer; margin: 0 4px; color: var(--color-secondary);
+        }
+        .gap-input.filled { background: #EEF2FF; border-bottom-style: solid; }
+        .gap-input.correct { border-bottom-color: var(--color-correct); color: var(--color-correct); background: #DCFCE7; pointer-events: none; }
+        .gap-input.incorrect { border-bottom-color: var(--color-incorrect); color: var(--color-incorrect); background: #FEE2E2; }
+
+        /* Grammar Cards */
+        .grammar-card { 
+            background: white; border-left: 5px solid var(--color-secondary); padding: 20px; margin-bottom: 15px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center;
+        }
+        .grammar-select { padding: 8px; border: 1px solid #CBD5E1; border-radius: 4px; font-weight: 600; cursor: pointer; }
+        .grammar-select.correct { background: #DCFCE7; border-color: #16A34A; color: #166534; }
+        .grammar-select.incorrect { background: #FEE2E2; border-color: #EF4444; color: #991B1B; }
+
+        /* Action Buttons */
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; justify-content: center; }
+        .btn-action { 
+            background: var(--color-secondary); color: white; padding: 12px 30px; border: none; 
+            border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 1em; transition: 0.2s;
+            box-shadow: 0 4px #3730A3; 
+        }
+        .btn-action:hover { background: #3730A3; transform: translateY(-1px); }
+        .btn-action:active { transform: translateY(3px); box-shadow: 0 1px #3730A3; }
+        
+        .result-msg { margin-top: 15px; font-weight: 700; display: none; padding: 15px; border-radius: 6px; text-align: center; }
+        .result-msg.correct { background: #DCFCE7; color: #166534; border: 2px solid #86EFAC; }
+        .result-msg.incorrect { background: #FEE2E2; color: #991B1B; border: 2px solid #FCA5A5; }
+
+        /* Save Section */
+       #learned-words-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; list-style: none; }
+        #learned-words-list li { 
+            background: white; border: 2px solid #CBD5E1; color: var(--color-primary);
+            padding: 15px; border-radius: 6px; text-align: center; font-weight: 800; 
+            cursor: pointer; transition: all 0.2s; font-size: 0.95em;
+        }
+        #learned-words-list li:hover { border-color: var(--color-secondary); color: var(--color-secondary); transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        
+        /* Popup */
+        #dictionary-popup {
+            position: fixed; max-width: 300px; background: white; border-top: 5px solid var(--color-secondary);
+            padding: 20px; border-radius: 8px; z-index: 2000; display: none; box-shadow: 0 20px 50px rgba(0,0,0,0.2); font-size: 0.95em; border-bottom: 1px solid #E2E8F0;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">⚖️</span>
+                <a href="/tax/" class="site-title">English For Cool Dudes</a>
+            </div>
+            <div id="auth-container" class="header-buttons">
+            </div>
+        </div>
+    </header>
+
+    <div class="container-main">
+        <h1 class="lesson-main-title">📂 The Transfer Pricing Trap</h1>
+        <p class="lesson-subtitle">Case Study: The Arm's Length Principle</p>
+
+        <section class="lesson-section">
+            <h2 class="section-title">💬 1. The Strategy Session</h2>
+            <div style="background: #EEF2FF; border-left: 4px solid #4F46E5; padding: 20px; border-radius: 0 8px 8px 0;">
+                <p class="font-bold text-indigo-900 mb-2">Discuss with your partner/teacher:</p>
+                <ul class="list-disc ml-5 text-indigo-800 space-y-2">
+                    <li>If you sell a product to your own brother, do you give him a discount? Why?</li>
+                    <li>Why do tax authorities hate it when companies sell goods cheaply to their foreign subsidiaries?</li>
+                    <li>What does "Arm's Length" actually mean in a non-business context?</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="lesson-section">
+            <h2 class="section-title">🕵️‍♂️ 2. Case File: Project Espresso</h2>
+            <p class="mb-4 text-gray-600">Read the email from the CFO regarding the audit of your coffee bean sales.</p>
+            
+            <div class="case-file">
+                <div class="case-stamp">AUDIT ALERT</div>
+                <p class="mb-4"><strong>TO:</strong> Tax Director</p>
+                <p class="mb-4"><strong>RE:</strong> Pricing of Arabica Beans to UK Subsidiary</p>
+                <p class="mb-4">The IRS is challenging our <span class="highlight-word" onclick="showPopup(this, 'Transfer Pricing')">Transfer Pricing</span> policy. We currently sell unroasted beans to our UK <span class="highlight-word" onclick="showPopup(this, 'Subsidiary')">subsidiary</span> at $5.00/kg. This is exactly what it costs us to grow them.</p>
+                <p class="mb-4">The auditor argues this is not an <span class="highlight-word" onclick="showPopup(this, 'Arm\'s Length')">Arm's Length</span> price. They claim that if we sold to a stranger, we would add a profit <span class="highlight-word" onclick="showPopup(this, 'Markup')">markup</span> of at least 20%.</p>
+                <p>They want to propose an <span class="highlight-word" onclick="showPopup(this, 'Adjustment')">adjustment</span> of $2M to our taxable income. We need to find a <span class="highlight-word" onclick="showPopup(this, 'Comparable')">comparable</span> transaction (CUP) to prove our price is fair.</p>
+            </div>
+        </section>
+
+        <section class="lesson-section">
+            <h2 class="section-title">✅ 3. Fact Check</h2>
+            
+            <div class="question-box">
+                <p class="font-bold mb-2">1. The company is selling beans to the UK at a very high price.</p>
+                <div class="comp-btn-group">
+                    <button class="option-btn" data-correct="false">True (High Price)</button>
+                    <button class="option-btn" data-correct="true">False (At Cost Price)</button>
+                </div>
+            </div>
+
+            <div class="question-box">
+                <p class="font-bold mb-2">2. The "Arm's Length Principle" means treating your subsidiary like a stranger.</p>
+                <div class="comp-btn-group">
+                    <button class="option-btn" data-correct="true">True</button>
+                    <button class="option-btn" data-correct="false">False</button>
+                </div>
+            </div>
+
+            <div class="question-box">
+                <p class="font-bold mb-2">3. An "Adjustment" means the tax authority will decrease your taxes.</p>
+                <div class="comp-btn-group">
+                    <button class="option-btn" data-correct="false">True</button>
+                    <button class="option-btn" data-correct="true">False (They increase taxable income)</button>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-action" onclick="checkComp()">Check Facts</button>
+                <button class="btn-action btn-reset" style="background:#94A3B8;" onclick="resetComp()">Reset</button>
+            </div>
+            <div id="comp-result" class="result-msg"></div>
+        </section>
+
+        <section class="lesson-section">
+            <h2 class="section-title">⚖️ 4. Grammar: Comparisons & Hypotheticals</h2>
+            <p class="mb-4 text-gray-600">In Transfer Pricing, we constantly compare "controlled" transactions (internal) with "uncontrolled" ones (external).</p>
+
+            <div class="grammar-card">
+                <div>
+                    <p class="font-bold text-lg">1. We must price the goods ________ the parties were independent.</p>
+                    <p class="text-sm text-gray-500">Hypothetical situation.</p>
+                </div>
+                <select class="grammar-select" data-answer="as if">
+                    <option value="">Select...</option>
+                    <option value="due to">due to</option>
+                    <option value="as if">as if</option>
+                    <option value="unless">unless</option>
+                </select>
+            </div>
+
+            <div class="grammar-card">
+                <div>
+                    <p class="font-bold text-lg">2. Our margin is ________ market rates.</p>
+                    <p class="text-sm text-gray-500">Meaning: Matches / Is aligned with.</p>
+                </div>
+                <select class="grammar-select" data-answer="consistent with">
+                    <option value="">Select...</option>
+                    <option value="consistent with">consistent with</option>
+                    <option value="opposed to">opposed to</option>
+                    <option value="higher than">higher than</option>
+                </select>
+            </div>
+
+            <div class="grammar-card">
+                <div>
+                    <p class="font-bold text-lg">3. ________ to our competitors, we operate with lower overheads.</p>
+                    <p class="text-sm text-gray-500">Meaning: Looking at the differences/similarities.</p>
+                </div>
+                <select class="grammar-select" data-answer="In comparison">
+                    <option value="">Select...</option>
+                    <option value="In comparison">In comparison</option>
+                    <option value="Whereas">Whereas</option>
+                    <option value="Despite">Despite</option>
+                </select>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-action" onclick="checkGrammar()">Check Logic</button>
+            </div>
+            <div id="grammar-result" class="result-msg"></div>
+        </section>
+
+        <section class="lesson-section">
+            <h2 class="section-title">✍️ 5. The Defense Letter</h2>
+            <p class="mb-4 text-gray-600">Complete the response to the IRS explaining why our price is correct.</p>
+            
+            <div class="word-bank">
+                <span class="bank-word" data-word="benchmark">benchmark</span>
+                <span class="bank-word" data-word="arm's length">arm's length</span>
+                <span class="bank-word" data-word="subsidiary">subsidiary</span>
+                <span class="bank-word" data-word="consistent with">consistent with</span>
+                <span class="bank-word" data-word="distributor">distributor</span>
+                <span class="bank-word" data-word="functions">functions</span>
+            </div>
+
+            <div class="email-editor">
+                <p class="mb-4"><strong>Subject:</strong> Response to Proposed Adjustment</p>
+                <p class="mb-4">Dear Officer,</p>
+                <p class="mb-4">We dispute the adjustment regarding sales to our UK <span class="gap-input" data-answer="subsidiary"></span>.</p>
+                <p class="mb-4">You argued that a markup is required. However, our UK entity acts only as a limited-risk <span class="gap-input" data-answer="distributor"></span>. They do not hold inventory risk or perform marketing.</p>
+                <p class="mb-4">Based on the limited <span class="gap-input" data-answer="functions"></span> they perform, they should not earn a high profit. Our pricing is <span class="gap-input" data-answer="consistent with"></span> similar arrangements in the industry.</p>
+                <p class="mb-4">We have performed a <span class="gap-input" data-answer="benchmark"></span> study which confirms our prices are within the <span class="gap-input" data-answer="arm's length"></span> range.</p>
+                <p>Sincerely,<br>Head of Tax</p>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-action" onclick="checkGaps()">Send Letter</button>
+                <button class="btn-action btn-reset" style="background:#94A3B8;" onclick="resetGaps()">Reset</button>
+            </div>
+            <div id="gap-result" class="result-msg"></div>
+        </section>
+
+        <section id="save-section">
+            <div style="text-align: center;">
+                <h2 class="text-2xl font-bold mb-6 text-slate-800">🗂️ Case Closed. Save Your Vocabulary.</h2>
+                <ul id="learned-words-list">
+                    <li data-word="Transfer Pricing">Transfer Pricing</li>
+                    <li data-word="Arm's Length">Arm's Length</li>
+                    <li data-word="Subsidiary">Subsidiary</li>
+                    <li data-word="Markup">Markup</li>
+                    <li data-word="Adjustment">Adjustment</li>
+                    <li data-word="Comparable">Comparable</li>
+                    <li data-word="Benchmark">Benchmark</li>
+                    <li data-word="Distributor">Distributor</li>
+                </ul>
+
+                 <div id="loggedin-content" style="display:none; margin-top: 30px;">
+                    <button id="save-btn" class="btn-action" onclick="saveLesson()">Add to Dashboard</button>
+                    <p id="save-status" class="mt-3 font-bold"></p>
+                </div>
+                <div id="loggedout-content" style="margin-top: 30px;">
+                    <a href="/login/" class="btn-action" style="text-decoration: none; background: #334155;">Log In to Save</a>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <div id="dictionary-popup"></div>
+
+    <script>
+        // CONFIG
+        // NOTE: Ensure your Supabase URL/KEY are correct here. 
+        // I have preserved the ones from your uploaded file for continuity.
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null;
+
+        const lessonTitle = "Transfer Pricing Trap";
+        const lessonLink = "/transferpricing/";
+        const lessonLevel = "C1";
+
+        const VOCAB_LIST = [
+            { word: "Transfer Pricing", definition: "The rules setting the price of goods/services sold between related companies." },
+            { word: "Arm's Length", definition: "A principle stating that internal prices must match what independent strangers would pay." },
+            { word: "Subsidiary", definition: "A company that is owned or controlled by another parent company." },
+            { word: "Markup", definition: "The amount added to the cost price of goods to cover overhead and profit." },
+            { word: "Adjustment", definition: "A correction made by tax authorities to increase taxable income." },
+            { word: "Comparable", definition: "A similar transaction between independent parties used as a reference." },
+            { word: "Benchmark", definition: "A standard or point of reference against which things may be compared." },
+            { word: "Distributor", definition: "An entity that buys products and sells them to customers." },
+            { word: "Consistent with", definition: "In agreement with; matching the logic of." },
+            { word: "Functions", definition: "In tax, the specific activities (risk, labor, assets) performed by a company." }
+        ];
+
+        // --- AUTH ---
+        async function checkUser() {
+            const { data: { user } } = await sb.auth.getUser();
+            if (user) {
+                currentUser = user;
+                document.getElementById('auth-container').innerHTML = `
+                    <span class="user-greeting">Hi ${user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Auditor'}!</span>
+                    <a href="/dashboard/" class="header-button dashboard">Dashboard</a>
+                    <button onclick="logout()" class="header-button logout">Sign Out</button>
+                `;
+                document.getElementById('loggedin-content').style.display = 'block';
+                document.getElementById('loggedout-content').style.display = 'none';
+            } else {
+                document.getElementById('auth-container').innerHTML = `
+                    <a href="/login/" class="header-button login">Log In</a>
+                    <a href="/signup/" class="header-button signup">Sign Up</a>
+                `;
+            }
+        }
+        async function logout() { await sb.auth.signOut(); window.location.reload(); }
+
+        // --- POPUP LOGIC ---
+        function showPopup(target, word) {
+            // Fuzzy match logic to find the word in the list even if case differs or punctuation exists
+            const searchWord = word.replace(/'/g, "").toLowerCase();
+            const wObj = VOCAB_LIST.find(w => w.word.replace(/'/g, "").toLowerCase() === searchWord) 
+                      || VOCAB_LIST.find(w => searchWord.includes(w.word.replace(/'/g, "").toLowerCase()));
+            
+            if(!wObj) return;
+
+            const popup = document.getElementById('dictionary-popup');
+            popup.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <strong style="color:var(--color-secondary); font-size:1.1em;">${wObj.word}</strong>
+                    <button onclick="playAudio('${wObj.word}')" style="background:#F1F5F9; border:none; width:28px; height:28px; border-radius:50%; cursor:pointer;">🔊</button>
+                </div>
+                <div style="color:#475569;">${wObj.definition}</div>
+            `;
+            popup.style.display = 'block';
+            const rect = target.getBoundingClientRect();
+            popup.style.top = (rect.bottom + 8) + 'px';
+            popup.style.left = rect.left + 'px';
+            
+            document.addEventListener('click', function close(e) {
+                if (!popup.contains(e.target) && e.target !== target) {
+                    popup.style.display = 'none';
+                    document.removeEventListener('click', close);
+                }
+            });
+        }
+       function playAudio(word) {
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.lang = 'en-GB'; 
+            utterance.rate = 0.9;
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+        }
+        
+        document.querySelectorAll('#learned-words-list li').forEach(li => {
+            li.addEventListener('click', function(e) { e.stopPropagation(); showPopup(this, this.dataset.word); });
+        });
+
+        // --- EXERCISE 3: COMPREHENSION ---
+        document.querySelectorAll('.option-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected', 'correct', 'incorrect'));
+                this.classList.add('selected');
+            });
+        });
+        function checkComp() {
+            let correct = 0;
+            const qs = document.querySelectorAll('.question-box');
+            qs.forEach(q => {
+                const sel = q.querySelector('.selected');
+                if(sel && sel.dataset.correct === "true") { sel.classList.add('correct'); correct++; }
+                else if(sel) sel.classList.add('incorrect');
+            });
+            const res = document.getElementById('comp-result');
+            res.textContent = `You scored ${correct} / ${qs.length}`;
+            res.style.display = 'block';
+            res.className = correct === qs.length ? "result-msg correct" : "result-msg incorrect";
+        }
+        function resetComp() {
+            document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById('comp-result').style.display = 'none';
+        }
+
+        // --- EXERCISE 4: GRAMMAR ---
+        function checkGrammar() {
+            let correct = 0;
+            const selects = document.querySelectorAll('.grammar-select');
+            selects.forEach(s => {
+                s.classList.remove('correct', 'incorrect');
+                if(s.value === s.dataset.answer) { s.classList.add('correct'); correct++; }
+                else { s.classList.add('incorrect'); }
+            });
+            const res = document.getElementById('grammar-result');
+            res.textContent = `You scored ${correct} / ${selects.length}`;
+            res.style.display = 'block';
+            res.className = correct === selects.length ? "result-msg correct" : "result-msg incorrect";
+        }
+
+        // --- EXERCISE 5: GAP FILL (DEFENSE LETTER) ---
+        let selectedWord = null;
+        document.querySelectorAll('.bank-word').forEach(w => {
+            w.addEventListener('click', function() {
+                if(this.classList.contains('used')) return;
+                document.querySelectorAll('.bank-word').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedWord = this;
+            });
+        });
+        document.querySelectorAll('.gap-input').forEach(g => {
+            g.addEventListener('click', function() {
+                if(selectedWord) {
+                    if(this.textContent) {
+                        const old = Array.from(document.querySelectorAll('.bank-word')).find(b => b.dataset.word === this.textContent);
+                        if(old) old.classList.remove('used');
+                    }
+                    this.textContent = selectedWord.dataset.word;
+                    this.classList.add('filled');
+                    selectedWord.classList.add('used');
+                    selectedWord.classList.remove('selected');
+                    selectedWord = null;
+                } else if(this.textContent) {
+                    const old = Array.from(document.querySelectorAll('.bank-word')).find(b => b.dataset.word === this.textContent);
+                    if(old) old.classList.remove('used');
+                    this.textContent = "";
+                    this.classList.remove('filled');
+                }
+            });
+        });
+        function checkGaps() {
+            let correct = 0;
+            const gaps = document.querySelectorAll('.gap-input');
+            gaps.forEach(g => {
+                g.classList.remove('correct', 'incorrect');
+                if(g.textContent === g.dataset.answer) { g.classList.add('correct'); correct++; }
+                else { g.classList.add('incorrect'); }
+            });
+            const res = document.getElementById('gap-result');
+            res.textContent = `Score: ${correct}/${gaps.length}`;
+            res.style.display = 'block';
+            res.className = correct === gaps.length ? "result-msg correct" : "result-msg incorrect";
+        }
+        function resetGaps() {
+            document.querySelectorAll('.gap-input').forEach(g => { g.textContent = ""; g.classList.remove('correct', 'incorrect', 'filled'); });
+            document.querySelectorAll('.bank-word').forEach(w => w.classList.remove('used', 'selected'));
+            document.getElementById('gap-result').style.display = 'none';
+        }
+
+        // --- SAVE FUNCTIONALITY ---
+        async function saveLesson() {
+            if (!currentUser) {
+                alert("Please log in to save your progress.");
+                return;
+            }
+
+            const btn = document.getElementById('save-btn');
+            const status = document.getElementById('save-status');
+            
+            btn.disabled = true; 
+            btn.textContent = "Saving...";
+
+            const lessonData = {
+                user_id: currentUser.id,
+                lesson_title: lessonTitle,
+                lesson_link: lessonLink,
+                lesson_level: lessonLevel,
+                vocabulary: VOCAB_LIST,
+                completed_at: new Date().toISOString()
+            };
+
+            const { error } = await sb.from('lessons').upsert([lessonData], { 
+                onConflict: 'user_id,lesson_title' 
+            });
+
+            if (!error) {
+                btn.textContent = "✅ Saved!";
+                btn.style.backgroundColor = "#059669";
+                status.textContent = "Evidence secured! Check your dashboard.";
+                status.style.color = "#059669";
+                setTimeout(() => { window.location.href = '/dashboard/'; }, 2000);
+            } else {
+                console.error("Save error:", error);
+                btn.textContent = "❌ Error";
+                btn.disabled = false;
+                status.textContent = "Error saving. Connection issue?";
+                status.style.color = "#dc2626";
+            }
+        }
+        
+        // Init
+        checkUser();
+
+    </script>
+</body>
+</html>
