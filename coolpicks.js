@@ -1,3 +1,6 @@
+// Cool Picks Widget - Recommends lessons to users
+// Fixed version with working button navigation
+
 const coolPicksWidget = {
     // Define all available lessons
     lessons: [
@@ -83,18 +86,27 @@ const coolPicksWidget = {
         const picksBtn = document.getElementById('picks-btn');
         const picksDesc = document.getElementById('picks-desc');
 
-        if (!picksBtn || !picksDesc) return;
+        if (!picksBtn || !picksDesc) {
+            console.error('Cool Picks: Button or description element not found!');
+            return;
+        }
+
+        console.log('✅ Cool Picks initialized');
 
         // Set initial random recommendation on page load
         this.updateRecommendation();
 
-        // Handle button click
-        picksBtn.addEventListener('click', (e) => {
-            e.preventDefault();
+        // Handle button click - FIXED VERSION
+        picksBtn.addEventListener('click', () => {
             const currentLesson = this.getCurrentRecommendation();
             
+            console.log('🔘 Button clicked! Current lesson:', currentLesson);
+            
             if (currentLesson && currentLesson.url) {
+                console.log('🚀 Navigating to:', currentLesson.url);
                 window.location.href = currentLesson.url;
+            } else {
+                console.error('❌ No lesson found to navigate to!');
             }
         });
 
@@ -111,7 +123,10 @@ const coolPicksWidget = {
 
         // Store current recommendation in data attribute
         const lessonName = picksDesc.getAttribute('data-current-lesson');
-        return this.lessons.find(l => l.name === lessonName);
+        const lesson = this.lessons.find(l => l.name === lessonName);
+        
+        console.log('📖 Current recommendation:', lesson);
+        return lesson;
     },
 
     // Update the recommendation display
@@ -126,6 +141,8 @@ const coolPicksWidget = {
         // Get recommendation
         const lesson = this.strategies[randomStrategy](this.lessons);
 
+        console.log('🎲 New recommendation:', lesson.name);
+
         // Store current lesson
         picksDesc.setAttribute('data-current-lesson', lesson.name);
 
@@ -136,28 +153,15 @@ const coolPicksWidget = {
             picksDesc.style.transition = 'opacity 0.5s';
             picksDesc.style.opacity = '1';
         }, 300);
-    },
-
-    // Advanced: Track user's completed lessons (if you have that data)
-    // This would integrate with your Supabase data
-    getPersonalizedPick: async function(userId) {
-        // This is a placeholder for future enhancement
-        // You could fetch user's progress from Supabase and recommend
-        // lessons they haven't completed yet
-        
-        // Example:
-        // const { data } = await supabase
-        //     .from('user_progress')
-        //     .select('completed_lessons')
-        //     .eq('user_id', userId);
-        
-        // const completed = data?.completed_lessons || [];
-        // const uncompleted = this.lessons.filter(l => !completed.includes(l.name));
-        // return this.strategies.random(uncompleted);
     }
 };
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        coolPicksWidget.init();
+    });
+} else {
+    // DOM already loaded
     coolPicksWidget.init();
-});
+}
