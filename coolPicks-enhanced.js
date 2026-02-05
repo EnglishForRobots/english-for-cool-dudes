@@ -4,23 +4,23 @@
 const coolPicksWidget = {
     // CONFIGURATION: Add your actual lesson URLs here
     // Just add them to this array and they'll automatically be included in rotation
+    // NOTE: Use leading slash for absolute URLs from root: '/lessonname/'
     actualLessons: [
-       
+        // Add your lesson folders here - examples:
         '/invisibleoffice/',
         '/flyingtaxis/',
-        '/sandwich/',
-        '/coffee/',
-       '/crisismanagement/',
-        '/corporateempires/',
-        '/paris/',
+        '/aivideos/',
+        '/slicedbread/',
         '/transferpricing/',
+        '/paris/',
+        
     ],
 
     // Landing pages (keep these as they are)
     landingPages: [
         {
             name: 'Business English',
-            url: 'business/',
+            url: '/business/',
             icon: '💼',
             category: 'specialized',
             tagline: 'Level up your professional game',
@@ -31,7 +31,7 @@ const coolPicksWidget = {
         },
         {
             name: 'Tax English',
-            url: 'tax/',
+            url: '/tax/',
             icon: '💰',
             category: 'specialized',
             tagline: 'Master the money talk',
@@ -42,7 +42,7 @@ const coolPicksWidget = {
         },
         {
             name: 'Legal English',
-            url: 'legal/',
+            url: '/legal/',
             icon: '⚖️',
             category: 'specialized',
             tagline: 'Navigate legal lingo like a pro',
@@ -53,7 +53,7 @@ const coolPicksWidget = {
         },
         {
             name: 'Beginner Course',
-            url: 'beginner/',
+            url: '/beginner/',
             icon: '🌱',
             category: 'general',
             tagline: 'Start your English adventure',
@@ -64,7 +64,7 @@ const coolPicksWidget = {
         },
         {
             name: 'Intermediate Course',
-            url: 'intermediate/',
+            url: '/intermediate/',
             icon: '🚀',
             category: 'general',
             tagline: 'Take your skills to the next level',
@@ -75,7 +75,7 @@ const coolPicksWidget = {
         },
         {
             name: 'Advanced Course',
-            url: 'advanced/',
+            url: '/advanced/',
             icon: '🎯',
             category: 'general',
             tagline: 'Achieve English mastery',
@@ -86,7 +86,7 @@ const coolPicksWidget = {
         },
         {
             name: 'Game Zone',
-            url: 'games/',
+            url: '/games/',
             icon: '🎮',
             category: 'fun',
             tagline: 'Learn while having fun',
