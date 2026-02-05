@@ -107,6 +107,28 @@ async function initializeAuthHeader() {
     }
 }
 
+// --- SERVICE WORKER (FIXED - NO AUTO RELOAD) ---
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js?v=' + Date.now())
+        .then(registration => {
+            console.log('✅ Service Worker registered');
+            
+            // Check for updates but DON'T auto-reload
+            registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                console.log('🆕 New Service Worker found');
+                
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'activated') {
+                        console.log('✨ Service Worker updated');
+                        // DON'T reload automatically - this was causing the infinite loop!
+                    }
+                });
+            });
+        })
+        .catch(err => console.error('❌ Service Worker registration failed:', err));
+}
+
 // --- MAIN INIT (NON-BLOCKING) ---
 document.addEventListener('DOMContentLoaded', () => {
     // Start Auth Check
