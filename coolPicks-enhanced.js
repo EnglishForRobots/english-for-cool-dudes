@@ -11,9 +11,9 @@ const coolPicksWidget = {
         '/flyingtaxis/',
         '/aivideos/',
         '/slicedbread/',
-        '/transferpricing/',
         '/paris/',
-        
+        '/transferpricing/',
+    
     ],
 
     // Landing pages (keep these as they are)
@@ -115,11 +115,24 @@ const coolPicksWidget = {
         ];
 
         return this.actualLessons.map((url, index) => {
-            // Extract name from URL
-            const lessonName = url.replace(/\//g, '')
-                .replace(/-/g, ' ')
+            // Extract name from URL and format it properly
+            let lessonName = url.replace(/\//g, '').replace(/-/g, ' ');
+            
+            // Handle camelCase and compound words (e.g., crisismanagement -> crisis management)
+            lessonName = lessonName
+                // Add space before capital letters in middle of word
+                .replace(/([a-z])([A-Z])/g, '$1 $2')
+                // Add space between lowercase and uppercase at word boundaries
+                .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2')
+                // Split common compound words
+                .replace(/management/gi, ' Management')
+                .replace(/crisis/gi, 'Crisis ')
+                // Clean up any double spaces
+                .replace(/\s+/g, ' ')
+                .trim()
+                // Capitalize each word
                 .split(' ')
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
                 .join(' ');
 
             return {
