@@ -3,17 +3,18 @@
 
 const coolPicksWidget = {
     // CONFIGURATION: Add your actual lesson URLs here
-    // Just add them to this array and they'll automatically be included in rotation
-    // NOTE: Use leading slash for absolute URLs from root: '/lessonname/'
+    // Format: { url: '/lessonname/', time: '7 min' }
+    // OR just: '/lessonname/' (will default to 8 min)
     actualLessons: [
-        // Add your lesson folders here - examples:
-        '/invisibleoffice/',
-        '/flyingtaxis/',
-        '/aivideos/',
-        '/slicedbread/',
-        '/paris/',
-        '/transferpricing/',
-    
+        // Add your lesson folders here with their actual durations:
+        { url: '/invisibleoffice/', time: '8 mins' },
+        { url: '/flyingtaxis/', time: '9 mins' },
+        { url: '/aivideos/', time: '11 mins' },
+        { url: '/slicedbread/', time: '9 mins' },
+        { url: '/crisismanagement/', time: '5 mins' },
+        // Or just use the URL alone for default 8 min:
+        // '/anotherlesson/',
+        // etc - just keep adding as you create new lessons!
     ],
 
     // Landing pages (keep these as they are)
@@ -114,7 +115,11 @@ const coolPicksWidget = {
             'Instant learning experience'
         ];
 
-        return this.actualLessons.map((url, index) => {
+        return this.actualLessons.map((lesson, index) => {
+            // Handle both formats: string URL or object with {url, time}
+            const url = typeof lesson === 'string' ? lesson : lesson.url;
+            const time = typeof lesson === 'string' ? '8 min' : lesson.time;
+            
             // Extract name from URL and format it properly
             let lessonName = url.replace(/\//g, '').replace(/-/g, ' ');
             
@@ -141,7 +146,7 @@ const coolPicksWidget = {
                 icon: lessonIcons[index % lessonIcons.length],
                 category: 'lesson',
                 tagline: 'Direct lesson access',
-                time: ['5 min', '8 min', '10 min'][Math.floor(Math.random() * 3)],
+                time: time,
                 preview: lessonPreviews[Math.floor(Math.random() * lessonPreviews.length)],
                 keyLearnings: ['Practical skills', 'Real examples', 'Hands-on practice'],
                 funFact: '🎯 This takes you straight to the lesson!',
