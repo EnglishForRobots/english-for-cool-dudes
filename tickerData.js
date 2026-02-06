@@ -4,11 +4,12 @@
 
 // Array of rotating messages for the office activity ticker
 const tickerItems = [
-    "📊 Someone just completed 'Flying Taxis' lesson!",
-    "🎯 New lesson added: Crisis Management",
-    "🔥 3 people are currently learning Business English",
-    "⚡ Sarah just achieved a 7-day streak!",
-    "📚 100+ lessons completed this week!",
+    "📊 Someone recently completed the Advanced 'Flying Taxis' lesson",
+    link: "/flyingtaxis/"
+    "🎯 New lesson added in Business: Crisis Management",
+   
+    
+    
     "🌟 New vocabulary: 'Permanent Establishment' trending",
     "💼 Tax English course just got updated!",
     "🎓 Someone mastered 'The Earl of Sandwich' lesson",
