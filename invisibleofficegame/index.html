@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,13 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Invisible Office - English For Cool Dudes</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-    const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-    window.efcdSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-</script>
-<script src="/supabase-auth.js"></script>
     <style>
         /* --- BRANDING & RESET --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -416,321 +410,305 @@
 
     <div id="dictionary-popup"></div>
 
-   <script src="coolPicks-enhanced.js"></script>
-<script>
-    // --- AUTH & STATE MANAGEMENT ---
-    const LESSON_ID = 'invisibleofficegame'; 
-    let currentUser = null;
+    <script src="/cool-picks-widget.js"></script>
+    <script>
+        // VOCAB DEFINITIONS
+        const VOCAB_LIST = [
+            { word: "Permanent Establishment", definition: "A fixed place of business (or agent) that triggers corporate tax liability in a foreign country." },
+            { word: "Fixed Place", definition: "A physical location (office, factory, or even a home office) with a degree of permanence." },
+            { word: "Dependent Agent", definition: "An employee or person who habitually acts on behalf of the company to sign contracts." },
+            { word: "Authority to Conclude", definition: "The legal power to sign contracts that bind the company." },
+            { word: "Auxiliary Activity", definition: "Support work (like marketing or storage) that is not the main business. Usually PE-safe." },
+            { word: "Preparatory", definition: "Work done to prepare for the main business, but not the actual profit-making activity." },
+            { word: "Liable", definition: "Legally responsible; obligated to pay." },
+            { word: "Negotiate", definition: "To discuss terms of a deal without necessarily having the power to sign/finalize it." },
+            { word: "Unless", definition: "Except on the condition that." },
+            { word: "Provided that", definition: "On the condition that; as long as." }
+        ];
 
-    // 1. Initialize Page
-    document.addEventListener('DOMContentLoaded', async () => {
-        // Initialize Auth using your helper file
-        currentUser = await initAuth();
-        
-        if (currentUser) {
-            updateUIStats(currentUser);
-        } else {
-            console.log('Guest user - progress will not be saved to cloud');
-        }
+        // LOCAL STORAGE - STREAKS & ACHIEVEMENTS
+        let streak = parseInt(localStorage.getItem('lessonStreak') || '0');
+        let totalLessons = parseInt(localStorage.getItem('totalLessons') || '0');
+        let lastLessonDate = localStorage.getItem('lastLessonDate');
+        let todayStr = new Date().toDateString();
 
-        // Initialize Progress Bar
-        updateProgress();
-    });
-
-    // 2. Helper to update the top-right stats
-    function updateUIStats(user) {
-        if (!user) return;
-        document.getElementById('streak-count').textContent = user.streak || 0;
-        document.getElementById('total-lessons').textContent = (user.completedLessons || []).length;
-    }
-
-    // --- GAME LOGIC (Keep your existing game variables below) ---
-
-    // VOCAB DEFINITIONS
-    const VOCAB_LIST = [
-        { word: "Permanent Establishment", definition: "A fixed place of business (or agent) that triggers corporate tax liability in a foreign country." },
-        { word: "Fixed Place", definition: "A physical location (office, factory, or even a home office) with a degree of permanence." },
-        { word: "Dependent Agent", definition: "An employee or person who habitually acts on behalf of the company to sign contracts." },
-        { word: "Authority to Conclude", definition: "The legal power to sign contracts that bind the company." },
-        { word: "Auxiliary Activity", definition: "Support work (like marketing or storage) that is not the main business. Usually PE-safe." },
-        { word: "Preparatory", definition: "Work done to prepare for the main business, but not the actual profit-making activity." },
-        { word: "Liable", definition: "Legally responsible; obligated to pay." },
-        { word: "Negotiate", definition: "To discuss terms of a deal without necessarily having the power to sign/finalize it." },
-        { word: "Unless", definition: "Except on the condition that." },
-        { word: "Provided that", definition: "On the condition that; as long as." }
-    ];
-
-    // PROGRESS TRACKING
-    let completedSections = 0;
-    const totalSections = 5;
-    
-    function updateProgress() {
-        const percent = (completedSections / totalSections) * 100;
-        document.getElementById('progress-bar').style.width = percent + '%';
-    }
-
-    function completeSection(sectionNum) {
-        completedSections++;
-        updateProgress();
-        
-        // Show next section
-        const nextSection = document.getElementById('section-' + (sectionNum + 1));
-        if (nextSection) {
-            nextSection.classList.add('visible');
-            nextSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-
-        // Random achievement badges
-        if (Math.random() < 0.3) {
-            showBadge(getRandomBadge());
-        }
-    }
-
-    // BADGES
-    const badges = [
-        { icon: '⚡', text: 'Speed Demon!' },
-        { icon: '🔥', text: 'On Fire!' },
-        { icon: '🎯', text: 'Perfect Aim!' },
-        { icon: '💎', text: 'Gem Collector!' },
-        { icon: '🚀', text: 'Rocket Fuel!' }
-    ];
-
-    function getRandomBadge() {
-        return badges[Math.floor(Math.random() * badges.length)];
-    }
-
-    function showBadge(badge) {
-        const badgeEl = document.createElement('div');
-        badgeEl.className = 'badge';
-        badgeEl.innerHTML = `
-            <span class="badge-icon">${badge.icon}</span>
-            <span class="badge-text">${badge.text}</span>
-        `;
-        document.getElementById('badge-container').appendChild(badgeEl);
-        
-        setTimeout(() => badgeEl.classList.add('show'), 100);
-        setTimeout(() => {
-            badgeEl.classList.remove('show');
-            setTimeout(() => badgeEl.remove(), 500);
-        }, 3000);
-    }
-
-    // CELEBRATION
-    function celebrate(message = '🎉 Perfect!') {
-        const cel = document.getElementById('celebration');
-        cel.textContent = message;
-        cel.classList.add('show');
-        
-        // Confetti
-        for(let i = 0; i < 20; i++) {
-            const confetti = document.createElement('div');
-            confetti.className = 'confetti';
-            confetti.style.left = Math.random() * 100 + '%';
-            confetti.style.top = Math.random() * 100 + '%';
-            confetti.style.background = ['#FCD34D', '#F472B6', '#60A5FA', '#34D399'][Math.floor(Math.random() * 4)];
-            cel.appendChild(confetti);
-        }
-        
-        setTimeout(() => {
-            cel.classList.remove('show');
-            cel.innerHTML = '';
-        }, 2000);
-    }
-
-    // POPUP LOGIC
-    function showPopup(target, word) {
-        const wObj = VOCAB_LIST.find(w => w.word === word);
-        if(!wObj) return;
-
-        const popup = document.getElementById('dictionary-popup');
-        popup.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <strong style="color:var(--color-secondary); font-size:1.1em;">${wObj.word}</strong>
-                <button onclick="playAudio('${wObj.word}')" style="background:#F1F5F9; border:none; width:28px; height:28px; border-radius:50%; cursor:pointer;">🔊</button>
-            </div>
-            <div style="color:#475569;">${wObj.definition}</div>
-        `;
-        popup.style.display = 'block';
-        const rect = target.getBoundingClientRect();
-        popup.style.top = (rect.bottom + 8) + 'px';
-        popup.style.left = rect.left + 'px';
-        
-        document.addEventListener('click', function close(e) {
-            if (!popup.contains(e.target) && e.target !== target) {
-                popup.style.display = 'none';
-                document.removeEventListener('click', close);
-            }
-        });
-    }
-
-    function playAudio(word) {
-        const utterance = new SpeechSynthesisUtterance(word);
-        utterance.lang = 'en-GB'; 
-        utterance.rate = 0.9;
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(utterance);
-    }
-
-    // COMPREHENSION
-    document.querySelectorAll('.option-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            this.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
-            this.classList.add('selected');
-        });
-    });
-
-    function checkComp() {
-        let correct = 0;
-        const qs = document.querySelectorAll('.question-box');
-        qs.forEach(q => {
-            const sel = q.querySelector('.selected');
-            if(sel && sel.dataset.correct === "true") { 
-                sel.classList.add('correct'); 
-                correct++; 
-            } else if(sel) {
-                sel.classList.add('incorrect');
-            }
-        });
-        
-        const res = document.getElementById('comp-result');
-        res.textContent = `Score: ${correct} / ${qs.length}`;
-        res.style.display = 'block';
-        res.className = correct === qs.length ? "result-msg correct" : "result-msg incorrect";
-        
-        if (correct === qs.length) {
-            celebrate('💯 All Correct!');
-            showBadge({ icon: '🏆', text: 'Fact Master!' });
-            setTimeout(() => completeSection(3), 1500);
-        }
-    }
-
-    function resetComp() {
-        document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected', 'correct', 'incorrect'));
-        document.getElementById('comp-result').style.display = 'none';
-    }
-
-    // GRAMMAR
-    function checkGrammar() {
-        let correct = 0;
-        const selects = document.querySelectorAll('.grammar-select');
-        selects.forEach(s => {
-            s.classList.remove('correct', 'incorrect');
-            if(s.value === s.dataset.answer) { 
-                s.classList.add('correct'); 
-                correct++; 
-            } else { 
-                s.classList.add('incorrect'); 
-            }
-        });
-        
-        const res = document.getElementById('grammar-result');
-        res.textContent = `Score: ${correct} / ${selects.length}`;
-        res.style.display = 'block';
-        res.className = correct === selects.length ? "result-msg correct" : "result-msg incorrect";
-        
-        if (correct === selects.length) {
-            celebrate('🎯 Grammar Pro!');
-            showBadge({ icon: '📚', text: 'Grammar Genius!' });
-            setTimeout(() => completeSection(4), 1500);
-        }
-    }
-
-    // GAP FILL - AND FINAL COMPLETION LOGIC
-    let selectedWord = null;
-    document.querySelectorAll('.bank-word').forEach(w => {
-        w.addEventListener('click', function() {
-            if(this.classList.contains('used')) return;
-            document.querySelectorAll('.bank-word').forEach(b => b.classList.remove('selected'));
-            this.classList.add('selected');
-            selectedWord = this;
-        });
-    });
-
-    document.querySelectorAll('.gap-input').forEach(g => {
-        g.addEventListener('click', function() {
-            if(selectedWord) {
-                if(this.textContent) {
-                    const old = Array.from(document.querySelectorAll('.bank-word')).find(b => b.dataset.word === this.textContent);
-                    if(old) old.classList.remove('used');
-                }
-                this.textContent = selectedWord.dataset.word;
-                this.classList.add('filled');
-                selectedWord.classList.add('used');
-                selectedWord.classList.remove('selected');
-                selectedWord = null;
-            } else if(this.textContent) {
-                const old = Array.from(document.querySelectorAll('.bank-word')).find(b => b.dataset.word === this.textContent);
-                if(old) old.classList.remove('used');
-                this.textContent = "";
-                this.classList.remove('filled');
-            }
-        });
-    });
-
-    // --- MAIN COMPLETION FUNCTION ---
-    async function checkGaps() {
-        let correct = 0;
-        const gaps = document.querySelectorAll('.gap-input');
-        gaps.forEach(g => {
-            g.classList.remove('correct', 'incorrect');
-            if(g.textContent === g.dataset.answer) { 
-                g.classList.add('correct'); 
-                correct++; 
-            } else { 
-                g.classList.add('incorrect'); 
-            }
-        });
-        
-        const res = document.getElementById('gap-result');
-        res.textContent = `Score: ${correct}/${gaps.length}`;
-        res.style.display = 'block';
-        res.className = correct === gaps.length ? "result-msg correct" : "result-msg incorrect";
-        
-        // IF USER WINS:
-        if (correct === gaps.length) {
-            celebrate('✍️ Letter Perfect!');
-            
-            // 1. SAVE PROGRESS TO SUPABASE
-            if (currentUser) {
-                // Check if they already did this lesson
-                const alreadyDone = (currentUser.completedLessons || []).includes(LESSON_ID);
-                
-                // Call the helper function from supabase-auth.js
-                const success = await completeLesson(LESSON_ID);
-                
-                if (success) {
-                    // Refresh local user data to get new streak info
-                    currentUser = getCurrentUser(); 
-                    updateUIStats(currentUser);
-                    
-                    if (!alreadyDone) {
-                        showBadge({ icon: '🎓', text: 'Lesson Complete!' });
-                        showBadge({ icon: '🔥', text: `Streak: ${currentUser.streak}` });
-                    } else {
-                        showBadge({ icon: '♻️', text: 'Practice Makes Perfect!' });
-                    }
-                }
+        // Update streak
+        if (lastLessonDate !== todayStr) {
+            if (isYesterday(lastLessonDate)) {
+                streak++;
+            } else if (lastLessonDate) {
+                streak = 1; // Reset if gap
             } else {
-                // Fallback for guests
-                showBadge({ icon: '👤', text: 'Login to save streak!' });
+                streak = 1; // First time
+            }
+        }
+
+        function isYesterday(dateStr) {
+            if (!dateStr) return false;
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            return dateStr === yesterday.toDateString();
+        }
+
+        // Display streaks
+        document.getElementById('streak-count').textContent = streak;
+        document.getElementById('total-lessons').textContent = totalLessons;
+
+        // PROGRESS TRACKING
+        let completedSections = 0;
+        const totalSections = 5;
+        
+        function updateProgress() {
+            const percent = (completedSections / totalSections) * 100;
+            document.getElementById('progress-bar').style.width = percent + '%';
+        }
+
+        function completeSection(sectionNum) {
+            completedSections++;
+            updateProgress();
+            
+            // Show next section
+            const nextSection = document.getElementById('section-' + (sectionNum + 1));
+            if (nextSection) {
+                nextSection.classList.add('visible');
+                nextSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            // Random achievement badges
+            if (Math.random() < 0.3) {
+                showBadge(getRandomBadge());
+            }
+        }
+
+        // BADGES
+        const badges = [
+            { icon: '⚡', text: 'Speed Demon!' },
+            { icon: '🔥', text: 'On Fire!' },
+            { icon: '🎯', text: 'Perfect Aim!' },
+            { icon: '💎', text: 'Gem Collector!' },
+            { icon: '🚀', text: 'Rocket Fuel!' }
+        ];
+
+        function getRandomBadge() {
+            return badges[Math.floor(Math.random() * badges.length)];
+        }
+
+        function showBadge(badge) {
+            const badgeEl = document.createElement('div');
+            badgeEl.className = 'badge';
+            badgeEl.innerHTML = `
+                <span class="badge-icon">${badge.icon}</span>
+                <span class="badge-text">${badge.text}</span>
+            `;
+            document.getElementById('badge-container').appendChild(badgeEl);
+            
+            setTimeout(() => badgeEl.classList.add('show'), 100);
+            setTimeout(() => {
+                badgeEl.classList.remove('show');
+                setTimeout(() => badgeEl.remove(), 500);
+            }, 3000);
+        }
+
+        // CELEBRATION
+        function celebrate(message = '🎉 Perfect!') {
+            const cel = document.getElementById('celebration');
+            cel.textContent = message;
+            cel.classList.add('show');
+            
+            // Confetti
+            for(let i = 0; i < 20; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = Math.random() * 100 + '%';
+                confetti.style.background = ['#FCD34D', '#F472B6', '#60A5FA', '#34D399'][Math.floor(Math.random() * 4)];
+                cel.appendChild(confetti);
             }
             
-            // 2. Scroll to Cool Picks
             setTimeout(() => {
-                completeSection(5);
-                document.getElementById('cool-picks-section').scrollIntoView({ behavior: 'smooth' });
+                cel.classList.remove('show');
+                cel.innerHTML = '';
             }, 2000);
         }
-    }
 
-    function resetGaps() {
-        document.querySelectorAll('.gap-input').forEach(g => { 
-            g.textContent = ""; 
-            g.classList.remove('correct', 'incorrect', 'filled'); 
+        // POPUP LOGIC
+        function showPopup(target, word) {
+            const wObj = VOCAB_LIST.find(w => w.word === word);
+            if(!wObj) return;
+
+            const popup = document.getElementById('dictionary-popup');
+            popup.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <strong style="color:var(--color-secondary); font-size:1.1em;">${wObj.word}</strong>
+                    <button onclick="playAudio('${wObj.word}')" style="background:#F1F5F9; border:none; width:28px; height:28px; border-radius:50%; cursor:pointer;">🔊</button>
+                </div>
+                <div style="color:#475569;">${wObj.definition}</div>
+            `;
+            popup.style.display = 'block';
+            const rect = target.getBoundingClientRect();
+            popup.style.top = (rect.bottom + 8) + 'px';
+            popup.style.left = rect.left + 'px';
+            
+            document.addEventListener('click', function close(e) {
+                if (!popup.contains(e.target) && e.target !== target) {
+                    popup.style.display = 'none';
+                    document.removeEventListener('click', close);
+                }
+            });
+        }
+
+        function playAudio(word) {
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.lang = 'en-GB'; 
+            utterance.rate = 0.9;
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // COMPREHENSION
+        document.querySelectorAll('.option-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+            });
         });
-        document.querySelectorAll('.bank-word').forEach(w => w.classList.remove('used', 'selected'));
-        document.getElementById('gap-result').style.display = 'none';
-    }
-</script>
+
+        function checkComp() {
+            let correct = 0;
+            const qs = document.querySelectorAll('.question-box');
+            qs.forEach(q => {
+                const sel = q.querySelector('.selected');
+                if(sel && sel.dataset.correct === "true") { 
+                    sel.classList.add('correct'); 
+                    correct++; 
+                } else if(sel) {
+                    sel.classList.add('incorrect');
+                }
+            });
+            
+            const res = document.getElementById('comp-result');
+            res.textContent = `Score: ${correct} / ${qs.length}`;
+            res.style.display = 'block';
+            res.className = correct === qs.length ? "result-msg correct" : "result-msg incorrect";
+            
+            if (correct === qs.length) {
+                celebrate('💯 All Correct!');
+                showBadge({ icon: '🏆', text: 'Fact Master!' });
+                setTimeout(() => completeSection(3), 1500);
+            }
+        }
+
+        function resetComp() {
+            document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById('comp-result').style.display = 'none';
+        }
+
+        // GRAMMAR
+        function checkGrammar() {
+            let correct = 0;
+            const selects = document.querySelectorAll('.grammar-select');
+            selects.forEach(s => {
+                s.classList.remove('correct', 'incorrect');
+                if(s.value === s.dataset.answer) { 
+                    s.classList.add('correct'); 
+                    correct++; 
+                } else { 
+                    s.classList.add('incorrect'); 
+                }
+            });
+            
+            const res = document.getElementById('grammar-result');
+            res.textContent = `Score: ${correct} / ${selects.length}`;
+            res.style.display = 'block';
+            res.className = correct === selects.length ? "result-msg correct" : "result-msg incorrect";
+            
+            if (correct === selects.length) {
+                celebrate('🎯 Grammar Pro!');
+                showBadge({ icon: '📚', text: 'Grammar Genius!' });
+                setTimeout(() => completeSection(4), 1500);
+            }
+        }
+
+        // GAP FILL
+        let selectedWord = null;
+        document.querySelectorAll('.bank-word').forEach(w => {
+            w.addEventListener('click', function() {
+                if(this.classList.contains('used')) return;
+                document.querySelectorAll('.bank-word').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedWord = this;
+            });
+        });
+
+        document.querySelectorAll('.gap-input').forEach(g => {
+            g.addEventListener('click', function() {
+                if(selectedWord) {
+                    if(this.textContent) {
+                        const old = Array.from(document.querySelectorAll('.bank-word')).find(b => b.dataset.word === this.textContent);
+                        if(old) old.classList.remove('used');
+                    }
+                    this.textContent = selectedWord.dataset.word;
+                    this.classList.add('filled');
+                    selectedWord.classList.add('used');
+                    selectedWord.classList.remove('selected');
+                    selectedWord = null;
+                } else if(this.textContent) {
+                    const old = Array.from(document.querySelectorAll('.bank-word')).find(b => b.dataset.word === this.textContent);
+                    if(old) old.classList.remove('used');
+                    this.textContent = "";
+                    this.classList.remove('filled');
+                }
+            });
+        });
+
+        function checkGaps() {
+            let correct = 0;
+            const gaps = document.querySelectorAll('.gap-input');
+            gaps.forEach(g => {
+                g.classList.remove('correct', 'incorrect');
+                if(g.textContent === g.dataset.answer) { 
+                    g.classList.add('correct'); 
+                    correct++; 
+                } else { 
+                    g.classList.add('incorrect'); 
+                }
+            });
+            
+            const res = document.getElementById('gap-result');
+            res.textContent = `Score: ${correct}/${gaps.length}`;
+            res.style.display = 'block';
+            res.className = correct === gaps.length ? "result-msg correct" : "result-msg incorrect";
+            
+            if (correct === gaps.length) {
+                celebrate('✍️ Letter Perfect!');
+                
+                // LESSON COMPLETE!
+                totalLessons++;
+                localStorage.setItem('lessonStreak', streak);
+                localStorage.setItem('totalLessons', totalLessons);
+                localStorage.setItem('lastLessonDate', todayStr);
+                
+                document.getElementById('total-lessons').textContent = totalLessons;
+                
+                showBadge({ icon: '🎓', text: 'Lesson Complete!' });
+                setTimeout(() => {
+                    completeSection(5);
+                    document.getElementById('cool-picks-section').scrollIntoView({ behavior: 'smooth' });
+                }, 2000);
+            }
+        }
+
+        function resetGaps() {
+            document.querySelectorAll('.gap-input').forEach(g => { 
+                g.textContent = ""; 
+                g.classList.remove('correct', 'incorrect', 'filled'); 
+            });
+            document.querySelectorAll('.bank-word').forEach(w => w.classList.remove('used', 'selected'));
+            document.getElementById('gap-result').style.display = 'none';
+        }
+
+        // Initialize
+        updateProgress();
+    </script>
 </body>
 </html>
