@@ -10,11 +10,12 @@ const coolPicksWidget = {
         { url: '/invisibleoffice/', time: '8 mins', name: 'Invisible Office', category: 'tax' },
         { url: '/flyingtaxis/', time: '9 mins', name: 'Flying Taxis', category: 'advanced' },
         { url: '/aivideos/', time: '11 mins', name: 'AI Videos', category: 'advanced' },
-        { url: '/slicedbread/', time: '9 mins', name: 'Sliced Bread', category: 'intermediate' },
+        { url: '/sleepscience/', time: '9 mins', name: 'The Science of Sleep', category: 'intermediate' },
         { url: '/crisismanagement/', time: '5 mins', name: 'Crisis Management', category: 'business' },
          { url: '/invisibleofficegame/', time: '8 mins', name: 'Invisible Office (Beta Gamified)', category: 'tax' },
         { url: '/corporateempires/', time: '7 mins', name: 'Corporate Empires', category: 'legal' },
         { url: '/sandwich/', time: '5 mins', name: 'The Earl of Sandwich', category: 'beginner' },
+         { url: '/aipolicing/', time: '7 mins', name: 'AI on Patrol: When Algorithms Lie', category: 'intermediate' },
         { url: '/coffee/', time: '7 mins', name: 'The Legend of Coffee', category: 'beginner' },
         // Add more lessons with appropriate categories:
         // { url: '/taxterms/', time: '10 min', name: 'Tax Terms', category: 'tax' },
