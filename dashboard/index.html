@@ -1,0 +1,812 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+    <link rel="icon" type="image/png" href="/android-chrome-192x192.png" sizes="192x192">
+    <link rel="manifest" href="/manifest.json">
+    <title>My Dashboard - English For Cool Dudes</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: #F8F9FB;
+            color: #2C3E50;
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .header {
+            background: #FFFFFF;
+            border-bottom: 1px solid #E5E9F2;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            margin-bottom: 20px;
+        }
+
+       .header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+        .logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .site-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1A202C;
+            letter-spacing: -0.02em;
+            text-decoration: none;
+        }
+
+        .header-buttons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-button {
+            text-decoration: none;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            white-space: nowrap;
+            cursor: pointer;
+            border: 1px solid #E5E9F2;
+            background: transparent;
+        }
+
+        .header-button.logout {
+            background: #F8F9FB;
+            color: #E53E3E;
+            border: 1px solid #E5E9F2;
+        }
+
+        .header-button.logout:hover {
+            background: #FEEBEB;
+            color: #C53030;
+            border-color: #FBD3DA;
+        }
+
+        #latest-updates-ticker {
+            position: fixed;
+            top: 20px; 
+            right: 50%;
+            margin-right: -580px; 
+            z-index: 1000;
+            cursor: pointer;
+            background: #FFC107;
+            color: #92400E;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, background-color 0.2s, opacity 0.2s;
+            border: 2px solid #F59E0B;
+            animation: pulse 2s infinite ease-in-out;
+            text-decoration: none;
+            white-space: nowrap;
+            max-width: 450px; 
+            text-overflow: ellipsis;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
+            50% { transform: scale(1.03); box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.6); }
+            100% { transform: scale(1); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
+        }
+
+        .footer {
+            background: #FFFFFF;
+            border-top: 1px solid #E5E9F2;
+            padding: 32px 20px;
+            margin-top: 60px;
+            text-align: center;
+        }
+
+        .footer-text {
+            font-size: 14px;
+            color: #718096;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .dashboard-header h2 {
+            font-size: 32px;
+            font-weight: 600;
+            color: #1A202C;
+            margin-bottom: 10px;
+        }
+
+        .welcome-message {
+            font-size: 18px;
+            color: #4A5568;
+            font-weight: 600;
+        }
+
+        .card-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .empty-dashboard-container {
+            grid-column: 1 / -1;
+            background: #EBF8FF;
+            border: 2px dashed #90CDF4;
+            border-radius: 12px;
+            padding: 50px 30px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .empty-dashboard-container h3 {
+            font-size: 24px;
+            color: #2B6CB0;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .empty-dashboard-container p {
+            font-size: 18px;
+            color: #2B6CB0;
+            font-weight: 600;
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+
+        .empty-dashboard-container .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .empty-dashboard-container .cta-button:hover {
+            background: linear-gradient(135deg, #5A6AD0 0%, #6D4396 100%);
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .lesson-card {
+            background: #FFFFFF;
+            border: 1px solid #E5E9F2;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            transition: transform 0.2s;
+        }
+
+        .lesson-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+        }
+
+        .lesson-card h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #667EEA;
+            margin-bottom: 5px;
+        }
+
+        .lesson-card a.lesson-link {
+            text-decoration: none;
+            color: #667EEA;
+        }
+
+        .lesson-card a.lesson-link:hover {
+            text-decoration: underline;
+        }
+
+        .lesson-meta {
+            font-size: 13px;
+            color: #718096;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .vocabulary-section {
+            padding-top: 15px;
+            border-top: 1px dashed #E5E9F2;
+        }
+
+        .vocabulary-section h4 {
+            font-size: 15px;
+            color: #2C3E50;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .vocabulary-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .vocab-word {
+            position: relative;
+            display: inline-block;
+            background: #FFFBEA;
+            color: #92400E;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid #FCD34D;
+            transition: all 0.2s;
+        }
+
+        .vocab-word:hover {
+            background: #FCD34D;
+            transform: translateY(-2px);
+        }
+
+        .dictionary-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border: 2px solid #667EEA;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 500px;
+            width: 90%;
+            display: none;
+        }
+
+        .dictionary-popup.active {
+            display: block;
+            animation: popupFadeIn 0.2s ease-out;
+        }
+
+        @keyframes popupFadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -45%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .dictionary-popup h3 {
+            font-size: 24px;
+            color: #667EEA;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .dictionary-popup .definition {
+            font-size: 16px;
+            color: #2C3E50;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .dictionary-popup .close-btn {
+            background: #667EEA;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .dictionary-popup .close-btn:hover {
+            background: #5A6AD0;
+        }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .popup-overlay.active {
+            display: block;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #667EEA;
+            font-weight: 600;
+        }
+
+        .error-message {
+            background: #FEE;
+            border: 2px solid #E53E3E;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            color: #E53E3E;
+            font-weight: 600;
+        }
+
+        @media (max-width: 1240px) {
+            #latest-updates-ticker {
+                right: 20px;
+                margin-right: 0; 
+            }
+        }
+
+       @media (max-width: 768px) {
+    .card-list {
+        grid-template-columns: 1fr;
+    }
+
+    .header-left {
+        gap: 8px;
+    }
+
+    .site-title {
+        font-size: 16px;
+    }
+
+    .header-button {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+}
+
+        @media (max-width: 480px) {
+            .dashboard-header h2 {
+                font-size: 24px;
+            }
+            .welcome-message {
+                font-size: 16px;
+            }
+            .empty-dashboard-container h3 {
+                font-size: 20px;
+            }
+            .empty-dashboard-container p {
+                font-size: 16px;
+            }
+        }
+        @media (max-width: 480px) {
+            .dashboard-header h2 {
+                font-size: 24px;
+            }
+            .welcome-message {
+                font-size: 16px;
+            }
+            .empty-dashboard-container h3 {
+                font-size: 20px;
+            }
+            .empty-dashboard-container p {
+                font-size: 16px;
+            }
+
+            /* Move ticker to bottom on mobile */
+            .container {
+                padding: 30px 20px 80px 20px; /* Add bottom padding for ticker */
+            }
+
+            #latest-updates-ticker {
+                top: auto;
+                bottom: 0;
+                right: 0;
+                left: 0;
+                margin-right: 0;
+                border-radius: 0;
+                font-size: 13px;
+                padding: 12px 15px;
+                max-width: 100%;
+                text-align: center;
+                border: none;
+                border-top: 2px solid #F59E0B;
+                box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+            }
+        }
+
+        /* Landscape orientation on phones */
+        @media (max-width: 896px) and (max-height: 480px) and (orientation: landscape) {
+            #latest-updates-ticker {
+                top: auto;
+                bottom: 0;
+                right: 0;
+                left: 0;
+                margin-right: 0;
+                border-radius: 0;
+                font-size: 13px;
+                padding: 10px 15px;
+                max-width: 100%;
+                text-align: center;
+                border: none;
+                border-top: 2px solid #F59E0B;
+                box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+    <div class="header-content">
+        <div class="header-left">
+            <span class="logo">😎</span>
+            <a href="/" class="site-title">English For Cool Dudes</a>
+            <button id="logout-btn" class="header-button logout">
+                Sign Out
+            </button>
+        </div>
+    </div>
+</header>
+
+    <a href="#" id="latest-updates-ticker" style="opacity: 0;"></a>
+
+    <div class="popup-overlay" id="popup-overlay"></div>
+    <div class="dictionary-popup" id="dictionary-popup">
+        <h3 id="popup-word">Word</h3>
+        <div class="definition" id="popup-definition">Loading definition...</div>
+        <button class="close-btn" id="close-popup">Close</button>
+    </div>
+
+    <main class="container">
+        <div class="dashboard-header">
+            <h2 id="welcome-title"></h2>
+            <p class="welcome-message" id="welcome-subtitle"></p>
+        </div>
+
+        <div id="loading" class="loading-spinner">
+            Loading your lessons...
+        </div>
+
+        <div id="error-container" style="display: none;"></div>
+
+        <section id="lesson-list" class="card-list" style="display: none;">
+        </section>
+
+        <div id="no-lessons" class="empty-dashboard-container" style="display:none;">
+            <h3>🎯 Start Your Cool Dude Journey!</h3>
+            <p>Complete lessons to save words and build your vocabulary.</p>
+            <a href="/" class="cta-button">Browse Lessons</a>
+        </div>
+
+    </main>
+
+    <footer class="footer">
+    <p class="footer-text">© 2026 English For Cool Dudes - 😎</p>
+    <div style="margin-top: 10px;">
+        <a href="/impressum/" style="color: #667EEA; margin-right: 15px; text-decoration: none;">Impressum</a>
+        <a href="/datenschutz/" style="color: #667EEA; text-decoration: none;">Datenschutzerklärung</a>
+    </div>
+</footer>
+
+   <script src="/tickerData.js"></script>
+
+    <script>
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co'; 
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+
+
+        // FIX: Renamed 'supabase' to 'supabaseClient' to avoid the naming conflict
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        const logoutButton = document.getElementById('logout-btn');
+        const welcomeTitle = document.getElementById('welcome-title');
+        const welcomeSubtitle = document.getElementById('welcome-subtitle');
+        const lessonList = document.getElementById('lesson-list');
+        const noLessonsMessage = document.getElementById('no-lessons');
+        const loadingDiv = document.getElementById('loading');
+        const errorContainer = document.getElementById('error-container');
+
+        const popupOverlay = document.getElementById('popup-overlay');
+        const dictionaryPopup = document.getElementById('dictionary-popup');
+        const popupWord = document.getElementById('popup-word');
+        const popupDefinition = document.getElementById('popup-definition');
+        const closePopupBtn = document.getElementById('close-popup');
+
+        async function checkAuthAndLoadDashboard() {
+            try {
+                // FIX: Updated to 'supabaseClient'
+                const { data: { user }, error } = await supabaseClient.auth.getUser();
+
+                if (error || !user) {
+                    console.log('Not authenticated, redirecting to login');
+                    window.location.href = '/login/';
+                    return;
+                }
+
+                console.log('User authenticated:', user);
+
+                let userName = 'Cool Dude';
+                if (user.user_metadata && user.user_metadata.full_name) {
+                    userName = user.user_metadata.full_name.split(' ')[0];
+                } else if (user.email) {
+                    userName = user.email.split('@')[0];
+                }
+const isFirstLogin = user.user_metadata && user.user_metadata.is_first_login;
+
+                 await loadUserDashboardData(user.id, userName, isFirstLogin);
+                  if (isFirstLogin) {
+                    // FIX: Updated to 'supabaseClient'
+                    await supabaseClient.auth.updateUser({
+                        data: { is_first_login: false }
+                    });
+                }
+            } catch (err) {
+                console.error('Error checking auth:', err);
+                window.location.href = '/login/';
+            }
+        }
+         async function handleLogout() {
+            try {
+                // FIX: Updated to 'supabaseClient'
+                const { error } = await supabaseClient.auth.signOut();
+                if (error) {
+                    console.error('Logout Error:', error);
+                    alert('Logout failed. Please try again.');
+                } else {
+                    window.location.href = '/login/'; 
+                }
+            } catch (err) {
+                console.error('Unexpected logout error:', err);
+                alert('An error occurred during logout.');
+            }
+              }
+
+        async function loadUserDashboardData(userId, userName, isFirstLogin) {
+            try {
+                loadingDiv.style.display = 'block';
+                
+                // FIX: Updated to 'supabaseClient'
+                const { data: lessons, error } = await supabaseClient
+                    .from('lessons')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .order('completed_at', { ascending: false })
+                    .limit(10);
+
+                loadingDiv.style.display = 'none';
+
+                if (error) {
+                    console.error('Error loading lessons:', error);
+                    errorContainer.innerHTML = `<div class="error-message">Error loading lessons: ${error.message}</div>`;
+                    errorContainer.style.display = 'block';
+                    return;
+                }
+                   console.log('Loaded lessons:', lessons);
+
+                if (!lessons || lessons.length === 0) {
+                    if (isFirstLogin) {
+                        welcomeTitle.textContent = `Hey, Cool ${userName}!`;
+                        welcomeSubtitle.textContent = 'Complete Lessons to Save Words to Your Dashboard!';
+                    } else {
+                        welcomeTitle.textContent = `Hey, Cool ${userName}!`;
+                        welcomeSubtitle.textContent = 'Complete Lessons to Save Words to Your Dashboard!';
+                    }
+                    
+                    if (noLessonsMessage) noLessonsMessage.style.display = 'block';
+                    if (lessonList) lessonList.style.display = 'none';
+                } else {
+                    welcomeTitle.textContent = `Hey, Cool ${userName}!`;
+                    welcomeSubtitle.textContent = 'Review Your Saved Words and Complete More Lessons';
+                    
+                    if (lessonList) {
+                        lessonList.style.display = 'grid';
+                        renderLessons(lessons);
+                    }
+                    if (noLessonsMessage) noLessonsMessage.style.display = 'none';
+                }
+                 } catch (err) {
+                console.error('Error loading dashboard data:', err);
+                loadingDiv.style.display = 'none';
+                welcomeTitle.textContent = `Hey, Cool ${userName}!`;
+                welcomeSubtitle.textContent = 'Error loading your data. Please refresh.';
+                errorContainer.innerHTML = `<div class="error-message">Unexpected error: ${err.message}</div>`;
+                errorContainer.style.display = 'block';
+                  }
+        }
+
+        function renderLessons(lessons) {
+            if (!lessonList) return;
+            
+            lessonList.innerHTML = '';
+            
+            lessons.forEach(lesson => {
+                const card = document.createElement('div');
+                card.className = 'lesson-card';
+                
+                const completedDate = lesson.completed_at ? 
+                    new Date(lesson.completed_at).toLocaleDateString('en-GB', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric'
+                    }) : 'Unknown date';
+
+                const level = lesson.lesson_level || 'LESSON';
+                const link = lesson.lesson_link || '#';
+                
+                let vocabHTML = '';
+                if (lesson.vocabulary && Array.isArray(lesson.vocabulary) && lesson.vocabulary.length > 0) {
+                    const vocabItems = lesson.vocabulary.map(item => {
+                        const word = item.word || '';
+                        const definition = item.definition || 'No definition available';
+                        return `<span class="vocab-word" data-word="${word}" data-definition="${definition}">${word}</span>`;
+                    }).join('');
+                    
+                    vocabHTML = `
+                        <div class="vocabulary-section">
+                            <h4>Saved Words (${lesson.vocabulary.length}):</h4>
+                            <div class="vocabulary-list">
+                                ${vocabItems}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                card.innerHTML = `
+                    <h3><a href="${link}" class="lesson-link">${lesson.lesson_title}</a></h3>
+                    <div class="lesson-meta">${level} • Completed on ${completedDate}</div>
+                    ${vocabHTML}
+                `;
+                
+                lessonList.appendChild(card);
+            });
+             document.querySelectorAll('.vocab-word').forEach(wordEl => {
+                wordEl.addEventListener('click', function() {
+                    const word = this.getAttribute('data-word');
+                    const definition = this.getAttribute('data-definition');
+                    showDictionaryPopup(word, definition);
+                });
+                  });
+        }
+
+        function showDictionaryPopup(word, definition) {
+            popupWord.textContent = word;
+            popupDefinition.textContent = definition;
+            dictionaryPopup.classList.add('active');
+            popupOverlay.classList.add('active');
+        }
+
+        function closeDictionaryPopup() {
+            dictionaryPopup.classList.remove('active');
+            popupOverlay.classList.remove('active');
+        }
+
+        closePopupBtn.addEventListener('click', closeDictionaryPopup);
+        popupOverlay.addEventListener('click', closeDictionaryPopup);
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+         // 1. Start the ticker
+         if (typeof startTickerAnimation === "function") {
+             startTickerAnimation();
+         }
+         
+         // 2. Load the dashboard data
+         checkAuthAndLoadDashboard(); 
+    });
+        
+        if (logoutButton) {
+            logoutButton.addEventListener('click', handleLogout);
+        }
+        
+if ('serviceWorker' in navigator) {
+  // Add timestamp to force browser to check for new SW.js
+  const swUrl = '/sw.js?v=' + new Date().getTime();
+  
+  navigator.serviceWorker.register(swUrl).then(reg => {
+    console.log('✅ Service Worker registered');
+      
+    // Force immediate check for updates on page load
+    reg.update();
+      
+    // Check for updates when page becomes visible
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        console.log('🔄 Page visible, checking for SW updates...');
+        reg.update();
+      }
+    });
+      
+    // Handle new SW found
+    reg.addEventListener('updatefound', () => {
+      const newWorker = reg.installing;
+      console.log('🆕 New Service Worker found, installing...');
+      
+      newWorker.addEventListener('statechange', () => {
+        console.log('SW state changed to:', newWorker.state);
+
+          
+        if (newWorker.state === 'installed') {
+          if (navigator.serviceWorker.controller) {
+            console.log('📤 Telling new SW to skip waiting...');
+            newWorker.postMessage({ type: 'SKIP_WAITING' });
+          } else {
+            console.log('✅ First time install, content cached');
+          }
+        }
+      });
+
+           });
+  }).catch(err => {
+    console.error('❌ Service Worker registration failed:', err);
+  });
+
+  // Auto-reload when new SW takes control
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshing) return;
+    refreshing = true;
+    console.log('🔄 New Service Worker activated! Reloading page...');
+    window.location.reload();
+  });
+}
+
+        </script>
+    </body>
+</html>
+
+          
+                
+      
