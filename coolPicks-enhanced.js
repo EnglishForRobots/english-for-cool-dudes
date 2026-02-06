@@ -3,20 +3,23 @@
 
 const coolPicksWidget = {
     // CONFIGURATION: Add your actual lesson URLs here
-    // Format: { url: '/lessonname/', time: '7 min', name: 'Custom Name' }
-    // OR: { url: '/lessonname/', time: '7 min' } (auto-generates name)
-    // OR just: '/lessonname/' (defaults: 8 min, auto-name)
+    // Format: { url: '/lessonname/', time: '7 min', name: 'Custom Name', category: 'beginner' }
+    // Categories: 'beginner', 'intermediate', 'advanced', 'business', 'tax', 'legal', 'fun'
     actualLessons: [
-        // Add your lesson folders here with their actual durations and names:
-        { url: '/invisibleoffice/', time: '8 mins', name: 'Invisible Office' },
-        { url: '/flyingtaxis/', time: '9 mins', name: 'Flying Taxis' },
-        { url: '/aivideos/', time: '11 mins', name: 'AI Videos' },
-        { url: '/slicedbread/', time: '9 mins', name: 'Sliced Bread' },
-        { url: '/crisismanagement/', time: '5 mins', name: 'Crisis Management' },
-        // Or let it auto-generate (will try to split compound words):
-        // { url: '/coffeeshop/', time: '10 min' },
-        // Or use shorthand for defaults:
-        // '/anotherlesson/',
+        // Add your lesson folders here with their actual durations, names, and categories:
+        { url: '/invisibleoffice/', time: '8 mins', name: 'Invisible Office', category: 'tax' },
+        { url: '/flyingtaxis/', time: '9 mins', name: 'Flying Taxis', category: 'advanced' },
+        { url: '/aivideos/', time: '11 mins', name: 'AI Videos', category: 'advanced' },
+        { url: '/slicedbread/', time: '9 mins', name: 'Sliced Bread', category: 'intermediate' },
+        { url: '/crisismanagement/', time: '5 mins', name: 'Crisis Management', category: 'business' },
+         { url: '/invisibleofficegame/', time: '8 mins', name: 'Invisible Office (Beta Gamified)', category: 'tax' },
+        { url: '/corporateempires/', time: '7 mins', name: 'Corporate Empires', category: 'legal' },
+        { url: '/sandwich/', time: '5 mins', name: 'The Earl of Sandwich', category: 'beginner' },
+        { url: '/coffee/', time: '7 mins', name: 'The Legend of Coffee', category: 'beginner' },
+        // Add more lessons with appropriate categories:
+        // { url: '/taxterms/', time: '10 min', name: 'Tax Terms', category: 'tax' },
+        // { url: '/contracts/', time: '12 min', name: 'Contracts', category: 'legal' },
+        // { url: '/wordgame/', time: '7 min', name: 'Word Game', category: 'fun' },
     ],
 
     // Landing pages (keep these as they are)
@@ -25,7 +28,7 @@ const coolPicksWidget = {
             name: 'Business English',
             url: '/business/',
             icon: '💼',
-            category: 'specialized',
+            category: 'business',
             tagline: 'Level up your professional game',
             time: '', // No time for landing pages
             preview: 'Master meetings, emails & presentations',
@@ -36,7 +39,7 @@ const coolPicksWidget = {
             name: 'Tax English',
             url: '/tax/',
             icon: '💰',
-            category: 'specialized',
+            category: 'tax',
             tagline: 'Master the money talk',
             time: '', // No time for landing pages
             preview: 'Navigate tax terminology with confidence',
@@ -47,7 +50,7 @@ const coolPicksWidget = {
             name: 'Legal English',
             url: '/legal/',
             icon: '⚖️',
-            category: 'specialized',
+            category: 'legal',
             tagline: 'Navigate legal lingo like a pro',
             time: '', // No time for landing pages
             preview: 'Understand contracts & legal documents',
@@ -58,7 +61,7 @@ const coolPicksWidget = {
             name: 'Beginner Course',
             url: '/beginner/',
             icon: '🌱',
-            category: 'general',
+            category: 'beginner',
             tagline: 'Start your English adventure',
             time: '', // No time for landing pages
             preview: 'Build your foundation from scratch',
@@ -69,7 +72,7 @@ const coolPicksWidget = {
             name: 'Intermediate Course',
             url: '/intermediate/',
             icon: '🚀',
-            category: 'general',
+            category: 'intermediate',
             tagline: 'Take your skills to the next level',
             time: '', // No time for landing pages
             preview: 'Expand your vocabulary & confidence',
@@ -80,7 +83,7 @@ const coolPicksWidget = {
             name: 'Advanced Course',
             url: '/advanced/',
             icon: '🎯',
-            category: 'general',
+            category: 'advanced',
             tagline: 'Achieve English mastery',
             time: '', // No time for landing pages
             preview: 'Perfect your fluency & sophistication',
@@ -100,6 +103,17 @@ const coolPicksWidget = {
         }
     ],
 
+    // Category mapping for specialized categories
+    categoryMapping: {
+        'business': 'specialized',
+        'tax': 'specialized',
+        'legal': 'specialized',
+        'beginner': 'general',
+        'intermediate': 'general',
+        'advanced': 'general',
+        'fun': 'fun'
+    },
+
     allOptions: [],
     currentLesson: null,
     isAnimating: false,
@@ -118,9 +132,10 @@ const coolPicksWidget = {
         ];
 
         return this.actualLessons.map((lesson, index) => {
-            // Handle three formats: string URL, object with {url, time}, or object with {url, time, name}
+            // Handle three formats: string URL, object with {url, time}, or object with {url, time, name, category}
             const url = typeof lesson === 'string' ? lesson : lesson.url;
             const time = typeof lesson === 'string' ? '8 min' : (lesson.time || '8 min');
+            const category = typeof lesson === 'object' && lesson.category ? lesson.category : 'general';
             let lessonName = typeof lesson === 'object' && lesson.name ? lesson.name : null;
             
             // If no custom name provided, try to generate one
@@ -154,7 +169,7 @@ const coolPicksWidget = {
                 name: lessonName,
                 url: url,
                 icon: lessonIcons[index % lessonIcons.length],
-                category: 'lesson',
+                category: category,
                 tagline: 'Direct lesson access',
                 time: time,
                 preview: lessonPreviews[Math.floor(Math.random() * lessonPreviews.length)],
@@ -181,6 +196,13 @@ const coolPicksWidget = {
         this.allOptions = [...this.landingPages, ...lessonObjects];
 
         console.log(`✅ Cool Picks initialized with ${this.landingPages.length} landing pages and ${lessonObjects.length} direct lessons`);
+        
+        // Log category breakdown
+        const categoryCount = {};
+        lessonObjects.forEach(lesson => {
+            categoryCount[lesson.category] = (categoryCount[lesson.category] || 0) + 1;
+        });
+        console.log('📊 Lessons by category:', categoryCount);
 
         // Set initial recommendation
         this.updateRecommendation();
@@ -225,12 +247,23 @@ const coolPicksWidget = {
         const picksBtn = document.getElementById('picks-btn');
         const picksWidget = document.getElementById('cool-picks-widget');
 
-        // If "Surprise Me" button (landing page), pick a random direct lesson
+        // If "Surprise Me" button (landing page), pick a random direct lesson FROM THE SAME CATEGORY
         if (picksBtn.innerHTML.includes('Surprise Me')) {
-            const directLessons = this.allOptions.filter(l => l.isDirectLesson);
-            if (directLessons.length > 0) {
-                this.currentLesson = directLessons[Math.floor(Math.random() * directLessons.length)];
-                console.log('🎁 Surprise Me! Picked random lesson:', this.currentLesson.name);
+            const currentCategory = this.currentLesson.category;
+            const categoryLessons = this.allOptions.filter(l => 
+                l.isDirectLesson && l.category === currentCategory
+            );
+            
+            if (categoryLessons.length > 0) {
+                this.currentLesson = categoryLessons[Math.floor(Math.random() * categoryLessons.length)];
+                console.log(`🎁 Surprise Me! Picked random ${currentCategory} lesson:`, this.currentLesson.name);
+            } else {
+                // Fallback: if no lessons in this category, pick any direct lesson
+                const directLessons = this.allOptions.filter(l => l.isDirectLesson);
+                if (directLessons.length > 0) {
+                    this.currentLesson = directLessons[Math.floor(Math.random() * directLessons.length)];
+                    console.warn(`⚠️ No ${currentCategory} lessons found, picked random lesson:`, this.currentLesson.name);
+                }
             }
         }
 
@@ -273,7 +306,9 @@ const coolPicksWidget = {
             this.currentLesson = this.allOptions[Math.floor(Math.random() * this.allOptions.length)];
         }
 
-        console.log(`🎲 New recommendation:`, this.currentLesson.name, this.currentLesson.isDirectLesson ? '(Direct Lesson ⚡)' : '(Landing Page)');
+        console.log(`🎲 New recommendation:`, this.currentLesson.name, 
+            `(${this.currentLesson.category})`,
+            this.currentLesson.isDirectLesson ? '(Direct Lesson ⚡)' : '(Landing Page)');
 
         // Animate out
         picksDesc.style.opacity = '0';
@@ -363,4 +398,3 @@ if (document.readyState === 'loading') {
 } else {
     coolPicksWidget.init();
 }
-      
