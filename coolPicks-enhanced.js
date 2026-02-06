@@ -3,18 +3,20 @@
 
 const coolPicksWidget = {
     // CONFIGURATION: Add your actual lesson URLs here
-    // Format: { url: '/lessonname/', time: '7 min' }
-    // OR just: '/lessonname/' (will default to 8 min)
+    // Format: { url: '/lessonname/', time: '7 min', name: 'Custom Name' }
+    // OR: { url: '/lessonname/', time: '7 min' } (auto-generates name)
+    // OR just: '/lessonname/' (defaults: 8 min, auto-name)
     actualLessons: [
-        // Add your lesson folders here with their actual durations:
-        { url: '/invisibleoffice/', time: '8 mins' },
-        { url: '/flyingtaxis/', time: '9 mins' },
-        { url: '/aivideos/', time: '11 mins' },
-        { url: '/slicedbread/', time: '9 mins' },
-        { url: '/crisismanagement/', time: '5 mins' },
-        // Or just use the URL alone for default 8 min:
+        // Add your lesson folders here with their actual durations and names:
+        { url: '/invisibleoffice/', time: '8 mins', name: 'Invisible Office' },
+        { url: '/flyingtaxis/', time: '9 mins', name: 'Flying Taxis' },
+        { url: '/aivideos/', time: '11 mins', name: 'AI Videos' },
+        { url: '/slicedbread/', time: '9 mins', name: 'Sliced Bread' },
+        { url: '/crisismanagement/', time: '5 mins', name: 'Crisis Management' },
+        // Or let it auto-generate (will try to split compound words):
+        // { url: '/coffeeshop/', time: '10 min' },
+        // Or use shorthand for defaults:
         // '/anotherlesson/',
-        // etc - just keep adding as you create new lessons!
     ],
 
     // Landing pages (keep these as they are)
@@ -25,7 +27,7 @@ const coolPicksWidget = {
             icon: '💼',
             category: 'specialized',
             tagline: 'Level up your professional game',
-            time: '8 min',
+
             preview: 'Master meetings, emails & presentations',
             keyLearnings: ['Professional communication', 'Business vocabulary', 'Formal writing'],
             funFact: 'Did you know? "Think outside the box" originated in the 1970s!'
@@ -36,7 +38,7 @@ const coolPicksWidget = {
             icon: '💰',
             category: 'specialized',
             tagline: 'Master the money talk',
-            time: '6 min',
+          
             preview: 'Navigate tax terminology with confidence',
             keyLearnings: ['Tax vocabulary', 'Accounting terms', 'Financial documentation'],
             funFact: 'Fun fact: The word "tax" comes from Latin "taxare" meaning "to assess"!'
@@ -47,7 +49,7 @@ const coolPicksWidget = {
             icon: '⚖️',
             category: 'specialized',
             tagline: 'Navigate legal lingo like a pro',
-            time: '7 min',
+            
             preview: 'Understand contracts & legal documents',
             keyLearnings: ['Contract language', 'Legal terminology', 'Court procedures'],
             funFact: 'Cool fact: "Hereby" and "herein" date back to Old English legal documents!'
@@ -58,7 +60,7 @@ const coolPicksWidget = {
             icon: '🌱',
             category: 'general',
             tagline: 'Start your English adventure',
-            time: '5 min',
+            
             preview: 'Build your foundation from scratch',
             keyLearnings: ['Basic grammar', 'Common phrases', 'Essential vocabulary'],
             funFact: 'Every expert was once a beginner! You\'ve got this! 💪'
@@ -80,7 +82,7 @@ const coolPicksWidget = {
             icon: '🎯',
             category: 'general',
             tagline: 'Achieve English mastery',
-            time: '12 min',
+          
             preview: 'Perfect your fluency & sophistication',
             keyLearnings: ['Native-like fluency', 'Advanced idioms', 'Subtle nuances'],
             funFact: 'Shakespeare invented over 1,700 words we still use today! 🎭'
@@ -91,7 +93,7 @@ const coolPicksWidget = {
             icon: '🎮',
             category: 'fun',
             tagline: 'Learn while having fun',
-            time: '3 min',
+         
             preview: 'Challenge yourself with fun games',
             keyLearnings: ['Interactive learning', 'Quick practice', 'Test your skills'],
             funFact: 'Playing games boosts memory retention by 40%! Time to play! 🎲'
@@ -116,29 +118,37 @@ const coolPicksWidget = {
         ];
 
         return this.actualLessons.map((lesson, index) => {
-            // Handle both formats: string URL or object with {url, time}
+            // Handle three formats: string URL, object with {url, time}, or object with {url, time, name}
             const url = typeof lesson === 'string' ? lesson : lesson.url;
-            const time = typeof lesson === 'string' ? '8 min' : lesson.time;
+            const time = typeof lesson === 'string' ? '8 min' : (lesson.time || '8 min');
+            let lessonName = typeof lesson === 'object' && lesson.name ? lesson.name : null;
             
-            // Extract name from URL and format it properly
-            let lessonName = url.replace(/\//g, '').replace(/-/g, ' ');
-            
-            // Handle camelCase and compound words (e.g., crisismanagement -> crisis management)
-            lessonName = lessonName
-                // Add space before capital letters in middle of word
-                .replace(/([a-z])([A-Z])/g, '$1 $2')
-                // Add space between lowercase and uppercase at word boundaries
-                .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2')
-                // Split common compound words
-                .replace(/management/gi, ' Management')
-                .replace(/crisis/gi, 'Crisis ')
-                // Clean up any double spaces
-                .replace(/\s+/g, ' ')
-                .trim()
-                // Capitalize each word
-                .split(' ')
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                .join(' ');
+            // If no custom name provided, try to generate one
+            if (!lessonName) {
+                lessonName = url.replace(/\//g, '').replace(/-/g, ' ');
+                
+                // Try to split common compound words
+                lessonName = lessonName
+                    // Add space before capital letters
+                    .replace(/([a-z])([A-Z])/g, '$1 $2')
+                    // Common word boundaries
+                    .replace(/office/gi, ' Office')
+                    .replace(/management/gi, ' Management')
+                    .replace(/crisis/gi, 'Crisis ')
+                    .replace(/video/gi, ' Video')
+                    .replace(/bread/gi, ' Bread')
+                    .replace(/sliced/gi, 'Sliced ')
+                    .replace(/flying/gi, 'Flying ')
+                    .replace(/taxi/gi, ' Taxi')
+                    .replace(/invisible/gi, 'Invisible ')
+                    // Clean up multiple spaces
+                    .replace(/\s+/g, ' ')
+                    .trim()
+                    // Capitalize each word
+                    .split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                    .join(' ');
+            }
 
             return {
                 name: lessonName,
@@ -312,6 +322,8 @@ const coolPicksWidget = {
                     break;
 
                 case 2: // Mystery teaser style
+                    // Only use "Surprise Me" for direct lessons, not landing pages
+                    const buttonText = this.currentLesson.isDirectLesson ? '🎁 Surprise Me!' : '✨ Explore!';
                     content = `
                         <div class="picks-mystery">
                             <div class="picks-mystery-text">✨ ${this.currentLesson.isDirectLesson ? 'Quick Lesson' : 'Mystery Pick'} Revealed!</div>
@@ -323,7 +335,7 @@ const coolPicksWidget = {
                             <div class="picks-meta">${this.currentLesson.time} • ${this.currentLesson.keyLearnings.length} key skills</div>
                         </div>
                     `;
-                    picksBtn.innerHTML = this.currentLesson.isDirectLesson ? '⚡ Let\'s Learn!' : '🎁 Surprise Me!';
+                    picksBtn.innerHTML = buttonText;
                     break;
             }
 
