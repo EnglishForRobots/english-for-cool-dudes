@@ -71,7 +71,7 @@ const coolPicksWidget = {
             icon: '🚀',
             category: 'general',
             tagline: 'Take your skills to the next level',
-            time: '10 min',
+            
             preview: 'Expand your vocabulary & confidence',
             keyLearnings: ['Complex grammar', 'Idioms & expressions', 'Real-world situations'],
             funFact: 'English has over 170,000 words in current use - let\'s learn them! 📚'
@@ -156,7 +156,7 @@ const coolPicksWidget = {
                 icon: lessonIcons[index % lessonIcons.length],
                 category: 'lesson',
                 tagline: 'Direct lesson access',
-                time: time,
+              
                 preview: lessonPreviews[Math.floor(Math.random() * lessonPreviews.length)],
                 keyLearnings: ['Practical skills', 'Real examples', 'Hands-on practice'],
                 funFact: '🎯 This takes you straight to the lesson!',
