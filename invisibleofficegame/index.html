@@ -409,8 +409,11 @@
 
     <div id="dictionary-popup"></div>
 
-    <script src="/cool-picks-widget.js"></script>
+    <script src="/coolPicks-enhanced.js"></script>
     <script>
+        // LESSON IDENTIFIER - UNIQUE FOR EACH LESSON
+        const LESSON_ID = 'invisibleoffice'; // Change this for each different lesson!
+
         // VOCAB DEFINITIONS
         const VOCAB_LIST = [
             { word: "Permanent Establishment", definition: "A fixed place of business (or agent) that triggers corporate tax liability in a foreign country." },
@@ -427,7 +430,7 @@
 
         // LOCAL STORAGE - STREAKS & ACHIEVEMENTS
         let streak = parseInt(localStorage.getItem('lessonStreak') || '0');
-        let totalLessons = parseInt(localStorage.getItem('totalLessons') || '0');
+        let completedLessons = JSON.parse(localStorage.getItem('completedLessons') || '[]');
         let lastLessonDate = localStorage.getItem('lastLessonDate');
         let todayStr = new Date().toDateString();
 
@@ -451,7 +454,7 @@
 
         // Display streaks
         document.getElementById('streak-count').textContent = streak;
-        document.getElementById('total-lessons').textContent = totalLessons;
+        document.getElementById('total-lessons').textContent = completedLessons.length;
 
         // PROGRESS TRACKING
         let completedSections = 0;
@@ -681,15 +684,20 @@
             if (correct === gaps.length) {
                 celebrate('✍️ Letter Perfect!');
                 
-                // LESSON COMPLETE!
-                totalLessons++;
-                localStorage.setItem('lessonStreak', streak);
-                localStorage.setItem('totalLessons', totalLessons);
-                localStorage.setItem('lastLessonDate', todayStr);
+                // LESSON COMPLETE! - Check if this specific lesson was already completed
+                if (!completedLessons.includes(LESSON_ID)) {
+                    completedLessons.push(LESSON_ID);
+                    localStorage.setItem('completedLessons', JSON.stringify(completedLessons));
+                    localStorage.setItem('lessonStreak', streak);
+                    localStorage.setItem('lastLessonDate', todayStr);
+                    
+                    document.getElementById('total-lessons').textContent = completedLessons.length;
+                    
+                    showBadge({ icon: '🎓', text: 'Lesson Complete!' });
+                } else {
+                    showBadge({ icon: '♻️', text: 'Practice Makes Perfect!' });
+                }
                 
-                document.getElementById('total-lessons').textContent = totalLessons;
-                
-                showBadge({ icon: '🎓', text: 'Lesson Complete!' });
                 setTimeout(() => {
                     completeSection(5);
                     document.getElementById('cool-picks-section').scrollIntoView({ behavior: 'smooth' });
