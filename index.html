@@ -14,6 +14,19 @@
     
     <link rel="stylesheet" href="styles.css">
 
+    <!-- Supabase first -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Initialize Supabase client -->
+    <script>
+        // Initialize Supabase
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        window.efcdSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    </script>
+    
+    <!-- Then our auth integration -->
+    <script src="supabase-auth.js"></script>
     <script src="tickerData.js" defer></script>
     <script src="main.js" defer></script>
     <script src="coolPicks-enhanced.js" defer></script>
@@ -26,6 +39,7 @@
                 <span class="logo">😎</span>
                 <a href="/" class="site-title">English For Cool Dudes</a>
             </div>
+            <!-- Auth buttons will be injected here by main.js -->
         </div>
     </header>
 
@@ -34,24 +48,42 @@
         <div id="dictionary-content"></div>
     </div>
     
+    <!-- Top news ticker - now shows personalized progress when logged in -->
     <a href="#" id="latest-updates-ticker" style="opacity: 0; transition: opacity 0.5s;">
-        Loading latest news...
+        Loading...
     </a>
     
     <script>
-    // This runs immediately. Because we removed 'defer' from tickerData.js, 
-    // the data is guaranteed to be ready here.
-    const tEl = document.getElementById('latest-updates-ticker');
-    if (typeof latestTickerData !== 'undefined' && tEl) {
-        tEl.href = latestTickerData.link;
-        tEl.innerText = latestTickerData.title;
-        tEl.style.opacity = 1; 
-    }
+    // Top ticker initialization (runs after auth loaded)
+    setTimeout(async () => {
+        const tEl = document.getElementById('latest-updates-ticker');
+        if (typeof latestTickerData !== 'undefined' && tEl) {
+            // Try to get user
+            let user = null;
+            try {
+                await initAuth();
+                user = getCurrentUser();
+            } catch (e) {
+                console.log('User not logged in');
+            }
+            
+            if (user && user.streak > 0) {
+                // Show personalized message for logged in users
+                tEl.href = '/dashboard/';
+                tEl.innerText = `🔥 ${user.streak} day streak! | ${user.completedLessons.length} lessons completed`;
+            } else {
+                // Show latest news for anonymous/new users
+                tEl.href = latestTickerData.link;
+                tEl.innerText = latestTickerData.title;
+            }
+            tEl.style.opacity = 1; 
+        }
+    }, 200);
     </script>
 
     <main class="container">
         <div class="info-box">
-            <a id="pulse-ticker-text">Loading Office Activity... 🏢</a>
+            <a id="pulse-ticker-text">Loading...</a>
         </div>
 
         <div id="cool-picks-widget">
