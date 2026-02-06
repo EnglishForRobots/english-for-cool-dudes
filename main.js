@@ -8,8 +8,12 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Wait a moment for Supabase to initialize
     await new Promise(resolve => setTimeout(resolve, 100));
     
-    // Initialize authentication
-    await initAuth();
+    // Initialize authentication (make sure supabase-auth.js is loaded!)
+    if (typeof initAuth === 'function') {
+        await initAuth();
+    } else {
+        console.error("⚠️ initAuth function not found. Check if supabase-auth.js is loaded.");
+    }
     
     // Update UI based on login status
     updateHeaderUI();
@@ -22,17 +26,25 @@ document.addEventListener('DOMContentLoaded', async function() {
 // UPDATE HEADER WITH LOGIN STATUS
 // =========================================
 function updateHeaderUI() {
+    // Check if auth functions exist
+    if (typeof getCurrentUser !== 'function') return;
+
     const user = getCurrentUser();
     const headerContent = document.querySelector('.header-content');
     if (!headerContent) return;
     
     // Check if we already have auth buttons
     let authContainer = headerContent.querySelector('.header-auth');
-    
     if (!authContainer) {
         authContainer = document.createElement('div');
         authContainer.className = 'header-auth';
-        authContainer.style.cssText = 'margin-left: auto; display: flex; align-items: center; gap: 10px;';
+        // FIXED: Used backticks ` for multi-line string to prevent SyntaxError
+        authContainer.style.cssText = `
+            margin-left: auto;
+            display: flex; 
+            align-items: center; 
+            gap: 10px;
+        `;
         headerContent.appendChild(authContainer);
     }
     
@@ -95,14 +107,17 @@ function updateHeaderUI() {
 function initializeTicker() {
     const tickerEl = document.getElementById('pulse-ticker-text');
     if (!tickerEl) return;
-    
-    const user = getCurrentUser();
+
+    let user = null;
+    if (typeof getCurrentUser === 'function') {
+        user = getCurrentUser();
+    }
     
     if (user) {
         // LOGGED IN - Show personalized progress
         showPersonalizedTicker(tickerEl, user);
     } else {
-        // NOT LOGGED IN - Show motivational messages
+        // NOT LOGGED IN - Show the messages from tickerData.js
         showMotivationalTicker(tickerEl);
     }
 }
@@ -110,6 +125,7 @@ function initializeTicker() {
 function showPersonalizedTicker(tickerEl, user) {
     const stats = getUserStats();
     
+    // Personalized messages for logged-in users
     const messages = [
         `🔥 ${stats.streak} day streak! Keep it going!`,
         `🎯 ${stats.lessonsCompleted} lessons completed - You're crushing it!`,
@@ -118,7 +134,7 @@ function showPersonalizedTicker(tickerEl, user) {
         `🚀 ${getMotivationalMessage(stats.streak)}`,
         `📊 Lesson completion rate: ${Math.min(100, stats.lessonsCompleted * 5)}%`
     ];
-    
+
     // If no activity yet, show welcome messages
     if (stats.lessonsCompleted === 0) {
         messages.splice(0, messages.length,
@@ -133,17 +149,19 @@ function showPersonalizedTicker(tickerEl, user) {
     
     function updateTicker() {
         tickerEl.style.opacity = '0';
-        
         setTimeout(() => {
-            tickerEl.textContent = messages[currentIndex];
+            // For personalized ticker, we just set text (no specific links)
+            tickerEl.innerText = messages[currentIndex];
+            tickerEl.removeAttribute('href');
+            tickerEl.style.cursor = 'default';
+            
             tickerEl.style.opacity = '1';
             currentIndex = (currentIndex + 1) % messages.length;
         }, 500);
     }
     
     // Initial display
-    tickerEl.textContent = messages[0];
-    tickerEl.style.opacity = '1';
+    updateTicker(); // Call immediately to set first state
     
     // Rotate every 6 seconds
     setInterval(updateTicker, 6000);
@@ -152,36 +170,56 @@ function showPersonalizedTicker(tickerEl, user) {
 }
 
 function showMotivationalTicker(tickerEl) {
-    const messages = [
-        "📚 Sign up to track your progress and build streaks!",
-        "🎯 Join now to save your lessons across all devices!",
-        "✨ Create a free account to unlock achievements!",
-        "🔥 Login to continue your learning journey!",
-        "💪 Track your streak - Sign up today!",
-        "🚀 50+ learners improving their English right now!",
-        "⭐ New: Gamified lessons with points and badges!"
-    ];
+    // FIXED: Use tickerItems from tickerData.js if available, otherwise fallback
+    let messages = [];
+    
+    if (typeof tickerItems !== 'undefined' && Array.isArray(tickerItems) && tickerItems.length > 0) {
+        // Use your custom ticker data
+        messages = tickerItems;
+    } else {
+        // Fallback if file missing
+        messages = [
+            { text: "📚 Sign up to track your progress and build streaks!", link: "/signup/" },
+            { text: "🎯 Join now to save your lessons across all devices!", link: "/signup/" },
+            { text: "🔥 Login to continue your learning journey!", link: "/login/" }
+        ];
+    }
     
     let currentIndex = 0;
     
     function updateTicker() {
         tickerEl.style.opacity = '0';
-        
         setTimeout(() => {
-            tickerEl.textContent = messages[currentIndex];
+            const item = messages[currentIndex];
+            
+            // Handle both object format {text, link} and simple string format
+            const text = item.text || item;
+            const link = item.link || null;
+            
+            tickerEl.innerText = text;
+            
+            if (link) {
+                tickerEl.href = link;
+                tickerEl.style.cursor = 'pointer';
+            } else {
+                tickerEl.removeAttribute('href');
+                tickerEl.style.cursor = 'default';
+            }
+            
             tickerEl.style.opacity = '1';
             currentIndex = (currentIndex + 1) % messages.length;
         }, 500);
     }
     
     // Initial display
-    tickerEl.textContent = messages[0];
-    tickerEl.style.opacity = '1';
+    // Start with opacity 0 so the first transition works
+    tickerEl.style.opacity = '0'; 
+    updateTicker();
     
     // Rotate every 7 seconds
     setInterval(updateTicker, 7000);
     
-    console.log('✅ Motivational ticker initialized');
+    console.log('✅ Office/Motivational ticker initialized');
 }
 
 function getMotivationalMessage(streak) {
