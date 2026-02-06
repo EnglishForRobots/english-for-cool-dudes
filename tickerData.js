@@ -5,7 +5,7 @@
 // Array of rotating messages for the office activity ticker
 const tickerItems = [
     "📊 Someone recently completed the Advanced 'Flying Taxis' lesson",
-    link: "/flyingtaxis/"
+    link: "/flyingtaxis/",
     "🎯 New lesson added in Business: Crisis Management",
    
     
