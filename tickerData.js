@@ -1,63 +1,28 @@
-// tickerData.js
-// --- 1. DATA SOURCE ---
-const LESSON_STATES = [
-    { text: "☕ NEW! BEGINNER: The Legend of Coffee 🐐", href: "/coffee/" },
-    { text: "🚨 NEW! BUSINESS: Damage Control ❗", href: "/crisismanagement/" },
-    { text: "🐔 NEW! TAX: The Chicken Tax 🚚", href: "/chickentax/" },
-    { text: "🏢 NEW! LEGAL: Corporate Empires 💼", href: "/corporateempires/" },
-{ text: "🚨 NEW! INTERMEDIATE: AI on Patrol 👮", href: "/aipolicing/" },
-{ text: "🦶 NEW! ADVANCED: Aussie Lifestyle 📺", href: "/barefoot/" },
-    { text: "🧠 NEW! ADVANCED: Advanced Discourse Markers 🖊️", href: "/discourse/" },
-    { text: "💸 NEW! TAX: Crypto - Cashing Out! 😎", href: "/crypto/" },
-    { text: "📺 NEW! ADVANCED: Hollywood 2.0: The AI Revolution 🎬", href: "/aivideos/" },
-    
-    
+// =========================================
+// TICKER DATA - Office Activity Messages
+// =========================================
+
+// Array of rotating messages for the office activity ticker
+const tickerItems = [
+    "📊 Someone just completed 'Flying Taxis' lesson!",
+    "🎯 New lesson added: Crisis Management",
+    "🔥 3 people are currently learning Business English",
+    "⚡ Sarah just achieved a 7-day streak!",
+    "📚 100+ lessons completed this week!",
+    "🌟 New vocabulary: 'Permanent Establishment' trending",
+    "💼 Tax English course just got updated!",
+    "🎓 Someone mastered 'The Earl of Sandwich' lesson",
+    "⏱️ Average lesson time: 8 minutes",
+    "🚀 Advanced course is getting popular!",
+    "💡 Tip: Complete lessons daily to build your streak!",
+    "📖 Legal English section expanded with new content",
+    "🎮 New game added to Game Zone!",
+    "✨ 50 active learners right now!",
+    "🏆 Top lesson this week: AI Videos"
 ];
 
-// --- 2. INITIALIZATION: Set ticker immediately when this script loads ---
-(function initializeTicker() {
-    const ticker = document.getElementById('latest-updates-ticker');
-    if (ticker) {
-        ticker.textContent = LESSON_STATES[0].text;
-        ticker.href = LESSON_STATES[0].href;
-        ticker.style.opacity = '1'; // Make it visible
-    }
-})();
-
-// --- 3. ANIMATION LOGIC ---
-let currentTickerIndex = 0; // Start at 0, will show first item initially
-
-function updateTicker() {
-    const ticker = document.getElementById('latest-updates-ticker');
-    if (!ticker) return;
-    
-    // Increment BEFORE updating, so next cycle shows index 1, then 2, etc.
-    currentTickerIndex = (currentTickerIndex + 1) % LESSON_STATES.length;
-    
-    ticker.style.opacity = '0';
-    
-    setTimeout(() => {
-        const newState = LESSON_STATES[currentTickerIndex];
-        ticker.textContent = newState.text;
-        ticker.href = newState.href;
-        ticker.style.opacity = '1';
-    }, 200);
-}
-
-function startTickerAnimation() {
-    const ticker = document.getElementById('latest-updates-ticker');
-    if (!ticker) return;
-    
-    // Start 4-second interval
-    setInterval(updateTicker, 4000);
-    
-    // Hover animation control
-    ticker.addEventListener('mouseenter', () => {
-        ticker.style.animation = 'none';
-        ticker.style.transform = 'scale(1.05)';
-    });
-    ticker.addEventListener('mouseleave', () => {
-        ticker.style.animation = 'pulse 2s infinite ease-in-out';
-        ticker.style.transform = 'scale(1)';
-    });
-}
+// Latest news ticker data (for the top ticker)
+const latestTickerData = {
+    title: "🎉 NEW: Crisis Management lesson now available in Business English!",
+    link: "/business/"
+};
