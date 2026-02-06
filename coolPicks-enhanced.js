@@ -27,7 +27,7 @@ const coolPicksWidget = {
             icon: '💼',
             category: 'specialized',
             tagline: 'Level up your professional game',
-
+            time: '', // No time for landing pages
             preview: 'Master meetings, emails & presentations',
             keyLearnings: ['Professional communication', 'Business vocabulary', 'Formal writing'],
             funFact: 'Did you know? "Think outside the box" originated in the 1970s!'
@@ -38,7 +38,7 @@ const coolPicksWidget = {
             icon: '💰',
             category: 'specialized',
             tagline: 'Master the money talk',
-          
+            time: '', // No time for landing pages
             preview: 'Navigate tax terminology with confidence',
             keyLearnings: ['Tax vocabulary', 'Accounting terms', 'Financial documentation'],
             funFact: 'Fun fact: The word "tax" comes from Latin "taxare" meaning "to assess"!'
@@ -49,7 +49,7 @@ const coolPicksWidget = {
             icon: '⚖️',
             category: 'specialized',
             tagline: 'Navigate legal lingo like a pro',
-            
+            time: '', // No time for landing pages
             preview: 'Understand contracts & legal documents',
             keyLearnings: ['Contract language', 'Legal terminology', 'Court procedures'],
             funFact: 'Cool fact: "Hereby" and "herein" date back to Old English legal documents!'
@@ -60,7 +60,7 @@ const coolPicksWidget = {
             icon: '🌱',
             category: 'general',
             tagline: 'Start your English adventure',
-            
+            time: '', // No time for landing pages
             preview: 'Build your foundation from scratch',
             keyLearnings: ['Basic grammar', 'Common phrases', 'Essential vocabulary'],
             funFact: 'Every expert was once a beginner! You\'ve got this! 💪'
@@ -71,7 +71,7 @@ const coolPicksWidget = {
             icon: '🚀',
             category: 'general',
             tagline: 'Take your skills to the next level',
-            
+            time: '', // No time for landing pages
             preview: 'Expand your vocabulary & confidence',
             keyLearnings: ['Complex grammar', 'Idioms & expressions', 'Real-world situations'],
             funFact: 'English has over 170,000 words in current use - let\'s learn them! 📚'
@@ -82,7 +82,7 @@ const coolPicksWidget = {
             icon: '🎯',
             category: 'general',
             tagline: 'Achieve English mastery',
-          
+            time: '', // No time for landing pages
             preview: 'Perfect your fluency & sophistication',
             keyLearnings: ['Native-like fluency', 'Advanced idioms', 'Subtle nuances'],
             funFact: 'Shakespeare invented over 1,700 words we still use today! 🎭'
@@ -93,7 +93,7 @@ const coolPicksWidget = {
             icon: '🎮',
             category: 'fun',
             tagline: 'Learn while having fun',
-         
+            time: '', // No time for landing pages
             preview: 'Challenge yourself with fun games',
             keyLearnings: ['Interactive learning', 'Quick practice', 'Test your skills'],
             funFact: 'Playing games boosts memory retention by 40%! Time to play! 🎲'
@@ -156,7 +156,7 @@ const coolPicksWidget = {
                 icon: lessonIcons[index % lessonIcons.length],
                 category: 'lesson',
                 tagline: 'Direct lesson access',
-              
+                time: time,
                 preview: lessonPreviews[Math.floor(Math.random() * lessonPreviews.length)],
                 keyLearnings: ['Practical skills', 'Real examples', 'Hands-on practice'],
                 funFact: '🎯 This takes you straight to the lesson!',
@@ -295,7 +295,7 @@ const coolPicksWidget = {
                         <div class="picks-full-preview">
                             <div class="picks-header-row">
                                 ${this.currentLesson.icon} <span class="lesson-name-link">${this.currentLesson.name}</span>
-                                <span class="picks-time">${this.currentLesson.time}</span>
+                                ${this.currentLesson.time ? `<span class="picks-time">${this.currentLesson.time}</span>` : ''}
                             </div>
                             ${directBadge}
                             <div class="picks-preview">${this.currentLesson.preview}</div>
@@ -315,7 +315,7 @@ const coolPicksWidget = {
                             </div>
                             ${directBadge}
                             <div class="picks-fact">${this.currentLesson.funFact}</div>
-                            <div class="picks-time-badge">${this.currentLesson.time} • ${this.currentLesson.preview}</div>
+                            <div class="picks-time-badge">${this.currentLesson.time ? this.currentLesson.time + ' • ' : ''}${this.currentLesson.preview}</div>
                         </div>
                     `;
                     picksBtn.innerHTML = this.currentLesson.isDirectLesson ? '⚡ Start Now!' : '🚀 Discover!';
@@ -332,7 +332,7 @@ const coolPicksWidget = {
                             </div>
                             ${directBadge}
                             <div class="picks-tagline">${this.currentLesson.tagline}</div>
-                            <div class="picks-meta">${this.currentLesson.time} • ${this.currentLesson.keyLearnings.length} key skills</div>
+                            <div class="picks-meta">${this.currentLesson.time ? this.currentLesson.time + ' • ' : ''}${this.currentLesson.keyLearnings.length} key skills</div>
                         </div>
                     `;
                     picksBtn.innerHTML = buttonText;
