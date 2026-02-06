@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Invisible Office - English For Cool Dudes</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+    window.efcdSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+</script>
+<script src="/supabase-auth.js"></script>
     <style>
         /* --- BRANDING & RESET --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -411,8 +418,32 @@
 
     <script src="/coolPicks-enhanced.js"></script>
     <script>
-        // LESSON IDENTIFIER - UNIQUE FOR EACH LESSON
-        const LESSON_ID = 'invisibleoffice'; // Change this for each different lesson!
+ // At the top of your script:
+const LESSON_ID = 'invisibleofficegame'; // Unique ID for this lesson
+
+// When page loads:
+let currentUser = null;
+initAuth().then(user => {
+    currentUser = user;
+    if (user) {
+        // Update UI with user's stats
+        document.getElementById('streak-count').textContent = user.streak || 0;
+        document.getElementById('total-lessons').textContent = user.completedLessons.length;
+    } else {
+        // Show login reminder
+        document.getElementById('login-reminder').style.display = 'block';
+    }
+});
+
+// When lesson is completed successfully:
+if (currentUser) {
+    await completeLesson(LESSON_ID);
+    // Refresh user data
+    currentUser = await refreshUserData();
+    // Update UI
+    document.getElementById('streak-count').textContent = currentUser.streak;
+    document.getElementById('total-lessons').textContent = currentUser.completedLessons.length;
+}
 
         // VOCAB DEFINITIONS
         const VOCAB_LIST = [
@@ -429,8 +460,7 @@
         ];
 
         // LOCAL STORAGE - STREAKS & ACHIEVEMENTS
-        let streak = parseInt(localStorage.getItem('lessonStreak') || '0');
-        let completedLessons = JSON.parse(localStorage.getItem('completedLessons') || '[]');
+     
         let lastLessonDate = localStorage.getItem('lastLessonDate');
         let todayStr = new Date().toDateString();
 
