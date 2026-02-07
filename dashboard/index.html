@@ -1,10 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -13,7 +11,21 @@
     <link rel="icon" type="image/png" href="/android-chrome-192x192.png" sizes="192x192">
     <link rel="manifest" href="/manifest.json">
     <title>My Dashboard - English For Cool Dudes</title>
+    
+    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Initialize Supabase -->
+    <script>
+        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        window.efcdSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    </script>
+    
+    <!-- Load gamified auth system -->
+    <script src="/supabase-auth-gamified.js"></script>
+    <script src="/tickerData.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -41,21 +53,20 @@
             margin-bottom: 20px;
         }
 
-       .header-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex: 1;
-}
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
 
         .logo {
             width: 36px;
@@ -76,79 +87,20 @@
             text-decoration: none;
         }
 
-        .header-buttons {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
         .header-button {
-            text-decoration: none;
-            padding: 7px 14px;
+            background: #EF4444;
+            color: white;
+            border: none;
+            padding: 8px 16px;
             border-radius: 6px;
-            font-size: 14px;
             font-weight: 600;
+            cursor: pointer;
             transition: all 0.2s;
-            white-space: nowrap;
-            cursor: pointer;
-            border: 1px solid #E5E9F2;
-            background: transparent;
-        }
-
-        .header-button.logout {
-            background: #F8F9FB;
-            color: #E53E3E;
-            border: 1px solid #E5E9F2;
-        }
-
-        .header-button.logout:hover {
-            background: #FEEBEB;
-            color: #C53030;
-            border-color: #FBD3DA;
-        }
-
-        #latest-updates-ticker {
-            position: fixed;
-            top: 20px; 
-            right: 50%;
-            margin-right: -580px; 
-            z-index: 1000;
-            cursor: pointer;
-            background: #FFC107;
-            color: #92400E;
-            padding: 8px 15px;
-            border-radius: 20px;
             font-size: 14px;
-            font-weight: 600;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s, background-color 0.2s, opacity 0.2s;
-            border: 2px solid #F59E0B;
-            animation: pulse 2s infinite ease-in-out;
-            text-decoration: none;
-            white-space: nowrap;
-            max-width: 450px; 
-            text-overflow: ellipsis;
-            overflow: hidden;
-            display: inline-block;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
-            50% { transform: scale(1.03); box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.6); }
-            100% { transform: scale(1); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
-        }
-
-        .footer {
-            background: #FFFFFF;
-            border-top: 1px solid #E5E9F2;
-            padding: 32px 20px;
-            margin-top: 60px;
-            text-align: center;
-        }
-
-        .footer-text {
-            font-size: 14px;
-            color: #718096;
+        .header-button:hover {
+            background: #DC2626;
         }
 
         .container {
@@ -175,53 +127,168 @@
             font-weight: 600;
         }
 
+        /* GAMIFICATION STATS */
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 2px solid #E5E9F2;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+
+        .stat-card.xp-card {
+            background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+            border-color: #FED7AA;
+        }
+
+        .stat-card.streak-card {
+            background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
+            border-color: #FECACA;
+        }
+
+        .stat-card.achievement-card {
+            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+            border-color: #BFDBFE;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .xp-card .stat-label { color: #92400E; }
+        .streak-card .stat-label { color: #991B1B; }
+        .achievement-card .stat-label { color: #1E40AF; }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 900;
+            margin-bottom: 5px;
+        }
+
+        .xp-card .stat-value { color: #F59E0B; }
+        .streak-card .stat-value { color: #DC2626; }
+        .achievement-card .stat-value { color: #3B82F6; }
+
+        .stat-subtext {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .xp-card .stat-subtext { color: #D97706; }
+        .streak-card .stat-subtext { color: #991B1B; }
+        .achievement-card .stat-subtext { color: #1E40AF; }
+
+        .progress-bar-container {
+            margin-top: 15px;
+            background: rgba(0,0,0,0.1);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #F59E0B, #D97706);
+            transition: width 0.5s;
+        }
+
+        .progress-text {
+            margin-top: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #92400E;
+        }
+
+        .streak-emoji {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        /* ACHIEVEMENTS SECTION */
+        .achievements-section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1A202C;
+            margin-bottom: 20px;
+        }
+
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .achievement-badge {
+            background: white;
+            border: 2px solid #E5E9F2;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .achievement-badge.unlocked {
+            border-color: #34D399;
+            background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+        }
+
+        .achievement-badge.locked {
+            opacity: 0.4;
+            filter: grayscale(1);
+        }
+
+        .achievement-badge:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .achievement-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .achievement-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1A202C;
+            margin-bottom: 5px;
+        }
+
+        .achievement-desc {
+            font-size: 12px;
+            color: #6B7280;
+        }
+
+        /* LESSONS SECTION */
+        .lessons-section {
+            margin-bottom: 40px;
+        }
+
         .card-list {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 25px;
-        }
-
-        .empty-dashboard-container {
-            grid-column: 1 / -1;
-            background: #EBF8FF;
-            border: 2px dashed #90CDF4;
-            border-radius: 12px;
-            padding: 50px 30px;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .empty-dashboard-container h3 {
-            font-size: 24px;
-            color: #2B6CB0;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-
-        .empty-dashboard-container p {
-            font-size: 18px;
-            color: #2B6CB0;
-            font-weight: 600;
-            line-height: 1.8;
-            margin-bottom: 25px;
-        }
-
-        .empty-dashboard-container .cta-button {
-            display: inline-block;
-            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
-            color: white;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-
-        .empty-dashboard-container .cta-button:hover {
-            background: linear-gradient(135deg, #5A6AD0 0%, #6D4396 100%);
-            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
-            transform: translateY(-2px);
         }
 
         .lesson-card {
@@ -245,12 +312,12 @@
             margin-bottom: 5px;
         }
 
-        .lesson-card a.lesson-link {
+        .lesson-card a {
             text-decoration: none;
             color: #667EEA;
         }
 
-        .lesson-card a.lesson-link:hover {
+        .lesson-card a:hover {
             text-decoration: underline;
         }
 
@@ -280,8 +347,6 @@
         }
 
         .vocab-word {
-            position: relative;
-            display: inline-block;
             background: #FFFBEA;
             color: #92400E;
             padding: 5px 10px;
@@ -298,81 +363,43 @@
             transform: translateY(-2px);
         }
 
-        .dictionary-popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            border: 2px solid #667EEA;
+        .empty-dashboard {
+            text-align: center;
+            padding: 60px 20px;
+            background: #EBF8FF;
+            border: 2px dashed #90CDF4;
             border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            z-index: 1000;
-            max-width: 500px;
-            width: 90%;
-            display: none;
         }
 
-        .dictionary-popup.active {
-            display: block;
-            animation: popupFadeIn 0.2s ease-out;
-        }
-
-        @keyframes popupFadeIn {
-            from {
-                opacity: 0;
-                transform: translate(-50%, -45%);
-            }
-            to {
-                opacity: 1;
-                transform: translate(-50%, -50%);
-            }
-        }
-
-        .dictionary-popup h3 {
+        .empty-dashboard h3 {
             font-size: 24px;
-            color: #667EEA;
-            margin-bottom: 15px;
+            color: #2B6CB0;
             font-weight: 600;
-        }
-
-        .dictionary-popup .definition {
-            font-size: 16px;
-            color: #2C3E50;
-            line-height: 1.6;
             margin-bottom: 15px;
         }
 
-        .dictionary-popup .close-btn {
-            background: #667EEA;
+        .empty-dashboard p {
+            font-size: 18px;
+            color: #2B6CB0;
+            margin-bottom: 25px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
             color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            font-size: 14px;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
             font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
+            text-decoration: none;
+            transition: all 0.2s;
         }
 
-        .dictionary-popup .close-btn:hover {
-            background: #5A6AD0;
-        }
-
-        .popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
-            display: none;
-        }
-
-        .popup-overlay.active {
-            display: block;
+        .cta-button:hover {
+            background: linear-gradient(135deg, #5A6AD0 0%, #6D4396 100%);
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
         }
 
         .loading-spinner {
@@ -383,452 +410,276 @@
             font-weight: 600;
         }
 
-        .error-message {
-            background: #FEE;
-            border: 2px solid #E53E3E;
-            padding: 20px;
-            border-radius: 8px;
+        .footer {
+            background: #FFFFFF;
+            border-top: 1px solid #E5E9F2;
+            padding: 32px 20px;
+            margin-top: 60px;
             text-align: center;
-            color: #E53E3E;
-            font-weight: 600;
         }
 
-        @media (max-width: 1240px) {
-            #latest-updates-ticker {
-                right: 20px;
-                margin-right: 0; 
-            }
+        .footer-text {
+            font-size: 14px;
+            color: #718096;
         }
 
-       @media (max-width: 768px) {
-    .card-list {
-        grid-template-columns: 1fr;
-    }
-
-    .header-left {
-        gap: 8px;
-    }
-
-    .site-title {
-        font-size: 16px;
-    }
-
-    .header-button {
-        padding: 5px 10px;
-        font-size: 12px;
-    }
-}
-
-        @media (max-width: 480px) {
-            .dashboard-header h2 {
-                font-size: 24px;
+        @media (max-width: 768px) {
+            .dashboard-stats {
+                grid-template-columns: 1fr;
             }
-            .welcome-message {
-                font-size: 16px;
-            }
-            .empty-dashboard-container h3 {
-                font-size: 20px;
-            }
-            .empty-dashboard-container p {
-                font-size: 16px;
-            }
-        }
-        @media (max-width: 480px) {
-            .dashboard-header h2 {
-                font-size: 24px;
-            }
-            .welcome-message {
-                font-size: 16px;
-            }
-            .empty-dashboard-container h3 {
-                font-size: 20px;
-            }
-            .empty-dashboard-container p {
-                font-size: 16px;
-            }
-
-            /* Move ticker to bottom on mobile */
-            .container {
-                padding: 30px 20px 80px 20px; /* Add bottom padding for ticker */
-            }
-
-            #latest-updates-ticker {
-                top: auto;
-                bottom: 0;
-                right: 0;
-                left: 0;
-                margin-right: 0;
-                border-radius: 0;
-                font-size: 13px;
-                padding: 12px 15px;
-                max-width: 100%;
-                text-align: center;
-                border: none;
-                border-top: 2px solid #F59E0B;
-                box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
-            }
-        }
-
-        /* Landscape orientation on phones */
-        @media (max-width: 896px) and (max-height: 480px) and (orientation: landscape) {
-            #latest-updates-ticker {
-                top: auto;
-                bottom: 0;
-                right: 0;
-                left: 0;
-                margin-right: 0;
-                border-radius: 0;
-                font-size: 13px;
-                padding: 10px 15px;
-                max-width: 100%;
-                text-align: center;
-                border: none;
-                border-top: 2px solid #F59E0B;
-                box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+            
+            .card-list {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
     <header class="header">
-    <div class="header-content">
-        <div class="header-left">
-            <span class="logo">😎</span>
-            <a href="/" class="site-title">English For Cool Dudes</a>
-            <button id="logout-btn" class="header-button logout">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">😎</span>
+                <a href="/" class="site-title">English For Cool Dudes</a>
+            </div>
+            <button id="logout-btn" class="header-button" onclick="logout()">
                 Sign Out
             </button>
         </div>
-    </div>
-</header>
-
-    <a href="#" id="latest-updates-ticker" style="opacity: 0;"></a>
-
-    <div class="popup-overlay" id="popup-overlay"></div>
-    <div class="dictionary-popup" id="dictionary-popup">
-        <h3 id="popup-word">Word</h3>
-        <div class="definition" id="popup-definition">Loading definition...</div>
-        <button class="close-btn" id="close-popup">Close</button>
-    </div>
+    </header>
 
     <main class="container">
         <div class="dashboard-header">
-            <h2 id="welcome-title"></h2>
+            <h2 id="welcome-title">Loading...</h2>
             <p class="welcome-message" id="welcome-subtitle"></p>
         </div>
 
         <div id="loading" class="loading-spinner">
-            Loading your lessons...
+            Loading your dashboard...
         </div>
 
-        <div id="error-container" style="display: none;"></div>
+        <div id="dashboard-content" style="display: none;">
+            <!-- GAMIFICATION STATS -->
+            <div class="dashboard-stats">
+                <!-- XP & Level -->
+                <div class="stat-card xp-card">
+                    <div class="stat-label">LEVEL & XP</div>
+                    <div class="stat-value" id="user-level">Level 1</div>
+                    <div class="stat-subtext" id="user-xp">0 XP</div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="xp-progress-bar" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-text" id="xp-to-next">0 XP to Level 2</div>
+                </div>
 
-        <section id="lesson-list" class="card-list" style="display: none;">
-        </section>
+                <!-- Streak -->
+                <div class="stat-card streak-card">
+                    <div class="stat-label">CURRENT STREAK</div>
+                    <div class="streak-emoji" id="streak-emoji">🔥</div>
+                    <div class="stat-value" id="streak-days">0 days</div>
+                    <div class="stat-subtext" id="streak-message">Start your streak!</div>
+                </div>
 
-        <div id="no-lessons" class="empty-dashboard-container" style="display:none;">
-            <h3>🎯 Start Your Cool Dude Journey!</h3>
-            <p>Complete lessons to save words and build your vocabulary.</p>
-            <a href="/" class="cta-button">Browse Lessons</a>
+                <!-- Achievements -->
+                <div class="stat-card achievement-card">
+                    <div class="stat-label">ACHIEVEMENTS</div>
+                    <div class="stat-value" id="achievement-count">0</div>
+                    <div class="stat-subtext">Unlocked</div>
+                    <a href="#achievements" style="display: inline-block; margin-top: 15px; color: #3B82F6; text-decoration: none; font-weight: 600; font-size: 13px;">
+                        View All →
+                    </a>
+                </div>
+            </div>
+
+            <!-- ACHIEVEMENTS SECTION -->
+            <section class="achievements-section" id="achievements">
+                <h2 class="section-title">🏆 Your Achievements</h2>
+                <div class="achievements-grid" id="achievements-grid">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </section>
+
+            <!-- SAVED VOCABULARY -->
+            <section class="lessons-section">
+                <h2 class="section-title">📚 Recent Lessons & Saved Vocabulary</h2>
+                <div class="card-list" id="lesson-list">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+                <div id="no-lessons" class="empty-dashboard" style="display: none;">
+                    <h3>🎯 Start Your Cool Dude Journey!</h3>
+                    <p>Complete lessons to earn XP, build streaks, and unlock achievements!</p>
+                    <a href="/" class="cta-button">Browse Lessons</a>
+                </div>
+            </section>
         </div>
-
     </main>
 
     <footer class="footer">
-    <p class="footer-text">© 2026 English For Cool Dudes - 😎</p>
-    <div style="margin-top: 10px;">
-        <a href="/impressum/" style="color: #667EEA; margin-right: 15px; text-decoration: none;">Impressum</a>
-        <a href="/datenschutz/" style="color: #667EEA; text-decoration: none;">Datenschutzerklärung</a>
-    </div>
-</footer>
-
-   <script src="/tickerData.js"></script>
+        <p class="footer-text">© 2026 English For Cool Dudes - 😎</p>
+        <div style="margin-top: 10px;">
+            <a href="/impressum/" style="color: #667EEA; margin-right: 15px; text-decoration: none;">Impressum</a>
+            <a href="/datenschutz/" style="color: #667EEA; text-decoration: none;">Datenschutzerklärung</a>
+        </div>
+    </footer>
 
     <script>
-        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co'; 
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+        async function logout() {
+            if (typeof window.EFCD_Auth !== 'undefined') {
+                await window.EFCD_Auth.logout();
+            } else {
+                window.location.href = '/login/';
+            }
+        }
 
-
-        // FIX: Renamed 'supabase' to 'supabaseClient' to avoid the naming conflict
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
-        const logoutButton = document.getElementById('logout-btn');
-        const welcomeTitle = document.getElementById('welcome-title');
-        const welcomeSubtitle = document.getElementById('welcome-subtitle');
-        const lessonList = document.getElementById('lesson-list');
-        const noLessonsMessage = document.getElementById('no-lessons');
-        const loadingDiv = document.getElementById('loading');
-        const errorContainer = document.getElementById('error-container');
-
-        const popupOverlay = document.getElementById('popup-overlay');
-        const dictionaryPopup = document.getElementById('dictionary-popup');
-        const popupWord = document.getElementById('popup-word');
-        const popupDefinition = document.getElementById('popup-definition');
-        const closePopupBtn = document.getElementById('close-popup');
-
-        async function checkAuthAndLoadDashboard() {
+        async function loadDashboard() {
             try {
-                // FIX: Updated to 'supabaseClient'
-                const { data: { user }, error } = await supabaseClient.auth.getUser();
-
-                if (error || !user) {
-                    console.log('Not authenticated, redirecting to login');
+                // Initialize auth
+                if (typeof window.EFCD_Auth === 'undefined') {
+                    console.error('EFCD_Auth not loaded');
                     window.location.href = '/login/';
                     return;
                 }
 
-                console.log('User authenticated:', user);
+                await window.EFCD_Auth.initAuth();
+                const user = window.EFCD_Auth.getCurrentUser();
 
-                let userName = 'Cool Dude';
-                if (user.user_metadata && user.user_metadata.full_name) {
-                    userName = user.user_metadata.full_name.split(' ')[0];
-                } else if (user.email) {
-                    userName = user.email.split('@')[0];
+                if (!user) {
+                    window.location.href = '/login/';
+                    return;
                 }
-const isFirstLogin = user.user_metadata && user.user_metadata.is_first_login;
 
-                 await loadUserDashboardData(user.id, userName, isFirstLogin);
-                  if (isFirstLogin) {
-                    // FIX: Updated to 'supabaseClient'
-                    await supabaseClient.auth.updateUser({
-                        data: { is_first_login: false }
-                    });
-                }
+                // Get user stats
+                const stats = window.EFCD_Auth.getUserStats();
+                const progress = window.EFCD_Auth.getProgressToNextLevel(stats.xp);
+                const levelInfo = window.EFCD_Auth.getLevelInfo(stats.level);
+
+                // Update welcome
+                document.getElementById('welcome-title').textContent = `Welcome back, ${user.name}!`;
+                document.getElementById('welcome-subtitle').textContent = `${levelInfo.name} • ${stats.lessonsCompleted} lessons completed`;
+
+                // Update XP & Level
+                document.getElementById('user-level').textContent = `Level ${stats.level}`;
+                document.getElementById('user-xp').textContent = `${stats.xp.toLocaleString()} XP`;
+                document.getElementById('xp-progress-bar').style.width = progress.percent + '%';
+                document.getElementById('xp-to-next').textContent = stats.level < 6 
+                    ? `${progress.remaining} XP to Level ${stats.level + 1}`
+                    : 'Max Level!';
+
+                // Update Streak
+                document.getElementById('streak-emoji').textContent = stats.streakEmoji;
+                document.getElementById('streak-days').textContent = `${stats.streak} days`;
+                document.getElementById('streak-message').textContent = stats.streakMessage;
+
+                // Update Achievements Count
+                document.getElementById('achievement-count').textContent = stats.achievementCount;
+
+                // Render Achievements
+                renderAchievements(stats.achievements);
+
+                // Load lessons from Supabase
+                await loadLessons(user.id);
+
+                // Hide loading, show content
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboard-content').style.display = 'block';
+
             } catch (err) {
-                console.error('Error checking auth:', err);
-                window.location.href = '/login/';
+                console.error('Dashboard error:', err);
+                document.getElementById('loading').innerHTML = `
+                    <div style="color: #EF4444;">
+                        Error loading dashboard. Please <a href="/login/" style="color: #667EEA;">log in again</a>.
+                    </div>
+                `;
             }
         }
-         async function handleLogout() {
-            try {
-                // FIX: Updated to 'supabaseClient'
-                const { error } = await supabaseClient.auth.signOut();
-                if (error) {
-                    console.error('Logout Error:', error);
-                    alert('Logout failed. Please try again.');
-                } else {
-                    window.location.href = '/login/'; 
-                }
-            } catch (err) {
-                console.error('Unexpected logout error:', err);
-                alert('An error occurred during logout.');
-            }
-              }
-async function loadUserProgress() {
-    await initAuth();
-    const user = getCurrentUser();
-    
-    if (user) {
-        // Display streak info
-        document.getElementById('user-streak').textContent = user.streak || 0;
-        document.getElementById('total-lessons').textContent = user.completedLessons.length;
-        document.getElementById('total-points').textContent = user.totalPoints || 0;
-        
-        // Show completed lessons
-        const lessonsList = document.getElementById('completed-lessons');
-        user.completedLessons.forEach(lessonId => {
-            const li = document.createElement('li');
-            li.textContent = lessonId; // Or map to lesson names
-            lessonsList.appendChild(li);
-        });
-    }
-}
 
-// Call it when page loads
-loadUserProgress();
-        async function loadUserDashboardData(userId, userName, isFirstLogin) {
+        function renderAchievements(unlockedAchievements) {
+            const achievementsGrid = document.getElementById('achievements-grid');
+            if (!achievementsGrid) return;
+
+            const allAchievements = window.EFCD_Auth.ACHIEVEMENTS;
+            let html = '';
+
+            for (const [id, achievement] of Object.entries(allAchievements)) {
+                const isUnlocked = unlockedAchievements.includes(id);
+                html += `
+                    <div class="achievement-badge ${isUnlocked ? 'unlocked' : 'locked'}">
+                        <div class="achievement-icon">${achievement.icon}</div>
+                        <div class="achievement-name">${achievement.name}</div>
+                        <div class="achievement-desc">${achievement.description}</div>
+                        ${isUnlocked ? '<div style="margin-top: 10px; color: #10B981; font-weight: 700;">✓ Unlocked</div>' : ''}
+                    </div>
+                `;
+            }
+
+            achievementsGrid.innerHTML = html;
+        }
+
+        async function loadLessons(userId) {
             try {
-                loadingDiv.style.display = 'block';
-                
-                // FIX: Updated to 'supabaseClient'
-                const { data: lessons, error } = await supabaseClient
+                const { data: lessons, error } = await window.efcdSupabaseClient
                     .from('lessons')
                     .select('*')
                     .eq('user_id', userId)
                     .order('completed_at', { ascending: false })
                     .limit(10);
 
-                loadingDiv.style.display = 'none';
+                const lessonList = document.getElementById('lesson-list');
+                const noLessons = document.getElementById('no-lessons');
 
                 if (error) {
                     console.error('Error loading lessons:', error);
-                    errorContainer.innerHTML = `<div class="error-message">Error loading lessons: ${error.message}</div>`;
-                    errorContainer.style.display = 'block';
                     return;
                 }
-                   console.log('Loaded lessons:', lessons);
 
                 if (!lessons || lessons.length === 0) {
-                    if (isFirstLogin) {
-                        welcomeTitle.textContent = `Hey, Cool ${userName}!`;
-                        welcomeSubtitle.textContent = 'Complete Lessons to Save Words to Your Dashboard!';
-                    } else {
-                        welcomeTitle.textContent = `Hey, Cool ${userName}!`;
-                        welcomeSubtitle.textContent = 'Complete Lessons to Save Words to Your Dashboard!';
-                    }
-                    
-                    if (noLessonsMessage) noLessonsMessage.style.display = 'block';
-                    if (lessonList) lessonList.style.display = 'none';
-                } else {
-                    welcomeTitle.textContent = `Hey, Cool ${userName}!`;
-                    welcomeSubtitle.textContent = 'Review Your Saved Words and Complete More Lessons';
-                    
-                    if (lessonList) {
-                        lessonList.style.display = 'grid';
-                        renderLessons(lessons);
-                    }
-                    if (noLessonsMessage) noLessonsMessage.style.display = 'none';
+                    lessonList.style.display = 'none';
+                    noLessons.style.display = 'block';
+                    return;
                 }
-                 } catch (err) {
-                console.error('Error loading dashboard data:', err);
-                loadingDiv.style.display = 'none';
-                welcomeTitle.textContent = `Hey, Cool ${userName}!`;
-                welcomeSubtitle.textContent = 'Error loading your data. Please refresh.';
-                errorContainer.innerHTML = `<div class="error-message">Unexpected error: ${err.message}</div>`;
-                errorContainer.style.display = 'block';
-                  }
-        }
 
-        function renderLessons(lessons) {
-            if (!lessonList) return;
-            
-            lessonList.innerHTML = '';
-            
-            lessons.forEach(lesson => {
-                const card = document.createElement('div');
-                card.className = 'lesson-card';
-                
-                const completedDate = lesson.completed_at ? 
-                    new Date(lesson.completed_at).toLocaleDateString('en-GB', {
+                lessonList.style.display = 'grid';
+                noLessons.style.display = 'none';
+
+                let html = '';
+                lessons.forEach(lesson => {
+                    const completedDate = new Date(lesson.completed_at).toLocaleDateString('en-GB', {
                         day: 'numeric',
                         month: 'short',
                         year: 'numeric'
-                    }) : 'Unknown date';
+                    });
 
-                const level = lesson.lesson_level || 'LESSON';
-                const link = lesson.lesson_link || '#';
-                
-                let vocabHTML = '';
-                if (lesson.vocabulary && Array.isArray(lesson.vocabulary) && lesson.vocabulary.length > 0) {
-                    const vocabItems = lesson.vocabulary.map(item => {
-                        const word = item.word || '';
-                        const definition = item.definition || 'No definition available';
-                        return `<span class="vocab-word" data-word="${word}" data-definition="${definition}">${word}</span>`;
-                    }).join('');
-                    
-                    vocabHTML = `
-                        <div class="vocabulary-section">
-                            <h4>Saved Words (${lesson.vocabulary.length}):</h4>
-                            <div class="vocabulary-list">
-                                ${vocabItems}
+                    let vocabHTML = '';
+                    if (lesson.vocabulary && Array.isArray(lesson.vocabulary) && lesson.vocabulary.length > 0) {
+                        const vocabItems = lesson.vocabulary.map(item => 
+                            `<span class="vocab-word" title="${item.definition || ''}">${item.word || ''}</span>`
+                        ).join('');
+
+                        vocabHTML = `
+                            <div class="vocabulary-section">
+                                <h4>Saved Words (${lesson.vocabulary.length}):</h4>
+                                <div class="vocabulary-list">${vocabItems}</div>
                             </div>
+                        `;
+                    }
+
+                    html += `
+                        <div class="lesson-card">
+                            <h3><a href="${lesson.lesson_link || '#'}">${lesson.lesson_title}</a></h3>
+                            <div class="lesson-meta">${lesson.lesson_level || 'Lesson'} • Completed on ${completedDate}</div>
+                            ${vocabHTML}
                         </div>
                     `;
-                }
-                
-                card.innerHTML = `
-                    <h3><a href="${link}" class="lesson-link">${lesson.lesson_title}</a></h3>
-                    <div class="lesson-meta">${level} • Completed on ${completedDate}</div>
-                    ${vocabHTML}
-                `;
-                
-                lessonList.appendChild(card);
-            });
-             document.querySelectorAll('.vocab-word').forEach(wordEl => {
-                wordEl.addEventListener('click', function() {
-                    const word = this.getAttribute('data-word');
-                    const definition = this.getAttribute('data-definition');
-                    showDictionaryPopup(word, definition);
                 });
-                  });
+
+                lessonList.innerHTML = html;
+
+            } catch (err) {
+                console.error('Load lessons error:', err);
+            }
         }
 
-        function showDictionaryPopup(word, definition) {
-            popupWord.textContent = word;
-            popupDefinition.textContent = definition;
-            dictionaryPopup.classList.add('active');
-            popupOverlay.classList.add('active');
-        }
-
-        function closeDictionaryPopup() {
-            dictionaryPopup.classList.remove('active');
-            popupOverlay.classList.remove('active');
-        }
-
-        closePopupBtn.addEventListener('click', closeDictionaryPopup);
-        popupOverlay.addEventListener('click', closeDictionaryPopup);
-        
-        document.addEventListener('DOMContentLoaded', async () => {
-         // 1. Start the ticker
-         if (typeof startTickerAnimation === "function") {
-             startTickerAnimation();
-         }
-         
-         // 2. Load the dashboard data
-         checkAuthAndLoadDashboard(); 
-    });
-        
-        if (logoutButton) {
-            logoutButton.addEventListener('click', handleLogout);
-        }
-        
-if ('serviceWorker' in navigator) {
-  // Add timestamp to force browser to check for new SW.js
-  const swUrl = '/sw.js?v=' + new Date().getTime();
-  
-  navigator.serviceWorker.register(swUrl).then(reg => {
-    console.log('✅ Service Worker registered');
-      
-    // Force immediate check for updates on page load
-    reg.update();
-      
-    // Check for updates when page becomes visible
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) {
-        console.log('🔄 Page visible, checking for SW updates...');
-        reg.update();
-      }
-    });
-      
-    // Handle new SW found
-    reg.addEventListener('updatefound', () => {
-      const newWorker = reg.installing;
-      console.log('🆕 New Service Worker found, installing...');
-      
-      newWorker.addEventListener('statechange', () => {
-        console.log('SW state changed to:', newWorker.state);
-
-          
-        if (newWorker.state === 'installed') {
-          if (navigator.serviceWorker.controller) {
-            console.log('📤 Telling new SW to skip waiting...');
-            newWorker.postMessage({ type: 'SKIP_WAITING' });
-          } else {
-            console.log('✅ First time install, content cached');
-          }
-        }
-      });
-
-           });
-  }).catch(err => {
-    console.error('❌ Service Worker registration failed:', err);
-  });
-
-  // Auto-reload when new SW takes control
-  let refreshing = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (refreshing) return;
-    refreshing = true;
-    console.log('🔄 New Service Worker activated! Reloading page...');
-    window.location.reload();
-  });
-}
-        
-
-        </script>
-    </body>
+        // Initialize dashboard on page load
+        document.addEventListener('DOMContentLoaded', loadDashboard);
+    </script>
+</body>
 </html>
-
-          
-                
-      
