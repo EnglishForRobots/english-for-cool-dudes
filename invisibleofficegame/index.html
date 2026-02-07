@@ -838,5 +838,139 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 </script>
+    <!-- Load Supabase & Auth -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/init-auth.js"></script>
+<script src="/supabase-auth-gamified.js"></script>
+
+<!-- Lesson Completion Handler -->
+<script>
+window.efcdReady.then(async () => {
+    await window.EFCD_Auth.initAuth();
+    
+    // Display current streak at top
+    const user = window.EFCD_Auth.getCurrentUser();
+    if (user) {
+        const stats = window.EFCD_Auth.getUserStats();
+        document.getElementById('streak-count').textContent = stats.streak;
+        document.getElementById('total-lessons').textContent = stats.lessonsCompleted;
+    }
+});
+
+// Call this when lesson is completed
+async function completeLessonAndSave() {
+    if (typeof window.EFCD_Auth === 'undefined') {
+        alert('Please sign up to save your progress!');
+        window.location.href = '/signup/';
+        return;
+    }
+
+    const result = await window.EFCD_Auth.completeLesson({
+        lessonId: 'invisibleoffice', // CHANGE PER LESSON
+        lessonTitle: 'The Invisible Office',
+        lessonLevel: 'Tax English',
+        lessonLink: '/invisibleoffice/',
+        vocabulary: VOCAB_LIST || [],
+        perfectScore: true, // Replace with actual score check
+        completionTime: Math.floor((Date.now() - performance.timing.navigationStart) / 1000)
+    });
+
+    if (result.success) {
+        showCelebration(result);
+    }
+}
+
+function showCelebration(result) {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+        z-index: 99999; display: flex; align-items: center; justify-content: center;
+        animation: fadeIn 0.3s;
+    `;
+    
+    overlay.innerHTML = `
+        <div style="
+            background: white; padding: 60px; border-radius: 20px; text-align: center;
+            max-width: 500px; animation: scaleIn 0.4s; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        ">
+            <div style="font-size: 100px; margin-bottom: 20px;">🎉</div>
+            <h2 style="font-size: 36px; margin-bottom: 20px; color: #1A202C;">Lesson Complete!</h2>
+            
+            <div style="
+                background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+                padding: 30px; border-radius: 16px; margin-bottom: 30px;
+                border: 2px solid #FED7AA;
+            ">
+                <div style="font-size: 56px; font-weight: 900; color: #F59E0B; margin-bottom: 10px;">
+                    +${result.xpEarned} XP
+                </div>
+                ${result.leveledUp ? `
+                    <div style="font-size: 24px; color: #D97706; font-weight: 700; margin-top: 15px;">
+                        🎊 Level Up! Now Level ${result.newLevel}!
+                    </div>
+                ` : ''}
+                ${result.newStreak > 0 ? `
+                    <div style="font-size: 20px; margin-top: 15px; color: #DC2626; font-weight: 700;">
+                        🔥 ${result.newStreak} day streak!
+                    </div>
+                ` : ''}
+            </div>
+
+            ${result.newAchievements.length > 0 ? `
+                <div style="
+                    background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+                    padding: 20px; border-radius: 12px; margin-bottom: 30px;
+                    border: 2px solid #93C5FD;
+                ">
+                    <div style="font-weight: 800; font-size: 18px; margin-bottom: 15px; color: #1E40AF;">
+                        🏆 New Achievements Unlocked!
+                    </div>
+                    ${result.newAchievements.map(id => {
+                        const ach = window.EFCD_Auth.ACHIEVEMENTS[id];
+                        return `
+                            <div style="
+                                background: white; padding: 15px; border-radius: 8px;
+                                margin: 10px 0; display: flex; align-items: center; gap: 12px;
+                                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                            ">
+                                <span style="font-size: 36px;">${ach.icon}</span>
+                                <div style="text-align: left;">
+                                    <div style="font-weight: 700; color: #1E293B;">${ach.name}</div>
+                                    <div style="font-size: 13px; color: #64748B;">${ach.description}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            ` : ''}
+            
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <a href="/dashboard/" style="
+                    background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+                    color: white; padding: 14px 28px; border-radius: 8px;
+                    text-decoration: none; font-weight: 700; font-size: 16px;
+                    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+                ">View Dashboard</a>
+                
+                <button onclick="location.reload()" style="
+                    background: #F1F5F9; color: #475569; padding: 14px 28px;
+                    border-radius: 8px; border: none; font-weight: 700; cursor: pointer;
+                    font-size: 16px;
+                ">Try Again</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    // Add CSS animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    `;
+    document.head.appendChild(style);
+}
+</script>
 </body>
 </html>
