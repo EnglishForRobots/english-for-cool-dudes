@@ -3,7 +3,11 @@
 // Complete XP, Levels, Streaks, Achievements
 // =========================================
 
-const supabase = window.efcdSupabaseClient;
+// Use existing client or wait for it to be created
+function getSupabaseClient() {
+    return window.efcdSupabaseClient;
+}
+
 let currentUser = null;
 
 // =========================================
@@ -114,6 +118,7 @@ const ACHIEVEMENTS = {
 // =========================================
 
 async function initAuth() {
+    const supabase = getSupabaseClient();
     if (!supabase) {
         console.warn('⚠️ Supabase not initialized');
         return null;
@@ -145,6 +150,9 @@ async function initAuth() {
 // =========================================
 
 async function getOrCreateUserProfile(user) {
+    const supabase = getSupabaseClient();
+    if (!supabase) return createBasicProfile(user);
+    
     try {
         const { data: profile, error } = await supabase
             .from('profiles')
@@ -250,6 +258,7 @@ function createBasicProfile(user) {
 // =========================================
 
 async function completeLesson(lessonData) {
+    const supabase = getSupabaseClient();
     if (!currentUser || !supabase) {
         console.warn('⚠️ No user logged in - lesson not saved');
         return { success: false, message: 'Please log in to save progress' };
@@ -460,6 +469,9 @@ async function checkAchievements(user, data = {}) {
 }
 
 async function getTotalVocabCount(userId) {
+    const supabase = getSupabaseClient();
+    if (!supabase) return 0;
+    
     try {
         const { data, error } = await supabase
             .from('lessons')
@@ -514,6 +526,7 @@ function getStreakMessage(streak) {
 // =========================================
 
 async function logout() {
+    const supabase = getSupabaseClient();
     if (!supabase) return;
     await supabase.auth.signOut();
     currentUser = null;
@@ -564,6 +577,7 @@ function getUserStats() {
 }
 
 async function refreshUserData() {
+    const supabase = getSupabaseClient();
     if (!supabase || !currentUser) return null;
 
     try {
