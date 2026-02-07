@@ -1,21 +1,16 @@
 // =========================================
-// tickerData.js
+// TICKER DATA - LATEST NEWS
 // =========================================
 
-// Fixed: Changed to objects so we can have links
+const latestTickerData = {
+    title: '🎉 NEW: Flying Taxis lesson now live! Learn about the future of transport',
+    link: '/flyingtaxis/'
+};
+
+// Old ticker items (for backwards compatibility)
 const tickerItems = [
-    { text: "🚁 NEW! Advanced: Flying Taxis 🚁", link: "/flyingtaxis/" },
-    { text: "🎯 NEW! Business: Crisis Management 🚨", link: "/crisismanagement/" },
-    { text: "🌟 NEW! Tax: Permanent Establishment 🏢", link: "/invisibleoffice/" },
-    { text: "💼 Tax English just got updated!", link: "/tax/" },
-    { text: "🎓 NEW! Beginner: The Earl of Sandwich 🥪", link: "/sandwich/" },
-    { text: "⏱️ Average lesson time: 8 minutes", link: null },
-   
-    { text: "🏆 NEW! Advanced: AI Videos 📺", link: "/aivideos/" }
+    { text: '📚 Sign up to save your progress!', link: '/signup/' },
+    { text: '🎯 Track streaks & earn achievements!', link: '/signup/' }
 ];
 
-// Latest news ticker data
-const latestTickerData = {
-    title: "🎉 NEW! Business: Crisis Management 🚨", link: "/crisismanagement/",
-    link: "/business/"
-};
+console.log('✅ Ticker data loaded');
