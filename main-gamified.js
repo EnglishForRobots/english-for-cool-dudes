@@ -98,7 +98,7 @@ function updateHeaderUI() {
                 </div>
                 
                 <!-- Dashboard Link -->
-                <a href="/dashboard/" style="
+                <a href="/dashboard-gamified/" style="
                     color: #667EEA;
                     font-weight: 600;
                     text-decoration: none;
@@ -223,7 +223,7 @@ function showWelcomeMessage() {
                     Level ${stats.level} • ${stats.xp.toLocaleString()} XP • ${stats.achievementCount} achievements
                 </div>
             </div>
-            <a href="/dashboard/" style="
+            <a href="/dashboard-gamified/" style="
                 background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
                 color: white;
                 padding: 10px 20px;
