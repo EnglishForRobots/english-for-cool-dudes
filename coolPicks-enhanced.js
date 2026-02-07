@@ -10,6 +10,7 @@ const coolPicksWidget = {
         { url: '/invisibleoffice/', time: '8 mins', name: 'Tax: Invisible Office', category: 'tax' },
         { url: '/flyingtaxis/', time: '9 mins', name: 'Advanced: Flying Taxis', category: 'advanced' },
         { url: '/aivideos/', time: '11 mins', name: 'Advanced: AI Videos', category: 'advanced' },
+        { url: '/whatami/', time: '5 mins', name: 'Games: What Am I?', category: 'games' },
         { url: '/sleepscience/', time: '9 mins', name: 'Intermediate: The Science of Sleep', category: 'intermediate' },
         { url: '/crisismanagement/', time: '5 mins', name: 'Business: Crisis Management', category: 'business' },
          { url: '/invisibleofficegame/', time: '8 mins', name: 'Tax: Invisible Office (Beta Gamified)', category: 'tax' },
