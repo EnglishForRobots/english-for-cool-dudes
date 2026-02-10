@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -162,7 +161,6 @@
             transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
         .celebration.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-        .celebration .confetti { position: absolute; width: 10px; height: 10px; background: #FCD34D; }
 
         .result-msg { margin-top: 15px; font-weight: 700; display: none; padding: 15px; border-radius: 6px; text-align: center; transition: all 0.3s; }
         .result-msg.correct { background: #DCFCE7; color: #166534; border: 2px solid #86EFAC; }
@@ -178,26 +176,6 @@
         .badge.show { transform: translateX(0); opacity: 1; }
         .badge-icon { font-size: 32px; }
         .badge-text { font-weight: 700; color: #92400E; }
-
-        /* COOL PICKS WIDGET */
-        #cool-picks-widget {
-            background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
-            border: 2px solid #FB923C; border-radius: 12px; padding: 25px; margin-top: 40px;
-            box-shadow: 0 8px 20px rgba(251, 146, 60, 0.2); transition: all 0.3s;
-        }
-        #cool-picks-widget:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 30px rgba(251, 146, 60, 0.3); }
-        #picks-desc { min-height: 80px; color: #9A3412; font-weight: 600; }
-        #picks-btn { 
-            background: #EA580C; color: white; border: none; padding: 12px 30px; border-radius: 8px; 
-            font-weight: 800; cursor: pointer; width: 100%; margin-top: 15px; font-size: 16px;
-            box-shadow: 0 4px #C2410C; transition: all 0.2s;
-        }
-        #picks-btn:hover { background: #C2410C; transform: translateY(-2px); }
-        #picks-btn:active { transform: translateY(2px); box-shadow: 0 2px #9A3412; }
-        .picks-time { background: #FED7AA; color: #9A3412; padding: 3px 10px; border-radius: 12px; font-size: 0.85em; font-weight: 700; }
-        .picks-direct-badge { background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.75em; font-weight: 800; margin-left: 8px; }
-        .lesson-name-link { color: #C2410C; cursor: pointer; transition: all 0.2s; }
-        .lesson-name-link:hover { color: #EA580C; text-decoration: underline; }
 
         /* Popup */
         #dictionary-popup {
@@ -240,7 +218,7 @@
     <div class="celebration" id="celebration"></div>
 
     <div class="container-main">
-        <h1 class="lesson-main-title">📂 The Invisible Office (Beta Gamified)</h1>
+        <h1 class="lesson-main-title">📂 The Invisible Office</h1>
         <p class="lesson-subtitle">Case Study: Permanent Establishment Risks</p>
 
         <!-- PROGRESS BAR -->
@@ -395,24 +373,21 @@
             <div id="gap-result" class="result-msg"></div>
         </section>
 
-        <!-- COOL PICKS INTEGRATION -->
-        <section id="cool-picks-section">
-            <div id="cool-picks-widget">
-                <h3 style="font-size: 1.5em; font-weight: 800; color: #9A3412; margin-bottom: 15px; text-align: center;">
-                    🎯 What's Next?
-                </h3>
-                <div id="picks-desc" style="text-align: center;">Loading recommendations...</div>
-                <button id="picks-btn">Let's Go!</button>
-            </div>
-        </section>
-
     </div>
 
     <div id="dictionary-popup"></div>
 
-    <script src="/cool-picks-widget.js"></script>
+    <!-- ========================================= -->
+    <!-- LOAD SCRIPTS (ONCE, IN ORDER) -->
+    <!-- ========================================= -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/init-auth.js"></script>
+    <script src="/supabase-auth-gamified.js"></script>
+
     <script>
-        // VOCAB DEFINITIONS
+        // ========================================
+        // VOCAB & LESSON CONFIG
+        // ========================================
         const VOCAB_LIST = [
             { word: "Permanent Establishment", definition: "A fixed place of business (or agent) that triggers corporate tax liability in a foreign country." },
             { word: "Fixed Place", definition: "A physical location (office, factory, or even a home office) with a degree of permanence." },
@@ -426,35 +401,26 @@
             { word: "Provided that", definition: "On the condition that; as long as." }
         ];
 
-        // LOCAL STORAGE - STREAKS & ACHIEVEMENTS
-        let streak = parseInt(localStorage.getItem('lessonStreak') || '0');
-        let totalLessons = parseInt(localStorage.getItem('totalLessons') || '0');
-        let lastLessonDate = localStorage.getItem('lastLessonDate');
-        let todayStr = new Date().toDateString();
-
-        // Update streak
-        if (lastLessonDate !== todayStr) {
-            if (isYesterday(lastLessonDate)) {
-                streak++;
-            } else if (lastLessonDate) {
-                streak = 1; // Reset if gap
+        // ========================================
+        // INITIALIZE USER STATS FROM DATABASE
+        // ========================================
+        window.efcdReady.then(async () => {
+            await window.EFCD_Auth.initAuth();
+            
+            const user = window.EFCD_Auth.getCurrentUser();
+            if (user) {
+                const stats = window.EFCD_Auth.getUserStats();
+                document.getElementById('streak-count').textContent = stats.streak;
+                document.getElementById('total-lessons').textContent = stats.lessonsCompleted;
             } else {
-                streak = 1; // First time
+                document.getElementById('streak-count').textContent = '0';
+                document.getElementById('total-lessons').textContent = '0';
             }
-        }
+        });
 
-        function isYesterday(dateStr) {
-            if (!dateStr) return false;
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            return dateStr === yesterday.toDateString();
-        }
-
-        // Display streaks
-        document.getElementById('streak-count').textContent = streak;
-        document.getElementById('total-lessons').textContent = totalLessons;
-
+        // ========================================
         // PROGRESS TRACKING
+        // ========================================
         let completedSections = 0;
         const totalSections = 5;
         
@@ -467,20 +433,20 @@
             completedSections++;
             updateProgress();
             
-            // Show next section
             const nextSection = document.getElementById('section-' + (sectionNum + 1));
             if (nextSection) {
                 nextSection.classList.add('visible');
                 nextSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
 
-            // Random achievement badges
             if (Math.random() < 0.3) {
                 showBadge(getRandomBadge());
             }
         }
 
-        // BADGES
+        // ========================================
+        // BADGES & CELEBRATIONS
+        // ========================================
         const badges = [
             { icon: '⚡', text: 'Speed Demon!' },
             { icon: '🔥', text: 'On Fire!' },
@@ -509,29 +475,19 @@
             }, 3000);
         }
 
-        // CELEBRATION
         function celebrate(message = '🎉 Perfect!') {
             const cel = document.getElementById('celebration');
             cel.textContent = message;
             cel.classList.add('show');
             
-            // Confetti
-            for(let i = 0; i < 20; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.left = Math.random() * 100 + '%';
-                confetti.style.top = Math.random() * 100 + '%';
-                confetti.style.background = ['#FCD34D', '#F472B6', '#60A5FA', '#34D399'][Math.floor(Math.random() * 4)];
-                cel.appendChild(confetti);
-            }
-            
             setTimeout(() => {
                 cel.classList.remove('show');
-                cel.innerHTML = '';
             }, 2000);
         }
 
-        // POPUP LOGIC
+        // ========================================
+        // POPUP DICTIONARY
+        // ========================================
         function showPopup(target, word) {
             const wObj = VOCAB_LIST.find(w => w.word === word);
             if(!wObj) return;
@@ -565,7 +521,9 @@
             window.speechSynthesis.speak(utterance);
         }
 
-        // COMPREHENSION
+        // ========================================
+        // COMPREHENSION QUIZ
+        // ========================================
         document.querySelectorAll('.option-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 this.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
@@ -603,7 +561,9 @@
             document.getElementById('comp-result').style.display = 'none';
         }
 
-        // GRAMMAR
+        // ========================================
+        // GRAMMAR QUIZ
+        // ========================================
         function checkGrammar() {
             let correct = 0;
             const selects = document.querySelectorAll('.grammar-select');
@@ -629,8 +589,11 @@
             }
         }
 
-        // GAP FILL
+        // ========================================
+        // GAP FILL EXERCISE
+        // ========================================
         let selectedWord = null;
+        
         document.querySelectorAll('.bank-word').forEach(w => {
             w.addEventListener('click', function() {
                 if(this.classList.contains('used')) return;
@@ -681,19 +644,11 @@
             
             if (correct === gaps.length) {
                 celebrate('✍️ Letter Perfect!');
-                
-                // LESSON COMPLETE!
-                totalLessons++;
-                localStorage.setItem('lessonStreak', streak);
-                localStorage.setItem('totalLessons', totalLessons);
-                localStorage.setItem('lastLessonDate', todayStr);
-                
-                document.getElementById('total-lessons').textContent = totalLessons;
-                
                 showBadge({ icon: '🎓', text: 'Lesson Complete!' });
+                
+                // ✅ TRIGGER DATABASE SAVE
                 setTimeout(() => {
-                    completeSection(5);
-                    document.getElementById('cool-picks-section').scrollIntoView({ behavior: 'smooth' });
+                    completeLessonAndSave();
                 }, 2000);
             }
         }
@@ -707,270 +662,135 @@
             document.getElementById('gap-result').style.display = 'none';
         }
 
+        // ========================================
+        // LESSON COMPLETION & CELEBRATION
+        // ========================================
+        async function completeLessonAndSave() {
+            if (typeof window.EFCD_Auth === 'undefined' || !window.EFCD_Auth.getCurrentUser()) {
+                alert('Please sign up to save your progress and earn XP!');
+                window.location.href = '/signup/';
+                return;
+            }
+
+            const completionTime = Math.floor((Date.now() - performance.timing.navigationStart) / 1000);
+
+            const result = await window.EFCD_Auth.completeLesson({
+                lessonId: 'invisibleoffice',
+                lessonTitle: 'The Invisible Office',
+                lessonLevel: 'Tax English',
+                lessonLink: '/invisibleofficegame/',
+                vocabulary: VOCAB_LIST,
+                perfectScore: true,
+                completionTime: completionTime
+            });
+
+            if (result.success) {
+                showCelebrationScreen(result);
+            } else {
+                alert('Error saving: ' + result.message);
+            }
+        }
+
+        function showCelebrationScreen(result) {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+                z-index: 99999; display: flex; align-items: center; justify-content: center;
+                animation: fadeIn 0.3s;
+            `;
+            
+            overlay.innerHTML = `
+                <div style="
+                    background: white; padding: 60px; border-radius: 20px; text-align: center;
+                    max-width: 500px; animation: scaleIn 0.4s; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                ">
+                    <div style="font-size: 100px; margin-bottom: 20px;">🎉</div>
+                    <h2 style="font-size: 36px; margin-bottom: 20px; color: #1A202C;">Lesson Complete!</h2>
+                    
+                    <div style="
+                        background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+                        padding: 30px; border-radius: 16px; margin-bottom: 30px;
+                        border: 2px solid #FED7AA;
+                    ">
+                        <div style="font-size: 56px; font-weight: 900; color: #F59E0B; margin-bottom: 10px;">
+                            +${result.xpEarned} XP
+                        </div>
+                        ${result.leveledUp ? `
+                            <div style="font-size: 24px; color: #D97706; font-weight: 700; margin-top: 15px;">
+                                🎊 Level Up! Now Level ${result.newLevel}!
+                            </div>
+                        ` : ''}
+                        ${result.newStreak > 0 ? `
+                            <div style="font-size: 20px; margin-top: 15px; color: #DC2626; font-weight: 700;">
+                                🔥 ${result.newStreak} day streak!
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    ${result.newAchievements && result.newAchievements.length > 0 ? `
+                        <div style="
+                            background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+                            padding: 20px; border-radius: 12px; margin-bottom: 30px;
+                            border: 2px solid #93C5FD;
+                        ">
+                            <div style="font-weight: 800; font-size: 18px; margin-bottom: 15px; color: #1E40AF;">
+                                🏆 New Achievements Unlocked!
+                            </div>
+                            ${result.newAchievements.map(id => {
+                                const ach = window.EFCD_Auth.ACHIEVEMENTS[id];
+                                return `
+                                    <div style="
+                                        background: white; padding: 15px; border-radius: 8px;
+                                        margin: 10px 0; display: flex; align-items: center; gap: 12px;
+                                        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                                    ">
+                                        <span style="font-size: 36px;">${ach.icon}</span>
+                                        <div style="text-align: left;">
+                                            <div style="font-weight: 700; color: #1E293B;">${ach.name}</div>
+                                            <div style="font-size: 13px; color: #64748B;">${ach.description}</div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                        <a href="/dashboard-gamified/" style="
+                            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+                            color: white; padding: 14px 28px; border-radius: 8px;
+                            text-decoration: none; font-weight: 700; font-size: 16px;
+                            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+                        ">View Dashboard</a>
+                        
+                        <a href="/tax/" style="
+                            background: #F59E0B; color: white; padding: 14px 28px;
+                            border-radius: 8px; text-decoration: none; font-weight: 700;
+                            font-size: 16px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+                        ">Choose Next Lesson →</a>
+                        
+                        <button onclick="location.reload()" style="
+                            background: #F1F5F9; color: #475569; padding: 14px 28px;
+                            border-radius: 8px; border: none; font-weight: 700; cursor: pointer;
+                            font-size: 16px;
+                        ">Try Again</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+        }
+
+        // CSS Animations
+        const animStyle = document.createElement('style');
+        animStyle.textContent = `
+            @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+            @keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        `;
+        document.head.appendChild(animStyle);
+
         // Initialize
         updateProgress();
     </script>
-   <!-- LESSON COMPLETION HANDLER -->
-<script>
-async function completeLessonAndCelebrate() {
-    if (typeof window.EFCD_Auth === 'undefined') {
-        alert('Please sign up to save your progress!');
-        window.location.href = '/signup/';
-        return;
-    }
-
-    const result = await window.EFCD_Auth.completeLesson({
-        lessonId: 'invisibleoffice', // CHANGE THIS FOR EACH LESSON
-        lessonTitle: 'The Invisible Office',
-        lessonLevel: 'Tax English',
-        lessonLink: '/invisibleoffice/',
-        vocabulary: VOCAB_LIST, // If you have a VOCAB_LIST array
-        perfectScore: checkIfPerfectScore(), // Your quiz logic
-        completionTime: calculateCompletionTime() // Optional
-    });
-
-    if (result.success) {
-        showCelebrationScreen(result);
-    }
-}
-
-function showCelebrationScreen(result) {
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.9); z-index: 10000;
-        display: flex; align-items: center; justify-content: center;
-    `;
-    
-    overlay.innerHTML = `
-        <div style="
-            background: white; padding: 60px; border-radius: 20px;
-            text-align: center; max-width: 500px; animation: popIn 0.4s;
-        ">
-            <div style="font-size: 80px; margin-bottom: 20px;">🎉</div>
-            <h2 style="font-size: 36px; margin-bottom: 10px; color: #1A202C;">
-                Lesson Complete!
-            </h2>
-            <div style="font-size: 18px; color: #4A5568; margin-bottom: 30px;">
-                Amazing work, Cool Dude!
-            </div>
-            
-            <div style="background: #FFF7ED; padding: 20px; border-radius: 12px; margin-bottom: 30px;">
-                <div style="font-size: 48px; font-weight: 800; color: #F59E0B; margin-bottom: 10px;">
-                    +${result.xpEarned} XP
-                </div>
-                ${result.leveledUp ? `
-                    <div style="font-size: 20px; color: #D97706; font-weight: 700; margin-top: 10px;">
-                        🎊 Level Up! You're now Level ${result.newLevel}!
-                    </div>
-                ` : ''}
-                ${result.newStreak > 0 ? `
-                    <div style="margin-top: 15px; font-size: 18px;">
-                        🔥 ${result.newStreak} day streak!
-                    </div>
-                ` : ''}
-            </div>
-
-            ${result.newAchievements.length > 0 ? `
-                <div style="background: #DBEAFE; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
-                    <div style="font-weight: 700; margin-bottom: 10px;">🏆 New Achievements!</div>
-                    ${result.newAchievements.map(id => {
-                        const ach = window.EFCD_Auth.ACHIEVEMENTS[id];
-                        return `<div style="margin: 5px 0;">${ach.icon} ${ach.name}</div>`;
-                    }).join('')}
-                </div>
-            ` : ''}
-            
-            <div style="display: flex; gap: 10px; justify-content: center;">
-                <a href="/dashboard-gamified/" style="
-                    background: #667EEA; color: white; padding: 12px 24px;
-                    border-radius: 8px; text-decoration: none; font-weight: 600;
-                ">View Dashboard</a>
-                <button onclick="location.reload()" style="
-                    background: #E5E7EB; color: #374151; padding: 12px 24px;
-                    border-radius: 8px; border: none; font-weight: 600; cursor: pointer;
-                ">Try Again</button>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(overlay);
-    
-    // Confetti effect
-    for (let i = 0; i < 50; i++) {
-        createConfetti(overlay);
-    }
-}
-
-function createConfetti(container) {
-    const confetti = document.createElement('div');
-    confetti.style.cssText = `
-        position: absolute; width: 10px; height: 10px;
-        background: ${['#F59E0B', '#EF4444', '#3B82F6', '#10B981'][Math.floor(Math.random() * 4)]};
-        top: -20px; left: ${Math.random() * 100}%;
-        animation: fall ${2 + Math.random() * 2}s linear;
-    `;
-    container.appendChild(confetti);
-    setTimeout(() => confetti.remove(), 4000);
-}
-
-// Optional helper functions
-function checkIfPerfectScore() {
-    // Your quiz scoring logic
-    return true; // Replace with actual check
-}
-
-function calculateCompletionTime() {
-    // Track time from page load to completion
-    return Math.floor((Date.now() - performance.timing.navigationStart) / 1000);
-}
-
-// Add CSS animation
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes popIn {
-        0% { transform: scale(0.8); opacity: 0; }
-        100% { transform: scale(1); opacity: 1; }
-    }
-    @keyframes fall {
-        to { transform: translateY(100vh) rotate(360deg); opacity: 0; }
-    }
-`;
-document.head.appendChild(style);
-</script>
-    <!-- Load Supabase & Auth -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="/init-auth.js"></script>
-<script src="/supabase-auth-gamified.js"></script>
-
-<!-- Lesson Completion Handler -->
-<script>
-window.efcdReady.then(async () => {
-    await window.EFCD_Auth.initAuth();
-    
-    // Display current streak at top
-    const user = window.EFCD_Auth.getCurrentUser();
-    if (user) {
-        const stats = window.EFCD_Auth.getUserStats();
-        document.getElementById('streak-count').textContent = stats.streak;
-        document.getElementById('total-lessons').textContent = stats.lessonsCompleted;
-    }
-});
-
-// Call this when lesson is completed
-async function completeLessonAndSave() {
-    if (typeof window.EFCD_Auth === 'undefined') {
-        alert('Please sign up to save your progress!');
-        window.location.href = '/signup/';
-        return;
-    }
-
-    const result = await window.EFCD_Auth.completeLesson({
-        lessonId: 'invisibleoffice', // CHANGE PER LESSON
-        lessonTitle: 'The Invisible Office',
-        lessonLevel: 'Tax English',
-        lessonLink: '/invisibleoffice/',
-        vocabulary: VOCAB_LIST || [],
-        perfectScore: true, // Replace with actual score check
-        completionTime: Math.floor((Date.now() - performance.timing.navigationStart) / 1000)
-    });
-
-    if (result.success) {
-        showCelebration(result);
-    }
-}
-
-function showCelebration(result) {
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-        position: fixed; inset: 0; background: rgba(0,0,0,0.95);
-        z-index: 99999; display: flex; align-items: center; justify-content: center;
-        animation: fadeIn 0.3s;
-    `;
-    
-    overlay.innerHTML = `
-        <div style="
-            background: white; padding: 60px; border-radius: 20px; text-align: center;
-            max-width: 500px; animation: scaleIn 0.4s; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        ">
-            <div style="font-size: 100px; margin-bottom: 20px;">🎉</div>
-            <h2 style="font-size: 36px; margin-bottom: 20px; color: #1A202C;">Lesson Complete!</h2>
-            
-            <div style="
-                background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
-                padding: 30px; border-radius: 16px; margin-bottom: 30px;
-                border: 2px solid #FED7AA;
-            ">
-                <div style="font-size: 56px; font-weight: 900; color: #F59E0B; margin-bottom: 10px;">
-                    +${result.xpEarned} XP
-                </div>
-                ${result.leveledUp ? `
-                    <div style="font-size: 24px; color: #D97706; font-weight: 700; margin-top: 15px;">
-                        🎊 Level Up! Now Level ${result.newLevel}!
-                    </div>
-                ` : ''}
-                ${result.newStreak > 0 ? `
-                    <div style="font-size: 20px; margin-top: 15px; color: #DC2626; font-weight: 700;">
-                        🔥 ${result.newStreak} day streak!
-                    </div>
-                ` : ''}
-            </div>
-
-            ${result.newAchievements.length > 0 ? `
-                <div style="
-                    background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
-                    padding: 20px; border-radius: 12px; margin-bottom: 30px;
-                    border: 2px solid #93C5FD;
-                ">
-                    <div style="font-weight: 800; font-size: 18px; margin-bottom: 15px; color: #1E40AF;">
-                        🏆 New Achievements Unlocked!
-                    </div>
-                    ${result.newAchievements.map(id => {
-                        const ach = window.EFCD_Auth.ACHIEVEMENTS[id];
-                        return `
-                            <div style="
-                                background: white; padding: 15px; border-radius: 8px;
-                                margin: 10px 0; display: flex; align-items: center; gap: 12px;
-                                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                            ">
-                                <span style="font-size: 36px;">${ach.icon}</span>
-                                <div style="text-align: left;">
-                                    <div style="font-weight: 700; color: #1E293B;">${ach.name}</div>
-                                    <div style="font-size: 13px; color: #64748B;">${ach.description}</div>
-                                </div>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-            ` : ''}
-            
-            <div style="display: flex; gap: 12px; justify-content: center;">
-                <a href="/dashboard/" style="
-                    background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
-                    color: white; padding: 14px 28px; border-radius: 8px;
-                    text-decoration: none; font-weight: 700; font-size: 16px;
-                    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-                ">View Dashboard</a>
-                
-                <button onclick="location.reload()" style="
-                    background: #F1F5F9; color: #475569; padding: 14px 28px;
-                    border-radius: 8px; border: none; font-weight: 700; cursor: pointer;
-                    font-size: 16px;
-                ">Try Again</button>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(overlay);
-    
-    // Add CSS animations
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    `;
-    document.head.appendChild(style);
-}
-</script>
 </body>
 </html>
