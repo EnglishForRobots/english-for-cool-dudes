@@ -3,28 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Case Study: Transfer Pricing - English For Cool Dudes</title>
+    <title>Transfer Pricing Trap - English For Cool Dudes</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* --- BRANDING & RESET --- */
+        /* --- THEME: TRANSFER PRICING (Indigo/Slate) 📁 --- */
+        :root {
+            --color-primary: #334155;
+            --color-secondary: #4F46E5;
+            --color-accent: #EF4444;
+            --color-paper: #F3F4F6;
+            --color-correct: #16A34A; 
+            --color-incorrect: #EF4444; 
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif; 
             background: #F8FAFC; 
             color: #334155; 
             line-height: 1.6; 
-        }
-
-        /* --- THEME: TRANSFER PRICING (Indigo/Slate/Alert Red) 📁 --- */
-        :root {
-            --color-primary: #334155; /* Slate 700 */
-            --color-secondary: #4F46E5; /* Indigo 600 - Corporate/Legal */
-            --color-accent: #EF4444; /* Alert Red */
-            --color-paper: #F3F4F6; /* Light Grey File */
-            --color-white: #FFFFFF;
-            --color-correct: #16A34A; 
-            --color-incorrect: #EF4444; 
         }
 
         /* Header */
@@ -34,67 +31,78 @@
         .logo { width: 42px; height: 42px; background: var(--color-secondary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; }
         .site-title { font-size: 20px; font-weight: 800; color: var(--color-primary); text-decoration: none; text-transform: uppercase; letter-spacing: -0.5px; }
         
-        /* Auth Buttons */
-        .header-buttons { display: flex; align-items: center; gap: 8px; }
-        .header-button { text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 700; transition: all 0.2s; cursor: pointer; border: 2px solid transparent; }
-        .header-button.login { background: white; color: var(--color-primary); border-color: #CBD5E1; }
-        .header-button.signup { background: var(--color-secondary); color: white; }
-        .header-button.dashboard { background: #EEF2FF; color: #3730A3; }
-        .header-button.logout { background: #FEF2F2; color: #B91C1C; }
-        .user-greeting { font-size: 14px; color: var(--color-primary); font-weight: 700; margin-right: 10px; }
+        /* STREAK COUNTER */
+        .streak-display { 
+            display: flex; align-items: center; gap: 15px; background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+            padding: 10px 20px; border-radius: 50px; border: 2px solid #C7D2FE; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.1);
+        }
+        .streak-item { display: flex; align-items: center; gap: 8px; }
+        .streak-icon { font-size: 24px; }
+        .streak-number { font-size: 20px; font-weight: 900; color: var(--color-secondary); }
+        .streak-label { font-size: 12px; color: #3730A3; font-weight: 700; text-transform: uppercase; }
 
         /* Main Layout */
         .container-main { max-width: 900px; margin: 40px auto; padding: 40px 30px; background: white; border-top: 5px solid var(--color-secondary); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
         .lesson-main-title { font-size: 2.5em; font-weight: 900; color: #1E293B; margin-bottom: 10px; letter-spacing: -1px; }
         .lesson-subtitle { font-size: 1.2em; color: #64748B; margin-bottom: 40px; font-weight: 500; display: inline-block; background: #F1F5F9; padding: 5px 15px; border-radius: 99px; }
         
+        /* PROGRESS BAR */
+        .progress-container { 
+            background: #E2E8F0; height: 12px; border-radius: 99px; margin-bottom: 40px; overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .progress-bar { 
+            height: 100%; background: linear-gradient(90deg, #4F46E5 0%, #3730A3 100%); 
+            width: 0%; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px rgba(79, 70, 229, 0.5);
+        }
+
         /* Sections */
-        .lesson-section { padding: 0 0 40px 0; border-bottom: 1px solid #E2E8F0; margin-bottom: 40px; }
-        .lesson-section:last-child { border-bottom: none; }
+        .lesson-section { padding: 0 0 40px 0; border-bottom: 1px solid #E2E8F0; margin-bottom: 40px; opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s; }
+        .lesson-section.visible { opacity: 1; transform: translateY(0); }
         .section-title { color: var(--color-secondary); font-size: 1.6em; font-weight: 800; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; }
         
-        /* CASE FILE STYLE (Reading) */
+        /* Case File */
         .case-file { 
             background: var(--color-paper); border: 1px solid #CBD5E1; padding: 30px; 
             border-radius: 4px; position: relative; font-family: 'Courier New', Courier, monospace;
             box-shadow: 5px 5px 0px rgba(0,0,0,0.1); color: #1E293B;
         }
-        .case-stamp {
-            position: absolute; top: 20px; right: 20px; border: 3px solid #DC2626; color: #DC2626;
-            font-weight: 900; font-size: 1.2em; padding: 5px 10px; transform: rotate(-10deg);
-            text-transform: uppercase; opacity: 0.7;
-        }
-        .highlight-word { background: #C7D2FE; color: #312E81; padding: 2px 5px; font-weight: 700; cursor: help; border-bottom: 1px dashed #4F46E5; }
-        .highlight-word:hover { background: #4F46E5; color: white; }
+        .case-stamp { position: absolute; top: 20px; right: 20px; border: 3px solid #DC2626; color: #DC2626; font-weight: 900; font-size: 1.2em; padding: 5px 10px; transform: rotate(-10deg); text-transform: uppercase; opacity: 0.7; }
+        .highlight-word { background: #C7D2FE; color: #312E81; padding: 2px 5px; font-weight: 700; cursor: help; border-bottom: 1px dashed #4F46E5; transition: all 0.2s; }
+        .highlight-word:hover { background: #4F46E5; color: white; transform: scale(1.05); }
 
         /* Interactive Elements */
         .question-box { margin-bottom: 15px; background: #F8FAFC; padding: 15px; border-radius: 8px; border: 1px solid #E2E8F0; }
-        
-        /* Option Buttons */
         .option-btn { 
             display: block; width: 100%; text-align: left; padding: 12px; margin-top: 8px;
             background: white; border: 1px solid #CBD5E1; border-radius: 6px; font-weight: 600; 
-            cursor: pointer; transition: 0.2s; color: #475569;
+            cursor: pointer; transition: all 0.2s; color: #475569;
         }
-        .option-btn:hover { border-color: var(--color-secondary); background: #EEF2FF; }
+        .option-btn:hover { border-color: var(--color-secondary); background: #EEF2FF; transform: translateX(5px); }
         .option-btn.selected { background: var(--color-secondary); color: white; border-color: var(--color-secondary); }
-        .option-btn.correct { background: var(--color-correct); color: white; border-color: var(--color-correct); }
-        .option-btn.incorrect { background: var(--color-incorrect); color: white; border-color: var(--color-incorrect); }
+        .option-btn.correct { background: var(--color-correct); color: white; border-color: var(--color-correct); animation: celebrate 0.5s; }
+        .option-btn.incorrect { background: var(--color-incorrect); color: white; border-color: var(--color-incorrect); animation: shake 0.4s; }
 
-        /* Drag/Drop & Gap Fill */
+        @keyframes celebrate { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(22, 163, 74, 0.6); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+
+        /* Word Bank & Gap Fill */
         .word-bank { background: #E0E7FF; padding: 20px; border-radius: 8px; margin-bottom: 25px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
         .bank-word { 
             background: white; padding: 8px 16px; border-radius: 4px; border: 1px solid #C7D2FE; border-bottom: 3px solid #818CF8;
-            font-weight: 700; cursor: pointer; color: #312E81; transition: 0.2s;
+            font-weight: 700; cursor: pointer; color: #312E81; transition: all 0.2s;
         }
         .bank-word:hover { transform: translateY(-2px); border-bottom-color: var(--color-secondary); color: var(--color-secondary); }
-        .bank-word.selected { background: var(--color-secondary); color: white; border-bottom-color: #312E81; border-color: var(--color-secondary); }
-        .bank-word.used { opacity: 0.4; pointer-events: none; background: #E2E8F0; border-color: transparent; color: #94A3B8; box-shadow: none; transform: none; }
+        .bank-word.selected { background: var(--color-secondary); color: white; border-color: var(--color-secondary); animation: pulse 0.5s infinite; }
+        .bank-word.used { opacity: 0.4; pointer-events: none; background: #E2E8F0; }
         
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
         .email-editor { background: white; border: 1px solid #CBD5E1; padding: 30px; border-radius: 8px; font-size: 1.05em; line-height: 1.8; }
         .gap-input { 
             display: inline-block; min-width: 120px; height: 30px; border-bottom: 2px dashed var(--color-secondary); 
-            text-align: center; font-weight: 700; cursor: pointer; margin: 0 4px; color: var(--color-secondary);
+            text-align: center; font-weight: 700; cursor: pointer; margin: 0 4px; color: var(--color-secondary); transition: all 0.3s;
         }
         .gap-input.filled { background: #EEF2FF; border-bottom-style: solid; }
         .gap-input.correct { border-bottom-color: var(--color-correct); color: var(--color-correct); background: #DCFCE7; pointer-events: none; }
@@ -103,39 +111,50 @@
         /* Grammar Cards */
         .grammar-card { 
             background: white; border-left: 5px solid var(--color-secondary); padding: 20px; margin-bottom: 15px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; transition: all 0.3s;
         }
+        .grammar-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateX(5px); }
         .grammar-select { padding: 8px; border: 1px solid #CBD5E1; border-radius: 4px; font-weight: 600; cursor: pointer; }
         .grammar-select.correct { background: #DCFCE7; border-color: #16A34A; color: #166534; }
         .grammar-select.incorrect { background: #FEE2E2; border-color: #EF4444; color: #991B1B; }
 
-        /* Action Buttons */
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; justify-content: center; }
+        /* Buttons */
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; justify-content: center; flex-wrap: wrap; }
         .btn-action { 
             background: var(--color-secondary); color: white; padding: 12px 30px; border: none; 
-            border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 1em; transition: 0.2s;
-            box-shadow: 0 4px #3730A3; 
+            border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 1em; transition: all 0.2s;
+            box-shadow: 0 4px #3730A3;
         }
-        .btn-action:hover { background: #3730A3; transform: translateY(-1px); }
+        .btn-action:hover { background: #3730A3; transform: translateY(-2px); box-shadow: 0 6px #312E81; }
         .btn-action:active { transform: translateY(3px); box-shadow: 0 1px #3730A3; }
+        .btn-action.btn-reset { background: #94A3B8; box-shadow: 0 4px #64748B; }
         
+        .celebration { 
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); 
+            background: linear-gradient(135deg, #16A34A 0%, #059669 100%); color: white; 
+            padding: 40px 60px; border-radius: 20px; font-size: 2em; font-weight: 900; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3); z-index: 1000; opacity: 0;
+            transition: all 0.4s;
+        }
+        .celebration.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
         .result-msg { margin-top: 15px; font-weight: 700; display: none; padding: 15px; border-radius: 6px; text-align: center; }
         .result-msg.correct { background: #DCFCE7; color: #166534; border: 2px solid #86EFAC; }
         .result-msg.incorrect { background: #FEE2E2; color: #991B1B; border: 2px solid #FCA5A5; }
 
-        /* Save Section */
-       #learned-words-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; list-style: none; }
-        #learned-words-list li { 
-            background: white; border: 2px solid #CBD5E1; color: var(--color-primary);
-            padding: 15px; border-radius: 6px; text-align: center; font-weight: 800; 
-            cursor: pointer; transition: all 0.2s; font-size: 0.95em;
+        .badge-container { position: fixed; top: 100px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 999; }
+        .badge { 
+            background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex; align-items: center; gap: 10px; transform: translateX(300px); opacity: 0;
+            transition: all 0.5s; border-left: 4px solid #F59E0B;
         }
-        #learned-words-list li:hover { border-color: var(--color-secondary); color: var(--color-secondary); transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        
-        /* Popup */
+        .badge.show { transform: translateX(0); opacity: 1; }
+        .badge-icon { font-size: 32px; }
+        .badge-text { font-weight: 700; color: #92400E; }
+
         #dictionary-popup {
             position: fixed; max-width: 300px; background: white; border-top: 5px solid var(--color-secondary);
-            padding: 20px; border-radius: 8px; z-index: 2000; display: none; box-shadow: 0 20px 50px rgba(0,0,0,0.2); font-size: 0.95em; border-bottom: 1px solid #E2E8F0;
+            padding: 20px; border-radius: 8px; z-index: 2000; display: none; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
         }
     </style>
 </head>
@@ -147,16 +166,37 @@
                 <span class="logo">⚖️</span>
                 <a href="/tax/" class="site-title">English For Cool Dudes</a>
             </div>
-            <div id="auth-container" class="header-buttons">
+            <div class="streak-display">
+                <div class="streak-item">
+                    <span class="streak-icon">🔥</span>
+                    <div>
+                        <div class="streak-number" id="streak-count">0</div>
+                        <div class="streak-label">Streak</div>
+                    </div>
+                </div>
+                <div class="streak-item">
+                    <span class="streak-icon">🎯</span>
+                    <div>
+                        <div class="streak-number" id="total-lessons">0</div>
+                        <div class="streak-label">Lessons</div>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
+
+    <div class="badge-container" id="badge-container"></div>
+    <div class="celebration" id="celebration"></div>
 
     <div class="container-main">
         <h1 class="lesson-main-title">📂 The Transfer Pricing Trap</h1>
         <p class="lesson-subtitle">Case Study: The Arm's Length Principle</p>
 
-        <section class="lesson-section">
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+
+        <section class="lesson-section visible">
             <h2 class="section-title">💬 1. The Strategy Session</h2>
             <div style="background: #EEF2FF; border-left: 4px solid #4F46E5; padding: 20px; border-radius: 0 8px 8px 0;">
                 <p class="font-bold text-indigo-900 mb-2">Discuss with your partner/teacher:</p>
@@ -166,29 +206,36 @@
                     <li>What does "Arm's Length" actually mean in a non-business context?</li>
                 </ul>
             </div>
+            <div class="btn-group" style="margin-top: 20px;">
+                <button class="btn-action" onclick="completeSection(1)">Let's Go! →</button>
+            </div>
         </section>
 
-        <section class="lesson-section">
+        <section class="lesson-section" id="section-2">
             <h2 class="section-title">🕵️‍♂️ 2. Case File: Project Espresso</h2>
-            <p class="mb-4 text-gray-600">Read the email from the CFO regarding the audit of your coffee bean sales.</p>
+            <p class="mb-4 text-gray-600">Read the email from the CFO. Click the blue words to learn them!</p>
             
             <div class="case-file">
                 <div class="case-stamp">AUDIT ALERT</div>
                 <p class="mb-4"><strong>TO:</strong> Tax Director</p>
                 <p class="mb-4"><strong>RE:</strong> Pricing of Arabica Beans to UK Subsidiary</p>
                 <p class="mb-4">The IRS is challenging our <span class="highlight-word" onclick="showPopup(this, 'Transfer Pricing')">Transfer Pricing</span> policy. We currently sell unroasted beans to our UK <span class="highlight-word" onclick="showPopup(this, 'Subsidiary')">subsidiary</span> at $5.00/kg. This is exactly what it costs us to grow them.</p>
-                <p class="mb-4">The auditor argues this is not an <span class="highlight-word" onclick="showPopup(this, 'Arm\'s Length')">Arm's Length</span> price. They claim that if we sold to a stranger, we would add a profit <span class="highlight-word" onclick="showPopup(this, 'Markup')">markup</span> of at least 20%.</p>
+                <p class="mb-4">The auditor argues this is not an <span class="highlight-word" onclick="showPopup(this, 'Arm\\'s Length')">Arm's Length</span> price. They claim that if we sold to a stranger, we would add a profit <span class="highlight-word" onclick="showPopup(this, 'Markup')">markup</span> of at least 20%.</p>
                 <p>They want to propose an <span class="highlight-word" onclick="showPopup(this, 'Adjustment')">adjustment</span> of $2M to our taxable income. We need to find a <span class="highlight-word" onclick="showPopup(this, 'Comparable')">comparable</span> transaction (CUP) to prove our price is fair.</p>
+            </div>
+            
+            <div class="btn-group" style="margin-top: 20px;">
+                <button class="btn-action" onclick="completeSection(2)">Next Challenge →</button>
             </div>
         </section>
 
-        <section class="lesson-section">
+        <section class="lesson-section" id="section-3">
             <h2 class="section-title">✅ 3. Fact Check</h2>
             
             <div class="question-box">
                 <p class="font-bold mb-2">1. The company is selling beans to the UK at a very high price.</p>
                 <div class="comp-btn-group">
-                    <button class="option-btn" data-correct="false">True (High Price)</button>
+                    <button class="option-btn" data-correct="false">True</button>
                     <button class="option-btn" data-correct="true">False (At Cost Price)</button>
                 </div>
             </div>
@@ -205,20 +252,20 @@
                 <p class="font-bold mb-2">3. An "Adjustment" means the tax authority will decrease your taxes.</p>
                 <div class="comp-btn-group">
                     <button class="option-btn" data-correct="false">True</button>
-                    <button class="option-btn" data-correct="true">False</button>
+                    <button class="option-btn" data-correct="true">False (Increase)</button>
                 </div>
             </div>
 
             <div class="btn-group">
-                <button class="btn-action" onclick="checkComp()">Check Facts</button>
-                <button class="btn-action btn-reset" style="background:#94A3B8;" onclick="resetComp()">Reset</button>
+                <button class="btn-action" onclick="checkComp()">Check Answers</button>
+                <button class="btn-action btn-reset" onclick="resetComp()">Reset</button>
             </div>
             <div id="comp-result" class="result-msg"></div>
         </section>
 
-        <section class="lesson-section">
+        <section class="lesson-section" id="section-4">
             <h2 class="section-title">⚖️ 4. Grammar: Comparisons & Hypotheticals</h2>
-            <p class="mb-4 text-gray-600">In Transfer Pricing, we constantly compare "controlled" transactions (internal) with "uncontrolled" ones (external).</p>
+            <p class="mb-4 text-gray-600">In Transfer Pricing, we constantly compare transactions.</p>
 
             <div class="grammar-card">
                 <div>
@@ -236,7 +283,7 @@
             <div class="grammar-card">
                 <div>
                     <p class="font-bold text-lg">2. Our margin is ________ market rates.</p>
-                    <p class="text-sm text-gray-500">Meaning: Matches / Is aligned with.</p>
+                    <p class="text-sm text-gray-500">Matches / is aligned with.</p>
                 </div>
                 <select class="grammar-select" data-answer="consistent with">
                     <option value="">Select...</option>
@@ -249,7 +296,7 @@
             <div class="grammar-card">
                 <div>
                     <p class="font-bold text-lg">3. ________ to our competitors, we operate with lower overheads.</p>
-                    <p class="text-sm text-gray-500">Meaning: Looking at the differences/similarities.</p>
+                    <p class="text-sm text-gray-500">Comparing differences.</p>
                 </div>
                 <select class="grammar-select" data-answer="In comparison">
                     <option value="">Select...</option>
@@ -265,7 +312,7 @@
             <div id="grammar-result" class="result-msg"></div>
         </section>
 
-        <section class="lesson-section">
+        <section class="lesson-section" id="section-5">
             <h2 class="section-title">✍️ 5. The Defense Letter</h2>
             <p class="mb-4 text-gray-600">Complete the response to the IRS explaining why our price is correct.</p>
             
@@ -290,52 +337,20 @@
 
             <div class="btn-group">
                 <button class="btn-action" onclick="checkGaps()">Send Letter</button>
-                <button class="btn-action btn-reset" style="background:#94A3B8;" onclick="resetGaps()">Reset</button>
+                <button class="btn-action btn-reset" onclick="resetGaps()">Reset</button>
             </div>
             <div id="gap-result" class="result-msg"></div>
-        </section>
-
-        <section id="save-section">
-            <div style="text-align: center;">
-                <h2 class="text-2xl font-bold mb-6 text-slate-800">🗂️ Case Closed. Save Your Vocabulary.</h2>
-                <ul id="learned-words-list">
-                    <li data-word="Transfer Pricing">Transfer Pricing</li>
-                    <li data-word="Arm's Length">Arm's Length</li>
-                    <li data-word="Subsidiary">Subsidiary</li>
-                    <li data-word="Markup">Markup</li>
-                    <li data-word="Adjustment">Adjustment</li>
-                    <li data-word="Comparable">Comparable</li>
-                    <li data-word="Benchmark">Benchmark</li>
-                    <li data-word="Distributor">Distributor</li>
-                </ul>
-
-                 <div id="loggedin-content" style="display:none; margin-top: 30px;">
-                    <button id="save-btn" class="btn-action" onclick="saveLesson()">Add to Dashboard</button>
-                    <p id="save-status" class="mt-3 font-bold"></p>
-                </div>
-                <div id="loggedout-content" style="margin-top: 30px;">
-                    <a href="/login/" class="btn-action" style="text-decoration: none; background: #334155;">Log In to Save</a>
-                </div>
-            </div>
         </section>
 
     </div>
 
     <div id="dictionary-popup"></div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/init-auth.js"></script>
+    <script src="/supabase-auth-gamified.js"></script>
+
     <script>
-        // CONFIG
-        // NOTE: Ensure your Supabase URL/KEY are correct here. 
-        // I have preserved the ones from your uploaded file for continuity.
-        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        let currentUser = null;
-
-        const lessonTitle = "Transfer Pricing Trap";
-        const lessonLink = "/transferpricing/";
-        const lessonLevel = "C1";
-
         const VOCAB_LIST = [
             { word: "Transfer Pricing", definition: "The rules setting the price of goods/services sold between related companies." },
             { word: "Arm's Length", definition: "A principle stating that internal prices must match what independent strangers would pay." },
@@ -349,36 +364,64 @@
             { word: "Functions", definition: "In tax, the specific activities (risk, labor, assets) performed by a company." }
         ];
 
-        // --- AUTH ---
-        async function checkUser() {
-            const { data: { user } } = await sb.auth.getUser();
+        window.efcdReady.then(async () => {
+            await window.EFCD_Auth.initAuth();
+            const user = window.EFCD_Auth.getCurrentUser();
             if (user) {
-                currentUser = user;
-                document.getElementById('auth-container').innerHTML = `
-                    <span class="user-greeting">Hi ${user.user_metadata.full_name ? user.user_metadata.full_name.split(' ')[0] : 'Auditor'}!</span>
-                    <a href="/dashboard/" class="header-button dashboard">Dashboard</a>
-                    <button onclick="logout()" class="header-button logout">Sign Out</button>
-                `;
-                document.getElementById('loggedin-content').style.display = 'block';
-                document.getElementById('loggedout-content').style.display = 'none';
-            } else {
-                document.getElementById('auth-container').innerHTML = `
-                    <a href="/login/" class="header-button login">Log In</a>
-                    <a href="/signup/" class="header-button signup">Sign Up</a>
-                `;
+                const stats = window.EFCD_Auth.getUserStats();
+                document.getElementById('streak-count').textContent = stats.streak;
+                document.getElementById('total-lessons').textContent = stats.lessonsCompleted;
             }
+        });
+
+        let completedSections = 0;
+        const totalSections = 5;
+        
+        function updateProgress() {
+            document.getElementById('progress-bar').style.width = ((completedSections / totalSections) * 100) + '%';
         }
-        async function logout() { await sb.auth.signOut(); window.location.reload(); }
 
-        // --- POPUP LOGIC ---
+        function completeSection(sectionNum) {
+            completedSections++;
+            updateProgress();
+            const nextSection = document.getElementById('section-' + (sectionNum + 1));
+            if (nextSection) {
+                nextSection.classList.add('visible');
+                nextSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            if (Math.random() < 0.3) showBadge(getRandomBadge());
+        }
+
+        const badges = [
+            { icon: '⚡', text: 'Speed Demon!' },
+            { icon: '🔥', text: 'On Fire!' },
+            { icon: '🎯', text: 'Perfect Aim!' }
+        ];
+
+        function getRandomBadge() { return badges[Math.floor(Math.random() * badges.length)]; }
+        
+        function showBadge(badge) {
+            const badgeEl = document.createElement('div');
+            badgeEl.className = 'badge';
+            badgeEl.innerHTML = `<span class="badge-icon">${badge.icon}</span><span class="badge-text">${badge.text}</span>`;
+            document.getElementById('badge-container').appendChild(badgeEl);
+            setTimeout(() => badgeEl.classList.add('show'), 100);
+            setTimeout(() => {
+                badgeEl.classList.remove('show');
+                setTimeout(() => badgeEl.remove(), 500);
+            }, 3000);
+        }
+
+        function celebrate(message = '🎉 Perfect!') {
+            const cel = document.getElementById('celebration');
+            cel.textContent = message;
+            cel.classList.add('show');
+            setTimeout(() => cel.classList.remove('show'), 2000);
+        }
+
         function showPopup(target, word) {
-            // Fuzzy match logic to find the word in the list even if case differs or punctuation exists
-            const searchWord = word.replace(/'/g, "").toLowerCase();
-            const wObj = VOCAB_LIST.find(w => w.word.replace(/'/g, "").toLowerCase() === searchWord) 
-                      || VOCAB_LIST.find(w => searchWord.includes(w.word.replace(/'/g, "").toLowerCase()));
-            
+            const wObj = VOCAB_LIST.find(w => w.word === word);
             if(!wObj) return;
-
             const popup = document.getElementById('dictionary-popup');
             popup.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -391,7 +434,6 @@
             const rect = target.getBoundingClientRect();
             popup.style.top = (rect.bottom + 8) + 'px';
             popup.style.left = rect.left + 'px';
-            
             document.addEventListener('click', function close(e) {
                 if (!popup.contains(e.target) && e.target !== target) {
                     popup.style.display = 'none';
@@ -399,59 +441,66 @@
                 }
             });
         }
-       function playAudio(word) {
+
+        function playAudio(word) {
             const utterance = new SpeechSynthesisUtterance(word);
             utterance.lang = 'en-GB'; 
             utterance.rate = 0.9;
             window.speechSynthesis.cancel();
             window.speechSynthesis.speak(utterance);
         }
-        
-        document.querySelectorAll('#learned-words-list li').forEach(li => {
-            li.addEventListener('click', function(e) { e.stopPropagation(); showPopup(this, this.dataset.word); });
-        });
 
-        // --- EXERCISE 3: COMPREHENSION ---
+        // Comprehension
         document.querySelectorAll('.option-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                this.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected', 'correct', 'incorrect'));
+                this.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
                 this.classList.add('selected');
             });
         });
+
         function checkComp() {
             let correct = 0;
-            const qs = document.querySelectorAll('.question-box');
-            qs.forEach(q => {
+            document.querySelectorAll('.question-box').forEach(q => {
                 const sel = q.querySelector('.selected');
                 if(sel && sel.dataset.correct === "true") { sel.classList.add('correct'); correct++; }
                 else if(sel) sel.classList.add('incorrect');
             });
             const res = document.getElementById('comp-result');
-            res.textContent = `You scored ${correct} / ${qs.length}`;
+            res.textContent = `Score: ${correct} / 3`;
             res.style.display = 'block';
-            res.className = correct === qs.length ? "result-msg correct" : "result-msg incorrect";
+            res.className = correct === 3 ? "result-msg correct" : "result-msg incorrect";
+            if (correct === 3) {
+                celebrate('💯 All Correct!');
+                showBadge({ icon: '🏆', text: 'Fact Master!' });
+                setTimeout(() => completeSection(3), 1500);
+            }
         }
+
         function resetComp() {
             document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected', 'correct', 'incorrect'));
             document.getElementById('comp-result').style.display = 'none';
         }
 
-        // --- EXERCISE 4: GRAMMAR ---
+        // Grammar
         function checkGrammar() {
             let correct = 0;
-            const selects = document.querySelectorAll('.grammar-select');
-            selects.forEach(s => {
+            document.querySelectorAll('.grammar-select').forEach(s => {
                 s.classList.remove('correct', 'incorrect');
                 if(s.value === s.dataset.answer) { s.classList.add('correct'); correct++; }
                 else { s.classList.add('incorrect'); }
             });
             const res = document.getElementById('grammar-result');
-            res.textContent = `You scored ${correct} / ${selects.length}`;
+            res.textContent = `Score: ${correct} / 3`;
             res.style.display = 'block';
-            res.className = correct === selects.length ? "result-msg correct" : "result-msg incorrect";
+            res.className = correct === 3 ? "result-msg correct" : "result-msg incorrect";
+            if (correct === 3) {
+                celebrate('🎯 Grammar Pro!');
+                showBadge({ icon: '📚', text: 'Grammar Genius!' });
+                setTimeout(() => completeSection(4), 1500);
+            }
         }
 
-        // --- EXERCISE 5: GAP FILL (DEFENSE LETTER) ---
+        // Gap Fill
         let selectedWord = null;
         document.querySelectorAll('.bank-word').forEach(w => {
             w.addEventListener('click', function() {
@@ -461,6 +510,7 @@
                 selectedWord = this;
             });
         });
+
         document.querySelectorAll('.gap-input').forEach(g => {
             g.addEventListener('click', function() {
                 if(selectedWord) {
@@ -481,69 +531,108 @@
                 }
             });
         });
+
         function checkGaps() {
             let correct = 0;
-            const gaps = document.querySelectorAll('.gap-input');
-            gaps.forEach(g => {
+            document.querySelectorAll('.gap-input').forEach(g => {
                 g.classList.remove('correct', 'incorrect');
                 if(g.textContent === g.dataset.answer) { g.classList.add('correct'); correct++; }
                 else { g.classList.add('incorrect'); }
             });
             const res = document.getElementById('gap-result');
-            res.textContent = `Score: ${correct}/${gaps.length}`;
+            res.textContent = `Score: ${correct}/6`;
             res.style.display = 'block';
-            res.className = correct === gaps.length ? "result-msg correct" : "result-msg incorrect";
+            res.className = correct === 6 ? "result-msg correct" : "result-msg incorrect";
+            if (correct === 6) {
+                celebrate('✍️ Letter Perfect!');
+                showBadge({ icon: '🎓', text: 'Lesson Complete!' });
+                setTimeout(() => completeLessonAndSave(), 2000);
+            }
         }
+
         function resetGaps() {
-            document.querySelectorAll('.gap-input').forEach(g => { g.textContent = ""; g.classList.remove('correct', 'incorrect', 'filled'); });
+            document.querySelectorAll('.gap-input').forEach(g => { 
+                g.textContent = ""; 
+                g.classList.remove('correct', 'incorrect', 'filled'); 
+            });
             document.querySelectorAll('.bank-word').forEach(w => w.classList.remove('used', 'selected'));
             document.getElementById('gap-result').style.display = 'none';
         }
 
-        // --- SAVE FUNCTIONALITY ---
-        async function saveLesson() {
-            if (!currentUser) {
-                alert("Please log in to save your progress.");
+        async function completeLessonAndSave() {
+            if (!window.EFCD_Auth || !window.EFCD_Auth.getCurrentUser()) {
+                alert('Please sign up to save your progress!');
+                window.location.href = '/signup/';
                 return;
             }
 
-            const btn = document.getElementById('save-btn');
-            const status = document.getElementById('save-status');
-            
-            btn.disabled = true; 
-            btn.textContent = "Saving...";
-
-            const lessonData = {
-                user_id: currentUser.id,
-                lesson_title: lessonTitle,
-                lesson_link: lessonLink,
-                lesson_level: lessonLevel,
+            const result = await window.EFCD_Auth.completeLesson({
+                lessonId: 'transferpricing',
+                lessonTitle: 'The Transfer Pricing Trap',
+                lessonLevel: 'Tax English',
+                lessonLink: '/transferpricing/',
                 vocabulary: VOCAB_LIST,
-                completed_at: new Date().toISOString()
-            };
-
-            const { error } = await sb.from('lessons').upsert([lessonData], { 
-                onConflict: 'user_id,lesson_title' 
+                perfectScore: true,
+                completionTime: Math.floor((Date.now() - performance.timing.navigationStart) / 1000)
             });
 
-            if (!error) {
-                btn.textContent = "✅ Saved!";
-                btn.style.backgroundColor = "#059669";
-                status.textContent = "Evidence secured! Check your dashboard.";
-                status.style.color = "#059669";
-                setTimeout(() => { window.location.href = '/dashboard/'; }, 2000);
-            } else {
-                console.error("Save error:", error);
-                btn.textContent = "❌ Error";
-                btn.disabled = false;
-                status.textContent = "Error saving. Connection issue?";
-                status.style.color = "#dc2626";
-            }
+            if (result.success) showCelebrationScreen(result);
         }
-        
-        // Init
-        checkUser();
 
+        function showCelebrationScreen(result) {
+            const overlay = document.createElement('div');
+            overlay.id = 'celebration-overlay';
+            overlay.style.cssText = `
+                position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+                z-index: 99999; display: flex; align-items: center; justify-content: center;
+                animation: fadeIn 0.3s;
+            `;
+            
+            overlay.innerHTML = `
+                <div style="background: white; padding: 60px; border-radius: 20px; text-align: center; max-width: 500px; animation: scaleIn 0.4s; position: relative;">
+                    <button id="close-celebration" style="position: absolute; top: 20px; right: 20px; background: #F3F4F6; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 24px;">×</button>
+                    <div style="font-size: 100px; margin-bottom: 20px;">🎉</div>
+                    <h2 style="font-size: 36px; margin-bottom: 20px; color: #1A202C;">Lesson Complete!</h2>
+                    <div style="background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%); padding: 30px; border-radius: 16px; margin-bottom: 30px; border: 2px solid #FED7AA;">
+                        <div style="font-size: 56px; font-weight: 900; color: #F59E0B;">+${result.xpEarned} XP</div>
+                        ${result.leveledUp ? `<div style="font-size: 24px; color: #D97706; margin-top: 15px;">🎊 Level Up! Now Level ${result.newLevel}!</div>` : ''}
+                        ${result.newStreak > 0 ? `<div style="font-size: 20px; margin-top: 15px; color: #DC2626;">🔥 ${result.newStreak} day streak!</div>` : ''}
+                    </div>
+                    ${result.newAchievements && result.newAchievements.length > 0 ? `
+                        <div style="background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%); padding: 20px; border-radius: 12px; margin-bottom: 30px;">
+                            <div style="font-weight: 800; font-size: 18px; margin-bottom: 15px;">🏆 New Achievements!</div>
+                            ${result.newAchievements.map(id => {
+                                const ach = window.EFCD_Auth.ACHIEVEMENTS[id];
+                                return `<div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;"><span style="font-size: 36px;">${ach.icon}</span> ${ach.name}</div>`;
+                            }).join('')}
+                        </div>
+                    ` : ''}
+                    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                        <a href="/dashboard-gamified/" id="btn-dashboard" style="background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%); color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 700; cursor: pointer;">View Dashboard</a>
+                        <a href="/tax/" id="btn-next" style="background: #F59E0B; color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 700; cursor: pointer;">Choose Next Lesson →</a>
+                        <button id="btn-retry" style="background: #F1F5F9; color: #475569; padding: 14px 28px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer;">Try Again</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+            setTimeout(() => {
+                document.getElementById('close-celebration')?.addEventListener('click', () => overlay.remove());
+                document.getElementById('btn-retry')?.addEventListener('click', () => location.reload());
+                document.addEventListener('keydown', function escHandler(e) {
+                    if (e.key === 'Escape') {
+                        overlay.remove();
+                        document.removeEventListener('keydown', escHandler);
+                    }
+                });
+            }, 100);
+        }
+
+        const animStyle = document.createElement('style');
+        animStyle.textContent = `@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } } @keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }`;
+        document.head.appendChild(animStyle);
+
+        updateProgress();
     </script>
 </body>
 </html>
