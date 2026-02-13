@@ -331,12 +331,16 @@ async function completeLesson(lessonData) {
         // Save to lessons table (vocabulary)
         // Check if this lesson was already saved (to prevent duplicates)
         if (vocabulary.length > 0) {
-            const { data: existingLesson } = await supabase
+            const { data: existingLesson, error: checkError } = await supabase
                 .from('lessons')
                 .select('id')
                 .eq('user_id', currentUser.id)
                 .eq('lesson_title', lessonTitle)
-                .single();
+                .maybeSingle(); // Use maybeSingle() to avoid 406 errors
+            
+            if (checkError) {
+                console.warn('Check existing lesson warning:', checkError.message);
+            }
             
             if (!existingLesson) {
                 const { error: lessonError } = await supabase.from('lessons').insert([{
