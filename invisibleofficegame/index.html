@@ -693,6 +693,7 @@
 
         function showCelebrationScreen(result) {
             const overlay = document.createElement('div');
+            overlay.id = 'celebration-overlay';
             overlay.style.cssText = `
                 position: fixed; inset: 0; background: rgba(0,0,0,0.95);
                 z-index: 99999; display: flex; align-items: center; justify-content: center;
@@ -703,7 +704,17 @@
                 <div style="
                     background: white; padding: 60px; border-radius: 20px; text-align: center;
                     max-width: 500px; animation: scaleIn 0.4s; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                    position: relative;
                 ">
+                    <!-- Close Button -->
+                    <button id="close-celebration" style="
+                        position: absolute; top: 20px; right: 20px;
+                        background: #F3F4F6; border: none; border-radius: 50%;
+                        width: 40px; height: 40px; cursor: pointer;
+                        font-size: 24px; line-height: 1; color: #6B7280;
+                        transition: all 0.2s;
+                    ">×</button>
+                    
                     <div style="font-size: 100px; margin-bottom: 20px;">🎉</div>
                     <h2 style="font-size: 36px; margin-bottom: 20px; color: #1A202C;">Lesson Complete!</h2>
                     
@@ -756,20 +767,22 @@
                     ` : ''}
                     
                     <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-                        <a href="/dashboard-gamified/" style="
+                        <a href="/dashboard-gamified/" id="btn-dashboard" style="
                             background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
                             color: white; padding: 14px 28px; border-radius: 8px;
                             text-decoration: none; font-weight: 700; font-size: 16px;
                             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+                            cursor: pointer;
                         ">View Dashboard</a>
                         
-                        <a href="/tax/" style="
+                        <a href="/tax/" id="btn-next" style="
                             background: #F59E0B; color: white; padding: 14px 28px;
                             border-radius: 8px; text-decoration: none; font-weight: 700;
                             font-size: 16px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+                            cursor: pointer;
                         ">Choose Next Lesson →</a>
                         
-                        <button onclick="location.reload()" style="
+                        <button id="btn-retry" style="
                             background: #F1F5F9; color: #475569; padding: 14px 28px;
                             border-radius: 8px; border: none; font-weight: 700; cursor: pointer;
                             font-size: 16px;
@@ -779,6 +792,32 @@
             `;
             
             document.body.appendChild(overlay);
+            
+            // Add event listeners AFTER overlay is in DOM
+            setTimeout(() => {
+                const closeBtn = document.getElementById('close-celebration');
+                const retryBtn = document.getElementById('btn-retry');
+                
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', () => {
+                        overlay.remove();
+                    });
+                }
+                
+                if (retryBtn) {
+                    retryBtn.addEventListener('click', () => {
+                        location.reload();
+                    });
+                }
+                
+                // ESC key handler
+                document.addEventListener('keydown', function escHandler(e) {
+                    if (e.key === 'Escape') {
+                        overlay.remove();
+                        document.removeEventListener('keydown', escHandler);
+                    }
+                });
+            }, 100);
         }
 
         // CSS Animations
