@@ -109,7 +109,12 @@ const ACHIEVEMENTS = {
         name: 'Vocab Hoarder', 
         description: 'Save 50 vocabulary words',
         xp: 150,
-        check: (user, data) => data?.totalVocab >= 50
+        check: (user, data) => {
+            // Only check if we have valid data and it's actually >= 50
+            const count = data?.totalVocab || 0;
+            console.log('Vocab count check:', count);
+            return count >= 50;
+        }
     }
 };
 
@@ -324,16 +329,33 @@ async function completeLesson(lessonData) {
         const finalLevel = calculateLevel(finalXP);
         
         // Save to lessons table (vocabulary)
+        // Check if this lesson was already saved (to prevent duplicates)
         if (vocabulary.length > 0) {
-            await supabase.from('lessons').insert([{
-                user_id: currentUser.id,
-                lesson_id: lessonId,
-                lesson_title: lessonTitle,
-                lesson_level: lessonLevel,
-                lesson_link: lessonLink,
-                vocabulary: vocabulary,
-                completed_at: new Date().toISOString()
-            }]);
+            const { data: existingLesson } = await supabase
+                .from('lessons')
+                .select('id')
+                .eq('user_id', currentUser.id)
+                .eq('lesson_title', lessonTitle)
+                .single();
+            
+            if (!existingLesson) {
+                const { error: lessonError } = await supabase.from('lessons').insert([{
+                    user_id: currentUser.id,
+                    lesson_title: lessonTitle,
+                    lesson_level: lessonLevel,
+                    lesson_link: lessonLink,
+                    vocabulary: vocabulary,
+                    completed_at: new Date().toISOString()
+                }]);
+                
+                if (lessonError) {
+                    console.error('Lesson insert error:', lessonError);
+                } else {
+                    console.log('✅ Vocabulary saved:', vocabulary.length, 'words');
+                }
+            } else {
+                console.log('ℹ️ Lesson already saved, skipping vocabulary insert');
+            }
         }
         
         // Update profile
@@ -478,7 +500,15 @@ async function getTotalVocabCount(userId) {
             .select('vocabulary')
             .eq('user_id', userId);
         
-        if (error) return 0;
+        if (error) {
+            console.error('Vocab count error:', error);
+            return 0;
+        }
+        
+        if (!data || data.length === 0) {
+            console.log('No lessons found for vocab count');
+            return 0;
+        }
         
         let total = 0;
         data.forEach(lesson => {
@@ -487,8 +517,10 @@ async function getTotalVocabCount(userId) {
             }
         });
         
+        console.log('Total vocab words:', total);
         return total;
     } catch (err) {
+        console.error('getTotalVocabCount exception:', err);
         return 0;
     }
 }
