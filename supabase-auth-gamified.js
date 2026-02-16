@@ -276,6 +276,7 @@ async function completeLesson(lessonData) {
             lessonLevel,
             lessonLink,
             vocabulary = [],
+            grammar = [], // NEW: Grammar exercises
             perfectScore = false,
             completionTime = null
         } = lessonData;
@@ -349,6 +350,7 @@ async function completeLesson(lessonData) {
                     lesson_level: lessonLevel,
                     lesson_link: lessonLink,
                     vocabulary: vocabulary,
+                    grammar: grammar, // NEW: Save grammar exercises
                     completed_at: new Date().toISOString()
                 }]);
                 
@@ -356,9 +358,12 @@ async function completeLesson(lessonData) {
                     console.error('Lesson insert error:', lessonError);
                 } else {
                     console.log('✅ Vocabulary saved:', vocabulary.length, 'words');
+                    if (grammar.length > 0) {
+                        console.log('✅ Grammar exercises saved:', grammar.length);
+                    }
                 }
             } else {
-                console.log('ℹ️ Lesson already saved, skipping vocabulary insert');
+                console.log('ℹ️ Lesson already saved, skipping');
             }
         }
         
