@@ -345,6 +345,65 @@
             flex-wrap: wrap;
             gap: 8px;
         }
+        
+        .vocab-word {
+            background: #EEF2FF;
+            color: #3730A3;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #C7D2FE;
+        }
+        
+        .vocab-word:hover {
+            background: #4F46E5;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
+        }
+        
+        #vocab-popup {
+            position: fixed;
+            max-width: 350px;
+            background: white;
+            border-top: 5px solid #4F46E5;
+            padding: 20px;
+            border-radius: 12px;
+            z-index: 2000;
+            display: none;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            animation: popIn 0.2s;
+        }
+        
+        @keyframes popIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        .grammar-section {
+            background: #F0FDF4;
+            border-left: 4px solid #16A34A;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .grammar-section h4 {
+            color: #166534;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+        
+        .grammar-item {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border: 1px solid #BBF7D0;
+        }
 
         .vocab-word {
             background: #FFFBEA;
@@ -651,13 +710,31 @@
                     let vocabHTML = '';
                     if (lesson.vocabulary && Array.isArray(lesson.vocabulary) && lesson.vocabulary.length > 0) {
                         const vocabItems = lesson.vocabulary.map(item => 
-                            `<span class="vocab-word" title="${item.definition || ''}">${item.word || ''}</span>`
+                            `<span class="vocab-word" onclick="showVocabPopup(event, '${(item.word || '').replace(/'/g, "\\'")}', '${(item.definition || '').replace(/'/g, "\\'")}')">${item.word || ''}</span>`
                         ).join('');
 
                         vocabHTML = `
                             <div class="vocabulary-section">
-                                <h4>Saved Words (${lesson.vocabulary.length}):</h4>
+                                <h4>📚 Saved Words (${lesson.vocabulary.length}) - Click to review:</h4>
                                 <div class="vocabulary-list">${vocabItems}</div>
+                            </div>
+                        `;
+                    }
+                    
+                    let grammarHTML = '';
+                    if (lesson.grammar && Array.isArray(lesson.grammar) && lesson.grammar.length > 0) {
+                        const grammarItems = lesson.grammar.map((item, idx) => `
+                            <div class="grammar-item">
+                                <div style="font-weight: 700; margin-bottom: 5px;">${idx + 1}. ${item.question || ''}</div>
+                                <div style="color: #16A34A; font-weight: 600;">✓ ${item.answer || ''}</div>
+                                <div style="color: #64748B; font-size: 0.9em; margin-top: 3px;">${item.explanation || ''}</div>
+                            </div>
+                        `).join('');
+                        
+                        grammarHTML = `
+                            <div class="grammar-section">
+                                <h4>✏️ Grammar Practice (${lesson.grammar.length} exercises):</h4>
+                                ${grammarItems}
                             </div>
                         `;
                     }
@@ -667,6 +744,7 @@
                             <h3><a href="${lesson.lesson_link || '#'}">${lesson.lesson_title}</a></h3>
                             <div class="lesson-meta">${lesson.lesson_level || 'Lesson'} • Completed on ${completedDate}</div>
                             ${vocabHTML}
+                            ${grammarHTML}
                         </div>
                     `;
                 });
@@ -680,6 +758,68 @@
 
         // Initialize dashboard on page load
         document.addEventListener('DOMContentLoaded', loadDashboard);
+    </script>
+    
+    <!-- Vocabulary Popup -->
+    <div id="vocab-popup"></div>
+    
+    <script>
+        function showVocabPopup(event, word, definition) {
+            event.stopPropagation();
+            const popup = document.getElementById('vocab-popup');
+            
+            popup.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <strong style="color:#4F46E5; font-size:1.2em;">${word}</strong>
+                    <button onclick="playVocabAudio('${word.replace(/'/g, "\\'")}')" style="
+                        background:#EEF2FF; border:none; width:36px; height:36px; 
+                        border-radius:50%; cursor:pointer; font-size:18px;
+                        transition: all 0.2s;
+                    " onmouseover="this.style.background='#C7D2FE'" onmouseout="this.style.background='#EEF2FF'">
+                        🔊
+                    </button>
+                </div>
+                <div style="color:#475569; line-height:1.6;">${definition}</div>
+                <button onclick="document.getElementById('vocab-popup').style.display='none'" style="
+                    margin-top:15px; background:#F1F5F9; color:#475569; border:none;
+                    padding:8px 16px; border-radius:6px; cursor:pointer; width:100%;
+                    font-weight:600; transition: all 0.2s;
+                " onmouseover="this.style.background='#E5E7EB'" onmouseout="this.style.background='#F1F5F9'">
+                    Close
+                </button>
+            `;
+            
+            popup.style.display = 'block';
+            popup.style.top = (event.clientY + 10) + 'px';
+            popup.style.left = (event.clientX + 10) + 'px';
+            
+            // Adjust position if too close to edge
+            setTimeout(() => {
+                const rect = popup.getBoundingClientRect();
+                if (rect.right > window.innerWidth) {
+                    popup.style.left = (window.innerWidth - rect.width - 20) + 'px';
+                }
+                if (rect.bottom > window.innerHeight) {
+                    popup.style.top = (event.clientY - rect.height - 10) + 'px';
+                }
+            }, 10);
+        }
+        
+        function playVocabAudio(word) {
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.lang = 'en-GB';
+            utterance.rate = 0.9;
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+        }
+        
+        // Close popup when clicking outside
+        document.addEventListener('click', function(e) {
+            const popup = document.getElementById('vocab-popup');
+            if (popup && !popup.contains(e.target) && !e.target.classList.contains('vocab-word')) {
+                popup.style.display = 'none';
+            }
+        });
     </script>
 </body>
 </html>
