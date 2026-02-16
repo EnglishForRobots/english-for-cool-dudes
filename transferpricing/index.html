@@ -363,16 +363,57 @@
             { word: "Consistent with", definition: "In agreement with; matching the logic of." },
             { word: "Functions", definition: "In tax, the specific activities (risk, labor, assets) performed by a company." }
         ];
+        
+        const GRAMMAR_EXERCISES = [
+            {
+                question: "We must price the goods ________ the parties were independent.",
+                answer: "as if",
+                explanation: "Hypothetical situation."
+            },
+            {
+                question: "Our margin is ________ market rates.",
+                answer: "consistent with",
+                explanation: "Matches / is aligned with."
+            },
+            {
+                question: "________ to our competitors, we operate with lower overheads.",
+                answer: "In comparison",
+                explanation: "Comparing differences."
+            }
+        ];
 
-        window.efcdReady.then(async () => {
+        // Safe initialization - wait for auth system
+        async function initializeUserStats() {
+            // Wait for auth to be ready
+            if (typeof window.efcdReady !== 'undefined') {
+                await window.efcdReady;
+            }
+            
+            // Check if auth system loaded
+            if (typeof window.EFCD_Auth === 'undefined') {
+                console.warn('⚠️ Auth system not loaded');
+                return;
+            }
+            
             await window.EFCD_Auth.initAuth();
+            
             const user = window.EFCD_Auth.getCurrentUser();
             if (user) {
                 const stats = window.EFCD_Auth.getUserStats();
                 document.getElementById('streak-count').textContent = stats.streak;
                 document.getElementById('total-lessons').textContent = stats.lessonsCompleted;
+            } else {
+                document.getElementById('streak-count').textContent = '0';
+                document.getElementById('total-lessons').textContent = '0';
             }
-        });
+        }
+        
+        // Run on page load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeUserStats);
+        } else {
+            initializeUserStats();
+        }
 
         let completedSections = 0;
         const totalSections = 5;
@@ -561,8 +602,24 @@
 
         async function completeLessonAndSave() {
             if (!window.EFCD_Auth || !window.EFCD_Auth.getCurrentUser()) {
-                alert('Please sign up to save your progress!');
-                window.location.href = '/signup/';
+                // User not logged in - show friendly options
+                const wantsToSignUp = confirm(
+                    '🎓 Awesome! You completed the lesson!\n\n' +
+                    '✨ Sign up (free) to:\n' +
+                    '• Save your progress & earn XP\n' +
+                    '• Unlock achievements\n' +
+                    '• Track your learning streak\n' +
+                    '• Save vocabulary & grammar\n\n' +
+                    'Click OK to create a free account\n' +
+                    'Click Cancel to continue without saving'
+                );
+                
+                if (wantsToSignUp) {
+                    window.location.href = '/signup/';
+                } else {
+                    // Let them continue to next lesson
+                    window.location.href = '/tax/';
+                }
                 return;
             }
 
@@ -572,6 +629,7 @@
                 lessonLevel: 'Tax English',
                 lessonLink: '/transferpricing/',
                 vocabulary: VOCAB_LIST,
+                grammar: GRAMMAR_EXERCISES, // NEW: Pass grammar exercises
                 perfectScore: true,
                 completionTime: Math.floor((Date.now() - performance.timing.navigationStart) / 1000)
             });
