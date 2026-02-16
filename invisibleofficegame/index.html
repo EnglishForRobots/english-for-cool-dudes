@@ -400,11 +400,42 @@
             { word: "Unless", definition: "Except on the condition that." },
             { word: "Provided that", definition: "On the condition that; as long as." }
         ];
+        
+        const GRAMMAR_EXERCISES = [
+            {
+                question: "We are safe ________ he has authority to conclude contracts.",
+                answer: "unless",
+                explanation: "Meaning: Except if."
+            },
+            {
+                question: "________ his work is preparatory, no PE exists.",
+                answer: "Provided that",
+                explanation: "Meaning: On the condition that."
+            },
+            {
+                question: "We should draft a policy ________ the authorities investigate further.",
+                answer: "in case",
+                explanation: "Meaning: Because it might happen (precaution)."
+            }
+        ];
 
         // ========================================
         // INITIALIZE USER STATS FROM DATABASE
         // ========================================
-        window.efcdReady.then(async () => {
+        
+        // Safe initialization - wait for auth system
+        async function initializeUserStats() {
+            // Wait for auth to be ready
+            if (typeof window.efcdReady !== 'undefined') {
+                await window.efcdReady;
+            }
+            
+            // Check if auth system loaded
+            if (typeof window.EFCD_Auth === 'undefined') {
+                console.warn('⚠️ Auth system not loaded');
+                return;
+            }
+            
             await window.EFCD_Auth.initAuth();
             
             const user = window.EFCD_Auth.getCurrentUser();
@@ -416,7 +447,14 @@
                 document.getElementById('streak-count').textContent = '0';
                 document.getElementById('total-lessons').textContent = '0';
             }
-        });
+        }
+        
+        // Run on page load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeUserStats);
+        } else {
+            initializeUserStats();
+        }
 
         // ========================================
         // PROGRESS TRACKING
@@ -667,8 +705,24 @@
         // ========================================
         async function completeLessonAndSave() {
             if (typeof window.EFCD_Auth === 'undefined' || !window.EFCD_Auth.getCurrentUser()) {
-                alert('Please sign up to save your progress and earn XP!');
-                window.location.href = '/signup/';
+                // User not logged in - show friendly options
+                const wantsToSignUp = confirm(
+                    '🎓 Awesome! You completed the lesson!\n\n' +
+                    '✨ Sign up (free) to:\n' +
+                    '• Save your progress & earn XP\n' +
+                    '• Unlock achievements\n' +
+                    '• Track your learning streak\n' +
+                    '• Save vocabulary & grammar\n\n' +
+                    'Click OK to create a free account\n' +
+                    'Click Cancel to continue without saving'
+                );
+                
+                if (wantsToSignUp) {
+                    window.location.href = '/signup/';
+                } else {
+                    // Let them continue to next lesson
+                    window.location.href = '/tax/';
+                }
                 return;
             }
 
@@ -680,6 +734,7 @@
                 lessonLevel: 'Tax English',
                 lessonLink: '/invisibleofficegame/',
                 vocabulary: VOCAB_LIST,
+                grammar: GRAMMAR_EXERCISES, // NEW: Pass grammar exercises
                 perfectScore: true,
                 completionTime: completionTime
             });
