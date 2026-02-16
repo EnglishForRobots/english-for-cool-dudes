@@ -5,345 +5,566 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Legend of Coffee - English For Cool Dudes</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* ... existing styles ... */
+        /* --- THEME: COFFEE (Warm Browns/Creams) ☕ --- */
+        :root {
+            --color-primary: #6F4E37;
+            --color-secondary: #D2691E;
+            --color-accent: #8B4513;
+            --color-paper: #FFF8DC;
+            --color-white: #FFFFFF;
+            --color-correct: #16A34A; 
+            --color-incorrect: #EF4444; 
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; background: #E3F2FD; color: #1A237E; line-height: 1.6; }
-        :root { --color-primary: #2196F3; --color-secondary: #1A237E; --color-correct: #689F38; --color-incorrect: #D32F2F; --color-save-btn: #0D47A1; }
-        
-        .header { background: white; border-bottom: 1px solid #BBDEFB; padding: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.04); position: sticky; top: 0; z-index: 100; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif; 
+            background: #FFF8F0; 
+            color: #4A2C2A; 
+            line-height: 1.6; 
+        }
+
+        /* Header */
+        .header { background: white; border-bottom: 3px solid var(--color-secondary); padding: 20px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         .header-content { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; }
         .header-left { display: flex; align-items: center; gap: 15px; }
-        .logo { width: 36px; height: 36px; background: linear-gradient(135deg, #64B5F6 0%, #1976D2 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-        .site-title { font-size: 20px; font-weight: 800; color: #1A237E; text-decoration: none; }
-        .header-buttons { display: flex; align-items: center; gap: 8px; }
-        .header-button { text-decoration: none; padding: 7px 14px; border-radius: 6px; font-size: 14px; font-weight: 600; transition: all 0.2s; cursor: pointer; border: 1px solid #BBDEFB; background: transparent; }
-        .header-button.login { background: #E3F2FD; color: #0D47A1; }
-        .header-button.signup { background: var(--color-primary); color: white; }
-        .header-button.dashboard { background: #E1F5FE; color: #0288D1; }
-        .header-button.logout { background: #FFEBEE; color: #C62828; }
-        .user-greeting { font-size: 14px; color: #0D47A1; font-weight: 600; margin-right: 5px; }
-
-        .container-main { max-width: 1000px; margin: 30px auto; padding: 30px 20px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #BBDEFB; }
-        .lesson-main-title { font-size: 2.5em; font-weight: 800; color: var(--color-secondary); margin-bottom: 10px; }
-        .lesson-section { background: #F5F7FA; padding: 30px; border-radius: 10px; border: 1px solid #E1E8ED; margin-bottom: 30px; }
-        .section-title { color: var(--color-secondary); font-size: 1.8em; font-weight: 800; margin-bottom: 20px; padding-bottom: 5px; border-bottom: 2px dashed #90CAF9; }
+        .logo { width: 42px; height: 42px; background: var(--color-secondary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; }
+        .site-title { font-size: 20px; font-weight: 800; color: var(--color-primary); text-decoration: none; text-transform: uppercase; letter-spacing: -0.5px; }
         
-        .reading-text { background: white; border-left: 5px solid var(--color-primary); padding: 20px; border-radius: 0 8px 8px 0; font-size: 1.2em; color: #37474F; line-height: 1.8; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .highlight-word { color: var(--color-primary); font-weight: 700; cursor: help; border-bottom: 2px dotted var(--color-primary); }
-        .highlight-word:hover { background-color: #E3F2FD; color: var(--color-secondary); }
+        /* STREAK COUNTER */
+        .streak-display { 
+            display: flex; align-items: center; gap: 15px; background: linear-gradient(135deg, #FFF8DC 0%, #FAEBD7 100%);
+            padding: 10px 20px; border-radius: 50px; border: 2px solid #DEB887; box-shadow: 0 4px 10px rgba(210, 105, 30, 0.1);
+        }
+        .streak-item { display: flex; align-items: center; gap: 8px; }
+        .streak-icon { font-size: 24px; }
+        .streak-number { font-size: 20px; font-weight: 900; color: var(--color-secondary); }
+        .streak-label { font-size: 12px; color: #8B4513; font-weight: 700; text-transform: uppercase; }
 
-        .comp-btn-group .option-button { transition: all 0.2s; background: white; color: #0D47A1; font-weight: 600; padding: 10px 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 1px solid #BBDEFB; text-align: left; width: 100%; cursor: pointer; margin-bottom: 8px; }
-        .comp-btn-group .option-button:hover { border-color: var(--color-primary); background: #E3F2FD; }
-        .comp-btn-group .option-button.selected { background: #BBDEFB; color: #1A237E; border-color: var(--color-secondary); }
-        .comp-btn-group .option-button.correct { background: #8BC34A !important; color: white !important; border-color: #689F38 !important; }
-        .comp-btn-group .option-button.incorrect { background: #EF5350 !important; color: white !important; border-color: #D32F2F !important; }
+        /* Main Layout */
+        .container-main { max-width: 900px; margin: 40px auto; padding: 40px 30px; background: white; border-top: 5px solid var(--color-secondary); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .lesson-main-title { font-size: 2.5em; font-weight: 900; color: #4A2C2A; margin-bottom: 10px; letter-spacing: -1px; }
+        .lesson-subtitle { font-size: 1.2em; color: #8B6F47; margin-bottom: 40px; font-weight: 500; display: inline-block; background: #FFF8DC; padding: 5px 15px; border-radius: 99px; }
+        
+        /* PROGRESS BAR */
+        .progress-container { 
+            background: #F5DEB3; height: 12px; border-radius: 99px; margin-bottom: 40px; overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .progress-bar { 
+            height: 100%; background: linear-gradient(90deg, #D2691E 0%, #8B4513 100%); 
+            width: 0%; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px rgba(210, 105, 30, 0.5);
+        }
 
-        .word-bank { background: #BBDEFB; border: 2px solid var(--color-secondary); border-radius: 10px; padding: 15px; margin-bottom: 20px; }
-        .word-options { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-        .word-option { background: var(--color-secondary); color: white; padding: 10px 15px; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-weight: 600; }
-        .word-option.used { opacity: 0.4; pointer-events: none; background: #78909C; }
-        .word-option.selected { background: var(--color-primary) !important; transform: scale(1.05); }
+        /* Sections */
+        .lesson-section { padding: 0 0 40px 0; border-bottom: 1px solid #F5DEB3; margin-bottom: 40px; opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s; }
+        .lesson-section.visible { opacity: 1; transform: translateY(0); }
+        .section-title { color: var(--color-secondary); font-size: 1.6em; font-weight: 800; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; }
+        
+        /* Reading Text */
+        .reading-text { 
+            background: var(--color-paper); border-left: 5px solid var(--color-secondary); padding: 30px; 
+            border-radius: 0 8px 8px 0; font-size: 1.1em; line-height: 1.9; color: #4A2C2A;
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
+        }
+        .highlight-word { background: #FFE4B5; color: #8B4513; padding: 2px 5px; font-weight: 700; cursor: help; border-bottom: 1px dashed var(--color-secondary); transition: all 0.2s; }
+        .highlight-word:hover { background: var(--color-secondary); color: white; transform: scale(1.05); }
 
-        .gap-input { display: inline-block; text-align: center; padding: 6px 10px; min-width: 120px; height: 38px; background: #FFF; border: 2px dashed #2196F3; border-radius: 4px; color: #1A237E; font-weight: 700; cursor: pointer; margin: 0 4px; }
-        .gap-input.correct { background: #C5E1A5 !important; border-color: #689F38 !important; }
-        .gap-input.incorrect { background: #EF9A9A !important; border-color: #D32F2F !important; }
+        /* Interactive Elements */
+        .question-box { margin-bottom: 15px; background: #FFFAF0; padding: 15px; border-radius: 8px; border: 1px solid #F5DEB3; }
+        .option-btn { 
+            display: block; width: 100%; text-align: left; padding: 12px; margin-top: 8px;
+            background: white; border: 1px solid #DEB887; border-radius: 6px; font-weight: 600; 
+            cursor: pointer; transition: all 0.2s; color: #6F4E37;
+        }
+        .option-btn:hover { border-color: var(--color-secondary); background: #FFF8DC; transform: translateX(5px); }
+        .option-btn.selected { background: var(--color-secondary); color: white; border-color: var(--color-secondary); }
+        .option-btn.correct { background: var(--color-correct); color: white; border-color: var(--color-correct); animation: celebrate 0.5s; }
+        .option-btn.incorrect { background: var(--color-incorrect); color: white; border-color: var(--color-incorrect); animation: shake 0.4s; }
 
-        .button-group { margin-top: 20px; display: flex; gap: 15px; justify-content: center; }
-        .check-button { background: var(--color-secondary); color: white; border: none; padding: 12px 25px; border-radius: 9999px; cursor: pointer; font-weight: 600; transition: 0.3s; }
-        .check-button:hover { background: #283593; }
-        /* NEW STYLES */
-        .reveal-button { background: #FFB300; color: #1A237E; }
-        .reveal-button:hover { background: #FFA000; }
-        .reset-button { background: #78909C; }
+        @keyframes celebrate { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(22, 163, 74, 0.6); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
 
-        .result-message { margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: 700; display: none; text-align: center; }
-        .result-message.correct { background: #DCEDC8; color: #33691E; border: 1px solid #8BC34A; }
-        .result-message.incorrect { background: #FFCDD2; color: #B71C1C; border: 1px solid #E57373; }
+        /* Word Bank */
+        .word-bank { background: #FFE4B5; padding: 20px; border-radius: 8px; margin-bottom: 25px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .bank-word { 
+            background: white; padding: 8px 16px; border-radius: 4px; border: 1px solid #DEB887; border-bottom: 3px solid #CD853F;
+            font-weight: 700; cursor: pointer; color: #6F4E37; transition: all 0.2s;
+        }
+        .bank-word:hover { transform: translateY(-2px); border-bottom-color: var(--color-secondary); color: var(--color-secondary); }
+        .bank-word.selected { background: var(--color-secondary); color: white; border-color: var(--color-secondary); animation: pulse 0.5s infinite; }
+        .bank-word.used { opacity: 0.4; pointer-events: none; background: #F5DEB3; }
+        
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 
-        #learned-words-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px; list-style: none; }
-        #learned-words-list li { background: white; padding: 10px 15px; border-radius: 8px; border: 2px solid #BBDEFB; cursor: pointer; text-align: center; font-weight: 600; color: #0D47A1; }
+        .gap-input { 
+            display: inline-block; min-width: 120px; height: 30px; border-bottom: 2px dashed var(--color-secondary); 
+            text-align: center; font-weight: 700; cursor: pointer; margin: 0 4px; color: var(--color-secondary); transition: all 0.3s;
+        }
+        .gap-input.filled { background: #FFF8DC; border-bottom-style: solid; }
+        .gap-input.correct { border-bottom-color: var(--color-correct); color: var(--color-correct); background: #DCFCE7; pointer-events: none; }
+        .gap-input.incorrect { border-bottom-color: var(--color-incorrect); color: var(--color-incorrect); background: #FEE2E2; }
 
-        #dictionary-popup { position: fixed; width: 280px; padding: 20px; background: white; border: 3px solid var(--color-secondary); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 2001; display: none; color: #1A237E; }
-        .word-form-input { width: 100%; padding: 12px; border: 2px solid #D1D5DB; border-radius: 8px; transition: 0.3s; }
-        .word-form-input.revealed { background: #E8F5E9 !important; font-weight: bold; color: #2E7D32; border-color: #A5D6A7; }
+        /* Word Form Inputs */
+        .word-form-input { 
+            width: 100%; padding: 12px; border: 2px solid #DEB887; border-radius: 8px; 
+            font-size: 1em; transition: all 0.3s; margin-top: 8px;
+        }
+        .word-form-input:focus { outline: none; border-color: var(--color-secondary); }
+        .word-form-input.correct { background: #DCFCE7; border-color: #16A34A; }
+        .word-form-input.incorrect { background: #FEE2E2; border-color: #EF4444; }
+
+        /* Buttons */
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; justify-content: center; flex-wrap: wrap; }
+        .btn-action { 
+            background: var(--color-secondary); color: white; padding: 12px 30px; border: none; 
+            border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 1em; transition: all 0.2s;
+            box-shadow: 0 4px #8B4513;
+        }
+        .btn-action:hover { background: #8B4513; transform: translateY(-2px); box-shadow: 0 6px #6F4E37; }
+        .btn-action:active { transform: translateY(3px); box-shadow: 0 1px #8B4513; }
+        .btn-action.btn-reset { background: #A0826D; box-shadow: 0 4px #8B7355; }
+        .btn-action.btn-reveal { background: #FFB300; color: #4A2C2A; box-shadow: 0 4px #FFA000; }
+        
+        .celebration { 
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); 
+            background: linear-gradient(135deg, #16A34A 0%, #059669 100%); color: white; 
+            padding: 40px 60px; border-radius: 20px; font-size: 2em; font-weight: 900; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3); z-index: 1000; opacity: 0;
+            transition: all 0.4s;
+        }
+        .celebration.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+        .result-msg { margin-top: 15px; font-weight: 700; display: none; padding: 15px; border-radius: 6px; text-align: center; }
+        .result-msg.correct { background: #DCFCE7; color: #166534; border: 2px solid #86EFAC; }
+        .result-msg.incorrect { background: #FEE2E2; color: #991B1B; border: 2px solid #FCA5A5; }
+
+        .badge-container { position: fixed; top: 100px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 999; }
+        .badge { 
+            background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex; align-items: center; gap: 10px; transform: translateX(300px); opacity: 0;
+            transition: all 0.5s; border-left: 4px solid #F59E0B;
+        }
+        .badge.show { transform: translateX(0); opacity: 1; }
+        .badge-icon { font-size: 32px; }
+        .badge-text { font-weight: 700; color: #92400E; }
+
+        #dictionary-popup {
+            position: fixed; max-width: 300px; background: white; border-top: 5px solid var(--color-secondary);
+            padding: 20px; border-radius: 8px; z-index: 2000; display: none; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body>
+
     <header class="header">
         <div class="header-content">
             <div class="header-left">
                 <span class="logo">☕</span>
                 <a href="/beginner/" class="site-title">English For Cool Dudes</a>
             </div>
-            <div id="logged-out-buttons" class="header-buttons">
-                <a href="/login/" class="header-button login">Login</a>
-                <a href="/signup/" class="header-button signup">Sign Up</a>
-            </div>
-            <div id="logged-in-buttons" class="header-buttons" style="display: none;">
-                <span class="user-greeting" id="user-greeting">Hey Cool Dude! 👋</span>
-                <a href="/dashboard/" class="header-button dashboard">My Dashboard</a>
-                <button id="logout-btn" class="header-button logout">Sign Out</button>
+            <div class="streak-display">
+                <div class="streak-item">
+                    <span class="streak-icon">🔥</span>
+                    <div>
+                        <div class="streak-number" id="streak-count">0</div>
+                        <div class="streak-label">Streak</div>
+                    </div>
+                </div>
+                <div class="streak-item">
+                    <span class="streak-icon">🎯</span>
+                    <div>
+                        <div class="streak-number" id="total-lessons">0</div>
+                        <div class="streak-label">Lessons</div>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
 
+    <div class="badge-container" id="badge-container"></div>
+    <div class="celebration" id="celebration"></div>
+
     <div class="container-main">
         <h1 class="lesson-main-title">☕ The Legend of Coffee</h1>
-        <p class="text-lg text-gray-500 mb-8">Beginner-level reading about the world's favorite drink!</p>
+        <p class="lesson-subtitle">Beginner Story: Dancing Goats</p>
 
-        <section class="lesson-section">
-            <h2 class="section-title">📰 Reading: Dancing Goats</h2>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+
+        <section class="lesson-section visible">
+            <h2 class="section-title">📖 Reading: The Discovery</h2>
             <div class="reading-text">
                 <p class="mb-4">Long ago in Ethiopia, a man named Kaldi watched his <span class="highlight-word" onclick="showPopup(this, 'Goats')">goats</span>. One day, he saw that the goats were very <span class="highlight-word" onclick="showPopup(this, 'Active')">active</span>. They <span class="highlight-word" onclick="showPopup(this, 'Danced')">danced</span> and did not want to sleep.</p>
                 <p class="mb-4">Kaldi <span class="highlight-word" onclick="showPopup(this, 'Discovered')">discovered</span> that the goats ate small red <span class="highlight-word" onclick="showPopup(this, 'Berries')">berries</span> from a tree. He tried the berries too. Suddenly, he felt lots of <span class="highlight-word" onclick="showPopup(this, 'Energy')">energy</span>!</p>
                 <p class="mb-4">He took the berries to a monk. At first, the monk threw them into a <span class="highlight-word" onclick="showPopup(this, 'Fire')">fire</span>. But soon, the berries smelled <span class="highlight-word" onclick="showPopup(this, 'Wonderful')">wonderful</span>. They mixed the roasted berries with water, and the first cup of coffee was born!</p>
             </div>
+            <div class="btn-group" style="margin-top: 20px;">
+                <button class="btn-action" onclick="completeSection(1)">Continue →</button>
+            </div>
         </section>
 
-        <section class="lesson-section">
+        <section class="lesson-section" id="section-2">
             <h2 class="section-title">✅ 1. True or False?</h2>
-            <div class="question mb-6">
-                <p class="font-semibold text-lg mb-3">1. Kaldi lived in Ethiopia.</p>
-                <ul class="comp-btn-group">
-                    <li class="option-button" data-correct="true">True</li>
-                    <li class="option-button" data-correct="false">False</li>
-                </ul>
+            
+            <div class="question-box">
+                <p class="font-bold mb-2">1. Kaldi lived in Ethiopia.</p>
+                <div class="comp-btn-group">
+                    <button class="option-btn" data-correct="true">True</button>
+                    <button class="option-btn" data-correct="false">False</button>
+                </div>
             </div>
-            <div class="question mb-6">
-                <p class="font-semibold text-lg mb-3">2. The goats were very tired after eating the berries.</p>
-                <ul class="comp-btn-group">
-                    <li class="option-button" data-correct="false">True</li>
-                    <li class="option-button" data-correct="true">False</li>
-                </ul>
+
+            <div class="question-box">
+                <p class="font-bold mb-2">2. The goats were very tired after eating the berries.</p>
+                <div class="comp-btn-group">
+                    <button class="option-btn" data-correct="false">True</button>
+                    <button class="option-btn" data-correct="true">False</button>
+                </div>
             </div>
-            <div class="button-group">
-                <button class="check-button" onclick="checkComprehension()">Check Answers</button>
-                <button class="check-button reset-button" onclick="resetComprehension()">Reset</button>
+
+            <div class="question-box">
+                <p class="font-bold mb-2">3. The monk loved the berries immediately.</p>
+                <div class="comp-btn-group">
+                    <button class="option-btn" data-correct="false">True</button>
+                    <button class="option-btn" data-correct="true">False (He threw them in fire first)</button>
+                </div>
             </div>
-            <div id="comprehension-result" class="result-message"></div>
+
+            <div class="btn-group">
+                <button class="btn-action" onclick="checkComp()">Check Answers</button>
+                <button class="btn-action btn-reset" onclick="resetComp()">Reset</button>
+            </div>
+            <div id="comp-result" class="result-msg"></div>
         </section>
 
-        <section class="lesson-section">
+        <section class="lesson-section" id="section-3">
             <h2 class="section-title">🧩 2. Past Simple: Gap Fill</h2>
+            
             <div class="word-bank">
-                <h4 class="font-bold mb-3 text-center">Word Bank:</h4>
-                <div class="word-options">
-                    <span class="word-option" data-word="saw">saw</span>
-                    <span class="word-option" data-word="felt">felt</span>
-                    <span class="word-option" data-word="drank">drank</span>
-                    <span class="word-option" data-word="ate">ate</span>
-                </div>
+                <span class="bank-word" data-word="saw">saw</span>
+                <span class="bank-word" data-word="felt">felt</span>
+                <span class="bank-word" data-word="drank">drank</span>
+                <span class="bank-word" data-word="ate">ate</span>
             </div>
-            <div class="text-lg">
-                <p class="mb-5">1. The goats <span class="gap-input" data-answer="ate"></span> the red berries.</p>
-                <p class="mb-5">2. Kaldi <span class="gap-input" data-answer="saw"></span> his goats dancing.</p>
-                <p class="mb-5">3. He <span class="gap-input" data-answer="felt"></span> very happy and active.</p>
-                <p class="mb-5">4. Later, people <span class="gap-input" data-answer="drank"></span> the first cup of coffee.</p>
+
+            <div style="font-size: 1.1em; line-height: 2.5;">
+                <p class="mb-4">1. The goats <span class="gap-input" data-answer="ate"></span> the red berries.</p>
+                <p class="mb-4">2. Kaldi <span class="gap-input" data-answer="saw"></span> his goats dancing.</p>
+                <p class="mb-4">3. He <span class="gap-input" data-answer="felt"></span> very happy and active.</p>
+                <p class="mb-4">4. Later, people <span class="gap-input" data-answer="drank"></span> the first cup of coffee.</p>
             </div>
-            <div class="button-group">
-                <button class="check-button" onclick="checkGaps()">Check Answers</button>
-                <button class="check-button reset-button" onclick="resetGaps()">Reset</button>
+
+            <div class="btn-group">
+                <button class="btn-action" onclick="checkGaps()">Check Answers</button>
+                <button class="btn-action btn-reset" onclick="resetGaps()">Reset</button>
             </div>
-            <div id="gap-result" class="result-message"></div>
+            <div id="gap-result" class="result-msg"></div>
         </section>
 
-        <section class="lesson-section">
+        <section class="lesson-section" id="section-4">
             <h2 class="section-title">🔤 3. Word Forms</h2>
-            <div class="space-y-4">
-                <div>
+            
+            <div style="max-width: 600px; margin: 0 auto;">
+                <div class="mb-6">
                     <p class="font-semibold text-lg mb-2">1. The goats danced __________. (happy)</p>
-                    <input type="text" class="word-form-input" data-answer="happily" placeholder="Type here...">
+                    <input type="text" class="word-form-input" data-answer="happily" placeholder="Type your answer...">
                 </div>
-                <div>
+                
+                <div class="mb-6">
                     <p class="font-semibold text-lg mb-2">2. Kaldi is a famous __________. (discover)</p>
-                    <input type="text" class="word-form-input" data-answer="discoverer" placeholder="Type here...">
+                    <input type="text" class="word-form-input" data-answer="discoverer" placeholder="Type your answer...">
                 </div>
             </div>
-            <div class="button-group">
-                <button class="check-button" onclick="checkWordForms()">Check Answers</button>
-                <button class="check-button reveal-button" onclick="revealWordForms()">Reveal Answers</button>
-                <button class="check-button reset-button" onclick="resetWordForms()">Reset</button>
+
+            <div class="btn-group">
+                <button class="btn-action" onclick="checkWordForms()">Check Answers</button>
+                <button class="btn-action btn-reveal" onclick="revealWordForms()">Reveal Answers</button>
+                <button class="btn-action btn-reset" onclick="resetWordForms()">Reset</button>
             </div>
-            <div id="wordform-result" class="result-message"></div>
+            <div id="wordform-result" class="result-msg"></div>
         </section>
 
-        <section class="text-center p-8 bg-blue-50 rounded-xl border-2 border-blue-200">
-            <h2 class="section-title">📚 Words You've Learned</h2>
-            <ul id="learned-words-list">
-                <li data-word="Goats">Goats</li>
-                <li data-word="Active">Active</li>
-                <li data-word="Danced">Danced</li>
-                <li data-word="Discovered">Discovered</li>
-                <li data-word="Berries">Berries</li>
-                <li data-word="Energy">Energy</li>
-                <li data-word="Fire">Fire</li>
-                <li data-word="Wonderful">Wonderful</li>
-                <li data-word="Ate">Ate</li>
-                <li data-word="Saw">Saw</li>
-                <li data-word="Felt">Felt</li>
-                <li data-word="Drank">Drank</li>
-                <li data-word="Happily">Happily</li>
-                <li data-word="Discoverer">Discoverer</li>
-            </ul>
-            <div id="save-feature-loggedin" style="display: none;">
-                <button id="save-words-btn" onclick="saveWordsToDashboard()" class="w-full bg-blue-700 text-white font-bold py-4 rounded-lg shadow-lg hover:bg-blue-800 transition">Save to My Dashboard</button>
-                <p id="save-status" class="mt-3 font-semibold"></p>
-            </div>
-        </section>
     </div>
 
     <div id="dictionary-popup"></div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/init-auth.js"></script>
+    <script src="/supabase-auth-gamified.js"></script>
+
     <script>
-        /* ... existing wordToSave array and other functions ... */
-        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        let currentUser = null;
-        let selectedGapWord = null;
-
-        const lessonTitle = "The Legend Of Coffee";
-        const lessonLink = "/coffee/";
-        const lessonLevel = "Beginner";
-
-        const wordsToSave = [
-            // Main Lesson Vocabulary
-            { word: "Goats", type: "noun", definition: "Small farm animals with horns." },
-            { word: "Active", type: "adjective", definition: "Moving a lot; having lots of energy." },
-            { word: "Danced", type: "verb", definition: "Moved the body to music or for fun." },
-            { word: "Discovered", type: "verb", definition: "Found something for the first time." },
-            { word: "Berries", type: "noun", definition: "Small, round fruit that grow on trees." },
-            { word: "Energy", type: "noun", definition: "The power to be active and not tired." },
-            { word: "Fire", type: "noun", definition: "The hot, bright flames used for cooking." },
-            { word: "Wonderful", type: "adjective", definition: "Very good; amazing." },
-            { word: "Ate", type: "verb", definition: "Past tense of eat - to put food into your mouth, chew and swallow." },
-            { word: "Saw", type: "verb", definition: "Past tense of see - to notice something with your eyes." },
-            { word: "Felt", type: "verb", definition: "Past tense of feel - to experience something by touching." },
-            { word: "Drank", type: "verb", definition: "Free from an obligation or liability (e.g., tax) imposed on others." },
-            { word: "Happily", type: "adverb", definition: "Doing something in a happy way." },
-            { word: "Discoverer", type: "noun", definition: "Person who discovers." }
+        const VOCAB_LIST = [
+            { word: "Goats", definition: "Small farm animals with horns that give milk." },
+            { word: "Active", definition: "Moving a lot; having lots of energy." },
+            { word: "Danced", definition: "Moved the body to music or for fun." },
+            { word: "Discovered", definition: "Found something for the first time." },
+            { word: "Berries", definition: "Small, round fruit that grow on trees or bushes." },
+            { word: "Energy", definition: "The power to be active and not feel tired." },
+            { word: "Fire", definition: "Hot, bright flames used for cooking or warmth." },
+            { word: "Wonderful", definition: "Very good; amazing." },
+            { word: "Ate", definition: "Past tense of 'eat' - put food in your mouth and swallow it." },
+            { word: "Saw", definition: "Past tense of 'see' - notice something with your eyes." },
+            { word: "Felt", definition: "Past tense of 'feel' - experience something." },
+            { word: "Drank", definition: "Past tense of 'drink' - swallow liquid." },
+            { word: "Happily", definition: "In a happy way; with joy." },
+            { word: "Discoverer", definition: "A person who discovers or finds something new." }
         ];
-       
+        
+        const GRAMMAR_EXERCISES = [
+            {
+                question: "The goats ________ the red berries.",
+                answer: "ate",
+                explanation: "Past simple form of 'eat'."
+            },
+            {
+                question: "Kaldi ________ his goats dancing.",
+                answer: "saw",
+                explanation: "Past simple form of 'see'."
+            },
+            {
+                question: "The goats danced __________. (happy)",
+                answer: "happily",
+                explanation: "Adverb form - describes how they danced."
+            },
+            {
+                question: "Kaldi is a famous __________. (discover)",
+                answer: "discoverer",
+                explanation: "Noun form - person who discovers."
+            }
+        ];
 
-   
+        // Safe initialization
+        async function initializeUserStats() {
+            if (typeof window.efcdReady !== 'undefined') {
+                await window.efcdReady;
+            }
+            
+            if (typeof window.EFCD_Auth === 'undefined') {
+                console.warn('⚠️ Auth system not loaded');
+                return;
+            }
+            
+            await window.EFCD_Auth.initAuth();
+            
+            const user = window.EFCD_Auth.getCurrentUser();
+            if (user) {
+                const stats = window.EFCD_Auth.getUserStats();
+                document.getElementById('streak-count').textContent = stats.streak;
+                document.getElementById('total-lessons').textContent = stats.lessonsCompleted;
+            } else {
+                document.getElementById('streak-count').textContent = '0';
+                document.getElementById('total-lessons').textContent = '0';
+            }
+        }
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeUserStats);
+        } else {
+            initializeUserStats();
+        }
 
-        /* POPUP & AUDIO */
+        // Progress tracking
+        let completedSections = 0;
+        const totalSections = 4;
+        
+        function updateProgress() {
+            document.getElementById('progress-bar').style.width = ((completedSections / totalSections) * 100) + '%';
+        }
+
+        function completeSection(sectionNum) {
+            completedSections++;
+            updateProgress();
+            const nextSection = document.getElementById('section-' + (sectionNum + 1));
+            if (nextSection) {
+                nextSection.classList.add('visible');
+                nextSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            if (Math.random() < 0.3) showBadge(getRandomBadge());
+        }
+
+        // Badges
+        const badges = [
+            { icon: '⚡', text: 'Quick Learner!' },
+            { icon: '☕', text: 'Coffee Master!' },
+            { icon: '🎯', text: 'Perfect!' }
+        ];
+
+        function getRandomBadge() { return badges[Math.floor(Math.random() * badges.length)]; }
+        
+        function showBadge(badge) {
+            const badgeEl = document.createElement('div');
+            badgeEl.className = 'badge';
+            badgeEl.innerHTML = `<span class="badge-icon">${badge.icon}</span><span class="badge-text">${badge.text}</span>`;
+            document.getElementById('badge-container').appendChild(badgeEl);
+            setTimeout(() => badgeEl.classList.add('show'), 100);
+            setTimeout(() => {
+                badgeEl.classList.remove('show');
+                setTimeout(() => badgeEl.remove(), 500);
+            }, 3000);
+        }
+
+        function celebrate(message = '🎉 Excellent!') {
+            const cel = document.getElementById('celebration');
+            cel.textContent = message;
+            cel.classList.add('show');
+            setTimeout(() => cel.classList.remove('show'), 2000);
+        }
+
+        // Popup
         function showPopup(target, word) {
-            const wordObj = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase());
+            const wObj = VOCAB_LIST.find(w => w.word === word);
+            if(!wObj) return;
             const popup = document.getElementById('dictionary-popup');
-            if (!popup || !wordObj) return;
-
             popup.innerHTML = `
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                    <div><strong>${wordObj.word}</strong> <span style="font-size:0.8em; color:gray;">(${wordObj.type})</span></div>
-                    <button onclick="playAudio('${wordObj.word}')" style="background: #2196F3; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">🔊</button>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <strong style="color:var(--color-secondary); font-size:1.1em;">${wObj.word}</strong>
+                    <button onclick="playAudio('${wObj.word}')" style="background:#FFE4B5; border:none; width:28px; height:28px; border-radius:50%; cursor:pointer;">🔊</button>
                 </div>
-                <p style="font-size: 0.9em;">${wordObj.definition}</p>
+                <div style="color:#6F4E37;">${wObj.definition}</div>
             `;
-
             popup.style.display = 'block';
             const rect = target.getBoundingClientRect();
-            popup.style.left = `${rect.left}px`;
-            popup.style.top = `${rect.bottom + 10}px`;
-            
-            // Safety: Flip up if off screen
-            if (rect.bottom + 150 > window.innerHeight) {
-                popup.style.top = `${rect.top - popup.offsetHeight - 10}px`;
-            }
+            popup.style.top = (rect.bottom + 8) + 'px';
+            popup.style.left = rect.left + 'px';
+            document.addEventListener('click', function close(e) {
+                if (!popup.contains(e.target) && e.target !== target) {
+                    popup.style.display = 'none';
+                    document.removeEventListener('click', close);
+                }
+            });
         }
 
         function playAudio(word) {
             const utterance = new SpeechSynthesisUtterance(word);
-            utterance.lang = 'en-US';
+            utterance.lang = 'en-GB'; 
+            utterance.rate = 0.9;
             window.speechSynthesis.cancel();
             window.speechSynthesis.speak(utterance);
         }
 
-        /* EXERCISE LOGIC */
-        function checkComprehension() {
-            let correct = 0;
-            const qs = document.querySelectorAll('.question');
-            qs.forEach(q => {
-                const sel = q.querySelector('.option-button.selected');
-                q.querySelectorAll('.option-button').forEach(opt => {
-                    opt.classList.remove('correct', 'incorrect');
-                    if (opt.dataset.correct === 'true') opt.classList.add('correct');
-                });
-                if (sel && sel.dataset.correct === 'true') correct++;
-                else if (sel) sel.classList.add('incorrect');
+        // Comprehension
+        document.querySelectorAll('.option-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
             });
-            const res = document.getElementById('comprehension-result');
+        });
+
+        function checkComp() {
+            let correct = 0;
+            const qs = document.querySelectorAll('.question-box');
+            qs.forEach(q => {
+                const sel = q.querySelector('.selected');
+                if(sel && sel.dataset.correct === "true") { sel.classList.add('correct'); correct++; }
+                else if(sel) sel.classList.add('incorrect');
+            });
+            const res = document.getElementById('comp-result');
+            res.textContent = `Score: ${correct} / ${qs.length}`;
             res.style.display = 'block';
-            res.className = `result-message ${correct === qs.length ? 'correct' : 'incorrect'}`;
-            res.textContent = correct === qs.length ? "🎉 Great job! Perfect!" : `${correct}/${qs.length} correct. Try again!`;
-        }
-
-        function resetComprehension() {
-            document.querySelectorAll('.option-button').forEach(b => b.classList.remove('selected', 'correct', 'incorrect'));
-            document.getElementById('comprehension-result').style.display = 'none';
-        }
-
-        function handleGapBlankClick(blank) {
-            if (selectedGapWord) {
-                if (blank.textContent) {
-                    const oldWord = Array.from(document.querySelectorAll('.word-option')).find(o => o.dataset.word === blank.textContent);
-                    if (oldWord) oldWord.classList.remove('used');
-                }
-                blank.textContent = selectedGapWord.dataset.word;
-                selectedGapWord.classList.add('used');
-                selectedGapWord.classList.remove('selected');
-                selectedGapWord = null;
-            } else if (blank.textContent) {
-                const word = Array.from(document.querySelectorAll('.word-option')).find(o => o.dataset.word === blank.textContent);
-                if (word) word.classList.remove('used');
-                blank.textContent = '';
+            res.className = correct === qs.length ? "result-msg correct" : "result-msg incorrect";
+            if (correct === qs.length) {
+                celebrate('💯 Perfect!');
+                showBadge({ icon: '🏆', text: 'Reading Master!' });
+                setTimeout(() => completeSection(2), 1500);
             }
         }
 
+        function resetComp() {
+            document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById('comp-result').style.display = 'none';
+        }
+
+        // Gap Fill
+        let selectedWord = null;
+        document.querySelectorAll('.bank-word').forEach(w => {
+            w.addEventListener('click', function() {
+                if(this.classList.contains('used')) return;
+                document.querySelectorAll('.bank-word').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedWord = this;
+            });
+        });
+
+        document.querySelectorAll('.gap-input').forEach(g => {
+            g.addEventListener('click', function() {
+                if(selectedWord) {
+                    if(this.textContent) {
+                        const old = Array.from(document.querySelectorAll('.bank-word')).find(b => b.dataset.word === this.textContent);
+                        if(old) old.classList.remove('used');
+                    }
+                    this.textContent = selectedWord.dataset.word;
+                    this.classList.add('filled');
+                    selectedWord.classList.add('used');
+                    selectedWord.classList.remove('selected');
+                    selectedWord = null;
+                } else if(this.textContent) {
+                    const old = Array.from(document.querySelectorAll('.bank-word')).find(b => b.dataset.word === this.textContent);
+                    if(old) old.classList.remove('used');
+                    this.textContent = "";
+                    this.classList.remove('filled');
+                }
+            });
+        });
+
         function checkGaps() {
             let correct = 0;
-            const blanks = document.querySelectorAll('.gap-input');
-            blanks.forEach(b => {
-                b.classList.remove('correct', 'incorrect');
-                if (b.textContent.trim().toLowerCase() === b.dataset.answer.toLowerCase()) {
-                    b.classList.add('correct'); correct++;
-                } else if (b.textContent) b.classList.add('incorrect');
+            const gaps = document.querySelectorAll('.gap-input');
+            gaps.forEach(g => {
+                g.classList.remove('correct', 'incorrect');
+                if(g.textContent === g.dataset.answer) { g.classList.add('correct'); correct++; }
+                else if(g.textContent) { g.classList.add('incorrect'); }
             });
             const res = document.getElementById('gap-result');
+            res.textContent = `Score: ${correct}/${gaps.length}`;
             res.style.display = 'block';
-            res.className = `result-message ${correct === blanks.length ? 'correct' : 'incorrect'}`;
-            res.textContent = correct === blanks.length ? "✨ Amazing!" : `${correct}/${blanks.length} correct.`;
+            res.className = correct === gaps.length ? "result-msg correct" : "result-msg incorrect";
+            if (correct === gaps.length) {
+                celebrate('✨ Grammar Pro!');
+                showBadge({ icon: '📚', text: 'Past Tense Master!' });
+                setTimeout(() => completeSection(3), 1500);
+            }
         }
 
         function resetGaps() {
-            document.querySelectorAll('.gap-input').forEach(b => { b.textContent = ''; b.classList.remove('correct', 'incorrect'); });
-            document.querySelectorAll('.word-option').forEach(o => o.classList.remove('used', 'selected'));
+            document.querySelectorAll('.gap-input').forEach(g => { 
+                g.textContent = ""; 
+                g.classList.remove('correct', 'incorrect', 'filled'); 
+            });
+            document.querySelectorAll('.bank-word').forEach(w => w.classList.remove('used', 'selected'));
             document.getElementById('gap-result').style.display = 'none';
         }
 
-        // NEW FUNCTIONS FOR WORD FORMS
+        // Word Forms
         function checkWordForms() {
             let correct = 0;
             const inputs = document.querySelectorAll('.word-form-input');
             inputs.forEach(i => {
-                i.classList.remove('revealed'); // Remove reveal style if checking
+                i.classList.remove('correct', 'incorrect');
                 if (i.value.trim().toLowerCase() === i.dataset.answer.toLowerCase()) {
-                    i.style.background = '#DCEDC8'; correct++;
-                } else { i.style.background = '#FFCDD2'; }
+                    i.classList.add('correct'); correct++;
+                } else if (i.value.trim()) { 
+                    i.classList.add('incorrect'); 
+                }
             });
             const res = document.getElementById('wordform-result');
+            res.textContent = `Score: ${correct}/${inputs.length}`;
             res.style.display = 'block';
-            res.className = `result-message ${correct === inputs.length ? 'correct' : 'incorrect'}`;
-            res.textContent = `${correct}/${inputs.length} correct.`;
+            res.className = correct === inputs.length ? "result-msg correct" : "result-msg incorrect";
+            if (correct === inputs.length) {
+                celebrate('🎓 Word Expert!');
+                setTimeout(() => completeLessonAndSave(), 2000);
+            }
         }
 
         function revealWordForms() {
             document.querySelectorAll('.word-form-input').forEach(i => {
                 i.value = i.dataset.answer;
-                i.classList.add('revealed');
-                i.style.background = ''; // Clear the check colors
+                i.classList.remove('correct', 'incorrect');
+                i.style.background = '#FFF8DC';
             });
             document.getElementById('wordform-result').style.display = 'none';
         }
@@ -351,122 +572,100 @@
         function resetWordForms() {
             document.querySelectorAll('.word-form-input').forEach(i => { 
                 i.value = ''; 
-                i.style.background = 'white'; 
-                i.classList.remove('revealed');
+                i.classList.remove('correct', 'incorrect');
             });
             document.getElementById('wordform-result').style.display = 'none';
         }
 
-        /* ... Auth and Event Listeners remain the same ... */
-        async function checkUser() {
-            const { data: { user } } = await sb.auth.getUser();
-            if (user) {
-                currentUser = user;
-                document.getElementById('logged-in-buttons').style.display = 'flex';
-                document.getElementById('logged-out-buttons').style.display = 'none';
-                document.getElementById('save-feature-loggedin').style.display = 'block';
-                const name = user.user_metadata.full_name?.split(' ')[0] || 'Cool Dude';
-                document.getElementById('user-greeting').textContent = `Hey ${name}! 👋`;
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            checkUser();
-            
-            // True/False clicks
-            document.querySelectorAll('.option-button').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    btn.closest('.comp-btn-group').querySelectorAll('.option-button').forEach(b => b.classList.remove('selected'));
-                    btn.classList.add('selected');
-                });
-            });
-
-            // Gap fill clicks
-            document.querySelectorAll('.word-option').forEach(opt => {
-                opt.addEventListener('click', () => {
-                    if (opt.classList.contains('used')) return;
-                    document.querySelectorAll('.word-option').forEach(o => o.classList.remove('selected'));
-                    selectedGapWord = opt;
-                    opt.classList.add('selected');
-                });
-            });
-            document.querySelectorAll('.gap-input').forEach(b => b.addEventListener('click', () => handleGapBlankClick(b)));
-
-            // Learned words clicks
-            document.querySelectorAll('#learned-words-list li').forEach(li => {
-                li.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    showPopup(li, li.dataset.word);
-                    playAudio(li.dataset.word);
-                });
-            });
-
-            // Close popup on outside click
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('#dictionary-popup') && !e.target.classList.contains('highlight-word')) {
-                    document.getElementById('dictionary-popup').style.display = 'none';
-                }
-            });
-        });
-
-        async function saveMistake(word) {
-            if (!currentUser) return;
-
-            // Find the word's definition from your list
-            const wordData = wordsToSave.find(w => w.word.toLowerCase() === word.toLowerCase()) || 
-                             { definition: "Review this term" };
-
-            const { error } = await sb.from('mistakes').upsert([{
-                user_id: currentUser.id,
-                word: word,
-                definition: wordData.definition,
-                lesson: lessonTitle,
-                lesson_link: lessonLink,
-                last_made_at: new Date().toISOString()
-            }], { onConflict: 'user_id,word' });
-
-            if (error) console.error('Error saving mistake:', error);
-        }
-
-    async function saveWordsToDashboard() {
-            if (!currentUser) return;
-            
-            // 1. Target the correct Button ID (save-words-btn)
-            const btn = document.getElementById('save-words-btn');
-            const status = document.getElementById('save-status');
-            
-            // 2. Update UI to "Processing"
-            btn.disabled = true;
-            btn.textContent = "Processing...";
-            
-            // 3. Database Call 
-            const { error } = await sb.from('lessons').upsert([{
-                user_id: currentUser.id,
-                lesson_title: lessonTitle,
-                lesson_link: lessonLink,
-                lesson_level: lessonLevel,
-                // FIXED: Changed 'VOCAB_LIST' to 'wordsToSave'
-                vocabulary: wordsToSave, 
-                completed_at: new Date().toISOString()
-            }], { onConflict: 'user_id,lesson_title' });
-
-            // 4. Feedback & Redirect
-            if (error) {
-                console.error(error);
-                btn.textContent = "❌ Error";
-                status.textContent = "Connection failed. Retry.";
-                status.style.color = "#DC2626";
-                btn.disabled = false;
-            } else {
-                btn.textContent = "✅ Saved!";
-                btn.style.backgroundColor = "#16A34A"; // Green success
-                status.textContent = "Data uploaded securely.";
-                status.style.color = "#166534";
+        async function completeLessonAndSave() {
+            if (typeof window.EFCD_Auth === 'undefined' || !window.EFCD_Auth.getCurrentUser()) {
+                const wantsToSignUp = confirm(
+                    '🎓 Awesome! You completed the lesson!\n\n' +
+                    '✨ Sign up (free) to:\n' +
+                    '• Save your progress & earn XP\n' +
+                    '• Unlock achievements\n' +
+                    '• Track your learning streak\n' +
+                    '• Save vocabulary & grammar\n\n' +
+                    'Click OK to create a free account\n' +
+                    'Click Cancel to continue without saving'
+                );
                 
-                // 5. Redirect to Dashboard
-                setTimeout(() => window.location.href = '/dashboard/', 1500);
+                if (wantsToSignUp) {
+                    window.location.href = '/signup/';
+                } else {
+                    window.location.href = '/beginner/';
+                }
+                return;
             }
+
+            const result = await window.EFCD_Auth.completeLesson({
+                lessonId: 'coffee-legend',
+                lessonTitle: 'The Legend of Coffee',
+                lessonLevel: 'Beginner',
+                lessonLink: '/coffee/',
+                vocabulary: VOCAB_LIST,
+                grammar: GRAMMAR_EXERCISES,
+                perfectScore: true,
+                completionTime: Math.floor((Date.now() - performance.timing.navigationStart) / 1000)
+            });
+
+            if (result.success) showCelebrationScreen(result);
         }
+
+        function showCelebrationScreen(result) {
+            const overlay = document.createElement('div');
+            overlay.id = 'celebration-overlay';
+            overlay.style.cssText = `
+                position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+                z-index: 99999; display: flex; align-items: center; justify-content: center;
+                animation: fadeIn 0.3s;
+            `;
+            
+            overlay.innerHTML = `
+                <div style="background: white; padding: 60px; border-radius: 20px; text-align: center; max-width: 500px; animation: scaleIn 0.4s; position: relative;">
+                    <button id="close-celebration" style="position: absolute; top: 20px; right: 20px; background: #F3F4F6; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 24px;">×</button>
+                    <div style="font-size: 100px; margin-bottom: 20px;">🎉</div>
+                    <h2 style="font-size: 36px; margin-bottom: 20px; color: #1A202C;">Lesson Complete!</h2>
+                    <div style="background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%); padding: 30px; border-radius: 16px; margin-bottom: 30px; border: 2px solid #FED7AA;">
+                        <div style="font-size: 56px; font-weight: 900; color: #F59E0B;">+${result.xpEarned} XP</div>
+                        ${result.leveledUp ? `<div style="font-size: 24px; color: #D97706; margin-top: 15px;">🎊 Level Up! Now Level ${result.newLevel}!</div>` : ''}
+                        ${result.newStreak > 0 ? `<div style="font-size: 20px; margin-top: 15px; color: #DC2626;">🔥 ${result.newStreak} day streak!</div>` : ''}
+                    </div>
+                    ${result.newAchievements && result.newAchievements.length > 0 ? `
+                        <div style="background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%); padding: 20px; border-radius: 12px; margin-bottom: 30px;">
+                            <div style="font-weight: 800; font-size: 18px; margin-bottom: 15px;">🏆 New Achievements!</div>
+                            ${result.newAchievements.map(id => {
+                                const ach = window.EFCD_Auth.ACHIEVEMENTS[id];
+                                return `<div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;"><span style="font-size: 36px;">${ach.icon}</span> ${ach.name}</div>`;
+                            }).join('')}
+                        </div>
+                    ` : ''}
+                    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                        <a href="/dashboard-gamified/" id="btn-dashboard" style="background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%); color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 700; cursor: pointer;">View Dashboard</a>
+                        <a href="/beginner/" id="btn-next" style="background: #F59E0B; color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 700; cursor: pointer;">Choose Next Lesson →</a>
+                        <button id="btn-retry" style="background: #F1F5F9; color: #475569; padding: 14px 28px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer;">Try Again</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+            setTimeout(() => {
+                document.getElementById('close-celebration')?.addEventListener('click', () => overlay.remove());
+                document.getElementById('btn-retry')?.addEventListener('click', () => location.reload());
+                document.addEventListener('keydown', function escHandler(e) {
+                    if (e.key === 'Escape') {
+                        overlay.remove();
+                        document.removeEventListener('keydown', escHandler);
+                    }
+                });
+            }, 100);
+        }
+
+        const animStyle = document.createElement('style');
+        animStyle.textContent = `@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } } @keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }`;
+        document.head.appendChild(animStyle);
+
+        updateProgress();
     </script>
 </body>
 </html>
