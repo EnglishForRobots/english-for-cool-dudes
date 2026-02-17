@@ -109,11 +109,22 @@ const ACHIEVEMENTS = {
         name: 'Vocab Hoarder', 
         description: 'Save 50 vocabulary words',
         xp: 150,
+        // ── FIX ──────────────────────────────────────────────────────
+        // OLD CODE used data.totalVocab which was fetched AFTER the new
+        // lesson was already saved to the DB — so the count was always
+        // ahead of where it should fire.
+        //
+        // NEW CODE receives two separate values:
+        //   totalVocabBefore   = words already in DB (fetched BEFORE save)
+        //   currentLessonVocab = words in THIS lesson (not yet in DB)
+        //
+        // Adding them gives the true running total at the moment the
+        // lesson completes, so the badge fires on exactly the right lesson.
+        // ─────────────────────────────────────────────────────────────
         check: (user, data) => {
-            // Only check if we have valid data and it's actually >= 50
-            const count = data?.totalVocab || 0;
-            console.log('Vocab count check:', count);
-            return count >= 50;
+            const total = (data?.totalVocabBefore || 0) + (data?.currentLessonVocab || 0);
+            console.log('🔍 Vocab Hoarder — before:', data?.totalVocabBefore, '+ this lesson:', data?.currentLessonVocab, '= total:', total);
+            return total >= 50;
         }
     }
 };
@@ -175,22 +186,14 @@ async function getOrCreateUserProfile(user) {
                 id: profile.id,
                 email: user.email,
                 name: profile.full_name || user.user_metadata?.full_name || user.email.split('@')[0],
-                
-                // Gamification fields
                 xp: profile.xp || 0,
                 level: profile.level || 1,
                 streak: profile.streak || 0,
                 streakFreezes: profile.streak_freezes || 0,
-                
-                // Progress
                 completedLessons: profile.completed_lessons || [],
                 totalLessons: profile.total_lessons || 0,
                 totalPoints: profile.total_points || 0,
-                
-                // Achievements
                 achievements: profile.achievements || [],
-                
-                // Dates
                 lastLessonDate: profile.last_lesson_date,
                 createdAt: profile.created_at
             };
@@ -276,31 +279,34 @@ async function completeLesson(lessonData) {
             lessonLevel,
             lessonLink,
             vocabulary = [],
-            grammar = [], // NEW: Grammar exercises
+            grammar = [],
             perfectScore = false,
             completionTime = null
         } = lessonData;
 
         const today = new Date().toDateString();
-        
+
+        // ── STEP 1: Fetch existing vocab count BEFORE saving anything ──
+        // This is the key fix — we capture the "before" state so the
+        // achievement check fires at exactly the right lesson (not after).
+        const vocabCountBefore = await getTotalVocabCount(currentUser.id);
+        console.log('📊 Vocab before this lesson:', vocabCountBefore);
+        console.log('📊 Vocab in this lesson:', vocabulary.length);
+
         // Calculate XP earned
         let xpEarned = XP_REWARDS.lesson_complete;
         
-        // Perfect score bonus
         if (perfectScore) {
             xpEarned += XP_REWARDS.perfect_score;
         }
         
-        // Daily bonus (first lesson of the day)
         if (currentUser.lastLessonDate !== today) {
             xpEarned += XP_REWARDS.daily_bonus;
         }
         
-        // Update streak
         const { newStreak, streakBonus } = calculateStreak(currentUser.lastLessonDate, today, currentUser.streak);
         xpEarned += streakBonus;
         
-        // Update completed lessons
         let completedLessons = [...currentUser.completedLessons];
         const isFirstCompletion = !completedLessons.includes(lessonId);
         
@@ -308,12 +314,13 @@ async function completeLesson(lessonData) {
             completedLessons.push(lessonId);
         }
         
-        // Calculate new XP and level
         const newXP = currentUser.xp + xpEarned;
         const newLevel = calculateLevel(newXP);
         const leveledUp = newLevel > currentUser.level;
-        
-        // Check for new achievements
+
+        // ── STEP 2: Check achievements, passing BOTH vocab numbers ──
+        // totalVocabBefore  = already saved in DB (fetched above, before insert)
+        // currentLessonVocab = words being added in this lesson right now
         const newAchievements = await checkAchievements({
             ...currentUser,
             total_lessons: currentUser.totalLessons + (isFirstCompletion ? 1 : 0),
@@ -321,23 +328,22 @@ async function completeLesson(lessonData) {
         }, {
             perfectScore,
             completionTime,
-            totalVocab: await getTotalVocabCount(currentUser.id)
+            totalVocabBefore: vocabCountBefore,      // words already saved
+            currentLessonVocab: vocabulary.length     // words being saved NOW
         });
         
-        // Award achievement XP
         const achievementXP = newAchievements.reduce((sum, ach) => sum + (ACHIEVEMENTS[ach]?.xp || 0), 0);
         const finalXP = newXP + achievementXP;
         const finalLevel = calculateLevel(finalXP);
         
-        // Save to lessons table (vocabulary)
-        // Check if this lesson was already saved (to prevent duplicates)
+        // ── STEP 3: Save lesson to DB (AFTER achievement check) ──
         if (vocabulary.length > 0) {
             const { data: existingLesson, error: checkError } = await supabase
                 .from('lessons')
                 .select('id')
                 .eq('user_id', currentUser.id)
                 .eq('lesson_title', lessonTitle)
-                .maybeSingle(); // Use maybeSingle() to avoid 406 errors
+                .maybeSingle();
             
             if (checkError) {
                 console.warn('Check existing lesson warning:', checkError.message);
@@ -350,7 +356,7 @@ async function completeLesson(lessonData) {
                     lesson_level: lessonLevel,
                     lesson_link: lessonLink,
                     vocabulary: vocabulary,
-                    grammar: grammar, // NEW: Save grammar exercises
+                    grammar: grammar,
                     completed_at: new Date().toISOString()
                 }]);
                 
@@ -388,7 +394,6 @@ async function completeLesson(lessonData) {
             return { success: false, message: 'Failed to save progress' };
         }
 
-        // Log achievements
         for (const achievementId of newAchievements) {
             await supabase.from('achievements_log').insert([{
                 user_id: currentUser.id,
@@ -487,18 +492,18 @@ async function checkAchievements(user, data = {}) {
     const newAchievements = [];
     
     for (const [id, achievement] of Object.entries(ACHIEVEMENTS)) {
-        // Skip if already unlocked
         if (user.achievements?.includes(id)) continue;
-        
-        // Check if conditions met
         if (achievement.check(user, data)) {
             newAchievements.push(id);
+            console.log('🏆 Achievement unlocked:', achievement.name);
         }
     }
     
     return newAchievements;
 }
 
+// Returns the vocab count from ALREADY SAVED lessons only.
+// Must be called BEFORE inserting the new lesson so we get the true "before" state.
 async function getTotalVocabCount(userId) {
     const supabase = getSupabaseClient();
     if (!supabase) return 0;
@@ -514,20 +519,11 @@ async function getTotalVocabCount(userId) {
             return 0;
         }
         
-        if (!data || data.length === 0) {
-            console.log('No lessons found for vocab count');
-            return 0;
-        }
+        if (!data || data.length === 0) return 0;
         
-        let total = 0;
-        data.forEach(lesson => {
-            if (lesson.vocabulary && Array.isArray(lesson.vocabulary)) {
-                total += lesson.vocabulary.length;
-            }
-        });
-        
-        console.log('Total vocab words:', total);
-        return total;
+        return data.reduce((total, lesson) => {
+            return total + (Array.isArray(lesson.vocabulary) ? lesson.vocabulary.length : 0);
+        }, 0);
     } catch (err) {
         console.error('getTotalVocabCount exception:', err);
         return 0;
@@ -589,30 +585,19 @@ function getUserStats() {
     const levelInfo = getLevelInfo(currentUser.level);
 
     return {
-        // Basic stats
         xp: currentUser.xp || 0,
         level: currentUser.level || 1,
         levelName: levelInfo.name,
-        
-        // Progress
         progressPercent: progress.percent,
         xpToNextLevel: progress.remaining,
-        
-        // Streaks
         streak: currentUser.streak || 0,
         streakEmoji: getStreakEmoji(currentUser.streak),
         streakMessage: getStreakMessage(currentUser.streak),
         streakFreezes: currentUser.streakFreezes || 0,
-        
-        // Lessons
         lessonsCompleted: currentUser.totalLessons || 0,
         totalPoints: currentUser.totalPoints || 0,
-        
-        // Achievements
         achievementCount: currentUser.achievements?.length || 0,
         achievements: currentUser.achievements || [],
-        
-        // Last activity
         lastLesson: currentUser.lastLessonDate
     };
 }
@@ -624,7 +609,6 @@ async function refreshUserData() {
     try {
         const { data: { user }, error } = await supabase.auth.getUser();
         if (error || !user) return null;
-
         currentUser = await getOrCreateUserProfile(user);
         return currentUser;
     } catch (err) {
@@ -633,7 +617,6 @@ async function refreshUserData() {
     }
 }
 
-// Export functions to window for global access
 window.EFCD_Auth = {
     initAuth,
     logout,
