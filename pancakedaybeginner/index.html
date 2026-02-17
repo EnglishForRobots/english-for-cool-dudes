@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pancake Day! - English For Cool Dudes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* --- THEME: PANCAKE DAY BEGINNER (Warm Yellow/Golden) 🥞 --- */
+        :root {
+            --color-primary: #F59E0B;
+            --color-secondary: #D97706;
+            --color-accent: #FBBF24;
+            --color-paper: #FEF3C7;
+            --color-white: #FFFFFF;
+            --color-correct: #16A34A; 
+            --color-incorrect: #EF4444; 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif; 
+            background: #FFFBEB; 
+            color: #78350F; 
+            line-height: 1.6; 
+        }
+
+        /* Header */
+        .header { background: white; border-bottom: 3px solid var(--color-primary); padding: 20px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .header-content { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .logo { width: 42px; height: 42px; background: var(--color-primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .site-title { font-size: 20px; font-weight: 800; color: #92400E; text-decoration: none; text-transform: uppercase; letter-spacing: -0.5px; }
+        
+        /* STREAK COUNTER */
+        .streak-display { 
+            display: flex; align-items: center; gap: 15px; background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            padding: 10px 20px; border-radius: 50px; border: 2px solid #FCD34D;
+        }
+        .streak-item { display: flex; align-items: center; gap: 8px; }
+        .streak-icon { font-size: 24px; }
+        .streak-number { font-size: 20px; font-weight: 900; color: var(--color-primary); }
+        .streak-label { font-size: 12px; color: #92400E; font-weight: 700; text-transform: uppercase; }
+
+        /* Main Layout */
+        .container-main { max-width: 900px; margin: 40px auto; padding: 40px 30px; background: white; border-top: 5px solid var(--color-primary); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .lesson-main-title { font-size: 2.5em; font-weight: 900; color: #92400E; margin-bottom: 10px; letter-spacing: -1px; }
+        .lesson-subtitle { font-size: 1.2em; color: #D97706; margin-bottom: 40px; font-weight: 500; display: inline-block; background: #FEF3C7; padding: 5px 15px; border-radius: 99px; }
+        
+        /* PROGRESS BAR */
+        .progress-container { background: #FEF3C7; height: 12px; border-radius: 99px; margin-bottom: 40px; overflow: hidden; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #F59E0B 0%, #D97706 100%); width: 0%; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
+
+        /* Sections */
+        .lesson-section { padding: 0 0 40px 0; border-bottom: 1px solid #FEF3C7; margin-bottom: 40px; opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s; }
+        .lesson-section.visible { opacity: 1; transform: translateY(0); }
+        .section-title { color: var(--color-primary); font-size: 1.6em; font-weight: 800; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; }
+        
+        /* Reading Text - BIGGER for beginners */
+        .reading-text { 
+            background: var(--color-paper); border-left: 5px solid var(--color-primary); padding: 30px; 
+            border-radius: 0 8px 8px 0; font-size: 1.25em; line-height: 2.1; color: #78350F;
+        }
+        .reading-text .mb-4 { margin-bottom: 1.2rem; }
+        .highlight-word { background: #FDE68A; color: #92400E; padding: 2px 6px; font-weight: 700; cursor: help; border-bottom: 2px dashed var(--color-primary); transition: all 0.2s; }
+        .highlight-word:hover { background: var(--color-primary); color: white; transform: scale(1.05); }
+
+        /* Recipe Box */
+        .recipe-box {
+            background: white; border: 3px solid var(--color-primary); border-radius: 12px;
+            padding: 25px; margin: 25px 0;
+        }
+        .recipe-box h3 { color: #92400E; font-size: 1.3em; font-weight: 800; margin-bottom: 15px; }
+        .recipe-step { display: flex; align-items: flex-start; gap: 15px; padding: 10px 0; border-bottom: 1px dashed #FDE68A; }
+        .recipe-step:last-child { border-bottom: none; }
+        .step-num { background: var(--color-primary); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; flex-shrink: 0; }
+
+        /* Interactive Elements */
+        .question-box { margin-bottom: 15px; background: #FFFBEB; padding: 18px; border-radius: 8px; border: 1px solid #FEF3C7; }
+        .option-btn { 
+            display: block; width: 100%; text-align: left; padding: 14px 16px; margin-top: 10px;
+            background: white; border: 2px solid #FDE68A; border-radius: 8px; font-weight: 700; 
+            cursor: pointer; transition: all 0.2s; color: #92400E; font-size: 1.05em;
+        }
+        .option-btn:hover { border-color: var(--color-primary); background: #FEF3C7; transform: translateX(5px); }
+        .option-btn.selected { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+        .option-btn.correct { background: var(--color-correct); color: white; border-color: var(--color-correct); animation: celebrate 0.5s; }
+        .option-btn.incorrect { background: var(--color-incorrect); color: white; border-color: var(--color-incorrect); animation: shake 0.4s; }
+
+        @keyframes celebrate { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(22, 163, 74, 0.6); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+
+        /* Word Bank */
+        .word-bank { background: #FEF3C7; padding: 20px; border-radius: 8px; margin-bottom: 25px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+        .bank-word { 
+            background: white; padding: 10px 20px; border-radius: 6px; border: 2px solid #FCD34D; border-bottom: 4px solid #FBBF24;
+            font-weight: 800; cursor: pointer; color: #92400E; transition: all 0.2s; font-size: 1.05em;
+        }
+        .bank-word:hover { transform: translateY(-3px); border-bottom-color: var(--color-primary); color: var(--color-primary); }
+        .bank-word.selected { background: var(--color-primary); color: white; border-color: var(--color-primary); animation: pulse 0.5s infinite; }
+        .bank-word.used { opacity: 0.4; pointer-events: none; background: #E5E7EB; }
+        
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+        .gap-input { 
+            display: inline-block; min-width: 120px; height: 32px; border-bottom: 3px dashed var(--color-primary); 
+            text-align: center; font-weight: 800; cursor: pointer; margin: 0 5px; color: var(--color-primary); transition: all 0.3s; font-size: 1em;
+        }
+        .gap-input.filled { background: #FEF3C7; border-bottom-style: solid; }
+        .gap-input.correct { border-bottom-color: var(--color-correct); color: var(--color-correct); background: #DCFCE7; pointer-events: none; }
+        .gap-input.incorrect { border-bottom-color: var(--color-incorrect); color: var(--color-incorrect); background: #FEE2E2; }
+
+        /* Word Form Inputs */
+        .word-form-group { margin-bottom: 20px; background: #FFFBEB; padding: 18px; border-radius: 8px; border: 1px solid #FEF3C7; }
+        .word-form-input { 
+            width: 100%; padding: 12px; border: 2px solid #FDE68A; border-radius: 8px; 
+            font-size: 1.05em; font-weight: 600; transition: all 0.3s; margin-top: 8px;
+        }
+        .word-form-input:focus { outline: none; border-color: var(--color-primary); }
+        .word-form-input.correct { background: #DCFCE7; border-color: #16A34A; }
+        .word-form-input.incorrect { background: #FEE2E2; border-color: #EF4444; }
+
+        /* Grammar Cards with dropdowns */
+        .grammar-card { 
+            background: white; border-left: 5px solid var(--color-secondary); padding: 20px; margin-bottom: 15px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; 
+            gap: 20px; transition: all 0.3s; border-radius: 0 8px 8px 0;
+        }
+        .grammar-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateX(5px); }
+        .grammar-card-text { flex: 1; }
+        .grammar-select { padding: 10px 14px; border: 2px solid #FDE68A; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 1em; min-width: 160px; }
+        .grammar-select.correct { background: #DCFCE7; border-color: #16A34A; color: #166534; }
+        .grammar-select.incorrect { background: #FEE2E2; border-color: #EF4444; color: #991B1B; }
+
+        /* Buttons */
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; justify-content: center; flex-wrap: wrap; }
+        .btn-action { 
+            background: var(--color-primary); color: white; padding: 14px 32px; border: none; 
+            border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 1.05em; transition: all 0.2s;
+            box-shadow: 0 4px #D97706;
+        }
+        .btn-action:hover { background: #D97706; transform: translateY(-2px); box-shadow: 0 6px #B45309; }
+        .btn-action:active { transform: translateY(3px); box-shadow: 0 1px #D97706; }
+        .btn-action.btn-reset { background: #94A3B8; box-shadow: 0 4px #64748B; }
+        .btn-action.btn-reveal { background: #8B5CF6; box-shadow: 0 4px #7C3AED; }
+        
+        .celebration { 
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); 
+            background: linear-gradient(135deg, #16A34A 0%, #059669 100%); color: white; 
+            padding: 40px 60px; border-radius: 20px; font-size: 2em; font-weight: 900; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3); z-index: 1000; opacity: 0; transition: all 0.4s;
+        }
+        .celebration.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+        .result-msg { margin-top: 15px; font-weight: 700; display: none; padding: 15px; border-radius: 6px; text-align: center; font-size: 1.05em; }
+        .result-msg.correct { background: #DCFCE7; color: #166534; border: 2px solid #86EFAC; }
+        .result-msg.incorrect { background: #FEE2E2; color: #991B1B; border: 2px solid #FCA5A5; }
+
+        .badge-container { position: fixed; top: 100px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 999; }
+        .badge { 
+            background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex; align-items: center; gap: 10px; transform: translateX(300px); opacity: 0;
+            transition: all 0.5s; border-left: 4px solid #F59E0B;
+        }
+        .badge.show { transform: translateX(0); opacity: 1; }
+        .badge-icon { font-size: 32px; }
+        .badge-text { font-weight: 700; color: #92400E; }
+
+        #dictionary-popup {
+            position: fixed; max-width: 300px; background: white; border-top: 5px solid var(--color-primary);
+            padding: 20px; border-radius: 8px; z-index: 2000; display: none; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 600px) {
+            .grammar-card { flex-direction: column; align-items: flex-start; }
+            .grammar-select { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">🥞</span>
+                <a href="/beginner/" class="site-title">English For Cool Dudes</a>
+            </div>
+            <div class="streak-display">
+                <div class="streak-item">
+                    <span class="streak-icon">🔥</span>
+                    <div>
+                        <div class="streak-number" id="streak-count">0</div>
+                        <div class="streak-label">Streak</div>
+                    </div>
+                </div>
+                <div class="streak-item">
+                    <span class="streak-icon">🎯</span>
+                    <div>
+                        <div class="streak-number" id="total-lessons">0</div>
+                        <div class="streak-label">Lessons</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="badge-container" id="badge-container"></div>
+    <div class="celebration" id="celebration"></div>
+
+    <div class="container-main">
+        <h1 class="lesson-main-title">🥞 Pancake Day!</h1>
+        <p class="lesson-subtitle">Beginner (A2) | British Culture</p>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+
+        <!-- SECTION 1: READING -->
+        <section class="lesson-section visible">
+            <h2 class="section-title">📖 Reading: A Special Day in Britain</h2>
+            <div class="reading-text">
+                <p class="mb-4">Every year in Britain, people <span class="highlight-word" onclick="showPopup(this, 'Celebrate')">celebrate</span> Pancake Day. It is always on a Tuesday in February or March.</p>
+
+                <p class="mb-4">On this day, people make <span class="highlight-word" onclick="showPopup(this, 'Pancakes')">pancakes</span> at home. A pancake is a thin, flat food. You cook it in a <span class="highlight-word" onclick="showPopup(this, 'Pan')">pan</span>.</p>
+
+                <p class="mb-4">To make pancakes, you need three things: <span class="highlight-word" onclick="showPopup(this, 'Flour')">flour</span>, <span class="highlight-word" onclick="showPopup(this, 'Eggs')">eggs</span>, and milk. You mix them together. Then you cook the <span class="highlight-word" onclick="showPopup(this, 'Batter')">batter</span> in the pan.</p>
+
+                <p class="mb-4">The most exciting part is the <span class="highlight-word" onclick="showPopup(this, 'Flip')">flip</span>! You throw the pancake up into the air and catch it in the pan. It is very difficult!</p>
+
+                <p class="mb-4">British pancakes are thin and <span class="highlight-word" onclick="showPopup(this, 'Flat')">flat</span>. People eat them with lemon juice and <span class="highlight-word" onclick="showPopup(this, 'Sugar')">sugar</span>. Yum!</p>
+
+                <p>In some towns, people have pancake <span class="highlight-word" onclick="showPopup(this, 'Races')">races</span>. They run down the street and flip their pancake at the same time. It is great fun!</p>
+            </div>
+            <div class="btn-group" style="margin-top: 20px;">
+                <button class="btn-action" onclick="completeSection(1)">Continue →</button>
+            </div>
+        </section>
+
+        <!-- SECTION 2: TRUE OR FALSE -->
+        <section class="lesson-section" id="section-2">
+            <h2 class="section-title">✅ 1. True or False?</h2>
+            
+            <div class="question-box">
+                <p style="font-size: 1.1em; font-weight: 700; margin-bottom: 5px;">1. Pancake Day is always on a Tuesday.</p>
+                <div class="comp-btn-group">
+                    <button class="option-btn" data-correct="true">✅ True</button>
+                    <button class="option-btn" data-correct="false">❌ False</button>
+                </div>
+            </div>
+
+            <div class="question-box">
+                <p style="font-size: 1.1em; font-weight: 700; margin-bottom: 5px;">2. You need flour, eggs, and milk to make pancakes.</p>
+                <div class="comp-btn-group">
+                    <button class="option-btn" data-correct="true">✅ True</button>
+                    <button class="option-btn" data-correct="false">❌ False</button>
+                </div>
+            </div>
+
+            <div class="question-box">
+                <p style="font-size: 1.1em; font-weight: 700; margin-bottom: 5px;">3. British pancakes are thick like American pancakes.</p>
+                <div class="comp-btn-group">
+                    <button class="option-btn" data-correct="false">✅ True</button>
+                    <button class="option-btn" data-correct="true">❌ False</button>
+                </div>
+            </div>
+
+            <div class="question-box">
+                <p style="font-size: 1.1em; font-weight: 700; margin-bottom: 5px;">4. People eat pancakes with lemon juice and sugar.</p>
+                <div class="comp-btn-group">
+                    <button class="option-btn" data-correct="true">✅ True</button>
+                    <button class="option-btn" data-correct="false">❌ False</button>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-action" onclick="checkComp()">Check Answers</button>
+                <button class="btn-action btn-reset" onclick="resetComp()">Reset</button>
+            </div>
+            <div id="comp-result" class="result-msg"></div>
+        </section>
+
+        <!-- SECTION 3: GAP FILL -->
+        <section class="lesson-section" id="section-3">
+            <h2 class="section-title">🧩 2. Fill the Gaps!</h2>
+            <p style="color: #92400E; margin-bottom: 20px; font-size: 1.05em;">Click a word, then click a gap to fill it.</p>
+            
+            <div class="word-bank">
+                <span class="bank-word" data-word="pan">pan</span>
+                <span class="bank-word" data-word="flip">flip</span>
+                <span class="bank-word" data-word="batter">batter</span>
+                <span class="bank-word" data-word="sugar">sugar</span>
+                <span class="bank-word" data-word="races">races</span>
+                <span class="bank-word" data-word="eggs">eggs</span>
+            </div>
+
+            <div style="font-size: 1.15em; line-height: 3;">
+                <p class="mb-4">1. You cook a pancake in a <span class="gap-input" data-answer="pan"></span>.</p>
+                <p class="mb-4">2. Mix the flour, <span class="gap-input" data-answer="eggs"></span>, and milk together.</p>
+                <p class="mb-4">3. The mix of flour, eggs, and milk is called <span class="gap-input" data-answer="batter"></span>.</p>
+                <p class="mb-4">4. The exciting part is the <span class="gap-input" data-answer="flip"></span>!</p>
+                <p class="mb-4">5. People eat pancakes with lemon and <span class="gap-input" data-answer="sugar"></span>.</p>
+                <p class="mb-4">6. Some towns have pancake <span class="gap-input" data-answer="races"></span>.</p>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-action" onclick="checkGaps()">Check Answers</button>
+                <button class="btn-action btn-reset" onclick="resetGaps()">Reset</button>
+            </div>
+            <div id="gap-result" class="result-msg"></div>
+        </section>
+
+        <!-- SECTION 4: WORD FORMS -->
+        <section class="lesson-section" id="section-4">
+            <h2 class="section-title">🔤 3. Word Forms</h2>
+            <p style="color: #92400E; margin-bottom: 20px; font-size: 1.05em;">Write the correct form of the word in brackets.</p>
+
+            <div class="word-form-group">
+                <p style="font-size: 1.1em; font-weight: 700;">1. The pancake race is very ________. (excite)</p>
+                <input type="text" class="word-form-input" data-answer="exciting" placeholder="Type here...">
+            </div>
+
+            <div class="word-form-group">
+                <p style="font-size: 1.1em; font-weight: 700;">2. She ________ the pancake perfectly! (flip)</p>
+                <input type="text" class="word-form-input" data-answer="flipped" placeholder="Type here...">
+            </div>
+
+            <div class="word-form-group">
+                <p style="font-size: 1.1em; font-weight: 700;">3. Pancake Day is a great ________. (celebrate)</p>
+                <input type="text" class="word-form-input" data-answer="celebration" placeholder="Type here...">
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-action" onclick="checkWordForms()">Check Answers</button>
+                <button class="btn-action btn-reveal" onclick="revealWordForms()">Reveal Answers</button>
+                <button class="btn-action btn-reset" onclick="resetWordForms()">Reset</button>
+            </div>
+            <div id="wordform-result" class="result-msg"></div>
+        </section>
+
+        <!-- SECTION 5: GRAMMAR -->
+        <section class="lesson-section" id="section-5">
+            <h2 class="section-title">📖 4. Grammar: Can / Can't</h2>
+
+            <div style="background: #FEF3C7; border: 2px solid var(--color-primary); border-radius: 12px; padding: 25px; margin-bottom: 25px;">
+                <p style="color: #92400E; font-weight: 800; font-size: 1.1em; margin-bottom: 15px;">🌟 Can and Can't</p>
+                <p style="margin-bottom: 12px;">We use <strong>can</strong> to say something is possible or we have ability.</p>
+                <p style="margin-bottom: 12px;">We use <strong>can't</strong> (cannot) to say something is NOT possible.</p>
+                <div style="background: white; padding: 12px 15px; border-left: 4px solid var(--color-primary); border-radius: 0 6px 6px 0; margin: 8px 0;">
+                    ✅ You <strong>can</strong> eat pancakes with lemon and sugar.
+                </div>
+                <div style="background: white; padding: 12px 15px; border-left: 4px solid #EF4444; border-radius: 0 6px 6px 0; margin: 8px 0;">
+                    ❌ You <strong>can't</strong> make pancakes without eggs.
+                </div>
+                <p style="color: #92400E; font-size: 0.9em; margin-top: 10px; font-weight: 700;">Remember: can/can't + verb (no 's', no 'to'!)</p>
+            </div>
+
+            <p style="color: #92400E; margin-bottom: 20px; font-weight: 600;">Choose the correct word.</p>
+
+            <div class="grammar-card">
+                <div class="grammar-card-text">
+                    <p style="font-size: 1.1em; font-weight: 700;">1. I ________ cook a pancake. It is easy!</p>
+                    <p style="color: #A16207; font-size: 0.9em;">Ability — yes or no?</p>
+                </div>
+                <select class="grammar-select" data-answer="can">
+                    <option value="">Select...</option>
+                    <option value="can">can</option>
+                    <option value="can't">can't</option>
+                </select>
+            </div>
+
+            <div class="grammar-card">
+                <div class="grammar-card-text">
+                    <p style="font-size: 1.1em; font-weight: 700;">2. You ________ make pancakes without flour. You need it!</p>
+                    <p style="color: #A16207; font-size: 0.9em;">Impossible — flour is essential!</p>
+                </div>
+                <select class="grammar-select" data-answer="can't">
+                    <option value="">Select...</option>
+                    <option value="can">can</option>
+                    <option value="can't">can't</option>
+                </select>
+            </div>
+
+            <div class="grammar-card">
+                <div class="grammar-card-text">
+                    <p style="font-size: 1.1em; font-weight: 700;">3. The robot ________ flip a pancake. Robots are amazing!</p>
+                    <p style="color: #A16207; font-size: 0.9em;">Ability — robots can do things!</p>
+                </div>
+                <select class="grammar-select" data-answer="can">
+                    <option value="">Select...</option>
+                    <option value="can">can</option>
+                    <option value="can't">can't</option>
+                </select>
+            </div>
+
+            <div class="grammar-card">
+                <div class="grammar-card-text">
+                    <p style="font-size: 1.1em; font-weight: 700;">4. She ________ run and flip at the same time. It is too difficult!</p>
+                    <p style="color: #A16207; font-size: 0.9em;">Too difficult — not possible for her!</p>
+                </div>
+                <select class="grammar-select" data-answer="can't">
+                    <option value="">Select...</option>
+                    <option value="can">can</option>
+                    <option value="can't">can't</option>
+                </select>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-action" onclick="checkGrammar()">Check Grammar</button>
+            </div>
+            <div id="grammar-result" class="result-msg"></div>
+        </section>
+
+    </div>
+
+    <div id="dictionary-popup"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/init-auth.js"></script>
+    <script src="/supabase-auth-gamified.js"></script>
+
+    <script>
+        const VOCAB_LIST = [
+            { word: "Celebrate", definition: "To do something fun for a special day." },
+            { word: "Pancakes", definition: "A thin, flat food made from flour, eggs, and milk." },
+            { word: "Pan", definition: "A flat metal container used for cooking on a cooker." },
+            { word: "Flour", definition: "A white powder made from wheat, used to make bread and cakes." },
+            { word: "Eggs", definition: "Oval food from a chicken. Used in cooking." },
+            { word: "Batter", definition: "The liquid mix of flour, eggs, and milk before you cook it." },
+            { word: "Flip", definition: "To throw something up and turn it over — like a pancake!" },
+            { word: "Flat", definition: "Not high or thick; smooth and level." },
+            { word: "Sugar", definition: "A sweet white powder used in food and drinks." },
+            { word: "Races", definition: "Competitions to see who is fastest." }
+        ];
+        
+        const GRAMMAR_EXERCISES = [
+            {
+                question: "I ________ cook a pancake. It is easy!",
+                answer: "can",
+                explanation: "Can = ability. Something is possible."
+            },
+            {
+                question: "You ________ make pancakes without flour.",
+                answer: "can't",
+                explanation: "Can't = not possible. Flour is essential!"
+            },
+            {
+                question: "The robot ________ flip a pancake.",
+                answer: "can",
+                explanation: "Can = ability. Robots can do amazing things!"
+            },
+            {
+                question: "She ________ run and flip at the same time.",
+                answer: "can't",
+                explanation: "Can't = too difficult; not possible for her."
+            }
+        ];
+
+        // Safe initialization
+        async function initializeUserStats() {
+            if (typeof window.efcdReady !== 'undefined') {
+                await window.efcdReady;
+            }
+            if (typeof window.EFCD_Auth === 'undefined') {
+                console.warn('⚠️ Auth system not loaded');
+                return;
+            }
+            await window.EFCD_Auth.initAuth();
+            const user = window.EFCD_Auth.getCurrentUser();
+            if (user) {
+                const stats = window.EFCD_Auth.getUserStats();
+                document.getElementById('streak-count').textContent = stats.streak;
+                document.getElementById('total-lessons').textContent = stats.lessonsCompleted;
+            } else {
+                document.getElementById('streak-count').textContent = '0';
+                document.getElementById('total-lessons').textContent = '0';
+            }
+        }
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeUserStats);
+        } else {
+            initializeUserStats();
+        }
+
+        // Progress
+        let completedSections = 0;
+        const totalSections = 5;
+        
+        function updateProgress() {
+            document.getElementById('progress-bar').style.width = ((completedSections / totalSections) * 100) + '%';
+        }
+
+        function completeSection(sectionNum) {
+            completedSections++;
+            updateProgress();
+            const nextSection = document.getElementById('section-' + (sectionNum + 1));
+            if (nextSection) {
+                nextSection.classList.add('visible');
+                nextSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            if (Math.random() < 0.3) showBadge(getRandomBadge());
+        }
+
+        const badges = [
+            { icon: '🥞', text: 'Pancake Pro!' },
+            { icon: '🔥', text: 'Flipping Great!' },
+            { icon: '⭐', text: 'Super Star!' },
+            { icon: '🎉', text: 'Great Job!' }
+        ];
+
+        function getRandomBadge() { return badges[Math.floor(Math.random() * badges.length)]; }
+        
+        function showBadge(badge) {
+            const badgeEl = document.createElement('div');
+            badgeEl.className = 'badge';
+            badgeEl.innerHTML = `<span class="badge-icon">${badge.icon}</span><span class="badge-text">${badge.text}</span>`;
+            document.getElementById('badge-container').appendChild(badgeEl);
+            setTimeout(() => badgeEl.classList.add('show'), 100);
+            setTimeout(() => { badgeEl.classList.remove('show'); setTimeout(() => badgeEl.remove(), 500); }, 3000);
+        }
+
+        function celebrate(message = '🎉 Well done!') {
+            const cel = document.getElementById('celebration');
+            cel.textContent = message;
+            cel.classList.add('show');
+            setTimeout(() => cel.classList.remove('show'), 2000);
+        }
+
+        // Popup
+        function showPopup(target, word) {
+            const wObj = VOCAB_LIST.find(w => w.word === word);
+            if(!wObj) return;
+            const popup = document.getElementById('dictionary-popup');
+            popup.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <strong style="color:var(--color-primary); font-size:1.2em;">${wObj.word}</strong>
+                    <button onclick="playAudio('${wObj.word}')" style="background:#FEF3C7; border:none; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:1.1em;">🔊</button>
+                </div>
+                <div style="color:#92400E; font-size:1.05em; line-height:1.6;">${wObj.definition}</div>
+            `;
+            popup.style.display = 'block';
+            const rect = target.getBoundingClientRect();
+            popup.style.top = (rect.bottom + 8) + 'px';
+            popup.style.left = rect.left + 'px';
+            setTimeout(() => {
+                const pr = popup.getBoundingClientRect();
+                if (pr.right > window.innerWidth - 10) popup.style.left = (window.innerWidth - pr.width - 10) + 'px';
+            }, 10);
+            document.addEventListener('click', function close(e) {
+                if (!popup.contains(e.target) && e.target !== target) {
+                    popup.style.display = 'none';
+                    document.removeEventListener('click', close);
+                }
+            });
+        }
+
+        function playAudio(word) {
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.lang = 'en-GB'; 
+            utterance.rate = 0.85;
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Comprehension
+        document.querySelectorAll('.option-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        function checkComp() {
+            let correct = 0;
+            const qs = document.querySelectorAll('.question-box');
+            qs.forEach(q => {
+                const sel = q.querySelector('.selected');
+                if(sel && sel.dataset.correct === "true") { sel.classList.add('correct'); correct++; }
+                else if(sel) sel.classList.add('incorrect');
+            });
+            const res = document.getElementById('comp-result');
+            res.textContent = `Score: ${correct} / ${qs.length}`;
+            res.style.display = 'block';
+            res.className = correct === qs.length ? "result-msg correct" : "result-msg incorrect";
+            if (correct === qs.length) {
+                celebrate('💯 Perfect!');
+                showBadge({ icon: '🏆', text: 'Star Reader!' });
+                setTimeout(() => completeSection(2), 1500);
+            }
+        }
+
+        function resetComp() {
+            document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById('comp-result').style.display = 'none';
+        }
+
+        // Gap Fill
+        let selectedWord = null;
+        document.querySelectorAll('.bank-word').forEach(w => {
+            w.addEventListener('click', function() {
+                if(this.classList.contains('used')) return;
+                document.querySelectorAll('.bank-word').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedWord = this;
+            });
+        });
+
+        document.querySelectorAll('.gap-input').forEach(g => {
+            g.addEventListener('click', function() {
+                if(selectedWord) {
+                    if(this.textContent) {
+                        const old = Array.from(document.querySelectorAll('.bank-word')).find(b => b.dataset.word === this.textContent);
+                        if(old) old.classList.remove('used');
+                    }
+                    this.textContent = selectedWord.dataset.word;
+                    this.classList.add('filled');
+                    selectedWord.classList.add('used');
+                    selectedWord.classList.remove('selected');
+                    selectedWord = null;
+                } else if(this.textContent) {
+                    const old = Array.from(document.querySelectorAll('.bank-word')).find(b => b.dataset.word === this.textContent);
+                    if(old) old.classList.remove('used');
+                    this.textContent = "";
+                    this.classList.remove('filled');
+                }
+            });
+        });
+
+        function checkGaps() {
+            let correct = 0;
+            const gaps = document.querySelectorAll('.gap-input');
+            gaps.forEach(g => {
+                g.classList.remove('correct', 'incorrect');
+                if(g.textContent === g.dataset.answer) { g.classList.add('correct'); correct++; }
+                else if(g.textContent) { g.classList.add('incorrect'); }
+            });
+            const res = document.getElementById('gap-result');
+            res.textContent = `Score: ${correct}/${gaps.length}`;
+            res.style.display = 'block';
+            res.className = correct === gaps.length ? "result-msg correct" : "result-msg incorrect";
+            if (correct === gaps.length) {
+                celebrate('✨ Amazing!');
+                showBadge({ icon: '📚', text: 'Word Star!' });
+                setTimeout(() => completeSection(3), 1500);
+            }
+        }
+
+        function resetGaps() {
+            document.querySelectorAll('.gap-input').forEach(g => { g.textContent = ""; g.classList.remove('correct', 'incorrect', 'filled'); });
+            document.querySelectorAll('.bank-word').forEach(w => w.classList.remove('used', 'selected'));
+            document.getElementById('gap-result').style.display = 'none';
+        }
+
+        // Word Forms
+        function checkWordForms() {
+            let correct = 0;
+            const inputs = document.querySelectorAll('.word-form-input');
+            inputs.forEach(i => {
+                i.classList.remove('correct', 'incorrect');
+                if (i.value.trim().toLowerCase() === i.dataset.answer.toLowerCase()) {
+                    i.classList.add('correct'); correct++;
+                } else if (i.value.trim()) {
+                    i.classList.add('incorrect');
+                }
+            });
+            const res = document.getElementById('wordform-result');
+            res.textContent = `Score: ${correct}/${inputs.length}`;
+            res.style.display = 'block';
+            res.className = correct === inputs.length ? "result-msg correct" : "result-msg incorrect";
+            if (correct === inputs.length) {
+                celebrate('🌟 Brilliant!');
+                showBadge({ icon: '✍️', text: 'Word Wizard!' });
+                setTimeout(() => completeSection(4), 1500);
+            }
+        }
+
+        function revealWordForms() {
+            document.querySelectorAll('.word-form-input').forEach(i => {
+                i.value = i.dataset.answer;
+                i.classList.remove('correct', 'incorrect');
+                i.style.background = '#FEF3C7';
+            });
+            document.getElementById('wordform-result').style.display = 'none';
+        }
+
+        function resetWordForms() {
+            document.querySelectorAll('.word-form-input').forEach(i => { 
+                i.value = ''; 
+                i.classList.remove('correct', 'incorrect');
+                i.style.background = '';
+            });
+            document.getElementById('wordform-result').style.display = 'none';
+        }
+
+        // Grammar
+        function checkGrammar() {
+            let correct = 0;
+            document.querySelectorAll('.grammar-select').forEach(s => {
+                s.classList.remove('correct', 'incorrect');
+                if(s.value === s.dataset.answer) { s.classList.add('correct'); correct++; }
+                else if(s.value) { s.classList.add('incorrect'); }
+            });
+            const res = document.getElementById('grammar-result');
+            res.textContent = `Score: ${correct}/4`;
+            res.style.display = 'block';
+            res.className = correct === 4 ? "result-msg correct" : "result-msg incorrect";
+            if (correct === 4) {
+                celebrate('🎯 Grammar Star!');
+                setTimeout(() => completeLessonAndSave(), 2000);
+            }
+        }
+
+        async function completeLessonAndSave() {
+            if (typeof window.EFCD_Auth === 'undefined' || !window.EFCD_Auth.getCurrentUser()) {
+                const wantsToSignUp = confirm(
+                    '🎓 Amazing! You completed the lesson!\n\n' +
+                    '✨ Sign up (free) to:\n' +
+                    '• Save your progress & earn XP\n' +
+                    '• Unlock achievements\n' +
+                    '• Track your learning streak\n\n' +
+                    'Click OK to create a free account!\n' +
+                    'Click Cancel to continue without saving'
+                );
+                if (wantsToSignUp) { window.location.href = '/signup/'; }
+                else { window.location.href = '/beginner/'; }
+                return;
+            }
+
+            const result = await window.EFCD_Auth.completeLesson({
+                lessonId: 'pancake-day-beginner',
+                lessonTitle: 'Pancake Day!',
+                lessonLevel: 'Beginner',
+                lessonLink: '/pancakeday-beginner/',
+                vocabulary: VOCAB_LIST,
+                grammar: GRAMMAR_EXERCISES,
+                perfectScore: true,
+                completionTime: Math.floor((Date.now() - performance.timing.navigationStart) / 1000)
+            });
+
+            if (result.success) showCelebrationScreen(result);
+        }
+
+        function showCelebrationScreen(result) {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 99999; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s;`;
+            overlay.innerHTML = `
+                <div style="background: white; padding: 60px; border-radius: 20px; text-align: center; max-width: 500px; animation: scaleIn 0.4s; position: relative;">
+                    <button id="close-celebration" style="position: absolute; top: 20px; right: 20px; background: #F3F4F6; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 24px;">×</button>
+                    <div style="font-size: 100px; margin-bottom: 20px;">🥞</div>
+                    <h2 style="font-size: 36px; margin-bottom: 20px; color: #1A202C;">Lesson Complete!</h2>
+                    <div style="background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%); padding: 30px; border-radius: 16px; margin-bottom: 30px; border: 2px solid #FED7AA;">
+                        <div style="font-size: 56px; font-weight: 900; color: #F59E0B;">+${result.xpEarned} XP</div>
+                        ${result.leveledUp ? `<div style="font-size: 24px; color: #D97706; margin-top: 15px;">🎊 Level Up! Now Level ${result.newLevel}!</div>` : ''}
+                        ${result.newStreak > 0 ? `<div style="font-size: 20px; margin-top: 15px; color: #DC2626;">🔥 ${result.newStreak} day streak!</div>` : ''}
+                    </div>
+                    ${result.newAchievements && result.newAchievements.length > 0 ? `
+                        <div style="background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%); padding: 20px; border-radius: 12px; margin-bottom: 30px;">
+                            <div style="font-weight: 800; font-size: 18px; margin-bottom: 15px;">🏆 New Achievements!</div>
+                            ${result.newAchievements.map(id => {
+                                const ach = window.EFCD_Auth.ACHIEVEMENTS[id];
+                                return `<div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;"><span style="font-size: 36px;">${ach.icon}</span> ${ach.name}</div>`;
+                            }).join('')}
+                        </div>
+                    ` : ''}
+                    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                        <a href="/dashboard-gamified/" style="background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%); color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 700;">View Dashboard</a>
+                        <a href="/beginner/" style="background: #F59E0B; color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 700;">Next Lesson →</a>
+                        <button id="btn-retry" style="background: #F1F5F9; color: #475569; padding: 14px 28px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer;">Try Again</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            setTimeout(() => {
+                document.getElementById('close-celebration')?.addEventListener('click', () => overlay.remove());
+                document.getElementById('btn-retry')?.addEventListener('click', () => location.reload());
+                document.addEventListener('keydown', function escHandler(e) {
+                    if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escHandler); }
+                });
+            }, 100);
+        }
+
+        const animStyle = document.createElement('style');
+        animStyle.textContent = `@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } } @keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }`;
+        document.head.appendChild(animStyle);
+
+        updateProgress();
+    </script>
+</body>
+</html>
