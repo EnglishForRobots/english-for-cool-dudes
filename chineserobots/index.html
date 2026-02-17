@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>China's Robot Revolution - English For Cool Dudes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* --- THEME: CHINA ROBOTICS (Red/Gold) 🤖🥷 --- */
+        :root {
+            --color-primary: #DC2626;
+            --color-secondary: #F59E0B;
+            --color-accent: #991B1B;
+            --color-paper: #FEF2F2;
+            --color-white: #FFFFFF;
+            --color-correct: #16A34A; 
+            --color-incorrect: #EF4444; 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif; 
+            background: #FFF5F5; 
+            color: #1C1917; 
+            line-height: 1.6; 
+        }
+
+        /* Header */
+        .header { background: white; border-bottom: 3px solid var(--color-primary); padding: 20px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .header-content { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .logo { width: 42px; height: 42px; background: var(--color-primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; }
+        .site-title { font-size: 20px; font-weight: 800; color: #7F1D1D; text-decoration: none; text-transform: uppercase; letter-spacing: -0.5px; }
+        
+        /* STREAK COUNTER */
+        .streak-display { 
+            display: flex; align-items: center; gap: 15px; background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
+            padding: 10px 20px; border-radius: 50px; border: 2px solid #FECACA; box-shadow: 0 4px 10px rgba(220, 38, 38, 0.1);
+        }
+        .streak-item { display: flex; align-items: center; gap: 8px; }
+        .streak-icon { font-size: 24px; }
+        .streak-number { font-size: 20px; font-weight: 900; color: var(--color-primary); }
+        .streak-label { font-size: 12px; color: #7F1D1D; font-weight: 700; text-transform: uppercase; }
+
+        /* Main Layout */
+        .container-main { max-width: 900px; margin: 40px auto; padding: 40px 30px; background: white; border-top: 5px solid var(--color-primary); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .lesson-main-title { font-size: 2.4em; font-weight: 900; color: #7F1D1D; margin-bottom: 10px; letter-spacing: -1px; }
+        .lesson-subtitle { font-size: 1.2em; color: #DC2626; margin-bottom: 40px; font-weight: 500; display: inline-block; background: #FEF2F2; padding: 5px 15px; border-radius: 99px; }
+        
+        /* PROGRESS BAR */
+        .progress-container { 
+            background: #FEE2E2; height: 12px; border-radius: 99px; margin-bottom: 40px; overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .progress-bar { 
+            height: 100%; background: linear-gradient(90deg, #DC2626 0%, #991B1B 100%); 
+            width: 0%; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px rgba(220, 38, 38, 0.5);
+        }
+
+        /* VIDEO */
+        .video-wrapper { width: 100%; max-width: 800px; margin: 0 auto 30px auto; }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); background: #000; border: 4px solid #7F1D1D; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+        /* Discussion Box */
+        .discussion-box {
+            background: linear-gradient(135deg, #FEF2F2 0%, #FFF5F5 100%);
+            border: 2px solid #FECACA; border-left: 6px solid var(--color-primary);
+            padding: 25px; border-radius: 0 12px 12px 0; margin-top: 25px;
+        }
+        .discussion-box h3 { color: #7F1D1D; font-size: 1.2em; font-weight: 800; margin-bottom: 15px; }
+        .discussion-box ul { list-style: none; padding: 0; }
+        .discussion-box li { 
+            padding: 10px 0 10px 30px; position: relative; color: #44403C;
+            border-bottom: 1px dashed #FECACA; font-size: 1.05em;
+        }
+        .discussion-box li:last-child { border-bottom: none; }
+        .discussion-box li::before { content: '🤔'; position: absolute; left: 0; }
+
+        /* Sections */
+        .lesson-section { padding: 0 0 40px 0; border-bottom: 1px solid #FEE2E2; margin-bottom: 40px; opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s; }
+        .lesson-section.visible { opacity: 1; transform: translateY(0); }
+        .section-title { color: var(--color-primary); font-size: 1.6em; font-weight: 800; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; }
+        
+        /* Reading Text */
+        .reading-text { 
+            background: var(--color-paper); border-left: 5px solid var(--color-primary); padding: 30px; 
+            border-radius: 0 8px 8px 0; font-size: 1.1em; line-height: 1.9; color: #1C1917;
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
+        }
+        .reading-text .mb-4 { margin-bottom: 1rem; }
+
+        .highlight-word { background: #FEE2E2; color: #7F1D1D; padding: 2px 5px; font-weight: 700; cursor: help; border-bottom: 1px dashed var(--color-primary); transition: all 0.2s; }
+        .highlight-word:hover { background: var(--color-primary); color: white; transform: scale(1.05); }
+
+        /* Fact File Box */
+        .fact-file {
+            background: linear-gradient(135deg, #1C1917 0%, #292524 100%);
+            color: #FEF2F2; padding: 25px 30px; border-radius: 12px;
+            border: 2px solid #F59E0B; margin: 25px 0;
+        }
+        .fact-file h4 { color: #F59E0B; font-size: 1.1em; font-weight: 800; margin-bottom: 15px; letter-spacing: 1px; text-transform: uppercase; }
+        .fact-file ul { list-style: none; padding: 0; }
+        .fact-file li { padding: 6px 0 6px 25px; position: relative; border-bottom: 1px solid #44403C; font-size: 0.95em; }
+        .fact-file li:last-child { border-bottom: none; }
+        .fact-file li::before { content: '⚡'; position: absolute; left: 0; }
+
+        /* Interactive Elements */
+        .question-box { margin-bottom: 15px; background: #FFF5F5; padding: 15px; border-radius: 8px; border: 1px solid #FEE2E2; }
+        .option-btn { 
+            display: block; width: 100%; text-align: left; padding: 12px; margin-top: 8px;
+            background: white; border: 1px solid #FECACA; border-radius: 6px; font-weight: 600; 
+            cursor: pointer; transition: all 0.2s; color: #7F1D1D;
+        }
+        .option-btn:hover { border-color: var(--color-primary); background: #FEF2F2; transform: translateX(5px); }
+        .option-btn.selected { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+        .option-btn.correct { background: var(--color-correct); color: white; border-color: var(--color-correct); animation: celebrate 0.5s; }
+        .option-btn.incorrect { background: var(--color-incorrect); color: white; border-color: var(--color-incorrect); animation: shake 0.4s; }
+
+        @keyframes celebrate { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(22, 163, 74, 0.6); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+
+        /* Word Bank */
+        .word-bank { background: #FEE2E2; padding: 20px; border-radius: 8px; margin-bottom: 25px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .bank-word { 
+            background: white; padding: 8px 16px; border-radius: 4px; border: 1px solid #FECACA; border-bottom: 3px solid #FCA5A5;
+            font-weight: 700; cursor: pointer; color: #7F1D1D; transition: all 0.2s;
+        }
+        .bank-word:hover { transform: translateY(-2px); border-bottom-color: var(--color-primary); }
+        .bank-word.selected { background: var(--color-primary); color: white; border-color: var(--color-primary); animation: pulse 0.5s infinite; }
+        .bank-word.used { opacity: 0.4; pointer-events: none; background: #E5E7EB; }
+        
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+        .gap-input { 
+            display: inline-block; min-width: 140px; height: 30px; border-bottom: 2px dashed var(--color-primary); 
+            text-align: center; font-weight: 700; cursor: pointer; margin: 0 4px; color: var(--color-primary); transition: all 0.3s;
+        }
+        .gap-input.filled { background: #FEF2F2; border-bottom-style: solid; }
+        .gap-input.correct { border-bottom-color: var(--color-correct); color: var(--color-correct); background: #DCFCE7; pointer-events: none; }
+        .gap-input.incorrect { border-bottom-color: var(--color-incorrect); color: var(--color-incorrect); background: #FEE2E2; }
+
+        /* Grammar Cards */
+        .grammar-card { 
+            background: white; border-left: 5px solid var(--color-secondary); padding: 20px; margin-bottom: 15px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; 
+            gap: 20px; transition: all 0.3s; border-radius: 0 8px 8px 0;
+        }
+        .grammar-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateX(5px); }
+        .grammar-card-text { flex: 1; }
+        .grammar-select { padding: 8px 12px; border: 2px solid #FECACA; border-radius: 4px; font-weight: 600; cursor: pointer; min-width: 160px; }
+        .grammar-select.correct { background: #DCFCE7; border-color: #16A34A; color: #166534; }
+        .grammar-select.incorrect { background: #FEE2E2; border-color: #EF4444; color: #991B1B; }
+
+        /* Buttons */
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; justify-content: center; flex-wrap: wrap; }
+        .btn-action { 
+            background: var(--color-primary); color: white; padding: 12px 30px; border: none; 
+            border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 1em; transition: all 0.2s;
+            box-shadow: 0 4px #991B1B;
+        }
+        .btn-action:hover { background: #991B1B; transform: translateY(-2px); box-shadow: 0 6px #7F1D1D; }
+        .btn-action:active { transform: translateY(3px); box-shadow: 0 1px #991B1B; }
+        .btn-action.btn-reset { background: #94A3B8; box-shadow: 0 4px #64748B; }
+        
+        .celebration { 
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); 
+            background: linear-gradient(135deg, #16A34A 0%, #059669 100%); color: white; 
+            padding: 40px 60px; border-radius: 20px; font-size: 2em; font-weight: 900; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3); z-index: 1000; opacity: 0;
+            transition: all 0.4s;
+        }
+        .celebration.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+        .result-msg { margin-top: 15px; font-weight: 700; display: none; padding: 15px; border-radius: 6px; text-align: center; }
+        .result-msg.correct { background: #DCFCE7; color: #166534; border: 2px solid #86EFAC; }
+        .result-msg.incorrect { background: #FEE2E2; color: #991B1B; border: 2px solid #FCA5A5; }
+
+        .badge-container { position: fixed; top: 100px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 999; }
+        .badge { 
+            background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex; align-items: center; gap: 10px; transform: translateX(300px); opacity: 0;
+            transition: all 0.5s; border-left: 4px solid #F59E0B;
+        }
+        .badge.show { transform: translateX(0); opacity: 1; }
+        .badge-icon { font-size: 32px; }
+        .badge-text { font-weight: 700; color: #92400E; }
+
+        #dictionary-popup {
+            position: fixed; max-width: 320px; background: white; border-top: 5px solid var(--color-primary);
+            padding: 20px; border-radius: 8px; z-index: 2000; display: none; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 600px) {
+            .grammar-card { flex-direction: column; align-items: flex-start; }
+            .grammar-select { width: 100%; }
+            .lesson-main-title { font-size: 1.8em; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo">🤖</span>
+                <a href="/advanced/" class="site-title">English For Cool Dudes</a>
+            </div>
+            <div class="streak-display">
+                <div class="streak-item">
+                    <span class="streak-icon">🔥</span>
+                    <div>
+                        <div class="streak-number" id="streak-count">0</div>
+                        <div class="streak-label">Streak</div>
+                    </div>
+                </div>
+                <div class="streak-item">
+                    <span class="streak-icon">🎯</span>
+                    <div>
+                        <div class="streak-number" id="total-lessons">0</div>
+                        <div class="streak-label">Lessons</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="badge-container" id="badge-container"></div>
+    <div class="celebration" id="celebration"></div>
+
+    <div class="container-main">
+        <h1 class="lesson-main-title">🤖🥷 China's Robot Revolution</h1>
+        <p class="lesson-subtitle">Upper Intermediate (B2-C1) | Tech & Current Affairs</p>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+
+        <!-- SECTION 1: VIDEO + DISCUSSION -->
+        <section class="lesson-section visible">
+            <h2 class="section-title">📺 1. Watch & Discuss</h2>
+            <p style="color: #78716C; margin-bottom: 20px;">Watch the highlights from China's CCTV Lunar New Year Gala 2026. No words needed — just watch! Then discuss the questions below with your teacher.</p>
+
+            <div class="video-wrapper">
+                <div class="video-container">
+                    <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/mUmlv814aJo?si=EM5lNqyT6qXGzefr" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
+            </div>
+
+            <div class="discussion-box">
+                <h3>💬 Discussion Questions</h3>
+                <ul>
+                    <li>What were your first impressions when you saw the robots? Did anything surprise you?</li>
+                    <li>How do you think the human performers in the show felt about performing alongside robots?</li>
+                    <li>Why do you think China chose to feature robots at their most-watched TV event of the year?</li>
+                    <li>Could this kind of robot performance happen in your country? Why or why not?</li>
+                    <li>Do you think robots performing at cultural events is exciting, or does something feel wrong about it?</li>
+                </ul>
+            </div>
+
+            <div class="btn-group" style="margin-top: 25px;">
+                <button class="btn-action" onclick="completeSection(1)">Continue to Reading →</button>
+            </div>
+        </section>
+
+        <!-- SECTION 2: READING -->
+        <section class="lesson-section" id="section-2">
+            <h2 class="section-title">📰 2. Reading: Robots Take the Stage</h2>
+            <p style="color: #78716C; margin-bottom: 20px;">Read the article about the Gala. Click the highlighted words to learn them!</p>
+
+            <div class="fact-file">
+                <h4>⚡ Fast Facts: China's New Year Gala</h4>
+                <ul>
+                    <li>The CCTV Spring Festival Gala is China's most-watched TV programme</li>
+                    <li>Last year it drew 79% of all live TV viewers in China</li>
+                    <li>It is comparable to the Super Bowl in the United States</li>
+                    <li>2026 is the Year of the Fire Horse in the Chinese calendar</li>
+                    <li>China produced 90% of the world's 13,000 humanoid robots last year</li>
+                </ul>
+            </div>
+
+            <div class="reading-text">
+                <p class="mb-4">On the first day of the Lunar New Year 2026, China's most-watched television programme did something <span class="highlight-word" onclick="showPopup(this, 'Unprecedented')">unprecedented</span>. More than a dozen humanoid robots performed <span class="highlight-word" onclick="showPopup(this, 'Sophisticated')">sophisticated</span> kung fu sequences at the CCTV Spring Festival Gala — waving swords, poles, and nunchucks alongside human child performers.</p>
+
+                <p class="mb-4">The performance was not just <span class="highlight-word" onclick="showPopup(this, 'Spectacular')">spectacular</span> entertainment. It was a deliberate <span class="highlight-word" onclick="showPopup(this, 'Showcase')">showcase</span> of China's industrial ambitions. Four rising humanoid robot <span class="highlight-word" onclick="showPopup(this, 'Startups')">startups</span> — Unitree Robotics, Galbot, Noetix and MagicLab — demonstrated their products to hundreds of millions of viewers in a single evening.</p>
+
+                <p class="mb-4">The most technically ambitious sequence <span class="highlight-word" onclick="showPopup(this, 'Imitated')">imitated</span> "drunken boxing" — a martial arts style involving wobbly, unpredictable movement. Pulling this off required innovations in multi-robot <span class="highlight-word" onclick="showPopup(this, 'Coordination')">coordination</span> and what engineers call "fault recovery" — the ability of a robot to get up after falling down.</p>
+
+                <p class="mb-4">Experts note that the Gala appearance is more than just good publicity. "Companies that appear on the gala stage receive <span class="highlight-word" onclick="showPopup(this, 'Tangible')">tangible</span> rewards in government orders, investor attention, and market access," said Georg Stieler, a technology consultant based in Asia.</p>
+
+                <p class="mb-4">This reflects China's broader strategy. President Xi Jinping has met the founders of five robotics <span class="highlight-word" onclick="showPopup(this, 'Startups')">startups</span> in the past year — a level of attention <span class="highlight-word" onclick="showPopup(this, 'Comparable')">comparable</span> to that given to electric vehicle and semiconductor entrepreneurs. Beijing has placed robotics and AI at the heart of its next-generation manufacturing strategy, betting that <span class="highlight-word" onclick="showPopup(this, 'Automation')">automation</span> will help offset the pressures of an ageing <span class="highlight-word" onclick="showPopup(this, 'Workforce')">workforce</span>.</p>
+
+                <p>Even Elon Musk has taken notice. "People outside China underestimate China," he said recently, acknowledging that Chinese companies are his biggest <span class="highlight-word" onclick="showPopup(this, 'Competitors')">competitors</span> in the humanoid robot race. Morgan Stanley projects that China's humanoid robot sales will more than double this year — from 13,000 to 28,000 units.</p>
+            </div>
+
+            <div class="btn-group" style="margin-top: 20px;">
+                <button class="btn-action" onclick="completeSection(2)">Continue →</button>
+            </div>
+        </section>
+
+        <!-- SECTION 3: COMPREHENSION -->
+        <section class="lesson-section" id="section-3">
+            <h2 class="section-title">✅ 3. Comprehension Check</h2>
+            
+            <div class="question-box">
+                <p class="font-bold mb-2">1. Why did robots performing at the Gala matter beyond entertainment?</p>
+                <div class="comp-btn-group">
+                    <button class="option-btn" data-correct="false">It was a charity event to raise money for robotics research.</button>
+                    <button class="option-btn" data-correct="true">It was a deliberate showcase of China's industrial and technological ambitions.</button>
+                    <button class="option-btn" data-correct="false">The robots needed real-world testing in front of a large audience.</button>
+                </div>
+            </div>
+
+            <div class="question-box">
+                <p class="font-bold mb-2">2. What made the "drunken boxing" sequence technically impressive?</p>
+                <div class="comp-btn-group">
+                    <button class="option-btn" data-correct="false">The robots fought against human martial artists.</button>
+                    <button class="option-btn" data-correct="false">It was entirely computer-generated imagery.</button>
+                    <button class="option-btn" data-correct="true">It required multi-robot coordination and the ability to recover after falling.</button>
+                </div>
+            </div>
+
+            <div class="question-box">
+                <p class="font-bold mb-2">3. What does Elon Musk think about Chinese robotics companies?</p>
+                <div class="comp-btn-group">
+                    <button class="option-btn" data-correct="true">He considers them his biggest competitors and warns people not to underestimate China.</button>
+                    <button class="option-btn" data-correct="false">He thinks Tesla is far ahead and has nothing to worry about.</button>
+                    <button class="option-btn" data-correct="false">He wants to work together with Chinese companies.</button>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-action" onclick="checkComp()">Check Answers</button>
+                <button class="btn-action btn-reset" onclick="resetComp()">Reset</button>
+            </div>
+            <div id="comp-result" class="result-msg"></div>
+        </section>
+
+        <!-- SECTION 4: GAP FILL -->
+        <section class="lesson-section" id="section-4">
+            <h2 class="section-title">🧩 4. Vocabulary in Context</h2>
+            <p style="color: #78716C; margin-bottom: 20px;">Select a word from the bank, then click a gap to fill it in.</p>
+            
+            <div class="word-bank">
+                <span class="bank-word" data-word="unprecedented">unprecedented</span>
+                <span class="bank-word" data-word="coordination">coordination</span>
+                <span class="bank-word" data-word="tangible">tangible</span>
+                <span class="bank-word" data-word="automation">automation</span>
+                <span class="bank-word" data-word="workforce">workforce</span>
+                <span class="bank-word" data-word="showcase">showcase</span>
+            </div>
+
+            <div style="font-size: 1.05em; line-height: 2.8;">
+                <p class="mb-4">1. The robot performance was <span class="gap-input" data-answer="unprecedented"></span> — nothing like it had ever been seen on the Gala stage.</p>
+                <p class="mb-4">2. The drunken boxing sequence required extraordinary <span class="gap-input" data-answer="coordination"></span> between multiple robots.</p>
+                <p class="mb-4">3. Appearing on the Gala gives companies <span class="gap-input" data-answer="tangible"></span> benefits like government contracts and investor attention.</p>
+                <p class="mb-4">4. China is using <span class="gap-input" data-answer="automation"></span> to deal with the challenges of an ageing population.</p>
+                <p class="mb-4">5. Robots may eventually replace part of China's manufacturing <span class="gap-input" data-answer="workforce"></span>.</p>
+                <p class="mb-4">6. The Gala was used as a <span class="gap-input" data-answer="showcase"></span> for China's most advanced technology companies.</p>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-action" onclick="checkGaps()">Check Answers</button>
+                <button class="btn-action btn-reset" onclick="resetGaps()">Reset</button>
+            </div>
+            <div id="gap-result" class="result-msg"></div>
+        </section>
+
+        <!-- SECTION 5: GRAMMAR -->
+        <section class="lesson-section" id="section-5">
+            <h2 class="section-title">📖 5. Grammar: The Passive Voice</h2>
+
+            <div style="background: linear-gradient(135deg, #1C1917 0%, #292524 100%); color: #FEF2F2; padding: 25px 30px; border-radius: 12px; border: 2px solid #F59E0B; margin-bottom: 25px;">
+                <p style="color: #FCD34D; font-weight: 800; font-size: 1.1em; margin-bottom: 15px;">🛰️ Why We Use the Passive</p>
+                <p style="margin-bottom: 12px; color: #E5E7EB;">In news and technology writing, we often use the passive when <strong style="color: #FCD34D;">the action is more important than who does it</strong>.</p>
+                <div style="background: #292524; padding: 15px; border-left: 4px solid #DC2626; border-radius: 0 6px 6px 0; margin: 10px 0;">
+                    <strong style="color: #FCA5A5;">Active:</strong> <span style="color: #E5E7EB;">Four startups <em>demonstrated</em> their robots.</span>
+                </div>
+                <div style="background: #292524; padding: 15px; border-left: 4px solid #10B981; border-radius: 0 6px 6px 0; margin: 10px 0;">
+                    <strong style="color: #6EE7B7;">Passive:</strong> <span style="color: #E5E7EB;">Their robots <em>were demonstrated</em> to millions of viewers.</span>
+                </div>
+                <p style="color: #9CA3AF; font-size: 0.9em; margin-top: 12px;">Form: <strong style="color: #FCD34D;">subject + to be + past participle</strong> (+ by + agent, optional)</p>
+            </div>
+
+            <p style="color: #78716C; margin-bottom: 20px;">Choose the correct passive form for each sentence.</p>
+
+            <div class="grammar-card">
+                <div class="grammar-card-text">
+                    <p class="font-bold text-lg">1. The robots ________ by Unitree Robotics, one of China's leading startups.</p>
+                    <p class="text-sm text-gray-500">Past passive — who made them?</p>
+                </div>
+                <select class="grammar-select" data-answer="were built">
+                    <option value="">Select...</option>
+                    <option value="built">built</option>
+                    <option value="were built">were built</option>
+                    <option value="are building">are building</option>
+                </select>
+            </div>
+
+            <div class="grammar-card">
+                <div class="grammar-card-text">
+                    <p class="font-bold text-lg">2. The performance ________ by hundreds of millions of people across China.</p>
+                    <p class="text-sm text-gray-500">Past passive — who watched it?</p>
+                </div>
+                <select class="grammar-select" data-answer="was watched">
+                    <option value="">Select...</option>
+                    <option value="watched">watched</option>
+                    <option value="was watched">was watched</option>
+                    <option value="has watched">has watched</option>
+                </select>
+            </div>
+
+            <div class="grammar-card">
+                <div class="grammar-card-text">
+                    <p class="font-bold text-lg">3. Robotics and AI ________ at the heart of China's manufacturing strategy.</p>
+                    <p class="text-sm text-gray-500">Present passive — current situation.</p>
+                </div>
+                <select class="grammar-select" data-answer="are placed">
+                    <option value="">Select...</option>
+                    <option value="place">place</option>
+                    <option value="are placed">are placed</option>
+                    <option value="were placed">were placed</option>
+                </select>
+            </div>
+
+            <div class="grammar-card">
+                <div class="grammar-card-text">
+                    <p class="font-bold text-lg">4. It is expected that humanoid robot sales ________ this year.</p>
+                    <p class="text-sm text-gray-500">Future passive — a prediction.</p>
+                </div>
+                <select class="grammar-select" data-answer="will be doubled">
+                    <option value="">Select...</option>
+                    <option value="will double">will double</option>
+                    <option value="will be doubled">will be doubled</option>
+                    <option value="are doubled">are doubled</option>
+                </select>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-action" onclick="checkGrammar()">Check Grammar</button>
+            </div>
+            <div id="grammar-result" class="result-msg"></div>
+        </section>
+
+    </div>
+
+    <div id="dictionary-popup"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/init-auth.js"></script>
+    <script src="/supabase-auth-gamified.js"></script>
+
+    <script>
+        const VOCAB_LIST = [
+            { word: "Unprecedented", definition: "Never done or seen before; completely new." },
+            { word: "Sophisticated", definition: "Highly developed and complex; showing great skill or intelligence." },
+            { word: "Spectacular", definition: "Visually striking and impressive; dramatic." },
+            { word: "Showcase", definition: "An event or setting used to display something impressive to the public." },
+            { word: "Startups", definition: "Newly established companies, often in technology." },
+            { word: "Imitated", definition: "Copied or reproduced the style or actions of something else." },
+            { word: "Coordination", definition: "The ability of different parts to work together smoothly and effectively." },
+            { word: "Tangible", definition: "Real and concrete; clear enough to be seen or felt." },
+            { word: "Comparable", definition: "Similar enough to be judged or measured against something else." },
+            { word: "Automation", definition: "The use of machines and technology to perform tasks without human involvement." },
+            { word: "Workforce", definition: "All the people engaged in or available for work in a particular area." },
+            { word: "Competitors", definition: "Individuals or companies competing against each other for the same goal." }
+        ];
+        
+        const GRAMMAR_EXERCISES = [
+            {
+                question: "The robots ________ by Unitree Robotics, one of China's leading startups.",
+                answer: "were built",
+                explanation: "Past passive: were + past participle."
+            },
+            {
+                question: "The performance ________ by hundreds of millions of people across China.",
+                answer: "was watched",
+                explanation: "Past passive: was + past participle."
+            },
+            {
+                question: "Robotics and AI ________ at the heart of China's manufacturing strategy.",
+                answer: "are placed",
+                explanation: "Present passive: are + past participle."
+            },
+            {
+                question: "It is expected that humanoid robot sales ________ this year.",
+                answer: "will be doubled",
+                explanation: "Future passive: will be + past participle."
+            }
+        ];
+
+        // Safe initialization
+        async function initializeUserStats() {
+            if (typeof window.efcdReady !== 'undefined') {
+                await window.efcdReady;
+            }
+            if (typeof window.EFCD_Auth === 'undefined') {
+                console.warn('⚠️ Auth system not loaded');
+                return;
+            }
+            await window.EFCD_Auth.initAuth();
+            const user = window.EFCD_Auth.getCurrentUser();
+            if (user) {
+                const stats = window.EFCD_Auth.getUserStats();
+                document.getElementById('streak-count').textContent = stats.streak;
+                document.getElementById('total-lessons').textContent = stats.lessonsCompleted;
+            } else {
+                document.getElementById('streak-count').textContent = '0';
+                document.getElementById('total-lessons').textContent = '0';
+            }
+        }
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeUserStats);
+        } else {
+            initializeUserStats();
+        }
+
+        // Progress
+        let completedSections = 0;
+        const totalSections = 5;
+        
+        function updateProgress() {
+            document.getElementById('progress-bar').style.width = ((completedSections / totalSections) * 100) + '%';
+        }
+
+        function completeSection(sectionNum) {
+            completedSections++;
+            updateProgress();
+            const nextSection = document.getElementById('section-' + (sectionNum + 1));
+            if (nextSection) {
+                nextSection.classList.add('visible');
+                nextSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            if (Math.random() < 0.3) showBadge(getRandomBadge());
+        }
+
+        // Badges
+        const badges = [
+            { icon: '🤖', text: 'Robot Expert!' },
+            { icon: '🥷', text: 'Kung Fu Master!' },
+            { icon: '🎯', text: 'Sharp Analysis!' },
+            { icon: '🇨🇳', text: 'China Insider!' }
+        ];
+
+        function getRandomBadge() { return badges[Math.floor(Math.random() * badges.length)]; }
+        
+        function showBadge(badge) {
+            const badgeEl = document.createElement('div');
+            badgeEl.className = 'badge';
+            badgeEl.innerHTML = `<span class="badge-icon">${badge.icon}</span><span class="badge-text">${badge.text}</span>`;
+            document.getElementById('badge-container').appendChild(badgeEl);
+            setTimeout(() => badgeEl.classList.add('show'), 100);
+            setTimeout(() => { badgeEl.classList.remove('show'); setTimeout(() => badgeEl.remove(), 500); }, 3000);
+        }
+
+        function celebrate(message = '🎉 Excellent!') {
+            const cel = document.getElementById('celebration');
+            cel.textContent = message;
+            cel.classList.add('show');
+            setTimeout(() => cel.classList.remove('show'), 2000);
+        }
+
+        // Popup
+        function showPopup(target, word) {
+            const wObj = VOCAB_LIST.find(w => w.word === word);
+            if(!wObj) return;
+            const popup = document.getElementById('dictionary-popup');
+            popup.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <strong style="color:var(--color-primary); font-size:1.1em;">${wObj.word}</strong>
+                    <button onclick="playAudio('${wObj.word}')" style="background:#FEE2E2; border:none; width:28px; height:28px; border-radius:50%; cursor:pointer;">🔊</button>
+                </div>
+                <div style="color:#44403C; line-height:1.6;">${wObj.definition}</div>
+            `;
+            popup.style.display = 'block';
+            const rect = target.getBoundingClientRect();
+            popup.style.top = (rect.bottom + 8) + 'px';
+            popup.style.left = rect.left + 'px';
+            setTimeout(() => {
+                const pr = popup.getBoundingClientRect();
+                if (pr.right > window.innerWidth - 10) popup.style.left = (window.innerWidth - pr.width - 10) + 'px';
+            }, 10);
+            document.addEventListener('click', function close(e) {
+                if (!popup.contains(e.target) && e.target !== target) {
+                    popup.style.display = 'none';
+                    document.removeEventListener('click', close);
+                }
+            });
+        }
+
+        function playAudio(word) {
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.lang = 'en-GB'; 
+            utterance.rate = 0.9;
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Comprehension
+        document.querySelectorAll('.option-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        function checkComp() {
+            let correct = 0;
+            const qs = document.querySelectorAll('.question-box');
+            qs.forEach(q => {
+                const sel = q.querySelector('.selected');
+                if(sel && sel.dataset.correct === "true") { sel.classList.add('correct'); correct++; }
+                else if(sel) sel.classList.add('incorrect');
+            });
+            const res = document.getElementById('comp-result');
+            res.textContent = `Score: ${correct} / ${qs.length}`;
+            res.style.display = 'block';
+            res.className = correct === qs.length ? "result-msg correct" : "result-msg incorrect";
+            if (correct === qs.length) {
+                celebrate('💯 Sharp Analysis!');
+                showBadge({ icon: '🏆', text: 'Reading Pro!' });
+                setTimeout(() => completeSection(3), 1500);
+            }
+        }
+
+        function resetComp() {
+            document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById('comp-result').style.display = 'none';
+        }
+
+        // Gap Fill
+        let selectedWord = null;
+        document.querySelectorAll('.bank-word').forEach(w => {
+            w.addEventListener('click', function() {
+                if(this.classList.contains('used')) return;
+                document.querySelectorAll('.bank-word').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedWord = this;
+            });
+        });
+
+        document.querySelectorAll('.gap-input').forEach(g => {
+            g.addEventListener('click', function() {
+                if(selectedWord) {
+                    if(this.textContent) {
+                        const old = Array.from(document.querySelectorAll('.bank-word')).find(b => b.dataset.word === this.textContent);
+                        if(old) old.classList.remove('used');
+                    }
+                    this.textContent = selectedWord.dataset.word;
+                    this.classList.add('filled');
+                    selectedWord.classList.add('used');
+                    selectedWord.classList.remove('selected');
+                    selectedWord = null;
+                } else if(this.textContent) {
+                    const old = Array.from(document.querySelectorAll('.bank-word')).find(b => b.dataset.word === this.textContent);
+                    if(old) old.classList.remove('used');
+                    this.textContent = "";
+                    this.classList.remove('filled');
+                }
+            });
+        });
+
+        function checkGaps() {
+            let correct = 0;
+            const gaps = document.querySelectorAll('.gap-input');
+            gaps.forEach(g => {
+                g.classList.remove('correct', 'incorrect');
+                if(g.textContent === g.dataset.answer) { g.classList.add('correct'); correct++; }
+                else if(g.textContent) { g.classList.add('incorrect'); }
+            });
+            const res = document.getElementById('gap-result');
+            res.textContent = `Score: ${correct}/${gaps.length}`;
+            res.style.display = 'block';
+            res.className = correct === gaps.length ? "result-msg correct" : "result-msg incorrect";
+            if (correct === gaps.length) {
+                celebrate('✨ Vocabulary Expert!');
+                showBadge({ icon: '📚', text: 'Word Master!' });
+                setTimeout(() => completeSection(4), 1500);
+            }
+        }
+
+        function resetGaps() {
+            document.querySelectorAll('.gap-input').forEach(g => { g.textContent = ""; g.classList.remove('correct', 'incorrect', 'filled'); });
+            document.querySelectorAll('.bank-word').forEach(w => w.classList.remove('used', 'selected'));
+            document.getElementById('gap-result').style.display = 'none';
+        }
+
+        // Grammar
+        function checkGrammar() {
+            let correct = 0;
+            document.querySelectorAll('.grammar-select').forEach(s => {
+                s.classList.remove('correct', 'incorrect');
+                if(s.value === s.dataset.answer) { s.classList.add('correct'); correct++; }
+                else { s.classList.add('incorrect'); }
+            });
+            const res = document.getElementById('grammar-result');
+            res.textContent = `Score: ${correct}/4`;
+            res.style.display = 'block';
+            res.className = correct === 4 ? "result-msg correct" : "result-msg incorrect";
+            if (correct === 4) {
+                celebrate('🎯 Grammar Champion!');
+                showBadge({ icon: '🤖', text: 'Passive Master!' });
+                setTimeout(() => completeLessonAndSave(), 2000);
+            }
+        }
+
+        async function completeLessonAndSave() {
+            if (typeof window.EFCD_Auth === 'undefined' || !window.EFCD_Auth.getCurrentUser()) {
+                const wantsToSignUp = confirm(
+                    '🎓 Amazing! You completed the lesson!\n\n' +
+                    '✨ Sign up (free) to:\n' +
+                    '• Save your progress & earn XP\n' +
+                    '• Unlock achievements\n' +
+                    '• Track your learning streak\n' +
+                    '• Save vocabulary & grammar\n\n' +
+                    'Click OK to create a free account\n' +
+                    'Click Cancel to continue without saving'
+                );
+                if (wantsToSignUp) { window.location.href = '/signup/'; }
+                else { window.location.href = '/advanced/'; }
+                return;
+            }
+
+            const result = await window.EFCD_Auth.completeLesson({
+                lessonId: 'china-robots-2026',
+                lessonTitle: "China's Robot Revolution",
+                lessonLevel: 'Upper Intermediate',
+                lessonLink: '/chinarobots/',
+                vocabulary: VOCAB_LIST,
+                grammar: GRAMMAR_EXERCISES,
+                perfectScore: true,
+                completionTime: Math.floor((Date.now() - performance.timing.navigationStart) / 1000)
+            });
+
+            if (result.success) showCelebrationScreen(result);
+        }
+
+        function showCelebrationScreen(result) {
+            const overlay = document.createElement('div');
+            overlay.id = 'celebration-overlay';
+            overlay.style.cssText = `position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 99999; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s;`;
+            overlay.innerHTML = `
+                <div style="background: white; padding: 60px; border-radius: 20px; text-align: center; max-width: 500px; animation: scaleIn 0.4s; position: relative;">
+                    <button id="close-celebration" style="position: absolute; top: 20px; right: 20px; background: #F3F4F6; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 24px;">×</button>
+                    <div style="font-size: 100px; margin-bottom: 20px;">🎉</div>
+                    <h2 style="font-size: 36px; margin-bottom: 20px; color: #1A202C;">Lesson Complete!</h2>
+                    <div style="background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%); padding: 30px; border-radius: 16px; margin-bottom: 30px; border: 2px solid #FED7AA;">
+                        <div style="font-size: 56px; font-weight: 900; color: #F59E0B;">+${result.xpEarned} XP</div>
+                        ${result.leveledUp ? `<div style="font-size: 24px; color: #D97706; margin-top: 15px;">🎊 Level Up! Now Level ${result.newLevel}!</div>` : ''}
+                        ${result.newStreak > 0 ? `<div style="font-size: 20px; margin-top: 15px; color: #DC2626;">🔥 ${result.newStreak} day streak!</div>` : ''}
+                    </div>
+                    ${result.newAchievements && result.newAchievements.length > 0 ? `
+                        <div style="background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%); padding: 20px; border-radius: 12px; margin-bottom: 30px;">
+                            <div style="font-weight: 800; font-size: 18px; margin-bottom: 15px;">🏆 New Achievements!</div>
+                            ${result.newAchievements.map(id => {
+                                const ach = window.EFCD_Auth.ACHIEVEMENTS[id];
+                                return `<div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;"><span style="font-size: 36px;">${ach.icon}</span> ${ach.name}</div>`;
+                            }).join('')}
+                        </div>
+                    ` : ''}
+                    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                        <a href="/dashboard-gamified/" style="background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%); color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 700;">View Dashboard</a>
+                        <a href="/advanced/" style="background: #F59E0B; color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 700;">Next Lesson →</a>
+                        <button id="btn-retry" style="background: #F1F5F9; color: #475569; padding: 14px 28px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer;">Try Again</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            setTimeout(() => {
+                document.getElementById('close-celebration')?.addEventListener('click', () => overlay.remove());
+                document.getElementById('btn-retry')?.addEventListener('click', () => location.reload());
+                document.addEventListener('keydown', function escHandler(e) {
+                    if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escHandler); }
+                });
+            }, 100);
+        }
+
+        const animStyle = document.createElement('style');
+        animStyle.textContent = `@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } } @keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }`;
+        document.head.appendChild(animStyle);
+
+        updateProgress();
+    </script>
+</body>
+</html>
