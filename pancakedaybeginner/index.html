@@ -1024,6 +1024,7 @@
     <script src="/init-auth.js"></script>
     <script src="/supabase-auth-gamified.js"></script>
     <script src="/daily-challenges-system.js"></script>
+    <script src="/word-match-game.js"></script>
 
     <script>
         const VOCAB_LIST = [
@@ -1356,7 +1357,12 @@
                     'Click Cancel to continue without saving'
                 );
                 if (wantsToSignUp) { window.location.href = '/signup/'; }
-                else { window.location.href = '/beginner/'; }
+                else { 
+                    // Show game even without account
+                    showWordMatchGame(VOCAB_LIST, (gameResult) => {
+                        window.location.href = '/beginner/';
+                    });
+                }
                 return;
             }
 
@@ -1383,18 +1389,26 @@
                 if (challengeResult.justCompleted) {
                     // Show challenge completion first
                     window.DailyChallenges.showChallengeCompletionCelebration(challengeResult.challenge);
-                    // Then show lesson completion after 2 seconds
+                    // Then show mini-game after 2.5 seconds
                     setTimeout(() => {
-                        if (result.success) showCelebrationScreen(result);
+                        showWordMatchGame(VOCAB_LIST, (gameResult) => {
+                            if (result.success) showCelebrationScreen(result, gameResult);
+                        });
                     }, 2500);
                     return;
                 }
             }
 
-            if (result.success) showCelebrationScreen(result);
+            // Show mini-game before final celebration
+            if (result.success) {
+                showWordMatchGame(VOCAB_LIST, (gameResult) => {
+                    showCelebrationScreen(result, gameResult);
+                });
+            }
         }
 
-        function showCelebrationScreen(result) {
+        function showCelebrationScreen(result, gameResult) {
+            const totalXP = result.xpEarned + (gameResult?.bonusXP || 0);
             const overlay = document.createElement('div');
             overlay.style.cssText = `position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 99999; display: flex; align-items: center; justify-content: center; padding:20px; animation: fadeIn 0.3s;`;
             overlay.innerHTML = `
@@ -1403,7 +1417,8 @@
                     <div style="font-size: 80px; margin-bottom: 20px;">🥞</div>
                     <h2 style="font-size: 28px; margin-bottom: 15px; color: #1A202C; font-weight:900;">Lesson Complete!</h2>
                     <div style="background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%); padding: 25px; border-radius: 16px; margin-bottom: 25px; border: 2px solid #FED7AA;">
-                        <div style="font-size: 48px; font-weight: 900; color: #F59E0B;">+${result.xpEarned} XP</div>
+                        <div style="font-size: 48px; font-weight: 900; color: #F59E0B;">+${totalXP} XP</div>
+                        ${gameResult?.bonusXP ? `<div style="font-size: 14px; color: #92400E; margin-top: 8px; font-weight: 700;">🎮 Includes +${gameResult.bonusXP} XP game bonus!</div>` : ''}
                         ${result.leveledUp ? `<div style="font-size: 20px; color: #D97706; margin-top: 12px;">🎊 Level Up! Now Level ${result.newLevel}!</div>` : ''}
                         ${result.newStreak > 0 ? `<div style="font-size: 18px; margin-top: 12px; color: #DC2626;">🔥 ${result.newStreak} day streak!</div>` : ''}
                     </div>
