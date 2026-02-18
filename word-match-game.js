@@ -1,22 +1,23 @@
 // ═══════════════════════════════════════════════════════════
-// WORD MATCH MINI-GAME
-// Memory card game for vocabulary practice after lessons
+// WORD MATCH MINI-GAME (IMPROVED VERSION)
+// Clear, intuitive vocabulary matching game
 // ═══════════════════════════════════════════════════════════
 
 class WordMatchGame {
     constructor(vocabulary, onComplete) {
         this.vocabulary = vocabulary;
         this.onComplete = onComplete;
-        this.cards = [];
-        this.flippedCards = [];
+        this.selectedCards = [];
         this.matchedPairs = 0;
         this.moves = 0;
         this.startTime = Date.now();
-        this.gameActive = false;
     }
 
     // Create game overlay
     createGameOverlay() {
+        const totalPairs = Math.min(6, this.vocabulary.length);
+        const selectedVocab = this.vocabulary.slice(0, totalPairs);
+
         const overlay = document.createElement('div');
         overlay.id = 'word-match-game';
         overlay.style.cssText = `
@@ -32,15 +33,12 @@ class WordMatchGame {
             overflow-y: auto;
         `;
 
-        const totalPairs = Math.min(6, this.vocabulary.length); // Max 6 pairs (12 cards)
-        const selectedVocab = this.vocabulary.slice(0, totalPairs);
-
         overlay.innerHTML = `
             <div style="
                 background: white;
                 border-radius: 20px;
                 padding: 30px;
-                max-width: 600px;
+                max-width: 700px;
                 width: 100%;
                 animation: scaleIn 0.4s;
             ">
@@ -50,8 +48,11 @@ class WordMatchGame {
                     <h2 style="font-size: 28px; font-weight: 900; color: #1A202C; margin-bottom: 10px;">
                         Word Match Game!
                     </h2>
-                    <p style="color: #6B7280; font-size: 16px; margin-bottom: 20px;">
-                        Match words with their definitions
+                    <p style="color: #6B7280; font-size: 16px; margin-bottom: 15px;">
+                        Match each <strong style="color: #3B82F6;">blue word</strong> with its <strong style="color: #10B981;">green definition</strong>
+                    </p>
+                    <p style="color: #F59E0B; font-size: 14px; font-weight: 700; margin-bottom: 20px;">
+                        👆 Click two cards to match them
                     </p>
                     
                     <!-- Stats -->
@@ -74,7 +75,7 @@ class WordMatchGame {
                     <button onclick="window.wordMatchGame.skip()" style="
                         background: #F3F4F6; color: #6B7280; border: none;
                         padding: 8px 16px; border-radius: 6px; font-size: 13px;
-                        font-weight: 700; cursor: pointer; margin-top: 10px;
+                        font-weight: 700; cursor: pointer;
                     ">
                         Skip Game →
                     </button>
@@ -83,8 +84,8 @@ class WordMatchGame {
                 <!-- Game Grid -->
                 <div id="game-grid" style="
                     display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-                    gap: 10px;
+                    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                    gap: 12px;
                     margin-bottom: 20px;
                 ">
                     ${this.generateCards(selectedVocab)}
@@ -95,80 +96,66 @@ class WordMatchGame {
         return overlay;
     }
 
-    // Generate shuffled cards
+    // Generate cards (NO FLIPPING - show content immediately)
     generateCards(vocabulary) {
         const cards = [];
         
         // Create pairs
         vocabulary.forEach((item, index) => {
-            // Word card
+            // Word card (BLUE)
             cards.push({
                 id: `word-${index}`,
                 pairId: index,
                 type: 'word',
                 content: item.word,
+                color: '#3B82F6',
+                bgColor: '#EFF6FF',
                 matched: false
             });
             
-            // Definition card
+            // Definition card (GREEN)
             cards.push({
                 id: `def-${index}`,
                 pairId: index,
                 type: 'definition',
                 content: item.definition,
+                color: '#10B981',
+                bgColor: '#ECFDF5',
                 matched: false
             });
         });
 
         // Shuffle
-        this.cards = this.shuffleArray(cards);
+        const shuffled = this.shuffleArray(cards);
 
-        // Generate HTML
-        return this.cards.map((card, index) => `
+        // Generate HTML - content is VISIBLE from the start
+        return shuffled.map((card, index) => `
             <div 
                 class="game-card" 
                 data-index="${index}"
                 data-pair-id="${card.pairId}"
+                data-type="${card.type}"
                 style="
-                    background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
-                    color: white;
-                    padding: 20px 15px;
+                    background: ${card.bgColor};
+                    border: 3px solid ${card.color};
+                    color: ${card.color};
+                    padding: 16px 12px;
                     border-radius: 12px;
-                    min-height: 100px;
+                    min-height: 90px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     text-align: center;
                     font-weight: 700;
-                    font-size: 14px;
+                    font-size: 13px;
+                    line-height: 1.3;
                     cursor: pointer;
-                    transition: all 0.3s;
-                    transform-style: preserve-3d;
-                    position: relative;
+                    transition: all 0.2s;
+                    user-select: none;
                 "
-                onclick="window.wordMatchGame.flipCard(${index})"
+                onclick="window.wordMatchGame.selectCard(${index})"
             >
-                <div class="card-back" style="
-                    position: absolute;
-                    inset: 0;
-                    background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
-                    border-radius: 12px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 32px;
-                    backface-visibility: hidden;
-                ">
-                    ${card.type === 'word' ? '📝' : '💡'}
-                </div>
-                <div class="card-front" style="
-                    backface-visibility: hidden;
-                    transform: rotateY(180deg);
-                    opacity: 0;
-                    line-height: 1.4;
-                ">
-                    ${card.content}
-                </div>
+                ${card.content}
             </div>
         `).join('');
     }
@@ -183,45 +170,64 @@ class WordMatchGame {
         return shuffled;
     }
 
-    // Flip card
-    flipCard(index) {
-        if (!this.gameActive) return;
-        if (this.flippedCards.length >= 2) return;
-        
+    // Select card (NEW APPROACH - no flipping)
+    selectCard(index) {
         const cardElement = document.querySelector(`.game-card[data-index="${index}"]`);
-        if (!cardElement || cardElement.classList.contains('flipped') || cardElement.classList.contains('matched')) {
+        
+        // Can't select if already matched or already selected
+        if (!cardElement || 
+            cardElement.classList.contains('matched') || 
+            cardElement.classList.contains('selected')) {
             return;
         }
 
-        // Flip animation
-        cardElement.style.transform = 'rotateY(180deg)';
-        cardElement.classList.add('flipped');
-        cardElement.querySelector('.card-back').style.opacity = '0';
-        cardElement.querySelector('.card-front').style.opacity = '1';
+        // Can't select more than 2 cards at once
+        if (this.selectedCards.length >= 2) {
+            return;
+        }
 
-        this.flippedCards.push({ index, pairId: this.cards[index].pairId, element: cardElement });
+        // Select this card
+        cardElement.classList.add('selected');
+        cardElement.style.transform = 'scale(1.05)';
+        cardElement.style.boxShadow = '0 8px 24px rgba(102, 126, 234, 0.4)';
+        
+        const pairId = parseInt(cardElement.dataset.pairId);
+        const type = cardElement.dataset.type;
+        
+        this.selectedCards.push({ index, pairId, type, element: cardElement });
 
-        // Check for match
-        if (this.flippedCards.length === 2) {
+        // Check for match if 2 cards selected
+        if (this.selectedCards.length === 2) {
             this.moves++;
             document.getElementById('game-moves').textContent = this.moves;
             
-            setTimeout(() => this.checkMatch(), 800);
+            setTimeout(() => this.checkMatch(), 600);
         }
     }
 
     // Check if cards match
     checkMatch() {
-        const [card1, card2] = this.flippedCards;
+        const [card1, card2] = this.selectedCards;
 
-        if (card1.pairId === card2.pairId) {
-            // Match!
+        // Must be same pair AND different types (word + definition)
+        if (card1.pairId === card2.pairId && card1.type !== card2.type) {
+            // MATCH! ✅
+            card1.element.classList.remove('selected');
+            card2.element.classList.remove('selected');
             card1.element.classList.add('matched');
             card2.element.classList.add('matched');
+            
+            // Change to success color
             card1.element.style.background = 'linear-gradient(135deg, #10B981 0%, #059669 100%)';
             card2.element.style.background = 'linear-gradient(135deg, #10B981 0%, #059669 100%)';
-            card1.element.style.transform = 'rotateY(180deg) scale(1.05)';
-            card2.element.style.transform = 'rotateY(180deg) scale(1.05)';
+            card1.element.style.borderColor = '#10B981';
+            card2.element.style.borderColor = '#10B981';
+            card1.element.style.color = 'white';
+            card2.element.style.color = 'white';
+            card1.element.style.transform = 'scale(1)';
+            card2.element.style.transform = 'scale(1)';
+            card1.element.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
+            card2.element.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
             
             this.matchedPairs++;
             document.getElementById('game-matches').textContent = 
@@ -232,26 +238,29 @@ class WordMatchGame {
                 setTimeout(() => this.gameComplete(), 500);
             }
         } else {
-            // No match - flip back
+            // NO MATCH ❌
+            // Shake animation
+            card1.element.style.animation = 'shake 0.4s';
+            card2.element.style.animation = 'shake 0.4s';
+            
             setTimeout(() => {
+                card1.element.classList.remove('selected');
+                card2.element.classList.remove('selected');
                 card1.element.style.transform = '';
                 card2.element.style.transform = '';
-                card1.element.classList.remove('flipped');
-                card2.element.classList.remove('flipped');
-                card1.element.querySelector('.card-back').style.opacity = '1';
-                card1.element.querySelector('.card-front').style.opacity = '0';
-                card2.element.querySelector('.card-back').style.opacity = '1';
-                card2.element.querySelector('.card-front').style.opacity = '0';
-            }, 500);
+                card1.element.style.boxShadow = '';
+                card2.element.style.boxShadow = '';
+                card1.element.style.animation = '';
+                card2.element.style.animation = '';
+            }, 400);
         }
 
-        this.flippedCards = [];
+        this.selectedCards = [];
     }
 
     // Game complete
     gameComplete() {
         const timeTaken = Math.floor((Date.now() - this.startTime) / 1000);
-        this.gameActive = false;
 
         const overlay = document.getElementById('word-match-game');
         overlay.innerHTML = `
@@ -308,7 +317,7 @@ class WordMatchGame {
 
     // Skip game
     skip() {
-        this.gameActive = false;
+        clearInterval(this.timerInterval);
         document.getElementById('word-match-game')?.remove();
         if (this.onComplete) this.onComplete({ skipped: true });
     }
@@ -316,6 +325,7 @@ class WordMatchGame {
     // Close game
     close() {
         const timeTaken = Math.floor((Date.now() - this.startTime) / 1000);
+        clearInterval(this.timerInterval);
         document.getElementById('word-match-game')?.remove();
         if (this.onComplete) {
             this.onComplete({
@@ -333,7 +343,6 @@ class WordMatchGame {
         document.body.appendChild(overlay);
         
         // Start timer
-        this.gameActive = true;
         this.timerInterval = setInterval(() => {
             const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
             const minutes = Math.floor(elapsed / 60);
@@ -351,21 +360,21 @@ class WordMatchGame {
                 0%, 100% { transform: translateY(0); }
                 50% { transform: translateY(-20px); }
             }
-            .game-card:hover {
-                transform: translateY(-5px) !important;
-                box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-10px); }
+                75% { transform: translateX(10px); }
+            }
+            .game-card:not(.matched):not(.selected):hover {
+                transform: translateY(-4px) !important;
+                box-shadow: 0 6px 16px rgba(0,0,0,0.15) !important;
             }
             .game-card.matched {
                 pointer-events: none;
+                cursor: default;
             }
         `;
         document.head.appendChild(style);
-    }
-
-    // Cleanup
-    destroy() {
-        clearInterval(this.timerInterval);
-        document.getElementById('word-match-game')?.remove();
     }
 }
 
@@ -378,7 +387,7 @@ function showWordMatchGame(vocabulary, onComplete) {
     }
 
     const game = new WordMatchGame(vocabulary, onComplete);
-    window.wordMatchGame = game; // Make accessible globally for onclick handlers
+    window.wordMatchGame = game;
     game.start();
 }
 
