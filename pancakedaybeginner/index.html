@@ -1371,6 +1371,26 @@
                 completionTime: Math.floor((Date.now() - performance.timing.navigationStart) / 1000)
             });
 
+            // Check daily challenge progress
+            if (window.DailyChallenges && result.success) {
+                const challengeResult = await window.DailyChallenges.updateChallengeProgress({
+                    perfectScore: true,
+                    vocabCount: VOCAB_LIST.length,
+                    completionTime: Math.floor((Date.now() - performance.timing.navigationStart) / 1000),
+                    grammarPerfect: true
+                });
+
+                if (challengeResult.justCompleted) {
+                    // Show challenge completion first
+                    window.DailyChallenges.showChallengeCompletionCelebration(challengeResult.challenge);
+                    // Then show lesson completion after 2 seconds
+                    setTimeout(() => {
+                        if (result.success) showCelebrationScreen(result);
+                    }, 2500);
+                    return;
+                }
+            }
+
             if (result.success) showCelebrationScreen(result);
         }
 
