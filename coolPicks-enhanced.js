@@ -7,6 +7,8 @@ const coolPicksWidget = {
     // Categories: 'beginner', 'intermediate', 'advanced', 'business', 'tax', 'legal', 'fun'
     actualLessons: [
         // Add your lesson folders here with their actual durations, names, and categories:
+        { url: '/chineserobotsbeginner/', time: '5 mins', name: 'Pre-Intermediate: Chinese Robots on TV', category: 'beginner' },
+        { url: '/pancakedaybeginner/', time: '4 mins', name: 'Beginner: Pancake Day!', category: 'beginner' },
        { url: '/coffee/', time: '7 mins', name: 'Beginner: The Legend of Coffee', category: 'beginner' },
         { url: '/invisibleofficegame/', time: '8 mins', name: 'Tax: Invisible Office', category: 'tax' },
 { url: '/transferpricing/', time: '9 mins', name: 'The Transfer Pricing Trap', category: 'tax' },
