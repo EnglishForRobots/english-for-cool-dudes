@@ -15,13 +15,7 @@ const coolPicksWidget = {
         { url: '/flyingtaxis/', time: '9 mins', name: 'Advanced: Flying Taxis', category: 'advanced' },
         { url: '/sandwich/', time: '5 mins', name: 'Beginner: The Earl of Sandwich', category: 'beginner' },
         { url: '/aivideos/', time: '11 mins', name: 'Advanced: AI Videos', category: 'advanced' },
-        { url: '/whatami/', time: '5 mins', name: 'Games: What Am I?', category: 'games' },
-        { url: '/sleepscience/', time: '9 mins', name: 'Intermediate: The Science of Sleep', category: 'intermediate' },
-        { url: '/crisismanagement/', time: '5 mins', name: 'Business: Crisis Management', category: 'business' },
-         
-        { url: '/corporateempires/', time: '7 mins', name: 'Legal: Corporate Empires', category: 'legal' },
-        
-         { url: '/aipolicing/', time: '7 mins', name: 'Intermediate: AI on Patrol: When Algorithms Lie', category: 'intermediate' },
+    
         
         // Add more lessons with appropriate categories:
         // { url: '/taxterms/', time: '10 min', name: 'Tax Terms', category: 'tax' },
