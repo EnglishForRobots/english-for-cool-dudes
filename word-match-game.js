@@ -35,10 +35,10 @@ class WordMatchGame {
         `;
 
         overlay.innerHTML = `
-            <div style="
+            <div class="game-container" style="
                 background: white;
                 border-radius: 20px;
-                padding: 20px;
+                padding: 30px;
                 max-width: 700px;
                 width: 100%;
                 animation: scaleIn 0.4s;
@@ -47,38 +47,38 @@ class WordMatchGame {
                 overflow-y: auto;
             ">
                 <!-- Header -->
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <div style="font-size: 48px; margin-bottom: 8px;">🎮</div>
-                    <h2 style="font-size: 24px; font-weight: 900; color: #1A202C; margin-bottom: 8px;">
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <div class="game-emoji" style="font-size: 60px; margin-bottom: 10px;">🎮</div>
+                    <h2 class="game-title" style="font-size: 28px; font-weight: 900; color: #1A202C; margin-bottom: 10px;">
                         Word Match Game!
                     </h2>
-                    <p style="color: #6B7280; font-size: 14px; margin-bottom: 10px; line-height: 1.5;">
+                    <p class="game-instructions" style="color: #6B7280; font-size: 16px; margin-bottom: 15px; line-height: 1.5;">
                         Match each <strong style="color: #3B82F6;">blue word</strong> with its <strong style="color: #10B981;">green definition</strong>
                     </p>
-                    <p style="color: #F59E0B; font-size: 13px; font-weight: 700; margin-bottom: 15px;">
+                    <p class="game-hint" style="color: #F59E0B; font-size: 14px; font-weight: 700; margin-bottom: 20px;">
                         👆 Click two cards to match them
                     </p>
                     
                     <!-- Stats -->
-                    <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap;">
-                        <div style="background: #F3F4F6; padding: 8px 16px; border-radius: 8px;">
-                            <div style="font-size: 20px; font-weight: 900; color: #667EEA;" id="game-moves">0</div>
-                            <div style="font-size: 11px; color: #6B7280; font-weight: 700;">Moves</div>
+                    <div class="game-stats" style="display: flex; justify-content: center; gap: 20px; margin-bottom: 15px; flex-wrap: wrap;">
+                        <div class="stat-box" style="background: #F3F4F6; padding: 10px 20px; border-radius: 10px;">
+                            <div style="font-size: 24px; font-weight: 900; color: #667EEA;" id="game-moves">0</div>
+                            <div style="font-size: 12px; color: #6B7280; font-weight: 700;">Moves</div>
                         </div>
-                        <div style="background: #F3F4F6; padding: 8px 16px; border-radius: 8px;">
-                            <div style="font-size: 20px; font-weight: 900; color: #F59E0B;" id="game-timer">0:00</div>
-                            <div style="font-size: 11px; color: #6B7280; font-weight: 700;">Time</div>
+                        <div class="stat-box" style="background: #F3F4F6; padding: 10px 20px; border-radius: 10px;">
+                            <div style="font-size: 24px; font-weight: 900; color: #F59E0B;" id="game-timer">0:00</div>
+                            <div style="font-size: 12px; color: #6B7280; font-weight: 700;">Time</div>
                         </div>
-                        <div style="background: #F3F4F6; padding: 8px 16px; border-radius: 8px;">
-                            <div style="font-size: 20px; font-weight: 900; color: #10B981;" id="game-matches">0/${totalPairs}</div>
-                            <div style="font-size: 11px; color: #6B7280; font-weight: 700;">Matches</div>
+                        <div class="stat-box" style="background: #F3F4F6; padding: 10px 20px; border-radius: 10px;">
+                            <div style="font-size: 24px; font-weight: 900; color: #10B981;" id="game-matches">0/${totalPairs}</div>
+                            <div style="font-size: 12px; color: #6B7280; font-weight: 700;">Matches</div>
                         </div>
                     </div>
 
                     <!-- Skip button -->
                     <button onclick="window.wordMatchGame.skip()" style="
                         background: #F3F4F6; color: #6B7280; border: none;
-                        padding: 6px 14px; border-radius: 6px; font-size: 12px;
+                        padding: 8px 16px; border-radius: 6px; font-size: 13px;
                         font-weight: 700; cursor: pointer;
                     ">
                         Skip Game →
@@ -88,9 +88,9 @@ class WordMatchGame {
                 <!-- Game Grid -->
                 <div id="game-grid" style="
                     display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-                    gap: 10px;
-                    margin-bottom: 15px;
+                    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                    gap: 12px;
+                    margin-bottom: 20px;
                 ">
                     ${this.generateCards(selectedVocab)}
                 </div>
@@ -141,17 +141,17 @@ class WordMatchGame {
                 data-type="${card.type}"
                 style="
                     background: ${card.bgColor};
-                    border: 2px solid ${card.color};
+                    border: 3px solid ${card.color};
                     color: ${card.color};
-                    padding: 12px 10px;
-                    border-radius: 10px;
-                    min-height: 75px;
+                    padding: 16px 12px;
+                    border-radius: 12px;
+                    min-height: 90px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     text-align: center;
                     font-weight: 700;
-                    font-size: 12px;
+                    font-size: 14px;
                     line-height: 1.3;
                     cursor: pointer;
                     transition: all 0.2s;
@@ -401,6 +401,47 @@ class WordMatchGame {
             .game-card.matched {
                 pointer-events: none;
                 cursor: default;
+            }
+            
+            /* RESPONSIVE SIZING */
+            @media (max-width: 640px) {
+                .game-container {
+                    padding: 20px !important;
+                }
+                .game-emoji {
+                    font-size: 48px !important;
+                }
+                .game-title {
+                    font-size: 24px !important;
+                }
+                .game-instructions {
+                    font-size: 14px !important;
+                }
+                .game-hint {
+                    font-size: 13px !important;
+                }
+                .game-stats {
+                    gap: 12px !important;
+                }
+                .stat-box {
+                    padding: 8px 16px !important;
+                }
+                .stat-box > div:first-child {
+                    font-size: 20px !important;
+                }
+                .stat-box > div:last-child {
+                    font-size: 11px !important;
+                }
+                #game-grid {
+                    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) !important;
+                    gap: 10px !important;
+                }
+                .game-card {
+                    min-height: 75px !important;
+                    padding: 12px 10px !important;
+                    font-size: 12px !important;
+                    border-width: 2px !important;
+                }
             }
         `;
         document.head.appendChild(style);
