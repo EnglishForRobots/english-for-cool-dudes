@@ -31,50 +31,54 @@ class WordMatchGame {
             padding: 20px;
             animation: fadeIn 0.3s;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         `;
 
         overlay.innerHTML = `
             <div style="
                 background: white;
                 border-radius: 20px;
-                padding: 30px;
+                padding: 20px;
                 max-width: 700px;
                 width: 100%;
                 animation: scaleIn 0.4s;
+                margin: auto;
+                max-height: 90vh;
+                overflow-y: auto;
             ">
                 <!-- Header -->
-                <div style="text-align: center; margin-bottom: 25px;">
-                    <div style="font-size: 60px; margin-bottom: 10px;">🎮</div>
-                    <h2 style="font-size: 28px; font-weight: 900; color: #1A202C; margin-bottom: 10px;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 48px; margin-bottom: 8px;">🎮</div>
+                    <h2 style="font-size: 24px; font-weight: 900; color: #1A202C; margin-bottom: 8px;">
                         Word Match Game!
                     </h2>
-                    <p style="color: #6B7280; font-size: 16px; margin-bottom: 15px;">
+                    <p style="color: #6B7280; font-size: 14px; margin-bottom: 10px; line-height: 1.5;">
                         Match each <strong style="color: #3B82F6;">blue word</strong> with its <strong style="color: #10B981;">green definition</strong>
                     </p>
-                    <p style="color: #F59E0B; font-size: 14px; font-weight: 700; margin-bottom: 20px;">
+                    <p style="color: #F59E0B; font-size: 13px; font-weight: 700; margin-bottom: 15px;">
                         👆 Click two cards to match them
                     </p>
                     
                     <!-- Stats -->
-                    <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 15px;">
-                        <div style="background: #F3F4F6; padding: 10px 20px; border-radius: 10px;">
-                            <div style="font-size: 24px; font-weight: 900; color: #667EEA;" id="game-moves">0</div>
-                            <div style="font-size: 12px; color: #6B7280; font-weight: 700;">Moves</div>
+                    <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap;">
+                        <div style="background: #F3F4F6; padding: 8px 16px; border-radius: 8px;">
+                            <div style="font-size: 20px; font-weight: 900; color: #667EEA;" id="game-moves">0</div>
+                            <div style="font-size: 11px; color: #6B7280; font-weight: 700;">Moves</div>
                         </div>
-                        <div style="background: #F3F4F6; padding: 10px 20px; border-radius: 10px;">
-                            <div style="font-size: 24px; font-weight: 900; color: #F59E0B;" id="game-timer">0:00</div>
-                            <div style="font-size: 12px; color: #6B7280; font-weight: 700;">Time</div>
+                        <div style="background: #F3F4F6; padding: 8px 16px; border-radius: 8px;">
+                            <div style="font-size: 20px; font-weight: 900; color: #F59E0B;" id="game-timer">0:00</div>
+                            <div style="font-size: 11px; color: #6B7280; font-weight: 700;">Time</div>
                         </div>
-                        <div style="background: #F3F4F6; padding: 10px 20px; border-radius: 10px;">
-                            <div style="font-size: 24px; font-weight: 900; color: #10B981;" id="game-matches">0/${totalPairs}</div>
-                            <div style="font-size: 12px; color: #6B7280; font-weight: 700;">Matches</div>
+                        <div style="background: #F3F4F6; padding: 8px 16px; border-radius: 8px;">
+                            <div style="font-size: 20px; font-weight: 900; color: #10B981;" id="game-matches">0/${totalPairs}</div>
+                            <div style="font-size: 11px; color: #6B7280; font-weight: 700;">Matches</div>
                         </div>
                     </div>
 
                     <!-- Skip button -->
                     <button onclick="window.wordMatchGame.skip()" style="
                         background: #F3F4F6; color: #6B7280; border: none;
-                        padding: 8px 16px; border-radius: 6px; font-size: 13px;
+                        padding: 6px 14px; border-radius: 6px; font-size: 12px;
                         font-weight: 700; cursor: pointer;
                     ">
                         Skip Game →
@@ -84,9 +88,9 @@ class WordMatchGame {
                 <!-- Game Grid -->
                 <div id="game-grid" style="
                     display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-                    gap: 12px;
-                    margin-bottom: 20px;
+                    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+                    gap: 10px;
+                    margin-bottom: 15px;
                 ">
                     ${this.generateCards(selectedVocab)}
                 </div>
@@ -137,21 +141,22 @@ class WordMatchGame {
                 data-type="${card.type}"
                 style="
                     background: ${card.bgColor};
-                    border: 3px solid ${card.color};
+                    border: 2px solid ${card.color};
                     color: ${card.color};
-                    padding: 16px 12px;
-                    border-radius: 12px;
-                    min-height: 90px;
+                    padding: 12px 10px;
+                    border-radius: 10px;
+                    min-height: 75px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     text-align: center;
                     font-weight: 700;
-                    font-size: 13px;
+                    font-size: 12px;
                     line-height: 1.3;
                     cursor: pointer;
                     transition: all 0.2s;
                     user-select: none;
+                    -webkit-tap-highlight-color: transparent;
                 "
                 onclick="window.wordMatchGame.selectCard(${index})"
             >
@@ -261,6 +266,9 @@ class WordMatchGame {
     // Game complete
     gameComplete() {
         const timeTaken = Math.floor((Date.now() - this.startTime) / 1000);
+        
+        // Check if user is logged in
+        const isLoggedIn = typeof window.EFCD_Auth !== 'undefined' && window.EFCD_Auth.getCurrentUser();
 
         const overlay = document.getElementById('word-match-game');
         overlay.innerHTML = `
@@ -281,22 +289,43 @@ class WordMatchGame {
                     You matched all the words!
                 </p>
                 
-                <div style="
-                    background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
-                    padding: 20px;
-                    border-radius: 12px;
-                    margin-bottom: 25px;
-                    border: 2px solid #FED7AA;
-                ">
-                    <div style="font-size: 42px; font-weight: 900; color: #F59E0B; margin-bottom: 10px;">
-                        +25 XP
+                ${isLoggedIn ? `
+                    <div style="
+                        background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+                        padding: 20px;
+                        border-radius: 12px;
+                        margin-bottom: 25px;
+                        border: 2px solid #FED7AA;
+                    ">
+                        <div style="font-size: 42px; font-weight: 900; color: #F59E0B; margin-bottom: 10px;">
+                            +25 XP
+                        </div>
+                        <div style="color: #92400E; font-weight: 700; margin-bottom: 15px;">Bonus Reward!</div>
+                        <div style="display: flex; gap: 15px; justify-content: center; font-size: 14px; color: #78350F;">
+                            <div>⚡ ${this.moves} moves</div>
+                            <div>⏱️ ${timeTaken}s</div>
+                        </div>
                     </div>
-                    <div style="color: #92400E; font-weight: 700; margin-bottom: 15px;">Bonus Reward!</div>
-                    <div style="display: flex; gap: 15px; justify-content: center; font-size: 14px; color: #78350F;">
-                        <div>⚡ ${this.moves} moves</div>
-                        <div>⏱️ ${timeTaken}s</div>
+                ` : `
+                    <div style="
+                        background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+                        padding: 20px;
+                        border-radius: 12px;
+                        margin-bottom: 25px;
+                        border: 2px solid #BFDBFE;
+                    ">
+                        <div style="font-size: 36px; margin-bottom: 12px;">🎓</div>
+                        <div style="color: #1E40AF; font-weight: 700; font-size: 18px; margin-bottom: 10px;">
+                            Great practice!
+                        </div>
+                        <div style="color: #1E40AF; font-size: 14px; margin-bottom: 15px;">
+                            ⚡ ${this.moves} moves • ⏱️ ${timeTaken}s
+                        </div>
+                        <div style="color: #3B82F6; font-size: 13px; line-height: 1.5;">
+                            💡 Sign up for free to earn XP, track progress & unlock achievements!
+                        </div>
                     </div>
-                </div>
+                `}
 
                 <button onclick="window.wordMatchGame.close()" style="
                     background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
@@ -309,7 +338,7 @@ class WordMatchGame {
                     cursor: pointer;
                     width: 100%;
                 ">
-                    Continue →
+                    ${isLoggedIn ? 'Continue →' : 'Continue'}
                 </button>
             </div>
         `;
