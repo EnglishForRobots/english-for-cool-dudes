@@ -768,7 +768,7 @@
             renderActivityChart(lessons);
             
             // 3. Streak Calendar
-            renderStreakCalendar();
+            await renderStreakCalendar();
         }
         
         function renderVocabChart(lessons) {
@@ -882,44 +882,63 @@
             });
         }
         
-        function renderStreakCalendar() {
-            const calendar = document.getElementById('streakCalendar');
-            if (!calendar) return;
-            
-            const stats = window.EFCD_Auth.getUserStats();
-            const today = new Date();
-            const days = [];
-            
-            // Generate last 30 days
-            for (let i = 29; i >= 0; i--) {
-                const date = new Date(today);
-                date.setDate(date.getDate() - i);
-                const isToday = i === 0;
-                const isWithinStreak = i < stats.streak;
-                
-                days.push(`
-                    <div style="
-                        width: 100%;
-                        aspect-ratio: 1;
-                        background: ${isWithinStreak ? '#10B981' : '#F3F4F6'};
-                        border-radius: 6px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 11px;
-                        font-weight: 700;
-                        color: ${isWithinStreak ? 'white' : '#9CA3AF'};
-                        border: ${isToday ? '2px solid #DC2626' : 'none'};
-                        position: relative;
-                        cursor: pointer;
-                    " title="${date.toLocaleDateString('en-GB')}">
-                        ${isWithinStreak ? '🔥' : date.getDate()}
-                    </div>
-                `);
-            }
-            
-            calendar.innerHTML = days.join('');
-        }
+        async function renderStreakCalendar() {
+    const calendar = document.getElementById('streakCalendar');
+    if (!calendar) return;
+    
+    const user = window.EFCD_Auth.getCurrentUser();
+    if (!user) return;
+    
+    // Get actual lesson completion dates
+    const { data: lessons } = await window.efcdSupabaseClient
+        .from('lessons')
+        .select('completed_at')
+        .eq('user_id', user.id)
+        .order('completed_at', { ascending: false });
+    
+    // Get unique dates when lessons were completed
+    const completedDates = new Set();
+    if (lessons) {
+        lessons.forEach(lesson => {
+            const date = new Date(lesson.completed_at).toDateString();
+            completedDates.add(date);
+        });
+    }
+    
+    const today = new Date();
+    const days = [];
+    
+    // Generate last 30 days
+    for (let i = 29; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toDateString();
+        const isToday = i === 0;
+        const hasLesson = completedDates.has(dateStr);
+        
+        days.push(`
+            <div style="
+                width: 100%;
+                aspect-ratio: 1;
+                background: ${hasLesson ? '#10B981' : '#F3F4F6'};
+                border-radius: 6px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 11px;
+                font-weight: 700;
+                color: ${hasLesson ? 'white' : '#9CA3AF'};
+                border: ${isToday ? '2px solid #DC2626' : 'none'};
+                position: relative;
+                cursor: pointer;
+            " title="${date.toLocaleDateString('en-GB')}${hasLesson ? ' - Lesson completed ✓' : ''}">
+                ${hasLesson ? '🔥' : date.getDate()}
+            </div>
+        `);
+    }
+    
+    calendar.innerHTML = days.join('');
+}
         
         // ═══ LEADERBOARD ═══
         async function loadLeaderboard(currentUserId) {
