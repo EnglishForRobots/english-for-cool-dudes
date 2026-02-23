@@ -87,18 +87,32 @@ const DAILY_CHALLENGES = {
     }
 };
 
-// Get challenge of the day (rotates based on day of year)
+
 function getTodaysChallenge() {
     const now = new Date();
-    const start = new Date(now.getFullYear(), 0, 0);
-    const diff = now - start;
-    const oneDay = 1000 * 60 * 60 * 24;
-    const dayOfYear = Math.floor(diff / oneDay);
+    const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
     
     const challenges = Object.values(DAILY_CHALLENGES);
-    const challengeIndex = dayOfYear % challenges.length;
     
-    return challenges[challengeIndex];
+    // Map specific challenges to specific days
+    const weekdayChallenges = [
+        'perfect_score',      // Sunday
+        'vocab_learner',      // Monday
+        'speed_run',          // Tuesday
+        'double_trouble',     // Wednesday
+        'grammar_guru',       // Thursday
+        'early_bird',         // Friday
+        'weekend_warrior'     // Saturday
+    ];
+    
+    // For weekend_warrior, only show on Saturday/Sunday
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+        return DAILY_CHALLENGES.weekend_warrior;
+    }
+    
+    // For other days, use the mapped challenge
+    const challengeId = weekdayChallenges[dayOfWeek];
+    return DAILY_CHALLENGES[challengeId] || challenges[dayOfWeek % challenges.length];
 }
 
 // Render daily challenge widget (for use in lessons)
