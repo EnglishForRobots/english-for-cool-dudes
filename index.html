@@ -8,1022 +8,206 @@
     <meta http-equiv="Expires" content="0">
     <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
     <title>English For Cool Dudes - Master English with Gamified Learning</title>
-
+    
     <link rel="stylesheet" href="styles.css">
+
+    <!-- STEP 1: Load Supabase library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- STEP 2: Initialize auth system -->
     <script src="/init-auth.js"></script>
-
-    <style>
-        /* ═══════════════════════════════════════════════
-           DESIGN TOKENS
-        ═══════════════════════════════════════════════ */
-        :root {
-            --bg:           #0D1117;
-            --bg-card:      #161B27;
-            --bg-card-2:    #1C2333;
-            --border:       rgba(255,255,255,0.07);
-            --border-glow:  rgba(99,179,237,0.3);
-            --accent:       #63B3ED;
-            --accent-warm:  #F6AD55;
-            --accent-green: #68D391;
-            --accent-pink:  #FC8181;
-            --text-primary: #F0F4F8;
-            --text-secondary: #8899AA;
-            --text-muted:   #4A5568;
-            --radius:       14px;
-            --radius-sm:    8px;
-            --shadow:       0 4px 24px rgba(0,0,0,0.4);
-            --shadow-glow:  0 0 30px rgba(99,179,237,0.12);
-        }
-
-        /* ═══════════════════════════════════════════════
-           RESET & BASE
-        ═══════════════════════════════════════════════ */
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            background: var(--bg);
-            color: var(--text-primary);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-            line-height: 1.6;
-            min-height: 100vh;
-            overflow-x: hidden;
-            /* Subtle noise texture for depth */
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-        }
-
-        /* ═══════════════════════════════════════════════
-           STAGGERED LOAD ANIMATIONS
-        ═══════════════════════════════════════════════ */
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(18px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to   { opacity: 1; }
-        }
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(99,179,237,0.2); }
-            50%       { box-shadow: 0 0 0 8px rgba(99,179,237,0); }
-        }
-        @keyframes flame-flicker {
-            0%, 100% { transform: scaleY(1) rotate(-2deg); }
-            50%       { transform: scaleY(1.08) rotate(2deg); }
-        }
-        @keyframes countUp {
-            from { opacity: 0; transform: scale(0.7); }
-            to   { opacity: 1; transform: scale(1); }
-        }
-        @keyframes shimmer {
-            0%   { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-        @keyframes slideInRight {
-            from { opacity: 0; transform: translateX(20px); }
-            to   { opacity: 1; transform: translateX(0); }
-        }
-
-        .anim-1 { animation: fadeUp 0.5s ease both; animation-delay: 0.05s; }
-        .anim-2 { animation: fadeUp 0.5s ease both; animation-delay: 0.15s; }
-        .anim-3 { animation: fadeUp 0.5s ease both; animation-delay: 0.25s; }
-        .anim-4 { animation: fadeUp 0.5s ease both; animation-delay: 0.35s; }
-        .anim-5 { animation: fadeUp 0.5s ease both; animation-delay: 0.45s; }
-        .anim-6 { animation: fadeUp 0.5s ease both; animation-delay: 0.55s; }
-
-        /* ═══════════════════════════════════════════════
-           HEADER
-        ═══════════════════════════════════════════════ */
-        .header {
-            position: sticky; top: 0; z-index: 100;
-            background: rgba(13,17,23,0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border);
-            padding: 0 16px;
-            height: 56px;
-            display: flex; align-items: center;
-            animation: fadeIn 0.3s ease both;
-        }
-        .header-content {
-            width: 100%; max-width: 900px; margin: 0 auto;
-            display: flex; align-items: center; justify-content: space-between;
-        }
-        .header-left { display: flex; align-items: center; gap: 10px; }
-        .logo {
-            width: 34px; height: 34px;
-            background: linear-gradient(135deg, #667EEA, #764BA2);
-            border-radius: 9px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 18px;
-            box-shadow: 0 2px 12px rgba(102,126,234,0.4);
-            flex-shrink: 0;
-        }
-        .site-title {
-            font-size: 15px; font-weight: 800;
-            color: var(--text-primary);
-            text-decoration: none; letter-spacing: -0.3px;
-        }
-        @media (max-width: 360px) { .site-title { display: none; } }
-
-        /* Auth container from existing JS */
-        #header-auth-container {
-            display: flex; align-items: center; gap: 8px;
-        }
-
-        /* ═══════════════════════════════════════════════
-           SKELETON LOADERS (show while JS initialises)
-        ═══════════════════════════════════════════════ */
-        .skeleton {
-            background: linear-gradient(
-                90deg,
-                var(--bg-card) 25%,
-                var(--bg-card-2) 50%,
-                var(--bg-card) 75%
-            );
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            border-radius: var(--radius-sm);
-        }
-        .skeleton-hero {
-            height: 140px; border-radius: var(--radius);
-            margin: 16px; margin-bottom: 0;
-        }
-
-        /* ═══════════════════════════════════════════════
-           MAIN CONTAINER
-        ═══════════════════════════════════════════════ */
-        .container {
-            max-width: 900px; margin: 0 auto;
-            padding: 16px 16px 80px;
-            display: flex; flex-direction: column; gap: 24px;
-        }
-
-        /* ═══════════════════════════════════════════════
-           HERO STREAK CARD — renders instantly, JS fills numbers
-        ═══════════════════════════════════════════════ */
-        .hero-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-        /* Diagonal accent stripe */
-        .hero-card::before {
-            content: '';
-            position: absolute; top: 0; right: 0;
-            width: 180px; height: 180px;
-            background: radial-gradient(circle at top right, rgba(102,126,234,0.15), transparent 70%);
-            pointer-events: none;
-        }
-
-        .hero-top {
-            display: flex; align-items: flex-start; justify-content: space-between;
-            margin-bottom: 16px;
-        }
-        .hero-greeting {
-            font-size: 13px; font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase; letter-spacing: 0.8px;
-            margin-bottom: 3px;
-        }
-        .hero-name {
-            font-size: 22px; font-weight: 900;
-            color: var(--text-primary); letter-spacing: -0.5px;
-            line-height: 1.2;
-        }
-
-        /* Streak badge — top right of hero */
-        .streak-badge {
-            display: flex; flex-direction: column; align-items: center;
-            background: rgba(246,173,85,0.1);
-            border: 1px solid rgba(246,173,85,0.25);
-            border-radius: var(--radius-sm);
-            padding: 8px 14px;
-            min-width: 64px;
-            flex-shrink: 0;
-        }
-        .streak-flame {
-            font-size: 24px;
-            animation: flame-flicker 1.8s ease-in-out infinite;
-            display: block; line-height: 1;
-        }
-        .streak-num {
-            font-size: 20px; font-weight: 900;
-            color: var(--accent-warm);
-            line-height: 1; margin-top: 2px;
-            animation: countUp 0.6s cubic-bezier(0.175,0.885,0.32,1.275) both;
-            animation-delay: 0.3s;
-        }
-        .streak-label {
-            font-size: 9px; font-weight: 700;
-            color: rgba(246,173,85,0.6);
-            text-transform: uppercase; letter-spacing: 0.8px;
-            margin-top: 1px;
-        }
-
-        /* XP Progress bar */
-        .xp-section { margin-bottom: 16px; }
-        .xp-row {
-            display: flex; justify-content: space-between; align-items: baseline;
-            margin-bottom: 6px;
-        }
-        .xp-label {
-            font-size: 11px; font-weight: 700;
-            color: var(--text-secondary);
-            text-transform: uppercase; letter-spacing: 0.8px;
-        }
-        .xp-value {
-            font-size: 12px; font-weight: 800;
-            color: var(--accent);
-        }
-        .xp-bar-track {
-            height: 8px; background: rgba(255,255,255,0.06);
-            border-radius: 99px; overflow: hidden;
-        }
-        .xp-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667EEA, #63B3ED);
-            border-radius: 99px;
-            width: 0%;
-            transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
-            box-shadow: 0 0 8px rgba(99,179,237,0.5);
-        }
-
-        /* CTA button */
-        .hero-cta {
-            display: flex; align-items: center; justify-content: center;
-            gap: 8px;
-            width: 100%;
-            padding: 14px 20px;
-            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
-            color: white; font-size: 15px; font-weight: 800;
-            border: none; border-radius: var(--radius-sm);
-            cursor: pointer; text-decoration: none;
-            box-shadow: 0 4px 20px rgba(102,126,234,0.35);
-            transition: transform 0.15s, box-shadow 0.15s;
-            animation: pulse-glow 3s ease-in-out infinite;
-            letter-spacing: -0.2px;
-        }
-        .hero-cta:active { transform: scale(0.97); box-shadow: 0 2px 10px rgba(102,126,234,0.3); }
-        @media (min-width: 768px) { .hero-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(102,126,234,0.45); } }
-
-        /* Stat row below CTA */
-        .hero-stats {
-            display: flex; gap: 0;
-            margin-top: 12px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            overflow: hidden;
-        }
-        .hero-stat {
-            flex: 1; padding: 10px 8px;
-            text-align: center;
-            border-right: 1px solid var(--border);
-        }
-        .hero-stat:last-child { border-right: none; }
-        .hero-stat-num {
-            font-size: 18px; font-weight: 900;
-            color: var(--text-primary); display: block;
-            animation: countUp 0.6s cubic-bezier(0.175,0.885,0.32,1.275) both;
-        }
-        .hero-stat-num.green  { color: var(--accent-green); animation-delay: 0.4s; }
-        .hero-stat-num.blue   { color: var(--accent); animation-delay: 0.5s; }
-        .hero-stat-num.pink   { color: var(--accent-pink); animation-delay: 0.6s; }
-        .hero-stat-label {
-            font-size: 10px; font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase; letter-spacing: 0.6px;
-        }
-
-        /* Logged-out state for hero */
-        .hero-guest { text-align: center; }
-        .hero-guest-title {
-            font-size: 26px; font-weight: 900;
-            color: var(--text-primary); letter-spacing: -0.5px;
-            margin-bottom: 4px;
-        }
-        .hero-guest-sub {
-            font-size: 14px; color: var(--text-secondary);
-            margin-bottom: 16px;
-        }
-        .btn-signup {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 13px 28px;
-            background: linear-gradient(135deg, #667EEA, #764BA2);
-            color: white; font-size: 15px; font-weight: 800;
-            border-radius: var(--radius-sm); text-decoration: none;
-            box-shadow: 0 4px 20px rgba(102,126,234,0.35);
-            transition: transform 0.15s;
-            letter-spacing: -0.2px;
-        }
-        .btn-signup:active { transform: scale(0.97); }
-
-        /* ═══════════════════════════════════════════════
-           DAILY CHALLENGE STRIP
-        ═══════════════════════════════════════════════ */
-        .daily-strip {
-            background: linear-gradient(135deg, rgba(104,211,145,0.08), rgba(99,179,237,0.08));
-            border: 1px solid rgba(104,211,145,0.2);
-            border-radius: var(--radius);
-            padding: 14px 16px;
-            display: flex; align-items: center; gap: 14px;
-            cursor: pointer;
-            transition: border-color 0.2s, background 0.2s;
-            text-decoration: none;
-        }
-        .daily-strip:active { background: rgba(104,211,145,0.12); }
-        @media (min-width: 768px) { .daily-strip:hover { border-color: rgba(104,211,145,0.4); } }
-        .daily-icon { font-size: 28px; flex-shrink: 0; }
-        .daily-text { flex: 1; }
-        .daily-title {
-            font-size: 14px; font-weight: 800;
-            color: var(--accent-green); margin-bottom: 1px;
-        }
-        .daily-sub { font-size: 12px; color: var(--text-secondary); }
-        .daily-arrow {
-            font-size: 18px; color: var(--text-muted);
-            flex-shrink: 0;
-        }
-
-        /* ═══════════════════════════════════════════════
-           SECTION HEADERS
-        ═══════════════════════════════════════════════ */
-        .section-header {
-            display: flex; align-items: center; gap: 8px;
-            margin-bottom: 12px;
-        }
-        .section-label {
-            font-size: 11px; font-weight: 800;
-            color: var(--text-muted);
-            text-transform: uppercase; letter-spacing: 1.2px;
-        }
-        .section-line {
-            flex: 1; height: 1px;
-            background: var(--border);
-        }
-
-        /* ═══════════════════════════════════════════════
-           HORIZONTAL SCROLL STRIPS (course cards)
-        ═══════════════════════════════════════════════ */
-        .card-strip {
-            display: flex; gap: 12px;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-            padding-bottom: 8px;
-            /* Hide scrollbar but keep scrolling */
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-        .card-strip::-webkit-scrollbar { display: none; }
-
-        /* On desktop: wrap into grid */
-        @media (min-width: 640px) {
-            .card-strip {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-                overflow-x: visible;
-                scroll-snap-type: none;
-            }
-        }
-
-        /* ═══════════════════════════════════════════════
-           COURSE CARDS
-        ═══════════════════════════════════════════════ */
-        .course-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 18px;
-            text-decoration: none;
-            display: flex; flex-direction: column; gap: 10px;
-            transition: transform 0.15s, border-color 0.2s, box-shadow 0.2s;
-            /* Mobile: fixed width for horizontal scroll */
-            min-width: 220px;
-            scroll-snap-align: start;
-            flex-shrink: 0;
-            position: relative; overflow: hidden;
-        }
-        /* Desktop: full width in grid */
-        @media (min-width: 640px) {
-            .course-card { min-width: 0; flex-shrink: 1; }
-            .course-card:hover {
-                transform: translateY(-2px);
-                border-color: rgba(255,255,255,0.15);
-                box-shadow: var(--shadow);
-            }
-        }
-        .course-card:active { transform: scale(0.98); }
-
-        /* Accent top bar — different per card via data attribute */
-        .course-card::before {
-            content: '';
-            position: absolute; top: 0; left: 0; right: 0;
-            height: 3px;
-            background: var(--card-accent, linear-gradient(90deg, #667EEA, #764BA2));
-        }
-        .course-card[data-accent="purple"]::before { background: linear-gradient(90deg, #667EEA, #764BA2); }
-        .course-card[data-accent="orange"]::before { background: linear-gradient(90deg, #F6AD55, #FC8181); }
-        .course-card[data-accent="blue"]::before   { background: linear-gradient(90deg, #63B3ED, #4299E1); }
-        .course-card[data-accent="green"]::before  { background: linear-gradient(90deg, #68D391, #38A169); }
-        .course-card[data-accent="pink"]::before   { background: linear-gradient(90deg, #FC8181, #ED64A6); }
-        .course-card[data-accent="teal"]::before   { background: linear-gradient(90deg, #4FD1C5, #38B2AC); }
-
-        .card-top { display: flex; align-items: center; gap: 10px; }
-        .card-icon {
-            width: 40px; height: 40px;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.05);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; flex-shrink: 0;
-        }
-        .card-title {
-            font-size: 15px; font-weight: 800;
-            color: var(--text-primary); letter-spacing: -0.2px;
-        }
-        .card-level {
-            font-size: 10px; font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase; letter-spacing: 0.8px;
-            margin-top: 1px;
-        }
-        .card-desc {
-            font-size: 12px; color: var(--text-secondary);
-            line-height: 1.5; flex: 1;
-        }
-        .card-footer {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-top: auto;
-        }
-        .card-meta { font-size: 11px; color: var(--text-muted); }
-        .card-arrow {
-            width: 28px; height: 28px;
-            background: rgba(255,255,255,0.06);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 13px;
-            transition: background 0.15s, transform 0.15s;
-        }
-        @media (min-width: 640px) {
-            .course-card:hover .card-arrow {
-                background: rgba(255,255,255,0.12);
-                transform: translateX(2px);
-            }
-        }
-
-        /* ═══════════════════════════════════════════════
-           COOL PICKS WIDGET (kept exactly as-is, restyled)
-        ═══════════════════════════════════════════════ */
-        #cool-picks-widget {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            overflow: hidden;
-        }
-        .picks-content {
-            padding: 16px;
-            display: flex; align-items: center; gap: 14px;
-        }
-        .picks-text { flex: 1; }
-        #picks-title {
-            font-size: 15px; font-weight: 800;
-            color: var(--text-primary); margin-bottom: 2px;
-        }
-        #picks-desc { font-size: 12px; color: var(--text-secondary); }
-        .picks-btn {
-            padding: 10px 16px;
-            background: rgba(246,173,85,0.12);
-            border: 1px solid rgba(246,173,85,0.3);
-            color: var(--accent-warm);
-            font-size: 13px; font-weight: 700;
-            border-radius: var(--radius-sm);
-            cursor: pointer; white-space: nowrap;
-            transition: background 0.15s;
-            flex-shrink: 0;
-        }
-        .picks-btn:active { background: rgba(246,173,85,0.2); }
-
-        /* ═══════════════════════════════════════════════
-           GAME ZONE CARD (Break Room)
-        ═══════════════════════════════════════════════ */
-        .game-card {
-            background: linear-gradient(135deg, #1a1040 0%, #1C2333 100%);
-            border: 1px solid rgba(102,126,234,0.2);
-            border-radius: var(--radius);
-            padding: 20px;
-            text-decoration: none;
-            display: flex; align-items: center; gap: 16px;
-            transition: border-color 0.2s, transform 0.15s;
-            position: relative; overflow: hidden;
-        }
-        .game-card::after {
-            content: '';
-            position: absolute; inset: 0;
-            background: linear-gradient(135deg, rgba(102,126,234,0.05), transparent);
-            pointer-events: none;
-        }
-        .game-card:active { transform: scale(0.98); }
-        @media (min-width: 640px) {
-            .game-card:hover { border-color: rgba(102,126,234,0.4); transform: translateY(-1px); }
-        }
-        .game-icon-wrap {
-            width: 52px; height: 52px; flex-shrink: 0;
-            background: rgba(102,126,234,0.15);
-            border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 26px;
-        }
-        .game-text { flex: 1; }
-        .game-title {
-            font-size: 16px; font-weight: 900;
-            color: var(--text-primary); letter-spacing: -0.3px;
-            margin-bottom: 3px;
-        }
-        .game-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
-        .game-badge {
-            background: linear-gradient(135deg, #667EEA, #764BA2);
-            color: white; font-size: 10px; font-weight: 800;
-            padding: 4px 10px; border-radius: 99px;
-            text-transform: uppercase; letter-spacing: 0.8px;
-            flex-shrink: 0;
-        }
-
-        /* ═══════════════════════════════════════════════
-           LEADERBOARD TEASER
-        ═══════════════════════════════════════════════ */
-        .leaderboard-teaser {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            overflow: hidden;
-        }
-        .leaderboard-header {
-            padding: 14px 16px 10px;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid var(--border);
-        }
-        .leaderboard-title {
-            font-size: 13px; font-weight: 800;
-            color: var(--text-primary);
-        }
-        .leaderboard-link {
-            font-size: 11px; font-weight: 700;
-            color: var(--accent); text-decoration: none;
-            text-transform: uppercase; letter-spacing: 0.6px;
-        }
-        .leaderboard-row {
-            display: flex; align-items: center; gap: 12px;
-            padding: 10px 16px;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.15s;
-        }
-        .leaderboard-row:last-child { border-bottom: none; }
-        .leaderboard-row.you { background: rgba(99,179,237,0.05); }
-        .rank-num {
-            font-size: 13px; font-weight: 900;
-            color: var(--text-muted); width: 20px;
-            text-align: center; flex-shrink: 0;
-        }
-        .rank-num.gold   { color: #F6E05E; }
-        .rank-num.silver { color: #CBD5E0; }
-        .rank-num.bronze { color: #DD6B20; }
-        .rank-avatar {
-            width: 30px; height: 30px; border-radius: 50%;
-            background: linear-gradient(135deg, #667EEA, #764BA2);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 14px; flex-shrink: 0;
-        }
-        .rank-name { flex: 1; font-size: 13px; font-weight: 600; color: var(--text-primary); }
-        .rank-xp { font-size: 12px; font-weight: 800; color: var(--accent); }
-
-        /* ═══════════════════════════════════════════════
-           FOOTER
-        ═══════════════════════════════════════════════ */
-        .footer {
-            text-align: center;
-            padding: 24px 16px 32px;
-            border-top: 1px solid var(--border);
-        }
-        .footer-text { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
-        .footer a {
-            color: var(--accent); font-size: 12px;
-            text-decoration: none; margin: 0 8px;
-            transition: color 0.15s;
-        }
-
-        /* ═══════════════════════════════════════════════
-           WELCOME MESSAGE (injected by existing JS)
-        ═══════════════════════════════════════════════ */
-        /* These override whatever styles.css has to match our dark theme */
-        .welcome-card, .welcome-message {
-            background: var(--bg-card) !important;
-            border: 1px solid var(--border) !important;
-            border-radius: var(--radius) !important;
-            color: var(--text-primary) !important;
-        }
-
-        /* ═══════════════════════════════════════════════
-           UTILITY
-        ═══════════════════════════════════════════════ */
-        .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
-
-        /* Scroll hint arrow — shows on mobile to indicate swipeable content */
-        .scroll-hint {
-            display: flex; align-items: center; gap: 4px;
-            font-size: 10px; color: var(--text-muted);
-            margin-top: -6px; margin-bottom: 4px;
-        }
-        .scroll-hint-arrow { animation: slideInRight 1s ease infinite; }
-        @media (min-width: 640px) { .scroll-hint { display: none; } }
-    </style>
 </head>
 <body>
 
-    <!-- ═══════════════════════════════════════════════
-         HEADER
-    ═══════════════════════════════════════════════ -->
     <header class="header">
         <div class="header-content">
             <div class="header-left">
-                <div class="logo">😎</div>
+                <span class="logo">😎</span>
                 <a href="/" class="site-title">English For Cool Dudes</a>
             </div>
+            <!-- Auth buttons will be injected here by main-gamified.js -->
             <div id="header-auth-container"></div>
         </div>
     </header>
 
-    <!-- ═══════════════════════════════════════════════
-         MAIN
-    ═══════════════════════════════════════════════ -->
     <main class="container">
+        <!-- Welcome card will be injected here for logged-in users -->
 
-        <!-- HERO CARD — skeleton shows instantly, JS replaces content -->
-        <div class="anim-1">
-            <div class="hero-card" id="hero-card">
-                <!-- Skeleton state — replaced by JS once auth resolves -->
-                <div class="skeleton" style="height:18px;width:40%;margin-bottom:8px;"></div>
-                <div class="skeleton" style="height:28px;width:65%;margin-bottom:16px;"></div>
-                <div class="skeleton" style="height:10px;margin-bottom:6px;"></div>
-                <div class="skeleton" style="height:48px;border-radius:8px;margin-top:8px;"></div>
-            </div>
-        </div>
-
-        <!-- DAILY CHALLENGE STRIP -->
-        <div class="anim-2">
-            <div class="daily-strip" id="daily-challenge-widget" onclick="window.location.href='#'">
-                <div class="daily-icon">⚡</div>
-                <div class="daily-text">
-                    <div class="daily-title">Daily Challenge</div>
-                    <div class="daily-sub" id="daily-sub">Complete today's mission to protect your streak!</div>
+        <!-- Cool Picks Widget -->
+        <div id="cool-picks-widget">
+            <div class="picks-content">
+                <div class="picks-text">
+                    <h3 id="picks-title">🎯 Cool Picks For You</h3>
+                    <p id="picks-desc">Discover something new today!</p>
                 </div>
-                <div class="daily-arrow">›</div>
+                <button id="picks-btn" class="picks-btn">
+                    👀 Show Me
+                </button>
             </div>
         </div>
 
-        <!-- COOL PICKS WIDGET (existing JS hook preserved) -->
-        <div class="anim-3">
-            <div id="cool-picks-widget">
-                <div class="picks-content">
-                    <div class="picks-text">
-                        <h3 id="picks-title">🎯 Cool Picks For You</h3>
-                        <p id="picks-desc">Discover something new today!</p>
-                    </div>
-                    <button id="picks-btn" class="picks-btn">👀 Show Me</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- SPECIALIZED ENGLISH -->
-        <div class="anim-4">
+        <section class="section">
             <div class="section-header">
-                <span class="section-label">Specialized</span>
-                <div class="section-line"></div>
+                <span class="section-icon">💼</span>
+                <h2 class="section-title">Specialized English</h2>
             </div>
-            <p class="scroll-hint">Swipe to see more <span class="scroll-hint-arrow">→</span></p>
-            <div class="card-strip">
-                <a href="business/" class="course-card" data-accent="purple">
-                    <div class="card-top">
-                        <div class="card-icon">💼</div>
-                        <div>
-                            <div class="card-title">Business English</div>
-                            <div class="card-level">Professional</div>
-                        </div>
+            <div class="course-grid">
+                <a href="business/" class="course-card">
+                    <div class="course-header">
+                        <span class="course-icon">💼</span>
+                        <h3 class="course-title">Business English</h3>
+                        <span class="course-level">Professional</span>
                     </div>
-                    <div class="card-desc">Master meetings, emails, presentations and negotiations.</div>
-                    <div class="card-footer">
-                        <span class="card-meta">📚 Multiple lessons</span>
-                        <span class="card-arrow">›</span>
+                    <div class="course-body">
+                        <p class="course-description">Master professional communication for meetings, emails, presentations, and business negotiations.</p>
+                        <div class="course-meta">
+                            <span class="meta-item">📚 Multiple lessons</span>
+                            <span class="meta-item">⏱️ Self-paced</span>
+                        </div>
                     </div>
                 </a>
-
-                <a href="tax/" class="course-card" data-accent="orange">
-                    <div class="card-top">
-                        <div class="card-icon">💰</div>
-                        <div>
-                            <div class="card-title">Tax English</div>
-                            <div class="card-level">Specialist</div>
-                        </div>
+                <a href="tax/" class="course-card">
+                    <div class="course-header">
+                        <span class="course-icon">💰</span>
+                        <h3 class="course-title">Tax English</h3>
+                        <span class="course-level">Specialist</span>
                     </div>
-                    <div class="card-desc">Learn tax terminology for accounting professionals.</div>
-                    <div class="card-footer">
-                        <span class="card-meta">📚 Multiple lessons</span>
-                        <span class="card-arrow">›</span>
+                    <div class="course-body">
+                        <p class="course-description">Learn tax terminology, concepts, and documentation language for accounting professionals.</p>
+                        <div class="course-meta">
+                            <span class="meta-item">📚 Multiple lessons</span>
+                            <span class="meta-item">⏱️ Self-paced</span>
+                        </div>
                     </div>
                 </a>
-
-                <a href="legal/" class="course-card" data-accent="teal">
-                    <div class="card-top">
-                        <div class="card-icon">⚖️</div>
-                        <div>
-                            <div class="card-title">Legal English</div>
-                            <div class="card-level">Specialist</div>
-                        </div>
+                <a href="legal/" class="course-card">
+                    <div class="course-header">
+                        <span class="course-icon">⚖️</span>
+                        <h3 class="course-title">Legal English</h3>
+                        <span class="course-level">Specialist</span>
                     </div>
-                    <div class="card-desc">Navigate legal terminology and contracts with confidence.</div>
-                    <div class="card-footer">
-                        <span class="card-meta">📚 Multiple lessons</span>
-                        <span class="card-arrow">›</span>
+                    <div class="course-body">
+                        <p class="course-description">Navigate legal terminology, contracts, and documentation with confidence and precision.</p>
+                        <div class="course-meta">
+                            <span class="meta-item">📚 Multiple lessons</span>
+                            <span class="meta-item">⏱️ Self-paced</span>
+                        </div>
                     </div>
                 </a>
             </div>
-        </div>
+        </section>
 
-        <!-- GENERAL ENGLISH -->
-        <div class="anim-5">
+        <section class="section">
             <div class="section-header">
-                <span class="section-label">General English</span>
-                <div class="section-line"></div>
+                <span class="section-icon">📖</span>
+                <h2 class="section-title">General English Courses</h2>
             </div>
-            <div class="card-strip">
-                <a href="beginner/" class="course-card" data-accent="green">
-                    <div class="card-top">
-                        <div class="card-icon">🌱</div>
-                        <div>
-                            <div class="card-title">Beginner</div>
-                            <div class="card-level">A1–A2</div>
-                        </div>
+            <div class="course-grid">
+                <a href="beginner/" class="course-card">
+                    <div class="course-header">
+                        <span class="course-icon">🌱</span>
+                        <h3 class="course-title">Beginner Course</h3>
+                        <span class="course-level">A1-A2</span>
                     </div>
-                    <div class="card-desc">Start your English journey from the very beginning.</div>
-                    <div class="card-footer">
-                        <span class="card-meta">📚 Foundation level</span>
-                        <span class="card-arrow">›</span>
+                    <div class="course-body">
+                        <p class="course-description">Start your English journey. Learn basic grammar, vocabulary, and everyday conversation skills.</p>
+                        <div class="course-meta">
+                            <span class="meta-item">📚 Foundation level</span>
+                            <span class="meta-item">⏱️ Step by step</span>
+                        </div>
                     </div>
                 </a>
-
-                <a href="intermediate/" class="course-card" data-accent="blue">
-                    <div class="card-top">
-                        <div class="card-icon">🚀</div>
-                        <div>
-                            <div class="card-title">Intermediate</div>
-                            <div class="card-level">B1–B2</div>
-                        </div>
+                <a href="intermediate/" class="course-card">
+                    <div class="course-header">
+                        <span class="course-icon">🚀</span>
+                        <h3 class="course-title">Intermediate Course</h3>
+                        <span class="course-level">B1-B2</span>
                     </div>
-                    <div class="card-desc">Build confidence with complex grammar for real-world situations.</div>
-                    <div class="card-footer">
-                        <span class="card-meta">📚 Expanding skills</span>
-                        <span class="card-arrow">›</span>
+                    <div class="course-body">
+                        <p class="course-description">Build confidence with complex grammar and expand your vocabulary for real-world situations.</p>
+                        <div class="course-meta">
+                            <span class="meta-item">📚 Expanding skills</span>
+                            <span class="meta-item">⏱️ Progressive</span>
+                        </div>
                     </div>
                 </a>
-
-                <a href="advanced/" class="course-card" data-accent="pink">
-                    <div class="card-top">
-                        <div class="card-icon">🎯</div>
-                        <div>
-                            <div class="card-title">Advanced</div>
-                            <div class="card-level">C1–C2</div>
-                        </div>
+                <a href="advanced/" class="course-card">
+                    <div class="course-header">
+                        <span class="course-icon">🎯</span>
+                        <h3 class="course-title">Advanced Course</h3>
+                        <span class="course-level">C1-C2</span>
                     </div>
-                    <div class="card-desc">Master idioms and achieve native-like British English fluency.</div>
-                    <div class="card-footer">
-                        <span class="card-meta">📚 Mastery level</span>
-                        <span class="card-arrow">›</span>
+                    <div class="course-body">
+                        <p class="course-description">Master sophisticated expressions, idioms, and achieve native-like fluency in British English.</p>
+                        <div class="course-meta">
+                            <span class="meta-item">📚 Mastery level</span>
+                            <span class="meta-item">⏱️ Advanced</span>
+                        </div>
                     </div>
                 </a>
             </div>
-        </div>
+        </section>
 
-        <!-- GAME ZONE -->
-        <div class="anim-6">
+        <section class="section">
             <div class="section-header">
-                <span class="section-label">The Break Room</span>
-                <div class="section-line"></div>
+                <span class="section-icon">☕</span>
+                <h2 class="section-title">The Break Room</h2>
             </div>
-            <a href="games/" class="game-card">
-                <div class="game-icon-wrap">🎮</div>
-                <div class="game-text">
-                    <div class="game-title">Game Zone</div>
-                    <div class="game-desc">What Am I? · Chat Attack · Vibe Check · Much More</div>
-                </div>
-                <div class="game-badge">Play Now</div>
-            </a>
-        </div>
-
-        <!-- LEADERBOARD TEASER (populated by JS) -->
-        <div class="anim-6" id="leaderboard-section" style="display:none;">
-            <div class="section-header">
-                <span class="section-label">🏆 This Week's Leaders</span>
-                <div class="section-line"></div>
+            <div class="quick-links">
+                <a href="games/" class="quick-link">
+                    <span class="quick-link-icon">🎮</span>
+                    <div class="quick-link-text">
+                        <div class="quick-link-title">Game Zone</div>
+                        <div class="quick-link-desc">Play 'What Am I?', 'Chat Attack', 'Vibe Check', & 'Much More'.</div>
+                    </div>
+                </a>
             </div>
-            <div class="leaderboard-teaser">
-                <div class="leaderboard-header">
-                    <span class="leaderboard-title">Top Learners</span>
-                    <a href="/leaderboard/" class="leaderboard-link">See All →</a>
-                </div>
-                <div id="leaderboard-rows">
-                    <!-- Populated by JS -->
-                </div>
-            </div>
-        </div>
-
+        </section>
     </main>
 
     <footer class="footer">
-        <p class="footer-text">© 2026 English For Cool Dudes 😎</p>
-        <div>
-            <a href="impressum/">Impressum</a>
-            <a href="datenschutz/">Datenschutzerklärung</a>
+        <p class="footer-text">© 2026 English For Cool Dudes - 😎</p>
+        <div style="margin-top: 10px;">
+            <a href="impressum/" style="color: #667EEA; margin-right: 15px; text-decoration: none;">Impressum</a>
+            <a href="datenschutz/" style="color: #667EEA; text-decoration: none;">Datenschutzerklärung</a>
         </div>
     </footer>
 
-    <!-- ═══════════════════════════════════════════════
-         SCRIPTS — all existing hooks preserved exactly
-    ═══════════════════════════════════════════════ -->
+    <!-- STEP 3: Load gamification system -->
     <script src="/supabase-auth-gamified.js"></script>
+    
+    <!-- STEP 4: Load UI manager (NO TICKERS VERSION) -->
     <script src="/main-gamified.js"></script>
+    
+    <!-- STEP 5: Load Cool Picks widget -->
     <script src="/coolPicks-enhanced.js"></script>
 
+    <!-- STEP 6: Initialize everything -->
     <script>
-        // ─── TIME-OF-DAY GREETING ────────────────────────────────
-        function getGreeting() {
-            const h = new Date().getHours();
-            if (h < 12) return 'Good morning';
-            if (h < 18) return 'Good afternoon';
-            return 'Good evening';
-        }
-
-        // ─── RENDER HERO: LOGGED IN ──────────────────────────────
-        function renderHeroLoggedIn(stats, user) {
-            const name = user.user_metadata?.display_name
-                || user.email?.split('@')[0]
-                || 'Learner';
-            const streak      = stats?.streak || 0;
-            const xp          = stats?.xp || 0;
-            const level       = stats?.level || 1;
-            const lessons     = stats?.lessonsCompleted || 0;
-            const achievements = stats?.achievementsCount || 0;
-
-            // XP within current level (rough: 500xp per level)
-            const xpInLevel    = xp % 500;
-            const xpPct        = Math.min(100, Math.round((xpInLevel / 500) * 100));
-            const xpToNext     = 500 - xpInLevel;
-
-            // Last lesson link from localStorage (best-effort)
-            const lastLesson = localStorage.getItem('efcd_last_lesson_url') || '#';
-            const lastLessonName = localStorage.getItem('efcd_last_lesson_name') || 'Continue Learning';
-
-            document.getElementById('hero-card').innerHTML = `
-                <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
-                    <div>
-                        <div class="hero-greeting">${getGreeting()}</div>
-                        <div class="hero-name">${name} <span style="font-size:14px;color:var(--text-muted);font-weight:600;">Lv.${level}</span></div>
-                    </div>
-                    <div class="streak-badge">
-                        <span class="streak-flame">🔥</span>
-                        <span class="streak-num">${streak}</span>
-                        <span class="streak-label">day streak</span>
-                    </div>
-                </div>
-
-                <div class="xp-section">
-                    <div class="xp-row">
-                        <span class="xp-label">⚡ XP Progress</span>
-                        <span class="xp-value">${xpInLevel} / 500 · ${xpToNext} to Level ${level + 1}</span>
-                    </div>
-                    <div class="xp-bar-track">
-                        <div class="xp-bar-fill" id="xp-fill"></div>
-                    </div>
-                </div>
-
-                <a href="${lastLesson}" class="hero-cta">
-                    🚀 ${lastLessonName}
-                </a>
-
-                <div class="hero-stats">
-                    <div class="hero-stat">
-                        <span class="hero-stat-num green">${lessons}</span>
-                        <span class="hero-stat-label">Lessons</span>
-                    </div>
-                    <div class="hero-stat">
-                        <span class="hero-stat-num blue">${xp}</span>
-                        <span class="hero-stat-label">Total XP</span>
-                    </div>
-                    <div class="hero-stat">
-                        <span class="hero-stat-num pink">${achievements}</span>
-                        <span class="hero-stat-label">Badges</span>
-                    </div>
-                </div>`;
-
-            // Animate XP bar fill after a tiny delay
-            requestAnimationFrame(() => {
-                setTimeout(() => {
-                    const fill = document.getElementById('xp-fill');
-                    if (fill) fill.style.width = xpPct + '%';
-                }, 100);
-            });
-
-            // Try to show leaderboard teaser if data available
-            tryRenderLeaderboard();
-
-            // Update daily challenge sub-text with streak context
-            if (streak > 0) {
-                const sub = document.getElementById('daily-sub');
-                if (sub) sub.textContent = `🔥 ${streak}-day streak — don't break it today!`;
-            }
-        }
-
-        // ─── RENDER HERO: GUEST ──────────────────────────────────
-        function renderHeroGuest() {
-            document.getElementById('hero-card').innerHTML = `
-                <div class="hero-guest">
-                    <div class="hero-guest-title">Learn English. Level Up. 😎</div>
-                    <div class="hero-guest-sub">Join thousands of learners — track streaks, earn XP, unlock badges.</div>
-                    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px;">
-                        <a href="/signup/" class="btn-signup">🚀 Start Free</a>
-                        <a href="/login/" style="display:inline-flex;align-items:center;padding:13px 20px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:var(--text-secondary);font-size:14px;font-weight:700;border-radius:8px;text-decoration:none;">Log In</a>
-                    </div>
-                </div>`;
-        }
-
-        // ─── LEADERBOARD TEASER ──────────────────────────────────
-        async function tryRenderLeaderboard() {
-            // Only attempt if EFCD_Auth has a leaderboard method
-            if (!window.EFCD_Auth?.getLeaderboard) return;
-            try {
-                const data = await window.EFCD_Auth.getLeaderboard(5);
-                if (!data || !data.length) return;
-
-                const rankClasses = ['gold', 'silver', 'bronze', '', ''];
-                const rankEmojis  = ['🥇', '🥈', '🥉', '4', '5'];
-                const currentUser = window.EFCD_Auth.getCurrentUser();
-
-                const rows = data.map((entry, i) => {
-                    const isYou = currentUser && entry.user_id === currentUser.id;
-                    return `<div class="leaderboard-row${isYou ? ' you' : ''}">
-                        <span class="rank-num ${rankClasses[i]}">${rankEmojis[i]}</span>
-                        <div class="rank-avatar">${(entry.display_name || '?')[0].toUpperCase()}</div>
-                        <span class="rank-name">${entry.display_name || 'Learner'}${isYou ? ' <span style="font-size:10px;color:var(--accent);">(you)</span>' : ''}</span>
-                        <span class="rank-xp">${entry.xp?.toLocaleString() || 0} XP</span>
-                    </div>`;
-                }).join('');
-
-                document.getElementById('leaderboard-rows').innerHTML = rows;
-                document.getElementById('leaderboard-section').style.display = 'block';
-            } catch (e) {
-                // Leaderboard optional — fail silently
-            }
-        }
-
-        // ─── MAIN INIT ───────────────────────────────────────────
         console.log('🚀 Starting initialization...');
-
+        
         window.efcdReady.then(async () => {
             console.log('🎉 System ready, initializing UI...');
-
+            
             try {
+                // Initialize auth
                 await window.EFCD_Auth.initAuth();
                 console.log('✅ Auth initialized');
-
-                const user = window.EFCD_Auth.getCurrentUser();
-
-                if (user) {
-                    const stats = window.EFCD_Auth.getUserStats();
-                    renderHeroLoggedIn(stats, user);
-                } else {
-                    renderHeroGuest();
-                }
-
-                // Existing UI manager hooks — unchanged
+                
+                // Update UI components
                 if (window.EFCD_UI) {
                     window.EFCD_UI.updateHeaderUI();
                     window.EFCD_UI.showWelcomeMessage();
                     console.log('✅ UI components initialized');
                 }
-
+                
                 console.log('🎊 Site fully loaded!');
             } catch (error) {
                 console.error('❌ Initialization error:', error);
-                renderHeroGuest(); // Fail gracefully
             }
         }).catch(error => {
             console.error('❌ Ready promise error:', error);
-            renderHeroGuest();
         });
     </script>
-
 </body>
 </html>
