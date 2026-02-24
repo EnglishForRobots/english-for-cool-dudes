@@ -1431,6 +1431,7 @@ function rndBadge() { return L.badges[Math.floor(Math.random()*L.badges.length)]
 async function finishLesson() {
     doneSecs=TOTAL; updateProg();
     if (!window.EFCD_Auth?.getCurrentUser()) {
+        localStorage.setItem('efcd_last_lesson_done', 'true'); // mark done for homepage
         if (confirm('🚀 Lesson complete!\n\nSign up free to save your XP, streaks and badges.\n\nOK = Sign up | Cancel = Keep browsing'))
             window.location.href='/signup/';
         else if (typeof showWordMatchGame==='function')
@@ -1438,6 +1439,7 @@ async function finishLesson() {
         else window.location.href=L.levelPage;
         return;
     }
+    localStorage.setItem('efcd_last_lesson_done', 'true'); // mark done — homepage shows "Find Next"
     const result = await window.EFCD_Auth.completeLesson({
         lessonId:L.lessonId, lessonTitle:L.title, lessonLevel:L.level,
         lessonLink:L.lessonLink, vocabulary:L.vocabulary, grammar:L.grammar,
@@ -1479,6 +1481,13 @@ function showEndScreen(res, game) {
    STATS — efcdReady-safe
 ══════════════════════════════════════════════════════ */
 function initStats() {
+    // Mark IN-PROGRESS as soon as user lands on this page.
+    // homepage will show "Continue: Elon Musk's Big Bet" with a real link.
+    // finishLesson() overwrites done='true' so homepage switches to "Find Next Lesson".
+    localStorage.setItem('efcd_last_lesson_url',  window.location.pathname);
+    localStorage.setItem('efcd_last_lesson_name', "Elon Musk's Big Bet");
+    localStorage.setItem('efcd_last_lesson_done', 'false');
+
     function tryInit() {
         if (typeof window.efcdReady==='undefined') { setTimeout(tryInit, 50); return; }
         window.efcdReady.then(async () => {
@@ -1489,9 +1498,6 @@ function initStats() {
                 const s = window.EFCD_Auth.getUserStats();
                 document.getElementById('hdr-streak').textContent = s?.streak||0;
                 document.getElementById('hdr-xp').textContent     = (s?.xp||0).toLocaleString();
-                // Use actual current URL so homepage links always work
-                localStorage.setItem('efcd_last_lesson_url',  window.location.pathname);
-                localStorage.setItem('efcd_last_lesson_name', "Elon Musk's Big Bet");
             }
         }).catch(()=>{});
     }
