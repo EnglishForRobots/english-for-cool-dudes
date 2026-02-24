@@ -15,7 +15,7 @@ const coolPicksWidget = {
         { url: '/flyingtaxis/', time: '9 mins', name: 'Advanced: Flying Taxis', category: 'advanced' },
         { url: '/sandwich/', time: '5 mins', name: 'Beginner: The Earl of Sandwich', category: 'beginner' },
         { url: '/aivideos/', time: '11 mins', name: 'Advanced: AI Videos', category: 'advanced' },
-        { url:'/muskman/',      time:'12 mins', name:'Intermediate: Elon Musk'\'s Big Bet',  category:'intermediate', icon:'🚀', fact:'SpaceX is valued at more than the Dutch economy!' },
+        { url:'/muskman/',      time:'12 mins', name:'Intermediate: Elon Musk: The Big Bet',  category:'intermediate', icon:'🚀', fact:'SpaceX is valued at more than the Dutch economy!' },
     
         
         // Add more lessons with appropriate categories:
