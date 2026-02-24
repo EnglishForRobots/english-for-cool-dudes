@@ -248,6 +248,25 @@
         .sb-arrow { font-size:24px; font-weight:900; color:var(--ink-bold); opacity:.5; animation:nudge 2s ease-in-out infinite; }
 
         /* ═══════════════════════════════
+   FIXED WIDGET LAYOUT & COOL PICKS
+═══════════════════════════════ */
+.widget-row { display: grid; grid-template-columns: 1fr; gap: 16px; align-items: stretch; }
+@media(min-width: 600px) { .widget-row { grid-template-columns: 1fr 1fr; } }
+
+/* Cool Picks Widget Specifics */
+#cool-picks-widget {
+    display: flex; flex-direction: column; justify-content: space-between; height: 100%; gap: 12px;
+}
+.picks-content-wrap { flex: 1; }
+
+/* Injected Cool Picks CSS from the JS file */
+.picks-full-preview, .picks-funfact, .picks-mystery { color: var(--ink-bold); display: flex; flex-direction: column; gap: 8px; }
+.picks-header-row { font-weight: 900; font-size: 16px; display: flex; align-items: center; gap: 8px; color: var(--ink-bold); }
+.picks-preview, .picks-tagline { font-size: 14px; font-weight: 700; color: var(--ink-3); }
+.picks-learnings, .picks-fact { font-size: 13px; background: var(--bg); padding: 10px; border-radius: 12px; color: var(--ink-bold); border: 2px solid var(--border); }
+.picks-direct-badge { display: inline-block; font-size: 11px; background: var(--yellow); padding: 4px 8px; border-radius: 6px; font-weight: 900; border: 2px solid var(--yellow-shadow); width: max-content;}
+
+        /* ═══════════════════════════════
            DAILY CHALLENGE & PICKS
         ═══════════════════════════════ */
         .widget-row { display: grid; grid-template-columns: 1fr; gap: 16px; }
@@ -374,6 +393,8 @@
         .lb-name{ flex:1; font-size:15px; font-weight:800; color:var(--ink-bold); }
         .lb-xp  { font-size:15px; font-weight:900; color:var(--blue); }
 
+        
+
         /* ═══════════════════════════════
            FOOTER
         ═══════════════════════════════ */
@@ -417,14 +438,20 @@
     </div>
 
     <div class="u3 widget-row">
-        <div class="chunky-card" style="display:flex; align-items:center; gap:16px; cursor:pointer;">
-            <div class="d-icon">⚡</div>
-            <div style="flex:1;">
-                <div class="d-title">Daily Challenge</div>
-                <div class="d-sub" id="d-sub">Complete today's mission!</div>
+        <div id="daily-challenge-container">
             </div>
-            <div class="d-badge">Go</div>
+
+        <div class="chunky-card" id="cool-picks-widget">
+            <div class="picks-content-wrap">
+                <div class="d-icon" style="font-size: 32px; margin-bottom: 8px;">🎯</div>
+                <div id="picks-desc">
+                    <div id="picks-title">Cool Picks</div>
+                    <div style="font-size:13px; font-weight:700; color:var(--ink-3);">Discover something new!</div>
+                </div>
+            </div>
+            <button id="picks-btn" class="picks-btn" style="width: 100%;">👀 Look</button>
         </div>
+    </div>
 
         <div class="chunky-card" style="display:flex; align-items:center; gap:16px; cursor:pointer;">
             <div class="d-icon">🎯</div>
@@ -462,7 +489,7 @@
     </div>
 
     <div class="u5">
-        <div class="sec-label">Specialized Tracks</div>
+        <div class="sec-label">Specialized Tracks id="specialized-tracks"</div>
         <p class="swipe-hint">Swipe <span>→</span></p>
         <div class="strip">
             <a href="business/" class="cc" data-c="purple">
@@ -527,70 +554,91 @@
         return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
     }
 
-    function renderUser(stats, user) {
-        // FIX: Extract full_name or name from metadata properly, fallback to "Cool Dude" to hide ugly emails
-        const meta = user.user_metadata || {};
-        const name = meta.full_name || meta.name || meta.display_name || 'Cool Dude';
-        
-        const streak  = stats?.streak || 0;
-        const xp      = stats?.xp || 0;
-        const level   = stats?.level || 1;
-        const lessons = stats?.lessonsCompleted || 0;
-        const badges  = stats?.achievementsCount || 0;
-        const xpIn    = xp % 500;
-        const xpPct   = Math.min(100, Math.round((xpIn / 500) * 100));
-        const xpLeft  = 500 - xpIn;
-        const lastUrl = localStorage.getItem('efcd_last_lesson_url')  || 'beginner/';
-        const lastNm  = localStorage.getItem('efcd_last_lesson_name') || 'Start a Lesson';
+   function renderUser(stats, user) {
+    // 1. NAME FIX: Extract the first name, capitalize it, and add "Cool"
+    const profile = window.EFCD_Auth.getCurrentUser();
+    let rawName = profile?.name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Dude';
+    let firstName = rawName.split(' ')[0]; // Grab just the first name
+    firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1); // Capitalize
+    const finalName = `Cool ${firstName}`;
 
-        document.getElementById('hero-card').innerHTML = `
-            <div class="hero-top">
-                <div>
-                    <div class="greet">${greet()}</div>
-                    <div class="uname">${name}</div>
-                </div>
-                <div class="streak-block">
-                    <span class="sfire">🔥</span>
-                    <span class="snum">${streak}</span>
-                    <span class="sword">Day Streak</span>
-                </div>
-            </div>
-            <div class="xp-wrap">
-                <div class="xp-row">
-                    <span>Level ${level}</span>
-                    <span>${xpLeft} XP to Level ${level + 1}</span>
-                </div>
-                <div class="xp-track"><div class="xp-fill" id="xf"></div></div>
-            </div>
-            <a href="${lastUrl}" class="hero-cta">
-                <span>🚀 Continue: ${lastNm}</span>
-                <span class="cta-arrow">›</span>
-            </a>
-            <div class="stat-row">
-                <div class="stat-pill"><span class="sn">${lessons}</span><span class="sl">Lessons</span></div>
-                <div class="stat-pill"><span class="sn">${xp.toLocaleString()}</span><span class="sl">Total XP</span></div>
-                <div class="stat-pill"><span class="sn">${badges}</span><span class="sl">Badges</span></div>
-            </div>`;
+    const streak  = stats?.streak || 0;
+    const xp      = stats?.xp || 0;
+    const level   = stats?.level || 1;
+    const lessons = stats?.lessonsCompleted || 0;
+    
+    // 3. BADGE FIX: Removed the "s" from achievementsCount
+    const badges  = stats?.achievementCount || 0; 
+    
+    const xpIn    = xp % 500;
+    const xpPct   = Math.min(100, Math.round((xpIn / 500) * 100));
+    const xpLeft  = 500 - xpIn;
+    
+    // 2 & 4. URL FIX: Don't force them into the beginner course!
+    let lastUrl = localStorage.getItem('efcd_last_lesson_url');
+    let lastNm  = localStorage.getItem('efcd_last_lesson_name');
+    let heroCtaText = "🚀 Pick a Course!";
+    let heroCtaLink = "#specialized-tracks"; // Anchor link down the page
 
-        requestAnimationFrame(() => setTimeout(() => {
-            const f = document.getElementById('xf');
-            if (f) f.style.width = xpPct + '%';
-        }, 80));
-
-        if (streak > 0) {
-            const wrap = document.getElementById('sb-wrap');
-            const title = document.getElementById('sb-title');
-            const link  = document.getElementById('sb-link');
-            const dsub  = document.getElementById('d-sub');
-            if (wrap)  wrap.style.display  = 'block';
-            if (title) title.textContent   = `🔥 ${streak}-day streak — protect it!`;
-            if (link)  link.href           = lastUrl;
-            if (dsub)  dsub.textContent    = `${streak} days strong — keep going!`;
-        }
-
-        tryLeaderboard();
+    if (lastUrl && lastUrl !== 'beginner/' && lastUrl !== '/beginner/') {
+        heroCtaText = `🚀 Continue: ${lastNm}`;
+        heroCtaLink = lastUrl;
     }
 
+    document.getElementById('hero-card').innerHTML = `
+        <div class="hero-top">
+            <div>
+                <div class="greet">${greet()}</div>
+                <div class="uname">${finalName}</div>
+            </div>
+            <div class="streak-block">
+                <span class="sfire">🔥</span>
+                <span class="snum">${streak}</span>
+                <span class="sword">Day Streak</span>
+            </div>
+        </div>
+        <div class="xp-wrap">
+            <div class="xp-row">
+                <span>Level ${level}</span>
+                <span>${xpLeft} XP to Level ${level + 1}</span>
+            </div>
+            <div class="xp-track"><div class="xp-fill" id="xf"></div></div>
+        </div>
+        <a href="${heroCtaLink}" class="hero-cta">
+            <span>${heroCtaText}</span>
+            <span class="cta-arrow">›</span>
+        </a>
+        <div class="stat-row">
+            <div class="stat-pill"><span class="sn">${lessons}</span><span class="sl">Lessons</span></div>
+            <div class="stat-pill"><span class="sn">${xp.toLocaleString()}</span><span class="sl">Total XP</span></div>
+            <div class="stat-pill"><span class="sn">${badges}</span><span class="sl">Badges</span></div>
+        </div>`;
+
+    requestAnimationFrame(() => setTimeout(() => {
+        const f = document.getElementById('xf');
+        if (f) f.style.width = xpPct + '%';
+    }, 80));
+
+    // STREAK URL FIX
+    if (streak > 0) {
+        const wrap = document.getElementById('sb-wrap');
+        const title = document.getElementById('sb-title');
+        const link  = document.getElementById('sb-link');
+        if (wrap)  wrap.style.display  = 'block';
+        if (title) title.textContent   = `🔥 ${streak}-day streak — protect it!`;
+        if (link)  link.href           = heroCtaLink; 
+    }
+
+    // 6. INJECT DAILY CHALLENGE WIDGET
+    if (window.DailyChallenges) {
+        const dcContainer = document.getElementById('daily-challenge-container');
+        if (dcContainer) {
+            dcContainer.innerHTML = window.DailyChallenges.renderDailyChallengeWidget();
+        }
+    }
+
+    tryLeaderboard();
+}
     function renderGuest() {
         document.getElementById('hero-card').innerHTML = `
             <div class="eyebrow">100% Free Setup</div>
