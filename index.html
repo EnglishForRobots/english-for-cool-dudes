@@ -8,206 +8,676 @@
     <meta http-equiv="Expires" content="0">
     <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
     <title>English For Cool Dudes - Master English with Gamified Learning</title>
-    
-    <link rel="stylesheet" href="styles.css">
 
-    <!-- STEP 1: Load Supabase library -->
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- STEP 2: Initialize auth system -->
     <script src="/init-auth.js"></script>
+
+    <style>
+        :root {
+            --ink:      #0A0A0A;
+            --ink-2:    #2D2D2D;
+            --ink-3:    #6B7280;
+            --white:    #FFFFFF;
+            --off:      #F7F7F5;
+            --border:   #E5E5E3;
+            --punch:    #FF3B30;
+            --warm:     #FF6B35;
+            --yellow:   #FFD60A;
+            --blue:     #007AFF;
+            --green:    #34C759;
+            --purple:   #BF5AF2;
+            --teal:     #32ADE6;
+            --r:        16px;
+            --rsm:      10px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { -webkit-text-size-adjust: 100%; }
+
+        body {
+            background: var(--off);
+            color: var(--ink);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+        a { color: inherit; text-decoration: none; }
+
+        /* ── ANIMATIONS ── */
+        @keyframes up    { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes popin { 0%{opacity:0;transform:scale(.8)} 70%{transform:scale(1.05)} 100%{opacity:1;transform:scale(1)} }
+        @keyframes flick { 0%,100%{transform:rotate(-4deg)scale(1)} 50%{transform:rotate(4deg)scale(1.12)} }
+        @keyframes fillW { from{width:0%} }
+        @keyframes shim  { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+        @keyframes nudge { 0%,100%{transform:translateX(0)} 30%{transform:translateX(4px)} }
+
+        .u1{animation:up .44s ease both .04s}
+        .u2{animation:up .44s ease both .12s}
+        .u3{animation:up .44s ease both .20s}
+        .u4{animation:up .44s ease both .28s}
+        .u5{animation:up .44s ease both .36s}
+        .u6{animation:up .44s ease both .44s}
+
+        /* ── HEADER ── */
+        .header {
+            background: var(--white);
+            border-bottom: 2.5px solid var(--ink);
+            position: sticky; top: 0; z-index: 200;
+            padding: 0 20px; height: 54px;
+            display: flex; align-items: center;
+        }
+        .hc {
+            max-width: 860px; width: 100%; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .hl { display: flex; align-items: center; gap: 10px; }
+        .logo {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: var(--ink); color: var(--white);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; flex-shrink: 0;
+        }
+        .site-title { font-size: 15px; font-weight: 900; color: var(--ink); letter-spacing: -.4px; }
+        @media(max-width:380px){.site-title{display:none}}
+        #header-auth-container { display:flex; align-items:center; gap:8px; }
+
+        /* ── PAGE ── */
+        .page { max-width: 860px; margin: 0 auto; padding: 18px 16px 96px; display: flex; flex-direction: column; gap: 14px; }
+
+        /* ── SKELETON ── */
+        .sk {
+            background: linear-gradient(90deg,#EBEBEB 25%,#F5F5F5 50%,#EBEBEB 75%);
+            background-size: 400px 100%;
+            animation: shim 1.4s infinite;
+            border-radius: var(--rsm);
+        }
+
+        /* ═══════════════════════════════
+           HERO — dark card, bold type
+        ═══════════════════════════════ */
+        .hero {
+            background: var(--ink);
+            border-radius: var(--r);
+            padding: 24px 20px 20px;
+            position: relative; overflow: hidden;
+        }
+        /* glow blobs */
+        .hero::before {
+            content:''; position:absolute; top:-50px; right:-50px;
+            width:200px; height:200px; background:var(--punch);
+            border-radius:50%; opacity:.14; pointer-events:none;
+        }
+        .hero::after {
+            content:''; position:absolute; bottom:-60px; left:20%;
+            width:180px; height:180px; background:var(--warm);
+            border-radius:50%; opacity:.09; pointer-events:none;
+        }
+
+        /* guest */
+        .eyebrow {
+            display:inline-block; background:var(--punch); color:var(--white);
+            font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:1.5px;
+            padding:3px 10px; border-radius:4px; margin-bottom:14px;
+        }
+        .big-title {
+            font-size: clamp(30px,8vw,48px);
+            font-weight:900; color:var(--white); line-height:1.05; letter-spacing:-1.5px;
+            margin-bottom:10px;
+        }
+        .big-title .red { color: var(--punch); }
+        .hero-sub { font-size:14px; color:rgba(255,255,255,.5); margin-bottom:22px; max-width:300px; }
+        .guest-btns { display:flex; gap:10px; flex-wrap:wrap; }
+
+        .btn-red {
+            display:inline-flex; align-items:center; gap:6px;
+            padding:14px 22px; background:var(--punch); color:var(--white);
+            font-size:15px; font-weight:900; border-radius:var(--rsm); border:none;
+            cursor:pointer; letter-spacing:-.3px;
+            box-shadow: 4px 4px 0 rgba(255,59,48,.35);
+            transition: transform .12s, box-shadow .12s;
+        }
+        .btn-red:active { transform:translate(2px,2px); box-shadow:2px 2px 0 rgba(255,59,48,.3); }
+        @media(min-width:640px){.btn-red:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 rgba(255,59,48,.35);}}
+
+        .btn-outline {
+            display:inline-flex; align-items:center; gap:6px;
+            padding:14px 20px; background:transparent; color:rgba(255,255,255,.65);
+            font-size:15px; font-weight:700; border-radius:var(--rsm);
+            border:2px solid rgba(255,255,255,.15); cursor:pointer; letter-spacing:-.3px;
+            transition: border-color .15s, color .15s;
+        }
+        .btn-outline:active { border-color:rgba(255,255,255,.4); color:var(--white); }
+
+        /* logged-in top row */
+        .hero-top {
+            display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+            margin-bottom:18px; position:relative; z-index:1;
+        }
+        .greet { font-size:11px; font-weight:700; color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:1px; margin-bottom:3px; }
+        .uname { font-size:clamp(22px,6vw,34px); font-weight:900; color:var(--white); letter-spacing:-1px; line-height:1.1; }
+        .lvl-pill {
+            display:inline-flex; align-items:center; gap:4px;
+            background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.1);
+            padding:3px 10px; border-radius:99px; margin-top:6px;
+            font-size:11px; font-weight:800; color:rgba(255,255,255,.5); letter-spacing:.4px;
+        }
+
+        /* streak block */
+        .streak-block {
+            text-align:center; flex-shrink:0;
+            background:rgba(255,214,10,.1); border:2px solid rgba(255,214,10,.25);
+            border-radius:var(--rsm); padding:10px 16px; min-width:72px;
+        }
+        .sfire { font-size:30px; display:block; line-height:1; animation:flick 1.8s ease-in-out infinite; }
+        .snum  { font-size:28px; font-weight:900; color:var(--yellow); display:block; line-height:1.1; animation:popin .5s cubic-bezier(.175,.885,.32,1.275) both .35s; }
+        .sword { font-size:9px; font-weight:800; color:rgba(255,214,10,.45); text-transform:uppercase; letter-spacing:1px; }
+
+        /* xp bar */
+        .xp-wrap { position:relative; z-index:1; margin-bottom:16px; }
+        .xp-row  { display:flex; justify-content:space-between; font-size:11px; font-weight:700; margin-bottom:6px; }
+        .xp-left { color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:.8px; }
+        .xp-right{ color:var(--blue); }
+        .xp-track{ height:10px; background:rgba(255,255,255,.08); border-radius:99px; overflow:hidden; }
+        .xp-fill {
+            height:100%; width:0%; border-radius:99px;
+            background:linear-gradient(90deg,var(--blue),#5AC8FA);
+            transition:width 1.3s cubic-bezier(.4,0,.2,1);
+            box-shadow:0 0 10px rgba(0,122,255,.5);
+        }
+
+        /* CTA button */
+        .hero-cta {
+            display:flex; align-items:center; justify-content:space-between;
+            width:100%; padding:16px 18px;
+            background:var(--punch); color:var(--white);
+            font-size:16px; font-weight:900; border-radius:var(--rsm); border:none;
+            cursor:pointer; letter-spacing:-.3px;
+            box-shadow:0 4px 20px rgba(255,59,48,.4);
+            transition:transform .12s, box-shadow .12s;
+            position:relative; z-index:1;
+        }
+        .hero-cta:active{transform:scale(.98);}
+        @media(min-width:640px){.hero-cta:hover{transform:translateY(-1px);box-shadow:0 6px 26px rgba(255,59,48,.5);}}
+        .cta-arrow {
+            width:32px; height:32px; border-radius:50%;
+            background:rgba(255,255,255,.2);
+            display:flex; align-items:center; justify-content:center;
+            font-size:18px; font-weight:900; flex-shrink:0;
+        }
+
+        /* stats row */
+        .stat-row { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:10px; position:relative; z-index:1; }
+        .stat-pill {
+            background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08);
+            border-radius:var(--rsm); padding:10px 8px; text-align:center;
+        }
+        .sn { display:block; font-size:20px; font-weight:900; color:var(--white); line-height:1; animation:popin .5s cubic-bezier(.175,.885,.32,1.275) both; }
+        .sn.g{color:var(--green);animation-delay:.35s;}
+        .sn.b{color:#5AC8FA;animation-delay:.45s;}
+        .sn.p{color:var(--purple);animation-delay:.55s;}
+        .sl { font-size:9px; font-weight:700; color:rgba(255,255,255,.3); text-transform:uppercase; letter-spacing:.8px; margin-top:2px; }
+
+        /* ═══════════════════════════════
+           STREAK PROTECTION BANNER
+        ═══════════════════════════════ */
+        .streak-banner {
+            display:flex; align-items:center; gap:12px;
+            background:var(--yellow); border-radius:var(--r);
+            padding:14px 18px; cursor:pointer;
+            border:2px solid rgba(0,0,0,.07);
+            transition:transform .12s;
+        }
+        .streak-banner:active{transform:scale(.98);}
+        .sb-icon { font-size:28px; flex-shrink:0; animation:flick 1.8s ease-in-out infinite; }
+        .sb-body { flex:1; }
+        .sb-title { font-size:14px; font-weight:900; color:var(--ink); letter-spacing:-.3px; }
+        .sb-sub   { font-size:12px; color:rgba(0,0,0,.5); margin-top:1px; }
+        .sb-arrow { font-size:22px; font-weight:900; color:var(--ink); opacity:.4; animation:nudge 2s ease-in-out infinite; }
+
+        /* ═══════════════════════════════
+           DAILY CHALLENGE
+        ═══════════════════════════════ */
+        #daily-challenge-widget {
+            display:flex; align-items:center; gap:14px;
+            background:var(--white); border:2px solid var(--green);
+            border-radius:var(--r); padding:16px; cursor:pointer;
+            transition:transform .12s;
+        }
+        #daily-challenge-widget:active{transform:scale(.98);}
+        .d-icon  { font-size:30px; flex-shrink:0; }
+        .d-body  { flex:1; }
+        .d-title { font-size:14px; font-weight:900; color:var(--ink); letter-spacing:-.2px; }
+        .d-sub   { font-size:12px; color:var(--ink-3); margin-top:1px; }
+        .d-badge {
+            background:var(--green); color:var(--white);
+            font-size:11px; font-weight:900; padding:7px 14px;
+            border-radius:var(--rsm); text-transform:uppercase;
+            letter-spacing:.8px; flex-shrink:0;
+        }
+
+        /* ═══════════════════════════════
+           COOL PICKS
+        ═══════════════════════════════ */
+        #cool-picks-widget {
+            background:var(--white); border:2px solid var(--border); border-radius:var(--r); overflow:hidden;
+        }
+        .picks-content { padding:16px; display:flex; align-items:center; gap:12px; }
+        .picks-text { flex:1; }
+        #picks-title { font-size:15px; font-weight:900; color:var(--ink); margin-bottom:2px; }
+        #picks-desc  { font-size:12px; color:var(--ink-3); }
+        .picks-btn {
+            padding:10px 16px; flex-shrink:0;
+            background:var(--ink); color:var(--white);
+            font-size:13px; font-weight:800; border:none;
+            border-radius:var(--rsm); cursor:pointer; white-space:nowrap;
+        }
+        .picks-btn:active { background:var(--ink-2); }
+
+        /* ═══════════════════════════════
+           SECTION LABEL
+        ═══════════════════════════════ */
+        .sec-label {
+            font-size:11px; font-weight:900; color:var(--ink-3);
+            text-transform:uppercase; letter-spacing:1.5px;
+            margin-bottom:10px;
+            display:flex; align-items:center; gap:8px;
+        }
+        .sec-label::after { content:''; flex:1; height:1.5px; background:var(--border); }
+
+        /* ═══════════════════════════════
+           COURSE CARDS — swipeable
+        ═══════════════════════════════ */
+        .strip {
+            display:flex; gap:10px;
+            overflow-x:auto; scroll-snap-type:x mandatory;
+            -webkit-overflow-scrolling:touch;
+            padding-bottom:4px;
+            scrollbar-width:none; -ms-overflow-style:none;
+        }
+        .strip::-webkit-scrollbar { display:none; }
+        @media(min-width:600px){
+            .strip { display:grid; grid-template-columns:repeat(3,1fr); overflow:visible; }
+        }
+
+        .cc {
+            background:var(--white); border:2px solid var(--border); border-radius:var(--r);
+            padding:18px 16px 14px; display:flex; flex-direction:column; gap:8px;
+            min-width:200px; flex-shrink:0; scroll-snap-align:start;
+            transition:border-color .15s, transform .15s, box-shadow .15s;
+            position:relative; overflow:hidden; cursor:pointer;
+        }
+        @media(min-width:600px){
+            .cc{min-width:0;}
+            .cc:hover{border-color:var(--ink);transform:translateY(-2px);box-shadow:4px 4px 0 var(--ink);}
+        }
+        .cc:active{transform:scale(.97);}
+        .cc::before {
+            content:''; position:absolute; top:0; left:0; right:0; height:4px;
+        }
+        .cc[data-c=red]::before    { background:var(--punch); }
+        .cc[data-c=orange]::before { background:var(--warm); }
+        .cc[data-c=blue]::before   { background:var(--blue); }
+        .cc[data-c=green]::before  { background:var(--green); }
+        .cc[data-c=purple]::before { background:var(--purple); }
+        .cc[data-c=teal]::before   { background:var(--teal); }
+
+        .cc-top  { display:flex; align-items:center; justify-content:space-between; }
+        .cc-icon { font-size:26px; line-height:1; }
+        .cc-badge{
+            font-size:9px; font-weight:800; letter-spacing:1px; text-transform:uppercase;
+            padding:3px 8px; border-radius:4px; background:var(--off); color:var(--ink-3);
+        }
+        .cc-title { font-size:15px; font-weight:900; color:var(--ink); letter-spacing:-.3px; }
+        .cc-desc  { font-size:12px; color:var(--ink-3); line-height:1.5; flex:1; }
+        .cc-foot  { display:flex; align-items:center; justify-content:space-between; margin-top:4px; }
+        .cc-meta  { font-size:11px; color:var(--ink-3); }
+        .cc-go    { width:26px; height:26px; border-radius:50%; background:var(--ink); color:var(--white); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:900; }
+
+        .swipe-hint { font-size:11px; color:var(--ink-3); margin-bottom:8px; display:flex; align-items:center; gap:4px; }
+        .swipe-hint span { animation:nudge 2s ease-in-out infinite; display:inline-block; }
+        @media(min-width:600px){.swipe-hint{display:none;}}
+
+        /* ═══════════════════════════════
+           GAME ZONE
+        ═══════════════════════════════ */
+        .game-card {
+            background:var(--ink); border-radius:var(--r);
+            padding:22px 20px; display:flex; align-items:center; gap:16px;
+            cursor:pointer; position:relative; overflow:hidden;
+            transition:transform .12s;
+            border:2px solid var(--ink);
+        }
+        .game-card::before {
+            content:''; position:absolute; top:-40px; right:-40px;
+            width:150px; height:150px; background:var(--warm);
+            border-radius:50%; opacity:.12; pointer-events:none;
+        }
+        .game-card:active{transform:scale(.98);}
+        @media(min-width:640px){.game-card:hover{transform:translateY(-2px);box-shadow:4px 4px 0 var(--punch);}}
+        .g-icon {
+            width:56px; height:56px; flex-shrink:0;
+            background:rgba(255,255,255,.08); border-radius:14px;
+            display:flex; align-items:center; justify-content:center;
+            font-size:28px; position:relative; z-index:1;
+        }
+        .g-body  { flex:1; position:relative; z-index:1; }
+        .g-title { font-size:20px; font-weight:900; color:var(--white); letter-spacing:-.5px; margin-bottom:3px; }
+        .g-sub   { font-size:12px; color:rgba(255,255,255,.4); line-height:1.4; }
+        .g-pill  {
+            flex-shrink:0; position:relative; z-index:1;
+            background:var(--punch); color:var(--white);
+            font-size:11px; font-weight:900; padding:8px 14px;
+            border-radius:var(--rsm); text-transform:uppercase; letter-spacing:.8px;
+            box-shadow:3px 3px 0 rgba(255,59,48,.35);
+        }
+
+        /* ═══════════════════════════════
+           LEADERBOARD
+        ═══════════════════════════════ */
+        .lb-card { background:var(--white); border:2px solid var(--border); border-radius:var(--r); overflow:hidden; }
+        .lb-head { padding:14px 16px; border-bottom:2px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+        .lb-head-t { font-size:14px; font-weight:900; color:var(--ink); }
+        .lb-head-a { font-size:12px; font-weight:800; color:var(--punch); text-transform:uppercase; letter-spacing:.5px; }
+        .lb-row { display:flex; align-items:center; gap:12px; padding:11px 16px; border-bottom:1px solid var(--border); }
+        .lb-row:last-child{border-bottom:none;}
+        .lb-row.you{background:rgba(0,122,255,.04);}
+        .lb-rank{ font-size:15px; width:26px; text-align:center; flex-shrink:0; }
+        .lb-av  { width:32px; height:32px; border-radius:50%; background:var(--ink); color:var(--white); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:900; flex-shrink:0; }
+        .lb-name{ flex:1; font-size:13px; font-weight:700; color:var(--ink); }
+        .lb-xp  { font-size:13px; font-weight:900; color:var(--blue); }
+
+        /* ═══════════════════════════════
+           FOOTER
+        ═══════════════════════════════ */
+        .footer { border-top:2px solid var(--border); padding:24px 20px; text-align:center; background:var(--white); }
+        .footer-text { font-size:12px; color:var(--ink-3); margin-bottom:8px; }
+        .footer a { color:var(--blue); font-size:12px; font-weight:600; margin:0 10px; }
+    </style>
 </head>
 <body>
 
-    <header class="header">
-        <div class="header-content">
-            <div class="header-left">
-                <span class="logo">😎</span>
-                <a href="/" class="site-title">English For Cool Dudes</a>
-            </div>
-            <!-- Auth buttons will be injected here by main-gamified.js -->
-            <div id="header-auth-container"></div>
+<header class="header">
+    <div class="hc">
+        <div class="hl">
+            <div class="logo">😎</div>
+            <a href="/" class="site-title">English For Cool Dudes</a>
         </div>
-    </header>
+        <div id="header-auth-container"></div>
+    </div>
+</header>
 
-    <main class="container">
-        <!-- Welcome card will be injected here for logged-in users -->
+<div class="page">
 
-        <!-- Cool Picks Widget -->
+    <!-- HERO -->
+    <div class="u1">
+        <div class="hero" id="hero-card">
+            <div class="sk" style="height:14px;width:38%;margin-bottom:10px;"></div>
+            <div class="sk" style="height:38px;width:72%;margin-bottom:20px;"></div>
+            <div class="sk" style="height:10px;margin-bottom:8px;border-radius:99px;"></div>
+            <div class="sk" style="height:54px;border-radius:10px;margin-top:12px;"></div>
+        </div>
+    </div>
+
+    <!-- STREAK BANNER -->
+    <div class="u2" id="sb-wrap" style="display:none;">
+        <a href="#" class="streak-banner" id="sb-link">
+            <span class="sb-icon">🔥</span>
+            <div class="sb-body">
+                <div class="sb-title" id="sb-title">Don't break your streak!</div>
+                <div class="sb-sub">Complete one lesson today to keep it alive</div>
+            </div>
+            <span class="sb-arrow">→</span>
+        </a>
+    </div>
+
+    <!-- DAILY CHALLENGE -->
+    <div class="u2">
+        <div id="daily-challenge-widget">
+            <div class="d-icon">⚡</div>
+            <div class="d-body">
+                <div class="d-title">Daily Challenge</div>
+                <div class="d-sub" id="d-sub">Complete today's mission!</div>
+            </div>
+            <div class="d-badge">Go</div>
+        </div>
+    </div>
+
+    <!-- COOL PICKS -->
+    <div class="u3">
         <div id="cool-picks-widget">
             <div class="picks-content">
                 <div class="picks-text">
                     <h3 id="picks-title">🎯 Cool Picks For You</h3>
                     <p id="picks-desc">Discover something new today!</p>
                 </div>
-                <button id="picks-btn" class="picks-btn">
-                    👀 Show Me
-                </button>
+                <button id="picks-btn" class="picks-btn">👀 Show Me</button>
             </div>
         </div>
+    </div>
 
-        <section class="section">
-            <div class="section-header">
-                <span class="section-icon">💼</span>
-                <h2 class="section-title">Specialized English</h2>
-            </div>
-            <div class="course-grid">
-                <a href="business/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">💼</span>
-                        <h3 class="course-title">Business English</h3>
-                        <span class="course-level">Professional</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">Master professional communication for meetings, emails, presentations, and business negotiations.</p>
-                        <div class="course-meta">
-                            <span class="meta-item">📚 Multiple lessons</span>
-                            <span class="meta-item">⏱️ Self-paced</span>
-                        </div>
-                    </div>
-                </a>
-                <a href="tax/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">💰</span>
-                        <h3 class="course-title">Tax English</h3>
-                        <span class="course-level">Specialist</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">Learn tax terminology, concepts, and documentation language for accounting professionals.</p>
-                        <div class="course-meta">
-                            <span class="meta-item">📚 Multiple lessons</span>
-                            <span class="meta-item">⏱️ Self-paced</span>
-                        </div>
-                    </div>
-                </a>
-                <a href="legal/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">⚖️</span>
-                        <h3 class="course-title">Legal English</h3>
-                        <span class="course-level">Specialist</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">Navigate legal terminology, contracts, and documentation with confidence and precision.</p>
-                        <div class="course-meta">
-                            <span class="meta-item">📚 Multiple lessons</span>
-                            <span class="meta-item">⏱️ Self-paced</span>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </section>
-
-        <section class="section">
-            <div class="section-header">
-                <span class="section-icon">📖</span>
-                <h2 class="section-title">General English Courses</h2>
-            </div>
-            <div class="course-grid">
-                <a href="beginner/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">🌱</span>
-                        <h3 class="course-title">Beginner Course</h3>
-                        <span class="course-level">A1-A2</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">Start your English journey. Learn basic grammar, vocabulary, and everyday conversation skills.</p>
-                        <div class="course-meta">
-                            <span class="meta-item">📚 Foundation level</span>
-                            <span class="meta-item">⏱️ Step by step</span>
-                        </div>
-                    </div>
-                </a>
-                <a href="intermediate/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">🚀</span>
-                        <h3 class="course-title">Intermediate Course</h3>
-                        <span class="course-level">B1-B2</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">Build confidence with complex grammar and expand your vocabulary for real-world situations.</p>
-                        <div class="course-meta">
-                            <span class="meta-item">📚 Expanding skills</span>
-                            <span class="meta-item">⏱️ Progressive</span>
-                        </div>
-                    </div>
-                </a>
-                <a href="advanced/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">🎯</span>
-                        <h3 class="course-title">Advanced Course</h3>
-                        <span class="course-level">C1-C2</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">Master sophisticated expressions, idioms, and achieve native-like fluency in British English.</p>
-                        <div class="course-meta">
-                            <span class="meta-item">📚 Mastery level</span>
-                            <span class="meta-item">⏱️ Advanced</span>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </section>
-
-        <section class="section">
-            <div class="section-header">
-                <span class="section-icon">☕</span>
-                <h2 class="section-title">The Break Room</h2>
-            </div>
-            <div class="quick-links">
-                <a href="games/" class="quick-link">
-                    <span class="quick-link-icon">🎮</span>
-                    <div class="quick-link-text">
-                        <div class="quick-link-title">Game Zone</div>
-                        <div class="quick-link-desc">Play 'What Am I?', 'Chat Attack', 'Vibe Check', & 'Much More'.</div>
-                    </div>
-                </a>
-            </div>
-        </section>
-    </main>
-
-    <footer class="footer">
-        <p class="footer-text">© 2026 English For Cool Dudes - 😎</p>
-        <div style="margin-top: 10px;">
-            <a href="impressum/" style="color: #667EEA; margin-right: 15px; text-decoration: none;">Impressum</a>
-            <a href="datenschutz/" style="color: #667EEA; text-decoration: none;">Datenschutzerklärung</a>
+    <!-- SPECIALIZED -->
+    <div class="u4">
+        <div class="sec-label">Specialized English</div>
+        <p class="swipe-hint">Swipe <span>→</span></p>
+        <div class="strip">
+            <a href="business/" class="cc" data-c="purple">
+                <div class="cc-top"><span class="cc-icon">💼</span><span class="cc-badge">Professional</span></div>
+                <div class="cc-title">Business English</div>
+                <div class="cc-desc">Meetings, emails, presentations and negotiations.</div>
+                <div class="cc-foot"><span class="cc-meta">📚 Multiple lessons</span><span class="cc-go">›</span></div>
+            </a>
+            <a href="tax/" class="cc" data-c="orange">
+                <div class="cc-top"><span class="cc-icon">💰</span><span class="cc-badge">Specialist</span></div>
+                <div class="cc-title">Tax English</div>
+                <div class="cc-desc">Tax terminology for accounting professionals.</div>
+                <div class="cc-foot"><span class="cc-meta">📚 Multiple lessons</span><span class="cc-go">›</span></div>
+            </a>
+            <a href="legal/" class="cc" data-c="teal">
+                <div class="cc-top"><span class="cc-icon">⚖️</span><span class="cc-badge">Specialist</span></div>
+                <div class="cc-title">Legal English</div>
+                <div class="cc-desc">Legal terms and contracts with confidence.</div>
+                <div class="cc-foot"><span class="cc-meta">📚 Multiple lessons</span><span class="cc-go">›</span></div>
+            </a>
         </div>
-    </footer>
+    </div>
 
-    <!-- STEP 3: Load gamification system -->
-    <script src="/supabase-auth-gamified.js"></script>
-    
-    <!-- STEP 4: Load UI manager (NO TICKERS VERSION) -->
-    <script src="/main-gamified.js"></script>
-    
-    <!-- STEP 5: Load Cool Picks widget -->
-    <script src="/coolPicks-enhanced.js"></script>
+    <!-- GENERAL ENGLISH -->
+    <div class="u5">
+        <div class="sec-label">General English</div>
+        <p class="swipe-hint">Swipe <span>→</span></p>
+        <div class="strip">
+            <a href="beginner/" class="cc" data-c="green">
+                <div class="cc-top"><span class="cc-icon">🌱</span><span class="cc-badge">A1–A2</span></div>
+                <div class="cc-title">Beginner</div>
+                <div class="cc-desc">Start your English journey from scratch.</div>
+                <div class="cc-foot"><span class="cc-meta">📚 Foundation</span><span class="cc-go">›</span></div>
+            </a>
+            <a href="intermediate/" class="cc" data-c="blue">
+                <div class="cc-top"><span class="cc-icon">🚀</span><span class="cc-badge">B1–B2</span></div>
+                <div class="cc-title">Intermediate</div>
+                <div class="cc-desc">Complex grammar for real-world situations.</div>
+                <div class="cc-foot"><span class="cc-meta">📚 Expanding</span><span class="cc-go">›</span></div>
+            </a>
+            <a href="advanced/" class="cc" data-c="red">
+                <div class="cc-top"><span class="cc-icon">🎯</span><span class="cc-badge">C1–C2</span></div>
+                <div class="cc-title">Advanced</div>
+                <div class="cc-desc">Idioms and native-like British fluency.</div>
+                <div class="cc-foot"><span class="cc-meta">📚 Mastery</span><span class="cc-go">›</span></div>
+            </a>
+        </div>
+    </div>
 
-    <!-- STEP 6: Initialize everything -->
-    <script>
-        console.log('🚀 Starting initialization...');
-        
+    <!-- GAME ZONE -->
+    <div class="u6">
+        <div class="sec-label">The Break Room</div>
+        <a href="games/" class="game-card">
+            <div class="g-icon">🎮</div>
+            <div class="g-body">
+                <div class="g-title">Game Zone</div>
+                <div class="g-sub">What Am I? · Chat Attack · Vibe Check · Much More</div>
+            </div>
+            <div class="g-pill">Play</div>
+        </a>
+    </div>
+
+    <!-- LEADERBOARD -->
+    <div class="u6" id="lb-section" style="display:none;">
+        <div class="sec-label">🏆 This Week</div>
+        <div class="lb-card">
+            <div class="lb-head">
+                <span class="lb-head-t">Top Learners</span>
+                <a href="/leaderboard/" class="lb-head-a">Full Board →</a>
+            </div>
+            <div id="lb-rows"></div>
+        </div>
+    </div>
+
+</div><!-- /page -->
+
+<footer class="footer">
+    <p class="footer-text">© 2026 English For Cool Dudes 😎</p>
+    <div>
+        <a href="impressum/">Impressum</a>
+        <a href="datenschutz/">Datenschutzerklärung</a>
+    </div>
+</footer>
+
+<script src="/supabase-auth-gamified.js"></script>
+<script src="/main-gamified.js"></script>
+<script src="/coolPicks-enhanced.js"></script>
+
+<script>
+    function greet() {
+        const h = new Date().getHours();
+        return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+    }
+
+    function renderUser(stats, user) {
+        const name    = user.user_metadata?.display_name || user.email?.split('@')[0] || 'Champ';
+        const streak  = stats?.streak || 0;
+        const xp      = stats?.xp || 0;
+        const level   = stats?.level || 1;
+        const lessons = stats?.lessonsCompleted || 0;
+        const badges  = stats?.achievementsCount || 0;
+        const xpIn    = xp % 500;
+        const xpPct   = Math.min(100, Math.round((xpIn / 500) * 100));
+        const xpLeft  = 500 - xpIn;
+        const lastUrl = localStorage.getItem('efcd_last_lesson_url')  || 'beginner/';
+        const lastNm  = localStorage.getItem('efcd_last_lesson_name') || 'Start a Lesson';
+
+        document.getElementById('hero-card').innerHTML = `
+            <div class="hero-top">
+                <div>
+                    <div class="greet">${greet()}</div>
+                    <div class="uname">${name}</div>
+                    <div class="lvl-pill">⚡ Level ${level}</div>
+                </div>
+                <div class="streak-block">
+                    <span class="sfire">🔥</span>
+                    <span class="snum">${streak}</span>
+                    <span class="sword">day streak</span>
+                </div>
+            </div>
+            <div class="xp-wrap">
+                <div class="xp-row">
+                    <span class="xp-left">XP to Level ${level + 1}</span>
+                    <span class="xp-right">${xpLeft} to go</span>
+                </div>
+                <div class="xp-track"><div class="xp-fill" id="xf"></div></div>
+            </div>
+            <a href="${lastUrl}" class="hero-cta">
+                <span>🚀 ${lastNm}</span>
+                <span class="cta-arrow">›</span>
+            </a>
+            <div class="stat-row">
+                <div class="stat-pill"><span class="sn g">${lessons}</span><span class="sl">Lessons</span></div>
+                <div class="stat-pill"><span class="sn b">${xp.toLocaleString()}</span><span class="sl">XP</span></div>
+                <div class="stat-pill"><span class="sn p">${badges}</span><span class="sl">Badges</span></div>
+            </div>`;
+
+        requestAnimationFrame(() => setTimeout(() => {
+            const f = document.getElementById('xf');
+            if (f) f.style.width = xpPct + '%';
+        }, 80));
+
+        if (streak > 0) {
+            const wrap = document.getElementById('sb-wrap');
+            const title = document.getElementById('sb-title');
+            const link  = document.getElementById('sb-link');
+            const dsub  = document.getElementById('d-sub');
+            if (wrap)  wrap.style.display  = 'block';
+            if (title) title.textContent   = `🔥 ${streak}-day streak — don't break it!`;
+            if (link)  link.href           = lastUrl;
+            if (dsub)  dsub.textContent    = `${streak} days strong — keep going!`;
+        }
+
+        tryLeaderboard();
+    }
+
+    function renderGuest() {
+        document.getElementById('hero-card').innerHTML = `
+            <div class="eyebrow">Free · No Credit Card</div>
+            <div class="big-title">Learn English.<br><span class="red">Level&nbsp;Up.</span></div>
+            <div class="hero-sub">Earn XP, build streaks, unlock badges. Real lessons. Actually fun.</div>
+            <div class="guest-btns">
+                <a href="/signup/" class="btn-red">🚀 Start Free</a>
+                <a href="/login/"  class="btn-outline">Log In</a>
+            </div>`;
+    }
+
+    async function tryLeaderboard() {
+        if (!window.EFCD_Auth?.getLeaderboard) return;
+        try {
+            const data = await window.EFCD_Auth.getLeaderboard(5);
+            if (!data?.length) return;
+            const me = window.EFCD_Auth.getCurrentUser();
+            const em = ['🥇','🥈','🥉','4.','5.'];
+            const rows = data.map((e, i) => {
+                const you = me && e.user_id === me.id;
+                return `<div class="lb-row${you?' you':''}">
+                    <span class="lb-rank">${em[i]}</span>
+                    <div class="lb-av">${(e.display_name||'?')[0].toUpperCase()}</div>
+                    <span class="lb-name">${e.display_name||'Learner'}${you?' <small style="color:var(--blue)">(you)</small>':''}</span>
+                    <span class="lb-xp">${(e.xp||0).toLocaleString()} XP</span>
+                </div>`;
+            }).join('');
+            document.getElementById('lb-rows').innerHTML = rows;
+            document.getElementById('lb-section').style.display = 'block';
+        } catch(_) {}
+    }
+
+    // ── BULLETPROOF INIT — handles efcdReady not existing yet ──
+    function init() {
+        if (typeof window.efcdReady === 'undefined') {
+            setTimeout(init, 50); return;
+        }
         window.efcdReady.then(async () => {
-            console.log('🎉 System ready, initializing UI...');
-            
             try {
-                // Initialize auth
                 await window.EFCD_Auth.initAuth();
-                console.log('✅ Auth initialized');
-                
-                // Update UI components
+                const user = window.EFCD_Auth.getCurrentUser();
+                if (user) {
+                    renderUser(window.EFCD_Auth.getUserStats(), user);
+                } else {
+                    renderGuest();
+                }
                 if (window.EFCD_UI) {
                     window.EFCD_UI.updateHeaderUI();
                     window.EFCD_UI.showWelcomeMessage();
-                    console.log('✅ UI components initialized');
                 }
-                
-                console.log('🎊 Site fully loaded!');
-            } catch (error) {
-                console.error('❌ Initialization error:', error);
+            } catch(e) {
+                console.error('Init error:', e);
+                renderGuest();
             }
-        }).catch(error => {
-            console.error('❌ Ready promise error:', error);
-        });
-    </script>
+        }).catch(() => renderGuest());
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+</script>
+
 </body>
 </html>
