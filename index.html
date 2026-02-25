@@ -255,7 +255,7 @@
                 </div>
             </div>
             <div id="picks-desc"><div class="picks-meta">Choosing a lesson…</div></div>
-            <a id="picks-go-link" href="#" class="picks-go-btn">👀 Take Me There</a>
+            <button id="picks-btn" class="picks-go-btn">👀 Take Me There</button>
             <button class="picks-shuffle" id="picks-shuffle-btn">🔀 Different pick</button>
         </div>
     </div>
@@ -391,51 +391,15 @@ document.getElementById('course-modal').addEventListener('click', function(e) {
 });
 
 // ═══════════════════════════════════════════════
-// COOL PICKS
+// COOL PICKS — delegated entirely to coolPicks-enhanced.js
+// To add/remove lessons, edit actualLessons[] in that file only.
 // ═══════════════════════════════════════════════
 
-const PICKS_LESSONS = [
-    { url:'/chineserobotsbeginner/', time:'5 mins', name:'Pre-Intermediate: Chinese Robots on TV',  category:'beginner', icon:'🤖', fact:'AI now stars in Chinese prime-time TV!' },
-    { url:'/pancakedaybeginner/',    time:'4 mins', name:'Beginner: Pancake Day!',                  category:'beginner', icon:'🥞', fact:'Brits toss pancakes every Shrove Tuesday.' },
-    { url:'/coffee/',                time:'7 mins', name:'Beginner: The Legend of Coffee',           category:'beginner', icon:'☕', fact:'Coffee was discovered by a goat herder in Ethiopia.' },
-    { url:'/invisibleofficegame/',   time:'8 mins', name:'Tax: Invisible Office',                   category:'tax',      icon:'🏢', fact:'Remote work has changed tax residency rules worldwide.' },
-    { url:'/transferpricing/',       time:'9 mins', name:'The Transfer Pricing Trap',               category:'tax',      icon:'💸', fact:'Transfer pricing costs governments billions each year.' },
-    { url:'/flyingtaxis/',           time:'9 mins', name:'Advanced: Flying Taxis',                  category:'advanced', icon:'🚕', fact:'eVTOLs could be in commercial use by 2026.' },
-    { url:'/sandwich/',              time:'5 mins', name:'Beginner: The Earl of Sandwich',          category:'beginner', icon:'🥪', fact:'The 4th Earl invented the sandwich to keep gambling!' },
-    { url:'/aivideos/',              time:'11 mins', name:'Advanced: AI Videos',                   category:'advanced', icon:'🎬', fact:'Sora can generate 60-second photorealistic videos.' },
-    { url:'/muskman/',      time:'12 mins', name:'Intermediate: Elon Musk: The Big Bet',  category:'intermediate', icon:'🚀', fact:'SpaceX is valued at more than the Dutch economy!' },
-];
-
-let currentPickIdx = -1;
-
-function getRandomPickIdx() {
-    if (PICKS_LESSONS.length <= 1) return 0;
-    let idx;
-    do { idx = Math.floor(Math.random() * PICKS_LESSONS.length); } while (idx === currentPickIdx);
-    return idx;
-}
-
-function renderPick() {
-    currentPickIdx = getRandomPickIdx();
-    const pick = PICKS_LESSONS[currentPickIdx];
-    const desc   = document.getElementById('picks-desc');
-    const goLink = document.getElementById('picks-go-link');
-    if (!desc || !goLink) return;
-    desc.style.opacity   = '0';
-    desc.style.transform = 'translateY(-8px)';
-    setTimeout(() => {
-        desc.innerHTML = `
-            <div class="picks-badge">⚡ ${pick.time}</div>
-            <div class="picks-name">${pick.icon} ${pick.name}</div>
-            <div class="picks-fact">💡 ${pick.fact}</div>
-        `;
-        goLink.href = pick.url;
-        goLink.onclick = null;
-        goLink.textContent = '👀 Take Me There';
-        desc.style.transition = 'opacity .4s, transform .4s';
-        desc.style.opacity    = '1';
-        desc.style.transform  = 'translateY(0)';
-    }, 280);
+function triggerNewPick() {
+    // coolPicksWidget is defined in coolPicks-enhanced.js (loaded above)
+    if (window.coolPicksWidget && typeof window.coolPicksWidget.updateRecommendation === 'function') {
+        window.coolPicksWidget.updateRecommendation();
+    }
 }
 
 // ═══════════════════════════════════════════════
@@ -678,10 +642,15 @@ function boot() {
             renderGuest();
         }
         renderDC();
-        renderPick();
-        document.getElementById('picks-shuffle-btn')?.addEventListener('click', renderPick);
-        setInterval(renderPick, 20000);
-    }).catch(() => { renderGuest(); renderDC(); renderPick(); });
+        // Cool picks: coolPicks-enhanced.js self-initialises, but it expects
+        // picks-btn not picks-shuffle-btn. Wire our shuffle button to its update method.
+        const shuffleBtn = document.getElementById('picks-shuffle-btn');
+        if (shuffleBtn) {
+            shuffleBtn.addEventListener('click', triggerNewPick);
+        }
+        // Auto-rotate every 20s using the external widget
+        setInterval(triggerNewPick, 20000);
+    }).catch(() => { renderGuest(); renderDC(); });
 }
 
 if (document.readyState === 'loading') {
