@@ -10,13 +10,14 @@ const coolPicksWidget = {
         // Add your lesson folders here with their actual durations, names, and categories:
         { url: '/chineserobotsbeginner/', time: '5 mins', name: 'Pre-Intermediate: Chinese Robots on TV', category: 'beginner' },
         { url: '/pancakedaybeginner/', time: '4 mins', name: 'Beginner: Pancake Day!', category: 'beginner' },
-       { url: '/coffee/', time: '7 mins', name: 'Beginner: The Legend of Coffee', category: 'beginner' },
+       
         { url: '/invisibleofficegame/', time: '8 mins', name: 'Tax: Invisible Office', category: 'tax' },
 { url: '/transferpricing/', time: '9 mins', name: 'The Transfer Pricing Trap', category: 'tax' },
         { url: '/flyingtaxis/', time: '9 mins', name: 'Advanced: Flying Taxis', category: 'advanced' },
         { url: '/sandwich/', time: '5 mins', name: 'Beginner: The Earl of Sandwich', category: 'beginner' },
         { url: '/aivideos/', time: '11 mins', name: 'Advanced: AI Videos', category: 'advanced' },
         { url:'/muskman/',      time:'12 mins', name:'Intermediate: Elon Musk: The Big Bet',  category:'intermediate', icon:'🚀', fact:'SpaceX is valued at more than the Dutch economy!' },
+        { url:'/carnival/',      time:'9 mins', name:'Advanced: Satire in the Spotlight',  category:'advanced', icon:'🎭' },
     
         
         // Add more lessons with appropriate categories:
