@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -377,7 +376,6 @@ function getLastLessonUrl() {
 function getLastLessonName() {
     return localStorage.getItem('efcd_last_lesson_name') || null;
 }
-/** True when the user has already fully completed the last stored lesson */
 function isLastLessonDone() {
     return localStorage.getItem('efcd_last_lesson_done') === 'true';
 }
@@ -403,9 +401,9 @@ const PICKS_LESSONS = [
     { url:'/transferpricing/',       time:'9 mins', name:'The Transfer Pricing Trap',               category:'tax',      icon:'💸', fact:'Transfer pricing costs governments billions each year.' },
     { url:'/flyingtaxis/',           time:'9 mins', name:'Advanced: Flying Taxis',                  category:'advanced', icon:'🚕', fact:'eVTOLs could be in commercial use by 2026.' },
     { url:'/sandwich/',              time:'5 mins', name:'Beginner: The Earl of Sandwich',          category:'beginner', icon:'🥪', fact:'The 4th Earl invented the sandwich to keep gambling!' },
-    { url:'/aivideos/',              time:'11 mins', name:'Advanced: AI Videos',                   category:'advanced', icon:'🎬', fact:'Sora can generate 60-second photorealistic videos.' },
-    { url:'/muskman/',      time:'12 mins', name:'Intermediate: Elon Musk: The Big Bet',  category:'intermediate', icon:'🚀', fact:'SpaceX is valued at more than the Dutch economy!' },
-    { url:'/carnival/',      time:'9 mins', name:'Advanced: Satire in the Spotlight',  category:'advanced', icon:'🎭', fact:'Satirist Jonathan Swift famously suggested poor people eat their children.' },
+    { url:'/aivideos/',              time:'11 mins', name:'Advanced: AI Videos',                    category:'advanced', icon:'🎬', fact:'Sora can generate 60-second photorealistic videos.' },
+    { url:'/muskman/',               time:'12 mins', name:'Intermediate: Elon Musk: The Big Bet',   category:'intermediate', icon:'🚀', fact:'SpaceX is valued at more than the Dutch economy!' },
+    { url:'/carnival/',              time:'9 mins', name:'Advanced: Satire in the Spotlight',       category:'advanced', icon:'🎭', fact:'Satirist Jonathan Swift famously suggested poor people eat their children.' },
 ];
 
 let currentPickIdx = -1;
@@ -451,7 +449,6 @@ function renderDC() {
     const lastUrl      = getLastLessonUrl();
     const lastNm       = getLastLessonName();
     const lastDone     = isLastLessonDone();
-    // Only show "Continue" if there is a lesson AND it hasn't been completed yet
     const showContinue = !!(lastUrl && !lastDone);
     const ctaLabel     = showContinue ? `▶ Continue: ${lastNm}` : '▶ Pick a Lesson';
 
@@ -497,7 +494,6 @@ function renderDC() {
                 </div>
             </div>`;
 
-        // Wire button to picker if no continue target
         if (!showContinue) {
             const dcBtn = document.getElementById(ctaBtnId);
             if (dcBtn) dcBtn.addEventListener('click', e => { e.preventDefault(); openPicker(); });
@@ -522,39 +518,41 @@ function renderDC() {
     }, 60000);
 }
 
-    async function loadAndRenderShelf() {
-if (!window.EFCD_Badges || !window.EFCD_Auth) return;
-const profile = window.EFCD_Auth.getCurrentUser();
-if (!profile) return;
+// ═══════════════════════════════════════════════
+// BADGE SHELF  ← clean standalone function
+// ═══════════════════════════════════════════════
 
-        try {
-    // Fetch user's lessons from Supabase to check vocab/track badges
-    const { data: lessons } = await window.efcdSupabaseClient
-        .from('lessons')
-        .select('vocabulary, lesson_level')
-        .eq('user_id', profile.id);
+async function loadAndRenderShelf() {
+    if (!window.EFCD_Badges || !window.EFCD_Auth) return;
+    const profile = window.EFCD_Auth.getCurrentUser();
+    if (!profile) return;
 
-    const shelfHTML = window.EFCD_Badges.renderShelf(profile, lessons || []);
+    try {
+        const { data: lessons } = await window.efcdSupabaseClient
+            .from('lessons')
+            .select('vocabulary, lesson_level')
+            .eq('user_id', profile.id);
 
-    // Insert shelf AFTER the hero card, BEFORE the streak banner
-    const sbWrap = document.getElementById('sb-wrap');
-    if (sbWrap) {
-        const shelfDiv = document.createElement('div');
-        shelfDiv.className = 'u2';
-        shelfDiv.innerHTML = shelfHTML;
-        sbWrap.parentNode.insertBefore(shelfDiv, sbWrap);
-    } else {
-        // Fallback: append to page
-        const page = document.querySelector('.page');
-        if (page) {
+        const shelfHTML = window.EFCD_Badges.renderShelf(profile, lessons || []);
+
+        const sbWrap = document.getElementById('sb-wrap');
+        if (sbWrap) {
             const shelfDiv = document.createElement('div');
             shelfDiv.className = 'u2';
             shelfDiv.innerHTML = shelfHTML;
-            page.insertBefore(shelfDiv, page.children[1]);
+            sbWrap.parentNode.insertBefore(shelfDiv, sbWrap);
+        } else {
+            const page = document.querySelector('.page');
+            if (page) {
+                const shelfDiv = document.createElement('div');
+                shelfDiv.className = 'u2';
+                shelfDiv.innerHTML = shelfHTML;
+                page.insertBefore(shelfDiv, page.children[1]);
+            }
         }
+    } catch (err) {
+        console.warn('Badge shelf error:', err);
     }
-} catch (err) {
-    console.warn('Badge shelf error:', err);
 }
 
 // ═══════════════════════════════════════════════
@@ -580,7 +578,6 @@ function renderUser(stats, user) {
     const lastUrl      = getLastLessonUrl();
     const lastNm       = getLastLessonName();
     const lastDone     = isLastLessonDone();
-    // showContinue: we have a lesson URL AND it hasn't been completed yet
     const showContinue = !!(lastUrl && lastNm && !lastDone);
 
     const ctaText = showContinue
@@ -616,9 +613,8 @@ function renderUser(stats, user) {
         </div>`;
 
     // ── Badge shelf ──────────────────────────────
-loadAndRenderShelf();
-    
-    // Hero CTA opens picker when no continue target
+    loadAndRenderShelf();
+
     if (!showContinue) {
         document.getElementById('hero-cta-link').addEventListener('click', e => {
             e.preventDefault(); openPicker();
@@ -630,7 +626,6 @@ loadAndRenderShelf();
         if (f) f.style.width = xpPct + '%';
     }, 80));
 
-    // Streak banner
     if (streak > 0) {
         const wrap  = document.getElementById('sb-wrap');
         const title = document.getElementById('sb-title');
@@ -638,7 +633,6 @@ loadAndRenderShelf();
         const link  = document.getElementById('sb-link');
         if (wrap)  wrap.style.display = 'block';
         if (title) title.textContent  = `🔥 ${streak}-day streak — don't lose it!`;
-        // Streak banner: continue if in progress, pick next if done
         if (sub) sub.textContent = showContinue
             ? `Tap to continue: ${lastNm} →`
             : 'Pick a new lesson to keep your streak alive →';
