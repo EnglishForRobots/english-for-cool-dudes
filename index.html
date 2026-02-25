@@ -345,6 +345,7 @@
 </footer>
 
 <script src="/supabase-auth-gamified.js"></script>
+<script src="/badge-system.js"></script>
 <script src="/main-gamified.js"></script>
 <script src="/coolPicks-enhanced.js"></script>
 
@@ -521,6 +522,41 @@ function renderDC() {
     }, 60000);
 }
 
+    async function loadAndRenderShelf() {
+if (!window.EFCD_Badges || !window.EFCD_Auth) return;
+const profile = window.EFCD_Auth.getCurrentUser();
+if (!profile) return;
+
+        try {
+    // Fetch user's lessons from Supabase to check vocab/track badges
+    const { data: lessons } = await window.efcdSupabaseClient
+        .from('lessons')
+        .select('vocabulary, lesson_level')
+        .eq('user_id', profile.id);
+
+    const shelfHTML = window.EFCD_Badges.renderShelf(profile, lessons || []);
+
+    // Insert shelf AFTER the hero card, BEFORE the streak banner
+    const sbWrap = document.getElementById('sb-wrap');
+    if (sbWrap) {
+        const shelfDiv = document.createElement('div');
+        shelfDiv.className = 'u2';
+        shelfDiv.innerHTML = shelfHTML;
+        sbWrap.parentNode.insertBefore(shelfDiv, sbWrap);
+    } else {
+        // Fallback: append to page
+        const page = document.querySelector('.page');
+        if (page) {
+            const shelfDiv = document.createElement('div');
+            shelfDiv.className = 'u2';
+            shelfDiv.innerHTML = shelfHTML;
+            page.insertBefore(shelfDiv, page.children[1]);
+        }
+    }
+} catch (err) {
+    console.warn('Badge shelf error:', err);
+}
+
 // ═══════════════════════════════════════════════
 // HERO — LOGGED IN
 // ═══════════════════════════════════════════════
@@ -579,6 +615,9 @@ function renderUser(stats, user) {
             <div class="stat-pill"><span class="sn">${badges}</span><span class="sl">Badges</span></div>
         </div>`;
 
+    // ── Badge shelf ──────────────────────────────
+loadAndRenderShelf();
+    
     // Hero CTA opens picker when no continue target
     if (!showContinue) {
         document.getElementById('hero-cta-link').addEventListener('click', e => {
