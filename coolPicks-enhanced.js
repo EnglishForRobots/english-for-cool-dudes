@@ -18,8 +18,8 @@ const coolPicksWidget = {
         { url: '/transferpricing/',       time: '9 mins',  name: 'The Transfer Pricing Trap',                 category: 'tax',           icon: '💸', fact: 'Transfer pricing costs governments billions each year.' },
         { url: '/flyingtaxis/',           time: '9 mins',  name: 'Advanced: Flying Taxis',                    category: 'advanced',      icon: '🚕', fact: 'eVTOLs could be in commercial use by 2026.' },
         { url: '/sandwich/',              time: '5 mins',  name: 'Beginner: The Earl of Sandwich',            category: 'beginner',      icon: '🥪', fact: 'The 4th Earl invented the sandwich to keep gambling!' },
-        { url: '/aivideos/',              time: '9 mins', name: 'Advanced: AI Videos',                       category: 'advanced',      icon: '🎬', fact: 'Sora can generate 60-second photorealistic videos.' },
-        { url: '/muskman/',               time: '7 mins', name: "Intermediate: Elon Musk's Big Bet",         category: 'intermediate',  icon: '🚀', fact: 'SpaceX is valued at more than the entire Dutch economy!' },
+        { url: '/aivideos/',              time: '11 mins', name: 'Advanced: AI Videos',                       category: 'advanced',      icon: '🎬', fact: 'Sora can generate 60-second photorealistic videos.' },
+        { url: '/muskman/',               time: '12 mins', name: "Intermediate: Elon Musk's Big Bet",         category: 'intermediate',  icon: '🚀', fact: 'SpaceX is valued at more than the entire Dutch economy!' },
         // ── Add new lessons below this line ──────────────────────────────
         // { url: '/yourlesson/', time: '8 mins', name: 'Your Lesson Title', category: 'beginner', icon: '✨', fact: 'Fun fact about this lesson.' },
     ],
