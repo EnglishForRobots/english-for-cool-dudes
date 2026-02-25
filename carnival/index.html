@@ -245,8 +245,8 @@
     .verdict-btn:active { border-bottom-width: 2px; transform: translateY(3px); }
     .verdict-btn.guilty     { background: rgba(255,75,75,.08);  border-color: var(--punch-shadow); color: var(--punch-shadow); }
     .verdict-btn.notguilty  { background: rgba(88,204,2,.08);   border-color: var(--green-shadow); color: var(--green-shadow); }
-    .verdict-btn.sel-guilty    { background: var(--punch) !important; color: var(--white) !important; border-color: var(--punch-shadow) !important; }
-    .verdict-btn.sel-notguilty { background: var(--green) !important; color: var(--white) !important; border-color: var(--green-shadow) !important; }
+    .verdict-btn.answer-correct { background: var(--green) !important; color: var(--white) !important; border-color: var(--green-shadow) !important; }
+    .verdict-btn.answer-wrong   { background: var(--punch) !important; color: var(--white) !important; border-color: var(--punch-shadow) !important; }
     .verdict-btn:disabled { opacity: .8; cursor: default; }
 
     .trial-reveal {
@@ -756,7 +756,7 @@ const L = {
     /* ── ⚖️ ON TRIAL — 3 rounds ── */
     trial: [
         {
-            question: "Should Jacques Tilly be found GUILTY of spreading false information about Russia?",
+            correct: 'notguilty', question: "Should Jacques Tilly be found GUILTY of spreading false information about Russia?",
             prosecution: [
                 "Tilly's floats were seen by millions and portrayed Russia's army negatively",
                 "Russia says the artwork damaged its reputation during wartime",
@@ -771,7 +771,7 @@ const L = {
             explain: `This is why the case is called <span class="voc-link" data-voc="Unprecedented">unprecedented</span> — it's the first time Russia has put a German citizen on trial for art made on German soil. Even if the trial finds him guilty, Tilly is safe in Germany.`
         },
         {
-            question: "Russia's real goal is JUSTICE — not just SILENCING a critic",
+            correct: 'notguilty', question: "Russia's real goal is JUSTICE — not just SILENCING a critic",
             prosecution: [
                 "Every country has the right to protect its military reputation",
                 "The charges follow specific Russian laws passed in 2022",
@@ -786,7 +786,7 @@ const L = {
             explain: `A trial <span class="voc-link" data-voc="In absentia">in absentia</span> means Tilly was never in the courtroom. <span class="voc-link" data-voc="Extradition">Extradition</span> from Germany to Russia is essentially impossible — so Russia knows it will never imprison him. The trial sends a message, not a sentence.`
         },
         {
-            question: "Tilly could be ARRESTED if he travels abroad",
+            correct: 'guilty', question: "Tilly could be ARRESTED if he travels abroad",
             prosecution: [
                 "Russia has issued an international arrest warrant",
                 "Some countries DO have extradition treaties with Russia",
@@ -1102,8 +1102,9 @@ function trialVote(idx, choice) {
     trialVoted = true;
     const card = document.getElementById(`trial-card-${idx}`);
     card.querySelectorAll('.verdict-btn').forEach(b => b.disabled = true);
+    const correct = L.trial[idx].correct;
     const clicked = card.querySelector(`.verdict-btn.${choice}`);
-    if (clicked) clicked.classList.add(`sel-${choice}`);
+    if (clicked) clicked.classList.add(choice === correct ? 'answer-correct' : 'answer-wrong');
     document.getElementById(`tr-rev-${idx}`).classList.add('show');
 }
 
@@ -1538,6 +1539,13 @@ function wireAll() {
     document.querySelectorAll('.v-word').forEach(el => {
         el.addEventListener('click', e => { e.stopPropagation(); showVoc(el.dataset.voc); });
     });
+
+    .voc-link {
+    color: var(--punch-shadow);
+    font-weight: 900;
+    border-bottom: 2.5px solid rgba(255,75,75,.4);
+    cursor: pointer;
+}
 
     // Glossary items
     document.querySelectorAll('.voc-item').forEach(el => {
