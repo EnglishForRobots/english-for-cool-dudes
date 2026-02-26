@@ -345,7 +345,6 @@
 
 <script src="/supabase-auth-gamified.js"></script>
 <script src="/badge-system.js"></script>
-<script src="/track-mastery.js"></script>
 <script src="/main-gamified.js"></script>
 <script src="/coolPicks-enhanced.js"></script>
 
@@ -447,6 +446,12 @@ function renderDC() {
     const slot = document.getElementById('dc-card-slot');
     if (!slot) return;
 
+    const lastUrl      = getLastLessonUrl();
+    const lastNm       = getLastLessonName();
+    const lastDone     = isLastLessonDone();
+    const showContinue = !!(lastUrl && !lastDone);
+    const ctaLabel     = showContinue ? `▶ Continue: ${lastNm}` : '▶ Pick a Lesson';
+
     if (window.DailyChallenges) {
         const challenge   = window.DailyChallenges.getTodaysChallenge();
         const today       = new Date().toDateString();
@@ -461,6 +466,9 @@ function renderDC() {
 
         const isComplete  = progress >= challenge.target;
         const progressPct = Math.min(100, Math.round((progress / challenge.target) * 100));
+        const ctaBtnId    = 'dc-cta-btn';
+        const ctaBtnHref  = showContinue ? lastUrl : '#';
+        const ctaBtnText  = isComplete ? '✓ Done Today!' : ctaLabel;
 
         slot.innerHTML = `
             <div class="dc-card">
@@ -482,12 +490,14 @@ function renderDC() {
                 </div>
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
                     <div class="dc-xp">🎁 +${challenge.xpReward} XP</div>
-                    ${isComplete
-                        ? `<div style="font-size:13px;font-weight:900;color:var(--yellow);">✓ Reward earned!</div>`
-                        : `<div style="font-size:12px;font-weight:800;color:rgba(255,255,255,.7);">Completes automatically as you learn</div>`
-                    }
+                    <a id="${ctaBtnId}" href="${ctaBtnHref}" class="dc-btn">${ctaBtnText}</a>
                 </div>
             </div>`;
+
+        if (!showContinue) {
+            const dcBtn = document.getElementById(ctaBtnId);
+            if (dcBtn) dcBtn.addEventListener('click', e => { e.preventDefault(); openPicker(); });
+        }
 
     } else {
         slot.innerHTML = `
@@ -495,13 +505,11 @@ function renderDC() {
                 <div class="dc-eyebrow">Today's Challenge</div>
                 <div style="display:flex;align-items:center;gap:12px;">
                     <span style="font-size:44px;">🎯</span>
-                    <div>
-                        <div class="dc-title">Complete a lesson</div>
-                        <div class="dc-desc">Any lesson earns you bonus XP today</div>
-                    </div>
+                    <div><div class="dc-title">Complete a lesson</div><div class="dc-desc">Any lesson earns you bonus XP today</div></div>
                 </div>
-                <div style="font-size:12px;font-weight:800;color:rgba(255,255,255,.7);margin-top:4px;">Completes automatically as you learn</div>
+                <a id="dc-cta-btn" href="#" class="dc-btn">▶ Pick a Lesson</a>
             </div>`;
+        document.getElementById('dc-cta-btn').addEventListener('click', e => { e.preventDefault(); openPicker(); });
     }
 
     setInterval(() => {
@@ -551,7 +559,7 @@ async function loadAndRenderShelf() {
 // HERO — LOGGED IN
 // ═══════════════════════════════════════════════
 
-async function renderUser(stats, user) {
+function renderUser(stats, user) {
     const profile   = window.EFCD_Auth.getCurrentUser();
     let rawName     = profile?.name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Dude';
     let firstName   = rawName.split(' ')[0];
@@ -578,53 +586,11 @@ async function renderUser(stats, user) {
             ? '🎉 Find Your Next Lesson'
             : '🚀 Start a Lesson';
 
-    // ── Fetch top track title ────────────────────
-    let trackBadgeHTML = '';
-    try {
-        if (window.EFCD_TrackMastery && profile?.id) {
-            const { data: userLessons } = await window.efcdSupabaseClient
-                .from('lessons')
-                .select('lesson_link')
-                .eq('user_id', profile.id);
-
-            if (userLessons?.length) {
-                const counts  = window.EFCD_TrackMastery.countByTrack(userLessons);
-                const tracks  = window.EFCD_TrackMastery.TRACKS;
-
-                // Find the track with the most lessons
-                const topTrack = tracks
-                    .filter(t => counts[t.id] > 0)
-                    .sort((a, b) => counts[b.id] - counts[a.id])[0];
-
-                if (topTrack) {
-                    const count = counts[topTrack.id];
-                    // Compute title index
-                    let idx = 0;
-                    topTrack.thresholds.forEach((thresh, i) => { if (count >= thresh) idx = i; });
-                    const title = topTrack.titles[idx];
-                    trackBadgeHTML = `
-                        <div class="hero-track-badge" style="
-                            display:inline-flex;align-items:center;gap:6px;
-                            background:rgba(255,255,255,.18);
-                            border:2px solid rgba(255,255,255,.3);
-                            border-radius:99px;padding:4px 12px;
-                            font-size:12px;font-weight:900;color:var(--white);
-                            margin-top:6px;width:fit-content;letter-spacing:.2px;
-                        ">
-                            <span>${topTrack.icon}</span>
-                            <span>${title}</span>
-                        </div>`;
-                }
-            }
-        }
-    } catch(_) {}
-
     document.getElementById('hero-card').innerHTML = `
         <div class="hero-top">
             <div>
                 <div class="greet">${greet()}</div>
                 <div class="uname">${finalName}</div>
-                ${trackBadgeHTML}
             </div>
             <div class="streak-block">
                 <span class="sfire">🔥</span>
