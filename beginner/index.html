@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,1035 +8,821 @@
     <meta http-equiv="Expires" content="0">
     <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
-    <link rel="icon" type="image/png" href="/android-chrome-192x192.png" sizes="192x192">
     <link rel="manifest" href="/manifest.json">
-    <title>English For Cool Dudes</title>
+    <title>Beginner English (A1/A2) - English For Cool Dudes</title>
+
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/init-auth.js"></script>
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* ── TOKENS (match homepage exactly) ── */
+        :root {
+            --blue:         #1CB0F6;
+            --blue-shadow:  #1899D6;
+            --yellow:       #FFC800;
+            --yellow-shadow:#E5B400;
+            --green:        #58CC02;
+            --green-shadow: #58A700;
+            --punch:        #FF4B4B;
+            --punch-shadow: #EA2B2B;
+            --purple:       #CE82FF;
+            --purple-shadow:#A559D9;
+            --teal:         #2BDECC;
+            --bg:           #F7F9FA;
+            --ink:          #4B4B4B;
+            --ink-bold:     #111827;
+            --ink-3:        #AFAFAF;
+            --white:        #FFFFFF;
+            --border:       #E5E5E5;
+            --border-heavy: #CECECE;
+            --r:            24px;
+            --rsm:          16px;
         }
 
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;    
-            background: #F8F9FB;
-            color: #2C3E50;
-            line-height: 1.6;
-            font-weight: 400;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: 'Nunito', -apple-system, system-ui, sans-serif;
+            line-height: 1.5;
+            overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
         }
+        a { color: inherit; text-decoration: none; }
 
-        /* === REUSABLE HEADER STYLES === */
+        /* ── ANIMATIONS ── */
+        @keyframes up    { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes shim  { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+        @keyframes flick { 0%,100%{transform:rotate(-4deg) scale(1)} 50%{transform:rotate(4deg) scale(1.12)} }
+        @keyframes nudge { 0%,100%{transform:translateX(0)} 30%{transform:translateX(5px)} }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+
+        .u1{animation:up .44s ease both .04s}
+        .u2{animation:up .44s ease both .14s}
+        .u3{animation:up .44s ease both .24s}
+
+        /* ── HEADER (exact match to homepage) ── */
         .header {
-            background: #FFFFFF;
-            border-bottom: 1px solid #E5E9F2;
-            padding: 20px 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-            margin-bottom: 20px;
+            background: var(--white);
+            border-bottom: 2px solid var(--border);
+            position: sticky; top: 0; z-index: 200;
+            padding: 0 20px; height: 60px;
+            display: flex; align-items: center;
         }
-
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        .hc {
+            max-width: 900px; width: 100%; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
         }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            /* DELETED flex: 1; to group all left-side elements */
-        }
-
+        .hl { display: flex; align-items: center; gap: 10px; }
         .logo {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
+            width: 40px; height: 40px; border-radius: 12px;
+            background: var(--yellow); border: 2px solid var(--border-heavy);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; flex-shrink: 0; box-shadow: 0 3px 0 var(--border-heavy);
+        }
+        .site-title { font-size: 18px; font-weight: 900; color: var(--ink-bold); letter-spacing: -.4px; }
+        @media(max-width:380px){ .site-title{display:none} }
+        #header-auth-container { display: flex; align-items: center; gap: 8px; }
+
+        /* ── SKELETON ── */
+        .sk {
+            background: linear-gradient(90deg,#EBEBEB 25%,#F5F5F5 50%,#EBEBEB 75%);
+            background-size: 400px 100%; animation: shim 1.4s infinite;
+            border-radius: var(--rsm);
         }
 
-        .site-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #1A202C;
-            letter-spacing: -0.02em;
-            text-decoration: none;
+        /* ── PAGE WRAPPER ── */
+        .page {
+            max-width: 900px; margin: 0 auto;
+            padding: 24px 16px 80px;
+            display: flex; flex-direction: column; gap: 20px;
         }
 
-        .header-buttons {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        /* ── HERO (trimmed gamified) ── */
+        .hero {
+            background: var(--blue);
+            border: 2px solid var(--blue-shadow);
+            border-bottom: 6px solid var(--blue-shadow);
+            border-radius: var(--r);
+            padding: 24px 20px;
+            position: relative; overflow: hidden;
+        }
+        /* Decorative emoji watermark */
+        .hero::after {
+            content: '🌱';
+            position: absolute; bottom: -12px; right: 10px;
+            font-size: 110px; opacity: .12;
+            pointer-events: none; transform: rotate(-8deg);
         }
 
-        .header-button {
-            text-decoration: none;
-            padding: 7px 14px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.2s;
-            white-space: nowrap;
-            cursor: pointer;
-            border: 1px solid #E5E9F2;
-            background: transparent;
+        /* Logged-in hero */
+        .hero-top {
+            display: flex; align-items: flex-start;
+            justify-content: space-between; gap: 12px;
+            margin-bottom: 18px; position: relative; z-index: 1;
+        }
+        .greet { font-size: 13px; font-weight: 800; color: rgba(255,255,255,.8); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+        .uname { font-size: clamp(22px,5vw,34px); font-weight: 900; color: var(--white); letter-spacing: -1px; line-height: 1.1; text-shadow: 0 2px 0 var(--blue-shadow); }
+
+        .streak-block {
+            text-align: center; flex-shrink: 0;
+            background: var(--white); border: 2px solid var(--border-heavy);
+            border-bottom: 4px solid var(--border-heavy);
+            border-radius: var(--rsm); padding: 10px 16px; min-width: 80px;
+        }
+        .sfire { font-size: 32px; display: block; line-height: 1; animation: flick 1.8s ease-in-out infinite; }
+        .snum  { font-size: 24px; font-weight: 900; color: var(--punch); display: block; line-height: 1.1; margin-top: 4px; }
+        .sword { font-size: 10px; font-weight: 900; color: var(--ink-3); text-transform: uppercase; letter-spacing: 1px; }
+
+        .xp-wrap {
+            position: relative; z-index: 1; margin-bottom: 16px;
+            background: rgba(255,255,255,.2); padding: 12px; border-radius: var(--rsm);
+        }
+        .xp-row   { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; margin-bottom: 8px; color: var(--white); }
+        .xp-track { height: 14px; background: rgba(0,0,0,.15); border-radius: 99px; overflow: hidden; border: 2px solid rgba(0,0,0,.1); }
+        .xp-fill  { height: 100%; width: 0%; border-radius: 99px; background: var(--yellow); border-top: 3px solid rgba(255,255,255,.4); transition: width 1.3s cubic-bezier(.4,0,.2,1); }
+
+        .hero-cta {
+            display: flex; align-items: center; justify-content: space-between;
+            width: 100%; padding: 14px 20px;
+            background: var(--green); color: var(--white);
+            font-size: 16px; font-weight: 900;
+            border-radius: var(--rsm); border: 2px solid var(--green-shadow);
+            border-bottom: 5px solid var(--green-shadow);
+            cursor: pointer; letter-spacing: -.3px;
+            transition: transform .1s, border-bottom-width .1s;
+            position: relative; z-index: 1;
+        }
+        .hero-cta:active { border-bottom-width: 2px; transform: translateY(3px); }
+        .cta-arrow { font-size: 22px; animation: nudge 2s ease-in-out infinite; }
+
+        /* Guest hero */
+        .eyebrow {
+            display: inline-block; background: var(--yellow); color: var(--ink-bold);
+            font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px;
+            padding: 4px 12px; border-radius: 8px; margin-bottom: 14px;
+            border: 2px solid var(--yellow-shadow);
+        }
+        .big-title {
+            font-size: clamp(26px,6vw,42px); font-weight: 900; color: var(--white);
+            line-height: 1.1; letter-spacing: -1px; margin-bottom: 10px;
+            position: relative; z-index: 1;
+        }
+        .big-title .yellow { color: var(--yellow); text-shadow: 0 3px 0 var(--yellow-shadow); }
+        .hero-sub {
+            font-size: 15px; font-weight: 700; color: rgba(255,255,255,.9);
+            margin-bottom: 20px; max-width: 360px; position: relative; z-index: 1;
+        }
+        .guest-btns { display: flex; gap: 12px; flex-wrap: wrap; position: relative; z-index: 1; }
+        .btn-yellow {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 13px 22px; background: var(--yellow); color: var(--ink-bold);
+            font-size: 15px; font-weight: 900; border-radius: var(--rsm);
+            border: 2px solid var(--yellow-shadow); border-bottom: 4px solid var(--yellow-shadow);
+            cursor: pointer; letter-spacing: -.3px;
+            transition: transform .1s, border-bottom-width .1s;
+        }
+        .btn-yellow:active { border-bottom-width: 2px; transform: translateY(2px); }
+        .btn-white {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 13px 18px; background: var(--white); color: var(--ink-bold);
+            font-size: 15px; font-weight: 900; border-radius: var(--rsm);
+            border: 2px solid var(--border-heavy); border-bottom: 4px solid var(--border-heavy);
+            cursor: pointer; letter-spacing: -.3px;
+            transition: transform .1s, border-bottom-width .1s;
+        }
+        .btn-white:active { border-bottom-width: 2px; transform: translateY(2px); }
+
+        /* Track badge (shown for logged-in users) */
+        .hero-track-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,.18); border: 2px solid rgba(255,255,255,.3);
+            border-radius: 99px; padding: 4px 12px;
+            font-size: 12px; font-weight: 900; color: var(--white);
+            margin-top: 6px; width: fit-content; letter-spacing: .2px;
         }
 
-        .header-button.login {
-            background: #F8F9FB;
-            color: #4A5568;
+        /* ── SECTION LABEL ── */
+        .sec-label {
+            font-size: 13px; font-weight: 900; color: var(--ink-3);
+            text-transform: uppercase; letter-spacing: 1.5px;
+            margin-bottom: 16px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .sec-label::after {
+            content: ''; flex: 1; height: 2px;
+            background: var(--border); border-radius: 2px;
         }
 
-        .header-button.login:hover {
-            background: #FFFFFF;
-            color: #2C3E50;
-            border-color: #718096;
-        }
-
-        .header-button.signup {
-            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
-            color: white;
-            border: 1px solid transparent;
-        }
-
-        .header-button.signup:hover {
-            background: linear-gradient(135deg, #5A6AD0 0%, #6D4396 100%);
-            box-shadow: 0 2px 5px rgba(102, 126, 234, 0.4);
-        }
-
-        .header-button.dashboard {
-            background: #FFFBEA;
-            color: #92400E;
-            border-color: #FCD34D;
-        }
-
-        .header-button.dashboard:hover {
-            background: #FCD34D;
-            border-color: #F59E0B;
-        }
-
-        .header-button.logout {
-            background: #F8F9FB;
-            color: #E53E3E;
-        }
-
-        .header-button.logout:hover {
-            background: #FEEBEB;
-            color: #C53030;
-            border-color: #FBD3DA;
-        }
-
-        .user-greeting {
-            font-size: 14px;
-            color: #4A5568;
-            font-weight: 600;
-            margin-right: 5px;
-            white-space: nowrap;
-        }
-
-        /* Main Container */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 30px 20px;
-        }
-
-        /* Welcome Banner */
-        .welcome-banner {
-            background: linear-gradient(135deg, #3498DB 0%, #2980B9 100%);
-            color: white;
-            padding: 40px;
-            border-radius: 12px;
-            margin-bottom: 40px;
-            text-align: center;
-        }
-
-        .welcome-title {
-            font-size: 32px;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .welcome-subtitle {
-            font-size: 18px;
-            font-weight: 600;
-            opacity: 0.95;
-        }
-
-        /* Section Headers */
-        .section {
-            margin-bottom: 50px;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 2px solid #E5E9F2;
-        }
-
-        .section-icon {
-            font-size: 26px;
-        }
-
-        .section-title {
-            font-size: 22px;
-            font-weight: 600;
-            color: #1A202C;
-            letter-spacing: -0.02em;
-        }
-
-        /* Course Grid */
-        .course-grid {
+        /* ── LESSON GRID ── */
+        .lesson-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        /* Course Card */
-        .course-card {
-            background: #FFFFFF;
-            border: 1px solid #E5E9F2;
-            border-radius: 12px;
-            padding: 0;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-        }
-
-        .course-card:hover {
-            border-color: #667EEA;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.12);
-            transform: translateY(-2px);
-        }
-
-        .course-header {
-            padding: 28px;
-            background: linear-gradient(135deg, #F8F9FB 0%, #FFFFFF 100%);
-            border-bottom: 1px solid #E5E9F2;
-        }
-
-        .course-icon {
-            font-size: 48px;
-            margin-bottom: 12px;
-            display: block;
-        }
-
-        .course-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #1A202C;
-            margin-bottom: 8px;
-            letter-spacing: -0.01em;
-        }
-
-        .course-level {
-            display: inline-block;
-            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
-            color: white;
-            padding: 5px 14px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
-
-        .course-body {
-            padding: 28px;
-        }
-
-        .course-description {
-            font-size: 15px;
-            color: #4A5568;
-            line-height: 1.7;
-            margin-bottom: 18px;
-        }
-
-        .course-meta {
-            display: flex;
-            gap: 18px;
-            font-size: 13px;
-            color: #718096;
-            font-weight: 600;
-            padding-top: 18px;
-            border-top: 1px solid #E5E9F2;
-        }
-
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        /* Quick Links Section */
-        .quick-links {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-bottom: 40px;
-        }
-
-        .quick-link {
-            background: #FFFFFF;
-            border: 1px solid #E5E9F2;
-            border-radius: 10px;
-            padding: 20px;
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            align-items: center;
+            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
             gap: 16px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
         }
 
-        .quick-link:hover {
-            border-color: #667EEA;
-            background: #F8F9FB;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.12);
-            transform: translateY(-1px);
+        /* ── LESSON CARD ── */
+        .lcard {
+            background: var(--white);
+            border: 2px solid var(--border-heavy);
+            border-bottom: 6px solid var(--border-heavy);
+            border-radius: var(--r);
+            display: flex; flex-direction: column;
+            overflow: hidden; position: relative;
+            transition: transform .15s, box-shadow .15s;
+            text-decoration: none; color: inherit;
         }
-
-        .quick-link-icon {
-            font-size: 32px;
+        .lcard:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(88,204,2,.15);
+        }
+        /* Green top strip for Beginner */
+        .lcard::before {
+            content: ''; display: block;
+            height: 7px;
+            background: linear-gradient(90deg, var(--green) 0%, #7EE000 100%);
             flex-shrink: 0;
         }
 
-        .quick-link-text {
-            flex: 1;
+        .lcard-body { padding: 20px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+
+        .lcard-icon {
+            font-size: 42px; line-height: 1;
+            animation: float 3s ease-in-out infinite;
+        }
+        /* Stagger the float animations so cards don't all bob together */
+        .lcard:nth-child(2) .lcard-icon { animation-delay: .4s; }
+        .lcard:nth-child(3) .lcard-icon { animation-delay: .8s; }
+        .lcard:nth-child(4) .lcard-icon { animation-delay: .2s; }
+        .lcard:nth-child(5) .lcard-icon { animation-delay: .6s; }
+        .lcard:nth-child(6) .lcard-icon { animation-delay: 1s; }
+        .lcard:nth-child(odd)  .lcard-icon { animation-delay: .3s; }
+        .lcard:nth-child(even) .lcard-icon { animation-delay: .7s; }
+
+        .lcard-title {
+            font-size: 17px; font-weight: 900; color: var(--ink-bold);
+            letter-spacing: -.3px; line-height: 1.25;
         }
 
-        .quick-link-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: #1A202C;
-            margin-bottom: 3px;
+        .lcard-badge {
+            display: inline-flex; align-items: center;
+            background: rgba(88,204,2,.12); color: var(--green-shadow);
+            font-size: 11px; font-weight: 900; text-transform: uppercase;
+            letter-spacing: 1px; padding: 4px 10px;
+            border-radius: 99px; border: 2px solid rgba(88,204,2,.25);
+            width: fit-content;
+        }
+        /* Special badge colours */
+        .lcard-badge.new {
+            background: rgba(255,200,0,.18); color: #92600A;
+            border-color: rgba(255,200,0,.5);
         }
 
-        .quick-link-desc {
-            font-size: 13px;
-            color: #718096;
+        .lcard-desc {
+            font-size: 14px; font-weight: 700; color: var(--ink);
+            line-height: 1.55; flex: 1;
         }
 
-        /* Info Box */
-        .info-box {
-            background: linear-gradient(135deg, #FFF9E6 0%, #FFF3CD 100%);
-            border-left: 4px solid #F59E0B;
-            padding: 20px 24px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        .lcard-meta {
+            display: flex; align-items: center; gap: 14px;
+            padding-top: 12px; border-top: 2px dashed var(--border);
+            font-size: 12px; font-weight: 800; color: var(--ink-3);
         }
+        .lcard-meta span { display: flex; align-items: center; gap: 4px; }
 
-        .info-box p {
-            font-size: 15px;
-            color: #92400E;
-            font-weight: 600;
-            margin: 0;
-            line-height: 1.6;
+        .lcard-go {
+            margin-top: 12px; display: flex; align-items: center;
+            justify-content: space-between;
+            padding: 11px 16px;
+            background: var(--green); color: var(--white);
+            font-size: 14px; font-weight: 900;
+            border-radius: var(--rsm);
+            border: 2px solid var(--green-shadow);
+            border-bottom: 4px solid var(--green-shadow);
+            transition: transform .1s, border-bottom-width .1s;
+            letter-spacing: -.2px;
         }
-        
-        /* Ticker */
-        #latest-updates-ticker {
-            position: fixed;
-            top: 20px; 
-            right: 50%;
-            margin-right: -580px;
-            z-index: 1000;
-            cursor: pointer;
-            background: #FFC107;
-            color: #92400E;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s, background-color 0.2s, opacity 0.2s;
-            border: 2px solid #F59E0B;
-            animation: pulse 2s infinite ease-in-out;
-            text-decoration: none;
-            white-space: nowrap;
-            max-width: 450px;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            display: inline-block;
+        .lcard:hover .lcard-go {
+            border-bottom-width: 2px;
+            transform: translateY(2px);
         }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
-            50% { transform: scale(1.03); box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.6); }
-            100% { transform: scale(1); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
+        .lcard-go-arrow { font-size: 18px; font-weight: 900; }
+
+        /* ── BACK LINK ── */
+        .back-link {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 13px; font-weight: 900; color: var(--ink-3);
+            text-transform: uppercase; letter-spacing: 1px;
+            padding: 8px 14px; border-radius: var(--rsm);
+            border: 2px solid var(--border); background: var(--white);
+            transition: color .15s, border-color .15s;
+            width: fit-content;
         }
+        .back-link:hover { color: var(--ink-bold); border-color: var(--border-heavy); }
 
-        #latest-updates-ticker:hover {
-            background: #FFD54F;
-            transform: scale(1.05);
-            animation: none;
+        /* ── FOOTER ── */
+        .footer { padding: 32px 20px; text-align: center; }
+        .footer-text { font-size: 14px; font-weight: 800; color: var(--ink-3); margin-bottom: 10px; }
+        .footer a { color: var(--ink-3); font-size: 13px; font-weight: 800; margin: 0 12px; text-decoration: underline; }
+
+        /* ── RESPONSIVE ── */
+        @media(max-width:600px) {
+            .lesson-grid { grid-template-columns: 1fr; }
         }
-        
-        /* Footer */
-        .footer {
-            background: #FFFFFF;
-            border-top: 1px solid #E5E9F2;
-            padding: 32px 20px;
-            margin-top: 60px;
-            text-align: center;
-        }
-
-        .footer-text {
-            font-size: 14px;
-            color: #718096;
-        }
-
-        /* Responsive */
-        @media (max-width: 1240px) {
-            #latest-updates-ticker {
-                right: 20px;
-                margin-right: 0;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .user-greeting {
-                display: none;
-            }
-            
-            .header-button {
-                padding: 6px 10px;
-                font-size: 12px;
-            }
-
-            .welcome-banner {
-                padding: 30px 20px;
-            }
-
-            .welcome-title {
-                font-size: 26px;
-            }
-
-            .welcome-subtitle {
-                font-size: 16px;
-            }
-
-            .course-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .quick-links {
-                grid-template-columns: 1fr;
-            }
-
-            .section-title {
-                font-size: 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .header-content {
-                gap: 10px;
-            }
-
-            .logo {
-                font-size: 28px;
-            }
-
-            .site-title {
-                font-size: 18px;
-            }
-
-            .container {
-                padding: 20px 15px 80px 15px; /* Add bottom padding for ticker */
-            }
-
-            .course-header,
-            .course-body {
-                padding: 20px;
-            }
-            
-            /* Move ticker to bottom on mobile */
-            #latest-updates-ticker {
-                top: auto;
-                bottom: 0;
-                right: 0;
-                left: 0;
-                margin-right: 0;
-                border-radius: 0;
-                font-size: 13px;
-                padding: 12px 15px;
-                max-width: 100%;
-                text-align: center;
-                border: none;
-                border-top: 2px solid #F59E0B;
-                box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
-            }
-        }
-
-        /* Landscape orientation on phones */
-        @media (max-width: 896px) and (max-height: 480px) and (orientation: landscape) {
-            #latest-updates-ticker {
-                top: auto;
-                bottom: 0;
-                right: 0;
-                left: 0;
-                margin-right: 0;
-                border-radius: 0;
-                font-size: 12px;
-                padding: 10px 15px;
-                max-width: 100%;
-                text-align: center;
-                border: none;
-                border-top: 2px solid #F59E0B;
-                box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
-            }
-            
-            .container {
-                padding-bottom: 70px;
-            }
-           
+        @media(min-width:601px) and (max-width:860px) {
+            .lesson-grid { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
 <body>
- <header class="header">
-        <div class="header-content">
-            <div class="header-left">
-                <span class="logo">😎</span>
-                <a href="/" class="site-title">English For Cool Dudes</a>
-            
-                <div id="logged-out-buttons" class="header-buttons" style="display: none;">
-                    <a href="/login/" class="header-button login">Login</a>
-                    <a href="/signup/" class="header-button signup">Sign Up</a>
-                </div>
 
-                <div id="logged-in-buttons" class="header-buttons" style="display: none;">
-                    <span class="user-greeting" id="user-greeting">Hey Cool Dude! 👋</span>
-                    <a href="/dashboard-gamified/" class="header-button dashboard">My Dashboard</a>
-                    <button id="logout-btn" class="header-button logout">Sign Out</button>
-                </div>
+    <!-- ── HEADER (matches homepage exactly) ── -->
+    <header class="header">
+        <div class="hc">
+            <div class="hl">
+                <a href="/" class="logo">😎</a>
+                <a href="/" class="site-title">English For Cool Dudes</a>
             </div>
-            
+            <div id="header-auth-container"></div>
         </div>
     </header>
 
-<a href="#" id="latest-updates-ticker" style="opacity: 0;"></a>
+    <div class="page">
 
-    <main class="container">
-
-        <div class="info-box">
-            <p>💡 All courses work great on smartphones! Learn anytime, anywhere.</p>
+        <!-- ── HERO ── -->
+        <div class="u1">
+            <div class="hero" id="hero-card">
+                <!-- Skeleton while auth loads -->
+                <div class="sk" style="height:13px;width:35%;margin-bottom:10px;"></div>
+                <div class="sk" style="height:44px;width:65%;margin-bottom:20px;"></div>
+                <div class="sk" style="height:13px;margin-bottom:8px;border-radius:99px;"></div>
+                <div class="sk" style="height:52px;border-radius:var(--rsm);margin-top:16px;"></div>
+            </div>
         </div>
 
-        <section class="section">
-            <div class="section-header">
-                <span class="section-icon">🌱</span>
-                <h2 class="section-title">Essential Beginner Lessons (A1/A2)</h2>
-            </div>
-            
-            <div class="course-grid">
+        <!-- ── LESSON SECTION ── -->
+        <div class="u2">
+            <div class="sec-label">🌱 Beginner English (A1/A2)</div>
 
-                <a href="/chineserobotsbeginner/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">🤖</span>
-                        <h3 class="course-title">Robots on Chinese TV</h3>
-                        <span class="course-level">JUST ADDED!</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            It's Happy New Chinese Year 2026 - the year of the horse and the Kung-Fu robot!
-                        </p>
-                        <div class="course-meta">
-                            <span class="meta-item">⏱️ 5 Minutes</span>
-                            <span class="meta-item">📅 Added: 19/02/2026</span>
-                        </div>
-                    </div>
+            <div class="lesson-grid">
 
-                <a href="/pancakedaybeginner/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">🥞</span>
-                        <h3 class="course-title">Pancake Day</h3>
-                        <span class="course-level">JUST ADDED!</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            Pancake Day is a special day in Great Britain. Do you like pancakes?
-                        </p>
-                        <div class="course-meta">
-                            <span class="meta-item">⏱️ 4 Minutes</span>
-                            <span class="meta-item">📅 Added: 17/02/2026</span>
+                <!-- 1 -->
+                <a href="/chineserobotsbeginner/" class="lcard">
+                    <div class="lcard-body">
+                        <div class="lcard-icon">🤖</div>
+                        <div class="lcard-badge new">⭐ Just Added</div>
+                        <div class="lcard-title">Robots on Chinese TV</div>
+                        <div class="lcard-desc">It's Happy New Chinese Year 2026 — the year of the horse and the Kung-Fu robot!</div>
+                        <div class="lcard-meta">
+                            <span>⏱️ 5 mins</span>
+                            <span>📅 19/02/2026</span>
                         </div>
-                    </div>
-
-                <a href="/sandwich/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">🥪</span>
-                        <h3 class="course-title">The Earl of Sandwich</h3>
-                        <span class="course-level">Past Simple</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            The sandwich is probably the world's greatest invention, but who invented it?
-                        </p>
-                        <div class="course-meta">
-                            <span class="meta-item">⏱️ 5 Minutes</span>
-                            <span class="meta-item">📅 Added: 05/02/2026</span>
-                        </div>
-                    </div>
-
-                <a href="/coffee/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">☕</span>
-                        <h3 class="course-title">The Legend Of Coffee</h3>
-                        <span class="course-level">PAST SIMPLE</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            Did you know that coffee comes from a crazy goat?
-                        </p>
-                        <div class="course-meta">
-                            <span class="meta-item">⏱️ 7 Minutes</span>
-                            <span class="meta-item">📅 Added: 12/01/2026</span>
-                        </div>
-                    </div>
-
-                 <a href="/resolutionsbeginner/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">🔮</span>
-                        <h3 class="course-title">Happy New Year - Are you happy or worried about 2026?</h3>
-                        <span class="course-level">JUST ADDED!</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            Simple ways to talk about the future - going to, will...
-                        </p>
-                        <div class="course-meta">
-                            <span class="meta-item">⏱️ 8 Minutes</span>
-                            <span class="meta-item">📅 Added: 12/01/2026</span>
-                        </div>
-                    </div>
-
-                 <a href="/xmasdinner/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">🍗</span>
-                        <h3 class="course-title">Christmas Traditions: The Big Xmas Dinner</h3>
-                        <span class="course-level">NEW!</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            Turkey, Stuffing, Brussels Sprouts, Gravy - it's the British Xmas Dinner.
-                        </p>
-                        <div class="course-meta">
-                            <span class="meta-item">⏱️ 4 Minutes</span>
-                            <span class="meta-item">📅 Added: 22/12/2025</span>
-                        </div>
-                    </div>
-
-                <a href="/worldxmas/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">🤪</span>
-                        <h3 class="course-title">Crazy Christmas Traditions</h3>
-                        <span class="course-level">NEW!</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            Read some of the world's strangest Xmas traditions.
-                        </p>
-                        <div class="course-meta">
-                            <span class="meta-item">⏱️ 5 Minutes</span>
-                            <span class="meta-item">📅 Added: 22/12/2025</span>
-                        </div>
+                        <div class="lcard-go">Start Lesson <span class="lcard-go-arrow">→</span></div>
                     </div>
                 </a>
 
-                <a href="/adventcalendar/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">🎅🏻</span>
-                        <h3 class="course-title">Christmas Traditions: The Advent Calendar</h3>
-                        <span class="course-level">NEW!</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            Reading and vocabulary about counting down to Christmas...
-                        </p>
-                        <div class="course-meta">
-                            <span class="meta-item">⏱️ 8 Minutes</span>
-                            <span class="meta-item">📅 Added: 15/12/2025</span>
+                <!-- 2 -->
+                <a href="/pancakedaybeginner/" class="lcard">
+                    <div class="lcard-body">
+                        <div class="lcard-icon">🥞</div>
+                        <div class="lcard-badge new">⭐ Just Added</div>
+                        <div class="lcard-title">Pancake Day!</div>
+                        <div class="lcard-desc">Pancake Day is a special day in Great Britain. Do you like pancakes?</div>
+                        <div class="lcard-meta">
+                            <span>⏱️ 4 mins</span>
+                            <span>📅 17/02/2026</span>
                         </div>
+                        <div class="lcard-go">Start Lesson <span class="lcard-go-arrow">→</span></div>
                     </div>
                 </a>
 
-
-                 <a href="/tortoise/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">🐢</span>
-                        <h3 class="course-title">Amazing Animals: Jonathan the Tortoise</h3>
-                        <span class="course-level">JUST ADDED!</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            Meet Jonathan - the oldest dude on Earth - over 190 years old!
-                        </p>
-                        <div class="course-meta">
-                            <span class="meta-item">⏱️ 7 Minutes</span>
-                            <span class="meta-item">📅 Added: 28/11/2025</span>
+                <!-- 3 -->
+                <a href="/sandwich/" class="lcard">
+                    <div class="lcard-body">
+                        <div class="lcard-icon">🥪</div>
+                        <div class="lcard-badge">Past Simple</div>
+                        <div class="lcard-title">The Earl of Sandwich</div>
+                        <div class="lcard-desc">The sandwich is probably the world's greatest invention — but who invented it?</div>
+                        <div class="lcard-meta">
+                            <span>⏱️ 5 mins</span>
+                            <span>📅 05/02/2026</span>
                         </div>
+                        <div class="lcard-go">Start Lesson <span class="lcard-go-arrow">→</span></div>
                     </div>
                 </a>
 
-                 <a href="/budgeting/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">📊</span>
-                        <h3 class="course-title">Finance: Budgeting and Payments</h3>
-                        <span class="course-level">Specialist</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            Key vocabulary for managing money and finances.
-                        </p>
-                        <div class="course-meta">
-                            <span class="meta-item">⏱️ 8 Minutes</span>
-                            <span class="meta-item">📅 Added: 27/11/2025</span>
+                <!-- 4 -->
+                <a href="/coffee/" class="lcard">
+                    <div class="lcard-body">
+                        <div class="lcard-icon">☕</div>
+                        <div class="lcard-badge">Past Simple</div>
+                        <div class="lcard-title">The Legend of Coffee</div>
+                        <div class="lcard-desc">Did you know that coffee comes from a crazy goat?</div>
+                        <div class="lcard-meta">
+                            <span>⏱️ 7 mins</span>
+                            <span>📅 12/01/2026</span>
                         </div>
+                        <div class="lcard-go">Start Lesson <span class="lcard-go-arrow">→</span></div>
                     </div>
                 </a>
 
-                <a href="/bonfire/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">🔥</span>
-                        <h3 class="course-title">Bonfire Night and Guy Fawkes</h3>
-                        <span class="course-level">Noun, Verb, Adjective Building</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            Remember, Remember, The Fifth of November...
-                        </p>
-                        <div class="course-meta">
-                            <span class="meta-item">⏱️ 7 Minutes</span>
-                            <span class="meta-item">📅 Added: 31/10/2025</span>
+                <!-- 5 -->
+                <a href="/resolutionsbeginner/" class="lcard">
+                    <div class="lcard-body">
+                        <div class="lcard-icon">🔮</div>
+                        <div class="lcard-badge">Future Forms</div>
+                        <div class="lcard-title">Are You Happy or Worried About 2026?</div>
+                        <div class="lcard-desc">Simple ways to talk about the future — going to, will…</div>
+                        <div class="lcard-meta">
+                            <span>⏱️ 8 mins</span>
+                            <span>📅 12/01/2026</span>
                         </div>
+                        <div class="lcard-go">Start Lesson <span class="lcard-go-arrow">→</span></div>
                     </div>
                 </a>
 
-                 <a href="/trickortreat/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">👻</span>
-                        <h3 class="course-title">Trick or Treat!</h3>
-                        <span class="course-level">Vocab and Imperatives</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            Learn simple words and sentences for Trick-or-Treating at Halloween.
-                        </p>
-                        <div class="course-meta">
-                            <span class="meta-item">⏱️ 6 Minutes</span>
-                            <span class="meta-item">📅 Added: 31/10/2025</span>
+                <!-- 6 -->
+                <a href="/xmasdinner/" class="lcard">
+                    <div class="lcard-body">
+                        <div class="lcard-icon">🍗</div>
+                        <div class="lcard-badge">Vocabulary</div>
+                        <div class="lcard-title">The Big Xmas Dinner</div>
+                        <div class="lcard-desc">Turkey, stuffing, Brussels sprouts, gravy — it's the British Christmas dinner.</div>
+                        <div class="lcard-meta">
+                            <span>⏱️ 4 mins</span>
+                            <span>📅 22/12/2025</span>
                         </div>
+                        <div class="lcard-go">Start Lesson <span class="lcard-go-arrow">→</span></div>
                     </div>
                 </a>
 
-                <a href="/weather/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">☔</span>
-                        <h3 class="course-title">What's The Weather Like?</h3>
-                        <span class="course-level">Future Going To</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            Talking about the weather and making predictions.
-                        </p>
-                        <div class="course-meta">
-                            <span class="meta-item">⏱️ 7 Minutes</span>
-                            <span class="meta-item">📅 Added: 19/10/2025</span>
+                <!-- 7 -->
+                <a href="/worldxmas/" class="lcard">
+                    <div class="lcard-body">
+                        <div class="lcard-icon">🤪</div>
+                        <div class="lcard-badge">Vocabulary</div>
+                        <div class="lcard-title">Crazy Christmas Traditions</div>
+                        <div class="lcard-desc">Read about some of the world's strangest Christmas traditions.</div>
+                        <div class="lcard-meta">
+                            <span>⏱️ 5 mins</span>
+                            <span>📅 22/12/2025</span>
                         </div>
+                        <div class="lcard-go">Start Lesson <span class="lcard-go-arrow">→</span></div>
                     </div>
                 </a>
 
-                <a href="/drhammond/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">👨‍⚕️</span>
-                        <h3 class="course-title">Dr Hammond's Simple Life</h3>
-                        <span class="course-level">Past Tense</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            Daily Life, Simple Past and a trip back in time.
-                        </p>
-                        <div class="course-meta">
-                            <span class="meta-item">⏱️ 6 Minutes</span>
-                            <span class="meta-item">📅 Added: 13/10/2025</span>
+                <!-- 8 -->
+                <a href="/adventcalendar/" class="lcard">
+                    <div class="lcard-body">
+                        <div class="lcard-icon">🎅🏻</div>
+                        <div class="lcard-badge">Reading</div>
+                        <div class="lcard-title">The Advent Calendar</div>
+                        <div class="lcard-desc">Reading and vocabulary about counting down to Christmas…</div>
+                        <div class="lcard-meta">
+                            <span>⏱️ 8 mins</span>
+                            <span>📅 15/12/2025</span>
                         </div>
+                        <div class="lcard-go">Start Lesson <span class="lcard-go-arrow">→</span></div>
                     </div>
                 </a>
 
-                <a href="/shopping/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">🛒</span>
-                        <h3 class="course-title">Shopping and Online Shopping</h3>
-                        <span class="course-level">Vocabulary</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            Key shopping vocabulary for in the supermarket and online.
-                        </p>
-                        <div class="course-meta">
-                            <span class="meta-item">⏱️ 5 Minutes</span>
-                            <span class="meta-item">📅 Added: 08/10/2025</span>
+                <!-- 9 -->
+                <a href="/tortoise/" class="lcard">
+                    <div class="lcard-body">
+                        <div class="lcard-icon">🐢</div>
+                        <div class="lcard-badge">Amazing Animals</div>
+                        <div class="lcard-title">Jonathan the Tortoise</div>
+                        <div class="lcard-desc">Meet Jonathan — the oldest dude on Earth, over 190 years old!</div>
+                        <div class="lcard-meta">
+                            <span>⏱️ 7 mins</span>
+                            <span>📅 28/11/2025</span>
                         </div>
-                    </div>
-                </a>
-                
-                <a href="/towns/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">🏙️</span>
-                        <h3 class="course-title">What's In Your Town?</h3>
-                        <span class="course-level">Describing Places</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            Learn how to describe your town.
-                        </p>
-                        <div class="course-meta">
-                            <span class="meta-item">⏱️ 4 Minutes</span>
-                            <span class="meta-item">📅 Added: 02/10/2025</span>
-                        </div>
+                        <div class="lcard-go">Start Lesson <span class="lcard-go-arrow">→</span></div>
                     </div>
                 </a>
 
-                <a href="/nationality/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">🗺️</span>
-                        <h3 class="course-title">Where Are You From?</h3>
-                        <span class="course-level">Key Phrases</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            Learn how to say where you're from.
-                        </p>
-                        <div class="course-meta">
-                            <span class="meta-item">⏱️ 4 Minutes</span>
-                            <span class="meta-item">📅 Added: 02/10/2025</span>
+                <!-- 10 -->
+                <a href="/budgeting/" class="lcard">
+                    <div class="lcard-body">
+                        <div class="lcard-icon">📊</div>
+                        <div class="lcard-badge">Finance</div>
+                        <div class="lcard-title">Budgeting and Payments</div>
+                        <div class="lcard-desc">Key vocabulary for managing money and finances.</div>
+                        <div class="lcard-meta">
+                            <span>⏱️ 8 mins</span>
+                            <span>📅 27/11/2025</span>
                         </div>
-                    </div>
-                </a>
-                
-                <a href="/greetings/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">👋</span>
-                        <h3 class="course-title">Greetings and Introductions</h3>
-                        <span class="course-level">Vocabulary</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            Learn how to say hello, goodbye, and introduce yourself like a boss.
-                        </p>
-                        <div class="course-meta">
-                            <span class="meta-item">⏱️ 5 Minutes</span>
-                            <span class="meta-item">📅 Added: 01/10/2025</span>
-                        </div>
+                        <div class="lcard-go">Start Lesson <span class="lcard-go-arrow">→</span></div>
                     </div>
                 </a>
 
-                <a href="/be/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">📘</span>
-                        <h3 class="course-title">The Verb 'To Be'</h3>
-                        <span class="course-level">Key Verbs</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            Master the most important verb in English: I am, you are, he is...
-                        </p>
-                        <div class="course-meta">
-                            <span class="meta-item">⏱️ 4 Minutes</span>
-                            <span class="meta-item">📅 Added: 27/09/2025</span>
+                <!-- 11 -->
+                <a href="/bonfire/" class="lcard">
+                    <div class="lcard-body">
+                        <div class="lcard-icon">🔥</div>
+                        <div class="lcard-badge">Word Building</div>
+                        <div class="lcard-title">Bonfire Night and Guy Fawkes</div>
+                        <div class="lcard-desc">Remember, remember, the Fifth of November…</div>
+                        <div class="lcard-meta">
+                            <span>⏱️ 7 mins</span>
+                            <span>📅 31/10/2025</span>
                         </div>
+                        <div class="lcard-go">Start Lesson <span class="lcard-go-arrow">→</span></div>
                     </div>
                 </a>
 
-                <a href="/timeandnumbers/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">⏰</span>
-                        <h3 class="course-title">Numbers and Telling Time</h3>
-                        <span class="course-level">Basics</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            It's half past four. Learn how to handle numbers and schedules like a native.
-                        </p>
-                        <div class="course-meta">
-                            <span class="meta-item">⏱️ 9 Minutes</span>
-                            <span class="meta-item">📅 Added: 22/09/2025</span>
+                <!-- 12 -->
+                <a href="/trickortreat/" class="lcard">
+                    <div class="lcard-body">
+                        <div class="lcard-icon">👻</div>
+                        <div class="lcard-badge">Vocabulary</div>
+                        <div class="lcard-title">Trick or Treat!</div>
+                        <div class="lcard-desc">Learn simple words and sentences for trick-or-treating at Halloween.</div>
+                        <div class="lcard-meta">
+                            <span>⏱️ 6 mins</span>
+                            <span>📅 31/10/2025</span>
                         </div>
+                        <div class="lcard-go">Start Lesson <span class="lcard-go-arrow">→</span></div>
                     </div>
                 </a>
 
-                <a href="/orderingfood/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">🍔</span>
-                        <h3 class="course-title">Ordering Food and Drinks</h3>
-                        <span class="course-level">Real Life</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            Useful phrases for restaurants and cafés. Can I have a coffee, please?
-                        </p>
-                        <div class="course-meta">
-                            <span class="meta-item">⏱️ 4 Minutes</span>
-                            <span class="meta-item">📅 Added: 17/09/2025</span>
+                <!-- 13 -->
+                <a href="/weather/" class="lcard">
+                    <div class="lcard-body">
+                        <div class="lcard-icon">☔</div>
+                        <div class="lcard-badge">Future Going To</div>
+                        <div class="lcard-title">What's The Weather Like?</div>
+                        <div class="lcard-desc">Talking about the weather and making predictions.</div>
+                        <div class="lcard-meta">
+                            <span>⏱️ 7 mins</span>
+                            <span>📅 19/10/2025</span>
                         </div>
+                        <div class="lcard-go">Start Lesson <span class="lcard-go-arrow">→</span></div>
                     </div>
                 </a>
-                </div>
-        </section>
 
-    </main>
+                <!-- 14 -->
+                <a href="/drhammond/" class="lcard">
+                    <div class="lcard-body">
+                        <div class="lcard-icon">👨‍⚕️</div>
+                        <div class="lcard-badge">Past Tense</div>
+                        <div class="lcard-title">Dr Hammond's Simple Life</div>
+                        <div class="lcard-desc">Daily life, simple past, and a trip back in time.</div>
+                        <div class="lcard-meta">
+                            <span>⏱️ 6 mins</span>
+                            <span>📅 13/10/2025</span>
+                        </div>
+                        <div class="lcard-go">Start Lesson <span class="lcard-go-arrow">→</span></div>
+                    </div>
+                </a>
+
+                <!-- 15 -->
+                <a href="/shopping/" class="lcard">
+                    <div class="lcard-body">
+                        <div class="lcard-icon">🛒</div>
+                        <div class="lcard-badge">Vocabulary</div>
+                        <div class="lcard-title">Shopping and Online Shopping</div>
+                        <div class="lcard-desc">Key shopping vocabulary for the supermarket and online.</div>
+                        <div class="lcard-meta">
+                            <span>⏱️ 5 mins</span>
+                            <span>📅 08/10/2025</span>
+                        </div>
+                        <div class="lcard-go">Start Lesson <span class="lcard-go-arrow">→</span></div>
+                    </div>
+                </a>
+
+                <!-- 16 -->
+                <a href="/towns/" class="lcard">
+                    <div class="lcard-body">
+                        <div class="lcard-icon">🏙️</div>
+                        <div class="lcard-badge">Describing Places</div>
+                        <div class="lcard-title">What's In Your Town?</div>
+                        <div class="lcard-desc">Learn how to describe your town in English.</div>
+                        <div class="lcard-meta">
+                            <span>⏱️ 4 mins</span>
+                            <span>📅 02/10/2025</span>
+                        </div>
+                        <div class="lcard-go">Start Lesson <span class="lcard-go-arrow">→</span></div>
+                    </div>
+                </a>
+
+                <!-- 17 -->
+                <a href="/nationality/" class="lcard">
+                    <div class="lcard-body">
+                        <div class="lcard-icon">🗺️</div>
+                        <div class="lcard-badge">Key Phrases</div>
+                        <div class="lcard-title">Where Are You From?</div>
+                        <div class="lcard-desc">Learn how to say where you're from and ask others too.</div>
+                        <div class="lcard-meta">
+                            <span>⏱️ 4 mins</span>
+                            <span>📅 02/10/2025</span>
+                        </div>
+                        <div class="lcard-go">Start Lesson <span class="lcard-go-arrow">→</span></div>
+                    </div>
+                </a>
+
+                <!-- 18 -->
+                <a href="/greetings/" class="lcard">
+                    <div class="lcard-body">
+                        <div class="lcard-icon">👋</div>
+                        <div class="lcard-badge">Vocabulary</div>
+                        <div class="lcard-title">Greetings and Introductions</div>
+                        <div class="lcard-desc">Learn how to say hello, goodbye, and introduce yourself like a boss.</div>
+                        <div class="lcard-meta">
+                            <span>⏱️ 5 mins</span>
+                            <span>📅 01/10/2025</span>
+                        </div>
+                        <div class="lcard-go">Start Lesson <span class="lcard-go-arrow">→</span></div>
+                    </div>
+                </a>
+
+                <!-- 19 -->
+                <a href="/be/" class="lcard">
+                    <div class="lcard-body">
+                        <div class="lcard-icon">📘</div>
+                        <div class="lcard-badge">Key Verbs</div>
+                        <div class="lcard-title">The Verb 'To Be'</div>
+                        <div class="lcard-desc">Master the most important verb in English: I am, you are, he is…</div>
+                        <div class="lcard-meta">
+                            <span>⏱️ 4 mins</span>
+                            <span>📅 27/09/2025</span>
+                        </div>
+                        <div class="lcard-go">Start Lesson <span class="lcard-go-arrow">→</span></div>
+                    </div>
+                </a>
+
+                <!-- 20 -->
+                <a href="/timeandnumbers/" class="lcard">
+                    <div class="lcard-body">
+                        <div class="lcard-icon">⏰</div>
+                        <div class="lcard-badge">Basics</div>
+                        <div class="lcard-title">Numbers and Telling Time</div>
+                        <div class="lcard-desc">It's half past four. Handle numbers and schedules like a native.</div>
+                        <div class="lcard-meta">
+                            <span>⏱️ 9 mins</span>
+                            <span>📅 22/09/2025</span>
+                        </div>
+                        <div class="lcard-go">Start Lesson <span class="lcard-go-arrow">→</span></div>
+                    </div>
+                </a>
+
+                <!-- 21 -->
+                <a href="/orderingfood/" class="lcard">
+                    <div class="lcard-body">
+                        <div class="lcard-icon">🍔</div>
+                        <div class="lcard-badge">Real Life</div>
+                        <div class="lcard-title">Ordering Food and Drinks</div>
+                        <div class="lcard-desc">Useful phrases for restaurants and cafés. Can I have a coffee, please?</div>
+                        <div class="lcard-meta">
+                            <span>⏱️ 4 mins</span>
+                            <span>📅 17/09/2025</span>
+                        </div>
+                        <div class="lcard-go">Start Lesson <span class="lcard-go-arrow">→</span></div>
+                    </div>
+                </a>
+
+            </div><!-- /lesson-grid -->
+        </div><!-- /u2 -->
+
+        <!-- ── BACK LINK ── -->
+        <div class="u3">
+            <a href="/" class="back-link">← All Courses</a>
+        </div>
+
+    </div><!-- /page -->
 
     <footer class="footer">
-        <p class="footer-text">© 2026 English For Cool Dudes - 😎</p>
-        <div style="margin-top: 10px;">
-            <a href="/impressum/" style="color: #667EEA; margin-right: 15px; text-decoration: none;">Impressum</a>
-            <a href="/datenschutz/" style="color: #667EEA; text-decoration: none;">Datenschutzerklärung</a>
+        <p class="footer-text">© 2026 English For Cool Dudes 😎</p>
+        <div>
+            <a href="/impressum/">Impressum</a>
+            <a href="/datenschutz/">Privacy</a>
         </div>
     </footer>
 
-    <script src="/tickerData.js"></script>
+    <!-- Auth scripts (same stack as homepage) -->
+    <script src="/supabase-auth-gamified.js"></script>
+    <script src="/badge-system.js"></script>
+    <script src="/track-mastery.js"></script>
 
-  <script>
-// ============================================
-// UNIVERSAL AUTH & INITIALIZATION SCRIPT
-// Place at the bottom of EVERY page
-// ============================================
-
-(function() {
+    <script>
     'use strict';
-    
-    // --- SAFE SUPABASE INITIALIZATION ---
-    // This prevents the "already declared" error
-    if (typeof window.efcdSupabaseClient === 'undefined') {
-        try {
-            const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
-            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-            
-            if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-                window.efcdSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                console.log('✅ Supabase client initialized');
-            } else {
-                console.error('❌ Supabase library not loaded');
-            }
-        } catch (err) {
-            console.error('❌ Supabase initialization error:', err);
-        }
-    } else {
-        console.log('ℹ️ Supabase client already exists');
+
+    // ── HELPERS ──────────────────────────────────────────
+    function greet() {
+        const h = new Date().getHours();
+        return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
     }
-    
-    // --- AUTH HEADER LOGIC ---
-    async function initializeAuthHeader() {
-        const loggedOutButtons = document.getElementById('logged-out-buttons');
-        const loggedInButtons = document.getElementById('logged-in-buttons');
-        const userGreeting = document.getElementById('user-greeting');
-        const logoutBtn = document.getElementById('logout-btn');
 
+    // ── HERO: LOGGED IN (trimmed — no daily challenge, no full stat row) ──
+    async function renderUserHero(stats, user) {
+        const profile  = window.EFCD_Auth.getCurrentUser();
+        const rawName  = profile?.name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Dude';
+        const firstName = rawName.split(' ')[0].replace(/^\w/, c => c.toUpperCase());
+
+        const streak = stats?.streak || 0;
+        const xp     = stats?.xp     || 0;
+        const level  = stats?.level  || 1;
+        const xpIn   = xp % 500;
+        const xpPct  = Math.min(100, Math.round((xpIn / 500) * 100));
+        const xpLeft = 500 - xpIn;
+
+        // Optional: track mastery badge
+        let trackBadgeHTML = '';
         try {
-            if (!window.efcdSupabaseClient) {
-                console.warn('⚠️ Supabase client not available');
-                if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
-                return;
-            }
-            
-            const { data: { user }, error } = await window.efcdSupabaseClient.auth.getUser();
-
-            if (error) {
-                console.error('Auth error:', error);
-                if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
-                return;
-            }
-
-            if (user) {
-                let userName = 'Cool Dude';
-                if (user.user_metadata && user.user_metadata.full_name) {
-                    userName = user.user_metadata.full_name.split(' ')[0];
-                } else if (user.email) {
-                    userName = user.email.split('@')[0];
-                }
-                
-                if (userGreeting) userGreeting.textContent = `Hey ${userName}! 👋`;
-                if (loggedInButtons) loggedInButtons.style.display = 'flex';
-                if (loggedOutButtons) loggedOutButtons.style.display = 'none';
-            } else {
-                if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
-                if (loggedInButtons) loggedInButtons.style.display = 'none';
-            }
-        } catch (err) {
-            console.error('❌ Auth check error:', err);
-            if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
-        }
-
-        // Logout handler
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                try {
-                    const { error } = await window.efcdSupabaseClient.auth.signOut();
-                    if (error) {
-                        console.error('Logout error:', error);
-                    } else {
-                        console.log('✅ Logged out successfully');
-                        window.location.reload();
+            if (window.EFCD_TrackMastery && profile?.id) {
+                const { data: userLessons } = await window.efcdSupabaseClient
+                    .from('lessons').select('lesson_link').eq('user_id', profile.id);
+                if (userLessons?.length) {
+                    const counts   = window.EFCD_TrackMastery.countByTrack(userLessons);
+                    const topTrack = window.EFCD_TrackMastery.TRACKS
+                        .filter(t => counts[t.id] > 0)
+                        .sort((a, b) => counts[b.id] - counts[a.id])[0];
+                    if (topTrack) {
+                        let idx = 0;
+                        topTrack.thresholds.forEach((thresh, i) => { if (counts[topTrack.id] >= thresh) idx = i; });
+                        trackBadgeHTML = `
+                            <div class="hero-track-badge">
+                                <span>${topTrack.icon}</span>
+                                <span>${topTrack.titles[idx]}</span>
+                            </div>`;
                     }
-                } catch (err) {
-                    console.error('❌ Logout error:', err);
                 }
-            });
-        }
+            }
+        } catch(_) {}
+
+        document.getElementById('hero-card').innerHTML = `
+            <div class="hero-top">
+                <div>
+                    <div class="greet">${greet()}, ${firstName}! 👋</div>
+                    <div class="uname">Beginner English</div>
+                    ${trackBadgeHTML}
+                </div>
+                ${streak > 0 ? `
+                <div class="streak-block">
+                    <span class="sfire">🔥</span>
+                    <span class="snum">${streak}</span>
+                    <span class="sword">Day Streak</span>
+                </div>` : ''}
+            </div>
+            <div class="xp-wrap">
+                <div class="xp-row"><span>Level ${level}</span><span>${xpLeft} XP to Level ${level + 1}</span></div>
+                <div class="xp-track"><div class="xp-fill" id="xp-fill"></div></div>
+            </div>
+            <a href="/dashboard-gamified/" class="hero-cta">
+                <span>📊 View My Dashboard</span>
+                <span class="cta-arrow">›</span>
+            </a>`;
+
+        requestAnimationFrame(() => setTimeout(() => {
+            const f = document.getElementById('xp-fill');
+            if (f) f.style.width = xpPct + '%';
+        }, 80));
     }
-    
-  
-    
-    // --- TICKER INITIALIZATION ---
-    function initializeTicker() {
-        if (typeof startTickerAnimation === 'function') {
-            console.log('✅ Starting ticker animation');
-            startTickerAnimation();
-        } else {
-            console.warn('⚠️ Ticker function not found');
-        }
+
+    // ── HERO: GUEST ───────────────────────────────────────
+    function renderGuestHero() {
+        document.getElementById('hero-card').innerHTML = `
+            <div class="eyebrow">A1 / A2 Level</div>
+            <div class="big-title">Beginner<br><span class="yellow">English.</span></div>
+            <div class="hero-sub">21 fun lessons. Real British English. Start from scratch and level up fast — for free.</div>
+            <div class="guest-btns">
+                <a href="/signup/" class="btn-yellow">🚀 Start Free</a>
+                <a href="/login/"  class="btn-white">Log In</a>
+            </div>`;
     }
-    
-    // --- RUN ON PAGE LOAD ---
+
+    // ── BOOT ──────────────────────────────────────────────
+    function boot() {
+        if (typeof window.efcdReady === 'undefined') { setTimeout(boot, 50); return; }
+        window.efcdReady.then(async () => {
+            try {
+                await window.EFCD_Auth.initAuth();
+                const user = window.EFCD_Auth.getCurrentUser();
+                if (user) {
+                    await renderUserHero(window.EFCD_Auth.getUserStats(), user);
+                } else {
+                    renderGuestHero();
+                }
+                // Update the header auth buttons
+                if (window.EFCD_UI) {
+                    window.EFCD_UI.updateHeaderUI();
+                }
+            } catch(e) {
+                console.error('Boot error:', e);
+                renderGuestHero();
+            }
+        }).catch(() => renderGuestHero());
+    }
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', async () => {
-            await initializeAuthHeader();
-       
-            initializeTicker();
-        });
+        document.addEventListener('DOMContentLoaded', boot);
     } else {
-        // DOM already loaded
-        (async () => {
-            await initializeAuthHeader();
-         
-            initializeTicker();
-        })();
+        boot();
     }
-})();
-</script>
+    </script>
 
 </body>
 </html>
