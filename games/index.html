@@ -8,346 +8,454 @@
     <meta http-equiv="Expires" content="0">
     <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
-    <link rel="icon" type="image/png" href="/android-chrome-192x192.png" sizes="192x192">
     <link rel="manifest" href="/manifest.json">
     <title>The Break Room - English For Cool Dudes</title>
+
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/init-auth.js"></script>
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', Arial, sans-serif; background: #F8F9FB; color: #2C3E50; line-height: 1.6; }
-        .header { background: #FFFFFF; border-bottom: 1px solid #E5E9F2; padding: 20px 0; margin-bottom: 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
-        .header-content { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; gap: 15px; }
-        .logo { width: 36px; height: 36px; background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-        .site-title { font-size: 20px; font-weight: 600; color: #1A202C; text-decoration: none; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; min-height: 80vh; }
-        .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #E5E9F2; }
-        .section-title { font-size: 22px; font-weight: 600; color: #1A202C; }
-        .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .course-card { background: #FFFFFF; border: 1px solid #E5E9F2; border-radius: 12px; text-decoration: none; color: inherit; display: block; transition: all 0.2s; overflow: hidden; }
-        .course-card:hover { border-color: #667EEA; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.12); }
-        .course-header { padding: 28px; background: linear-gradient(135deg, #F8F9FB 0%, #FFFFFF 100%); border-bottom: 1px solid #E5E9F2; }
-        .course-icon { font-size: 48px; margin-bottom: 12px; display: block; }
-        .course-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
-        .course-level { display: inline-block; background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%); color: white; padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
-        .course-body { padding: 28px; }
-        .course-description { font-size: 15px; color: #4A5568; margin-bottom: 18px; }
-        .footer { background: #FFFFFF; border-top: 1px solid #E5E9F2; padding: 32px 20px; margin-top: 60px; text-align: center; }
-        .footer-text { font-size: 14px; color: #718096; }
-        
-        /* Auth & Header Layout */
-        .header-left { display: flex; align-items: center; gap: 15px; }
-        .header-buttons { display: flex; align-items: center; gap: 8px; }
-        .header-button { padding: 7px 14px; border-radius: 6px; font-size: 14px; font-weight: 600; border: 1px solid #E5E9F2; text-decoration: none; white-space: nowrap; cursor: pointer; }
-        .header-button.login { background: #F8F9FB; color: #4A5568; }
-        .header-button.login:hover { background: #FFFFFF; color: #2C3E50; border-color: #718096; }
-        .header-button.signup { background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%); color: white; border: 1px solid transparent; }
-        .header-button.signup:hover { background: linear-gradient(135deg, #5A6AD0 0%, #6D4396 100%); box-shadow: 0 2px 5px rgba(102, 126, 234, 0.4); }
-        .header-button.dashboard { background: #FFFBEA; color: #92400E; border-color: #FCD34D; }
-        .header-button.dashboard:hover { background: #FCD34D; border-color: #F59E0B; }
-        .header-button.logout { background: #F8F9FB; color: #E53E3E; }
-        .header-button.logout:hover { background: #FEEBEB; color: #C53030; border-color: #FBD3DA; }
-        .user-greeting { font-size: 14px; color: #4A5568; font-weight: 600; margin-right: 5px; white-space: nowrap; }
+        :root {
+            --blue:          #1CB0F6;
+            --blue-shadow:   #1899D6;
+            --yellow:        #FFC800;
+            --yellow-shadow: #E5B400;
+            --green:         #58CC02;
+            --green-shadow:  #58A700;
+            --punch:         #FF4B4B;
+            --punch-shadow:  #EA2B2B;
+            --orange:        #FF9600;
+            --orange-shadow: #E07800;
+            --bg:            #F7F9FA;
+            --ink:           #4B4B4B;
+            --ink-bold:      #111827;
+            --ink-3:         #AFAFAF;
+            --white:         #FFFFFF;
+            --border:        #E5E5E5;
+            --border-heavy:  #CECECE;
+            --r:             24px;
+            --rsm:           16px;
 
-        /* Ticker Styles */
-        #latest-updates-ticker { position: fixed; top: 20px; right: 50%; margin-right: -580px; z-index: 1000; cursor: pointer; background: #FFC107; color: #92400E; padding: 8px 15px; border-radius: 20px; font-size: 14px; font-weight: 600; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); transition: transform 0.2s, background-color 0.2s, opacity 0.2s; border: 2px solid #F59E0B; animation: pulse 2s infinite ease-in-out; text-decoration: none; white-space: nowrap; max-width: 450px; text-overflow: ellipsis; overflow: hidden; display: inline-block; }
-        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); } 50% { transform: scale(1.03); box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.6); } 100% { transform: scale(1); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); } }
-        #latest-updates-ticker:hover { background: #FFD54F; transform: scale(1.05); animation: none; }
-
-        /* Responsive */
-        @media (max-width: 1240px) { #latest-updates-ticker { right: 20px; margin-right: 0; } }
-        @media (max-width: 768px) { .user-greeting { display: none; } .course-grid { grid-template-columns: 1fr; } }
-        @media (max-width: 480px) { 
-            .header-content { gap: 10px; } .logo { font-size: 28px; } .site-title { font-size: 18px; } 
-            .container { padding: 20px 15px 80px 15px; } 
-            #latest-updates-ticker { top: auto; bottom: 0; right: 0; left: 0; margin-right: 0; border-radius: 0; font-size: 13px; padding: 12px 15px; max-width: 100%; text-align: center; border: none; border-top: 2px solid #F59E0B; box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1); } 
+            /* Games accent — orange */
+            --accent:        var(--orange);
+            --accent-shadow: var(--orange-shadow);
+            --accent-light:  rgba(255,150,0,.11);
+            --accent-border: rgba(255,150,0,.32);
+            --accent-text:   #8A4500;
         }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+        body {
+            background: var(--bg); color: var(--ink);
+            font-family: 'Nunito', -apple-system, system-ui, sans-serif;
+            line-height: 1.5; overflow-x: hidden; -webkit-font-smoothing: antialiased;
+        }
+        a { color: inherit; text-decoration: none; }
+
+        @keyframes up    { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes shim  { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+        @keyframes flick { 0%,100%{transform:rotate(-4deg) scale(1)} 50%{transform:rotate(4deg) scale(1.12)} }
+        @keyframes nudge { 0%,100%{transform:translateX(0)} 30%{transform:translateX(5px)} }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+        @keyframes spin  { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+        @keyframes boing { 0%,100%{transform:scale(1)} 40%{transform:scale(1.18)} 70%{transform:scale(.94)} }
+
+        .u1{animation:up .44s ease both .04s}
+        .u2{animation:up .44s ease both .14s}
+        .u3{animation:up .44s ease both .24s}
+
+        /* ── HEADER ── */
+        .header {
+            background: var(--white); border-bottom: 2px solid var(--border);
+            position: sticky; top: 0; z-index: 200;
+            padding: 0 20px; height: 60px; display: flex; align-items: center;
+        }
+        .hc { max-width: 900px; width: 100%; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+        .hl { display: flex; align-items: center; gap: 10px; }
+        .logo {
+            width: 40px; height: 40px; border-radius: 12px;
+            background: var(--yellow); border: 2px solid var(--border-heavy);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; flex-shrink: 0; box-shadow: 0 3px 0 var(--border-heavy);
+        }
+        .site-title { font-size: 18px; font-weight: 900; color: var(--ink-bold); letter-spacing: -.4px; }
+        @media(max-width:380px){ .site-title{display:none} }
+        #header-auth-container { display: flex; align-items: center; gap: 8px; }
+
+        .sk {
+            background: linear-gradient(90deg,#EBEBEB 25%,#F5F5F5 50%,#EBEBEB 75%);
+            background-size: 400px 100%; animation: shim 1.4s infinite; border-radius: var(--rsm);
+        }
+
+        .page { max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; display: flex; flex-direction: column; gap: 20px; }
+
+        /* ── HERO — orange flavour ── */
+        .hero {
+            background: var(--orange);
+            border: 2px solid var(--orange-shadow); border-bottom: 6px solid var(--orange-shadow);
+            border-radius: var(--r); padding: 24px 20px;
+            position: relative; overflow: hidden;
+        }
+        .hero::after {
+            content: '🎮'; position: absolute; bottom: -14px; right: 8px;
+            font-size: 110px; opacity: .13; pointer-events: none; transform: rotate(-8deg);
+        }
+        .hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 18px; position: relative; z-index: 1; }
+        .greet { font-size: 13px; font-weight: 800; color: rgba(255,255,255,.8); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+        .uname { font-size: clamp(22px,5vw,34px); font-weight: 900; color: var(--white); letter-spacing: -1px; line-height: 1.1; text-shadow: 0 2px 0 var(--orange-shadow); }
+        .streak-block {
+            text-align: center; flex-shrink: 0; background: var(--white);
+            border: 2px solid var(--border-heavy); border-bottom: 4px solid var(--border-heavy);
+            border-radius: var(--rsm); padding: 10px 16px; min-width: 80px;
+        }
+        .sfire { font-size: 32px; display: block; line-height: 1; animation: flick 1.8s ease-in-out infinite; }
+        .snum  { font-size: 24px; font-weight: 900; color: var(--punch); display: block; line-height: 1.1; margin-top: 4px; }
+        .sword { font-size: 10px; font-weight: 900; color: var(--ink-3); text-transform: uppercase; letter-spacing: 1px; }
+        .xp-wrap { position: relative; z-index: 1; margin-bottom: 16px; background: rgba(0,0,0,.12); padding: 12px; border-radius: var(--rsm); }
+        .xp-row   { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; margin-bottom: 8px; color: var(--white); }
+        .xp-track { height: 14px; background: rgba(0,0,0,.18); border-radius: 99px; overflow: hidden; border: 2px solid rgba(0,0,0,.1); }
+        .xp-fill  { height: 100%; width: 0%; border-radius: 99px; background: var(--yellow); border-top: 3px solid rgba(255,255,255,.4); transition: width 1.3s cubic-bezier(.4,0,.2,1); }
+        .hero-cta {
+            display: flex; align-items: center; justify-content: space-between;
+            width: 100%; padding: 14px 20px; background: var(--green); color: var(--white);
+            font-size: 16px; font-weight: 900; border-radius: var(--rsm);
+            border: 2px solid var(--green-shadow); border-bottom: 5px solid var(--green-shadow);
+            cursor: pointer; letter-spacing: -.3px;
+            transition: transform .1s, border-bottom-width .1s; position: relative; z-index: 1;
+        }
+        .hero-cta:active { border-bottom-width: 2px; transform: translateY(3px); }
+        .cta-arrow { font-size: 22px; animation: nudge 2s ease-in-out infinite; }
+        .eyebrow {
+            display: inline-block; background: var(--yellow); color: var(--ink-bold);
+            font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px;
+            padding: 4px 12px; border-radius: 8px; margin-bottom: 14px; border: 2px solid var(--yellow-shadow);
+        }
+        .big-title { font-size: clamp(26px,6vw,42px); font-weight: 900; color: var(--white); line-height: 1.1; letter-spacing: -1px; margin-bottom: 10px; position: relative; z-index: 1; text-shadow: 0 3px 0 var(--orange-shadow); }
+        .big-title .yellow { color: var(--yellow); text-shadow: 0 3px 0 var(--yellow-shadow); }
+        .hero-sub { font-size: 15px; font-weight: 700; color: rgba(255,255,255,.9); margin-bottom: 20px; max-width: 380px; position: relative; z-index: 1; }
+        .guest-btns { display: flex; gap: 12px; flex-wrap: wrap; position: relative; z-index: 1; }
+        .btn-yellow {
+            display: inline-flex; align-items: center; gap: 6px; padding: 13px 22px;
+            background: var(--yellow); color: var(--ink-bold); font-size: 15px; font-weight: 900;
+            border-radius: var(--rsm); border: 2px solid var(--yellow-shadow); border-bottom: 4px solid var(--yellow-shadow);
+            cursor: pointer; transition: transform .1s, border-bottom-width .1s;
+        }
+        .btn-yellow:active { border-bottom-width: 2px; transform: translateY(2px); }
+        .btn-white {
+            display: inline-flex; align-items: center; gap: 6px; padding: 13px 18px;
+            background: var(--white); color: var(--ink-bold); font-size: 15px; font-weight: 900;
+            border-radius: var(--rsm); border: 2px solid var(--border-heavy); border-bottom: 4px solid var(--border-heavy);
+            cursor: pointer; transition: transform .1s, border-bottom-width .1s;
+        }
+        .btn-white:active { border-bottom-width: 2px; transform: translateY(2px); }
+        .hero-track-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(0,0,0,.15); border: 2px solid rgba(255,255,255,.3);
+            border-radius: 99px; padding: 4px 12px; font-size: 12px; font-weight: 900;
+            color: var(--white); margin-top: 6px; width: fit-content;
+        }
+
+        /* ── SECTION LABEL ── */
+        .sec-label {
+            font-size: 13px; font-weight: 900; color: var(--ink-3);
+            text-transform: uppercase; letter-spacing: 1.5px;
+            margin-bottom: 16px; display: flex; align-items: center; gap: 12px;
+        }
+        .sec-label::after { content: ''; flex: 1; height: 2px; background: var(--border); border-radius: 2px; }
+
+        /* ── GAME GRID — wider min, 2 col desktop looks great for games ── */
+        .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+
+        /* ── GAME CARD ── */
+        .gcard {
+            background: var(--white); border: 2px solid var(--border-heavy);
+            border-bottom: 6px solid var(--border-heavy); border-radius: var(--r);
+            display: flex; flex-direction: column; overflow: hidden; position: relative;
+            transition: transform .15s, box-shadow .15s; text-decoration: none; color: inherit;
+        }
+        .gcard:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(255,150,0,.2); }
+        /* Orange strip for games */
+        .gcard::before {
+            content: ''; display: block; height: 7px;
+            background: linear-gradient(90deg, var(--orange) 0%, #FFBF00 100%);
+            flex-shrink: 0;
+        }
+
+        .gcard-body { padding: 22px 20px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+
+        /* Each card icon gets its own animation so they feel alive and playful */
+        .gcard-icon { font-size: 52px; line-height: 1; display: block; }
+        .gcard:nth-child(1)  .gcard-icon { animation: float 2.8s ease-in-out infinite; }
+        .gcard:nth-child(2)  .gcard-icon { animation: boing 2.2s ease-in-out infinite .4s; }
+        .gcard:nth-child(3)  .gcard-icon { animation: float 3.2s ease-in-out infinite .8s; }
+        .gcard:nth-child(4)  .gcard-icon { animation: boing 2.6s ease-in-out infinite .2s; }
+        .gcard:nth-child(5)  .gcard-icon { animation: float 2.4s ease-in-out infinite .6s; }
+        .gcard:nth-child(6)  .gcard-icon { animation: boing 3.0s ease-in-out infinite 1.0s; }
+        .gcard:nth-child(7)  .gcard-icon { animation: float 2.6s ease-in-out infinite .3s; }
+        .gcard:nth-child(8)  .gcard-icon { animation: boing 2.4s ease-in-out infinite .7s; }
+        .gcard:nth-child(9)  .gcard-icon { animation: float 3.4s ease-in-out infinite .5s; }
+
+        .gcard-title { font-size: 20px; font-weight: 900; color: var(--ink-bold); letter-spacing: -.4px; line-height: 1.2; }
+
+        .gcard-badge {
+            display: inline-flex; align-items: center;
+            background: var(--accent-light); color: var(--accent-text);
+            font-size: 11px; font-weight: 900; text-transform: uppercase;
+            letter-spacing: 1px; padding: 4px 10px; border-radius: 99px;
+            border: 2px solid var(--accent-border); width: fit-content;
+        }
+
+        .gcard-desc { font-size: 14px; font-weight: 700; color: var(--ink); line-height: 1.55; flex: 1; }
+
+        /* Orange play button */
+        .gcard-go {
+            margin-top: 14px; display: flex; align-items: center; justify-content: space-between;
+            padding: 13px 18px; background: var(--orange); color: var(--white);
+            font-size: 15px; font-weight: 900; border-radius: var(--rsm);
+            border: 2px solid var(--orange-shadow); border-bottom: 4px solid var(--orange-shadow);
+            transition: transform .1s, border-bottom-width .1s; letter-spacing: -.2px;
+        }
+        .gcard:hover .gcard-go { border-bottom-width: 2px; transform: translateY(2px); }
+        .gcard-go-arrow { font-size: 20px; font-weight: 900; }
+
+        /* ── BACK LINK ── */
+        .back-link {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 13px; font-weight: 900; color: var(--ink-3); text-transform: uppercase;
+            letter-spacing: 1px; padding: 8px 14px; border-radius: var(--rsm);
+            border: 2px solid var(--border); background: var(--white);
+            transition: color .15s, border-color .15s; width: fit-content;
+        }
+        .back-link:hover { color: var(--ink-bold); border-color: var(--border-heavy); }
+
+        /* ── FOOTER ── */
+        .footer { padding: 32px 20px; text-align: center; }
+        .footer-text { font-size: 14px; font-weight: 800; color: var(--ink-3); margin-bottom: 10px; }
+        .footer a { color: var(--ink-3); font-size: 13px; font-weight: 800; margin: 0 12px; text-decoration: underline; }
+
+        @media(max-width:540px)  { .game-grid { grid-template-columns: 1fr; } }
+        @media(min-width:541px) and (max-width:860px) { .game-grid { grid-template-columns: 1fr 1fr; } }
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-content">
-            <div class="header-left">
-                <span class="logo">🎮</span>
-                <a href="/" class="site-title">English For Cool Dudes</a>
-                
-                <div id="logged-out-buttons" class="header-buttons" style="display: none;">
-                    <a href="/login/" class="header-button login">Login</a>
-                    <a href="/signup/" class="header-button signup">Sign Up</a>
-                </div>
 
-                <div id="logged-in-buttons" class="header-buttons" style="display: none;">
-                    <span class="user-greeting" id="user-greeting">Hey Cool Dude! 👋</span>
-                    <a href="/dashboard-gamified/" class="header-button dashboard">My Dashboard</a>
-                    <button id="logout-btn" class="header-button logout">Sign Out</button>
-                </div>
+    <header class="header">
+        <div class="hc">
+            <div class="hl">
+                <a href="/" class="logo">😎</a>
+                <a href="/" class="site-title">English For Cool Dudes</a>
             </div>
+            <div id="header-auth-container"></div>
         </div>
     </header>
 
-    <a href="#" id="latest-updates-ticker" style="opacity: 0;"></a>
+    <div class="page">
 
-    <main class="container">
-        
-        <section class="section">
-            <div class="section-header">
-                <span class="section-icon">☕</span>
-                <h2 class="section-title">The Break Room</h2>
+        <div class="u1">
+            <div class="hero" id="hero-card">
+                <div class="sk" style="height:13px;width:35%;margin-bottom:10px;"></div>
+                <div class="sk" style="height:44px;width:65%;margin-bottom:20px;"></div>
+                <div class="sk" style="height:13px;margin-bottom:8px;border-radius:99px;"></div>
+                <div class="sk" style="height:52px;border-radius:var(--rsm);margin-top:16px;"></div>
             </div>
+        </div>
 
-            <div class="course-grid">
+        <div class="u2">
+            <div class="sec-label">🎮 The Break Room — 9 Games</div>
 
-            <a href="/muchmore/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">🚀</span>
-                        <h3 class="course-title">Much More</h3>
-                        <span class="course-level">All Levels (A1-C2)</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            Take a simple, boring sentence and make it Much More!
-                        </p>
-                    </div>
-                </a>
-                
+            <div class="game-grid">
 
-                <a href="/whatami/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">🤔</span>
-                        <h3 class="course-title">What Am I?</h3>
-                        <span class="course-level">All Levels (A1-C2)</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            What Are You?! Follow the clues and guess the word as quickly as you can.
-                        </p>
+                <!-- 1 -->
+                <a href="/muchmore/" class="gcard">
+                    <div class="gcard-body">
+                        <span class="gcard-icon">🚀</span>
+                        <div class="gcard-badge">All Levels</div>
+                        <div class="gcard-title">Much More</div>
+                        <div class="gcard-desc">Take a simple, boring sentence and make it Much More!</div>
+                        <div class="gcard-go">Play Now <span class="gcard-go-arrow">▶</span></div>
                     </div>
                 </a>
 
-                <a href="/chatattack/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">💬</span>
-                        <h3 class="course-title">Chat Attack!</h3>
-                        <span class="course-level">All Levels (A1-C2)</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            Chat... chat... chat... chat... Choose a topic, choose a time, let's chat! 
-                        </p>
-                    </div>
-                </a>
-              
-                <a href="/vibecheck/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">📱</span>
-                        <h3 class="course-title">Vibe Check</h3>
-                        <span class="course-level">All Levels (Chill - Pro)</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            Keep the conversation flowing. Different levels, different scenarios, different vibes, dude! 
-                        </p>
-                    </div>
-                </a>
-            
-                <a href="/matching/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">🧠</span>
-                        <h3 class="course-title">Vocabulary Matching</h3>
-                        <span class="course-level">All Levels (A1-C2)</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            Match the similar words. Connect the synonyms. 
-                        </p>
+                <!-- 2 -->
+                <a href="/whatami/" class="gcard">
+                    <div class="gcard-body">
+                        <span class="gcard-icon">🤔</span>
+                        <div class="gcard-badge">All Levels</div>
+                        <div class="gcard-title">What Am I?</div>
+                        <div class="gcard-desc">Follow the clues and guess the word as quickly as you can.</div>
+                        <div class="gcard-go">Play Now <span class="gcard-go-arrow">▶</span></div>
                     </div>
                 </a>
 
-                <!-- Intermediate Game -->
-                <a href="/phrasescramble/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">🧩</span>
-                        <h3 class="course-title">Phrase Scramble</h3>
-                        <span class="course-level">All Levels (A1-C2)</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            The phrases are scrambled, only you can unscramble them.
-                        </p>
+                <!-- 3 -->
+                <a href="/chatattack/" class="gcard">
+                    <div class="gcard-body">
+                        <span class="gcard-icon">💬</span>
+                        <div class="gcard-badge">All Levels</div>
+                        <div class="gcard-title">Chat Attack!</div>
+                        <div class="gcard-desc">Choose a topic, choose a time, let's chat!</div>
+                        <div class="gcard-go">Play Now <span class="gcard-go-arrow">▶</span></div>
                     </div>
                 </a>
 
-                <a href="/definitionary/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">📚</span>
-                        <h3 class="course-title">Definitionary</h3>
-                        <span class="course-level">All Levels (A1-C2)</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            Read the definition, choose the word.
-                        </p>
+                <!-- 4 -->
+                <a href="/vibecheck/" class="gcard">
+                    <div class="gcard-body">
+                        <span class="gcard-icon">📱</span>
+                        <div class="gcard-badge">Chill → Pro</div>
+                        <div class="gcard-title">Vibe Check</div>
+                        <div class="gcard-desc">Keep the conversation flowing. Different levels, different scenarios, different vibes, dude!</div>
+                        <div class="gcard-go">Play Now <span class="gcard-go-arrow">▶</span></div>
                     </div>
                 </a>
-                
-                <a href="/fixit/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">🕵️‍♂️</span>
-                        <h3 class="course-title">Fixit - The Glitch Hunt!</h3>
-                        <span class="course-level">All Levels (A1-C2)</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            The sentence is broken, Fixit!
-                        </p>
+
+                <!-- 5 -->
+                <a href="/matching/" class="gcard">
+                    <div class="gcard-body">
+                        <span class="gcard-icon">🧠</span>
+                        <div class="gcard-badge">All Levels</div>
+                        <div class="gcard-title">Vocabulary Matching</div>
+                        <div class="gcard-desc">Match the similar words. Connect the synonyms.</div>
+                        <div class="gcard-go">Play Now <span class="gcard-go-arrow">▶</span></div>
                     </div>
                 </a>
-                
-                <!-- Advanced Game -->
-                <a href="/forbidden/" class="course-card">
-                    <div class="course-header">
-                        <span class="course-icon">🤫</span>
-                        <h3 class="course-title">Forbidden</h3>
-                        <span class="course-level">All Levels (A1-C2)</span>
-                    </div>
-                    <div class="course-body">
-                        <p class="course-description">
-                            A describing and guessing game full of forbidden words.
-                        </p>
+
+                <!-- 6 -->
+                <a href="/phrasescramble/" class="gcard">
+                    <div class="gcard-body">
+                        <span class="gcard-icon">🧩</span>
+                        <div class="gcard-badge">All Levels</div>
+                        <div class="gcard-title">Phrase Scramble</div>
+                        <div class="gcard-desc">The phrases are scrambled — only you can unscramble them.</div>
+                        <div class="gcard-go">Play Now <span class="gcard-go-arrow">▶</span></div>
                     </div>
                 </a>
+
+                <!-- 7 -->
+                <a href="/definitionary/" class="gcard">
+                    <div class="gcard-body">
+                        <span class="gcard-icon">📚</span>
+                        <div class="gcard-badge">All Levels</div>
+                        <div class="gcard-title">Definitionary</div>
+                        <div class="gcard-desc">Read the definition, choose the word.</div>
+                        <div class="gcard-go">Play Now <span class="gcard-go-arrow">▶</span></div>
+                    </div>
+                </a>
+
+                <!-- 8 -->
+                <a href="/fixit/" class="gcard">
+                    <div class="gcard-body">
+                        <span class="gcard-icon">🕵️‍♂️</span>
+                        <div class="gcard-badge">All Levels</div>
+                        <div class="gcard-title">Fixit — The Glitch Hunt!</div>
+                        <div class="gcard-desc">The sentence is broken. Fixit!</div>
+                        <div class="gcard-go">Play Now <span class="gcard-go-arrow">▶</span></div>
+                    </div>
+                </a>
+
+                <!-- 9 -->
+                <a href="/forbidden/" class="gcard">
+                    <div class="gcard-body">
+                        <span class="gcard-icon">🤫</span>
+                        <div class="gcard-badge">All Levels</div>
+                        <div class="gcard-title">Forbidden</div>
+                        <div class="gcard-desc">A describing and guessing game full of forbidden words.</div>
+                        <div class="gcard-go">Play Now <span class="gcard-go-arrow">▶</span></div>
+                    </div>
+                </a>
+
             </div>
-        </section>
-    </main>
+        </div>
+
+        <div class="u3"><a href="/" class="back-link">← All Courses</a></div>
+
+    </div>
 
     <footer class="footer">
-        <p class="footer-text">© 2026 English For Cool Dudes - 😎</p>
-        <div style="margin-top: 10px;">
-            <a href="/impressum/" style="color: #667EEA; margin-right: 15px; text-decoration: none;">Impressum</a>
-            <a href="/datenschutz/" style="color: #667EEA; text-decoration: none;">Datenschutzerklärung</a>
-        </div>
+        <p class="footer-text">© 2026 English For Cool Dudes 😎</p>
+        <div><a href="/impressum/">Impressum</a><a href="/datenschutz/">Privacy</a></div>
     </footer>
 
-    <script src="/tickerData.js"></script>
+    <script src="/supabase-auth-gamified.js"></script>
+    <script src="/badge-system.js"></script>
+    <script src="/track-mastery.js"></script>
 
-<script>
-// ============================================
-// UNIVERSAL AUTH & INITIALIZATION SCRIPT
-// Place at the bottom of EVERY page
-// ============================================
-
-(function() {
+    <script>
     'use strict';
-    
-    // --- SAFE SUPABASE INITIALIZATION ---
-    // This prevents the "already declared" error
-    if (typeof window.efcdSupabaseClient === 'undefined') {
-        try {
-            const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
-            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-            
-            if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-                window.efcdSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                console.log('✅ Supabase client initialized');
-            } else {
-                console.error('❌ Supabase library not loaded');
-            }
-        } catch (err) {
-            console.error('❌ Supabase initialization error:', err);
-        }
-    } else {
-        console.log('ℹ️ Supabase client already exists');
+    function greet() {
+        const h = new Date().getHours();
+        return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
     }
-    
-    // --- AUTH HEADER LOGIC ---
-    async function initializeAuthHeader() {
-        const loggedOutButtons = document.getElementById('logged-out-buttons');
-        const loggedInButtons = document.getElementById('logged-in-buttons');
-        const userGreeting = document.getElementById('user-greeting');
-        const logoutBtn = document.getElementById('logout-btn');
+    async function renderUserHero(stats, user) {
+        const profile   = window.EFCD_Auth.getCurrentUser();
+        const rawName   = profile?.name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Dude';
+        const firstName = rawName.split(' ')[0].replace(/^\w/, c => c.toUpperCase());
+        const streak = stats?.streak || 0;
+        const xp = stats?.xp || 0; const level = stats?.level || 1;
+        const xpIn = xp % 500; const xpPct = Math.min(100, Math.round((xpIn/500)*100)); const xpLeft = 500 - xpIn;
 
+        // PHASE 1: render immediately
+        document.getElementById('hero-card').innerHTML = `
+            <div class="hero-top">
+                <div>
+                    <div class="greet">${greet()}, ${firstName}! 👋</div>
+                    <div class="uname">The Break Room</div>
+                    <div id="track-badge-slot"></div>
+                </div>
+                ${streak > 0 ? `<div class="streak-block"><span class="sfire">🔥</span><span class="snum">${streak}</span><span class="sword">Day Streak</span></div>` : ''}
+            </div>
+            <div class="xp-wrap">
+                <div class="xp-row"><span>Level ${level}</span><span>${xpLeft} XP to Level ${level + 1}</span></div>
+                <div class="xp-track"><div class="xp-fill" id="xp-fill"></div></div>
+            </div>
+            <a href="/dashboard-gamified/" class="hero-cta">
+                <span>📊 View My Dashboard</span><span class="cta-arrow">›</span>
+            </a>`;
+        requestAnimationFrame(() => setTimeout(() => { const f = document.getElementById('xp-fill'); if (f) f.style.width = xpPct + '%'; }, 80));
+
+        // PHASE 2: track badge in background
         try {
-            if (!window.efcdSupabaseClient) {
-                console.warn('⚠️ Supabase client not available');
-                if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
-                return;
-            }
-            
-            const { data: { user }, error } = await window.efcdSupabaseClient.auth.getUser();
-
-            if (error) {
-                console.error('Auth error:', error);
-                if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
-                return;
-            }
-
-            if (user) {
-                let userName = 'Cool Dude';
-                if (user.user_metadata && user.user_metadata.full_name) {
-                    userName = user.user_metadata.full_name.split(' ')[0];
-                } else if (user.email) {
-                    userName = user.email.split('@')[0];
-                }
-                
-                if (userGreeting) userGreeting.textContent = `Hey ${userName}! 👋`;
-                if (loggedInButtons) loggedInButtons.style.display = 'flex';
-                if (loggedOutButtons) loggedOutButtons.style.display = 'none';
-            } else {
-                if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
-                if (loggedInButtons) loggedInButtons.style.display = 'none';
-            }
-        } catch (err) {
-            console.error('❌ Auth check error:', err);
-            if (loggedOutButtons) loggedOutButtons.style.display = 'flex';
-        }
-
-        // Logout handler
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                try {
-                    const { error } = await window.efcdSupabaseClient.auth.signOut();
-                    if (error) {
-                        console.error('Logout error:', error);
-                    } else {
-                        console.log('✅ Logged out successfully');
-                        window.location.reload();
+            if (window.EFCD_TrackMastery && profile?.id) {
+                const { data: userLessons } = await window.efcdSupabaseClient.from('lessons').select('lesson_link').eq('user_id', profile.id);
+                if (userLessons?.length) {
+                    const counts = window.EFCD_TrackMastery.countByTrack(userLessons);
+                    const topTrack = window.EFCD_TrackMastery.TRACKS.filter(t => counts[t.id] > 0).sort((a,b) => counts[b.id]-counts[a.id])[0];
+                    if (topTrack) {
+                        let idx = 0; topTrack.thresholds.forEach((thresh,i) => { if (counts[topTrack.id] >= thresh) idx = i; });
+                        const slot = document.getElementById('track-badge-slot');
+                        if (slot) slot.innerHTML = `<div class="hero-track-badge" style="animation:up .3s ease both"><span>${topTrack.icon}</span><span>${topTrack.titles[idx]}</span></div>`;
                     }
-                } catch (err) {
-                    console.error('❌ Logout error:', err);
                 }
-            });
-        }
+            }
+        } catch(_) {}
     }
-    
-   
-    
-    // --- TICKER INITIALIZATION ---
-    function initializeTicker() {
-        if (typeof startTickerAnimation === 'function') {
-            console.log('✅ Starting ticker animation');
-            startTickerAnimation();
-        } else {
-            console.warn('⚠️ Ticker function not found');
-        }
+    function renderGuestHero() {
+        document.getElementById('hero-card').innerHTML = `
+            <div class="eyebrow">Take a break, dude</div>
+            <div class="big-title">The Break<br><span class="yellow">Room.</span></div>
+            <div class="hero-sub">9 games to sharpen your English — no pressure, pure fun. Free to play.</div>
+            <div class="guest-btns">
+                <a href="/signup/" class="btn-yellow">🚀 Sign Up Free</a>
+                <a href="/login/"  class="btn-white">Log In</a>
+            </div>`;
     }
-    
-    // --- RUN ON PAGE LOAD ---
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', async () => {
-            await initializeAuthHeader();
-       
-            initializeTicker();
-        });
-    } else {
-        // DOM already loaded
-        (async () => {
-            await initializeAuthHeader();
-         
-            initializeTicker();
-        })();
+    function boot() {
+        if (typeof window.efcdReady === 'undefined') { setTimeout(boot, 50); return; }
+        window.efcdReady.then(async () => {
+            try {
+                await window.EFCD_Auth.initAuth();
+                const user = window.EFCD_Auth.getCurrentUser();
+                if (user) { await renderUserHero(window.EFCD_Auth.getUserStats(), user); }
+                else { renderGuestHero(); }
+                if (window.EFCD_UI) window.EFCD_UI.updateHeaderUI();
+            } catch(e) { renderGuestHero(); }
+        }).catch(() => renderGuestHero());
     }
-})();
-</script>
+    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', boot); } else { boot(); }
+    </script>
 
 </body>
 </html>
