@@ -23,6 +23,7 @@
 
     <script src="/supabase-auth-gamified.js"></script>
     <script src="/badge-system.js"></script>
+    <script src="/track-mastery.js"></script>
     <script src="/tickerData.js"></script>
     <script src="/daily-challenges-system.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -501,6 +502,11 @@
                 </div>
             </div>
 
+            <!-- TRACK MASTERY -->
+        <div class="u4" id="track-mastery-wrap">
+            <!-- injected by renderTrackMasterySection() -->
+        </div>
+
             <!-- BADGE COLLECTION -->
             <div class="u4" id="badge-collection-wrap">
                 <!-- injected by renderBadgeCollection() -->
@@ -624,6 +630,7 @@
 
             // Badge collection (new!)
             await renderBadgeCollection(user.id);
+            await renderTrackMasterySection(user.id);
 
             // Legacy achievements
             renderAchievements(stats.achievements);
@@ -729,6 +736,28 @@
             console.warn('Badge grid error:', err);
         }
     }
+
+        async function renderTrackMasterySection(userId) {
+    if (!window.EFCD_TrackMastery) return;
+
+    try {
+        const { data: lessons } = await window.efcdSupabaseClient
+            .from('lessons')
+            .select('lesson_link')
+            .eq('user_id', userId);
+
+        const masteryHTML = window.EFCD_TrackMastery.render(lessons || []);
+
+        const wrap = document.getElementById('track-mastery-wrap');
+        if (wrap) {
+            wrap.innerHTML = `
+                <div class="sec-label">🗺️ Track Mastery</div>
+                ${masteryHTML}`;
+        }
+    } catch (err) {
+        console.warn('Track mastery error:', err);
+    }
+}
 
     // ── LEGACY ACHIEVEMENTS ────────────────────────────────────
     function renderAchievements(unlocked) {
