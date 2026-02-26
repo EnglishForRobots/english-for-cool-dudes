@@ -119,14 +119,23 @@ function getBandProgress(track, count) {
     return Math.round(((count - current) / (next - current)) * 100);
 }
 
+// ── SITE ORDER for not-yet pills ─────────────────────────────
+// Matches site nav: Business, Tax, Legal, Beginner, Intermediate, Advanced
+const SITE_ORDER = ['business', 'tax', 'legal', 'beginner', 'intermediate', 'advanced'];
+
 // ── RENDER ───────────────────────────────────────────────────
 function renderTrackMastery(lessons) {
-    const counts  = countByTrack(lessons);
-    const started = EFCD_TRACKS.filter(t => counts[t.id] > 0);
-    const notYet  = EFCD_TRACKS.filter(t => counts[t.id] === 0);
+    const counts = countByTrack(lessons);
 
-    // Sort started tracks: most lessons first
-    started.sort((a, b) => counts[b.id] - counts[a.id]);
+    // Started tracks: most lessons first
+    const started = EFCD_TRACKS
+        .filter(t => counts[t.id] > 0)
+        .sort((a, b) => counts[b.id] - counts[a.id]);
+
+    // Not-yet-started: explicit site order
+    const notYet = SITE_ORDER
+        .map(id => EFCD_TRACKS.find(t => t.id === id))
+        .filter(t => t && counts[t.id] === 0);
 
     const startedHTML = started.map(track => {
         const count   = counts[track.id];
