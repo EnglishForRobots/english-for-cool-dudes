@@ -718,8 +718,8 @@
 
     // ── HERO: LOGGED IN (trimmed — no daily challenge, no full stat row) ──
     async function renderUserHero(stats, user) {
-        const profile  = window.EFCD_Auth.getCurrentUser();
-        const rawName  = profile?.name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Dude';
+        const profile   = window.EFCD_Auth.getCurrentUser();
+        const rawName   = profile?.name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Dude';
         const firstName = rawName.split(' ')[0].replace(/^\w/, c => c.toUpperCase());
 
         const streak = stats?.streak || 0;
@@ -729,36 +729,13 @@
         const xpPct  = Math.min(100, Math.round((xpIn / 500) * 100));
         const xpLeft = 500 - xpIn;
 
-        // Optional: track mastery badge
-        let trackBadgeHTML = '';
-        try {
-            if (window.EFCD_TrackMastery && profile?.id) {
-                const { data: userLessons } = await window.efcdSupabaseClient
-                    .from('lessons').select('lesson_link').eq('user_id', profile.id);
-                if (userLessons?.length) {
-                    const counts   = window.EFCD_TrackMastery.countByTrack(userLessons);
-                    const topTrack = window.EFCD_TrackMastery.TRACKS
-                        .filter(t => counts[t.id] > 0)
-                        .sort((a, b) => counts[b.id] - counts[a.id])[0];
-                    if (topTrack) {
-                        let idx = 0;
-                        topTrack.thresholds.forEach((thresh, i) => { if (counts[topTrack.id] >= thresh) idx = i; });
-                        trackBadgeHTML = `
-                            <div class="hero-track-badge">
-                                <span>${topTrack.icon}</span>
-                                <span>${topTrack.titles[idx]}</span>
-                            </div>`;
-                    }
-                }
-            }
-        } catch(_) {}
-
+        // ── PHASE 1: render hero immediately ─────────────────────────
         document.getElementById('hero-card').innerHTML = `
             <div class="hero-top">
                 <div>
                     <div class="greet">${greet()}, ${firstName}! 👋</div>
                     <div class="uname">Beginner English</div>
-                    ${trackBadgeHTML}
+                    <div id="track-badge-slot"></div>
                 </div>
                 ${streak > 0 ? `
                 <div class="streak-block">
@@ -780,6 +757,28 @@
             const f = document.getElementById('xp-fill');
             if (f) f.style.width = xpPct + '%';
         }, 80));
+
+        // ── PHASE 2: fetch track badge in background ──────────────────
+        try {
+            if (window.EFCD_TrackMastery && profile?.id) {
+                const { data: userLessons } = await window.efcdSupabaseClient
+                    .from('lessons').select('lesson_link').eq('user_id', profile.id);
+                if (userLessons?.length) {
+                    const counts   = window.EFCD_TrackMastery.countByTrack(userLessons);
+                    const topTrack = window.EFCD_TrackMastery.TRACKS
+                        .filter(t => counts[t.id] > 0)
+                        .sort((a, b) => counts[b.id] - counts[a.id])[0];
+                    if (topTrack) {
+                        let idx = 0;
+                        topTrack.thresholds.forEach((thresh, i) => { if (counts[topTrack.id] >= thresh) idx = i; });
+                        const slot = document.getElementById('track-badge-slot');
+                        if (slot) {
+                            slot.innerHTML = `<div class="hero-track-badge" style="animation:up .3s ease both"><span>${topTrack.icon}</span><span>${topTrack.titles[idx]}</span></div>`;
+                        }
+                    }
+                }
+            }
+        } catch(_) {}
     }
 
     // ── HERO: GUEST ───────────────────────────────────────
