@@ -448,56 +448,56 @@
             hint: '💡 An ongoing situation that started in the past → Present Perfect',
             opts: ['lived', 'has lived', 'is living'],
             ans:  'has lived',
-            exp:  '✅ "has lived" — Present Perfect for situations that started in the past and continue now.'
+            exp:  'has lived — Present Perfect for situations that started in the past and continue now.'
         },
         {
             sent: 'He ___ the report yesterday morning.',
             hint: '💡 Specific past time "yesterday" always signals → Past Simple',
             opts: ['finished', 'has finished', 'was finishing'],
             ans:  'finished',
-            exp:  '✅ "finished" — Past Simple for completed actions at a specific past time.'
+            exp:  'finished — Past Simple for completed actions at a specific past time.'
         },
         {
             sent: 'I ___ never ___ sushi before. This is my first time!',
             hint: '💡 Life experience with no specific time → Present Perfect',
             opts: ['never ate', 'have never eaten', 'never eat'],
             ans:  'have never eaten',
-            exp:  '✅ "have never eaten" — Present Perfect for life experiences when no specific time is mentioned.'
+            exp:  'have never eaten — Present Perfect for life experiences when no specific time is mentioned.'
         },
         {
             sent: 'The company ___ its profits three times since 2020.',
-            hint: '💡 Change visible in the present, "since" as a clue → Present Perfect',
+            hint: '💡 "Since" is a classic Present Perfect trigger word',
             opts: ['doubled', 'has doubled', 'doubles'],
             ans:  'has doubled',
-            exp:  '✅ "has doubled" — "since" is a classic Present Perfect trigger word.'
+            exp:  'has doubled — since always triggers Present Perfect. The result is visible now.'
         },
         {
             sent: 'When ___ you ___ your first job?',
             hint: '💡 "When" + a completed event → always Past Simple, never Present Perfect',
             opts: ['did … get', 'have … got', 'do … get'],
             ans:  'did … get',
-            exp:  '✅ "did … get" — "When" always requires Past Simple. Never use Present Perfect with "when".'
+            exp:  'did … get — When always requires Past Simple. Never use Present Perfect with when.'
         },
         {
             sent: 'Look at those dark clouds — it ___ rain any minute!',
-            hint: '💡 You have visible evidence (the clouds) → going to prediction',
+            hint: '💡 You have visible evidence right now → going to prediction',
             opts: ['will', 'is going to', 'is raining'],
             ans:  'is going to',
-            exp:  '✅ "is going to" — use this for predictions based on present evidence you can see.'
+            exp:  'is going to — use this for predictions based on present evidence you can actually see.'
         },
         {
-            sent: 'A: "We\'re out of coffee." B: "Don\'t worry — I ___ get some."',
+            sent: 'We are out of coffee. No problem — I ___ get some.',
             hint: '💡 A spontaneous decision made at the moment of speaking → will',
             opts: ['am going to', 'will', 'am getting'],
             ans:  'will',
-            exp:  '✅ "will" — for decisions made on the spot, not planned in advance.'
+            exp:  'will — for decisions made on the spot, not planned in advance.'
         },
         {
             sent: 'She ___ the new CEO next month — her contract is already signed.',
-            hint: '💡 A fixed future arrangement that is already confirmed → Present Continuous',
+            hint: '💡 A fixed future arrangement already confirmed → Present Continuous',
             opts: ['will become', 'is going to become', 'is becoming'],
             ans:  'is becoming',
-            exp:  '✅ "is becoming" — Present Continuous for definite future arrangements that are already set.'
+            exp:  'is becoming — Present Continuous for definite future arrangements that are already set.'
         }
     ];
 
@@ -523,32 +523,38 @@
     });
 
     // ── Render one question ───────────────────────
+    // Uses data-attributes instead of inline onclick strings to avoid
+    // quote-escaping bugs (explanation text contains quotes that break onclick="...")
     function renderSQ() {
         const q = SPRINT_QS[sprintIdx];
         sprintAnswered = false;
 
-        // Update header counters
         const pct = Math.round((sprintIdx / TOTAL) * 100);
         document.getElementById('sprint-prog-fill').style.width  = pct + '%';
         document.getElementById('sprint-q-label').textContent   = `Question ${sprintIdx + 1} of ${TOTAL}`;
         document.getElementById('sprint-score-live').textContent = `✅ ${sprintScore} correct`;
 
+        // Build option buttons — store answer data in data-attributes, not onclick
         const optsHTML = q.opts.map(opt =>
-            `<button class="sq-opt" onclick="answerSQ(this,'${esc(opt)}','${esc(q.ans)}','${esc(q.exp)}')">${opt}</button>`
+            `<button class="sq-opt" data-opt="${opt.replace(/"/g,'&quot;')}">${opt}</button>`
         ).join('');
 
         document.getElementById('sprint-body').innerHTML = `
             <div class="sq-num">Question ${sprintIdx + 1} of ${TOTAL}</div>
             <div class="sq-sent">${q.sent}</div>
             <div class="sq-hint">${q.hint}</div>
-            <div class="sq-opts">${optsHTML}</div>
+            <div class="sq-opts" id="sq-opts">${optsHTML}</div>
             <div class="sq-fb" id="sq-fb"></div>
-            <button class="sq-next" id="sq-next" onclick="nextSQ()">
+            <button class="sq-next" id="sq-next">
                 ${sprintIdx < TOTAL - 1 ? 'Next Question →' : 'See My Results 🎉'}
             </button>`;
-    }
 
-    function esc(s) { return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+        // Wire clicks via JS — no inline handlers, no escaping issues
+        document.querySelectorAll('.sq-opt').forEach(btn => {
+            btn.addEventListener('click', () => answerSQ(btn, btn.dataset.opt, q.ans, q.exp));
+        });
+        document.getElementById('sq-next').addEventListener('click', nextSQ);
+    }
 
     // ── Answer a question ─────────────────────────
     function answerSQ(btn, chosen, correct, explanation) {
@@ -563,13 +569,13 @@
         btn.classList.add(right ? 'correct' : 'wrong');
         if (!right) {
             document.querySelectorAll('.sq-opt').forEach(b => {
-                if (b.textContent.trim() === correct) b.classList.add('reveal');
+                if (b.dataset.opt === correct) b.classList.add('reveal');
             });
         }
 
         const fb = document.getElementById('sq-fb');
         fb.className = 'sq-fb ' + (right ? 'ok' : 'bad');
-        fb.textContent = explanation;
+        fb.textContent = (right ? '✅ ' : '❌ ') + explanation;
 
         document.getElementById('sq-next').style.display = 'block';
         document.getElementById('sprint-score-live').textContent = `✅ ${sprintScore} correct`;
