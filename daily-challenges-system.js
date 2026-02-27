@@ -344,32 +344,6 @@ function renderActiveState(challenge, progress, pct, time, context) {
         + '</div>';
 }
 
-// ── CHALLENGE CLICK MODAL ─────────────────────────────────────
-function showChallengeClickModal() {
-    var isEarlyBird = new Date().getHours() < 10;
-    var overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
-
-    if (isEarlyBird) {
-        overlay.innerHTML = '<div style="background:linear-gradient(135deg,#FF9500 0%,#FFB800 100%);padding:36px 28px;border-radius:24px;border:2px solid #E5B400;border-bottom:6px solid #cc9000;text-align:center;max-width:360px;width:100%;font-family:Nunito,sans-serif;animation:wormPop .4s cubic-bezier(.175,.885,.32,1.275);">'
-            + '<div style="font-size:72px;margin-bottom:4px;display:inline-block;animation:wormWiggle 1s ease infinite;">🐦</div>'
-            + '<div style="font-size:72px;margin-bottom:16px;display:inline-block;animation:wormWiggle 1s ease infinite .15s;">🪱</div>'
-            + '<div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:-.5px;margin-bottom:8px;text-shadow:0 2px 0 rgba(0,0,0,.15);">THE EARLY BIRD GETS THE WORM!</div>'
-            + '<div style="font-size:15px;font-weight:800;color:rgba(255,255,255,.9);margin-bottom:24px;">You absolute legend — most people are still asleep. Go smash this lesson! 🔥</div>'
-            + '<button id="dc-worm-go" style="width:100%;padding:15px;background:#fff;color:#cc7000;border:none;border-radius:16px;font-size:17px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 0 rgba(0,0,0,.15);margin-bottom:10px;">🌅 Let\'s Get That Worm →</button>'
-            + '<button id="dc-worm-close" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;display:block;width:100%;">maybe later...</button>'
-            + '</div>';
-    } else {
-        overlay.innerHTML = '<div style="background:linear-gradient(135deg,#1CB0F6 0%,#0d8fd4 100%);padding:36px 28px;border-radius:24px;border:2px solid #1899D6;border-bottom:6px solid #1266a8;text-align:center;max-width:360px;width:100%;font-family:Nunito,sans-serif;animation:wormPop .4s cubic-bezier(.175,.885,.32,1.275);">'
-            + '<div style="font-size:72px;margin-bottom:12px;display:inline-block;">😴</div>'
-            + '<div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:-.5px;margin-bottom:8px;">The worm is asleep...</div>'
-            + '<div style="font-size:15px;font-weight:800;color:rgba(255,255,255,.9);margin-bottom:8px;">This quest is for early birds only — before 10 AM!</div>'
-            + '<div style="background:rgba(255,255,255,.15);border-radius:14px;padding:14px;margin-bottom:20px;">'
-            + '<div style="font-size:13px;font-weight:800;color:rgba(255,255,255,.8);">⏰ Set an alarm and come back tomorrow morning</div></div>'
-            + '<button id="dc-worm-go" style="width:100%;padding:15px;background:#FFC800;color:#111827;border:none;border-radius:16px;font-size:17px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 0 rgba(0,0,0,.2);margin-bottom:10px;">📚 Do Today\'s Other Lessons Instead</button>'
-            + '<button id="dc-worm-close" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;display:block;width:100%;">close</button>'
-            + '</div>';
-    }
 
     document.body.appendChild(overlay);
 
@@ -389,14 +363,6 @@ function showChallengeClickModal() {
 function renderCompletedState(challenge, tomorrow, time) {
     const timerId = 'dc-tomorrow-timer-' + Math.random().toString(36).slice(2, 7);
 
-    setTimeout(function() {
-        setInterval(function() {
-            var el = document.getElementById(timerId);
-            if (!el) return;
-            var t = getTimeUntilMidnight();
-            el.textContent = t.label;
-        }, 60000);
-    }, 100);
 
     return '<div class="dc-quest-card dc-quest-done">'
         + '<div class="dc-quest-done-confetti">🎊</div>'
