@@ -350,21 +350,22 @@ function renderCompletedState(challenge, tomorrow, time) {
 
 // ── CHALLENGE CLICK MODAL ────────────────────────────────────
 // Works on ANY lesson page — called by global event delegation below.
-// Receives the active challenge so it can show relevant messaging.
+// Receives the ACTIVE challenge object (already resolved by getTodaysChallenge).
+// We check challenge.id directly — never sniff the day here.
 function showChallengeClickModal(challenge) {
-    // Only show the Early Bird expired modal when the scheduled challenge
-    // was actually early_bird AND it has expired (i.e. getTodaysChallenge()
-    // returned the perfect_score fallback because it's past 10am on Friday).
-    // For every other challenge we just show a generic "let's go" modal.
-    const scheduledDay    = new Date().getDay();
-    const wasEarlyBirdDay = DAY_ORDER[scheduledDay] === 'early_bird';
-    const isExpired       = wasEarlyBirdDay && new Date().getHours() >= 10;
+    var ch = challenge || getTodaysChallenge();
+
+    // The early_bird worm modal only appears when the challenge that is
+    // actually ACTIVE right now is early_bird — meaning it's Friday AND
+    // it's before 10am (getTodaysChallenge already handles the fallback:
+    // after 10am on Friday it returns perfect_score, not early_bird).
+    var isLiveEarlyBird = ch.id === 'early_bird';
 
     var overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
 
-    if (wasEarlyBirdDay && !isExpired) {
-        // It IS early bird day and still before 10am — show the hype modal
+    if (isLiveEarlyBird) {
+        // Active challenge IS early_bird and we're still before 10am — hype them up
         overlay.innerHTML = '<div style="background:linear-gradient(135deg,#FF9500 0%,#FFB800 100%);padding:36px 28px;border-radius:24px;border:2px solid #E5B400;border-bottom:6px solid #cc9000;text-align:center;max-width:360px;width:100%;font-family:Nunito,sans-serif;">'
             + '<div style="font-size:72px;margin-bottom:4px;display:inline-block;animation:wormWiggle 1s ease infinite;">🐦</div>'
             + '<div style="font-size:72px;margin-bottom:16px;display:inline-block;animation:wormWiggle 1s ease infinite .15s;">🪱</div>'
@@ -373,22 +374,9 @@ function showChallengeClickModal(challenge) {
             + '<button id="dc-modal-go" style="width:100%;padding:15px;background:#fff;color:#cc7000;border:none;border-radius:16px;font-size:17px;font-weight:900;cursor:pointer;margin-bottom:10px;box-shadow:0 4px 0 rgba(0,0,0,.15);">🌅 Let\'s get that worm — start now!</button>'
             + '<button id="dc-modal-close" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:13px;font-weight:800;cursor:pointer;display:block;width:100%;">I\'ll do it later...</button>'
             + '</div>';
-    } else if (isExpired) {
-        // Early bird day but the window has closed — tell them the worm is asleep
-        overlay.innerHTML = '<div style="background:linear-gradient(135deg,#1CB0F6 0%,#0d8fd4 100%);padding:36px 28px;border-radius:24px;border:2px solid #1899D6;border-bottom:6px solid #1266a8;text-align:center;max-width:360px;width:100%;font-family:Nunito,sans-serif;">'
-            + '<div style="font-size:72px;margin-bottom:12px;display:inline-block;">😴</div>'
-            + '<div style="font-size:24px;font-weight:900;color:#fff;margin-bottom:8px;">The worm is asleep...</div>'
-            + '<div style="font-size:15px;font-weight:800;color:rgba(255,255,255,.9);margin-bottom:8px;">The Early Bird bonus has expired — but that\'s no reason to stop!</div>'
-            + '<div style="background:rgba(255,255,255,.15);border-radius:14px;padding:14px;margin-bottom:20px;">'
-            + '<div style="font-size:13px;font-weight:800;color:rgba(255,255,255,.8);">💡 No XP bonus — but legends don\'t need an excuse to learn!</div>'
-            + '</div>'
-            + '<button id="dc-modal-go" style="width:100%;padding:15px;background:#FFC800;color:#111827;border:none;border-radius:16px;font-size:17px;font-weight:900;cursor:pointer;margin-bottom:10px;box-shadow:0 4px 0 rgba(0,0,0,.2);">💪 I don\'t need no worms — keep going!</button>'
-            + '<button id="dc-modal-other" style="width:100%;padding:13px;background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.4);border-radius:16px;font-size:15px;font-weight:900;cursor:pointer;margin-bottom:10px;">🏠 Show me other lessons</button>'
-            + '<button id="dc-modal-close" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:13px;font-weight:800;cursor:pointer;display:block;width:100%;">remind me tomorrow</button>'
-            + '</div>';
     } else {
-        // Any other challenge — generic "let's go" modal using the challenge's own data
-        var ch = challenge || getTodaysChallenge();
+        // Any other challenge (perfect_score, vocab_learner, speed_run, etc.)
+        // — show a modal that reflects THAT challenge's content
         overlay.innerHTML = '<div style="background:linear-gradient(135deg,#1CB0F6 0%,#0d8fd4 100%);padding:36px 28px;border-radius:24px;border:2px solid #1899D6;border-bottom:6px solid #1266a8;text-align:center;max-width:360px;width:100%;font-family:Nunito,sans-serif;">'
             + '<div style="font-size:72px;margin-bottom:12px;display:inline-block;">' + ch.icon + '</div>'
             + '<div style="font-size:24px;font-weight:900;color:#fff;margin-bottom:8px;">' + ch.title + '</div>'
