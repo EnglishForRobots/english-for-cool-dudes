@@ -292,34 +292,6 @@ function renderActiveState(challenge, progress, pct, time, context) {
     const btnId   = 'dc-go-btn-' + Math.random().toString(36).slice(2, 7);
     const timerId = 'dc-quest-timer-' + Math.random().toString(36).slice(2, 7);
 
-    // Wire up button AFTER the HTML is in the DOM
-    setTimeout(function() {
-        var btn = document.getElementById(btnId);
-        if (!btn) return;
-
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-
-            // If a lesson picker function exists (homepage/dashboard), use it
-            if (typeof openPicker === 'function') {
-                openPicker();
-                return;
-            }
-
-            // Otherwise show the fun modal
-            showChallengeClickModal();
-        });
-
-        // Tick the timer every minute
-        setInterval(function() {
-            var el = document.getElementById(timerId);
-            if (!el) return;
-            var t = getTimeUntilMidnight();
-            el.textContent = '⏰ ' + t.label + ' left';
-        }, 60000);
-
-    }, 100);
-
     return '<div class="dc-quest-card" id="dc-quest-card">'
         + '<div class="dc-quest-glow"></div>'
         + '<div class="dc-quest-top">'
