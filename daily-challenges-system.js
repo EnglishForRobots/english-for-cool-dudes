@@ -89,7 +89,7 @@ const DAILY_CHALLENGES = {
         icon:        '📝',
         target:      1,
         xpReward:    60,
-        ctaLabel:    '✏️ Start a Lesson',
+        ctaLabel:    '✏️ Accept the Challenge',
         ctaAction:   'picker',
         motivational: "Grammar master in the making — brilliant!",
         checkProgress: (cur, data) => data?.grammarPerfect === true ? 1 : cur,
