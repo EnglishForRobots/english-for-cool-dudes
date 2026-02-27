@@ -165,8 +165,9 @@
     .sec-label {
         font-size: 13px; font-weight: 900; color: var(--ink-3);
         text-transform: uppercase; letter-spacing: 1.5px;
-        display: flex; align-items: center; gap: 12px;
+        display: none; align-items: center; gap: 12px;
     }
+    .sec-label.show { display: flex; }
     .sec-label::after { content: ''; flex: 1; height: 2px; background: var(--border); border-radius: 2px; }
 
     /* ════════════════════════════════════════════
@@ -537,18 +538,45 @@
     .rp-expl-item.ok  { background: rgba(88,204,2,.07);  color: var(--ink-bold); border-color: var(--green-shadow); }
     .rp-expl-item.bad { background: rgba(255,75,75,.07); color: var(--ink-bold); border-color: var(--punch-shadow); }
 
-    /* vocab glossary */
-    .voc-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
-    @media(min-width:600px){ .voc-grid { grid-template-columns: 1fr 1fr; } }
-    .voc-item {
-        background: var(--bg); border: 2px solid var(--border); border-radius: var(--rsm);
-        padding: 12px 14px; display: flex; flex-direction: column; gap: 3px;
-        cursor: pointer; transition: border-color .15s;
+    /* ── DRAFT THE CLAUSE ────────────────────────── */
+    .dc-progress { font-size: 11px; font-weight: 900; color: var(--ink-3); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+    .dc-instruction { font-size: 16px; font-weight: 900; color: var(--ink-bold); margin-bottom: 6px; line-height: 1.4; }
+    .dc-hint { font-size: 12px; font-weight: 700; color: var(--ink-3); margin-bottom: 14px; font-style: italic; }
+    .dc-slot {
+        min-height: 60px; background: var(--bg);
+        border: 2.5px dashed var(--teal-shadow); border-radius: var(--rsm);
+        padding: 12px 14px; margin-bottom: 14px;
+        display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+        transition: border-color .2s;
     }
-    .voc-item:hover { border-color: var(--teal-shadow); }
-    .voc-item-word { font-size: 15px; font-weight: 900; color: var(--accent-text); letter-spacing: -.2px; }
-    .voc-item-type { font-size: 10px; font-weight: 900; color: var(--ink-3); text-transform: uppercase; letter-spacing: 1px; }
-    .voc-item-def  { font-size: 13px; font-weight: 700; color: var(--ink); line-height: 1.45; margin-top: 2px; }
+    .dc-slot:has(.dc-slot-word) { border-style: solid; border-color: var(--teal); background: rgba(43,222,204,.06); }
+    .dc-slot-empty { font-size: 13px; font-weight: 700; color: var(--ink-3); font-style: italic; }
+    .dc-slot-word {
+        background: var(--teal); color: var(--ink-bold);
+        border: 2px solid var(--teal-shadow); border-bottom: 3px solid var(--teal-shadow);
+        border-radius: var(--rxs); padding: 6px 12px;
+        font-size: 13px; font-weight: 900; cursor: pointer;
+        transition: transform .1s, opacity .15s; touch-action: manipulation;
+        animation: popin .2s cubic-bezier(.175,.885,.32,1.275) both;
+    }
+    .dc-slot-word:active { transform: scale(.95); opacity: .7; }
+    .dc-blocks { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+    .dc-block {
+        background: var(--white); color: var(--ink-bold);
+        border: 2px solid var(--border-heavy); border-bottom: 4px solid var(--border-heavy);
+        border-radius: var(--rxs); padding: 10px 16px;
+        font-size: 13px; font-weight: 900; font-family: inherit; cursor: pointer;
+        transition: transform .1s, border-bottom-width .1s, opacity .2s; touch-action: manipulation;
+    }
+    .dc-block:active { border-bottom-width: 2px; transform: translateY(2px); }
+    .dc-block.dc-used { opacity: .25; pointer-events: none; }
+    .dc-feedback {
+        display: none; padding: 13px 16px; border-radius: var(--rsm);
+        font-size: 13px; font-weight: 700; line-height: 1.6;
+        border: 2px solid; animation: up .2s ease both; margin-bottom: 4px;
+    }
+    .dc-feedback.ok  { background: rgba(88,204,2,.08);  color: var(--ink-bold); border-color: var(--green-shadow); }
+    .dc-feedback.bad { background: rgba(255,75,75,.08); color: var(--ink-bold); border-color: var(--punch-shadow); }
 
     /* bottom nav */
     .bot-nav {
@@ -608,7 +636,7 @@
     <div class="hc">
         <div class="hl">
             <a href="/legal/" class="logo">⚖️</a>
-            <a href="/legal/" class="site-title">English For Cool Dudes</a>
+            <a href="/" class="site-title">English For Cool Dudes</a>
         </div>
         <div class="hdr-stats">
             <div class="hdr-pill">🔥 <span id="hdr-streak">0</span></div>
@@ -876,31 +904,31 @@ const L = {
             ]
         },
         {
-            type: 'grammar', col: 'teal',
-            icon: '📖', title: 'Modals in Contract Language',
-            sub: 'Shall, may, or should — choose the right one',
-            explanation: {
-                heading: 'Modals in Legal Drafting',
-                text: 'Three words, three very different legal meanings. Getting this wrong changes obligations.',
-                examples: [
-                    { label: 'shall — binding obligation:', text: `The Supplier <strong>shall</strong> deliver by 1 March. (No choice.)` },
-                    { label: 'may — discretionary right:',  text: `Either party <strong>may</strong> terminate on 30 days' notice. (Choice allowed.)` },
-                    { label: 'should — recommendation:',   text: `Disputes <strong>should</strong> go to mediation first. (Not binding.)` }
-                ]
-            },
-            questions: [
-                { s: 'The Client ___ pay all invoices within 30 days.',
-                  hint: 'No choice — binding obligation',
-                  opts: ['shall', 'may', 'should'], a: 'shall' },
-                { s: 'Either party ___ request an extension by written notice.',
-                  hint: 'A right, not a duty',
-                  opts: ['shall', 'may', 'should'], a: 'may' },
-                { s: 'The Supplier ___ not assign this Agreement without written consent.',
-                  hint: 'A prohibition — strong obligation',
-                  opts: ['shall', 'may', 'should'], a: 'shall' },
-                { s: 'Disputes ___ be referred to senior management before legal proceedings.',
-                  hint: 'Recommended first step, not a hard rule',
-                  opts: ['shall', 'should', 'may'], a: 'should' }
+            type: 'draftClause', col: 'teal',
+            icon: '✍️', title: 'Draft the Clause',
+            sub: 'Tap the blocks in the right order to build each clause',
+            challenges: [
+                {
+                    instruction: `Build a <strong>limitation of liability</strong> clause:`,
+                    hint: 'Start with who is limited (The Supplier), then the obligation word, then what it cannot exceed, then the time period',
+                    blocks: ['shall not exceed', 'The Supplier\'s liability', 'the fees paid', 'in the preceding 12 months'],
+                    answer: ['The Supplier\'s liability', 'shall not exceed', 'the fees paid', 'in the preceding 12 months'],
+                    explanation: `<strong>The Supplier's liability shall not exceed the fees paid in the preceding 12 months.</strong> — Subject → obligation → the maximum amount → the time period. This is the market-standard formula.`
+                },
+                {
+                    instruction: `Build a <strong>force majeure</strong> notification clause:`,
+                    hint: 'The affected party acts first, then must notify, then must try to resume',
+                    blocks: ['use reasonable endeavours to resume', 'shall notify the other party promptly', 'The affected party', 'and'],
+                    answer: ['The affected party', 'shall notify the other party promptly', 'and', 'use reasonable endeavours to resume'],
+                    explanation: `<strong>The affected party shall notify the other party promptly and use reasonable endeavours to resume.</strong> — Two obligations triggered by force majeure: notify immediately, then try to get back on track.`
+                },
+                {
+                    instruction: `Build a <strong>material breach</strong> termination clause:`,
+                    hint: 'Either party can act — but only after notice and a chance to fix it',
+                    blocks: ['fails to remedy within 30 days', 'Either party may terminate', 'if the other commits a material breach and', 'of written notice'],
+                    answer: ['Either party may terminate', 'if the other commits a material breach and', 'fails to remedy within 30 days', 'of written notice'],
+                    explanation: `<strong>Either party may terminate if the other commits a material breach and fails to remedy within 30 days of written notice.</strong> — Mutual right, conditional on breach + failure to cure. The 30-day window protects both sides.`
+                }
             ]
         }
     ],
@@ -941,7 +969,7 @@ function build() {
     let html = '';
     html += secCard(0, true,  'strip-teal',   buildRedlines());
     html += secCard(1, false, 'strip-yellow', buildHotTakes());
-    html += `<div class="sec-label">📝 Practice Exercises</div>`;
+    html += `<div class="sec-label" id="lbl-exercises">📝 Practice Exercises</div>`;
     L.exercises.forEach((ex, i) => {
         const n    = i + 2;
         const body = buildExercise(ex, n);
@@ -949,8 +977,6 @@ function build() {
             head(ex.icon, ex.title, ex.sub, n) +
             `<div class="sec-body">${body}</div>`);
     });
-    html += `<div class="sec-label">📖 Vocabulary Glossary</div>`;
-    html += buildGlossary();
     wrap.innerHTML = html;
     updateNav(); updateProg();
     setTimeout(wireAll, 60);
@@ -970,7 +996,7 @@ function head(icon, title, sub, n, extra = '') {
 
 /* ── REDLINE MECHANIC ─────────────────────────────── */
 function buildRedlines() {
-    const skipBtn = `<button class="briefing-skip" onclick="goTo(2)">Skip →</button>`;
+    const skipBtn = `<button class="briefing-skip" onclick="goTo(1)">Skip →</button>`;
 
     const chips = L.redlineClauses.map(c =>
         `<div class="rc-chip" id="chip-${c.id}">📄</div>`).join('');
@@ -1256,12 +1282,15 @@ function rpTap(id) {
     const wordEl = document.getElementById(id);
     if (!wordEl || wordEl.classList.contains('rp-fixed')) return;
 
-    // find the exercise data
-    const ex = L.exercises.find(e => e.type === 'redPen');
+    const ex   = L.exercises.find(e => e.type === 'redPen');
     const part = ex?.emailBody.find(p => p.id === id);
     if (!part || !part.wrong) return;
 
-    // close any open picker first
+    // Toggle — if picker already open for this word, close it
+    const existing = wordEl.nextSibling;
+    if (existing?.classList?.contains('rp-picker')) { existing.remove(); return; }
+
+    // Close any other open picker
     document.querySelectorAll('.rp-picker').forEach(p => p.remove());
 
     const opts = part.opts.map(o =>
@@ -1272,6 +1301,17 @@ function rpTap(id) {
     picker.className = 'rp-picker';
     picker.innerHTML = opts;
     wordEl.parentNode.insertBefore(picker, wordEl.nextSibling);
+
+    // Outside click dismisses picker
+    setTimeout(() => {
+        function onOutside(e) {
+            if (!picker.contains(e.target) && e.target !== wordEl) {
+                picker.remove();
+                document.removeEventListener('click', onOutside);
+            }
+        }
+        document.addEventListener('click', onOutside);
+    }, 0);
 }
 
 function rpChoose(id, choice) {
@@ -1281,54 +1321,77 @@ function rpChoose(id, choice) {
 
     document.querySelectorAll('.rp-picker').forEach(p => p.remove());
 
-    const wordEl = document.getElementById(id);
+    const wordEl  = document.getElementById(id);
     const correct = choice === part.correct;
 
     if (wordEl) {
         wordEl.textContent = choice;
-        wordEl.classList.remove('rp-word');
-        wordEl.classList.add(correct ? 'rp-fixed' : 'rp-wrong');
-        wordEl.onclick = null;
+        wordEl.classList.remove('rp-word', 'rp-wrong');
+        if (correct) {
+            wordEl.classList.add('rp-fixed');
+            wordEl.onclick = null;
+        } else {
+            // Wrong — keep tappable so user can try again
+            wordEl.classList.add('rp-wrong');
+            wordEl.onclick = () => rpTap(id);
+        }
     }
 
-    // find which section this is in
-    const secN = L.exercises.findIndex(e => e.type === 'redPen') + 2;
-
-    // show explanation
+    const secN   = L.exercises.findIndex(e => e.type === 'redPen') + 2;
     const explEl = document.getElementById(`rp-explain-${secN}`);
-    if (explEl && part.explain) {
+
+    // Only add explanation once per word (avoid duplicates on retry)
+    if (explEl && part.explain && !document.getElementById(`rp-expl-${id}`)) {
         const div = document.createElement('div');
+        div.id        = `rp-expl-${id}`;
         div.className = `rp-expl-item ${correct ? 'ok' : 'bad'}`;
         div.innerHTML = (correct ? '✅ ' : '❌ ') + part.explain;
         explEl.appendChild(div);
+    } else if (explEl && correct) {
+        // Update existing explanation to green if they eventually got it right
+        const existing = document.getElementById(`rp-expl-${id}`);
+        if (existing) { existing.className = 'rp-expl-item ok'; existing.innerHTML = '✅ ' + part.explain; }
     }
 
-    // update count
-    const fixed  = document.querySelectorAll('.rp-fixed').length;
-    const wrongs = document.querySelectorAll('.rp-wrong').length;
-    const countEl = document.getElementById(`rp-count-${secN}`);
+    // Count state
+    const fixed    = document.querySelectorAll('.rp-fixed').length;
+    const attempted = document.querySelectorAll('.rp-fixed, .rp-wrong').length;
+    const countEl  = document.getElementById(`rp-count-${secN}`);
     if (countEl) countEl.textContent = `${fixed} / 4`;
 
-    // all 4 found?
+    // All 4 correctly fixed — auto complete
     if (fixed >= 4) {
         setTimeout(() => {
             burst();
             if (Math.random() < .5) showBadge(rndBadge());
             const res = document.getElementById(`res-${secN}`);
+            const wrongs = document.querySelectorAll('.rp-wrong').length;
             if (res) {
                 res.style.display = 'block';
                 res.className = 'result ok';
-                res.textContent = wrongs === 0 ? '🖊️ Perfect red pen — all four correct!' : `Found all four — ${wrongs} needed a second try.`;
+                res.textContent = wrongs === 0 ? '🖊️ Perfect red pen — all four correct first time!' : '🖊️ All four fixed — nicely done!';
             }
             setTimeout(() => completeSec(secN), 1400);
         }, 400);
+        return;
+    }
+
+    // All 4 attempted but some still wrong — show Continue button
+    if (attempted >= 4 && fixed < 4) {
+        const res = document.getElementById(`res-${secN}`);
+        if (res && res.style.display !== 'block') {
+            res.style.display = 'block';
+            res.className = 'result bad';
+            res.innerHTML = `${fixed}/4 correct — tap the red words to try again. <button onclick="completeSec(${secN})" style="margin-left:12px;padding:6px 14px;background:var(--white);border:2px solid var(--punch-shadow);border-radius:var(--rxs);font-weight:900;font-size:13px;color:var(--punch-shadow);cursor:pointer;">Continue anyway →</button>`;
+        }
     }
 }
 
 function buildExercise(ex, n) {
-    if (ex.type === 'gapFill')  return buildGF(ex, n);
-    if (ex.type === 'redPen')   return buildRedPen(ex, n);
-    if (ex.type === 'grammar')  return buildGR(ex, n);
+    if (ex.type === 'gapFill')     return buildGF(ex, n);
+    if (ex.type === 'redPen')      return buildRedPen(ex, n);
+    if (ex.type === 'draftClause') return buildDC(ex, n);
+    if (ex.type === 'grammar')     return buildGR(ex, n);
     return '';
 }
 
@@ -1378,6 +1441,137 @@ function buildWF(ex, n) {
     return items + btnRow(n, true);
 }
 
+/* ── DRAFT THE CLAUSE ────────────────────────────── */
+// State: dcState[n] = { challengeIdx, selected[], done }
+const dcState = {};
+
+function buildDC(ex, n) {
+    dcState[n] = { challengeIdx: 0, selected: [], done: false };
+    return `<div id="dc-wrap-${n}">${renderDC(ex, n)}</div>
+        <div id="res-${n}" class="result"></div>`;
+}
+
+function renderDC(ex, n) {
+    const st = dcState[n];
+    const ch = ex.challenges[st.challengeIdx];
+    if (!ch) return '';
+    const total    = ex.challenges.length;
+    const current  = st.challengeIdx + 1;
+
+    // Shuffle blocks for display (but keep answer order fixed)
+    const shuffled = st.shuffled || (st.shuffled = [...ch.blocks].sort(() => Math.random() - .5));
+
+    const blockBtns = shuffled.map((b, i) => {
+        const used = st.selected.includes(b);
+        return `<button class="dc-block${used ? ' dc-used' : ''}" onclick="dcTap(${n},${i})">${b}</button>`;
+    }).join('');
+
+    const slotItems = st.selected.map((b, i) =>
+        `<span class="dc-slot-word" onclick="dcRemove(${n},${i})">${b} ×</span>`
+    ).join('');
+    const emptySlot = st.selected.length === 0
+        ? `<span class="dc-slot-empty">Tap blocks below to build the clause…</span>` : '';
+
+    return `
+        <div class="dc-progress">${current} of ${total}</div>
+        <div class="dc-instruction">${ch.instruction}</div>
+        <div class="dc-hint">💡 ${ch.hint}</div>
+        <div class="dc-slot" id="dc-slot-${n}">${emptySlot}${slotItems}</div>
+        <div class="dc-blocks">${blockBtns}</div>
+        <div id="dc-feedback-${n}" class="dc-feedback"></div>
+        <div class="btn-row" style="margin-top:14px;">
+            <button class="btn-check" onclick="checkDC(${n})">Check Clause</button>
+            <button class="btn-reset" onclick="resetDC(${n})">Clear</button>
+        </div>`;
+}
+
+function dcTap(n, idx) {
+    const st  = dcState[n];
+    const ex  = L.exercises[n - 2];
+    const ch  = ex.challenges[st.challengeIdx];
+    const block = st.shuffled[idx];
+    if (st.selected.includes(block)) return;
+    if (st.selected.length >= ch.answer.length) return;
+    st.selected.push(block);
+    document.getElementById(`dc-wrap-${n}`).innerHTML = renderDC(ex, n);
+}
+
+function dcRemove(n, idx) {
+    const st = dcState[n];
+    st.selected.splice(idx, 1);
+    const ex = L.exercises[n - 2];
+    document.getElementById(`dc-wrap-${n}`).innerHTML = renderDC(ex, n);
+}
+
+function resetDC(n) {
+    const st = dcState[n];
+    st.selected = [];
+    st.shuffled = null;
+    const ex = L.exercises[n - 2];
+    document.getElementById(`dc-wrap-${n}`).innerHTML = renderDC(ex, n);
+    hideRes(n);
+}
+
+function checkDC(n) {
+    const st  = dcState[n];
+    const ex  = L.exercises[n - 2];
+    const ch  = ex.challenges[st.challengeIdx];
+    const fb  = document.getElementById(`dc-feedback-${n}`);
+
+    if (st.selected.length < ch.answer.length) {
+        if (fb) { fb.className = 'dc-feedback bad'; fb.innerHTML = 'Place all the blocks first!'; fb.style.display='block'; }
+        return;
+    }
+
+    const correct = st.selected.every((b, i) => b === ch.answer[i]);
+
+    if (fb) {
+        fb.style.display = 'block';
+        fb.className = `dc-feedback ${correct ? 'ok' : 'bad'}`;
+        fb.innerHTML = correct
+            ? `✅ ${ch.explanation}`
+            : `❌ Not quite. The correct order: <strong>${ch.answer.join(' ')}</strong><br><br>${ch.explanation}`;
+    }
+
+    if (correct) burst();
+
+    const isLast = st.challengeIdx >= ex.challenges.length - 1;
+
+    // Show feedback with a user-controlled Next button — no auto-advance
+    if (fb) {
+        fb.style.display = 'block';
+        fb.className = `dc-feedback ${correct ? 'ok' : 'bad'}`;
+        const nextLabel = isLast ? '🏁 Finish' : 'Next Clause →';
+        const nextAction = isLast
+            ? `dcFinish(${n})`
+            : `dcAdvance(${n})`;
+        fb.innerHTML = (correct ? '✅ ' : '❌ ') +
+            (correct ? ch.explanation : `Not quite. The correct order: <strong>${ch.answer.join(' — ')}</strong><br><br>${ch.explanation}`) +
+            `<div style="margin-top:12px;"><button class="ht-next-btn" style="padding:12px 20px;font-size:14px;" onclick="${nextAction}">${nextLabel}</button></div>`;
+    }
+}
+
+function dcAdvance(n) {
+    const st = dcState[n];
+    const ex = L.exercises[n - 2];
+    st.challengeIdx++;
+    st.selected = [];
+    st.shuffled = null;
+    document.getElementById(`dc-wrap-${n}`).innerHTML = renderDC(ex, n);
+}
+
+function dcFinish(n) {
+    burst();
+    showBadge(rndBadge());
+    const res = document.getElementById(`res-${n}`);
+    if (res) {
+        res.style.display = 'block';
+        res.className = 'result ok';
+        res.textContent = "✍️ All three clauses drafted — you're thinking like a lawyer!";
+    }
+    setTimeout(() => completeSec(n), 1400);
+}
+
 function buildGR(ex, n) {
     const ex2  = ex.explanation;
     const egs  = (ex2.examples || []).map(e =>
@@ -1396,24 +1590,6 @@ function buildGR(ex, n) {
     return expl + cards + btnRow(n, false);
 }
 
-function buildGlossary() {
-    const items = L.vocabulary.map(w => `
-        <div class="voc-item" onclick="showVoc('${w.word.replace(/'/g, "\\'")}')">
-            <div class="voc-item-word">${w.word}</div>
-            <div class="voc-item-type">${w.type}</div>
-            <div class="voc-item-def">${w.definition}</div>
-        </div>`).join('');
-    return `<div class="sec-card visible strip-teal">
-        <div class="sec-head">
-            <div class="sec-head-left">
-                <div class="sec-head-icon">📚</div>
-                <div><div class="sec-head-title">All 10 Vocab Words</div><div class="sec-head-sub">Tap any word to hear it pronounced</div></div>
-            </div>
-        </div>
-        <div class="sec-body"><div class="voc-grid">${items}</div></div>
-    </div>`;
-}
-
 function btnRow(n, hasReveal) {
     return `<div class="btn-row">
         <button class="btn-check" onclick="checkSec(${n})">Check Answers</button>
@@ -1428,6 +1604,7 @@ function btnRow(n, hasReveal) {
 ══════════════════════════════════════════════════════ */
 function goTo(n) {
     curSec = n;
+    if (n >= 2) document.getElementById('lbl-exercises')?.classList.add('show');
     const el = document.querySelector(`.sec-card[data-sec="${n}"]`);
     if (el) { el.classList.add('visible'); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
     updateNav();
@@ -1528,13 +1705,13 @@ function resetSec(n) {
         selWord = null;
     }
     if (ex.type === 'grammar') secEl(n).querySelectorAll('.gram-sel').forEach(s => { s.value = ''; s.classList.remove('correct', 'incorrect'); });
+    if (ex.type === 'draftClause') { dcState[n] = { challengeIdx: 0, selected: [], done: false }; const w = document.getElementById(`dc-wrap-${n}`); if (w) w.innerHTML = renderDC(ex, n); }
     if (ex.type === 'redPen') {
-        // rebuild the email body fresh
-        secEl(n).querySelector('.rp-email-body').innerHTML =
-            ex.emailBody.map(p => p.plain
-                ? `<span>${p.text}</span>`
-                : `<span class="rp-word" id="${p.id}" data-id="${p.id}" onclick="rpTap('${p.id}')">${p.text}</span>`
-            ).join('');
+        const body = secEl(n).querySelector('.rp-email-body');
+        if (body) body.innerHTML = ex.emailBody.map(p => p.plain
+            ? `<span>${p.text}</span>`
+            : `<span class="rp-word" id="${p.id}" onclick="rpTap('${p.id}')">${p.text}</span>`
+        ).join('');
         const explEl = document.getElementById(`rp-explain-${n}`);
         if (explEl) explEl.innerHTML = '';
         const countEl = document.getElementById(`rp-count-${n}`);
