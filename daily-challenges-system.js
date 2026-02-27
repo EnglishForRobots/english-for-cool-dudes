@@ -205,13 +205,44 @@ function renderActiveState(challenge, progress, pct, time, context) {
             var btn = document.getElementById('${btnId}');
             if (!btn) return;
             btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                if (typeof openPicker === 'function') {
-                    openPicker();
-                } else {
-                    window.location.href = '/';
-                }
-            });
+    e.preventDefault();
+    if (typeof openPicker === 'function') {
+        openPicker();
+        return;
+    }
+    // Fun early bird modal
+    var isEarlyBird = new Date().getHours() < 10;
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+    overlay.innerHTML = isEarlyBird ? `
+        <div style="background:linear-gradient(135deg,#FF9500 0%,#FFB800 100%);padding:36px 28px;border-radius:24px;border:2px solid #E5B400;border-bottom:6px solid #cc9000;text-align:center;max-width:360px;width:100%;font-family:'Nunito',sans-serif;animation:wormPop .4s cubic-bezier(.175,.885,.32,1.275);">
+            <div style="font-size:72px;margin-bottom:8px;display:inline-block;animation:wormWiggle 1s ease infinite;">🐦</div>
+            <div style="font-size:72px;margin-bottom:16px;display:inline-block;animation:wormWiggle 1s ease infinite .15s;">🪱</div>
+            <div style="font-size:26px;font-weight:900;color:#fff;letter-spacing:-.5px;margin-bottom:8px;text-shadow:0 2px 0 rgba(0,0,0,.15);">THE EARLY BIRD GETS THE WORM!</div>
+            <div style="font-size:15px;font-weight:800;color:rgba(255,255,255,.9);margin-bottom:24px;">You absolute legend — most people are still asleep. Go smash this lesson! 🔥</div>
+            <button id="worm-go-btn" style="width:100%;padding:15px;background:#fff;color:#cc7000;border:none;border-radius:16px;font-size:17px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 0 rgba(0,0,0,.15);margin-bottom:10px;">🌅 Let's Get That Worm →</button>
+            <button onclick="this.closest('div').parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;">maybe later...</button>
+        </div>` : `
+        <div style="background:linear-gradient(135deg,#1CB0F6 0%,#0d8fd4 100%);padding:36px 28px;border-radius:24px;border:2px solid #1899D6;border-bottom:6px solid #1266a8;text-align:center;max-width:360px;width:100%;font-family:'Nunito',sans-serif;animation:wormPop .4s cubic-bezier(.175,.885,.32,1.275);">
+            <div style="font-size:72px;margin-bottom:8px;display:inline-block;">😴</div>
+            <div style="font-size:26px;font-weight:900;color:#fff;letter-spacing:-.5px;margin-bottom:8px;">The worm is asleep...</div>
+            <div style="font-size:15px;font-weight:800;color:rgba(255,255,255,.9);margin-bottom:8px;">This quest is for early birds only — before 10 AM!</div>
+            <div style="background:rgba(255,255,255,.15);border-radius:14px;padding:14px;margin-bottom:20px;">
+                <div style="font-size:13px;font-weight:800;color:rgba(255,255,255,.8);">⏰ Set an alarm and come back tomorrow morning</div>
+            </div>
+            <button id="worm-go-btn" style="width:100%;padding:15px;background:#FFC800;color:#111827;border:none;border-radius:16px;font-size:17px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 0 rgba(0,0,0,.2);margin-bottom:10px;">📚 Do Today's Other Lessons Instead</button>
+            <button onclick="this.closest('div').parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;">close</button>
+        </div>`;
+
+    var style = document.createElement('style');
+    style.textContent = '@keyframes wormPop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}} @keyframes wormWiggle{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}';
+    document.head.appendChild(style);
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.remove(); });
+
+    var goBtn = document.getElementById('worm-go-btn');
+    if (goBtn) goBtn.addEventListener('click', function(){ window.location.href = '/'; });
+});
             // Tick the timer every second
             setInterval(function() {
                 var el = document.getElementById('dc-quest-timer');
