@@ -101,9 +101,13 @@ const DAY_ORDER = [
     'weekend_warrior', // Saturday
 ];
 
+// ── GET CHALLENGES ───────────────────────────────────────────
 function getTodaysChallenge() {
-    const day = new Date().getDay();
+    const day  = new Date().getDay();
+    const hour = new Date().getHours();
     if (day === 0 || day === 6) return DAILY_CHALLENGES.weekend_warrior;
+    // Early bird expires after 10am — swap to perfect_score
+    if (DAY_ORDER[day] === 'early_bird' && hour >= 10) return DAILY_CHALLENGES.perfect_score;
     return DAILY_CHALLENGES[DAY_ORDER[day]];
 }
 
@@ -113,16 +117,17 @@ function getTomorrowsChallenge() {
     return DAILY_CHALLENGES[DAY_ORDER[tomorrow]];
 }
 
+// ── TIME HELPERS ─────────────────────────────────────────────
 function getTimeUntilMidnight() {
     const now = new Date(), mid = new Date(now);
     mid.setHours(24, 0, 0, 0);
     const diff = mid - now;
     const h = Math.floor(diff / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
-    return { h, m, s, label: h + 'h ' + m + 'm' };
+    return { h, m, label: h + 'h ' + m + 'm' };
 }
 
+// ── PROGRESS HELPERS ─────────────────────────────────────────
 function getStoredProgress(challenge) {
     try {
         const stored = localStorage.getItem('dailyChallenge');
@@ -179,9 +184,7 @@ function injectCSS() {
     font-size: 20px; font-weight: 900; color: #fff;
     letter-spacing: -.3px; margin-bottom: 3px;
 }
-.dc-quest-desc {
-    font-size: 13px; font-weight: 700; color: rgba(255,255,255,.85);
-}
+.dc-quest-desc { font-size: 13px; font-weight: 700; color: rgba(255,255,255,.85); }
 .dc-quest-xp {
     text-align: center; flex-shrink: 0;
     font-size: 26px; font-weight: 900; color: #FFC800;
@@ -198,8 +201,7 @@ function injectCSS() {
 .dc-quest-bar-fill {
     height: 100%; background: #FFC800; border-radius: 99px;
     border-top: 3px solid rgba(255,255,255,.4);
-    transition: width 1s cubic-bezier(.4,0,.2,1);
-    min-width: 0;
+    transition: width 1s cubic-bezier(.4,0,.2,1); min-width: 0;
 }
 .dc-quest-progress-row {
     display: flex; justify-content: space-between;
@@ -223,12 +225,9 @@ function injectCSS() {
 }
 .dc-quest-done-confetti {
     position: absolute; top: -10px; right: -5px;
-    font-size: 80px; opacity: .15; pointer-events: none;
-    transform: rotate(15deg);
+    font-size: 80px; opacity: .15; pointer-events: none; transform: rotate(15deg);
 }
-.dc-quest-done-top {
-    display: flex; align-items: center; gap: 14px; margin-bottom: 12px;
-}
+.dc-quest-done-top { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
 .dc-quest-done-check {
     width: 52px; height: 52px; flex-shrink: 0;
     background: rgba(255,255,255,.25); border-radius: 50%;
@@ -281,16 +280,20 @@ function renderDailyChallengeWidget(context) {
 
     injectCSS();
 
-    if (isComplete) {
-        return renderCompletedState(challenge, tomorrow, time);
-    }
+    if (isComplete) return renderCompletedState(challenge, tomorrow, time);
     return renderActiveState(challenge, progress, pct, time, context);
 }
 
 // ── ACTIVE STATE ─────────────────────────────────────────────
 function renderActiveState(challenge, progress, pct, time, context) {
-    const btnId   = 'dc-go-btn-' + Math.random().toString(36).slice(2, 7);
     const timerId = 'dc-quest-timer-' + Math.random().toString(36).slice(2, 7);
+
+    setInterval(function() {
+        var el = document.getElementById(timerId);
+        if (!el) return;
+        var t = getTimeUntilMidnight();
+        el.textContent = '⏰ ' + t.label + ' left';
+    }, 60000);
 
     return '<div class="dc-quest-card" id="dc-quest-card">'
         + '<div class="dc-quest-glow"></div>'
@@ -312,16 +315,20 @@ function renderActiveState(challenge, progress, pct, time, context) {
         + '<div class="dc-quest-bar-track"><div class="dc-quest-bar-fill" style="width:' + pct + '%"></div></div>'
         + '<div class="dc-quest-progress-row"><span>' + progress + ' / ' + challenge.target + '</span><span>' + pct + '% complete</span></div>'
         + '</div>'
-        + '<button class="dc-quest-btn" id="' + btnId + '">' + challenge.ctaLabel + ' <span class="dc-quest-arrow">›</span></button>'
+        + '<button class="dc-quest-btn">' + challenge.ctaLabel + ' <span class="dc-quest-arrow">›</span></button>'
         + '</div>';
 }
-
-
 
 // ── COMPLETED STATE ──────────────────────────────────────────
 function renderCompletedState(challenge, tomorrow, time) {
     const timerId = 'dc-tomorrow-timer-' + Math.random().toString(36).slice(2, 7);
 
+    setInterval(function() {
+        var el = document.getElementById(timerId);
+        if (!el) return;
+        var t = getTimeUntilMidnight();
+        el.textContent = t.label;
+    }, 60000);
 
     return '<div class="dc-quest-card dc-quest-done">'
         + '<div class="dc-quest-done-confetti">🎊</div>'
@@ -340,6 +347,65 @@ function renderCompletedState(challenge, tomorrow, time) {
         + '<div class="dc-tomorrow-desc">' + tomorrow.description + '</div></div>'
         + '</div></div></div>';
 }
+
+// ── CHALLENGE CLICK MODAL ────────────────────────────────────
+// Works on ANY lesson page — called by global event delegation below
+function showChallengeClickModal() {
+    var isEarlyBird = new Date().getHours() < 10;
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+
+    if (isEarlyBird) {
+        overlay.innerHTML = '<div style="background:linear-gradient(135deg,#FF9500 0%,#FFB800 100%);padding:36px 28px;border-radius:24px;border:2px solid #E5B400;border-bottom:6px solid #cc9000;text-align:center;max-width:360px;width:100%;font-family:Nunito,sans-serif;">'
+            + '<div style="font-size:72px;margin-bottom:4px;display:inline-block;animation:wormWiggle 1s ease infinite;">🐦</div>'
+            + '<div style="font-size:72px;margin-bottom:16px;display:inline-block;animation:wormWiggle 1s ease infinite .15s;">🪱</div>'
+            + '<div style="font-size:24px;font-weight:900;color:#fff;margin-bottom:8px;">THE EARLY BIRD GETS THE WORM!</div>'
+            + '<div style="font-size:15px;font-weight:800;color:rgba(255,255,255,.9);margin-bottom:24px;">You absolute legend — most people are still asleep. Go smash this lesson! 🔥</div>'
+            + '<button id="dc-modal-go" style="width:100%;padding:15px;background:#fff;color:#cc7000;border:none;border-radius:16px;font-size:17px;font-weight:900;cursor:pointer;margin-bottom:10px;box-shadow:0 4px 0 rgba(0,0,0,.15);">🌅 Let\'s get that worm — start now!</button>'
+            + '<button id="dc-modal-close" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:13px;font-weight:800;cursor:pointer;display:block;width:100%;">I\'ll do it later...</button>'
+            + '</div>';
+    } else {
+        overlay.innerHTML = '<div style="background:linear-gradient(135deg,#1CB0F6 0%,#0d8fd4 100%);padding:36px 28px;border-radius:24px;border:2px solid #1899D6;border-bottom:6px solid #1266a8;text-align:center;max-width:360px;width:100%;font-family:Nunito,sans-serif;">'
+            + '<div style="font-size:72px;margin-bottom:12px;display:inline-block;">😴</div>'
+            + '<div style="font-size:24px;font-weight:900;color:#fff;margin-bottom:8px;">The worm is asleep...</div>'
+            + '<div style="font-size:15px;font-weight:800;color:rgba(255,255,255,.9);margin-bottom:8px;">The Early Bird bonus has expired — but that\'s no reason to stop!</div>'
+            + '<div style="background:rgba(255,255,255,.15);border-radius:14px;padding:14px;margin-bottom:20px;">'
+            + '<div style="font-size:13px;font-weight:800;color:rgba(255,255,255,.8);">💡 No XP bonus — but legends don\'t need an excuse to learn!</div>'
+            + '</div>'
+            + '<button id="dc-modal-go" style="width:100%;padding:15px;background:#FFC800;color:#111827;border:none;border-radius:16px;font-size:17px;font-weight:900;cursor:pointer;margin-bottom:10px;box-shadow:0 4px 0 rgba(0,0,0,.2);">💪 I don\'t need no worms — keep going!</button>'
+            + '<button id="dc-modal-other" style="width:100%;padding:13px;background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.4);border-radius:16px;font-size:15px;font-weight:900;cursor:pointer;margin-bottom:10px;">🏠 Show me other lessons</button>'
+            + '<button id="dc-modal-close" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:13px;font-weight:800;cursor:pointer;display:block;width:100%;">remind me tomorrow</button>'
+            + '</div>';
+    }
+
+    document.body.appendChild(overlay);
+
+    // Wire buttons immediately — guaranteed in DOM right after appendChild
+    document.getElementById('dc-modal-go').addEventListener('click', function() {
+        overlay.remove();
+    });
+    var otherBtn = document.getElementById('dc-modal-other');
+    if (otherBtn) otherBtn.addEventListener('click', function() {
+        window.location.href = '/';
+    });
+    document.getElementById('dc-modal-close').addEventListener('click', function() {
+        overlay.remove();
+    });
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) overlay.remove();
+    });
+}
+
+// ── GLOBAL EVENT DELEGATION ──────────────────────────────────
+// Listens at document level so it works on every lesson page automatically.
+// No per-page wiring ever needed.
+document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.dc-quest-btn');
+    if (!btn) return;
+    e.preventDefault();
+    if (typeof openPicker === 'function') { openPicker(); return; }
+    showChallengeClickModal();
+});
 
 // ── UPDATE PROGRESS ──────────────────────────────────────────
 async function updateChallengeProgress(lessonData) {
@@ -388,17 +454,8 @@ function showChallengeCompletionCelebration(challenge) {
         + '</div>';
 
     document.body.appendChild(overlay);
-
-    document.getElementById('dc-celeb-close').addEventListener('click', function() {
-        overlay.remove();
-    });
-    overlay.addEventListener('click', function(e) {
-        if (e.target === overlay) overlay.remove();
-    });
-
-    const style = document.createElement('style');
-    style.textContent = '@keyframes celebIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}} @keyframes celebSpin{0%{transform:rotate(-20deg) scale(0)}70%{transform:rotate(8deg) scale(1.1)}100%{transform:rotate(0deg) scale(1)}}';
-    document.head.appendChild(style);
+    document.getElementById('dc-celeb-close').addEventListener('click', function() { overlay.remove(); });
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
 }
 
 // ── PUBLIC API ───────────────────────────────────────────────
@@ -409,7 +466,6 @@ if (typeof window !== 'undefined') {
         renderDailyChallengeWidget,
         updateChallengeProgress,
         showChallengeCompletionCelebration,
-        showChallengeClickModal,
         DAILY_CHALLENGES,
     };
     console.log('⚔️ Daily Challenges loaded');
