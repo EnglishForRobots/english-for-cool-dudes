@@ -484,6 +484,7 @@ if (typeof window !== 'undefined') {
         renderDailyChallengeWidget,
         updateChallengeProgress,
         showChallengeCompletionCelebration,
+        showChallengeClickModal,
         DAILY_CHALLENGES,
     };
     console.log('⚔️ Daily Challenges loaded');
