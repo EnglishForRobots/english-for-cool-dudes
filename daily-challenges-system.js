@@ -1,14 +1,9 @@
 // ═══════════════════════════════════════════════════════════
 // DAILY CHALLENGES SYSTEM — daily-challenges-system.js
-// Timed quest cards with lesson picker CTA.
-// Completed state: celebration + tomorrow's challenge teaser.
 // ═══════════════════════════════════════════════════════════
 
 'use strict';
 
-// ── CHALLENGE DEFINITIONS ────────────────────────────────────
-// Each challenge has a ctaLabel (button text) and ctaAction
-// ('picker' = open lesson picker modal, 'href' = go to URL)
 const DAILY_CHALLENGES = {
     perfect_score: {
         id:          'perfect_score',
@@ -96,7 +91,6 @@ const DAILY_CHALLENGES = {
     },
 };
 
-// Day order: Sun=0 … Sat=6
 const DAY_ORDER = [
     'perfect_score',   // Sunday
     'vocab_learner',   // Monday
@@ -107,7 +101,6 @@ const DAY_ORDER = [
     'weekend_warrior', // Saturday
 ];
 
-// ── GET CHALLENGES ───────────────────────────────────────────
 function getTodaysChallenge() {
     const day = new Date().getDay();
     if (day === 0 || day === 6) return DAILY_CHALLENGES.weekend_warrior;
@@ -120,7 +113,6 @@ function getTomorrowsChallenge() {
     return DAILY_CHALLENGES[DAY_ORDER[tomorrow]];
 }
 
-// ── TIME HELPERS ─────────────────────────────────────────────
 function getTimeUntilMidnight() {
     const now = new Date(), mid = new Date(now);
     mid.setHours(24, 0, 0, 0);
@@ -128,10 +120,9 @@ function getTimeUntilMidnight() {
     const h = Math.floor(diff / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
     const s = Math.floor((diff % 60000) / 1000);
-    return { h, m, s, label: `${h}h ${m}m` };
+    return { h, m, s, label: h + 'h ' + m + 'm' };
 }
 
-// ── PROGRESS HELPERS ─────────────────────────────────────────
 function getStoredProgress(challenge) {
     try {
         const stored = localStorage.getItem('dailyChallenge');
@@ -144,170 +135,12 @@ function getStoredProgress(challenge) {
     return 0;
 }
 
-// ── RENDER WIDGET ────────────────────────────────────────────
-// context: 'homepage' (has openPicker fn) | 'dashboard' | 'lesson'
-function renderDailyChallengeWidget(context) {
-    const challenge  = getTodaysChallenge();
-    const tomorrow   = getTomorrowsChallenge();
-    const progress   = getStoredProgress(challenge);
-    const isComplete = progress >= challenge.target;
-    const pct        = Math.min(100, Math.round((progress / challenge.target) * 100));
-    const time       = getTimeUntilMidnight();
-
-    if (isComplete) {
-        return renderCompletedState(challenge, tomorrow, time);
-    }
-    return renderActiveState(challenge, progress, pct, time, context);
-}
-
-// ── ACTIVE STATE ─────────────────────────────────────────────
-function renderActiveState(challenge, progress, pct, time, context) {
-    // Button action depends on context
-    const btnId = `dc-go-btn-${Math.random().toString(36).slice(2,7)}`;
-    const isPickerContext = context === 'homepage' || context === 'dashboard';
-
-    return `
-        <div class="dc-quest-card" id="dc-quest-card">
-            <div class="dc-quest-glow"></div>
-
-            <div class="dc-quest-top">
-                <div class="dc-quest-eyebrow">
-                    <span>⚔️ Daily Quest</span>
-                    <span class="dc-quest-timer" id="dc-quest-timer">⏰ ${time.label} left</span>
-                </div>
-                <div class="dc-quest-hero">
-                    <div class="dc-quest-icon">${challenge.icon}</div>
-                    <div class="dc-quest-info">
-                        <div class="dc-quest-title">${challenge.title}</div>
-                        <div class="dc-quest-desc">${challenge.description}</div>
-                    </div>
-                    <div class="dc-quest-xp">+${challenge.xpReward}<span>XP</span></div>
-                </div>
-            </div>
-
-            <div class="dc-quest-progress">
-                <div class="dc-quest-bar-track">
-                    <div class="dc-quest-bar-fill" style="width:${pct}%"></div>
-                </div>
-                <div class="dc-quest-progress-row">
-                    <span>${progress} / ${challenge.target}</span>
-                    <span>${pct}% complete</span>
-                </div>
-            </div>
-
-            <button class="dc-quest-btn" id="${btnId}">
-                ${challenge.ctaLabel} <span class="dc-quest-arrow">›</span>
-            </button>
-        </div>
-        ${DC_QUEST_CSS}
-        <script>
-        (function() {
-            var btn = document.getElementById('${btnId}');
-            if (!btn) return;
-            btn.addEventListener('click', function(e) {
-    e.preventDefault();
-    if (typeof openPicker === 'function') {
-        openPicker();
-        return;
-    }
-    // Fun early bird modal
-    var isEarlyBird = new Date().getHours() < 10;
-    var overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
-    var earlyHtml = '<div style="background:linear-gradient(135deg,#FF9500 0%,#FFB800 100%);padding:36px 28px;border-radius:24px;border:2px solid #E5B400;border-bottom:6px solid #cc9000;text-align:center;max-width:360px;width:100%;font-family:Nunito,sans-serif;animation:wormPop .4s cubic-bezier(.175,.885,.32,1.275);">'
-        + '<div style="font-size:72px;margin-bottom:8px;display:inline-block;animation:wormWiggle 1s ease infinite;">🐦</div>'
-        + '<div style="font-size:72px;margin-bottom:16px;display:inline-block;animation:wormWiggle 1s ease infinite .15s;">🪱</div>'
-        + '<div style="font-size:26px;font-weight:900;color:#fff;letter-spacing:-.5px;margin-bottom:8px;text-shadow:0 2px 0 rgba(0,0,0,.15);">THE EARLY BIRD GETS THE WORM!</div>'
-        + '<div style="font-size:15px;font-weight:800;color:rgba(255,255,255,.9);margin-bottom:24px;">You absolute legend — most people are still asleep. Go smash this lesson! 🔥</div>'
-        + '<button id="worm-go-btn" style="width:100%;padding:15px;background:#fff;color:#cc7000;border:none;border-radius:16px;font-size:17px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 0 rgba(0,0,0,.15);margin-bottom:10px;">🌅 Let\'s Get That Worm →</button>'
-        + '<button onclick="this.closest(\'div\').parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;">maybe later...</button>'
-        + '</div>';
-
-    var lateHtml = '<div style="background:linear-gradient(135deg,#1CB0F6 0%,#0d8fd4 100%);padding:36px 28px;border-radius:24px;border:2px solid #1899D6;border-bottom:6px solid #1266a8;text-align:center;max-width:360px;width:100%;font-family:Nunito,sans-serif;animation:wormPop .4s cubic-bezier(.175,.885,.32,1.275);">'
-        + '<div style="font-size:72px;margin-bottom:8px;display:inline-block;">😴</div>'
-        + '<div style="font-size:26px;font-weight:900;color:#fff;letter-spacing:-.5px;margin-bottom:8px;">The worm is asleep...</div>'
-        + '<div style="font-size:15px;font-weight:800;color:rgba(255,255,255,.9);margin-bottom:8px;">This quest is for early birds only — before 10 AM!</div>'
-        + '<div style="background:rgba(255,255,255,.15);border-radius:14px;padding:14px;margin-bottom:20px;">'
-        + '<div style="font-size:13px;font-weight:800;color:rgba(255,255,255,.8);">⏰ Set an alarm and come back tomorrow morning</div></div>'
-        + '<button id="worm-go-btn" style="width:100%;padding:15px;background:#FFC800;color:#111827;border:none;border-radius:16px;font-size:17px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 0 rgba(0,0,0,.2);margin-bottom:10px;">📚 Do Today\'s Other Lessons Instead</button>'
-        + '<button onclick="this.closest(\'div\').parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;">close</button>'
-        + '</div>';
-
-    overlay.innerHTML = isEarlyBird ? earlyHtml : lateHtml;
-
-    var wormStyle = document.createElement('style');
-    wormStyle.textContent = '@keyframes wormPop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}} @keyframes wormWiggle{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}';
-    document.head.appendChild(wormStyle);
-    document.body.appendChild(overlay);
-    overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.remove(); });
-
-    setTimeout(function() {
-        var goBtn = document.getElementById('worm-go-btn');
-        if (goBtn) goBtn.addEventListener('click', function(){ window.location.href = '/'; });
-    }, 50);
-});
-            // Tick the timer every second
-            setInterval(function() {
-                var el = document.getElementById('dc-quest-timer');
-                if (!el) return;
-                var now = new Date(), mid = new Date(now);
-                mid.setHours(24,0,0,0);
-                var diff = mid - now;
-                var h = Math.floor(diff/3600000);
-                var m = Math.floor((diff%3600000)/60000);
-                el.textContent = '⏰ ' + h + 'h ' + m + 'm left';
-            }, 60000);
-        })();
-        <\/script>`;
-}
-
-// ── COMPLETED STATE ──────────────────────────────────────────
-function renderCompletedState(challenge, tomorrow, time) {
-    return `
-        <div class="dc-quest-card dc-quest-done" id="dc-quest-card">
-            <div class="dc-quest-done-confetti">🎊</div>
-
-            <div class="dc-quest-done-top">
-                <div class="dc-quest-done-check">✓</div>
-                <div>
-                    <div class="dc-quest-done-title">Quest Complete!</div>
-                    <div class="dc-quest-done-sub">${challenge.title} · +${challenge.xpReward} XP earned</div>
-                </div>
-            </div>
-
-            <div class="dc-quest-done-msg">${challenge.motivational}</div>
-
-            <div class="dc-quest-tomorrow">
-                <div class="dc-quest-tomorrow-label">⏳ Next challenge unlocks in</div>
-                <div class="dc-quest-tomorrow-timer" id="dc-tomorrow-timer">${time.label}</div>
-                <div class="dc-quest-tomorrow-preview">
-                    <span class="dc-tomorrow-icon">${tomorrow.icon}</span>
-                    <div>
-                        <div class="dc-tomorrow-name">Tomorrow: ${tomorrow.title}</div>
-                        <div class="dc-tomorrow-desc">${tomorrow.description}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        ${DC_QUEST_CSS}
-        <script>
-        (function() {
-            setInterval(function() {
-                var el = document.getElementById('dc-tomorrow-timer');
-                if (!el) return;
-                var now = new Date(), mid = new Date(now);
-                mid.setHours(24,0,0,0);
-                var diff = mid - now;
-                var h = Math.floor(diff/3600000);
-                var m = Math.floor((diff%3600000)/60000);
-                el.textContent = h + 'h ' + m + 'm';
-            }, 60000);
-        })();
-        <\/script>`;
-}
-
-// ── CSS ──────────────────────────────────────────────────────
-const DC_QUEST_CSS = `<style>
+// ── INJECT CSS ONCE ──────────────────────────────────────────
+function injectCSS() {
+    if (document.getElementById('dc-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'dc-styles';
+    style.textContent = `
 .dc-quest-card {
     background: linear-gradient(135deg, #1CB0F6 0%, #0d8fd4 100%);
     border: 2px solid #1899D6;
@@ -317,6 +150,7 @@ const DC_QUEST_CSS = `<style>
     position: relative;
     overflow: hidden;
     font-family: 'Nunito', -apple-system, sans-serif;
+    margin-bottom: 16px;
 }
 .dc-quest-glow {
     position: absolute; inset: 0; pointer-events: none;
@@ -383,8 +217,6 @@ const DC_QUEST_CSS = `<style>
 }
 .dc-quest-btn:active { border-bottom-width: 2px; transform: translateY(3px); }
 .dc-quest-arrow { font-size: 20px; font-weight: 900; }
-
-/* ── COMPLETED STATE ── */
 .dc-quest-done {
     background: linear-gradient(135deg, #58CC02 0%, #48a800 100%);
     border-color: #58A700;
@@ -409,20 +241,14 @@ const DC_QUEST_CSS = `<style>
     from { transform: scale(0) rotate(-20deg); opacity: 0; }
     to   { transform: scale(1) rotate(0deg);   opacity: 1; }
 }
-.dc-quest-done-title {
-    font-size: 22px; font-weight: 900; color: #fff; letter-spacing: -.3px;
-}
-.dc-quest-done-sub {
-    font-size: 13px; font-weight: 800; color: rgba(255,255,255,.8); margin-top: 2px;
-}
+.dc-quest-done-title { font-size: 22px; font-weight: 900; color: #fff; letter-spacing: -.3px; }
+.dc-quest-done-sub { font-size: 13px; font-weight: 800; color: rgba(255,255,255,.8); margin-top: 2px; }
 .dc-quest-done-msg {
     font-size: 14px; font-weight: 800; color: rgba(255,255,255,.9);
     background: rgba(255,255,255,.15); border-radius: 12px;
     padding: 10px 14px; margin-bottom: 16px; font-style: italic;
 }
-.dc-quest-tomorrow {
-    background: rgba(0,0,0,.15); border-radius: 16px; padding: 14px 16px;
-}
+.dc-quest-tomorrow { background: rgba(0,0,0,.15); border-radius: 16px; padding: 14px 16px; }
 .dc-quest-tomorrow-label {
     font-size: 11px; font-weight: 900; text-transform: uppercase;
     letter-spacing: 1.5px; color: rgba(255,255,255,.7); margin-bottom: 4px;
@@ -436,13 +262,161 @@ const DC_QUEST_CSS = `<style>
     background: rgba(255,255,255,.12); border-radius: 12px; padding: 10px 12px;
 }
 .dc-tomorrow-icon { font-size: 28px; flex-shrink: 0; }
-.dc-tomorrow-name {
-    font-size: 14px; font-weight: 900; color: #fff; margin-bottom: 2px;
-}
+.dc-tomorrow-name { font-size: 14px; font-weight: 900; color: #fff; margin-bottom: 2px; }
 .dc-tomorrow-desc { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.75); }
-</style>`;
+@keyframes wormPop { from{transform:scale(.8);opacity:0} to{transform:scale(1);opacity:1} }
+@keyframes wormWiggle { 0%,100%{transform:rotate(-8deg)} 50%{transform:rotate(8deg)} }
+    `;
+    document.head.appendChild(style);
+}
 
-// ── UPDATE PROGRESS (called from lesson completion) ──────────
+// ── RENDER WIDGET ────────────────────────────────────────────
+function renderDailyChallengeWidget(context) {
+    const challenge  = getTodaysChallenge();
+    const tomorrow   = getTomorrowsChallenge();
+    const progress   = getStoredProgress(challenge);
+    const isComplete = progress >= challenge.target;
+    const pct        = Math.min(100, Math.round((progress / challenge.target) * 100));
+    const time       = getTimeUntilMidnight();
+
+    injectCSS();
+
+    if (isComplete) {
+        return renderCompletedState(challenge, tomorrow, time);
+    }
+    return renderActiveState(challenge, progress, pct, time, context);
+}
+
+// ── ACTIVE STATE ─────────────────────────────────────────────
+function renderActiveState(challenge, progress, pct, time, context) {
+    const btnId   = 'dc-go-btn-' + Math.random().toString(36).slice(2, 7);
+    const timerId = 'dc-quest-timer-' + Math.random().toString(36).slice(2, 7);
+
+    // Wire up button AFTER the HTML is in the DOM
+    setTimeout(function() {
+        var btn = document.getElementById(btnId);
+        if (!btn) return;
+
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            // If a lesson picker function exists (homepage/dashboard), use it
+            if (typeof openPicker === 'function') {
+                openPicker();
+                return;
+            }
+
+            // Otherwise show the fun modal
+            showChallengeClickModal();
+        });
+
+        // Tick the timer every minute
+        setInterval(function() {
+            var el = document.getElementById(timerId);
+            if (!el) return;
+            var t = getTimeUntilMidnight();
+            el.textContent = '⏰ ' + t.label + ' left';
+        }, 60000);
+
+    }, 100);
+
+    return '<div class="dc-quest-card" id="dc-quest-card">'
+        + '<div class="dc-quest-glow"></div>'
+        + '<div class="dc-quest-top">'
+        + '<div class="dc-quest-eyebrow">'
+        + '<span>⚔️ Daily Quest</span>'
+        + '<span class="dc-quest-timer" id="' + timerId + '">⏰ ' + time.label + ' left</span>'
+        + '</div>'
+        + '<div class="dc-quest-hero">'
+        + '<div class="dc-quest-icon">' + challenge.icon + '</div>'
+        + '<div class="dc-quest-info">'
+        + '<div class="dc-quest-title">' + challenge.title + '</div>'
+        + '<div class="dc-quest-desc">' + challenge.description + '</div>'
+        + '</div>'
+        + '<div class="dc-quest-xp">+' + challenge.xpReward + '<span>XP</span></div>'
+        + '</div>'
+        + '</div>'
+        + '<div class="dc-quest-progress">'
+        + '<div class="dc-quest-bar-track"><div class="dc-quest-bar-fill" style="width:' + pct + '%"></div></div>'
+        + '<div class="dc-quest-progress-row"><span>' + progress + ' / ' + challenge.target + '</span><span>' + pct + '% complete</span></div>'
+        + '</div>'
+        + '<button class="dc-quest-btn" id="' + btnId + '">' + challenge.ctaLabel + ' <span class="dc-quest-arrow">›</span></button>'
+        + '</div>';
+}
+
+// ── CHALLENGE CLICK MODAL ─────────────────────────────────────
+function showChallengeClickModal() {
+    var isEarlyBird = new Date().getHours() < 10;
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+
+    if (isEarlyBird) {
+        overlay.innerHTML = '<div style="background:linear-gradient(135deg,#FF9500 0%,#FFB800 100%);padding:36px 28px;border-radius:24px;border:2px solid #E5B400;border-bottom:6px solid #cc9000;text-align:center;max-width:360px;width:100%;font-family:Nunito,sans-serif;animation:wormPop .4s cubic-bezier(.175,.885,.32,1.275);">'
+            + '<div style="font-size:72px;margin-bottom:4px;display:inline-block;animation:wormWiggle 1s ease infinite;">🐦</div>'
+            + '<div style="font-size:72px;margin-bottom:16px;display:inline-block;animation:wormWiggle 1s ease infinite .15s;">🪱</div>'
+            + '<div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:-.5px;margin-bottom:8px;text-shadow:0 2px 0 rgba(0,0,0,.15);">THE EARLY BIRD GETS THE WORM!</div>'
+            + '<div style="font-size:15px;font-weight:800;color:rgba(255,255,255,.9);margin-bottom:24px;">You absolute legend — most people are still asleep. Go smash this lesson! 🔥</div>'
+            + '<button id="dc-worm-go" style="width:100%;padding:15px;background:#fff;color:#cc7000;border:none;border-radius:16px;font-size:17px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 0 rgba(0,0,0,.15);margin-bottom:10px;">🌅 Let\'s Get That Worm →</button>'
+            + '<button id="dc-worm-close" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;display:block;width:100%;">maybe later...</button>'
+            + '</div>';
+    } else {
+        overlay.innerHTML = '<div style="background:linear-gradient(135deg,#1CB0F6 0%,#0d8fd4 100%);padding:36px 28px;border-radius:24px;border:2px solid #1899D6;border-bottom:6px solid #1266a8;text-align:center;max-width:360px;width:100%;font-family:Nunito,sans-serif;animation:wormPop .4s cubic-bezier(.175,.885,.32,1.275);">'
+            + '<div style="font-size:72px;margin-bottom:12px;display:inline-block;">😴</div>'
+            + '<div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:-.5px;margin-bottom:8px;">The worm is asleep...</div>'
+            + '<div style="font-size:15px;font-weight:800;color:rgba(255,255,255,.9);margin-bottom:8px;">This quest is for early birds only — before 10 AM!</div>'
+            + '<div style="background:rgba(255,255,255,.15);border-radius:14px;padding:14px;margin-bottom:20px;">'
+            + '<div style="font-size:13px;font-weight:800;color:rgba(255,255,255,.8);">⏰ Set an alarm and come back tomorrow morning</div></div>'
+            + '<button id="dc-worm-go" style="width:100%;padding:15px;background:#FFC800;color:#111827;border:none;border-radius:16px;font-size:17px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 0 rgba(0,0,0,.2);margin-bottom:10px;">📚 Do Today\'s Other Lessons Instead</button>'
+            + '<button id="dc-worm-close" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;display:block;width:100%;">close</button>'
+            + '</div>';
+    }
+
+    document.body.appendChild(overlay);
+
+    // Wire buttons directly using getElementById — no setTimeout needed
+    document.getElementById('dc-worm-go').addEventListener('click', function() {
+        window.location.href = '/';
+    });
+    document.getElementById('dc-worm-close').addEventListener('click', function() {
+        overlay.remove();
+    });
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) overlay.remove();
+    });
+}
+
+// ── COMPLETED STATE ──────────────────────────────────────────
+function renderCompletedState(challenge, tomorrow, time) {
+    const timerId = 'dc-tomorrow-timer-' + Math.random().toString(36).slice(2, 7);
+
+    setTimeout(function() {
+        setInterval(function() {
+            var el = document.getElementById(timerId);
+            if (!el) return;
+            var t = getTimeUntilMidnight();
+            el.textContent = t.label;
+        }, 60000);
+    }, 100);
+
+    return '<div class="dc-quest-card dc-quest-done">'
+        + '<div class="dc-quest-done-confetti">🎊</div>'
+        + '<div class="dc-quest-done-top">'
+        + '<div class="dc-quest-done-check">✓</div>'
+        + '<div><div class="dc-quest-done-title">Quest Complete!</div>'
+        + '<div class="dc-quest-done-sub">' + challenge.title + ' · +' + challenge.xpReward + ' XP earned</div></div>'
+        + '</div>'
+        + '<div class="dc-quest-done-msg">' + challenge.motivational + '</div>'
+        + '<div class="dc-quest-tomorrow">'
+        + '<div class="dc-quest-tomorrow-label">⏳ Next challenge unlocks in</div>'
+        + '<div class="dc-quest-tomorrow-timer" id="' + timerId + '">' + time.label + '</div>'
+        + '<div class="dc-quest-tomorrow-preview">'
+        + '<span class="dc-tomorrow-icon">' + tomorrow.icon + '</span>'
+        + '<div><div class="dc-tomorrow-name">Tomorrow: ' + tomorrow.title + '</div>'
+        + '<div class="dc-tomorrow-desc">' + tomorrow.description + '</div></div>'
+        + '</div></div></div>';
+}
+
+// ── UPDATE PROGRESS ──────────────────────────────────────────
 async function updateChallengeProgress(lessonData) {
     const challenge = getTodaysChallenge();
     const today     = new Date().toDateString();
@@ -468,42 +442,37 @@ function showChallengeCompletionCelebration(challenge) {
     const time     = getTimeUntilMidnight();
 
     const overlay = document.createElement('div');
-    overlay.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:99998;display:flex;align-items:center;justify-content:center;padding:20px;`;
-    overlay.innerHTML = `
-        <div style="background:linear-gradient(135deg,#58CC02 0%,#48a800 100%);padding:36px 28px;border-radius:24px;border:2px solid #58A700;border-bottom:6px solid #48a800;text-align:center;max-width:380px;width:100%;font-family:'Nunito',sans-serif;color:#fff;animation:celebIn .4s cubic-bezier(.175,.885,.32,1.275);">
-            <div style="font-size:72px;margin-bottom:8px;animation:celebSpin 1s ease both;">${challenge.icon}</div>
-            <div style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.75);margin-bottom:6px;">Quest Complete!</div>
-            <div style="font-size:28px;font-weight:900;letter-spacing:-.5px;margin-bottom:8px;">${challenge.title}</div>
-            <div style="font-size:14px;font-weight:800;color:rgba(255,255,255,.85);margin-bottom:20px;font-style:italic;">${challenge.motivational}</div>
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:99998;display:flex;align-items:center;justify-content:center;padding:20px;';
+    overlay.innerHTML = '<div style="background:linear-gradient(135deg,#58CC02 0%,#48a800 100%);padding:36px 28px;border-radius:24px;border:2px solid #58A700;border-bottom:6px solid #48a800;text-align:center;max-width:380px;width:100%;font-family:Nunito,sans-serif;color:#fff;">'
+        + '<div style="font-size:72px;margin-bottom:8px;">' + challenge.icon + '</div>'
+        + '<div style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.75);margin-bottom:6px;">Quest Complete!</div>'
+        + '<div style="font-size:28px;font-weight:900;letter-spacing:-.5px;margin-bottom:8px;">' + challenge.title + '</div>'
+        + '<div style="font-size:14px;font-weight:800;color:rgba(255,255,255,.85);margin-bottom:20px;font-style:italic;">' + challenge.motivational + '</div>'
+        + '<div style="background:rgba(255,255,255,.2);border-radius:16px;padding:16px;margin-bottom:16px;">'
+        + '<div style="font-size:48px;font-weight:900;color:#FFC800;">+' + challenge.xpReward + ' XP</div>'
+        + '<div style="font-size:12px;font-weight:800;color:rgba(255,255,255,.75);margin-top:4px;">Bonus reward earned!</div>'
+        + '</div>'
+        + '<div style="background:rgba(0,0,0,.2);border-radius:14px;padding:14px;margin-bottom:20px;text-align:left;">'
+        + '<div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.65);margin-bottom:6px;">Next challenge in ' + time.label + '</div>'
+        + '<div style="display:flex;align-items:center;gap:10px;">'
+        + '<span style="font-size:28px;">' + tomorrow.icon + '</span>'
+        + '<div><div style="font-size:15px;font-weight:900;">' + tomorrow.title + '</div>'
+        + '<div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.75);">' + tomorrow.description + '</div></div>'
+        + '</div></div>'
+        + '<button id="dc-celeb-close" style="width:100%;padding:14px;background:#FFC800;color:#111827;border:2px solid #E5B400;border-bottom:4px solid #E5B400;border-radius:16px;font-size:16px;font-weight:900;cursor:pointer;font-family:inherit;">Let\'s go! 🎉</button>'
+        + '</div>';
 
-            <div style="background:rgba(255,255,255,.2);border-radius:16px;padding:16px;margin-bottom:16px;">
-                <div style="font-size:48px;font-weight:900;color:#FFC800;text-shadow:0 3px 0 rgba(0,0,0,.2);">+${challenge.xpReward} XP</div>
-                <div style="font-size:12px;font-weight:800;color:rgba(255,255,255,.75);margin-top:4px;">Bonus reward earned!</div>
-            </div>
-
-            <div style="background:rgba(0,0,0,.2);border-radius:14px;padding:14px;margin-bottom:20px;text-align:left;">
-                <div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.65);margin-bottom:6px;">Next challenge in ${time.label}</div>
-                <div style="display:flex;align-items:center;gap:10px;">
-                    <span style="font-size:28px;">${tomorrow.icon}</span>
-                    <div>
-                        <div style="font-size:15px;font-weight:900;">${tomorrow.title}</div>
-                        <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.75);">${tomorrow.description}</div>
-                    </div>
-                </div>
-            </div>
-
-            <button onclick="this.closest('div').parentElement.remove()" style="width:100%;padding:14px;background:#FFC800;color:#111827;border:2px solid #E5B400;border-bottom:4px solid #E5B400;border-radius:16px;font-size:16px;font-weight:900;cursor:pointer;font-family:inherit;">
-                Let's go! 🎉
-            </button>
-        </div>`;
     document.body.appendChild(overlay);
-    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+    document.getElementById('dc-celeb-close').addEventListener('click', function() {
+        overlay.remove();
+    });
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) overlay.remove();
+    });
 
     const style = document.createElement('style');
-    style.textContent = `
-        @keyframes celebIn   { from{transform:scale(.8);opacity:0} to{transform:scale(1);opacity:1} }
-        @keyframes celebSpin { 0%{transform:rotate(-20deg) scale(0)} 70%{transform:rotate(8deg) scale(1.1)} 100%{transform:rotate(0deg) scale(1)} }
-    `;
+    style.textContent = '@keyframes celebIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}} @keyframes celebSpin{0%{transform:rotate(-20deg) scale(0)}70%{transform:rotate(8deg) scale(1.1)}100%{transform:rotate(0deg) scale(1)}}';
     document.head.appendChild(style);
 }
 
