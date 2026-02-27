@@ -670,51 +670,68 @@
     // ══════════════════════════════════════════════════════════════════
 
     function renderDCWidget() {
-        const slot = document.getElementById('dc-slot');
-        if (!slot) return;
+    const slot = document.getElementById('dc-slot');
+    if (!slot) return;
 
-        if (window.DailyChallenges) {
-            // ── BUG FIX 1: correct call — no stray semicolon, context passed properly
-            slot.innerHTML = window.DailyChallenges.renderDailyChallengeWidget('dashboard');
-        } else {
-            // Fallback card with direct sprint button
-            slot.innerHTML = `
-                <div class="dc-card">
-                    <div class="dc-eyebrow">⚔️ Daily Quest</div>
-                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">
-                        <span style="font-size:44px;animation:float 3s ease-in-out infinite;display:block;">📝</span>
-                        <div>
-                            <div class="dc-title">Grammar Guru</div>
-                            <div class="dc-desc">Ace 8 grammar questions · earn +60 XP</div>
-                        </div>
+    if (!window.DailyChallenges) {
+        // ── Fallback: DailyChallenges script hasn't loaded ────────
+        // Show grammar guru card only if that's actually today's challenge.
+        // For safety we just show a generic "complete a lesson" CTA.
+        slot.innerHTML = `
+            <div class="dc-card">
+                <div class="dc-eyebrow">⚔️ Daily Quest</div>
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">
+                    <span style="font-size:44px;animation:float 3s ease-in-out infinite;display:block;">📝</span>
+                    <div>
+                        <div class="dc-title">Daily Challenge</div>
+                        <div class="dc-desc">Complete a lesson to earn bonus XP today</div>
                     </div>
-                    <button onclick="openSprint()" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px 20px;background:var(--yellow);color:var(--ink-bold);font-size:16px;font-weight:900;border-radius:var(--rsm);border:2px solid var(--yellow-shadow);border-bottom:5px solid var(--yellow-shadow);cursor:pointer;font-family:inherit;transition:transform .1s,border-bottom-width .1s;">
-                        ✏️ Start Grammar Sprint →
-                    </button>
-                </div>`;
-            return;
-        }
-
-        // ── BUG FIX 2: intercept the button rendered by DailyChallenges
-        // It uses a random id and wires click → openPicker() which doesn't exist here.
-        // We scan for any button/link pointing nowhere and re-wire to openSprint().
-        setTimeout(() => {
-            slot.querySelectorAll('button, a').forEach(el => {
-                const href = el.getAttribute('href');
-                if (!href || href === '#' || href === '') {
-                    el.removeAttribute('href');
-                    // Clone to nuke any existing listeners from the injected <script>
-                    const fresh = el.cloneNode(true);
-                    el.parentNode.replaceChild(fresh, el);
-                    fresh.addEventListener('click', e => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        openSprint();
-                    });
-                }
-            });
-        }, 120);
+                </div>
+                <a href="/" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px 20px;background:var(--yellow);color:var(--ink-bold);font-size:16px;font-weight:900;border-radius:var(--rsm);border:2px solid var(--yellow-shadow);border-bottom:5px solid var(--yellow-shadow);cursor:pointer;font-family:inherit;text-decoration:none;">
+                    🚀 Browse Lessons →
+                </a>
+            </div>`;
+        return;
     }
+
+    // ── Render the widget HTML from the system ────────────────────
+    slot.innerHTML = window.DailyChallenges.renderDailyChallengeWidget('dashboard');
+
+    // ── Register the challenge-aware button handler ───────────────
+    // daily-challenges-system.js checks for window._dcButtonHandler before
+    // doing anything else, so this completely takes over routing on this page.
+    window._dcButtonHandler = function(challenge) {
+        handleDCButtonForChallenge(challenge);
+    };
+}
+
+// ── Challenge-aware routing ───────────────────────────────────────
+// Called when the user clicks the widget CTA button on the dashboard.
+// Each challenge id maps to the right action for THIS page.
+function handleDCButtonForChallenge(challenge) {
+    if (!challenge) return;
+
+    switch (challenge.id) {
+
+        case 'grammar_guru':
+            // The dashboard has a built-in Grammar Sprint — use it
+            openSprint();
+            break;
+
+        case 'perfect_score':
+        case 'vocab_learner':
+        case 'speed_run':
+        case 'double_trouble':
+        case 'weekend_warrior':
+        case 'early_bird':
+        default:
+            // All other challenges require completing an actual lesson.
+            // Send them to the lesson picker.
+            window.location.href = '/';
+            break;
+    }
+}
+
 
     // ══════════════════════════════════════════════════════════════════
     //  TOAST
