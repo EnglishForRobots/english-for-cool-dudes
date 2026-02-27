@@ -235,8 +235,16 @@ function renderActiveState(challenge, progress, pct, time, context) {
 
     overlay.innerHTML = isEarlyBird ? earlyHtml : lateHtml;
 
-    var goBtn = document.getElementById('worm-go-btn');
-    if (goBtn) goBtn.addEventListener('click', function(){ window.location.href = '/'; });
+    var wormStyle = document.createElement('style');
+    wormStyle.textContent = '@keyframes wormPop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}} @keyframes wormWiggle{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}';
+    document.head.appendChild(wormStyle);
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.remove(); });
+
+    setTimeout(function() {
+        var goBtn = document.getElementById('worm-go-btn');
+        if (goBtn) goBtn.addEventListener('click', function(){ window.location.href = '/'; });
+    }, 50);
 });
             // Tick the timer every second
             setInterval(function() {
