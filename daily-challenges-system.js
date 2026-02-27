@@ -604,6 +604,15 @@ document.addEventListener('click', function(e) {
     // If the page exposes an openPicker function, use it (homepage/picker context)
     if (typeof openPicker === 'function') { openPicker(); return; }
 
+    // If the dashboard has registered a per-challenge handler, use that instead.
+    // The dashboard calls window.registerDCButtonHandler(fn) after rendering
+    // the widget so it can wire the correct action for the active challenge
+    // (e.g. grammar sprint for grammar_guru, lesson picker for perfect_score, etc.)
+    if (typeof window._dcButtonHandler === 'function') {
+        window._dcButtonHandler(getTodaysChallenge());
+        return;
+    }
+
     // Detect whether we're on a lesson page (has exercises/sections) or a
     // homepage/picker (no lesson content to activate Perfect Score Mode against).
     // A lesson page will have the #sections element that build() populates.
