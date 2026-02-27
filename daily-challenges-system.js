@@ -317,19 +317,6 @@ function renderActiveState(challenge, progress, pct, time, context) {
 }
 
 
-    document.body.appendChild(overlay);
-
-    // Wire buttons directly using getElementById — no setTimeout needed
-    document.getElementById('dc-worm-go').addEventListener('click', function() {
-        window.location.href = '/';
-    });
-    document.getElementById('dc-worm-close').addEventListener('click', function() {
-        overlay.remove();
-    });
-    overlay.addEventListener('click', function(e) {
-        if (e.target === overlay) overlay.remove();
-    });
-}
 
 // ── COMPLETED STATE ──────────────────────────────────────────
 function renderCompletedState(challenge, tomorrow, time) {
