@@ -356,9 +356,19 @@ function renderCompletedState(challenge, tomorrow, time) {
 }
 
 // ── CONTEXT DETECTION ────────────────────────────────────────
-// Dashboard = has #dc-slot.  Lesson page = has #sections.
+// Dashboard = has #dc-slot.
+// Lesson page = has #sections (old lessons) OR .quest-section (new lessons).
+// Key rule: if it is NOT the dashboard, it is a lesson page.
+// This future-proofs against any new lesson template structure.
 function isOnDashboard() { return !!document.getElementById('dc-slot'); }
-function isOnLessonPage() { return !!document.getElementById('sections'); }
+function isOnLessonPage() {
+    if (isOnDashboard()) return false;
+    return !!(
+        document.getElementById('sections')         ||  // old lesson format
+        document.querySelector('.quest-section')    ||  // new lesson format
+        document.getElementById('daily-challenge-widget') // any lesson with widget
+    );
+}
 
 // ── SESSION STORAGE KEY — HUD persists across page load ──────
 var DC_HUD_KEY = 'dc_active_hud';
@@ -520,7 +530,9 @@ function activateChallengeHUD(ch, navigateAfter) {
                 } else {
                     // Lesson page flow: build HUD and stay here
                     buildHUD(ch, acc, bg, shd);
-                    var sections = document.getElementById('sections') || document.querySelector('.lesson-banner');
+                    var sections = document.getElementById('sections')
+                        || document.querySelector('.quest-section.active')
+                        || document.querySelector('.lesson-banner');
                     if (sections) sections.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             }, 800);
