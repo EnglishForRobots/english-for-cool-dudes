@@ -15,6 +15,7 @@ const DAILY_CHALLENGES = {
         ctaLabel:    '🎯 Pick a Lesson',
         ctaAction:   'picker',
         motivational: "You've got an eye for detail — keep it up!",
+        color:       '#1a1a2e', colorAccent: '#FFC800', colorShadow: '#E5B400',
         checkProgress: (cur, data) => data?.perfectScore === true ? 1 : cur,
     },
     vocab_learner: {
@@ -27,6 +28,7 @@ const DAILY_CHALLENGES = {
         ctaLabel:    '📖 Find a Vocab Lesson',
         ctaAction:   'picker',
         motivational: "Your vocabulary is growing fast — impressive!",
+        color:       '#6B21A8', colorAccent: '#CE82FF', colorShadow: '#A559D9',
         checkProgress: (cur, data) => Math.min(cur + (data?.vocabCount || 0), 10),
     },
     speed_run: {
@@ -39,6 +41,7 @@ const DAILY_CHALLENGES = {
         ctaLabel:    '⚡ Start a Quick Lesson',
         ctaAction:   'picker',
         motivational: "Fast AND smart — that's the Cool Dude way!",
+        color:       '#92400E', colorAccent: '#FFC800', colorShadow: '#E5B400',
         checkProgress: (cur, data) => (data?.completionTime && data.completionTime < 480) ? 1 : cur,
     },
     double_trouble: {
@@ -51,6 +54,7 @@ const DAILY_CHALLENGES = {
         ctaLabel:    '🚀 Start a Lesson',
         ctaAction:   'picker',
         motivational: "Two lessons in one day — you're on fire! 🔥",
+        color:       '#991B1B', colorAccent: '#FF4B4B', colorShadow: '#EA2B2B',
         checkProgress: (cur) => cur + 1,
     },
     early_bird: {
@@ -63,6 +67,7 @@ const DAILY_CHALLENGES = {
         ctaLabel:    '🌅 Start Early',
         ctaAction:   'picker',
         motivational: "Early mornings = early wins. Respect!",
+        color:       '#92400E', colorAccent: '#FFB800', colorShadow: '#cc9000',
         checkProgress: (cur) => new Date().getHours() < 10 ? 1 : cur,
     },
     weekend_warrior: {
@@ -75,6 +80,7 @@ const DAILY_CHALLENGES = {
         ctaLabel:    '🎮 Pick Any Lesson',
         ctaAction:   'picker',
         motivational: "Who said weekends are for rest? Legend status!",
+        color:       '#065F46', colorAccent: '#2BDECC', colorShadow: '#1FBFAF',
         checkProgress: (cur) => { const d = new Date().getDay(); return (d===0||d===6) ? 1 : cur; },
     },
     grammar_guru: {
@@ -87,6 +93,7 @@ const DAILY_CHALLENGES = {
         ctaLabel:    '✏️ Accept the Challenge',
         ctaAction:   'picker',
         motivational: "Grammar master in the making — brilliant!",
+        color:       '#1e3a5f', colorAccent: '#1CB0F6', colorShadow: '#1899D6',
         checkProgress: (cur, data) => data?.grammarPerfect === true ? 1 : cur,
     },
 };
@@ -349,23 +356,14 @@ function renderCompletedState(challenge, tomorrow, time) {
 }
 
 // ── CHALLENGE CLICK MODAL ────────────────────────────────────
-// Works on ANY lesson page — called by global event delegation below.
-// Receives the ACTIVE challenge object (already resolved by getTodaysChallenge).
-// We check challenge.id directly — never sniff the day here.
-function showChallengeClickModal(challenge) {
-    var ch = challenge || getTodaysChallenge();
-
-    // The early_bird worm modal only appears when the challenge that is
-    // actually ACTIVE right now is early_bird — meaning it's Friday AND
-    // it's before 10am (getTodaysChallenge already handles the fallback:
-    // after 10am on Friday it returns perfect_score, not early_bird).
-    var isLiveEarlyBird = ch.id === 'early_bird';
-
+// Works on ANY lesson page — called by global event delegation below
+function showChallengeClickModal() {
+    var ch = getTodaysChallenge();
     var overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
 
-    if (isLiveEarlyBird) {
-        // Active challenge IS early_bird and we're still before 10am — hype them up
+    if (ch.id === 'early_bird') {
+        // Early bird gets the worm treatment
         overlay.innerHTML = '<div style="background:linear-gradient(135deg,#FF9500 0%,#FFB800 100%);padding:36px 28px;border-radius:24px;border:2px solid #E5B400;border-bottom:6px solid #cc9000;text-align:center;max-width:360px;width:100%;font-family:Nunito,sans-serif;">'
             + '<div style="font-size:72px;margin-bottom:4px;display:inline-block;animation:wormWiggle 1s ease infinite;">🐦</div>'
             + '<div style="font-size:72px;margin-bottom:16px;display:inline-block;animation:wormWiggle 1s ease infinite .15s;">🪱</div>'
@@ -374,62 +372,44 @@ function showChallengeClickModal(challenge) {
             + '<button id="dc-modal-go" style="width:100%;padding:15px;background:#fff;color:#cc7000;border:none;border-radius:16px;font-size:17px;font-weight:900;cursor:pointer;margin-bottom:10px;box-shadow:0 4px 0 rgba(0,0,0,.15);">🌅 Let\'s get that worm — start now!</button>'
             + '<button id="dc-modal-close" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:13px;font-weight:800;cursor:pointer;display:block;width:100%;">I\'ll do it later...</button>'
             + '</div>';
-    } else if (ch.id === 'perfect_score') {
-        // ── PERFECT SCORE: dramatic activation modal ──────────────
-        overlay.innerHTML = '<div id="dc-ps-modal" style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);padding:36px 28px;border-radius:24px;border:2px solid #FFC800;border-bottom:6px solid #E5B400;text-align:center;max-width:360px;width:100%;font-family:Nunito,sans-serif;position:relative;overflow:hidden;">'
-            + '<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(255,200,0,.15) 0%,transparent 65%);pointer-events:none;"></div>'
-            + '<div style="font-size:72px;margin-bottom:8px;display:inline-block;animation:dcPsSpin 3s linear infinite;">💯</div>'
-            + '<div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:3px;color:#FFC800;margin-bottom:8px;">Challenge Accepted</div>'
-            + '<div style="font-size:26px;font-weight:900;color:#fff;letter-spacing:-.5px;margin-bottom:10px;">Perfect Score Mode</div>'
-            + '<div style="font-size:14px;font-weight:800;color:rgba(255,255,255,.75);margin-bottom:24px;line-height:1.6;">Zero mistakes. Every exercise. A golden badge waits at the end.</div>'
-            + '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">'
-            + '<div style="background:rgba(255,200,0,.1);border:1.5px solid rgba(255,200,0,.3);border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:10px;text-align:left;">'
-            + '<span style="font-size:20px;">✅</span><span style="font-size:13px;font-weight:800;color:rgba(255,255,255,.85);">A live mistake counter tracks every answer</span></div>'
-            + '<div style="background:rgba(255,200,0,.1);border:1.5px solid rgba(255,200,0,.3);border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:10px;text-align:left;">'
-            + '<span style="font-size:20px;">🎯</span><span style="font-size:13px;font-weight:800;color:rgba(255,255,255,.85);">Finish clean and earn +' + ch.xpReward + ' bonus XP</span></div>'
-            + '<div style="background:rgba(255,200,0,.1);border:1.5px solid rgba(255,200,0,.3);border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:10px;text-align:left;">'
-            + '<span style="font-size:20px;">💀</span><span style="font-size:13px;font-weight:800;color:rgba(255,255,255,.85);">One wrong answer and the run is over</span></div>'
-            + '</div>'
-            + '<button id="dc-modal-go" style="width:100%;padding:16px;background:linear-gradient(135deg,#FFC800,#FFA000);color:#111827;border:2px solid #E5B400;border-bottom:5px solid #cc8800;border-radius:16px;font-size:17px;font-weight:900;cursor:pointer;margin-bottom:10px;letter-spacing:-.2px;">💯 Activate Perfect Score Mode</button>'
-            + '<button id="dc-modal-close" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:13px;font-weight:800;cursor:pointer;display:block;width:100%;">not today</button>'
-            + '</div>';
-
-        document.body.appendChild(overlay);
-
-        document.getElementById('dc-modal-go').addEventListener('click', function() {
-            // Dramatic activation flash then launch HUD
-            var modal = document.getElementById('dc-ps-modal');
-            modal.style.transition = 'transform .15s ease, opacity .3s ease';
-            modal.style.transform  = 'scale(1.04)';
-            setTimeout(function() {
-                modal.style.transform = 'scale(0)';
-                modal.style.opacity   = '0';
-            }, 120);
-            setTimeout(function() {
-                overlay.remove();
-                activatePerfectScoreMode();
-            }, 380);
-        });
-        document.getElementById('dc-modal-close').addEventListener('click', function() { overlay.remove(); });
-        overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
-        return; // early return — buttons already wired above
-
     } else {
-        // Any other challenge (vocab_learner, speed_run, double_trouble, grammar_guru, weekend_warrior)
-        overlay.innerHTML = '<div style="background:linear-gradient(135deg,#1CB0F6 0%,#0d8fd4 100%);padding:36px 28px;border-radius:24px;border:2px solid #1899D6;border-bottom:6px solid #1266a8;text-align:center;max-width:360px;width:100%;font-family:Nunito,sans-serif;">'
+        // All other challenges — coloured modal with launch sequence
+        var bg  = ch.color       || '#1CB0F6';
+        var acc = ch.colorAccent || '#FFC800';
+        var shd = ch.colorShadow || '#E5B400';
+        overlay.innerHTML = '<div id="dc-launch-card" style="background:' + bg + ';padding:36px 28px;border-radius:24px;border:2px solid ' + acc + ';border-bottom:6px solid ' + shd + ';text-align:center;max-width:360px;width:100%;font-family:Nunito,sans-serif;">'
             + '<div style="font-size:72px;margin-bottom:12px;display:inline-block;">' + ch.icon + '</div>'
-            + '<div style="font-size:24px;font-weight:900;color:#fff;margin-bottom:8px;">' + ch.title + '</div>'
-            + '<div style="font-size:15px;font-weight:800;color:rgba(255,255,255,.9);margin-bottom:20px;">' + ch.description + '</div>'
-            + '<button id="dc-modal-go" style="width:100%;padding:15px;background:#FFC800;color:#111827;border:none;border-radius:16px;font-size:17px;font-weight:900;cursor:pointer;margin-bottom:10px;box-shadow:0 4px 0 rgba(0,0,0,.2);">🚀 Let\'s do this!</button>'
-            + '<button id="dc-modal-other" style="width:100%;padding:13px;background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.4);border-radius:16px;font-size:15px;font-weight:900;cursor:pointer;margin-bottom:10px;">🏠 Browse all lessons</button>'
-            + '<button id="dc-modal-close" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:13px;font-weight:800;cursor:pointer;display:block;width:100%;">maybe later</button>'
+            + '<div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:3px;color:' + acc + ';margin-bottom:6px;">Challenge Accepted</div>'
+            + '<div style="font-size:26px;font-weight:900;color:#fff;letter-spacing:-.5px;margin-bottom:8px;">' + ch.title + '</div>'
+            + '<div style="font-size:14px;font-weight:800;color:rgba(255,255,255,.8);margin-bottom:20px;line-height:1.6;">' + ch.description + '</div>'
+            + '<div style="background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);border-radius:12px;padding:12px 14px;margin-bottom:20px;display:flex;align-items:center;justify-content:center;gap:8px;">'
+            + '<span style="font-size:20px;">⚡</span>'
+            + '<span style="font-size:14px;font-weight:900;color:' + acc + ';">+' + ch.xpReward + ' XP bonus on completion!</span>'
+            + '</div>'
+            + '<button id="dc-modal-go" style="width:100%;padding:16px;background:' + acc + ';color:#111827;border:2px solid ' + shd + ';border-bottom:5px solid ' + shd + ';border-radius:16px;font-size:17px;font-weight:900;cursor:pointer;margin-bottom:10px;letter-spacing:-.2px;">🚀 Let's do this!</button>'
+            + '<button id="dc-modal-other" style="width:100%;padding:13px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.8);border:2px solid rgba(255,255,255,.2);border-radius:16px;font-size:15px;font-weight:900;cursor:pointer;margin-bottom:10px;">🏠 Browse all lessons</button>'
+            + '<button id="dc-modal-close" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:13px;font-weight:800;cursor:pointer;display:block;width:100%;">maybe later</button>'
             + '</div>';
     }
 
     document.body.appendChild(overlay);
 
     document.getElementById('dc-modal-go').addEventListener('click', function() {
-        overlay.remove();
+        var card = document.getElementById('dc-launch-card') || overlay.querySelector('div');
+        // Dramatic scale-out
+        card.style.transition = 'transform .2s ease, opacity .25s ease';
+        card.style.transform  = 'scale(1.05)';
+        setTimeout(function() {
+            card.style.transform = 'scale(0)';
+            card.style.opacity   = '0';
+        }, 120);
+        setTimeout(function() {
+            overlay.remove();
+            // Only activate HUD on lesson pages
+            if (document.getElementById('sections')) {
+                activateChallengeHUD(ch);
+            }
+        }, 350);
     });
     var otherBtn = document.getElementById('dc-modal-other');
     if (otherBtn) otherBtn.addEventListener('click', function() {
@@ -443,154 +423,98 @@ function showChallengeClickModal(challenge) {
     });
 }
 
-// ── PERFECT SCORE MODE ───────────────────────────────────────
-// State
-var _psActive   = false;
-var _psMistakes = 0;
-var _psHUD      = null;
+// ── CHALLENGE HUD LAUNCH SEQUENCE ────────────────────────────
+// Full-screen flash → 3-second countdown → HUD slides in → scroll to lesson
+function activateChallengeHUD(ch) {
+    if (document.getElementById('dc-hud')) return; // already active
 
-function activatePerfectScoreMode() {
-    if (_psActive) return;
-    _psActive   = true;
-    _psMistakes = 0;
+    var acc = ch.colorAccent || '#FFC800';
+    var bg  = ch.color       || '#1CB0F6';
+    var shd = ch.colorShadow || '#E5B400';
 
-    // Inject spin keyframe for modal icon if not already present
-    if (!document.getElementById('dc-ps-styles')) {
+    // Inject HUD keyframes once
+    if (!document.getElementById('dc-hud-styles')) {
         var s = document.createElement('style');
-        s.id  = 'dc-ps-styles';
+        s.id  = 'dc-hud-styles';
         s.textContent = `
-@keyframes dcPsSpin { 0%{transform:rotate(0deg) scale(1)} 25%{transform:rotate(-8deg) scale(1.1)} 75%{transform:rotate(8deg) scale(1.1)} 100%{transform:rotate(0deg) scale(1)} }
-@keyframes dcHudIn  { from{transform:translateY(-110%) scale(.96);opacity:0} to{transform:translateY(0) scale(1);opacity:1} }
-@keyframes dcHudShake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
-@keyframes dcHudPulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,200,0,.5)} 50%{box-shadow:0 0 0 8px rgba(255,200,0,0)} }
+@keyframes dcHudSlideIn  { from{transform:translateY(-110%);opacity:0} to{transform:translateY(0);opacity:1} }
+@keyframes dcHudPulse    { 0%,100%{opacity:1} 50%{opacity:.6} }
+@keyframes dcFlashIn     { 0%{opacity:0} 30%{opacity:1} 100%{opacity:0} }
+@keyframes dcCountPop    { 0%{transform:scale(0) rotate(-20deg);opacity:0} 60%{transform:scale(1.2) rotate(5deg)} 100%{transform:scale(1) rotate(0);opacity:1} }
         `;
         document.head.appendChild(s);
     }
 
-    // Build the HUD bar
-    var hud = document.createElement('div');
-    hud.id  = 'dc-ps-hud';
-    hud.style.cssText = [
-        'position:fixed', 'top:0', 'left:0', 'right:0', 'z-index:9000',
-        'background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%)',
-        'border-bottom:3px solid #FFC800',
-        'padding:10px 16px',
-        'display:flex', 'align-items:center', 'justify-content:space-between', 'gap:12px',
-        'font-family:Nunito,-apple-system,sans-serif',
-        'animation:dcHudIn .45s cubic-bezier(.175,.885,.32,1.275) both',
-        'box-shadow:0 4px 24px rgba(0,0,0,.35)'
-    ].join(';');
+    // 1. Full-screen colour flash
+    var flash = document.createElement('div');
+    flash.style.cssText = 'position:fixed;inset:0;background:' + bg + ';z-index:99990;pointer-events:none;animation:dcFlashIn .6s ease both;';
+    document.body.appendChild(flash);
+    setTimeout(function() { flash.remove(); }, 650);
 
-    hud.innerHTML = ''
-        + '<div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">'
-        +   '<span style="font-size:22px;flex-shrink:0;">💯</span>'
-        +   '<div style="min-width:0;">'
-        +     '<div style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:#FFC800;line-height:1;">Perfect Score Mode</div>'
-        +     '<div id="dc-ps-sub" style="font-size:11px;font-weight:800;color:rgba(255,255,255,.6);margin-top:1px;">Stay clean — zero mistakes</div>'
-        +   '</div>'
-        + '</div>'
-        + '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">'
-        +   '<div id="dc-ps-counter" style="'
-        +     'background:rgba(255,200,0,.12);border:2px solid rgba(255,200,0,.4);border-radius:10px;'
-        +     'padding:6px 12px;font-size:13px;font-weight:900;color:#FFC800;white-space:nowrap;'
-        +     'animation:dcHudPulse 2s ease infinite;'
-        +   '">0 mistakes</div>'
-        +   '<button id="dc-ps-dismiss" style="'
-        +     'background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);'
-        +     'border-radius:8px;color:rgba(255,255,255,.4);font-size:16px;font-weight:900;'
-        +     'width:30px;height:30px;cursor:pointer;font-family:inherit;flex-shrink:0;'
-        +     'display:flex;align-items:center;justify-content:center;'
-        +   '">×</button>'
-        + '</div>';
+    // 2. Countdown overlay (3…2…1…GO!)
+    var countEl = document.createElement('div');
+    countEl.style.cssText = 'position:fixed;inset:0;z-index:99991;display:flex;align-items:center;justify-content:center;pointer-events:none;';
+    document.body.appendChild(countEl);
 
-    document.body.prepend(hud);
-    _psHUD = hud;
-
-    // Dismiss button — abandons run
-    document.getElementById('dc-ps-dismiss').addEventListener('click', function() {
-        abandonPerfectScoreMode('You abandoned the run. Try again next time! 👀');
-    });
-
-    // Push page content down so HUD doesn't overlap sticky header
-    document.body.style.paddingTop = (parseInt(document.body.style.paddingTop) || 0) + hud.offsetHeight + 'px';
-
-    // Hook into all answer interactions on the page
-    _installPerfectScoreHooks();
-}
-
-function _updatePSCounter() {
-    var el = document.getElementById('dc-ps-counter');
-    var sub = document.getElementById('dc-ps-sub');
-    if (!el) return;
-    if (_psMistakes === 0) {
-        el.textContent = '0 mistakes';
-        el.style.color       = '#FFC800';
-        el.style.borderColor = 'rgba(255,200,0,.4)';
-        el.style.background  = 'rgba(255,200,0,.12)';
-        if (sub) sub.textContent = 'Stay clean — zero mistakes';
-    } else {
-        el.textContent = _psMistakes + ' mistake' + (_psMistakes > 1 ? 's' : '') + ' ❌';
-        el.style.color       = '#FF4B4B';
-        el.style.borderColor = 'rgba(255,75,75,.5)';
-        el.style.background  = 'rgba(255,75,75,.12)';
-        if (sub) sub.textContent = 'Run is over — no bonus XP';
-        // Shake the HUD
-        if (_psHUD) {
-            _psHUD.style.animation = 'none';
-            void _psHUD.offsetWidth; // reflow
-            _psHUD.style.animation = 'dcHudShake .4s ease both';
+    var counts = ['3', '2', '1', 'GO! 🚀'];
+    var ci = 0;
+    function showCount() {
+        countEl.innerHTML = '<div style="font-size:120px;font-weight:900;font-family:Nunito,sans-serif;color:' + acc + ';text-shadow:0 4px 32px rgba(0,0,0,.4);animation:dcCountPop .35s cubic-bezier(.175,.885,.32,1.275) both;">' + counts[ci] + '</div>';
+        ci++;
+        if (ci < counts.length) {
+            setTimeout(showCount, 700);
+        } else {
+            setTimeout(function() {
+                countEl.remove();
+                buildHUD(ch, acc, bg, shd);
+                // Scroll to top of lesson content
+                var sections = document.getElementById('sections') || document.querySelector('.lesson-banner');
+                if (sections) sections.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 800);
         }
     }
-}
+    setTimeout(showCount, 300); // slight delay after flash
 
-function abandonPerfectScoreMode(msg) {
-    _psActive = false;
-    if (_psHUD) {
-        _psHUD.style.transition = 'transform .3s ease, opacity .3s ease';
-        _psHUD.style.transform  = 'translateY(-110%)';
-        _psHUD.style.opacity    = '0';
-        setTimeout(function() { if (_psHUD) { _psHUD.remove(); _psHUD = null; } }, 320);
-    }
-    // Brief toast
-    var toast = document.createElement('div');
-    toast.style.cssText = 'position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#FF4B4B;color:#fff;font-family:Nunito,sans-serif;font-size:13px;font-weight:900;padding:10px 18px;border-radius:12px;border:2px solid #EA2B2B;z-index:9999;animation:dcHudIn .3s ease both;white-space:nowrap;';
-    toast.textContent = msg || 'Run ended.';
-    document.body.appendChild(toast);
-    setTimeout(function() { toast.style.opacity='0'; toast.style.transition='opacity .3s'; setTimeout(function(){toast.remove();},320); }, 2800);
-}
+    function buildHUD(ch, acc, bg, shd) {
+        var hud = document.createElement('div');
+        hud.id  = 'dc-hud';
+        hud.style.cssText = [
+            'position:fixed', 'top:0', 'left:0', 'right:0', 'z-index:9000',
+            'background:' + bg,
+            'border-bottom:3px solid ' + acc,
+            'padding:10px 16px',
+            'display:flex', 'align-items:center', 'justify-content:space-between', 'gap:12px',
+            'font-family:Nunito,-apple-system,sans-serif',
+            'animation:dcHudSlideIn .5s cubic-bezier(.175,.885,.32,1.275) both',
+            'box-shadow:0 4px 24px rgba(0,0,0,.3)'
+        ].join(';');
 
-function _installPerfectScoreHooks() {
-    // We listen at document level for incorrect answers.
-    // opt-btn incorrect, gram-sel incorrect, gap incorrect, wf-input bad
-    // These classes are added by the lesson's own checkSec() calls.
-    // We use a MutationObserver to watch for those class changes.
+        hud.innerHTML = ''
+            + '<div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">'
+            +   '<span style="font-size:24px;flex-shrink:0;animation:dcHudPulse 2s ease infinite;">' + ch.icon + '</span>'
+            +   '<div style="min-width:0;">'
+            +     '<div style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:' + acc + ';line-height:1;">' + ch.title + ' — Active</div>'
+            +     '<div style="font-size:11px;font-weight:800;color:rgba(255,255,255,.7);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + ch.motivational + '</div>'
+            +   '</div>'
+            + '</div>'
+            + '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">'
+            +   '<div style="background:rgba(255,255,255,.12);border:2px solid ' + acc + ';border-radius:10px;padding:6px 12px;font-size:13px;font-weight:900;color:' + acc + ';white-space:nowrap;">+' + ch.xpReward + ' XP</div>'
+            +   '<button id="dc-hud-dismiss" style="background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);border-radius:8px;color:rgba(255,255,255,.5);font-size:16px;font-weight:900;width:30px;height:30px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;">×</button>'
+            + '</div>';
 
-    var observer = new MutationObserver(function(mutations) {
-        if (!_psActive) { observer.disconnect(); return; }
-        mutations.forEach(function(m) {
-            if (m.type !== 'attributes' || m.attributeName !== 'class') return;
-            var el  = m.target;
-            var cls = el.className || '';
-            // Detect a freshly-added incorrect class (not already counted)
-            var justWrong = (
-                (cls.includes('incorrect') || cls.includes('bad') || cls.includes('chosen-incorrect'))
-                && !el.dataset.psCounted
-            );
-            if (justWrong) {
-                el.dataset.psCounted = '1'; // don't double-count resets
-                _psMistakes++;
-                _updatePSCounter();
-            }
-            // Reset counted flag when element is reset (no longer incorrect)
-            if (!cls.includes('incorrect') && !cls.includes('bad') && !cls.includes('chosen-incorrect')) {
-                delete el.dataset.psCounted;
-            }
+        document.body.prepend(hud);
+
+        // Push content down so HUD doesn't cover sticky header
+        var existingPad = parseInt(document.body.style.paddingTop) || 0;
+        document.body.style.paddingTop = (existingPad + hud.offsetHeight) + 'px';
+
+        document.getElementById('dc-hud-dismiss').addEventListener('click', function() {
+            hud.style.transition = 'transform .3s ease, opacity .3s ease';
+            hud.style.transform  = 'translateY(-110%)';
+            hud.style.opacity    = '0';
+            setTimeout(function() { hud.remove(); }, 320);
         });
-    });
-
-    // Observe the whole lesson content area
-    var target = document.getElementById('sections') || document.body;
-    observer.observe(target, { attributes: true, attributeFilter: ['class'], subtree: true });
+    }
 }
 
 // ── GLOBAL EVENT DELEGATION ──────────────────────────────────
@@ -600,32 +524,7 @@ document.addEventListener('click', function(e) {
     var btn = e.target.closest('.dc-quest-btn');
     if (!btn) return;
     e.preventDefault();
-
-    // If the page exposes an openPicker function, use it (homepage/picker context)
     if (typeof openPicker === 'function') { openPicker(); return; }
-
-    // If the dashboard has registered a per-challenge handler, use that instead.
-    // The dashboard calls window.registerDCButtonHandler(fn) after rendering
-    // the widget so it can wire the correct action for the active challenge
-    // (e.g. grammar sprint for grammar_guru, lesson picker for perfect_score, etc.)
-    if (typeof window._dcButtonHandler === 'function') {
-        window._dcButtonHandler(getTodaysChallenge());
-        return;
-    }
-
-    // Detect whether we're on a lesson page (has exercises/sections) or a
-    // homepage/picker (no lesson content to activate Perfect Score Mode against).
-    // A lesson page will have the #sections element that build() populates.
-    var onLessonPage = !!document.getElementById('sections');
-
-    if (!onLessonPage) {
-        // On homepage or any non-lesson page — just go to the lesson picker.
-        // No modal needed; the widget button IS the navigation.
-        window.location.href = '/';
-        return;
-    }
-
-    // On a lesson page — show the full challenge modal
     showChallengeClickModal(getTodaysChallenge());
 });
 
