@@ -355,15 +355,52 @@ function renderCompletedState(challenge, tomorrow, time) {
         + '</div></div></div>';
 }
 
+// ── CONTEXT DETECTION ────────────────────────────────────────
+// Dashboard = has #dc-slot.  Lesson page = has #sections.
+function isOnDashboard() { return !!document.getElementById('dc-slot'); }
+function isOnLessonPage() { return !!document.getElementById('sections'); }
+
+// ── SESSION STORAGE KEY — HUD persists across page load ──────
+var DC_HUD_KEY = 'dc_active_hud';
+
+function storeHUDChallenge(ch) {
+    try {
+        sessionStorage.setItem(DC_HUD_KEY, JSON.stringify({
+            id:           ch.id,
+            title:        ch.title,
+            icon:         ch.icon,
+            xpReward:     ch.xpReward,
+            motivational: ch.motivational,
+            color:        ch.color,
+            colorAccent:  ch.colorAccent,
+            colorShadow:  ch.colorShadow,
+        }));
+    } catch(_) {}
+}
+
+function loadHUDChallenge() {
+    try {
+        var raw = sessionStorage.getItem(DC_HUD_KEY);
+        return raw ? JSON.parse(raw) : null;
+    } catch(_) { return null; }
+}
+
+function clearHUDChallenge() {
+    try { sessionStorage.removeItem(DC_HUD_KEY); } catch(_) {}
+}
+
 // ── CHALLENGE CLICK MODAL ────────────────────────────────────
-// Works on ANY lesson page — called by global event delegation below
+// Smart modal — knows whether user is on dashboard or lesson page
+// and routes the two primary buttons accordingly.
 function showChallengeClickModal() {
-    var ch = getTodaysChallenge();
+    var ch  = getTodaysChallenge();
+    var onDash = isOnDashboard();
+
     var overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
 
     if (ch.id === 'early_bird') {
-        // Early bird gets the worm treatment
+        // Early bird always gets the worm — context-independent
         overlay.innerHTML = '<div style="background:linear-gradient(135deg,#FF9500 0%,#FFB800 100%);padding:36px 28px;border-radius:24px;border:2px solid #E5B400;border-bottom:6px solid #cc9000;text-align:center;max-width:360px;width:100%;font-family:Nunito,sans-serif;">'
             + '<div style="font-size:72px;margin-bottom:4px;display:inline-block;animation:wormWiggle 1s ease infinite;">🐦</div>'
             + '<div style="font-size:72px;margin-bottom:16px;display:inline-block;animation:wormWiggle 1s ease infinite .15s;">🪱</div>'
@@ -373,10 +410,16 @@ function showChallengeClickModal() {
             + '<button id="dc-modal-close" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:13px;font-weight:800;cursor:pointer;display:block;width:100%;">I\'ll do it later...</button>'
             + '</div>';
     } else {
-        // All other challenges — coloured modal with launch sequence
         var bg  = ch.color       || '#1CB0F6';
         var acc = ch.colorAccent || '#FFC800';
         var shd = ch.colorShadow || '#E5B400';
+
+        // Dashboard: primary CTA = launch countdown + go find lesson
+        // Lesson page: primary CTA = launch countdown right here
+        var goLabel  = onDash
+            ? '🚀 Pick a Lesson — Let&#39;s go!'
+            : 'Let&#39;s do this! 🚀';
+
         overlay.innerHTML = '<div id="dc-launch-card" style="background:' + bg + ';padding:36px 28px;border-radius:24px;border:2px solid ' + acc + ';border-bottom:6px solid ' + shd + ';text-align:center;max-width:360px;width:100%;font-family:Nunito,sans-serif;">'
             + '<div style="font-size:72px;margin-bottom:12px;display:inline-block;">' + ch.icon + '</div>'
             + '<div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:3px;color:' + acc + ';margin-bottom:6px;">Challenge Accepted</div>'
@@ -386,17 +429,17 @@ function showChallengeClickModal() {
             + '<span style="font-size:20px;">⚡</span>'
             + '<span style="font-size:14px;font-weight:900;color:' + acc + ';">+' + ch.xpReward + ' XP bonus on completion!</span>'
             + '</div>'
-            + '<button id="dc-modal-go" style="width:100%;padding:16px;background:' + acc + ';color:#111827;border:2px solid ' + shd + ';border-bottom:5px solid ' + shd + ';border-radius:16px;font-size:17px;font-weight:900;cursor:pointer;margin-bottom:10px;letter-spacing:-.2px;">Let&#39;s do this! 🚀</button>'
-            + '<button id="dc-modal-other" style="width:100%;padding:13px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.8);border:2px solid rgba(255,255,255,.2);border-radius:16px;font-size:15px;font-weight:900;cursor:pointer;margin-bottom:10px;">🏠 Browse all lessons</button>'
+            + '<button id="dc-modal-go" style="width:100%;padding:16px;background:' + acc + ';color:#111827;border:2px solid ' + shd + ';border-bottom:5px solid ' + shd + ';border-radius:16px;font-size:17px;font-weight:900;cursor:pointer;margin-bottom:10px;letter-spacing:-.2px;">' + goLabel + '</button>'
             + '<button id="dc-modal-close" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:13px;font-weight:800;cursor:pointer;display:block;width:100%;">maybe later</button>'
             + '</div>';
     }
 
     document.body.appendChild(overlay);
 
+    // ── PRIMARY BUTTON ────────────────────────────────────────
     document.getElementById('dc-modal-go').addEventListener('click', function() {
         var card = document.getElementById('dc-launch-card') || overlay.querySelector('div');
-        // Dramatic scale-out
+        // Dramatic scale-out animation
         card.style.transition = 'transform .2s ease, opacity .25s ease';
         card.style.transform  = 'scale(1.05)';
         setTimeout(function() {
@@ -405,16 +448,18 @@ function showChallengeClickModal() {
         }, 120);
         setTimeout(function() {
             overlay.remove();
-            // Only activate HUD on lesson pages
-            if (document.getElementById('sections')) {
-                activateChallengeHUD(ch);
+            if (isOnLessonPage()) {
+                // Already on a lesson — run the full countdown + HUD immediately
+                activateChallengeHUD(ch, false);
+            } else {
+                // On dashboard or elsewhere — countdown then navigate to lessons homepage
+                // HUD will auto-restore when user arrives on any lesson page
+                storeHUDChallenge(ch);
+                activateChallengeHUD(ch, true); // true = navigate after countdown
             }
         }, 350);
     });
-    var otherBtn = document.getElementById('dc-modal-other');
-    if (otherBtn) otherBtn.addEventListener('click', function() {
-        window.location.href = '/';
-    });
+
     document.getElementById('dc-modal-close').addEventListener('click', function() {
         overlay.remove();
     });
@@ -424,24 +469,25 @@ function showChallengeClickModal() {
 }
 
 // ── CHALLENGE HUD LAUNCH SEQUENCE ────────────────────────────
-// Full-screen flash → 3-second countdown → HUD slides in → scroll to lesson
-function activateChallengeHUD(ch) {
+// Flash → countdown 3-2-1-GO! → HUD slides in.
+// navigateAfter=true means redirect to / after the countdown (dashboard flow).
+function activateChallengeHUD(ch, navigateAfter) {
     if (document.getElementById('dc-hud')) return; // already active
 
     var acc = ch.colorAccent || '#FFC800';
     var bg  = ch.color       || '#1CB0F6';
     var shd = ch.colorShadow || '#E5B400';
 
-    // Inject HUD keyframes once
+    // Inject keyframes once
     if (!document.getElementById('dc-hud-styles')) {
         var s = document.createElement('style');
         s.id  = 'dc-hud-styles';
-        s.textContent = `
-@keyframes dcHudSlideIn  { from{transform:translateY(-110%);opacity:0} to{transform:translateY(0);opacity:1} }
-@keyframes dcHudPulse    { 0%,100%{opacity:1} 50%{opacity:.6} }
-@keyframes dcFlashIn     { 0%{opacity:0} 30%{opacity:1} 100%{opacity:0} }
-@keyframes dcCountPop    { 0%{transform:scale(0) rotate(-20deg);opacity:0} 60%{transform:scale(1.2) rotate(5deg)} 100%{transform:scale(1) rotate(0);opacity:1} }
-        `;
+        s.textContent = ''
+            + '@keyframes dcHudSlideIn { from{transform:translateY(-110%);opacity:0} to{transform:translateY(0);opacity:1} }'
+            + '@keyframes dcHudPulse   { 0%,100%{opacity:1} 50%{opacity:.6} }'
+            + '@keyframes dcFlashIn    { 0%{opacity:0} 30%{opacity:1} 100%{opacity:0} }'
+            + '@keyframes dcCountPop   { 0%{transform:scale(0) rotate(-20deg);opacity:0} 60%{transform:scale(1.2) rotate(5deg)} 100%{transform:scale(1) rotate(0);opacity:1} }'
+            + '@keyframes dcDestPulse  { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }';
         document.head.appendChild(s);
     }
 
@@ -451,30 +497,67 @@ function activateChallengeHUD(ch) {
     document.body.appendChild(flash);
     setTimeout(function() { flash.remove(); }, 650);
 
-    // 2. Countdown overlay (3…2…1…GO!)
+    // 2. Countdown overlay
     var countEl = document.createElement('div');
     countEl.style.cssText = 'position:fixed;inset:0;z-index:99991;display:flex;align-items:center;justify-content:center;pointer-events:none;';
     document.body.appendChild(countEl);
 
     var counts = ['3', '2', '1', 'GO! 🚀'];
     var ci = 0;
+
     function showCount() {
         countEl.innerHTML = '<div style="font-size:120px;font-weight:900;font-family:Nunito,sans-serif;color:' + acc + ';text-shadow:0 4px 32px rgba(0,0,0,.4);animation:dcCountPop .35s cubic-bezier(.175,.885,.32,1.275) both;">' + counts[ci] + '</div>';
         ci++;
         if (ci < counts.length) {
             setTimeout(showCount, 700);
         } else {
+            // After GO!
             setTimeout(function() {
                 countEl.remove();
-                buildHUD(ch, acc, bg, shd);
-                // Scroll to top of lesson content
-                var sections = document.getElementById('sections') || document.querySelector('.lesson-banner');
-                if (sections) sections.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                if (navigateAfter) {
+                    // Dashboard flow: show a "heading to lessons..." screen, then navigate
+                    showLaunchRedirect(ch, acc, bg, shd);
+                } else {
+                    // Lesson page flow: build HUD and stay here
+                    buildHUD(ch, acc, bg, shd);
+                    var sections = document.getElementById('sections') || document.querySelector('.lesson-banner');
+                    if (sections) sections.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
             }, 800);
         }
     }
-    setTimeout(showCount, 300); // slight delay after flash
+    setTimeout(showCount, 300);
 
+    // ── REDIRECT SCREEN (dashboard only) ─────────────────────
+    // A full-screen "launching…" overlay before navigation.
+    // Keeps the energy alive instead of a cold blank redirect.
+    function showLaunchRedirect(ch, acc, bg, shd) {
+        var redir = document.createElement('div');
+        redir.style.cssText = 'position:fixed;inset:0;background:' + bg + ';z-index:99992;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;font-family:Nunito,sans-serif;';
+        redir.innerHTML = ''
+            + '<div style="font-size:64px;animation:dcDestPulse 1s ease-in-out infinite;">' + ch.icon + '</div>'
+            + '<div style="font-size:22px;font-weight:900;color:#fff;letter-spacing:-.4px;text-align:center;padding:0 20px;">' + ch.title + ' — Challenge Active!</div>'
+            + '<div style="font-size:15px;font-weight:800;color:' + acc + ';text-align:center;padding:0 24px;">' + ch.motivational + '</div>'
+            + '<div style="margin-top:8px;font-size:14px;font-weight:800;color:rgba(255,255,255,.65);">Finding you a lesson… 🚀</div>'
+            + '<div style="width:48px;height:48px;border:4px solid rgba(255,255,255,.3);border-top-color:' + acc + ';border-radius:50%;animation:spin .8s linear infinite;margin-top:4px;"></div>';
+
+        // Add spin keyframe if not already there
+        if (!document.getElementById('dc-spin-style')) {
+            var ss = document.createElement('style');
+            ss.id = 'dc-spin-style';
+            ss.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+            document.head.appendChild(ss);
+        }
+
+        document.body.appendChild(redir);
+
+        // Navigate after a beat so user sees the screen
+        setTimeout(function() {
+            window.location.href = '/';
+        }, 1400);
+    }
+
+    // ── BUILD PERSISTENT HUD ─────────────────────────────────
     function buildHUD(ch, acc, bg, shd) {
         var hud = document.createElement('div');
         hud.id  = 'dc-hud';
@@ -499,23 +582,96 @@ function activateChallengeHUD(ch) {
             + '</div>'
             + '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">'
             +   '<div style="background:rgba(255,255,255,.12);border:2px solid ' + acc + ';border-radius:10px;padding:6px 12px;font-size:13px;font-weight:900;color:' + acc + ';white-space:nowrap;">+' + ch.xpReward + ' XP</div>'
-            +   '<button id="dc-hud-dismiss" style="background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);border-radius:8px;color:rgba(255,255,255,.5);font-size:16px;font-weight:900;width:30px;height:30px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;">×</button>'
+            +   '<button id="dc-hud-dismiss" style="background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);border-radius:8px;color:rgba(255,255,255,.5);font-size:16px;font-weight:900;width:30px;height:30px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;line-height:1;">×</button>'
             + '</div>';
 
         document.body.prepend(hud);
 
-        // Push content down so HUD doesn't cover sticky header
         var existingPad = parseInt(document.body.style.paddingTop) || 0;
         document.body.style.paddingTop = (existingPad + hud.offsetHeight) + 'px';
 
         document.getElementById('dc-hud-dismiss').addEventListener('click', function() {
+            clearHUDChallenge(); // User dismissed = clear persistence
             hud.style.transition = 'transform .3s ease, opacity .3s ease';
             hud.style.transform  = 'translateY(-110%)';
             hud.style.opacity    = '0';
+            var pad = parseInt(document.body.style.paddingTop) || 0;
+            document.body.style.paddingTop = Math.max(0, pad - hud.offsetHeight) + 'px';
             setTimeout(function() { hud.remove(); }, 320);
         });
     }
 }
+
+// ── AUTO-RESTORE HUD ON LESSON PAGES ─────────────────────────
+// If user was sent here from the dashboard launch sequence,
+// the challenge is stored in sessionStorage. Restore the HUD silently.
+(function restoreHUDIfNeeded() {
+    // Only restore on lesson pages, not the dashboard itself
+    if (isOnDashboard()) { return; }
+    var stored = loadHUDChallenge();
+    if (!stored) return;
+    // Don't restore if challenge is already completed
+    var ch = getTodaysChallenge();
+    var progress = getStoredProgress(ch);
+    if (progress >= ch.target) { clearHUDChallenge(); return; }
+    // Restore without the countdown — user has already seen it
+    // Small delay so page paints first
+    setTimeout(function() {
+        if (document.getElementById('dc-hud')) return;
+
+        var acc = stored.colorAccent || '#FFC800';
+        var bg  = stored.color       || '#1CB0F6';
+
+        if (!document.getElementById('dc-hud-styles')) {
+            var s = document.createElement('style');
+            s.id  = 'dc-hud-styles';
+            s.textContent = ''
+                + '@keyframes dcHudSlideIn { from{transform:translateY(-110%);opacity:0} to{transform:translateY(0);opacity:1} }'
+                + '@keyframes dcHudPulse   { 0%,100%{opacity:1} 50%{opacity:.6} }';
+            document.head.appendChild(s);
+        }
+
+        var hud = document.createElement('div');
+        hud.id  = 'dc-hud';
+        hud.style.cssText = [
+            'position:fixed', 'top:0', 'left:0', 'right:0', 'z-index:9000',
+            'background:' + bg,
+            'border-bottom:3px solid ' + acc,
+            'padding:10px 16px',
+            'display:flex', 'align-items:center', 'justify-content:space-between', 'gap:12px',
+            'font-family:Nunito,-apple-system,sans-serif',
+            'animation:dcHudSlideIn .5s cubic-bezier(.175,.885,.32,1.275) both',
+            'box-shadow:0 4px 24px rgba(0,0,0,.3)'
+        ].join(';');
+
+        hud.innerHTML = ''
+            + '<div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">'
+            +   '<span style="font-size:24px;flex-shrink:0;animation:dcHudPulse 2s ease infinite;">' + stored.icon + '</span>'
+            +   '<div style="min-width:0;">'
+            +     '<div style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:' + acc + ';line-height:1;">' + stored.title + ' — Active</div>'
+            +     '<div style="font-size:11px;font-weight:800;color:rgba(255,255,255,.7);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + stored.motivational + '</div>'
+            +   '</div>'
+            + '</div>'
+            + '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">'
+            +   '<div style="background:rgba(255,255,255,.12);border:2px solid ' + acc + ';border-radius:10px;padding:6px 12px;font-size:13px;font-weight:900;color:' + acc + ';white-space:nowrap;">+' + stored.xpReward + ' XP</div>'
+            +   '<button id="dc-hud-dismiss" style="background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);border-radius:8px;color:rgba(255,255,255,.5);font-size:16px;font-weight:900;width:30px;height:30px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;line-height:1;">×</button>'
+            + '</div>';
+
+        document.body.prepend(hud);
+        var existingPad = parseInt(document.body.style.paddingTop) || 0;
+        document.body.style.paddingTop = (existingPad + hud.offsetHeight) + 'px';
+
+        document.getElementById('dc-hud-dismiss').addEventListener('click', function() {
+            clearHUDChallenge();
+            hud.style.transition = 'transform .3s ease, opacity .3s ease';
+            hud.style.transform  = 'translateY(-110%)';
+            hud.style.opacity    = '0';
+            var pad = parseInt(document.body.style.paddingTop) || 0;
+            document.body.style.paddingTop = Math.max(0, pad - hud.offsetHeight) + 'px';
+            setTimeout(function() { hud.remove(); }, 320);
+        });
+    }, 400);
+})();
 
 // ── GLOBAL EVENT DELEGATION ──────────────────────────────────
 // Listens at document level so it works on every lesson page automatically.
