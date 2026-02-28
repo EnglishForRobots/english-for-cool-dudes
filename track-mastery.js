@@ -13,18 +13,19 @@ const EFCD_TRACKS = [
     {
         id:     'business',
         urlKey: '/business/',
+        levelNames: ['business'],
         icon:   '💼',
         name:   'Business English',
         color:  '#CE82FF',
         shadow: '#A559D9',
         desc:   'Meetings, emails & negotiations',
         titles: ['Business Curious', 'Business Novice', 'Business Apprentice', 'Business Practitioner', 'Business Pro', 'Business Expert', 'Business Master'],
-        // lessons needed to reach each title (index 0 = 0 lessons = not started)
         thresholds: [0, 1, 3, 6, 10, 15, 20],
     },
     {
         id:     'tax',
         urlKey: '/tax/',
+        levelNames: ['tax'],
         icon:   '💰',
         name:   'Tax English',
         color:  '#FFC800',
@@ -36,6 +37,7 @@ const EFCD_TRACKS = [
     {
         id:     'legal',
         urlKey: '/legal/',
+        levelNames: ['legal'],
         icon:   '⚖️',
         name:   'Legal English',
         color:  '#2BDECC',
@@ -47,6 +49,7 @@ const EFCD_TRACKS = [
     {
         id:     'advanced',
         urlKey: '/advanced/',
+        levelNames: ['advanced', 'c1', 'c2'],
         icon:   '🎯',
         name:   'Advanced English',
         color:  '#FF4B4B',
@@ -58,6 +61,7 @@ const EFCD_TRACKS = [
     {
         id:     'intermediate',
         urlKey: '/intermediate/',
+        levelNames: ['intermediate', 'b1', 'b2'],
         icon:   '🚀',
         name:   'Intermediate English',
         color:  '#1CB0F6',
@@ -69,6 +73,7 @@ const EFCD_TRACKS = [
     {
         id:     'beginner',
         urlKey: '/beginner/',
+        levelNames: ['beginner', 'a1', 'a2'],
         icon:   '🌱',
         name:   'Beginner English',
         color:  '#58CC02',
@@ -80,13 +85,29 @@ const EFCD_TRACKS = [
 ];
 
 // ── CORE: count lessons per track ────────────────────────────
+// Matches on lesson_link URL first, then falls back to lesson_level string.
+// This handles both URL-based slugs (/spacex-elon-musk/) and direct
+// track URLs (/intermediate/), plus the lesson_level field ("Intermediate").
 function countByTrack(lessons) {
     const counts = {};
     EFCD_TRACKS.forEach(t => counts[t.id] = 0);
 
     (lessons || []).forEach(lesson => {
-        const link = (lesson.lesson_link || '').toLowerCase();
-        const track = EFCD_TRACKS.find(t => link.includes(t.urlKey));
+        const link  = (lesson.lesson_link  || '').toLowerCase();
+        const level = (lesson.lesson_level || '').toLowerCase();
+
+        // 1. Try matching the lesson_link against track URL keys
+        //    e.g. "/intermediate/vocabulary-lesson/" matches "/intermediate/"
+        let track = EFCD_TRACKS.find(t => link.includes(t.urlKey));
+
+        // 2. Fallback: match lesson_level string against levelNames
+        //    e.g. "Intermediate" → lowercased → matches ["intermediate","b1","b2"]
+        if (!track && level) {
+            track = EFCD_TRACKS.find(t =>
+                t.levelNames.some(n => level.includes(n))
+            );
+        }
+
         if (track) counts[track.id]++;
     });
 
@@ -120,33 +141,30 @@ function getBandProgress(track, count) {
 }
 
 // ── SITE ORDER for not-yet pills ─────────────────────────────
-// Matches site nav: Business, Tax, Legal, Beginner, Intermediate, Advanced
 const SITE_ORDER = ['business', 'tax', 'legal', 'beginner', 'intermediate', 'advanced'];
 
 // ── RENDER ───────────────────────────────────────────────────
 function renderTrackMastery(lessons) {
     const counts = countByTrack(lessons);
 
-    // Started tracks: most lessons first
     const started = EFCD_TRACKS
         .filter(t => counts[t.id] > 0)
         .sort((a, b) => counts[b.id] - counts[a.id]);
 
-    // Not-yet-started: explicit site order
     const notYet = SITE_ORDER
         .map(id => EFCD_TRACKS.find(t => t.id === id))
         .filter(t => t && counts[t.id] === 0);
 
     const startedHTML = started.map(track => {
-        const count   = counts[track.id];
-        const idx     = getTitleIndex(track, count);
-        const title   = track.titles[idx];
-        const nextIdx = idx + 1;
-        const nextTitle  = track.titles[nextIdx] || null;
-        const pct     = getBandProgress(track, count);
-        const nextAt  = getNextThreshold(track, count);
-        const toNext  = nextAt ? nextAt - count : 0;
-        const maxed   = !nextTitle;
+        const count     = counts[track.id];
+        const idx       = getTitleIndex(track, count);
+        const title     = track.titles[idx];
+        const nextIdx   = idx + 1;
+        const nextTitle = track.titles[nextIdx] || null;
+        const pct       = getBandProgress(track, count);
+        const nextAt    = getNextThreshold(track, count);
+        const toNext    = nextAt ? nextAt - count : 0;
+        const maxed     = !nextTitle;
 
         return `
         <div class="tm-track" data-track="${track.id}">
@@ -210,8 +228,6 @@ const TRACK_CSS = `
     flex-direction: column;
     gap: 14px;
 }
-
-/* ── Individual track card ── */
 .tm-track {
     background: var(--white);
     border: 2px solid var(--border-heavy);
@@ -224,14 +240,12 @@ const TRACK_CSS = `
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(0,0,0,.08);
 }
-
 .tm-track-head {
     display: flex;
     align-items: center;
     gap: 14px;
     margin-bottom: 12px;
 }
-
 .tm-icon {
     width: 48px;
     height: 48px;
@@ -243,26 +257,22 @@ const TRACK_CSS = `
     flex-shrink: 0;
     animation: tmPop .5s cubic-bezier(.175,.885,.32,1.275) both;
 }
-
 @keyframes tmPop {
     from { transform: scale(0) rotate(-12deg); opacity: 0; }
     to   { transform: scale(1) rotate(0deg);   opacity: 1; }
 }
-
 .tm-info {
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: 5px;
 }
-
 .tm-name {
     font-size: 15px;
     font-weight: 900;
     color: var(--ink-bold);
     letter-spacing: -.2px;
 }
-
 .tm-title-badge {
     display: inline-block;
     font-size: 11px;
@@ -273,7 +283,6 @@ const TRACK_CSS = `
     letter-spacing: .3px;
     width: fit-content;
 }
-
 .tm-count {
     text-align: center;
     flex-shrink: 0;
@@ -292,8 +301,6 @@ const TRACK_CSS = `
     text-transform: uppercase;
     letter-spacing: .5px;
 }
-
-/* ── Progress bar ── */
 .tm-bar-wrap {
     height: 12px;
     background: var(--border);
@@ -309,7 +316,6 @@ const TRACK_CSS = `
     transition: width 1.2s cubic-bezier(.4,0,.2,1);
     min-width: 4px;
 }
-
 .tm-bar-meta {
     display: flex;
     justify-content: space-between;
@@ -317,15 +323,12 @@ const TRACK_CSS = `
     font-size: 12px;
     font-weight: 800;
 }
-
-/* ── Not started yet pills ── */
 .tm-notyet {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
     padding-top: 4px;
 }
-
 .tm-notyet-pill {
     display: flex;
     align-items: center;
@@ -346,11 +349,8 @@ const TRACK_CSS = `
     box-shadow: 0 4px 12px rgba(0,0,0,.1);
     opacity: 1;
 }
-
 .tm-notyet-name { color: var(--ink-bold); }
 .tm-notyet-cta  { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; }
-
-/* ── Empty ── */
 .tm-empty {
     text-align: center;
     padding: 32px 20px;
@@ -362,9 +362,9 @@ const TRACK_CSS = `
 
 // ── PUBLIC API ───────────────────────────────────────────────
 window.EFCD_TrackMastery = {
-    TRACKS:    EFCD_TRACKS,
+    TRACKS:      EFCD_TRACKS,
     countByTrack,
-    render:    renderTrackMastery,
+    render:      renderTrackMastery,
 };
 
 console.log('🗺️ EFCD Track Mastery loaded —', EFCD_TRACKS.length, 'tracks');
