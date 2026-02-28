@@ -421,6 +421,7 @@
         .para-reveal-btn.done { background: rgba(88,204,2,.1); border-color: var(--green); color: var(--green); pointer-events: none; }
 
         /* ══ VOCAB POPUP (bottom sheet) ══ */
+        /* ── Mobile: bottom sheet ── */
         #vocab-sheet {
             position: fixed;
             bottom: 0;
@@ -434,10 +435,32 @@
             display: none;
             box-shadow: 0 -20px 60px rgba(0,0,0,.2);
             animation: slideUp .3s ease both;
-            max-height: 55vh;
+            max-height: 42vh;
             overflow-y: auto;
         }
         #vocab-sheet.open { display: block; }
+
+        /* ── Desktop: compact popover near the word ── */
+        @media(min-width: 640px) {
+            #vocab-sheet {
+                bottom: auto;
+                left: auto;
+                right: auto;
+                width: 300px;
+                max-height: none;
+                border-radius: 16px;
+                border-top: 5px solid var(--blue);
+                box-shadow: 0 8px 32px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.1);
+                animation: popoverIn .2s cubic-bezier(.175,.885,.32,1.275) both;
+            }
+            #sheet-overlay.open {
+                background: transparent;
+            }
+        }
+        @keyframes popoverIn {
+            from { opacity:0; transform: scale(.92) translateY(-6px); }
+            to   { opacity:1; transform: scale(1)   translateY(0); }
+        }
         .vs-word {
             font-weight: 900;
             font-size: 28px;
@@ -1404,21 +1427,58 @@ function showVocab(word, el) {
     const v = VOCAB[word];
     if (!v) return;
     currentVocabWord = word;
+    const sheet = document.getElementById('vocab-sheet');
     document.getElementById('vs-word').textContent    = word.charAt(0).toUpperCase() + word.slice(1);
     document.getElementById('vs-def').textContent     = v.def;
     document.getElementById('vs-example').textContent = v.ex;
-    document.getElementById('vocab-sheet').classList.add('open');
-    document.getElementById('sheet-overlay').classList.add('open');
-    document.body.style.overflow = 'hidden';
+
+    // Reset any previous inline position
+    sheet.style.top = sheet.style.left = sheet.style.right = sheet.style.bottom = '';
+
+    if (window.innerWidth >= 640 && el) {
+        // Desktop: popover anchored near the tapped word
+        sheet.style.bottom = 'auto';
+        sheet.classList.add('open');
+        // Position after display so we can measure
+        requestAnimationFrame(() => {
+            const wr = el.getBoundingClientRect();
+            const sr = sheet.getBoundingClientRect();
+            const margin = 10;
+            // Default: below and left-aligned to word
+            let top  = wr.bottom + window.scrollY + margin;
+            let left = wr.left   + window.scrollX;
+            // Flip above if not enough room below
+            if (wr.bottom + sr.height + margin > window.innerHeight) {
+                top = wr.top + window.scrollY - sr.height - margin;
+            }
+            // Clamp to viewport width
+            if (left + sr.width > window.innerWidth - margin) {
+                left = window.innerWidth - sr.width - margin;
+            }
+            if (left < margin) left = margin;
+            sheet.style.top  = top  + 'px';
+            sheet.style.left = left + 'px';
+        });
+        // Don't lock scroll on desktop
+        document.getElementById('sheet-overlay').classList.add('open');
+    } else {
+        // Mobile: bottom sheet
+        sheet.classList.add('open');
+        document.getElementById('sheet-overlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
     if (el) el.classList.add('tapped');
     if (!vocabTapped.has(word)) {
         vocabTapped.add(word);
-        addXP(2, el || document.getElementById('vocab-sheet'));
+        addXP(2, el || sheet);
     }
 }
 
 function closeVocab() {
-    document.getElementById('vocab-sheet').classList.remove('open');
+    const sheet = document.getElementById('vocab-sheet');
+    sheet.classList.remove('open');
+    sheet.style.top = sheet.style.left = '';
     document.getElementById('sheet-overlay').classList.remove('open');
     document.body.style.overflow = '';
     currentVocabWord = null;
