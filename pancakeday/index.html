@@ -421,7 +421,7 @@
         .para-reveal-btn.done { background: rgba(88,204,2,.1); border-color: var(--green); color: var(--green); pointer-events: none; }
 
         /* ══ VOCAB POPUP (bottom sheet) ══ */
-        /* ── Mobile: bottom sheet ── */
+        /* ── Vocab sheet: mobile = bottom sheet, desktop = JS-positioned popover ── */
         #vocab-sheet {
             position: fixed;
             bottom: 0;
@@ -434,32 +434,28 @@
             z-index: 9000;
             display: none;
             box-shadow: 0 -20px 60px rgba(0,0,0,.2);
-            animation: slideUp .3s ease both;
             max-height: 42vh;
             overflow-y: auto;
         }
-        #vocab-sheet.open { display: block; }
-
-        /* ── Desktop: compact popover near the word ── */
-        @media(min-width: 640px) {
-            #vocab-sheet {
-                bottom: auto;
-                left: auto;
-                right: auto;
-                width: 300px;
-                max-height: none;
-                border-radius: 16px;
-                border-top: 5px solid var(--blue);
-                box-shadow: 0 8px 32px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.1);
-                animation: popoverIn .2s cubic-bezier(.175,.885,.32,1.275) both;
-            }
-            #sheet-overlay.open {
-                background: transparent;
-            }
+        #vocab-sheet.open {
+            display: block;
+            animation: slideUp .25s ease both;
+        }
+        /* Desktop overrides applied via JS class */
+        #vocab-sheet.popover {
+            bottom: auto;
+            left: auto;
+            right: auto;
+            width: 300px;
+            max-height: none;
+            border-radius: 16px;
+            border-top: 5px solid var(--blue);
+            box-shadow: 0 8px 32px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.1);
+            animation: popoverIn .2s cubic-bezier(.175,.885,.32,1.275) both;
         }
         @keyframes popoverIn {
             from { opacity:0; transform: scale(.92) translateY(-6px); }
-            to   { opacity:1; transform: scale(1)   translateY(0); }
+            to   { opacity:1; transform: scale(1) translateY(0); }
         }
         .vs-word {
             font-weight: 900;
@@ -894,9 +890,6 @@
 <!-- ══ MAIN ══ -->
 <main class="main">
 
-    <!-- DAILY CHALLENGE -->
-    <div id="daily-challenge-widget"></div>
-
     <!-- ══════════════════════════════
          STAGE 0 — READING
     ══════════════════════════════ -->
@@ -913,6 +906,9 @@
                 <span>⚡ Up to 120 XP</span>
             </div>
         </div>
+
+        <!-- DAILY CHALLENGE WIDGET -->
+        <div id="daily-challenge-widget"></div>
 
         <div class="quest-card">
             <div class="quest-header">
@@ -1427,44 +1423,59 @@ function showVocab(word, el) {
     const v = VOCAB[word];
     if (!v) return;
     currentVocabWord = word;
-    const sheet = document.getElementById('vocab-sheet');
+
+    // Populate content
     document.getElementById('vs-word').textContent    = word.charAt(0).toUpperCase() + word.slice(1);
     document.getElementById('vs-def').textContent     = v.def;
     document.getElementById('vs-example').textContent = v.ex;
 
-    // Reset any previous inline position
-    sheet.style.top = sheet.style.left = sheet.style.right = sheet.style.bottom = '';
+    const sheet   = document.getElementById('vocab-sheet');
+    const overlay = document.getElementById('sheet-overlay');
 
-    if (window.innerWidth >= 640 && el) {
-        // Desktop: popover anchored near the tapped word
-        sheet.style.bottom = 'auto';
-        sheet.classList.add('open');
-        // Position after display so we can measure
-        requestAnimationFrame(() => {
-            const wr = el.getBoundingClientRect();
-            const sr = sheet.getBoundingClientRect();
+    // Clear any leftover inline positioning from last time
+    sheet.style.cssText = '';
+    sheet.classList.remove('open', 'popover');
+
+    const isDesktop = window.innerWidth >= 640;
+
+    if (isDesktop && el) {
+        // Show as invisible first so we can measure it
+        sheet.style.visibility = 'hidden';
+        sheet.classList.add('open', 'popover');
+
+        // Two rAF frames: first paint, second measure + position
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            const wr     = el.getBoundingClientRect();
+            const sw     = sheet.offsetWidth  || 300;
+            const sh     = sheet.offsetHeight || 200;
             const margin = 10;
-            // Default: below and left-aligned to word
-            let top  = wr.bottom + window.scrollY + margin;
-            let left = wr.left   + window.scrollX;
-            // Flip above if not enough room below
-            if (wr.bottom + sr.height + margin > window.innerHeight) {
-                top = wr.top + window.scrollY - sr.height - margin;
+            const vw     = window.innerWidth;
+            const vh     = window.innerHeight;
+
+            // Prefer below the word; flip above if not enough room
+            let top = wr.bottom + window.scrollY + margin;
+            if (wr.bottom + sh + margin > vh) {
+                top = wr.top + window.scrollY - sh - margin;
             }
-            // Clamp to viewport width
-            if (left + sr.width > window.innerWidth - margin) {
-                left = window.innerWidth - sr.width - margin;
-            }
-            if (left < margin) left = margin;
+
+            // Align left edge to word; clamp to viewport
+            let left = wr.left + window.scrollX;
+            if (left + sw > vw - margin) left = vw - sw - margin;
+            if (left < margin)            left = margin;
+
             sheet.style.top  = top  + 'px';
             sheet.style.left = left + 'px';
-        });
-        // Don't lock scroll on desktop
-        document.getElementById('sheet-overlay').classList.add('open');
+            sheet.style.visibility = '';
+        }));
+
+        // Transparent overlay just to catch outside-clicks
+        overlay.style.background = 'transparent';
+        overlay.classList.add('open');
     } else {
-        // Mobile: bottom sheet
+        // Mobile: full bottom sheet
         sheet.classList.add('open');
-        document.getElementById('sheet-overlay').classList.add('open');
+        overlay.style.background = '';
+        overlay.classList.add('open');
         document.body.style.overflow = 'hidden';
     }
 
@@ -1476,10 +1487,12 @@ function showVocab(word, el) {
 }
 
 function closeVocab() {
-    const sheet = document.getElementById('vocab-sheet');
-    sheet.classList.remove('open');
-    sheet.style.top = sheet.style.left = '';
-    document.getElementById('sheet-overlay').classList.remove('open');
+    const sheet   = document.getElementById('vocab-sheet');
+    const overlay = document.getElementById('sheet-overlay');
+    sheet.classList.remove('open', 'popover');
+    sheet.style.cssText = '';
+    overlay.classList.remove('open');
+    overlay.style.background = '';
     document.body.style.overflow = '';
     currentVocabWord = null;
 }
