@@ -386,7 +386,7 @@ function showChallengeClickModal() {
             + '<span style="font-size:20px;">⚡</span>'
             + '<span style="font-size:14px;font-weight:900;color:' + acc + ';">+' + ch.xpReward + ' XP bonus on completion!</span>'
             + '</div>'
-            + '<button id="dc-modal-go" style="width:100%;padding:16px;background:' + acc + ';color:#111827;border:2px solid ' + shd + ';border-bottom:5px solid ' + shd + ';border-radius:16px;font-size:17px;font-weight:900;cursor:pointer;margin-bottom:10px;letter-spacing:-.2px;">🚀 Let's do this!</button>'
+            + '<button id="dc-modal-go" style="width:100%;padding:16px;background:' + acc + ';color:#111827;border:2px solid ' + shd + ';border-bottom:5px solid ' + shd + ';border-radius:16px;font-size:17px;font-weight:900;cursor:pointer;margin-bottom:10px;letter-spacing:-.2px;">Let&#39;s do this! 🚀</button>'
             + '<button id="dc-modal-other" style="width:100%;padding:13px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.8);border:2px solid rgba(255,255,255,.2);border-radius:16px;font-size:15px;font-weight:900;cursor:pointer;margin-bottom:10px;">🏠 Browse all lessons</button>'
             + '<button id="dc-modal-close" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:13px;font-weight:800;cursor:pointer;display:block;width:100%;">maybe later</button>'
             + '</div>';
