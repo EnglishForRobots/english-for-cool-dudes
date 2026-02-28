@@ -119,9 +119,25 @@ function getTodaysChallenge() {
 }
 
 function getTomorrowsChallenge() {
-    const tomorrow = (new Date().getDay() + 1) % 7;
-    if (tomorrow === 0 || tomorrow === 6) return DAILY_CHALLENGES.weekend_warrior;
+    const today    = new Date().getDay(); // 0=Sun, 6=Sat
+    const tomorrow = (today + 1) % 7;
+    // Saturday → Sunday is still weekend_warrior (same challenge continues)
+    // Sunday   → Monday is the first weekday challenge
+    if (tomorrow === 6) return DAILY_CHALLENGES.weekend_warrior; // Fri → Sat
+    if (tomorrow === 0) {
+        // Saturday → Sunday: weekend continues
+        if (today === 6) return DAILY_CHALLENGES.weekend_warrior;
+        // Sunday  → Monday: return Monday's challenge
+        return DAILY_CHALLENGES[DAY_ORDER[1]]; // Monday
+    }
     return DAILY_CHALLENGES[DAY_ORDER[tomorrow]];
+}
+
+// Is tomorrow the same challenge as today? (i.e. still on the weekend)
+function isSameChallengeTomorrow() {
+    const today    = new Date().getDay();
+    const tomorrow = (today + 1) % 7;
+    return (today === 6 && tomorrow === 0); // Saturday → Sunday
 }
 
 // ── TIME HELPERS ─────────────────────────────────────────────
@@ -337,6 +353,26 @@ function renderCompletedState(challenge, tomorrow, time) {
         el.textContent = t.label;
     }, 60000);
 
+    var sameChallenge = isSameChallengeTomorrow();
+
+    var nextBlock;
+    if (sameChallenge) {
+        // Still weekend — no countdown, no "tomorrow" teaser
+        nextBlock = '<div class="dc-quest-tomorrow">'
+            + '<div class="dc-quest-tomorrow-label">🎉 You&#39;re a Weekend Warrior!</div>'
+            + '<div style="font-size:13px;font-weight:800;color:rgba(255,255,255,.8);margin-top:4px;">New challenge drops Monday — enjoy the weekend!</div>'
+            + '</div>';
+    } else {
+        nextBlock = '<div class="dc-quest-tomorrow">'
+            + '<div class="dc-quest-tomorrow-label">⏳ Next challenge unlocks in</div>'
+            + '<div class="dc-quest-tomorrow-timer" id="' + timerId + '">' + time.label + '</div>'
+            + '<div class="dc-quest-tomorrow-preview">'
+            + '<span class="dc-tomorrow-icon">' + tomorrow.icon + '</span>'
+            + '<div><div class="dc-tomorrow-name">Tomorrow: ' + tomorrow.title + '</div>'
+            + '<div class="dc-tomorrow-desc">' + tomorrow.description + '</div></div>'
+            + '</div></div>';
+    }
+
     return '<div class="dc-quest-card dc-quest-done">'
         + '<div class="dc-quest-done-confetti">🎊</div>'
         + '<div class="dc-quest-done-top">'
@@ -345,14 +381,8 @@ function renderCompletedState(challenge, tomorrow, time) {
         + '<div class="dc-quest-done-sub">' + challenge.title + ' · +' + challenge.xpReward + ' XP earned</div></div>'
         + '</div>'
         + '<div class="dc-quest-done-msg">' + challenge.motivational + '</div>'
-        + '<div class="dc-quest-tomorrow">'
-        + '<div class="dc-quest-tomorrow-label">⏳ Next challenge unlocks in</div>'
-        + '<div class="dc-quest-tomorrow-timer" id="' + timerId + '">' + time.label + '</div>'
-        + '<div class="dc-quest-tomorrow-preview">'
-        + '<span class="dc-tomorrow-icon">' + tomorrow.icon + '</span>'
-        + '<div><div class="dc-tomorrow-name">Tomorrow: ' + tomorrow.title + '</div>'
-        + '<div class="dc-tomorrow-desc">' + tomorrow.description + '</div></div>'
-        + '</div></div></div>';
+        + nextBlock
+        + '</div>';
 }
 
 // ── CONTEXT DETECTION ────────────────────────────────────────
@@ -733,12 +763,16 @@ function showChallengeCompletionCelebration(challenge) {
         + '<div style="font-size:12px;font-weight:800;color:rgba(255,255,255,.75);margin-top:4px;">Bonus reward earned!</div>'
         + '</div>'
         + '<div style="background:rgba(0,0,0,.2);border-radius:14px;padding:14px;margin-bottom:20px;text-align:left;">'
-        + '<div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.65);margin-bottom:6px;">Next challenge in ' + time.label + '</div>'
-        + '<div style="display:flex;align-items:center;gap:10px;">'
-        + '<span style="font-size:28px;">' + tomorrow.icon + '</span>'
-        + '<div><div style="font-size:15px;font-weight:900;">' + tomorrow.title + '</div>'
-        + '<div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.75);">' + tomorrow.description + '</div></div>'
-        + '</div></div>'
+        + (isSameChallengeTomorrow()
+            ? '<div style="font-size:13px;font-weight:800;color:rgba(255,255,255,.8);">New challenge drops Monday — enjoy the rest of the weekend! 🎉</div>'
+            : '<div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.65);margin-bottom:6px;">Next challenge in ' + time.label + '</div>'
+              + '<div style="display:flex;align-items:center;gap:10px;">'
+              + '<span style="font-size:28px;">' + tomorrow.icon + '</span>'
+              + '<div><div style="font-size:15px;font-weight:900;">' + tomorrow.title + '</div>'
+              + '<div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.75);">' + tomorrow.description + '</div></div>'
+              + '</div>'
+          )
+        + '</div>'
         + '<button id="dc-celeb-close" style="width:100%;padding:14px;background:#FFC800;color:#111827;border:2px solid #E5B400;border-bottom:4px solid #E5B400;border-radius:16px;font-size:16px;font-weight:900;cursor:pointer;font-family:inherit;">Let\'s go! 🎉</button>'
         + '</div>';
 
