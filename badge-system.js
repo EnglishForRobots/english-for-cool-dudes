@@ -224,6 +224,21 @@ const EFCD_BADGES = [
     },
 
     // ── SECRET / SPECIAL ─────────────────────────────────────
+    // ── LESSON BADGES ─────────────────────────────────────────
+{
+    id: 'pancake_day',
+    icon: '🥞',
+    name: 'Pancake Flipper',
+    description: 'Complete the Pancake Day lesson — a true British tradition!',
+    color: '#FFC800',
+    shadow: '#E5B400',
+    category: 'special',
+    secret: false,
+    check: (p, lessons) => lessons?.some(l =>
+        l.lesson_link === '/pancakeday/' ||
+        (l.lesson_title || '').toLowerCase().includes('pancake')
+    )
+},
     {
         id: 'night_owl',
         icon: '🦉',
