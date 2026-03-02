@@ -1326,17 +1326,31 @@ function dbFinish() {
 // ══════════════════════════════════════════════════════
 //  SHINY BADGE HELPERS
 // ══════════════════════════════════════════════════════
-function getShinyBadges() {
-    // Prefer EFCD_Shop's own Set if available, else fall back to localStorage
-    if (window.EFCD_Shop?.getShinyBadges) return window.EFCD_Shop.getShinyBadges();
-    try { return new Set(JSON.parse(localStorage.getItem('efcd_shiny_badges') || '[]')); }
-    catch { return new Set(); }
+async function getShinyBadges() {
+    // Read from Supabase profiles.shiny_badges — works across all devices
+    const user = window.EFCD_Auth?.getCurrentUser();
+    if (!user) return new Set();
+    try {
+        const { data, error } = await window.efcdSupabaseClient
+            .from('profiles')
+            .select('shiny_badges')
+            .eq('id', user.id)
+            .single();
+        if (error || !data) return new Set();
+        return new Set(data.shiny_badges || []);
+    } catch { return new Set(); }
 }
 
-function saveShinyBadge(id) {
-    const set = getShinyBadges();
-    set.add(id);
-    localStorage.setItem('efcd_shiny_badges', JSON.stringify([...set]));
+async function saveShinyBadge(id) {
+    const user = window.EFCD_Auth?.getCurrentUser();
+    if (!user) return;
+    // Read-modify-write: fetch current array, add new id, save back
+    const current = await getShinyBadges();
+    current.add(id);
+    await window.efcdSupabaseClient
+        .from('profiles')
+        .update({ shiny_badges: [...current] })
+        .eq('id', user.id);
 }
 
 function hasSufficientXP(cost) {
@@ -1368,7 +1382,7 @@ async function spendXPForShiny(cost) {
 // ══════════════════════════════════════════════════════
 //  BADGE UNLOCK OVERLAY
 // ══════════════════════════════════════════════════════
-function showBadgeUnlock(onDone) {
+async function showBadgeUnlock(onDone) {
     const overlay  = document.getElementById('badge-unlock-overlay');
     const iconWrap = document.getElementById('bu-icon-wrap');
     const rarity   = document.getElementById('bu-rarity');
@@ -1376,8 +1390,9 @@ function showBadgeUnlock(onDone) {
     const shinyBtn = document.getElementById('bu-shiny-btn');
     const shinyDesc = document.getElementById('bu-shiny-desc');
 
-    // Check if already shiny
-    const isAlreadyShiny = getShinyBadges().has(BADGE_ID);
+    // Check if already shiny (async — reads from Supabase)
+    const shinySet = await getShinyBadges();
+    const isAlreadyShiny = shinySet.has(BADGE_ID);
 
     if (isAlreadyShiny) {
         // Already upgraded — show holographic immediately
@@ -1453,8 +1468,8 @@ async function upgradeToShiny() {
         return;
     }
 
-    // Save permanently
-    saveShinyBadge(BADGE_ID);
+    // Save permanently to Supabase
+    await saveShinyBadge(BADGE_ID);
 
     // Update XP display in header
     const xpEl = document.getElementById('hdr-xp');
@@ -1522,7 +1537,7 @@ async function finishLesson() {
     let xpEarned = sessionXP;
     try {
         const result = await window.EFCD_Auth.completeLesson({
-            lessonId:       'pancake-day',
+            lessonId:       'pancakeday',
             lessonTitle:    'The History of Pancake Day',
             lessonLevel:    'Intermediate',
             lessonLink:     '/pancakeday/',
