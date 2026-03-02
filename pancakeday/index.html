@@ -1348,25 +1348,21 @@ function hasSufficientXP(cost) {
 }
 
 async function spendXPForShiny(cost) {
-    if (window.EFCD_Shop) {
-        // Re-use the shop's spend mechanism
-        const auth = window.EFCD_Auth;
-        if (!auth?.getCurrentUser) return false;
-        const user = auth.getCurrentUser();
-        if (!user) return false;
-        const current = auth.getUserStats()?.xp || 0;
-        if (current < cost) return false;
-        try {
-            const { error } = await window.efcdSupabaseClient
-                .from('profiles')
-                .update({ xp: current - cost })
-                .eq('id', user.id);
-            if (error) throw error;
-            if (auth.refreshUserData) await auth.refreshUserData();
-            return true;
-        } catch(e) { console.error('Shiny spend error:', e); return false; }
-    }
-    return false;
+    const auth = window.EFCD_Auth;
+    if (!auth?.getCurrentUser) return false;
+    const user = auth.getCurrentUser();
+    if (!user) return false;
+    const current = auth.getUserStats()?.xp || 0;
+    if (current < cost) return false;
+    try {
+        const { error } = await window.efcdSupabaseClient
+            .from('profiles')
+            .update({ xp: current - cost })
+            .eq('id', user.id);
+        if (error) throw error;
+        if (auth.refreshUserData) await auth.refreshUserData();
+        return true;
+    } catch(e) { console.error('Shiny spend error:', e); return false; }
 }
 
 // ══════════════════════════════════════════════════════
