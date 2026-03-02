@@ -1,5 +1,10 @@
 // ═══════════════════════════════════════════════════════════
 // DAILY CHALLENGES SYSTEM — daily-challenges-system.js
+// v2 — 4 bug fixes:
+//  FIX A: storeHUDChallenge() called in BOTH lesson-page AND navigate branches
+//  FIX B: renderActiveState() detects stored HUD (not just DOM HUD) for button state
+//  FIX C: .dc-quest-btn--active is now green + pulsing + cursor:pointer + motivational copy
+//  FIX D: acceptAndNavigate() public helper — dashboard uses this instead of raw href
 // ═══════════════════════════════════════════════════════════
 
 'use strict';
@@ -108,23 +113,21 @@ const DAY_ORDER = [
     'weekend_warrior', // Saturday
 ];
 
-// ── GET CHALLENGES ───────────────────────────────────────────
 function getTodaysChallenge() {
     const day  = new Date().getDay();
     const hour = new Date().getHours();
     if (day === 0 || day === 6) return DAILY_CHALLENGES.weekend_warrior;
-    // Early bird expires after 10am — swap to perfect_score
     if (DAY_ORDER[day] === 'early_bird' && hour >= 10) return DAILY_CHALLENGES.perfect_score;
     return DAILY_CHALLENGES[DAY_ORDER[day]];
 }
 
 function getTomorrowsChallenge() {
-    const today    = new Date().getDay(); // 0=Sun, 6=Sat
+    const today    = new Date().getDay();
     const tomorrow = (today + 1) % 7;
-    if (tomorrow === 6) return DAILY_CHALLENGES.weekend_warrior; // Fri → Sat
+    if (tomorrow === 6) return DAILY_CHALLENGES.weekend_warrior;
     if (tomorrow === 0) {
         if (today === 6) return DAILY_CHALLENGES.weekend_warrior;
-        return DAILY_CHALLENGES[DAY_ORDER[1]]; // Monday
+        return DAILY_CHALLENGES[DAY_ORDER[1]];
     }
     return DAILY_CHALLENGES[DAY_ORDER[tomorrow]];
 }
@@ -132,10 +135,9 @@ function getTomorrowsChallenge() {
 function isSameChallengeTomorrow() {
     const today    = new Date().getDay();
     const tomorrow = (today + 1) % 7;
-    return (today === 6 && tomorrow === 0); // Saturday → Sunday
+    return (today === 6 && tomorrow === 0);
 }
 
-// ── TIME HELPERS ─────────────────────────────────────────────
 function getTimeUntilMidnight() {
     const now = new Date(), mid = new Date(now);
     mid.setHours(24, 0, 0, 0);
@@ -145,7 +147,6 @@ function getTimeUntilMidnight() {
     return { h, m, label: h + 'h ' + m + 'm' };
 }
 
-// ── PROGRESS HELPERS ─────────────────────────────────────────
 function getStoredProgress(challenge) {
     try {
         const stored = localStorage.getItem('dailyChallenge');
@@ -158,7 +159,44 @@ function getStoredProgress(challenge) {
     return 0;
 }
 
-// ── INJECT CSS ONCE ──────────────────────────────────────────
+// ── SESSION STORAGE — HUD persists across navigation ─────────
+var DC_HUD_KEY = 'dc_active_hud';
+
+function storeHUDChallenge(ch) {
+    try {
+        sessionStorage.setItem(DC_HUD_KEY, JSON.stringify({
+            id:           ch.id,
+            title:        ch.title,
+            icon:         ch.icon,
+            xpReward:     ch.xpReward,
+            motivational: ch.motivational,
+            color:        ch.color,
+            colorAccent:  ch.colorAccent,
+            colorShadow:  ch.colorShadow,
+        }));
+    } catch(_) {}
+}
+
+function loadHUDChallenge() {
+    try {
+        var raw = sessionStorage.getItem(DC_HUD_KEY);
+        return raw ? JSON.parse(raw) : null;
+    } catch(_) { return null; }
+}
+
+function clearHUDChallenge() {
+    try { sessionStorage.removeItem(DC_HUD_KEY); } catch(_) {}
+}
+
+// ── FIX D: acceptAndNavigate — public helper ─────────────────
+// Dashboard (and any other page) must call THIS instead of raw
+// window.location.href = '/', so the HUD is stored first.
+function acceptAndNavigate(challenge, destination) {
+    storeHUDChallenge(challenge);
+    window.location.href = destination || '/';
+}
+
+// ── CSS ───────────────────────────────────────────────────────
 function injectCSS() {
     if (document.getElementById('dc-styles')) return;
     const style = document.createElement('style');
@@ -226,6 +264,8 @@ function injectCSS() {
     font-size: 11px; font-weight: 800; color: rgba(255,255,255,.7);
     margin-bottom: 14px;
 }
+
+/* ── DEFAULT CTA BUTTON ── */
 .dc-quest-btn {
     display: flex; align-items: center; justify-content: center; gap: 6px;
     width: 100%; padding: 14px 20px;
@@ -236,18 +276,25 @@ function injectCSS() {
     transition: transform .1s, border-bottom-width .1s;
 }
 .dc-quest-btn:active { border-bottom-width: 2px; transform: translateY(3px); }
-/* ── Active/in-progress state — challenge already accepted ── */
+
+/* ── FIX C: Active/in-progress state — GREEN, motivational, pulsing ── */
+/* Previously: white/transparent on blue, cursor:default — hard to see and felt broken */
 .dc-quest-btn--active {
-    background: rgba(255,255,255,.2) !important;
+    background: #58CC02 !important;
     color: #fff !important;
-    border-color: rgba(255,255,255,.35) !important;
-    border-bottom-color: rgba(255,255,255,.35) !important;
-    cursor: default !important;
-    transform: none !important;
-    font-size: 14px;
+    border-color: #58A700 !important;
+    border-bottom-color: #48a800 !important;
+    cursor: pointer !important;
+    font-size: 15px;
     letter-spacing: -.1px;
+    animation: dcBtnPulse 2.5s ease-in-out infinite;
 }
-.dc-quest-btn--active:active { border-bottom-width: 2px; transform: none; }
+.dc-quest-btn--active:active { border-bottom-width: 2px; transform: translateY(3px); }
+@keyframes dcBtnPulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(88,204,2,.55); }
+    50%     { box-shadow: 0 0 0 7px rgba(88,204,2,0); }
+}
+
 .dc-quest-arrow { font-size: 20px; font-weight: 900; }
 .dc-quest-done {
     background: linear-gradient(135deg, #58CC02 0%, #48a800 100%);
@@ -299,7 +346,7 @@ function injectCSS() {
     document.head.appendChild(style);
 }
 
-// ── RENDER WIDGET ────────────────────────────────────────────
+// ── RENDER WIDGET ─────────────────────────────────────────────
 function renderDailyChallengeWidget(context) {
     const challenge  = getTodaysChallenge();
     const tomorrow   = getTomorrowsChallenge();
@@ -307,14 +354,15 @@ function renderDailyChallengeWidget(context) {
     const isComplete = progress >= challenge.target;
     const pct        = Math.min(100, Math.round((progress / challenge.target) * 100));
     const time       = getTimeUntilMidnight();
-
     injectCSS();
-
     if (isComplete) return renderCompletedState(challenge, tomorrow, time);
     return renderActiveState(challenge, progress, pct, time, context);
 }
 
-// ── ACTIVE STATE ─────────────────────────────────────────────
+// ── FIX B + C: renderActiveState ─────────────────────────────
+// Check sessionStorage (not just DOM) to detect in-progress state
+// so the button renders correctly even on a fresh page load before
+// the HUD has been injected by restoreHUDIfNeeded().
 function renderActiveState(challenge, progress, pct, time, context) {
     const timerId = 'dc-quest-timer-' + Math.random().toString(36).slice(2, 7);
 
@@ -325,23 +373,31 @@ function renderActiveState(challenge, progress, pct, time, context) {
         el.textContent = '⏰ ' + t.label + ' left';
     }, 60000);
 
-    // ── Detect whether the HUD is already active on this page.
-    // If it is, swap the CTA button to an "in-progress" state so it
-    // doesn't re-launch the picker when clicked.
-    var hudActive = !!document.getElementById('dc-hud');
+    // FIX B: check BOTH the live DOM HUD AND sessionStorage
+    // Previously only checked DOM — missed the case where HUD stored but
+    // page just loaded and restoreHUDIfNeeded() hasn't run yet.
+    var hudInDOM    = !!document.getElementById('dc-hud');
+    var hudStored   = !!loadHUDChallenge();
+    var isActive    = hudInDOM || hudStored;
+    var onDashboard = !!document.getElementById('dc-slot');
 
     var btnLabel, btnClass;
-    if (hudActive) {
-        btnLabel = challenge.icon + ' Challenge Active! Scroll to lesson ↓';
+    if (isActive && onDashboard) {
+        // On dashboard with challenge active: "Continue" takes them to a lesson
+        btnLabel = challenge.icon + ' Continue Challenge →';
+        btnClass = 'dc-quest-btn dc-quest-btn--active';
+    } else if (isActive) {
+        // On lesson page with HUD active: scroll to lesson
+        btnLabel = challenge.icon + ' Challenge On! Let\'s do this 💪';
         btnClass = 'dc-quest-btn dc-quest-btn--active';
     } else {
+        // Default: challenge not yet accepted
         btnLabel = challenge.ctaLabel + ' <span class="dc-quest-arrow">›</span>';
         btnClass = 'dc-quest-btn';
     }
 
     return '<div class="dc-quest-card" id="dc-quest-card">'
         + '<div class="dc-quest-glow"></div>'
-        + '<div class="dc-quest-top">'
         + '<div class="dc-quest-eyebrow">'
         + '<span>⚔️ Daily Quest</span>'
         + '<span class="dc-quest-timer" id="' + timerId + '">⏰ ' + time.label + ' left</span>'
@@ -354,7 +410,6 @@ function renderActiveState(challenge, progress, pct, time, context) {
         + '</div>'
         + '<div class="dc-quest-xp">+' + challenge.xpReward + '<span>XP</span></div>'
         + '</div>'
-        + '</div>'
         + '<div class="dc-quest-progress">'
         + '<div class="dc-quest-bar-track"><div class="dc-quest-bar-fill" style="width:' + pct + '%"></div></div>'
         + '<div class="dc-quest-progress-row"><span>' + progress + ' / ' + challenge.target + '</span><span>' + pct + '% complete</span></div>'
@@ -363,23 +418,20 @@ function renderActiveState(challenge, progress, pct, time, context) {
         + '</div>';
 }
 
-// ── COMPLETED STATE ──────────────────────────────────────────
+// ── COMPLETED STATE ───────────────────────────────────────────
 function renderCompletedState(challenge, tomorrow, time) {
     const timerId = 'dc-tomorrow-timer-' + Math.random().toString(36).slice(2, 7);
-
     setInterval(function() {
         var el = document.getElementById(timerId);
         if (!el) return;
         var t = getTimeUntilMidnight();
         el.textContent = t.label;
     }, 60000);
-
     var sameChallenge = isSameChallengeTomorrow();
-
     var nextBlock;
     if (sameChallenge) {
         nextBlock = '<div class="dc-quest-tomorrow">'
-            + '<div class="dc-quest-tomorrow-label">🎉 You&#39;re a Weekend Warrior!</div>'
+            + '<div class="dc-quest-tomorrow-label">🎉 You\'re a Weekend Warrior!</div>'
             + '<div style="font-size:13px;font-weight:800;color:rgba(255,255,255,.8);margin-top:4px;">New challenge drops Monday — enjoy the weekend!</div>'
             + '</div>';
     } else {
@@ -392,7 +444,6 @@ function renderCompletedState(challenge, tomorrow, time) {
             + '<div class="dc-tomorrow-desc">' + tomorrow.description + '</div></div>'
             + '</div></div>';
     }
-
     return '<div class="dc-quest-card dc-quest-done">'
         + '<div class="dc-quest-done-confetti">🎊</div>'
         + '<div class="dc-quest-done-top">'
@@ -416,40 +467,10 @@ function isOnLessonPage() {
     );
 }
 
-// ── SESSION STORAGE KEY — HUD persists across page load ──────
-var DC_HUD_KEY = 'dc_active_hud';
-
-function storeHUDChallenge(ch) {
-    try {
-        sessionStorage.setItem(DC_HUD_KEY, JSON.stringify({
-            id:           ch.id,
-            title:        ch.title,
-            icon:         ch.icon,
-            xpReward:     ch.xpReward,
-            motivational: ch.motivational,
-            color:        ch.color,
-            colorAccent:  ch.colorAccent,
-            colorShadow:  ch.colorShadow,
-        }));
-    } catch(_) {}
-}
-
-function loadHUDChallenge() {
-    try {
-        var raw = sessionStorage.getItem(DC_HUD_KEY);
-        return raw ? JSON.parse(raw) : null;
-    } catch(_) { return null; }
-}
-
-function clearHUDChallenge() {
-    try { sessionStorage.removeItem(DC_HUD_KEY); } catch(_) {}
-}
-
-// ── CHALLENGE CLICK MODAL ────────────────────────────────────
+// ── CHALLENGE CLICK MODAL ─────────────────────────────────────
 function showChallengeClickModal() {
-    var ch  = getTodaysChallenge();
+    var ch     = getTodaysChallenge();
     var onDash = isOnDashboard();
-
     var overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
 
@@ -466,11 +487,9 @@ function showChallengeClickModal() {
         var bg  = ch.color       || '#1CB0F6';
         var acc = ch.colorAccent || '#FFC800';
         var shd = ch.colorShadow || '#E5B400';
-
-        var goLabel  = onDash
-            ? '🚀 Pick a Lesson — Let&#39;s go!'
-            : 'Let&#39;s do this! 🚀';
-
+        var goLabel = onDash
+            ? '🚀 Let\'s do this — pick a lesson!'
+            : 'Let\'s do this! 🚀';
         overlay.innerHTML = '<div id="dc-launch-card" style="background:' + bg + ';padding:36px 28px;border-radius:24px;border:2px solid ' + acc + ';border-bottom:6px solid ' + shd + ';text-align:center;max-width:360px;width:100%;font-family:Nunito,sans-serif;">'
             + '<div style="font-size:72px;margin-bottom:12px;display:inline-block;">' + ch.icon + '</div>'
             + '<div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:3px;color:' + acc + ';margin-bottom:6px;">Challenge Accepted</div>'
@@ -491,27 +510,23 @@ function showChallengeClickModal() {
         var card = document.getElementById('dc-launch-card') || overlay.querySelector('div');
         card.style.transition = 'transform .2s ease, opacity .25s ease';
         card.style.transform  = 'scale(1.05)';
-        setTimeout(function() {
-            card.style.transform = 'scale(0)';
-            card.style.opacity   = '0';
-        }, 120);
+        setTimeout(function() { card.style.transform = 'scale(0)'; card.style.opacity = '0'; }, 120);
         setTimeout(function() {
             overlay.remove();
+            // FIX A: storeHUDChallenge in BOTH branches — was only in the else branch before.
+            // Without this, navigating from a lesson page meant sessionStorage stayed empty,
+            // so going to the dashboard and back showed "Find a Vocab Lesson" again.
+            storeHUDChallenge(ch);
             if (isOnLessonPage()) {
                 activateChallengeHUD(ch, false);
             } else {
-                storeHUDChallenge(ch);
                 activateChallengeHUD(ch, true);
             }
         }, 350);
     });
 
-    document.getElementById('dc-modal-close').addEventListener('click', function() {
-        overlay.remove();
-    });
-    overlay.addEventListener('click', function(e) {
-        if (e.target === overlay) overlay.remove();
-    });
+    document.getElementById('dc-modal-close').addEventListener('click', function() { overlay.remove(); });
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
 }
 
 // ── CHALLENGE HUD LAUNCH SEQUENCE ────────────────────────────
@@ -577,19 +592,15 @@ function activateChallengeHUD(ch, navigateAfter) {
             + '<div style="font-size:15px;font-weight:800;color:' + acc + ';text-align:center;padding:0 24px;">' + ch.motivational + '</div>'
             + '<div style="margin-top:8px;font-size:14px;font-weight:800;color:rgba(255,255,255,.65);">Finding you a lesson… 🚀</div>'
             + '<div style="width:48px;height:48px;border:4px solid rgba(255,255,255,.3);border-top-color:' + acc + ';border-radius:50%;animation:spin .8s linear infinite;margin-top:4px;"></div>';
-
         if (!document.getElementById('dc-spin-style')) {
             var ss = document.createElement('style');
             ss.id = 'dc-spin-style';
             ss.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
             document.head.appendChild(ss);
         }
-
         document.body.appendChild(redir);
-
-        setTimeout(function() {
-            window.location.href = '/';
-        }, 1400);
+        // FIX A already handled above — HUD stored before activateChallengeHUD was called
+        setTimeout(function() { window.location.href = '/'; }, 1400);
     }
 
     function buildHUD(ch, acc, bg, shd) {
@@ -605,25 +616,21 @@ function activateChallengeHUD(ch, navigateAfter) {
             'animation:dcHudSlideIn .5s cubic-bezier(.175,.885,.32,1.275) both',
             'box-shadow:0 4px 24px rgba(0,0,0,.3)'
         ].join(';');
-
         hud.innerHTML = ''
             + '<div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">'
             +   '<span style="font-size:24px;flex-shrink:0;animation:dcHudPulse 2s ease infinite;">' + ch.icon + '</span>'
             +   '<div style="min-width:0;">'
-            +     '<div style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:' + acc + ';line-height:1;">' + ch.title + ' — Active</div>'
-            +     '<div style="font-size:11px;font-weight:800;color:rgba(255,255,255,.7);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + ch.motivational + '</div>'
+            +     '<div style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:' + acc + ';line-height:1;">' + ch.title + ' — Active 🔥</div>'
+            +     '<div style="font-size:11px;font-weight:800;color:rgba(255,255,255,.8);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + ch.motivational + '</div>'
             +   '</div>'
             + '</div>'
             + '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">'
             +   '<div style="background:rgba(255,255,255,.12);border:2px solid ' + acc + ';border-radius:10px;padding:6px 12px;font-size:13px;font-weight:900;color:' + acc + ';white-space:nowrap;">+' + ch.xpReward + ' XP</div>'
             +   '<button id="dc-hud-dismiss" style="background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);border-radius:8px;color:rgba(255,255,255,.5);font-size:16px;font-weight:900;width:30px;height:30px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;line-height:1;">×</button>'
             + '</div>';
-
         document.body.prepend(hud);
-
         var existingPad = parseInt(document.body.style.paddingTop) || 0;
         document.body.style.paddingTop = (existingPad + hud.offsetHeight) + 'px';
-
         document.getElementById('dc-hud-dismiss').addEventListener('click', function() {
             clearHUDChallenge();
             hud.style.transition = 'transform .3s ease, opacity .3s ease';
@@ -633,17 +640,13 @@ function activateChallengeHUD(ch, navigateAfter) {
             document.body.style.paddingTop = Math.max(0, pad - hud.offsetHeight) + 'px';
             setTimeout(function() { hud.remove(); }, 320);
         });
-
-        // ── After HUD is visible, patch any widget CTA buttons that
-        //    were rendered BEFORE the HUD arrived (i.e. already in the DOM).
-        //    Swap "Pick a Lesson" → "Challenge Active — scroll to lesson"
-        //    so they don't re-open the picker/modal.
+        // Patch any already-rendered widget buttons
         setTimeout(function() {
-            var ch = getTodaysChallenge();
+            var todaysCh = getTodaysChallenge();
             document.querySelectorAll('.dc-quest-btn').forEach(function(btn) {
-                if (btn.classList.contains('dc-quest-btn--active')) return; // already patched
+                if (btn.classList.contains('dc-quest-btn--active')) return;
                 btn.classList.add('dc-quest-btn--active');
-                btn.textContent = ch.icon + ' Challenge Active! Scroll to lesson ↓';
+                btn.innerHTML = todaysCh.icon + ' Challenge On! Let\'s do this 💪';
             });
         }, 600);
     }
@@ -659,10 +662,8 @@ function activateChallengeHUD(ch, navigateAfter) {
     if (progress >= ch.target) { clearHUDChallenge(); return; }
     setTimeout(function() {
         if (document.getElementById('dc-hud')) return;
-
         var acc = stored.colorAccent || '#FFC800';
         var bg  = stored.color       || '#1CB0F6';
-
         if (!document.getElementById('dc-hud-styles')) {
             var s = document.createElement('style');
             s.id  = 'dc-hud-styles';
@@ -671,7 +672,6 @@ function activateChallengeHUD(ch, navigateAfter) {
                 + '@keyframes dcHudPulse   { 0%,100%{opacity:1} 50%{opacity:.6} }';
             document.head.appendChild(s);
         }
-
         var hud = document.createElement('div');
         hud.id  = 'dc-hud';
         hud.style.cssText = [
@@ -684,24 +684,21 @@ function activateChallengeHUD(ch, navigateAfter) {
             'animation:dcHudSlideIn .5s cubic-bezier(.175,.885,.32,1.275) both',
             'box-shadow:0 4px 24px rgba(0,0,0,.3)'
         ].join(';');
-
         hud.innerHTML = ''
             + '<div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">'
             +   '<span style="font-size:24px;flex-shrink:0;animation:dcHudPulse 2s ease infinite;">' + stored.icon + '</span>'
             +   '<div style="min-width:0;">'
-            +     '<div style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:' + acc + ';line-height:1;">' + stored.title + ' — Active</div>'
-            +     '<div style="font-size:11px;font-weight:800;color:rgba(255,255,255,.7);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + stored.motivational + '</div>'
+            +     '<div style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:' + acc + ';line-height:1;">' + stored.title + ' — Active 🔥</div>'
+            +     '<div style="font-size:11px;font-weight:800;color:rgba(255,255,255,.8);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + stored.motivational + '</div>'
             +   '</div>'
             + '</div>'
             + '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">'
             +   '<div style="background:rgba(255,255,255,.12);border:2px solid ' + acc + ';border-radius:10px;padding:6px 12px;font-size:13px;font-weight:900;color:' + acc + ';white-space:nowrap;">+' + stored.xpReward + ' XP</div>'
             +   '<button id="dc-hud-dismiss" style="background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);border-radius:8px;color:rgba(255,255,255,.5);font-size:16px;font-weight:900;width:30px;height:30px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;line-height:1;">×</button>'
             + '</div>';
-
         document.body.prepend(hud);
         var existingPad = parseInt(document.body.style.paddingTop) || 0;
         document.body.style.paddingTop = (existingPad + hud.offsetHeight) + 'px';
-
         document.getElementById('dc-hud-dismiss').addEventListener('click', function() {
             clearHUDChallenge();
             hud.style.transition = 'transform .3s ease, opacity .3s ease';
@@ -711,49 +708,44 @@ function activateChallengeHUD(ch, navigateAfter) {
             document.body.style.paddingTop = Math.max(0, pad - hud.offsetHeight) + 'px';
             setTimeout(function() { hud.remove(); }, 320);
         });
-
-        // ── Patch any already-rendered widget buttons after HUD restores ──
-        // These were rendered before the HUD arrived so they still show
-        // the "Pick a Lesson" CTA — swap them to the active state.
         setTimeout(function() {
             var todaysCh = getTodaysChallenge();
             document.querySelectorAll('.dc-quest-btn').forEach(function(btn) {
                 if (btn.classList.contains('dc-quest-btn--active')) return;
                 btn.classList.add('dc-quest-btn--active');
-                btn.textContent = todaysCh.icon + ' Challenge Active! Scroll to lesson ↓';
+                btn.innerHTML = todaysCh.icon + ' Challenge On! Let\'s do this 💪';
             });
         }, 600);
-
     }, 400);
 })();
 
-// ── GLOBAL EVENT DELEGATION ──────────────────────────────────
-// ════════════════════════════════════════════════════════════
-// FIX: Smart routing — prevents the infinite loop where clicking
-// the widget on a lesson page re-launches the "pick a lesson" flow.
-//
-// Priority order:
-//  1. Dashboard has registered _dcButtonHandler → delegate to it
-//  2. HUD already active → scroll to lesson content (no modal)
-//  3. On a lesson page (no HUD yet) → activate HUD in-place, no picker
-//  4. Default (homepage, unknown) → show full modal / picker
-// ════════════════════════════════════════════════════════════
+// ── GLOBAL EVENT DELEGATION ───────────────────────────────────
 document.addEventListener('click', function(e) {
     var btn = e.target.closest('.dc-quest-btn');
     if (!btn) return;
     e.preventDefault();
 
-    // Don't do anything if this button is already in the active/patched state
-    if (btn.classList.contains('dc-quest-btn--active')) return;
+    // Active button on dashboard: navigate to lesson picker WITH HUD stored
+    if (btn.classList.contains('dc-quest-btn--active')) {
+        if (isOnDashboard()) {
+            acceptAndNavigate(getTodaysChallenge(), '/');
+        } else {
+            // On lesson page: scroll to lesson
+            var target = document.getElementById('sections')
+                || document.querySelector('.quest-section')
+                || document.querySelector('.lesson-banner');
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        return;
+    }
 
-    // 1. Page-level handler registered (dashboard uses this)
+    // Dashboard has registered its own handler
     if (typeof window._dcButtonHandler === 'function') {
         window._dcButtonHandler(getTodaysChallenge());
         return;
     }
 
-    // 2. HUD already visible — user is already doing the challenge.
-    //    Just scroll them to the lesson content.
+    // HUD already visible — scroll to lesson
     if (document.getElementById('dc-hud')) {
         var target = document.getElementById('sections')
             || document.querySelector('.quest-section')
@@ -762,44 +754,41 @@ document.addEventListener('click', function(e) {
         return;
     }
 
-    // 3. On a lesson page — activate the HUD here without navigating away.
-    //    User is already on a lesson; they don't need to "pick" one.
+    // On lesson page — activate HUD in place
     if (isOnLessonPage()) {
         activateChallengeHUD(getTodaysChallenge(), false);
         return;
     }
 
-    // 4. Default: homepage or unknown — show full modal.
+    // Default: show modal
     if (typeof openPicker === 'function') { openPicker(); return; }
     showChallengeClickModal();
 });
 
-// ── UPDATE PROGRESS ──────────────────────────────────────────
+// ── UPDATE PROGRESS ───────────────────────────────────────────
 async function updateChallengeProgress(lessonData) {
     const challenge = getTodaysChallenge();
     const today     = new Date().toDateString();
     const current   = getStoredProgress(challenge);
     const next      = challenge.checkProgress(current, lessonData);
-
     localStorage.setItem('dailyChallenge', JSON.stringify({
         date:        today,
         challengeId: challenge.id,
         progress:    next,
         completed:   next >= challenge.target,
     }));
-
     if (next >= challenge.target && current < challenge.target) {
+        clearHUDChallenge();
         return { justCompleted: true, xpEarned: challenge.xpReward, challenge };
     }
     return { justCompleted: false, progress: next, target: challenge.target };
 }
 
-// ── CELEBRATION MODAL ────────────────────────────────────────
+// ── CELEBRATION MODAL ─────────────────────────────────────────
 function showChallengeCompletionCelebration(challenge) {
     const tomorrow = getTomorrowsChallenge();
     const time     = getTimeUntilMidnight();
-
-    const overlay = document.createElement('div');
+    const overlay  = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:99998;display:flex;align-items:center;justify-content:center;padding:20px;';
     overlay.innerHTML = '<div style="background:linear-gradient(135deg,#58CC02 0%,#48a800 100%);padding:36px 28px;border-radius:24px;border:2px solid #58A700;border-bottom:6px solid #48a800;text-align:center;max-width:380px;width:100%;font-family:Nunito,sans-serif;color:#fff;">'
         + '<div style="font-size:72px;margin-bottom:8px;">' + challenge.icon + '</div>'
@@ -823,13 +812,12 @@ function showChallengeCompletionCelebration(challenge) {
         + '</div>'
         + '<button id="dc-celeb-close" style="width:100%;padding:14px;background:#FFC800;color:#111827;border:2px solid #E5B400;border-bottom:4px solid #E5B400;border-radius:16px;font-size:16px;font-weight:900;cursor:pointer;font-family:inherit;">Let\'s go! 🎉</button>'
         + '</div>';
-
     document.body.appendChild(overlay);
     document.getElementById('dc-celeb-close').addEventListener('click', function() { overlay.remove(); });
     overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
 }
 
-// ── PUBLIC API ───────────────────────────────────────────────
+// ── PUBLIC API ────────────────────────────────────────────────
 if (typeof window !== 'undefined') {
     window.DailyChallenges = {
         getTodaysChallenge,
@@ -837,7 +825,9 @@ if (typeof window !== 'undefined') {
         renderDailyChallengeWidget,
         updateChallengeProgress,
         showChallengeCompletionCelebration,
+        storeHUDChallenge,       // exposed so dashboard can call it directly if needed
+        acceptAndNavigate,       // FIX D: dashboard uses this instead of raw href
         DAILY_CHALLENGES,
     };
-    console.log('⚔️ Daily Challenges loaded');
+    console.log('⚔️ Daily Challenges loaded v2');
 }
