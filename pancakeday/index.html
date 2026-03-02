@@ -1418,10 +1418,27 @@ function showBadgeUnlock(onDone) {
     burst(20);
     setTimeout(() => burst(16), 400);
 
-    const autoTimer = setTimeout(() => closeBadgeUnlock(onDone), 6000);
-    const btn = document.getElementById('bu-btn');
+    const btn  = document.getElementById('bu-btn');
+    const card = document.getElementById('bu-card');
     btn._onDone    = onDone;
-    btn._autoTimer = autoTimer;
+    btn._autoTimer = null;
+
+    // Helper: start (or restart) the idle fallback timer
+    function startIdleTimer() {
+        clearTimeout(btn._autoTimer);
+        // Only auto-close after a very long idle — user should always tap the button
+        btn._autoTimer = setTimeout(() => closeBadgeUnlock(onDone), 30000);
+    }
+
+    // Pause timer while user is actively looking / interacting with the card
+    function pauseTimer() { clearTimeout(btn._autoTimer); }
+
+    card.addEventListener('mouseenter',  pauseTimer,     { once: false });
+    card.addEventListener('mouseleave',  startIdleTimer, { once: false });
+    card.addEventListener('touchstart',  pauseTimer,     { passive: true });
+    card.addEventListener('touchend',    startIdleTimer, { passive: true });
+
+    startIdleTimer();
 }
 
 async function upgradeToShiny() {
@@ -1459,10 +1476,10 @@ async function upgradeToShiny() {
     burst(30);
     setTimeout(() => burst(20), 400);
 
-    // Reset auto-close timer so user can admire the shiny badge
+    // Reset idle timer — user just upgraded, give them plenty of time to admire it
     const btn = document.getElementById('bu-btn');
     if (btn._autoTimer) clearTimeout(btn._autoTimer);
-    btn._autoTimer = setTimeout(() => closeBadgeUnlock(btn._onDone), 5000);
+    btn._autoTimer = setTimeout(() => closeBadgeUnlock(btn._onDone), 30000);
 }
 
 function closeBadgeUnlock(onDone) {
