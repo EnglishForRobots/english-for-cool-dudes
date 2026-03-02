@@ -121,19 +121,14 @@ function getTodaysChallenge() {
 function getTomorrowsChallenge() {
     const today    = new Date().getDay(); // 0=Sun, 6=Sat
     const tomorrow = (today + 1) % 7;
-    // Saturday → Sunday is still weekend_warrior (same challenge continues)
-    // Sunday   → Monday is the first weekday challenge
     if (tomorrow === 6) return DAILY_CHALLENGES.weekend_warrior; // Fri → Sat
     if (tomorrow === 0) {
-        // Saturday → Sunday: weekend continues
         if (today === 6) return DAILY_CHALLENGES.weekend_warrior;
-        // Sunday  → Monday: return Monday's challenge
         return DAILY_CHALLENGES[DAY_ORDER[1]]; // Monday
     }
     return DAILY_CHALLENGES[DAY_ORDER[tomorrow]];
 }
 
-// Is tomorrow the same challenge as today? (i.e. still on the weekend)
 function isSameChallengeTomorrow() {
     const today    = new Date().getDay();
     const tomorrow = (today + 1) % 7;
@@ -241,6 +236,18 @@ function injectCSS() {
     transition: transform .1s, border-bottom-width .1s;
 }
 .dc-quest-btn:active { border-bottom-width: 2px; transform: translateY(3px); }
+/* ── Active/in-progress state — challenge already accepted ── */
+.dc-quest-btn--active {
+    background: rgba(255,255,255,.2) !important;
+    color: #fff !important;
+    border-color: rgba(255,255,255,.35) !important;
+    border-bottom-color: rgba(255,255,255,.35) !important;
+    cursor: default !important;
+    transform: none !important;
+    font-size: 14px;
+    letter-spacing: -.1px;
+}
+.dc-quest-btn--active:active { border-bottom-width: 2px; transform: none; }
 .dc-quest-arrow { font-size: 20px; font-weight: 900; }
 .dc-quest-done {
     background: linear-gradient(135deg, #58CC02 0%, #48a800 100%);
@@ -318,6 +325,20 @@ function renderActiveState(challenge, progress, pct, time, context) {
         el.textContent = '⏰ ' + t.label + ' left';
     }, 60000);
 
+    // ── Detect whether the HUD is already active on this page.
+    // If it is, swap the CTA button to an "in-progress" state so it
+    // doesn't re-launch the picker when clicked.
+    var hudActive = !!document.getElementById('dc-hud');
+
+    var btnLabel, btnClass;
+    if (hudActive) {
+        btnLabel = challenge.icon + ' Challenge Active! Scroll to lesson ↓';
+        btnClass = 'dc-quest-btn dc-quest-btn--active';
+    } else {
+        btnLabel = challenge.ctaLabel + ' <span class="dc-quest-arrow">›</span>';
+        btnClass = 'dc-quest-btn';
+    }
+
     return '<div class="dc-quest-card" id="dc-quest-card">'
         + '<div class="dc-quest-glow"></div>'
         + '<div class="dc-quest-top">'
@@ -338,7 +359,7 @@ function renderActiveState(challenge, progress, pct, time, context) {
         + '<div class="dc-quest-bar-track"><div class="dc-quest-bar-fill" style="width:' + pct + '%"></div></div>'
         + '<div class="dc-quest-progress-row"><span>' + progress + ' / ' + challenge.target + '</span><span>' + pct + '% complete</span></div>'
         + '</div>'
-        + '<button class="dc-quest-btn">' + challenge.ctaLabel + ' <span class="dc-quest-arrow">›</span></button>'
+        + '<button class="' + btnClass + '">' + btnLabel + '</button>'
         + '</div>';
 }
 
@@ -357,7 +378,6 @@ function renderCompletedState(challenge, tomorrow, time) {
 
     var nextBlock;
     if (sameChallenge) {
-        // Still weekend — no countdown, no "tomorrow" teaser
         nextBlock = '<div class="dc-quest-tomorrow">'
             + '<div class="dc-quest-tomorrow-label">🎉 You&#39;re a Weekend Warrior!</div>'
             + '<div style="font-size:13px;font-weight:800;color:rgba(255,255,255,.8);margin-top:4px;">New challenge drops Monday — enjoy the weekend!</div>'
@@ -386,17 +406,13 @@ function renderCompletedState(challenge, tomorrow, time) {
 }
 
 // ── CONTEXT DETECTION ────────────────────────────────────────
-// Dashboard = has #dc-slot.
-// Lesson page = has #sections (old lessons) OR .quest-section (new lessons).
-// Key rule: if it is NOT the dashboard, it is a lesson page.
-// This future-proofs against any new lesson template structure.
 function isOnDashboard() { return !!document.getElementById('dc-slot'); }
 function isOnLessonPage() {
     if (isOnDashboard()) return false;
     return !!(
-        document.getElementById('sections')         ||  // old lesson format
-        document.querySelector('.quest-section')    ||  // new lesson format
-        document.getElementById('daily-challenge-widget') // any lesson with widget
+        document.getElementById('sections')         ||
+        document.querySelector('.quest-section')    ||
+        document.getElementById('daily-challenge-widget')
     );
 }
 
@@ -430,8 +446,6 @@ function clearHUDChallenge() {
 }
 
 // ── CHALLENGE CLICK MODAL ────────────────────────────────────
-// Smart modal — knows whether user is on dashboard or lesson page
-// and routes the two primary buttons accordingly.
 function showChallengeClickModal() {
     var ch  = getTodaysChallenge();
     var onDash = isOnDashboard();
@@ -440,7 +454,6 @@ function showChallengeClickModal() {
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
 
     if (ch.id === 'early_bird') {
-        // Early bird always gets the worm — context-independent
         overlay.innerHTML = '<div style="background:linear-gradient(135deg,#FF9500 0%,#FFB800 100%);padding:36px 28px;border-radius:24px;border:2px solid #E5B400;border-bottom:6px solid #cc9000;text-align:center;max-width:360px;width:100%;font-family:Nunito,sans-serif;">'
             + '<div style="font-size:72px;margin-bottom:4px;display:inline-block;animation:wormWiggle 1s ease infinite;">🐦</div>'
             + '<div style="font-size:72px;margin-bottom:16px;display:inline-block;animation:wormWiggle 1s ease infinite .15s;">🪱</div>'
@@ -454,8 +467,6 @@ function showChallengeClickModal() {
         var acc = ch.colorAccent || '#FFC800';
         var shd = ch.colorShadow || '#E5B400';
 
-        // Dashboard: primary CTA = launch countdown + go find lesson
-        // Lesson page: primary CTA = launch countdown right here
         var goLabel  = onDash
             ? '🚀 Pick a Lesson — Let&#39;s go!'
             : 'Let&#39;s do this! 🚀';
@@ -476,10 +487,8 @@ function showChallengeClickModal() {
 
     document.body.appendChild(overlay);
 
-    // ── PRIMARY BUTTON ────────────────────────────────────────
     document.getElementById('dc-modal-go').addEventListener('click', function() {
         var card = document.getElementById('dc-launch-card') || overlay.querySelector('div');
-        // Dramatic scale-out animation
         card.style.transition = 'transform .2s ease, opacity .25s ease';
         card.style.transform  = 'scale(1.05)';
         setTimeout(function() {
@@ -489,13 +498,10 @@ function showChallengeClickModal() {
         setTimeout(function() {
             overlay.remove();
             if (isOnLessonPage()) {
-                // Already on a lesson — run the full countdown + HUD immediately
                 activateChallengeHUD(ch, false);
             } else {
-                // On dashboard or elsewhere — countdown then navigate to lessons homepage
-                // HUD will auto-restore when user arrives on any lesson page
                 storeHUDChallenge(ch);
-                activateChallengeHUD(ch, true); // true = navigate after countdown
+                activateChallengeHUD(ch, true);
             }
         }, 350);
     });
@@ -509,16 +515,13 @@ function showChallengeClickModal() {
 }
 
 // ── CHALLENGE HUD LAUNCH SEQUENCE ────────────────────────────
-// Flash → countdown 3-2-1-GO! → HUD slides in.
-// navigateAfter=true means redirect to / after the countdown (dashboard flow).
 function activateChallengeHUD(ch, navigateAfter) {
-    if (document.getElementById('dc-hud')) return; // already active
+    if (document.getElementById('dc-hud')) return;
 
     var acc = ch.colorAccent || '#FFC800';
     var bg  = ch.color       || '#1CB0F6';
     var shd = ch.colorShadow || '#E5B400';
 
-    // Inject keyframes once
     if (!document.getElementById('dc-hud-styles')) {
         var s = document.createElement('style');
         s.id  = 'dc-hud-styles';
@@ -531,13 +534,11 @@ function activateChallengeHUD(ch, navigateAfter) {
         document.head.appendChild(s);
     }
 
-    // 1. Full-screen colour flash
     var flash = document.createElement('div');
     flash.style.cssText = 'position:fixed;inset:0;background:' + bg + ';z-index:99990;pointer-events:none;animation:dcFlashIn .6s ease both;';
     document.body.appendChild(flash);
     setTimeout(function() { flash.remove(); }, 650);
 
-    // 2. Countdown overlay
     var countEl = document.createElement('div');
     countEl.style.cssText = 'position:fixed;inset:0;z-index:99991;display:flex;align-items:center;justify-content:center;pointer-events:none;';
     document.body.appendChild(countEl);
@@ -551,14 +552,11 @@ function activateChallengeHUD(ch, navigateAfter) {
         if (ci < counts.length) {
             setTimeout(showCount, 700);
         } else {
-            // After GO!
             setTimeout(function() {
                 countEl.remove();
                 if (navigateAfter) {
-                    // Dashboard flow: show a "heading to lessons..." screen, then navigate
                     showLaunchRedirect(ch, acc, bg, shd);
                 } else {
-                    // Lesson page flow: build HUD and stay here
                     buildHUD(ch, acc, bg, shd);
                     var sections = document.getElementById('sections')
                         || document.querySelector('.quest-section.active')
@@ -570,9 +568,6 @@ function activateChallengeHUD(ch, navigateAfter) {
     }
     setTimeout(showCount, 300);
 
-    // ── REDIRECT SCREEN (dashboard only) ─────────────────────
-    // A full-screen "launching…" overlay before navigation.
-    // Keeps the energy alive instead of a cold blank redirect.
     function showLaunchRedirect(ch, acc, bg, shd) {
         var redir = document.createElement('div');
         redir.style.cssText = 'position:fixed;inset:0;background:' + bg + ';z-index:99992;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;font-family:Nunito,sans-serif;';
@@ -583,7 +578,6 @@ function activateChallengeHUD(ch, navigateAfter) {
             + '<div style="margin-top:8px;font-size:14px;font-weight:800;color:rgba(255,255,255,.65);">Finding you a lesson… 🚀</div>'
             + '<div style="width:48px;height:48px;border:4px solid rgba(255,255,255,.3);border-top-color:' + acc + ';border-radius:50%;animation:spin .8s linear infinite;margin-top:4px;"></div>';
 
-        // Add spin keyframe if not already there
         if (!document.getElementById('dc-spin-style')) {
             var ss = document.createElement('style');
             ss.id = 'dc-spin-style';
@@ -593,13 +587,11 @@ function activateChallengeHUD(ch, navigateAfter) {
 
         document.body.appendChild(redir);
 
-        // Navigate after a beat so user sees the screen
         setTimeout(function() {
             window.location.href = '/';
         }, 1400);
     }
 
-    // ── BUILD PERSISTENT HUD ─────────────────────────────────
     function buildHUD(ch, acc, bg, shd) {
         var hud = document.createElement('div');
         hud.id  = 'dc-hud';
@@ -633,7 +625,7 @@ function activateChallengeHUD(ch, navigateAfter) {
         document.body.style.paddingTop = (existingPad + hud.offsetHeight) + 'px';
 
         document.getElementById('dc-hud-dismiss').addEventListener('click', function() {
-            clearHUDChallenge(); // User dismissed = clear persistence
+            clearHUDChallenge();
             hud.style.transition = 'transform .3s ease, opacity .3s ease';
             hud.style.transform  = 'translateY(-110%)';
             hud.style.opacity    = '0';
@@ -641,23 +633,30 @@ function activateChallengeHUD(ch, navigateAfter) {
             document.body.style.paddingTop = Math.max(0, pad - hud.offsetHeight) + 'px';
             setTimeout(function() { hud.remove(); }, 320);
         });
+
+        // ── After HUD is visible, patch any widget CTA buttons that
+        //    were rendered BEFORE the HUD arrived (i.e. already in the DOM).
+        //    Swap "Pick a Lesson" → "Challenge Active — scroll to lesson"
+        //    so they don't re-open the picker/modal.
+        setTimeout(function() {
+            var ch = getTodaysChallenge();
+            document.querySelectorAll('.dc-quest-btn').forEach(function(btn) {
+                if (btn.classList.contains('dc-quest-btn--active')) return; // already patched
+                btn.classList.add('dc-quest-btn--active');
+                btn.textContent = ch.icon + ' Challenge Active! Scroll to lesson ↓';
+            });
+        }, 600);
     }
 }
 
 // ── AUTO-RESTORE HUD ON LESSON PAGES ─────────────────────────
-// If user was sent here from the dashboard launch sequence,
-// the challenge is stored in sessionStorage. Restore the HUD silently.
 (function restoreHUDIfNeeded() {
-    // Only restore on lesson pages, not the dashboard itself
     if (isOnDashboard()) { return; }
     var stored = loadHUDChallenge();
     if (!stored) return;
-    // Don't restore if challenge is already completed
     var ch = getTodaysChallenge();
     var progress = getStoredProgress(ch);
     if (progress >= ch.target) { clearHUDChallenge(); return; }
-    // Restore without the countdown — user has already seen it
-    // Small delay so page paints first
     setTimeout(function() {
         if (document.getElementById('dc-hud')) return;
 
@@ -712,18 +711,67 @@ function activateChallengeHUD(ch, navigateAfter) {
             document.body.style.paddingTop = Math.max(0, pad - hud.offsetHeight) + 'px';
             setTimeout(function() { hud.remove(); }, 320);
         });
+
+        // ── Patch any already-rendered widget buttons after HUD restores ──
+        // These were rendered before the HUD arrived so they still show
+        // the "Pick a Lesson" CTA — swap them to the active state.
+        setTimeout(function() {
+            var todaysCh = getTodaysChallenge();
+            document.querySelectorAll('.dc-quest-btn').forEach(function(btn) {
+                if (btn.classList.contains('dc-quest-btn--active')) return;
+                btn.classList.add('dc-quest-btn--active');
+                btn.textContent = todaysCh.icon + ' Challenge Active! Scroll to lesson ↓';
+            });
+        }, 600);
+
     }, 400);
 })();
 
 // ── GLOBAL EVENT DELEGATION ──────────────────────────────────
-// Listens at document level so it works on every lesson page automatically.
-// No per-page wiring ever needed.
+// ════════════════════════════════════════════════════════════
+// FIX: Smart routing — prevents the infinite loop where clicking
+// the widget on a lesson page re-launches the "pick a lesson" flow.
+//
+// Priority order:
+//  1. Dashboard has registered _dcButtonHandler → delegate to it
+//  2. HUD already active → scroll to lesson content (no modal)
+//  3. On a lesson page (no HUD yet) → activate HUD in-place, no picker
+//  4. Default (homepage, unknown) → show full modal / picker
+// ════════════════════════════════════════════════════════════
 document.addEventListener('click', function(e) {
     var btn = e.target.closest('.dc-quest-btn');
     if (!btn) return;
     e.preventDefault();
+
+    // Don't do anything if this button is already in the active/patched state
+    if (btn.classList.contains('dc-quest-btn--active')) return;
+
+    // 1. Page-level handler registered (dashboard uses this)
+    if (typeof window._dcButtonHandler === 'function') {
+        window._dcButtonHandler(getTodaysChallenge());
+        return;
+    }
+
+    // 2. HUD already visible — user is already doing the challenge.
+    //    Just scroll them to the lesson content.
+    if (document.getElementById('dc-hud')) {
+        var target = document.getElementById('sections')
+            || document.querySelector('.quest-section')
+            || document.querySelector('.lesson-banner');
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+    }
+
+    // 3. On a lesson page — activate the HUD here without navigating away.
+    //    User is already on a lesson; they don't need to "pick" one.
+    if (isOnLessonPage()) {
+        activateChallengeHUD(getTodaysChallenge(), false);
+        return;
+    }
+
+    // 4. Default: homepage or unknown — show full modal.
     if (typeof openPicker === 'function') { openPicker(); return; }
-    showChallengeClickModal(getTodaysChallenge());
+    showChallengeClickModal();
 });
 
 // ── UPDATE PROGRESS ──────────────────────────────────────────
