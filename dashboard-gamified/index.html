@@ -1079,6 +1079,21 @@ function handleDCButtonForChallenge(challenge) {
         if (p && !p.contains(e.target) && !e.target.classList.contains('vocab-word')) p.style.display = 'none';
     });
 
+
+    // ══════════════════════════════════════════════════════════════════
+    //  DATE HELPER  — compare dates in LOCAL timezone (fixes UTC shift bug)
+    //  Root cause: Supabase stores UTC; Germany (UTC+1/+2) shifts dates by
+    //  one day when using .toDateString(), causing chart/streak mismatches.
+    // ══════════════════════════════════════════════════════════════════
+    function toLocalDateStr(dateInput) {
+        // Returns "YYYY-MM-DD" in the user's LOCAL timezone
+        const d = (dateInput instanceof Date) ? dateInput : new Date(dateInput);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    }
+
     // ══════════════════════════════════════════════════════════════════
     //  CHARTS
     // ══════════════════════════════════════════════════════════════════
@@ -1089,14 +1104,23 @@ function handleDCButtonForChallenge(challenge) {
         if (!lessons?.length) return;
         renderVocabChart(lessons);
         renderActivityChart(lessons);
-        await renderStreakCalendar();
+        await renderStreakCalendar(lessons);   // reuse already-fetched data
     }
 
     function renderVocabChart(lessons) {
         let total = 0;
         const data = lessons.map(l => {
-            total += l.vocabulary?.length || 0;
-            return { date: new Date(l.completed_at).toLocaleDateString('en-GB',{month:'short',day:'numeric'}), total };
+            const vocab = l.vocabulary;
+            let count = 0;
+            if (Array.isArray(vocab)) {
+                count = vocab.length;
+            } else if (vocab !== null && vocab !== undefined) {
+                console.warn('[VocabChart] Unexpected vocabulary format in lesson', l.id, typeof vocab, vocab);
+            }
+            total += count;
+            const d = new Date(l.completed_at);
+            const label = d.toLocaleDateString('en-GB', { month:'short', day:'numeric' });
+            return { date: label, total };
         });
         const ctx = document.getElementById('vocabChart');
         if (!ctx) return;
@@ -1111,7 +1135,7 @@ function handleDCButtonForChallenge(challenge) {
         const today = new Date();
         const days = Array.from({length:7},(_,i) => {
             const d = new Date(today); d.setDate(d.getDate() - (6 - i));
-            return { day: d.toLocaleDateString('en-GB',{weekday:'short'}), count: lessons.filter(l => new Date(l.completed_at).toDateString() === d.toDateString()).length };
+            return { day: d.toLocaleDateString('en-GB',{weekday:'short'}), count: lessons.filter(l => toLocalDateStr(l.completed_at) === toLocalDateStr(d)).length };
         });
         const ctx = document.getElementById('activityChart');
         if (!ctx) return;
@@ -1122,18 +1146,26 @@ function handleDCButtonForChallenge(challenge) {
         });
     }
 
-    async function renderStreakCalendar() {
+    async function renderStreakCalendar(passedLessons) {
         const cal  = document.getElementById('streak-cal');
         if (!cal) return;
-        const user = window.EFCD_Auth.getCurrentUser();
-        if (!user) return;
-        const { data: lessons } = await window.efcdSupabaseClient
-            .from('lessons').select('completed_at').eq('user_id', user.id);
-        const done  = new Set((lessons||[]).map(l => new Date(l.completed_at).toDateString()));
+        // Reuse lessons passed in from renderProgressCharts, or fetch fresh
+        let lessons = passedLessons;
+        if (!lessons) {
+            const user = window.EFCD_Auth.getCurrentUser();
+            if (!user) return;
+            const { data } = await window.efcdSupabaseClient
+                .from('lessons').select('completed_at').eq('user_id', user.id);
+            lessons = data || [];
+        }
+        // Build a Set of local YYYY-MM-DD strings — timezone-safe for UTC+1/+2
+        const done  = new Set(lessons.map(l => toLocalDateStr(l.completed_at)));
         const today = new Date();
         cal.innerHTML = Array.from({length:30},(_,i) => {
             const d = new Date(today); d.setDate(d.getDate() - (29 - i));
-            const isToday = i === 29, hasDone = done.has(d.toDateString());
+            const dateStr = toLocalDateStr(d);
+            const isToday = i === 29;
+            const hasDone = done.has(dateStr);
             return `<div class="cal-day ${hasDone?'done':'empty'} ${isToday?'today':''}" title="${d.toLocaleDateString('en-GB')}${hasDone?' ✓':''}">${hasDone ? '🔥' : d.getDate()}</div>`;
         }).join('');
     }
