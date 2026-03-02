@@ -899,7 +899,7 @@
 
                 <div class="reading-intro">
                     <span class="tap-icon">👆</span>
-                    <span>Tap the <strong>bold words</strong> to see their meanings. Unlock all 5 paragraphs to continue.</span>
+                    <span>Tap the <strong>golden words</strong> to see their meanings. Unlock all 5 paragraphs to continue.</span>
                 </div>
 
                 <button class="para-reveal-btn" id="reveal-btn-0" onclick="revealPara(0)"><span>👁️</span> Reveal Paragraph 1</button>
@@ -1739,49 +1739,91 @@ async function finishLesson() {
     setProgress(100);
     document.querySelectorAll('.stage-pill').forEach(p => { p.classList.remove('active'); p.classList.add('done'); });
 
+    // ── Set localStorage flags so dashboard knows this lesson was just done ──
+    localStorage.setItem('efcd_last_lesson_url',  '/pancakeday/');
+    localStorage.setItem('efcd_last_lesson_name', 'The History of Pancake Day');
+    localStorage.setItem('efcd_last_lesson_done', 'true');
+
     const accuracy = totalAnswers > 0 ? Math.round((correctAnswers / totalAnswers) * 100) : 100;
 
-    let xpEarned = sessionXP;
-    if (window.EFCD_Auth?.getCurrentUser()) {
-        try {
-            const result = await window.EFCD_Auth.completeLesson({
-                lessonId:       'pancake-day',
-                lessonTitle:    'The History of Pancake Day',
-                lessonLevel:    'Intermediate',
-                lessonLink:     '/pancakeday/',
-                vocabulary:     Object.keys(VOCAB).map(w => ({ word:w, definition:VOCAB[w].def })),
-                grammar: [
-                    { question:'The tradition ________ hundreds of years ago.', answer:'began', explanation:'Past simple of irregular verb begin.' },
-                    { question:'People ________ up rich foods before Lent.',     answer:'gave',  explanation:'Past simple of irregular verb give.' },
-                    { question:'A woman ________ to church with her frying pan.',answer:'ran',   explanation:'Past simple of irregular verb run.' },
-                ],
-                perfectScore:   accuracy === 100,
-                completionTime: Math.floor((Date.now() - performance.timing.navigationStart) / 1000),
-            });
-            if (result?.xpEarned) xpEarned = result.xpEarned;
-            if (window.DailyChallenges && result?.success) {
-                await window.DailyChallenges.updateChallengeProgress({
-                    perfectScore:   accuracy === 100,
-                    vocabCount:     Object.keys(VOCAB).length,
-                    completionTime: Math.floor((Date.now() - performance.timing.navigationStart) / 1000),
-                    grammarPerfect: grammarCorrect.every(Boolean),
-                });
-            }
-        } catch(e) { console.warn('Save error:', e); }
+    // ── Not logged in: prompt sign-up then word match ──
+    if (!window.EFCD_Auth?.getCurrentUser()) {
+        if (confirm('🥞 Lesson complete!\n\nSign up free to save your XP, streaks and badges.\n\nOK = Sign up  |  Cancel = Keep browsing')) {
+            window.location.href = '/signup/';
+        } else if (typeof showWordMatchGame === 'function') {
+            showWordMatchGame(
+                Object.keys(VOCAB).map(w => ({ word: w, definition: VOCAB[w].def })),
+                () => window.location.href = '/intermediate/'
+            );
+        } else {
+            window.location.href = '/intermediate/';
+        }
+        return;
     }
 
-    document.getElementById('cc-xp').textContent       = '+' + xpEarned + ' XP';
-    document.getElementById('cc-vocab').textContent    = '…';
-    document.getElementById('cc-combo').textContent    = bestCombo;
-    document.getElementById('cc-accuracy').textContent = accuracy + '%';
-
-    setTimeout(() => {
-        startDebrief(() => {
-            document.getElementById('completion-screen').classList.add('open');
-            burst(30);
-            setTimeout(() => burst(20), 500);
+    // ── Logged in: save to DB ──
+    let result = null;
+    try {
+        result = await window.EFCD_Auth.completeLesson({
+            lessonId:       'pancake-day',
+            lessonTitle:    'The History of Pancake Day',
+            lessonLevel:    'Intermediate',
+            lessonLink:     '/pancakeday/',
+            vocabulary:     Object.keys(VOCAB).map(w => ({ word: w, definition: VOCAB[w].def })),
+            grammar: [
+                { question: 'The tradition ________ hundreds of years ago.', answer: 'began', explanation: 'Past simple of irregular verb begin.' },
+                { question: 'People ________ up rich foods before Lent.',     answer: 'gave',  explanation: 'Past simple of irregular verb give.' },
+                { question: 'A woman ________ to church with her frying pan.',answer: 'ran',   explanation: 'Past simple of irregular verb run.' },
+            ],
+            perfectScore:   accuracy === 100,
+            completionTime: Math.floor((Date.now() - performance.timing.navigationStart) / 1000),
         });
-    }, 800);
+
+        if (window.DailyChallenges && result?.success) {
+            await window.DailyChallenges.updateChallengeProgress({
+                perfectScore:   accuracy === 100,
+                vocabCount:     Object.keys(VOCAB).length,
+                completionTime: Math.floor((Date.now() - performance.timing.navigationStart) / 1000),
+                grammarPerfect: grammarCorrect.every(Boolean),
+            });
+        }
+    } catch(e) { console.warn('Save error:', e); }
+
+    // ── Word match game → then end screen ──
+    const vocabList = Object.keys(VOCAB).map(w => ({ word: w, definition: VOCAB[w].def }));
+    if (typeof showWordMatchGame === 'function') {
+        showWordMatchGame(vocabList, gr => showEndScreen(result, gr));
+    } else {
+        showEndScreen(result, null);
+    }
+}
+
+// ── END SCREEN — matches Elon lesson pattern ──────────────────
+function showEndScreen(res, game) {
+    const xp = (res?.xpEarned || sessionXP) + ((game?.bonusXP) || 0);
+    const ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .3s ease both;';
+    ov.innerHTML = `
+        <div style="background:var(--white);border:2px solid var(--border-heavy);border-bottom:8px solid var(--border-heavy);border-radius:var(--r);max-width:420px;width:100%;overflow:hidden;animation:pop .4s cubic-bezier(.175,.885,.32,1.275) both;">
+            <div style="background:var(--blue);padding:28px 20px 24px;text-align:center;position:relative;">
+                <button onclick="this.closest('[style]').remove()" style="position:absolute;top:10px;right:10px;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.3);border-radius:10px;color:var(--white);font-size:20px;font-weight:900;width:34px;height:34px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;">×</button>
+                <div style="font-size:68px;margin-bottom:8px;">🥞</div>
+                <div style="font-size:13px;font-weight:900;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:2px;margin-bottom:4px;">Lesson Complete!</div>
+                <div style="font-size:30px;font-weight:900;color:var(--white);letter-spacing:-1px;text-shadow:0 3px 0 var(--blue-shadow);">You flipped it!</div>
+            </div>
+            <div style="padding:20px;display:flex;flex-direction:column;gap:14px;">
+                <div style="background:var(--bg);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm, 16px);padding:18px;text-align:center;">
+                    <div style="font-size:48px;font-weight:900;color:var(--blue);">+${xp} XP</div>
+                    ${res?.leveledUp ? `<div style="color:var(--green-shadow);font-weight:900;font-size:16px;margin-top:6px;">🎊 LEVEL UP → Level ${res.newLevel}!</div>` : ''}
+                    ${res?.newStreak > 0 ? `<div style="color:var(--ink-3);font-weight:800;font-size:14px;margin-top:4px;">🔥 ${res.newStreak}-day streak!</div>` : ''}
+                </div>
+                <a href="/intermediate/" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:15px;background:var(--green);color:var(--white);font-size:16px;font-weight:900;border-radius:var(--rsm,16px);border:2px solid var(--green-shadow);border-bottom:5px solid var(--green-shadow);text-decoration:none;">Next Lesson →</a>
+                <a href="/dashboard-gamified/" style="display:flex;align-items:center;justify-content:center;padding:13px;background:var(--bg);color:var(--ink-3);font-size:14px;font-weight:800;border-radius:var(--rsm,16px);border:2px solid var(--border-heavy);border-bottom:3px solid var(--border-heavy);text-decoration:none;">📊 View Dashboard</a>
+            </div>
+        </div>`;
+    document.body.appendChild(ov);
+    burst(30);
+    setTimeout(() => burst(20), 300);
 }
 
 // ══════════════════════════════════════════════════════
