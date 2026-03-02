@@ -1524,7 +1524,7 @@ async function finishLesson() {
             window.location.href = '/signup/';
         } else {
             // Show debrief then completion screen even without login
-            prepCompletionScreen(sessionXP, accuracy);
+            await prepCompletionScreen(sessionXP, accuracy);
             setTimeout(() => startDebrief(() => {
                 document.getElementById('completion-screen').classList.add('open');
                 burst(30);
@@ -1562,7 +1562,7 @@ async function finishLesson() {
         }
     } catch(e) { console.warn('Save error:', e); }
 
-    prepCompletionScreen(xpEarned, accuracy);
+    await prepCompletionScreen(xpEarned, accuracy);
 
     // Debrief flip cards → badge unlock (with shiny option) → completion screen
     setTimeout(() => startDebrief(() => {
@@ -1572,14 +1572,15 @@ async function finishLesson() {
     }), 800);
 }
 
-function prepCompletionScreen(xpEarned, accuracy) {
+async function prepCompletionScreen(xpEarned, accuracy) {
     document.getElementById('cc-xp').textContent       = '+' + xpEarned + ' XP';
     document.getElementById('cc-vocab').textContent    = '…';
     document.getElementById('cc-combo').textContent    = bestCombo;
     document.getElementById('cc-accuracy').textContent = accuracy + '%';
 
     // Reflect shiny state in completion badge pill if already upgraded
-    if (getShinyBadges().has(BADGE_ID)) {
+    const shinySet = await getShinyBadges();
+    if (shinySet.has(BADGE_ID)) {
         document.getElementById('cc-badge-icon').textContent = '✨';
         document.getElementById('cc-badge-sub').textContent  = '✨ Holographic badge in your collection!';
     }
