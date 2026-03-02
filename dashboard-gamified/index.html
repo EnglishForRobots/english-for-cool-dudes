@@ -876,27 +876,19 @@ function handleDCButtonForChallenge(challenge) {
     //  BADGE COLLECTION
     // ══════════════════════════════════════════════════════════════════
      async function renderBadgeCollection(userId) {
-        if (!window.EFCD_Badges || !window.EFCD_Auth) return;
-        const profile = window.EFCD_Auth.getCurrentUser();
-        if (!profile) return;
-        try {
-            // Fetch lessons and shiny badges from Supabase in parallel
-            const [{ data: lessons }, { data: profileData }] = await Promise.all([
-                window.efcdSupabaseClient
-                    .from('lessons')
-                    .select('lesson_link, lesson_level, lesson_title, vocabulary')
-                    .eq('user_id', userId),
-                window.efcdSupabaseClient
-                    .from('profiles')
-                    .select('shiny_badges')
-                    .eq('id', userId)
-                    .single()
-            ]);
-            const shinyBadges = new Set(profileData?.shiny_badges || []);
-            const wrap = document.getElementById('badge-collection-wrap');
-            if (wrap) wrap.innerHTML = `<div class="sec-label">🏅 Badge Collection</div>${window.EFCD_Badges.renderGrid(profile, lessons || [], shinyBadges)}`;
-        } catch (err) { console.warn('Badge grid error:', err); }
-    }
+    if (!window.EFCD_Badges || !window.EFCD_Auth) return;
+    const profile = window.EFCD_Auth.getCurrentUser();
+    if (!profile) return;
+    try {
+        const [{ data: lessons }, { data: profileData }] = await Promise.all([
+            window.efcdSupabaseClient.from('lessons').select('lesson_link, lesson_level').eq('user_id', userId),
+            window.efcdSupabaseClient.from('profiles').select('shiny_badges').eq('id', userId).single()
+        ]);
+        const shinySet = new Set(profileData?.shiny_badges || []);
+        const wrap = document.getElementById('badge-collection-wrap');
+        if (wrap) wrap.innerHTML = `<div class="sec-label">🏅 Badge Collection</div>${window.EFCD_Badges.renderGrid(profile, lessons || [], shinySet)}`;
+    } catch (err) { console.warn('Badge grid error:', err); }
+}
 
     // ══════════════════════════════════════════════════════════════════
     //  TRACK MASTERY
