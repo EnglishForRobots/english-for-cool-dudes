@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+    <title>🏘️ Inside the Fuggerei — English For Cool Dudes</title>
+
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/init-auth.js"></script>
+
+    <style>
+    /* ══════════════════════════════════════════════
+       TOKENS — Advanced (punch/red accent system)
+    ══════════════════════════════════════════════ */
+    :root {
+        --blue:          #1CB0F6;
+        --blue-shadow:   #1899D6;
+        --yellow:        #FFC800;
+        --yellow-shadow: #E5B400;
+        --green:         #58CC02;
+        --green-shadow:  #58A700;
+        --punch:         #FF4B4B;
+        --punch-shadow:  #EA2B2B;
+        --purple:        #CE82FF;
+        --purple-shadow: #A559D9;
+        --teal:          #2BDECC;
+        --teal-shadow:   #1FBFAF;
+        --bg:            #F7F9FA;
+        --white:         #FFFFFF;
+        --ink:           #4B4B4B;
+        --ink-bold:      #111827;
+        --ink-3:         #AFAFAF;
+        --border:        #E5E5E5;
+        --border-heavy:  #CECECE;
+        --r:             24px;
+        --rsm:           16px;
+        --rxs:           10px;
+
+        /* Advanced accent = punch red */
+        --accent:        var(--punch);
+        --accent-shadow: var(--punch-shadow);
+        --accent-light:  rgba(255,75,75,.1);
+        --accent-border: rgba(255,75,75,.25);
+        --accent-text:   #C0392B;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family: 'Nunito', system-ui, sans-serif;
+        line-height: 1.5;
+        overflow-x: hidden;
+        padding-bottom: 84px;
+        -webkit-font-smoothing: antialiased;
+        -webkit-tap-highlight-color: transparent;
+    }
+    @media(min-width:768px){ body { padding-bottom: 0; } }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+    /* ══ ANIMATIONS ══ */
+    @keyframes up      { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes popin   { 0%{opacity:0;transform:scale(.82)} 70%{transform:scale(1.04)} 100%{opacity:1;transform:scale(1)} }
+    @keyframes nudge   { 0%,100%{transform:translateX(0)} 30%{transform:translateX(6px)} }
+    @keyframes float   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+    @keyframes shake   { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
+    @keyframes confetti{ 0%{opacity:1;transform:translateY(0) rotate(0)} 100%{opacity:0;transform:translateY(130px) rotate(400deg)} }
+    @keyframes slideLeft { from{opacity:1;transform:translateX(0)} to{opacity:0;transform:translateX(-32px)} }
+    @keyframes heartbeat { 0%,100%{transform:scale(1)} 14%{transform:scale(1.15)} 28%{transform:scale(1)} 42%{transform:scale(1.1)} 56%{transform:scale(1)} }
+    @keyframes xpPop   { 0%{opacity:1;transform:translateY(0) scale(1)} 100%{opacity:0;transform:translateY(-60px) scale(1.5)} }
+    @keyframes flick   { 0%,100%{transform:rotate(-4deg) scale(1)} 50%{transform:rotate(4deg) scale(1.12)} }
+    @keyframes shimmer { 0%{transform:translateX(-100%) skewX(-15deg)} 100%{transform:translateX(300%) skewX(-15deg)} }
+    @keyframes holographic { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+    @keyframes badgeEntry {
+        0%   { opacity:0; transform:scale(.4) rotate(-12deg); }
+        60%  { transform:scale(1.08) rotate(3deg); }
+        80%  { transform:scale(.97) rotate(-1deg); }
+        100% { opacity:1; transform:scale(1) rotate(0deg); }
+    }
+    @keyframes shineSwipe {
+        0%   { transform:translateX(-100%) skewX(-20deg); opacity:0; }
+        20%  { opacity:.6; }
+        100% { transform:translateX(200%) skewX(-20deg); opacity:0; }
+    }
+
+    .u1{animation:up .44s ease both .04s}
+    .u2{animation:up .44s ease both .14s}
+    .u3{animation:up .44s ease both .24s}
+
+    /* ══ HEADER ══ */
+    .header {
+        background: var(--white);
+        border-bottom: 3px solid var(--punch);
+        padding: 0 20px; height: 60px;
+        position: sticky; top: 0; z-index: 300;
+        display: flex; align-items: center;
+        box-shadow: 0 4px 12px rgba(255,75,75,.12);
+    }
+    .header-inner {
+        max-width: 900px; width: 100%; margin: 0 auto;
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo-link { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-box {
+        width: 38px; height: 38px;
+        background: var(--punch); border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px; border: 2px solid var(--punch-shadow);
+        box-shadow: 0 3px 0 var(--punch-shadow);
+    }
+    .site-name { font-size: 15px; font-weight: 900; color: var(--ink-bold); letter-spacing: -.3px; }
+    @media(max-width:420px){ .site-name{display:none} }
+
+    .header-xp { display: flex; align-items: center; gap: 8px; }
+    .streak-mini { display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 900; color: var(--punch); }
+    .streak-mini span:first-child { animation: flick 2s ease-in-out infinite; display: inline-block; }
+    .xp-pill {
+        background: rgba(255,75,75,.08);
+        border: 2px solid rgba(255,75,75,.2);
+        border-radius: 99px; padding: 5px 12px;
+        font-size: 14px; font-weight: 900; color: var(--accent-text);
+        display: flex; align-items: center; gap: 5px;
+    }
+    .btn-dash {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 36px; height: 36px;
+        background: rgba(255,75,75,.08); border: 2px solid rgba(255,75,75,.2);
+        border-bottom: 4px solid rgba(255,75,75,.25); border-radius: 10px;
+        font-size: 18px; text-decoration: none; transition: all .15s;
+    }
+    .btn-dash:hover  { background: var(--punch); }
+    .btn-dash:active { border-bottom-width: 2px; transform: translateY(2px); }
+
+    /* ══ PAGE ══ */
+    .page { max-width: 900px; margin: 0 auto; padding: 20px 14px 32px; display: flex; flex-direction: column; gap: 14px; }
+
+    /* ══ LESSON BANNER ══ */
+    .lesson-banner {
+        background: var(--punch);
+        border: 2px solid var(--punch-shadow);
+        border-bottom: 6px solid var(--punch-shadow);
+        border-radius: var(--r);
+        padding: 24px 20px 20px;
+        position: relative; overflow: hidden;
+    }
+    .lesson-banner::after {
+        content: '🏘️';
+        position: absolute; bottom: -16px; right: 8px;
+        font-size: 120px; opacity: .12; pointer-events: none;
+        transform: rotate(-8deg);
+    }
+    .lesson-eyebrow {
+        display: inline-block;
+        background: var(--yellow); color: var(--ink-bold);
+        font-size: 12px; font-weight: 900;
+        text-transform: uppercase; letter-spacing: 1.5px;
+        padding: 4px 12px; border-radius: 8px;
+        border: 2px solid var(--yellow-shadow); margin-bottom: 12px;
+    }
+    .lesson-title {
+        font-size: clamp(22px, 6vw, 36px);
+        font-weight: 900; color: var(--white);
+        letter-spacing: -1px; line-height: 1.1;
+        margin-bottom: 5px; position: relative; z-index: 1;
+        text-shadow: 0 2px 0 var(--punch-shadow);
+    }
+    .lesson-sub {
+        font-size: 14px; font-weight: 700;
+        color: rgba(255,255,255,.9);
+        position: relative; z-index: 1; margin-bottom: 16px;
+    }
+    .prog-wrap {
+        position: relative; z-index: 1;
+        background: rgba(255,255,255,.2); padding: 11px 13px; border-radius: var(--rsm);
+    }
+    .prog-row  { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; color: var(--white); margin-bottom: 7px; }
+    .prog-track{ height: 14px; background: rgba(0,0,0,.15); border-radius: 99px; overflow: hidden; border: 2px solid rgba(0,0,0,.1); }
+    .prog-fill { height: 100%; width: 0%; border-radius: 99px; background: var(--yellow); border-top: 3px solid rgba(255,255,255,.35); transition: width .7s cubic-bezier(.4,0,.2,1); }
+
+    /* ══ SECTION CARDS ══ */
+    .sec-card {
+        background: var(--white);
+        border: 2px solid var(--border-heavy);
+        border-bottom: 6px solid var(--border-heavy);
+        border-radius: var(--r);
+        overflow: hidden;
+        opacity: 0; transform: translateY(16px);
+        transition: opacity .4s ease, transform .4s ease;
+        scroll-margin-top: 72px;
+    }
+    .sec-card.visible { opacity: 1; transform: translateY(0); }
+    .sec-card::before { content: ''; display: block; height: 8px; border-radius: var(--r) var(--r) 0 0; margin: -2px -2px 0; }
+    .strip-punch::before  { background: linear-gradient(90deg, var(--punch), #FF8080); }
+    .strip-blue::before   { background: var(--blue); }
+    .strip-yellow::before { background: var(--yellow); }
+    .strip-green::before  { background: var(--green); }
+    .strip-purple::before { background: var(--purple); }
+    .strip-teal::before   { background: var(--teal); }
+
+    .sec-head {
+        padding: 13px 18px 11px; border-bottom: 2px solid var(--border);
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    .sec-head-left { display: flex; align-items: center; gap: 10px; }
+    .sec-head-icon {
+        width: 40px; height: 40px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px; flex-shrink: 0;
+        background: var(--bg); border: 2px solid var(--border-heavy);
+        border-bottom: 3px solid var(--border-heavy);
+    }
+    .sec-head-title { font-size: 15px; font-weight: 900; color: var(--ink-bold); letter-spacing: -.3px; }
+    .sec-head-sub   { font-size: 12px; font-weight: 700; color: var(--ink-3); margin-top: 1px; }
+    .sec-body { padding: 18px; }
+    @media(min-width:640px){ .sec-body { padding: 22px; } }
+
+    /* ══ VIDEO ══ */
+    .video-wrap {
+        position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;
+        border-radius: var(--rsm); background: #000;
+        border: 2px solid var(--border-heavy); box-shadow: 0 4px 0 var(--border-heavy);
+        margin-bottom: 14px;
+    }
+    .video-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+    .fact-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .fact-chip {
+        background: rgba(255,75,75,.07); border: 2px solid rgba(255,75,75,.18);
+        border-bottom: 3px solid rgba(255,75,75,.18); border-radius: 99px;
+        padding: 6px 14px; font-size: 12px; font-weight: 900; color: var(--punch-shadow);
+        animation: up .4s ease both;
+    }
+
+    /* ══ VOCAB FLASHCARDS ══ */
+    .vc-progress { display: flex; gap: 5px; margin-bottom: 14px; }
+    .vc-pip { flex: 1; height: 6px; border-radius: 99px; background: var(--border-heavy); transition: background .3s; }
+    .vc-pip.done   { background: var(--yellow); }
+    .vc-pip.active { background: var(--punch); }
+
+    .vc-card {
+        background: var(--bg); border: 2px solid var(--border-heavy);
+        border-bottom: 5px solid var(--border-heavy);
+        border-radius: var(--rsm); overflow: hidden; animation: up .28s ease both;
+    }
+    .vc-card.exit { animation: slideLeft .22s ease both; }
+    .vc-front { padding: 20px 18px; cursor: pointer; user-select: none; }
+    .vc-type  { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; color: var(--ink-3); margin-bottom: 6px; }
+    .vc-word  { font-size: clamp(26px, 7vw, 40px); font-weight: 900; color: var(--ink-bold); letter-spacing: -1.5px; margin-bottom: 10px; line-height: 1; }
+    .vc-tap-hint { font-size: 12px; font-weight: 800; color: var(--ink-3); display: flex; align-items: center; gap: 5px; animation: nudge 2s ease-in-out infinite; }
+
+    .vc-back { display: none; padding: 18px; background: rgba(255,75,75,.05); border-top: 2px solid rgba(255,75,75,.15); }
+    .vc-back.show { display: block; animation: up .2s ease both; }
+    .vc-def { font-size: 15px; font-weight: 700; color: var(--ink-bold); line-height: 1.65; margin-bottom: 12px; }
+    .vc-example {
+        font-size: 13px; font-weight: 700; color: var(--ink);
+        background: rgba(255,75,75,.07); border-left: 3px solid var(--punch);
+        padding: 8px 12px; border-radius: 0 8px 8px 0; margin-bottom: 14px; font-style: italic;
+    }
+    .vc-example strong { color: var(--punch-shadow); font-style: normal; }
+    .vc-actions { display: flex; gap: 10px; }
+    .vc-hear {
+        flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+        padding: 12px; background: var(--white); color: var(--ink-bold);
+        border: 2px solid var(--border-heavy); border-bottom: 4px solid var(--border-heavy);
+        border-radius: var(--rsm); font-size: 14px; font-weight: 900;
+        transition: transform .1s, border-bottom-width .1s;
+    }
+    .vc-hear:active { border-bottom-width: 2px; transform: translateY(2px); }
+    .vc-next {
+        flex: 2; display: flex; align-items: center; justify-content: center; gap: 6px;
+        padding: 12px; background: var(--punch); color: var(--white);
+        border: 2px solid var(--punch-shadow); border-bottom: 4px solid var(--punch-shadow);
+        border-radius: var(--rsm); font-size: 14px; font-weight: 900;
+        transition: transform .1s, border-bottom-width .1s;
+    }
+    .vc-next:active { border-bottom-width: 2px; transform: translateY(2px); }
+
+    /* ══ HOT TAKES ══ */
+    .ht-dots { display: flex; justify-content: center; gap: 7px; margin-bottom: 16px; }
+    .ht-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border-heavy); border: 2px solid var(--border-heavy); transition: all .3s; }
+    .ht-dot.active { width: 28px; border-radius: 6px; background: var(--punch); border-color: var(--punch-shadow); }
+    .ht-dot.done   { background: var(--yellow); border-color: var(--yellow-shadow); }
+
+    .ht-card { background: var(--bg); border: 2px solid var(--border); border-radius: var(--rsm); padding: 20px; animation: up .3s ease both; }
+    .ht-card.exit { animation: slideLeft .2s ease both; }
+    .ht-num  { font-size: 11px; font-weight: 900; color: var(--ink-3); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+    .ht-heat { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; padding: 4px 12px; border-radius: 8px; margin-bottom: 14px; border: 2px solid; }
+    .h1 { background: rgba(88,204,2,.1); border-color: var(--green-shadow); color: var(--green-shadow); }
+    .h2 { background: rgba(255,200,0,.15); border-color: var(--yellow-shadow); color: #7A5800; }
+    .h3 { background: rgba(255,75,75,.1); border-color: var(--punch-shadow); color: var(--punch-shadow); }
+    .ht-statement { font-size: clamp(16px, 4.5vw, 21px); font-weight: 900; color: var(--ink-bold); line-height: 1.3; letter-spacing: -.3px; margin-bottom: 18px; }
+    .ht-votes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .ht-btn {
+        display: flex; align-items: center; justify-content: center; gap: 7px;
+        padding: 15px 10px; min-height: 56px; font-size: 15px; font-weight: 900;
+        border-radius: var(--rsm); border: 2px solid; border-bottom-width: 5px;
+        transition: transform .1s, border-bottom-width .1s;
+    }
+    .ht-btn:active { border-bottom-width: 2px; transform: translateY(3px); }
+    .ht-btn.agree    { background: rgba(88,204,2,.08);  border-color: var(--green-shadow); color: var(--green-shadow); }
+    .ht-btn.disagree { background: rgba(255,75,75,.08); border-color: var(--punch-shadow); color: var(--punch-shadow); }
+    .ht-btn.sel-right { background: var(--green) !important; color: var(--white) !important; border-color: var(--green-shadow) !important; animation: heartbeat .6s ease; }
+    .ht-btn.sel-wrong { background: var(--punch)  !important; color: var(--white) !important; border-color: var(--punch-shadow) !important; animation: shake .4s; }
+    .ht-btn:disabled  { cursor: default; opacity: .85; }
+
+    .ht-reveal { margin-top: 14px; border: 2px solid var(--border-heavy); border-radius: var(--rsm); display: none; overflow: hidden; }
+    .ht-reveal.show { display: block; animation: up .22s ease both; }
+    .ht-verdict { padding: 12px 16px; font-size: 16px; font-weight: 900; }
+    .ht-verdict.right { background: var(--green); color: var(--white); }
+    .ht-verdict.wrong { background: var(--punch); color: var(--white); }
+    .ht-explanation { padding: 14px 16px; font-size: 14px; font-weight: 700; line-height: 1.65; color: var(--ink-bold); background: var(--white); border-top: 2px solid var(--border); }
+    .ht-voc { color: var(--punch-shadow); font-weight: 900; border-bottom: 2.5px solid rgba(255,75,75,.35); cursor: pointer; }
+    .ht-next-btn {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        width: 100%; margin-top: 14px; padding: 14px;
+        background: var(--punch); color: var(--white);
+        font-size: 16px; font-weight: 900;
+        border: 2px solid var(--punch-shadow); border-bottom: 5px solid var(--punch-shadow);
+        border-radius: var(--rsm); transition: transform .1s, border-bottom-width .1s;
+    }
+    .ht-next-btn:active { border-bottom-width: 2px; transform: translateY(3px); }
+    .ht-done { text-align: center; padding: 28px 18px; animation: popin .4s cubic-bezier(.175,.885,.32,1.275) both; }
+    .ht-done-icon  { font-size: 54px; display: block; margin-bottom: 10px; animation: float 2.5s ease-in-out infinite; }
+    .ht-done-title { font-size: 22px; font-weight: 900; color: var(--ink-bold); margin-bottom: 6px; }
+    .ht-done-sub   { font-size: 14px; font-weight: 700; color: var(--ink-3); margin-bottom: 18px; }
+
+    /* ══ TAP THE ANSWER ══ */
+    .tap-progress { display: flex; gap: 5px; margin-bottom: 14px; }
+    .tp-pip { flex: 1; height: 6px; border-radius: 99px; background: var(--border-heavy); transition: background .3s; }
+    .tp-pip.done   { background: var(--yellow); }
+    .tp-pip.active { background: var(--blue); }
+
+    .tap-q { background: var(--bg); border: 2px solid var(--border); border-radius: var(--rsm); padding: 20px 18px; margin-bottom: 12px; animation: up .28s ease both; }
+    .tap-q.exit { animation: slideLeft .2s ease both; }
+    .tap-q-num  { font-size: 11px; font-weight: 900; color: var(--ink-3); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+    .tap-q-text { font-size: clamp(15px, 4vw, 19px); font-weight: 900; color: var(--ink-bold); line-height: 1.35; margin-bottom: 16px; letter-spacing: -.3px; }
+    .tap-q-text .blank { display: inline-block; min-width: 90px; height: 28px; background: rgba(28,176,246,.1); border-bottom: 3px solid var(--blue); border-radius: 4px; vertical-align: bottom; margin: 0 3px; }
+
+    .tap-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .tap-opt {
+        padding: 14px 10px; font-size: 14px; font-weight: 900; background: var(--white);
+        color: var(--ink-bold); text-align: center;
+        border: 2px solid var(--border-heavy); border-bottom: 5px solid var(--border-heavy);
+        border-radius: var(--rsm); transition: transform .1s, border-bottom-width .1s, background .15s;
+        min-height: 54px; display: flex; align-items: center; justify-content: center;
+    }
+    .tap-opt:active:not(:disabled) { border-bottom-width: 2px; transform: translateY(3px); }
+    .tap-opt.right { background: var(--green) !important; color: var(--white) !important; border-color: var(--green-shadow) !important; animation: heartbeat .55s ease; }
+    .tap-opt.wrong { background: var(--punch)  !important; color: var(--white) !important; border-color: var(--punch-shadow) !important; animation: shake .4s; }
+    .tap-opt:disabled { cursor: default; }
+    .tap-feedback { margin-top: 12px; padding: 12px 14px; border-radius: var(--rsm); font-size: 14px; font-weight: 800; border: 2px solid; display: none; }
+    .tap-feedback.show  { display: block; animation: up .2s ease both; }
+    .tap-feedback.right { background: rgba(88,204,2,.1); color: var(--green-shadow); border-color: rgba(88,204,2,.3); }
+    .tap-feedback.wrong { background: rgba(255,75,75,.1); color: var(--punch-shadow); border-color: rgba(255,75,75,.3); }
+    .tap-next {
+        display: flex; align-items: center; justify-content: center; gap: 7px;
+        width: 100%; margin-top: 12px; padding: 14px;
+        background: var(--blue); color: var(--white); font-size: 15px; font-weight: 900;
+        border: 2px solid var(--blue-shadow); border-bottom: 5px solid var(--blue-shadow);
+        border-radius: var(--rsm); transition: transform .1s, border-bottom-width .1s;
+    }
+    .tap-next:active { border-bottom-width: 2px; transform: translateY(3px); }
+    .tap-done { text-align: center; padding: 26px 18px; animation: popin .4s cubic-bezier(.175,.885,.32,1.275) both; }
+    .tap-done-icon  { font-size: 52px; display: block; margin-bottom: 10px; animation: float 2.5s ease-in-out infinite; }
+    .tap-done-title { font-size: 22px; font-weight: 900; color: var(--ink-bold); margin-bottom: 6px; }
+    .tap-done-sub   { font-size: 14px; font-weight: 700; color: var(--ink-3); margin-bottom: 18px; }
+    .score-bar { display: flex; justify-content: flex-end; margin-bottom: 12px; gap: 6px; }
+    .score-pip { width: 22px; height: 22px; border-radius: 50%; background: var(--border-heavy); border: 2px solid var(--border-heavy); transition: all .3s; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+    .score-pip.right { background: var(--green); border-color: var(--green-shadow); color: var(--white); }
+    .score-pip.wrong { background: var(--punch);  border-color: var(--punch-shadow);  color: var(--white); }
+
+    /* ══ GRAMMAR ══ */
+    .gram-tip {
+        background: var(--bg); border: 2px solid var(--border);
+        border-left: 5px solid var(--purple);
+        border-radius: 0 var(--rsm) var(--rsm) 0;
+        padding: 14px 16px; margin-bottom: 16px;
+    }
+    .gram-tip h4 { font-size: 11px; font-weight: 900; color: var(--purple-shadow); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+    .gram-tip p  { font-size: 14px; font-weight: 700; color: var(--ink); line-height: 1.5; margin-bottom: 8px; }
+    .gram-ex { padding: 7px 12px; margin: 4px 0; background: rgba(206,130,255,.1); border-left: 3px solid var(--purple); border-radius: 0 8px 8px 0; font-size: 13px; font-weight: 700; }
+    .gram-ex strong { color: var(--purple-shadow); font-weight: 900; }
+
+    .gq-progress { display: flex; gap: 5px; margin-bottom: 16px; }
+    .gp-pip { flex: 1; height: 6px; border-radius: 99px; background: var(--border-heavy); transition: background .3s; }
+    .gp-pip.done   { background: var(--yellow); }
+    .gp-pip.active { background: var(--purple); }
+
+    .gq-card { background: var(--bg); border: 2px solid var(--border); border-radius: var(--rsm); padding: 20px; margin-bottom: 12px; animation: up .28s ease both; }
+    .gq-card.exit { animation: slideLeft .2s ease both; }
+    .gq-num  { font-size: 11px; font-weight: 900; color: var(--ink-3); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+    .gq-sent { font-size: clamp(15px, 4vw, 19px); font-weight: 900; color: var(--ink-bold); line-height: 1.35; margin-bottom: 6px; letter-spacing: -.3px; }
+    .gq-hint { font-size: 12px; font-weight: 700; color: var(--ink-3); font-style: italic; margin-bottom: 16px; }
+    .gq-options { display: flex; flex-direction: column; gap: 8px; }
+    .gq-opt {
+        padding: 14px 18px; font-size: 15px; font-weight: 900; background: var(--white);
+        color: var(--ink-bold); text-align: center;
+        border: 2px solid var(--border-heavy); border-bottom: 5px solid var(--border-heavy);
+        border-radius: var(--rsm); transition: transform .1s, border-bottom-width .1s; min-height: 52px;
+    }
+    .gq-opt:active:not(:disabled) { border-bottom-width: 2px; transform: translateY(3px); }
+    .gq-opt.right { background: var(--green) !important; color: var(--white) !important; border-color: var(--green-shadow) !important; animation: heartbeat .55s ease; }
+    .gq-opt.wrong { background: var(--punch)  !important; color: var(--white) !important; border-color: var(--punch-shadow) !important; animation: shake .35s; }
+    .gq-opt:disabled { cursor: default; }
+    .gq-feedback { margin-top: 12px; padding: 12px 14px; border-radius: var(--rsm); font-size: 14px; font-weight: 800; border: 2px solid; display: none; }
+    .gq-feedback.show  { display: block; animation: up .2s ease both; }
+    .gq-feedback.right { background: rgba(88,204,2,.1); color: var(--green-shadow); border-color: rgba(88,204,2,.3); }
+    .gq-feedback.wrong { background: rgba(255,75,75,.1); color: var(--punch-shadow); border-color: rgba(255,75,75,.3); }
+    .gq-next {
+        display: flex; align-items: center; justify-content: center; gap: 7px;
+        width: 100%; margin-top: 12px; padding: 14px;
+        background: var(--purple); color: var(--white); font-size: 15px; font-weight: 900;
+        border: 2px solid var(--purple-shadow); border-bottom: 5px solid var(--purple-shadow);
+        border-radius: var(--rsm); transition: transform .1s, border-bottom-width .1s;
+    }
+    .gq-next:active { border-bottom-width: 2px; transform: translateY(3px); }
+
+    /* ══ CONTINUE BUTTON ══ */
+    .btn-continue {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        width: 100%; padding: 15px; margin-top: 14px;
+        background: var(--punch); color: var(--white);
+        font-size: 16px; font-weight: 900;
+        border: 2px solid var(--punch-shadow); border-bottom: 5px solid var(--punch-shadow);
+        border-radius: var(--rsm); transition: transform .1s, border-bottom-width .1s;
+    }
+    .btn-continue:active { border-bottom-width: 2px; transform: translateY(3px); }
+    .btn-arrow { font-size: 20px; animation: nudge 2.2s ease-in-out infinite; }
+
+    /* ══ VOCAB POPUP ══ */
+    #voc-popup {
+        position: fixed; bottom: 76px; left: 12px; right: 12px;
+        background: var(--white);
+        border: 2px solid var(--border-heavy); border-bottom: 6px solid var(--border-heavy);
+        border-top: 4px solid var(--punch);
+        padding: 18px 18px 20px; border-radius: var(--r) var(--r) var(--rsm) var(--rsm);
+        z-index: 500; display: none;
+        box-shadow: 0 -6px 28px rgba(0,0,0,.1);
+        animation: up .25s cubic-bezier(.175,.885,.32,1.275) both;
+        max-height: 44vh; overflow-y: auto;
+    }
+    @media(min-width:768px){ #voc-popup { position: fixed; bottom: 24px; right: 24px; left: auto; max-width: 300px; border-radius: var(--r); } }
+    .vp-close { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border-radius: var(--rxs); background: var(--bg); border: 2px solid var(--border-heavy); font-size: 18px; font-weight: 900; color: var(--ink-3); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .voc-word { font-size: 22px; font-weight: 900; color: var(--punch-shadow); letter-spacing: -.4px; margin-bottom: 2px; }
+    .voc-type { font-size: 11px; font-weight: 900; color: var(--ink-3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    .voc-def  { font-size: 14px; font-weight: 700; color: var(--ink); line-height: 1.65; margin-bottom: 14px; }
+    .voc-hear {
+        width: 100%; padding: 12px;
+        background: var(--punch); color: var(--white);
+        border: 2px solid var(--punch-shadow); border-bottom: 5px solid var(--punch-shadow);
+        border-radius: var(--rsm); font-size: 15px; font-weight: 900;
+        transition: transform .1s, border-bottom-width .1s;
+    }
+    .voc-hear:active { border-bottom-width: 2px; transform: translateY(3px); }
+
+    /* ══ BADGE TOASTS ══ */
+    .badge-wrap { position: fixed; top: 70px; right: 12px; display: flex; flex-direction: column; gap: 8px; z-index: 999; pointer-events: none; }
+    .badge {
+        background: var(--white); border: 2px solid var(--border-heavy);
+        border-bottom: 4px solid var(--border-heavy); border-left: 4px solid var(--punch);
+        padding: 10px 14px; border-radius: var(--rsm);
+        display: flex; align-items: center; gap: 8px;
+        transform: translateX(240px); opacity: 0; transition: transform .4s, opacity .4s;
+        box-shadow: 0 4px 14px rgba(0,0,0,.08);
+    }
+    .badge.show { transform: translateX(0); opacity: 1; }
+    .badge-icon { font-size: 22px; }
+    .badge-text { font-size: 13px; font-weight: 900; color: var(--ink-bold); }
+
+    /* ══ CONFETTI + XP FLOAT ══ */
+    .confetti-dot { position: fixed; width: 10px; height: 10px; border-radius: 3px; pointer-events: none; z-index: 9999; animation: confetti .9s ease-out both; }
+    .xp-float { position: fixed; font-size: 20px; font-weight: 900; color: var(--yellow-shadow); text-shadow: 0 2px 0 rgba(0,0,0,.12); pointer-events: none; z-index: 9998; animation: xpPop .85s ease-out forwards; }
+
+    /* ══ BADGE UNLOCK OVERLAY ══ */
+    #badge-unlock-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px; }
+    #badge-unlock-overlay.open { display: flex; }
+    .bu-card {
+        background: linear-gradient(145deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        border: 2px solid var(--yellow); border-bottom: 6px solid var(--yellow-shadow);
+        border-radius: 28px; padding: 36px 28px 28px;
+        max-width: 360px; width: 100%; text-align: center;
+        position: relative; overflow: hidden;
+        animation: badgeEntry .65s cubic-bezier(.175,.885,.32,1.275) both;
+    }
+    .bu-shine { position: absolute; inset: 0; background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.25) 50%, transparent 60%); animation: shineSwipe 1.2s ease .5s both; pointer-events: none; border-radius: 28px; }
+    .bu-eyebrow { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: var(--yellow); margin-bottom: 20px; }
+    .bu-icon-wrap {
+        width: 110px; height: 110px; margin: 0 auto 18px; border-radius: 28px;
+        background: linear-gradient(135deg, var(--yellow) 0%, #FF9600 100%);
+        border: 3px solid var(--yellow-shadow);
+        box-shadow: 0 0 0 6px rgba(255,200,0,.15), 0 0 40px rgba(255,200,0,.3);
+        display: flex; align-items: center; justify-content: center;
+        transition: all .4s;
+    }
+    .bu-icon-wrap.shiny {
+        background: linear-gradient(135deg, #FFD700, #FF6B6B, #4ECDC4, #45B7D1, #96CEB4, #FFEAA7, #FFD700);
+        background-size: 300% 300%; animation: holographic 3s ease infinite;
+        box-shadow: 0 0 0 6px rgba(255,215,0,.3), 0 0 40px rgba(255,100,150,.4);
+    }
+    .bu-icon { font-size: 58px; animation: float 2.2s ease-in-out infinite; display: block; line-height: 1; }
+    .bu-name { font-size: 24px; font-weight: 900; color: var(--white); letter-spacing: -.5px; margin-bottom: 8px; text-shadow: 0 2px 12px rgba(255,200,0,.4); }
+    .bu-desc { font-size: 14px; font-weight: 700; color: rgba(255,255,255,.7); line-height: 1.55; margin-bottom: 16px; }
+    .bu-rarity { display: inline-block; font-size: 11px; font-weight: 900; color: var(--yellow); background: rgba(255,200,0,.12); border: 1.5px solid rgba(255,200,0,.3); padding: 4px 14px; border-radius: 99px; margin-bottom: 18px; }
+
+    .bu-shiny-prompt { background: rgba(255,255,255,.07); border: 1.5px solid rgba(206,130,255,.3); border-radius: 14px; padding: 12px 14px; margin-bottom: 16px; display: none; }
+    .bu-shiny-prompt.visible { display: block; }
+    .bu-shiny-title { font-size: 12px; font-weight: 900; color: #CE82FF; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .bu-shiny-row { display: flex; align-items: center; gap: 10px; }
+    .bu-shiny-desc { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.6); flex: 1; line-height: 1.4; }
+    .bu-shiny-btn { background: linear-gradient(135deg, #CE82FF, #A559D9); color: var(--white); border: none; border-radius: 10px; padding: 8px 14px; font-size: 12px; font-weight: 900; cursor: pointer; font-family: inherit; white-space: nowrap; transition: opacity .15s; }
+    .bu-shiny-btn:hover { opacity: .85; }
+    .bu-shiny-btn:disabled { opacity: .4; cursor: not-allowed; }
+    .bu-shiny-already { font-size: 12px; font-weight: 900; color: #CE82FF; text-align: center; padding: 8px; }
+
+    .bu-btn { width: 100%; padding: 15px; background: var(--yellow); color: var(--ink-bold); border: 2px solid var(--yellow-shadow); border-bottom: 5px solid var(--yellow-shadow); border-radius: var(--rsm); font-size: 16px; font-weight: 900; cursor: pointer; transition: transform .1s, border-bottom-width .1s; }
+    .bu-btn:active { border-bottom-width: 2px; transform: translateY(3px); }
+
+    /* ══ COMPLETION SCREEN ══ */
+    #completion-screen { position: fixed; inset: 0; background: var(--bg); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+    #completion-screen.open { display: flex; }
+    .completion-card { background: var(--white); border: 2px solid var(--border-heavy); border-bottom: 8px solid var(--punch-shadow); border-radius: 24px; padding: 32px 24px; max-width: 480px; width: 100%; text-align: center; }
+    .cc-icon { font-size: 72px; display: block; margin-bottom: 10px; animation: float 3s ease-in-out infinite; }
+    .cc-title { font-weight: 900; font-size: 30px; color: var(--punch-shadow); margin-bottom: 5px; letter-spacing: -1px; }
+    .cc-sub   { font-size: 15px; font-weight: 700; color: var(--ink-3); margin-bottom: 22px; }
+    .cc-xp-box { background: var(--punch); border: 2px solid var(--punch-shadow); border-bottom: 6px solid var(--punch-shadow); border-radius: var(--r); padding: 18px; margin-bottom: 18px; }
+    .cc-xp-num   { font-weight: 900; font-size: 48px; color: var(--white); line-height: 1; }
+    .cc-xp-label { font-size: 13px; font-weight: 900; color: rgba(255,255,255,.85); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+    .cc-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+    .cc-stat { background: rgba(255,75,75,.07); border: 2px solid rgba(255,75,75,.15); border-radius: var(--rsm); padding: 12px 8px; }
+    .cc-stat-n { font-size: 22px; font-weight: 900; color: var(--punch-shadow); }
+    .cc-stat-l { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; color: var(--ink-3); margin-top: 2px; }
+    .cc-badge-row { margin-bottom: 14px; }
+    .cc-badge-pill { display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg, rgba(255,200,0,.12), rgba(255,200,0,.04)); border: 2px solid rgba(255,200,0,.4); border-radius: var(--rsm); padding: 12px 14px; }
+    .cc-badge-icon  { font-size: 28px; flex-shrink: 0; }
+    .cc-badge-name  { font-size: 14px; font-weight: 900; color: var(--ink-bold); }
+    .cc-badge-sub   { font-size: 11px; font-weight: 700; color: var(--ink-3); margin-top: 1px; }
+    .cc-badge-tick  { margin-left: auto; flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; background: var(--green); color: var(--white); font-size: 12px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+    .cc-btns { display: flex; flex-direction: column; gap: 10px; }
+    .cc-btn { width: 100%; padding: 14px; border-radius: var(--r); font-size: 15px; font-weight: 900; font-family: inherit; cursor: pointer; border: 2px solid; border-bottom: 5px solid; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all .15s; }
+    .cc-btn:active { border-bottom-width: 2px; transform: translateY(3px); }
+    .cc-btn.primary { background: var(--punch); color: var(--white); border-color: var(--punch-shadow); border-bottom-color: var(--punch-shadow); }
+    .cc-btn.white   { background: var(--white); color: var(--punch-shadow); border-color: var(--punch); }
+
+    /* ══ BOTTOM NAV ══ */
+    .bot-nav {
+        position: fixed; bottom: 0; left: 0; right: 0;
+        background: var(--white); border-top: 2px solid var(--border);
+        padding: 10px 12px; padding-bottom: calc(10px + env(safe-area-inset-bottom));
+        display: flex; align-items: center; gap: 10px; z-index: 200;
+    }
+    @media(min-width:768px){ .bot-nav { display: none; } }
+    .bn-btn { flex: 1; background: var(--bg); color: var(--ink-bold); border: 2px solid var(--border-heavy); border-bottom: 4px solid var(--border-heavy); padding: 12px; border-radius: var(--rsm); font-weight: 900; font-size: 15px; min-height: 50px; font-family: inherit; transition: transform .1s, border-bottom-width .1s; }
+    .bn-btn:active { border-bottom-width: 2px; transform: translateY(2px); }
+    .bn-btn.primary { flex: 2; background: var(--punch); color: var(--white); border-color: var(--punch-shadow); }
+    .bn-btn:disabled { opacity: .3; cursor: not-allowed; }
+    .bn-ind { font-size: 12px; font-weight: 900; color: var(--ink-3); white-space: nowrap; text-align: center; min-width: 40px; }
+
+    /* ══ DAILY CHALLENGE SLOT ══ */
+    #daily-challenge-widget { }
+    </style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header class="header">
+    <div class="header-inner">
+        <a href="/advanced/" class="logo-link">
+            <div class="logo-box">🏘️</div>
+            <span class="site-name">English For Cool Dudes</span>
+        </a>
+        <div class="header-xp">
+            <div class="streak-mini">
+                <span>🔥</span>
+                <span id="hdr-streak">0</span>
+            </div>
+            <div class="xp-pill">⚡ <span id="hdr-xp">0</span> XP</div>
+            <a href="/dashboard-gamified/" class="btn-dash" title="Dashboard">📊</a>
+        </div>
+    </div>
+</header>
+
+<div class="badge-wrap" id="badge-wrap"></div>
+<div id="voc-popup">
+    <button class="vp-close" onclick="closeVoc()">×</button>
+    <div id="vp-body"></div>
+</div>
+
+<div class="page">
+
+    <!-- LESSON BANNER -->
+    <div class="lesson-banner u1">
+        <div class="lesson-eyebrow">🎯 Advanced (C1) · History &amp; Society</div>
+        <div class="lesson-title">Inside the Fuggerei</div>
+        <div class="lesson-sub">500 years old · €0.88 rent · the world's oldest social housing — video lesson</div>
+        <div class="prog-wrap">
+            <div class="prog-row">
+                <span id="prog-label">0 / 5 sections</span>
+                <span id="prog-pct">0%</span>
+            </div>
+            <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+        </div>
+    </div>
+
+    <div id="daily-challenge-widget"></div>
+
+    <!-- SECTIONS injected by JS -->
+    <div id="sections"></div>
+
+</div>
+
+<nav class="bot-nav">
+    <button class="bn-btn" id="bn-prev" onclick="prevSec()" disabled>← Back</button>
+    <span class="bn-ind" id="bn-ind">1/5</span>
+    <button class="bn-btn primary" id="bn-next" onclick="nextSec()">Next →</button>
+</nav>
+
+<!-- BADGE UNLOCK OVERLAY -->
+<div id="badge-unlock-overlay">
+    <div class="bu-card" id="bu-card">
+        <div class="bu-shine"></div>
+        <div class="bu-eyebrow">✨ New Badge Unlocked!</div>
+        <div class="bu-icon-wrap" id="bu-icon-wrap">
+            <div class="bu-icon" id="bu-icon">🏘️</div>
+        </div>
+        <div class="bu-name" id="bu-name">Fuggerei Fellow</div>
+        <div class="bu-desc" id="bu-desc">You completed the Fuggerei lesson — 500 years of social history in one lesson!</div>
+        <div class="bu-rarity" id="bu-rarity">🌟 Lesson Badge · Rare</div>
+        <div class="bu-shiny-prompt" id="bu-shiny-prompt">
+            <div class="bu-shiny-title">✨ Upgrade to Shiny?</div>
+            <div class="bu-shiny-row">
+                <div class="bu-shiny-desc" id="bu-shiny-desc">Make your badge holographic forever for <strong style="color:#CE82FF;">200 XP</strong></div>
+                <button class="bu-shiny-btn" id="bu-shiny-btn" onclick="upgradeToShiny()">⚡ Go Shiny!</button>
+            </div>
+        </div>
+        <button class="bu-btn" id="bu-btn" onclick="closeBadgeUnlock()">Awesome! →</button>
+    </div>
+</div>
+
+<!-- COMPLETION SCREEN -->
+<div id="completion-screen">
+    <div class="completion-card">
+        <span class="cc-icon">🏘️</span>
+        <div class="cc-title">Lesson Complete!</div>
+        <div class="cc-sub">500 years of history — conquered!</div>
+        <div class="cc-xp-box">
+            <div class="cc-xp-num" id="cc-xp">+120</div>
+            <div class="cc-xp-label">XP Earned</div>
+        </div>
+        <div class="cc-stats">
+            <div class="cc-stat"><div class="cc-stat-n" id="cc-vocab">0</div><div class="cc-stat-l">Words Known</div></div>
+            <div class="cc-stat"><div class="cc-stat-n" id="cc-combo">0</div><div class="cc-stat-l">Best Combo</div></div>
+            <div class="cc-stat"><div class="cc-stat-n" id="cc-accuracy">0%</div><div class="cc-stat-l">Accuracy</div></div>
+        </div>
+        <div class="cc-badge-row">
+            <div class="cc-badge-pill">
+                <span class="cc-badge-icon" id="cc-badge-icon">🏘️</span>
+                <div>
+                    <div class="cc-badge-name" id="cc-badge-name">Fuggerei Fellow</div>
+                    <div class="cc-badge-sub"  id="cc-badge-sub">Badge added to your collection!</div>
+                </div>
+                <span class="cc-badge-tick">✓</span>
+            </div>
+        </div>
+        <div class="cc-btns">
+            <a href="/dashboard-gamified/" class="cc-btn primary">📊 View Dashboard</a>
+            <a href="/advanced/" class="cc-btn white">🚀 More Advanced Lessons →</a>
+        </div>
+    </div>
+</div>
+
+<!-- PLACEHOLDER: JS will be added in Part 2 -->
+<script src="/supabase-auth-gamified.js"></script>
+<script src="/daily-challenges-system.js"></script>
+<script src="/word-match-game.js"></script>
+<script src="/xp-shop.js"></script>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════════════════
+   LESSON DATA
+═══════════════════════════════════════════════════════ */
+
+const LESSON_ID = 'fuggerei-social-housing';
+const LESSON_XP  = 120;
+const BADGE = {
+    id:   'fuggerei-fellow',
+    icon: '🏘️',
+    name: 'Fuggerei Fellow',
+    desc: 'You completed the Fuggerei lesson — 500 years of social history in one sitting!',
+    rarity: '🌟 Lesson Badge · Rare',
+    shinyXP: 200,
+};
+
+/* ── VOCAB (10 words mined from transcript) ── */
+const VOCAB = [
+    {
+        word: 'social housing',
+        type: 'noun phrase',
+        def: 'Housing that is provided by the government or a charity at low cost for people who cannot afford normal rent prices.',
+        example: 'The Fuggerei is the oldest <strong>social housing</strong> complex in the world, and it is still in use today.',
+    },
+    {
+        word: 'symbolic',
+        type: 'adjective',
+        def: 'Representing or expressing something beyond its literal meaning — often to show an important idea or value.',
+        example: 'The €0.88 annual rent is largely <strong>symbolic</strong> — it represents charity rather than real payment.',
+    },
+    {
+        word: 'qualify',
+        type: 'verb',
+        def: 'To meet the necessary conditions or requirements to receive something or be allowed to do something.',
+        example: 'To <strong>qualify</strong> for a home in the Fuggerei, you must be Catholic, from Augsburg, and in financial need.',
+    },
+    {
+        word: 'foundation',
+        type: 'noun',
+        def: 'An organisation that is created to provide money and support for a particular purpose, especially charity.',
+        example: 'The Fugger <strong>foundation</strong> still manages the complex today, just as Jakob Fugger intended in 1521.',
+    },
+    {
+        word: 'endow',
+        type: 'verb',
+        def: 'To provide an institution or organisation with a permanent income or source of money — usually by a wealthy donor.',
+        example: 'Jakob Fugger <strong>endowed</strong> the Fuggerei with enough money and land to keep it running for centuries.',
+    },
+    {
+        word: 'obligation',
+        type: 'noun',
+        def: 'Something you must do because of a rule, promise, or agreement — a duty you are required to fulfil.',
+        example: 'In exchange for the cheap rent, residents have an <strong>obligation</strong> to pray three times a day for the Fugger family.',
+    },
+    {
+        word: 'prosperous',
+        type: 'adjective',
+        def: 'Successful, wealthy, and doing well financially — often used to describe a person, city, or time period.',
+        example: 'During the 16th century, Augsburg was one of Europe\'s most <strong>prosperous</strong> trading cities.',
+    },
+    {
+        word: 'timber trade',
+        type: 'noun phrase',
+        def: 'The business of buying and selling wood — an extremely important industry in medieval and Renaissance Europe.',
+        example: 'The Fuggerei is partly funded today through the <strong>timber trade</strong>, continuing a tradition from Jakob Fugger\'s era.',
+    },
+    {
+        word: 'compound',
+        type: 'noun',
+        def: 'A group of buildings enclosed within a boundary and used together for a shared purpose.',
+        example: 'The Fuggerei <strong>compound</strong> contains 67 buildings and its own streets, church, and gates.',
+    },
+    {
+        word: 'almshouse',
+        type: 'noun',
+        def: 'A house built and paid for by charity to provide free or very cheap accommodation for poor people — historically common in Europe.',
+        example: 'The Fuggerei began as a Renaissance <strong>almshouse</strong> — a place where the deserving poor could live with dignity.',
+    },
+];
+
+/* ── HOT TAKES (comprehension opinions) ── */
+const HOT_TAKES = [
+    {
+        heat:      'h1',
+        heatLabel: '🧊 Warm Take',
+        statement: 'The Fuggerei\'s annual rent of €0.88 has barely changed in 500 years.',
+        agree:     true,
+        explain:   'The original rent was set at 1 Rhine guilder per year — equivalent to about €0.88 today. It has remained essentially the same for five centuries, making it one of the most extraordinary price freezes in history.',
+        vocHighlight: { word: 'symbolic', idx: 1 },
+    },
+    {
+        heat:      'h2',
+        heatLabel: '🔥 Hot Take',
+        statement: 'Living in the Fuggerei is completely free — residents pay nothing at all.',
+        agree:     false,
+        explain:   'Residents pay €0.88/year in rent (symbolic), plus around €100/month in utility costs. They also have obligations: pray three times a day for the souls of the Fugger family, and follow the 10pm curfew or pay a fine.',
+        vocHighlight: { word: 'obligation', idx: 5 },
+    },
+    {
+        heat:      'h3',
+        heatLabel: '🌶️ Spicy Take',
+        statement: 'Jakob Fugger built the Fuggerei purely out of generosity — he expected nothing in return.',
+        agree:     false,
+        explain:   'While Fugger was genuinely charitable, the deal was two-sided. Residents must pray three times daily for the souls of Jakob Fugger and his family — a form of spiritual payment that was extremely important to wealthy Catholics in the 16th century.',
+        vocHighlight: { word: 'obligation', idx: 5 },
+    },
+    {
+        heat:      'h2',
+        heatLabel: '🔥 Hot Take',
+        statement: 'The Fuggerei was damaged and partially destroyed during World War II.',
+        agree:     true,
+        explain:   'The Fuggerei was heavily bombed in 1944 during WWII. A preserved bomb shelter under the complex is now open to visitors as a museum. The complex was carefully rebuilt after the war.',
+        vocHighlight: { word: 'compound', idx: 8 },
+    },
+];
+
+/* ── TAP THE ANSWER (comprehension quiz) ── */
+const TAP_QS = [
+    {
+        q:       'When was the Fuggerei founded?',
+        blank:   false,
+        opts:    ['1421', '1521', '1621', '1721'],
+        correct: 1,
+        fb:      '✅ 1521 — Jakob Fugger founded the Fuggerei in 1521, which means it has been housing people for over 500 years!',
+    },
+    {
+        q:       'How many buildings does the Fuggerei contain?',
+        blank:   false,
+        opts:    ['32', '47', '67', '102'],
+        correct: 2,
+        fb:      '✅ 67 buildings — arranged in rows along eight streets, all within its own gated walls.',
+    },
+    {
+        q:       'To live in the Fuggerei, residents must be Catholic, from Augsburg, AND ___.',
+        blank:   true,
+        opts:    ['elderly', 'in financial need', 'employed', 'German citizens'],
+        correct: 1,
+        fb:      '✅ In financial need — all three conditions apply. You must qualify on all counts, not just one.',
+    },
+    {
+        q:       'How many times per day must residents pray for the Fugger family?',
+        blank:   false,
+        opts:    ['Once', 'Twice', 'Three times', 'Five times'],
+        correct: 2,
+        fb:      '✅ Three times daily — the Lord\'s Prayer, the Hail Mary, and the Nicene Creed, every single day.',
+    },
+    {
+        q:       'What happens if a resident comes home after the 10pm curfew?',
+        blank:   true,
+        opts:    ['They lose their home', 'They ring a bell and pay a small fine', 'They sleep outside', 'Nothing happens'],
+        correct: 1,
+        fb:      '✅ They ring the night warden\'s bell and pay a small fine — the same system that has operated for centuries.',
+    },
+];
+
+/* ── GRAMMAR: RELATIVE CLAUSES ── */
+const GRAM_QS = [
+    {
+        sent:  'Jakob Fugger was the man ___ founded the Fuggerei in 1521.',
+        hint:  'Which relative pronoun refers to a person?',
+        opts:  ['which', 'who', 'where', 'what'],
+        correct: 1,
+        fb:    '✅ "who" — use WHO for people. "Jakob Fugger was the man who founded the Fuggerei."',
+    },
+    {
+        sent:  'The Fuggerei is a housing complex ___ has been running for over 500 years.',
+        hint:  'Which relative pronoun refers to a thing?',
+        opts:  ['who', 'whom', 'which', 'whose'],
+        correct: 2,
+        fb:    '✅ "which" — use WHICH for things and places. The complex WHICH has been running…',
+    },
+    {
+        sent:  'Residents ___ live in the Fuggerei must pray three times a day.',
+        hint:  'Defining clause — who are we talking about?',
+        opts:  ['which', 'what', 'who', 'where'],
+        correct: 2,
+        fb:    '✅ "who" — Residents WHO live there. This is a defining relative clause that tells us exactly which residents.',
+    },
+    {
+        sent:  'The city of Augsburg, ___ the Fuggerei is located, is in Bavaria.',
+        hint:  'Which pronoun introduces a place in a non-defining clause?',
+        opts:  ['which', 'where', 'who', 'that'],
+        correct: 1,
+        fb:    '✅ "where" — use WHERE for places. "Augsburg, where the Fuggerei is located…"',
+    },
+    {
+        sent:  'Angelika, ___ waited three years for an apartment, was delighted to move in.',
+        hint:  'Non-defining clause about a specific person.',
+        opts:  ['that', 'which', 'whose', 'who'],
+        correct: 3,
+        fb:    '✅ "who" — Angelika WHO waited. Non-defining clauses about people always use WHO (never "that").',
+    },
+];
+
+/* ── WORD MATCH DATA ── */
+const MATCH_PAIRS = [
+    { term: 'social housing',  def: 'Low-cost homes provided by charity or government' },
+    { term: 'symbolic',        def: 'Representing an idea rather than having real value' },
+    { term: 'qualify',         def: 'To meet the conditions required to get something' },
+    { term: 'obligation',      def: 'A duty you are required to fulfil' },
+    { term: 'endow',           def: 'To give permanent funding to an institution' },
+    { term: 'almshouse',       def: 'Charity housing for the poor, historically' },
+    { term: 'compound',        def: 'A group of buildings enclosed together' },
+    { term: 'prosperous',      def: 'Wealthy and successful' },
+];
+
+/* ═══════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════ */
+let state = {
+    section:      0,    // 0=video,1=vocab,2=hotTakes,3=tapQ,4=grammar,5=match,6=badge
+    totalSections: 6,
+    vocIdx:       0,
+    vocBack:      false,
+    htIdx:        0,
+    htAnswered:   false,
+    tapIdx:       0,
+    tapAnswered:  false,
+    tapScore:     0,
+    tapTotal:     TAP_QS.length,
+    gramIdx:      0,
+    gramAnswered: false,
+    gramScore:    0,
+    xp:           0,
+    streak:       0,
+    combo:        0,
+    bestCombo:    0,
+    totalRight:   0,
+    totalAnswered:0,
+    vocDone:      false,
+    htDone:       false,
+    tapDone:      false,
+    gramDone:     false,
+    matchDone:    false,
+    badgeDone:    false,
+    shinyOwned:   false,
+};
+
+/* ═══════════════════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════════════════ */
+function $(id){ return document.getElementById(id); }
+function speak(text){
+    if(!window.speechSynthesis) return;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-GB'; u.rate = 0.92;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+function confettiBurst(x, y){
+    const colors = ['#FF4B4B','#FFC800','#58CC02','#1CB0F6','#CE82FF','#2BDECC'];
+    for(let i=0;i<18;i++){
+        const d = document.createElement('div');
+        d.className = 'confetti-dot';
+        d.style.cssText = `left:${x+Math.random()*60-30}px;top:${y+Math.random()*30-15}px;background:${colors[i%colors.length]};animation-delay:${Math.random()*.3}s;animation-duration:${.7+Math.random()*.5}s;transform:rotate(${Math.random()*360}deg)`;
+        document.body.appendChild(d);
+        setTimeout(()=>d.remove(), 1200);
+    }
+}
+function xpFloat(x, y, amount){
+    const el = document.createElement('div');
+    el.className = 'xp-float';
+    el.textContent = `+${amount} XP`;
+    el.style.cssText = `left:${x}px;top:${y}px`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 1000);
+}
+function addXP(amount, el){
+    state.xp += amount;
+    if(el){
+        const r = el.getBoundingClientRect();
+        xpFloat(r.left + r.width/2 - 24, r.top - 10, amount);
+    }
+    updateHeader();
+    try{ if(window.gamified) window.gamified.addXP(amount); }catch(e){}
+}
+function updateHeader(){
+    const hx = $('hdr-xp'); if(hx) hx.textContent = state.xp;
+    const hs = $('hdr-streak'); if(hs) hs.textContent = state.streak;
+}
+function showBadgeToast(icon, text){
+    const wrap = $('badge-wrap');
+    const b = document.createElement('div');
+    b.className = 'badge';
+    b.innerHTML = `<span class="badge-icon">${icon}</span><span class="badge-text">${text}</span>`;
+    wrap.appendChild(b);
+    setTimeout(()=>b.classList.add('show'),50);
+    setTimeout(()=>{ b.classList.remove('show'); setTimeout(()=>b.remove(),500); }, 3500);
+}
+function updateProgress(){
+    const done = [state.vocDone,state.htDone,state.tapDone,state.gramDone,state.matchDone,state.badgeDone].filter(Boolean).length;
+    const pct = Math.round((done/state.totalSections)*100);
+    const fill = $('prog-fill'); if(fill) fill.style.width = pct+'%';
+    const label = $('prog-label'); if(label) label.textContent = `${done} / ${state.totalSections} sections`;
+    const ppct = $('prog-pct'); if(ppct) ppct.textContent = pct+'%';
+}
+function scrollToSection(id){
+    const el = $(id);
+    if(!el) return;
+    setTimeout(()=>{ el.scrollIntoView({behavior:'smooth', block:'start'}); }, 120);
+}
+function revealSection(id){
+    const el = $(id);
+    if(!el) return;
+    el.classList.add('visible');
+    scrollToSection(id);
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION BUILDERS
+═══════════════════════════════════════════════════════ */
+function buildAll(){
+    const container = $('sections');
+    container.innerHTML = '';
+    container.appendChild(buildVideoSection());
+    container.appendChild(buildVocabSection());
+    container.appendChild(buildHotTakesSection());
+    container.appendChild(buildTapSection());
+    container.appendChild(buildGrammarSection());
+    container.appendChild(buildMatchSection());
+    container.appendChild(buildBadgeSection());
+
+    // Reveal first
+    setTimeout(()=>{ $('sec-video').classList.add('visible'); }, 100);
+
+    // Intersection observer for staggered reveals
+    const obs = new IntersectionObserver((entries)=>{
+        entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    },{ threshold: 0.1 });
+    document.querySelectorAll('.sec-card').forEach(c=>obs.observe(c));
+}
+
+/* ── VIDEO ── */
+function buildVideoSection(){
+    const sec = document.createElement('div');
+    sec.className = 'sec-card strip-punch u2';
+    sec.id = 'sec-video';
+    sec.innerHTML = `
+        <div class="sec-head">
+            <div class="sec-head-left">
+                <div class="sec-head-icon">🎬</div>
+                <div>
+                    <div class="sec-head-title">Watch the Video</div>
+                    <div class="sec-head-sub">~6 minutes · English narration</div>
+                </div>
+            </div>
+        </div>
+        <div class="sec-body">
+            <div class="video-wrap">
+                <iframe src="https://www.youtube.com/embed/jc2nFpejbhQ?rel=0&modestbranding=1" title="Inside the Fuggerei" frameborder="0" allowfullscreen></iframe>
+            </div>
+            <div class="fact-chips">
+                <span class="fact-chip" style="animation-delay:.05s">🏘️ Founded 1521</span>
+                <span class="fact-chip" style="animation-delay:.1s">💶 €0.88 / year</span>
+                <span class="fact-chip" style="animation-delay:.15s">🙏 Pray 3× daily</span>
+                <span class="fact-chip" style="animation-delay:.2s">🔑 67 buildings</span>
+                <span class="fact-chip" style="animation-delay:.25s">👥 150 residents</span>
+                <span class="fact-chip" style="animation-delay:.3s">👀 200k visitors/year</span>
+            </div>
+            <p style="font-size:14px;font-weight:700;color:var(--ink);line-height:1.65;margin-bottom:16px;">
+                The <strong>Fuggerei</strong> in Augsburg, Germany is the world's oldest social housing complex — still operating after more than 500 years. Watch the video, then work through the exercises below. New words will be highlighted throughout — tap them for instant definitions!
+            </p>
+            <button class="btn-continue" onclick="markVideoDone()">
+                Done Watching <span class="btn-arrow">→</span>
+            </button>
+        </div>`;
+    return sec;
+}
+function markVideoDone(){
+    addXP(10, $('sec-video'));
+    showBadgeToast('▶️', 'Video watched! +10 XP');
+    revealSection('sec-vocab');
+    updateProgress();
+}
+
+/* ── VOCAB ── */
+function buildVocabSection(){
+    const sec = document.createElement('div');
+    sec.className = 'sec-card strip-yellow';
+    sec.id = 'sec-vocab';
+    sec.innerHTML = `
+        <div class="sec-head">
+            <div class="sec-head-left">
+                <div class="sec-head-icon">📚</div>
+                <div>
+                    <div class="sec-head-title">Key Vocabulary</div>
+                    <div class="sec-head-sub">${VOCAB.length} words · tap card to reveal</div>
+                </div>
+            </div>
+        </div>
+        <div class="sec-body">
+            <div class="vc-progress" id="vc-progress"></div>
+            <div id="vc-slot"></div>
+        </div>`;
+    return sec;
+}
+function renderVocab(){
+    // pips
+    const prog = $('vc-progress');
+    if(!prog) return;
+    prog.innerHTML = VOCAB.map((_, i)=>`<div class="vc-pip ${i<state.vocIdx?'done':i===state.vocIdx?'active':''}"></div>`).join('');
+
+    if(state.vocDone){ renderVocabDone(); return; }
+
+    const v = VOCAB[state.vocIdx];
+    const slot = $('vc-slot');
+    slot.innerHTML = `
+        <div class="vc-card" id="vc-card-${state.vocIdx}">
+            <div class="vc-front" onclick="flipVocab()">
+                <div class="vc-type">${v.type}</div>
+                <div class="vc-word">${v.word}</div>
+                <div class="vc-tap-hint">👆 Tap to see definition</div>
+            </div>
+            <div class="vc-back ${state.vocBack?'show':''}">
+                <div class="vc-def">${v.def}</div>
+                <div class="vc-example">"${v.example}"</div>
+                <div class="vc-actions">
+                    <button class="vc-hear" onclick="speak('${v.word}')">🔊 Hear it</button>
+                    <button class="vc-next" onclick="nextVocab()">Next word →</button>
+                </div>
+            </div>
+        </div>`;
+}
+function flipVocab(){
+    state.vocBack = true;
+    const back = document.querySelector('.vc-back');
+    if(back) back.classList.add('show');
+    const hint = document.querySelector('.vc-tap-hint');
+    if(hint) hint.style.display='none';
+    addXP(2);
+}
+function nextVocab(){
+    const card = $(`vc-card-${state.vocIdx}`);
+    if(card){ card.classList.add('exit'); setTimeout(()=>{ advanceVocab(); }, 220); }
+    else { advanceVocab(); }
+}
+function advanceVocab(){
+    state.vocIdx++;
+    state.vocBack = false;
+    if(state.vocIdx >= VOCAB.length){
+        state.vocDone = true;
+        addXP(15);
+        showBadgeToast('📚','All vocab learned! +15 XP');
+        updateProgress();
+        renderVocabDone();
+        revealSection('sec-hottakes');
+    } else {
+        renderVocab();
+    }
+}
+function renderVocabDone(){
+    $('vc-slot').innerHTML = `
+        <div class="ht-done">
+            <span class="ht-done-icon">🧠</span>
+            <div class="ht-done-title">Vocab complete!</div>
+            <div class="ht-done-sub">You've studied all ${VOCAB.length} key words</div>
+            <button class="btn-continue" onclick="revealSection('sec-hottakes')">Hot Takes →</button>
+        </div>`;
+}
+
+/* ── HOT TAKES ── */
+function buildHotTakesSection(){
+    const sec = document.createElement('div');
+    sec.className = 'sec-card strip-punch';
+    sec.id = 'sec-hottakes';
+    sec.innerHTML = `
+        <div class="sec-head">
+            <div class="sec-head-left">
+                <div class="sec-head-icon">🌶️</div>
+                <div>
+                    <div class="sec-head-title">Hot Takes</div>
+                    <div class="sec-head-sub">${HOT_TAKES.length} statements — agree or disagree?</div>
+                </div>
+            </div>
+        </div>
+        <div class="sec-body">
+            <div class="ht-dots" id="ht-dots"></div>
+            <div id="ht-slot"></div>
+        </div>`;
+    return sec;
+}
+function renderHotTakes(){
+    const dots = $('ht-dots');
+    if(dots) dots.innerHTML = HOT_TAKES.map((_,i)=>`<div class="ht-dot ${i<state.htIdx?'done':i===state.htIdx?'active':''}"></div>`).join('');
+    if(state.htDone){ renderHotTakesDone(); return; }
+    const ht = HOT_TAKES[state.htIdx];
+    const slot = $('ht-slot');
+    slot.innerHTML = `
+        <div class="ht-card" id="ht-card">
+            <div class="ht-num">Statement ${state.htIdx+1} of ${HOT_TAKES.length}</div>
+            <div class="ht-heat ${ht.heat}">${ht.heatLabel}</div>
+            <div class="ht-statement">"${ht.statement}"</div>
+            <div class="ht-votes">
+                <button class="ht-btn agree"    onclick="answerHT(true)"  id="ht-agree">👍 Agree</button>
+                <button class="ht-btn disagree" onclick="answerHT(false)" id="ht-dis">👎 Disagree</button>
+            </div>
+            <div class="ht-reveal" id="ht-reveal">
+                <div class="ht-verdict" id="ht-verdict"></div>
+                <div class="ht-explanation" id="ht-explain"></div>
+            </div>
+            <button class="ht-next-btn" id="ht-nxt" style="display:none" onclick="nextHT()">
+                ${state.htIdx < HOT_TAKES.length-1 ? 'Next Statement →' : 'All done! →'}
+            </button>
+        </div>`;
+    state.htAnswered = false;
+}
+function answerHT(userAgreed){
+    if(state.htAnswered) return;
+    state.htAnswered = true;
+    const ht = HOT_TAKES[state.htIdx];
+    const correct = userAgreed === ht.agree;
+    const agreeBtn = $('ht-agree'); const disBtn = $('ht-dis');
+    agreeBtn.disabled = true; disBtn.disabled = true;
+
+    if(correct){
+        state.combo++; state.bestCombo = Math.max(state.bestCombo, state.combo);
+        state.totalRight++; addXP(10, agreeBtn);
+        if(userAgreed){ agreeBtn.classList.add('sel-right'); } else { disBtn.classList.add('sel-right'); }
+        const r = (userAgreed?agreeBtn:disBtn).getBoundingClientRect();
+        confettiBurst(r.left+r.width/2, r.top);
+    } else {
+        state.combo = 0;
+        if(userAgreed){ agreeBtn.classList.add('sel-wrong'); } else { disBtn.classList.add('sel-wrong'); }
+    }
+    state.totalAnswered++;
+
+    const rev = $('ht-reveal'); const verd = $('ht-verdict'); const expl = $('ht-explain');
+    verd.className = 'ht-verdict '+(correct?'right':'wrong');
+    verd.textContent = correct ? '✅ Correct!' : '❌ Not quite!';
+    expl.innerHTML = ht.explain;
+    rev.classList.add('show');
+    $('ht-nxt').style.display = 'flex';
+}
+function nextHT(){
+    const card = $('ht-card');
+    if(card){ card.classList.add('exit'); setTimeout(()=>advanceHT(), 220); } else advanceHT();
+}
+function advanceHT(){
+    state.htIdx++;
+    if(state.htIdx >= HOT_TAKES.length){
+        state.htDone = true;
+        addXP(15); showBadgeToast('🌶️','Hot Takes done! +15 XP');
+        updateProgress(); renderHotTakesDone();
+        revealSection('sec-tap');
+    } else { renderHotTakes(); }
+}
+function renderHotTakesDone(){
+    $('ht-slot').innerHTML = `
+        <div class="ht-done">
+            <span class="ht-done-icon">🌶️</span>
+            <div class="ht-done-title">Hot Takes: done!</div>
+            <div class="ht-done-sub">Strong opinions about social history — respect</div>
+            <button class="btn-continue" onclick="revealSection('sec-tap')">Comprehension Quiz →</button>
+        </div>`;
+}
+
+/* ── TAP THE ANSWER ── */
+function buildTapSection(){
+    const sec = document.createElement('div');
+    sec.className = 'sec-card strip-blue';
+    sec.id = 'sec-tap';
+    sec.innerHTML = `
+        <div class="sec-head">
+            <div class="sec-head-left">
+                <div class="sec-head-icon">👆</div>
+                <div>
+                    <div class="sec-head-title">Tap the Answer</div>
+                    <div class="sec-head-sub">${TAP_QS.length} questions about the Fuggerei</div>
+                </div>
+            </div>
+        </div>
+        <div class="sec-body">
+            <div class="tap-progress" id="tp-progress"></div>
+            <div class="score-bar" id="tp-score"></div>
+            <div id="tp-slot"></div>
+        </div>`;
+    return sec;
+}
+function renderTap(){
+    const prog = $('tp-progress');
+    if(prog) prog.innerHTML = TAP_QS.map((_,i)=>`<div class="tp-pip ${i<state.tapIdx?'done':i===state.tapIdx?'active':''}"></div>`).join('');
+    const scorebar = $('tp-score');
+    if(scorebar) scorebar.innerHTML = Array.from({length:state.tapTotal},(_,i)=>`<div class="score-pip ${i<state.tapIdx?(i<state.tapScore+Math.max(0,state.tapIdx-state.tapScore)?'right':'wrong'):''}"></div>`).join('');
+    if(state.tapDone){ renderTapDone(); return; }
+    const q = TAP_QS[state.tapIdx];
+    const qText = q.blank
+        ? q.q.replace('___','<span class="blank"></span>')
+        : q.q;
+    $('tp-slot').innerHTML = `
+        <div class="tap-q" id="tp-card">
+            <div class="tap-q-num">Question ${state.tapIdx+1} of ${state.tapTotal}</div>
+            <div class="tap-q-text">${qText}</div>
+            <div class="tap-options">
+                ${q.opts.map((o,i)=>`<button class="tap-opt" onclick="answerTap(${i})">${o}</button>`).join('')}
+            </div>
+            <div class="tap-feedback" id="tp-fb"></div>
+            <button class="tap-next" id="tp-nxt" style="display:none" onclick="nextTap()">
+                ${state.tapIdx<state.tapTotal-1?'Next Question →':'See Results →'}
+            </button>
+        </div>`;
+    state.tapAnswered = false;
+}
+function answerTap(idx){
+    if(state.tapAnswered) return;
+    state.tapAnswered = true;
+    const q = TAP_QS[state.tapIdx];
+    const correct = idx === q.correct;
+    const btns = document.querySelectorAll('.tap-opt');
+    btns.forEach(b=>b.disabled=true);
+    btns[q.correct].classList.add('right');
+    if(!correct) btns[idx].classList.add('wrong');
+    if(correct){
+        state.tapScore++; state.combo++; state.bestCombo=Math.max(state.bestCombo,state.combo);
+        state.totalRight++; addXP(10, btns[idx]);
+        confettiBurst(btns[idx].getBoundingClientRect().left+40, btns[idx].getBoundingClientRect().top);
+    } else { state.combo=0; }
+    state.totalAnswered++;
+    const fb = $('tp-fb');
+    fb.className = 'tap-feedback show '+(correct?'right':'wrong');
+    fb.innerHTML = correct ? q.fb : `❌ Not quite — ${q.fb.slice(2)}`;
+    $('tp-nxt').style.display = 'flex';
+}
+function nextTap(){
+    const card = $('tp-card');
+    if(card){ card.classList.add('exit'); setTimeout(advanceTap, 220); } else advanceTap();
+}
+function advanceTap(){
+    state.tapIdx++;
+    if(state.tapIdx >= state.tapTotal){
+        state.tapDone = true;
+        addXP(15); showBadgeToast('👆',`Quiz done! ${state.tapScore}/${state.tapTotal} correct`);
+        updateProgress(); renderTapDone();
+        revealSection('sec-grammar');
+    } else { renderTap(); }
+}
+function renderTapDone(){
+    const acc = Math.round((state.tapScore/state.tapTotal)*100);
+    $('tp-slot').innerHTML = `
+        <div class="tap-done">
+            <span class="tap-done-icon">${acc>=80?'🏆':acc>=60?'👍':'📖'}</span>
+            <div class="tap-done-title">${state.tapScore}/${state.tapTotal} Correct</div>
+            <div class="tap-done-sub">${acc}% accuracy ${acc>=80?'— excellent!':acc>=60?'— good work!':'— keep learning!'}</div>
+            <button class="btn-continue" style="background:var(--blue);border-color:var(--blue-shadow)" onclick="revealSection('sec-grammar')">Grammar Time →</button>
+        </div>`;
+}
+
+/* ── GRAMMAR ── */
+function buildGrammarSection(){
+    const sec = document.createElement('div');
+    sec.className = 'sec-card strip-purple';
+    sec.id = 'sec-grammar';
+    sec.innerHTML = `
+        <div class="sec-head">
+            <div class="sec-head-left">
+                <div class="sec-head-icon">📐</div>
+                <div>
+                    <div class="sec-head-title">Relative Clauses</div>
+                    <div class="sec-head-sub">who · which · where — ${GRAM_QS.length} questions</div>
+                </div>
+            </div>
+        </div>
+        <div class="sec-body">
+            <div class="gram-tip">
+                <h4>📐 Grammar Focus: Relative Clauses</h4>
+                <p>A <strong>relative clause</strong> adds extra information about a noun using a <em>relative pronoun</em>:</p>
+                <div class="gram-ex">Use <strong>WHO</strong> for people → "Jakob Fugger, <strong>who</strong> was extremely wealthy, built the Fuggerei."</div>
+                <div class="gram-ex">Use <strong>WHICH</strong> for things → "The Fuggerei, <strong>which</strong> was built in 1521, is still open."</div>
+                <div class="gram-ex">Use <strong>WHERE</strong> for places → "Augsburg, <strong>where</strong> the Fuggerei stands, is in Bavaria."</div>
+                <div class="gram-ex">Use <strong>WHOSE</strong> for possession → "Fugger, <strong>whose</strong> family was famous, built it as charity."</div>
+            </div>
+            <div class="gq-progress" id="gp-progress"></div>
+            <div id="gq-slot"></div>
+        </div>`;
+    return sec;
+}
+function renderGrammar(){
+    const prog = $('gp-progress');
+    if(prog) prog.innerHTML = GRAM_QS.map((_,i)=>`<div class="gp-pip ${i<state.gramIdx?'done':i===state.gramIdx?'active':''}"></div>`).join('');
+    if(state.gramDone){ renderGrammarDone(); return; }
+    const q = GRAM_QS[state.gramIdx];
+    $('gq-slot').innerHTML = `
+        <div class="gq-card" id="gq-card">
+            <div class="gq-num">Question ${state.gramIdx+1} of ${GRAM_QS.length}</div>
+            <div class="gq-sent">${q.sent.replace('___','<span style="display:inline-block;min-width:72px;height:26px;background:rgba(206,130,255,.15);border-bottom:3px solid var(--purple);border-radius:4px;vertical-align:bottom;margin:0 4px;"></span>')}</div>
+            <div class="gq-hint">💡 ${q.hint}</div>
+            <div class="gq-options">
+                ${q.opts.map((o,i)=>`<button class="gq-opt" onclick="answerGram(${i})">${o}</button>`).join('')}
+            </div>
+            <div class="gq-feedback" id="gq-fb"></div>
+            <button class="gq-next" id="gq-nxt" style="display:none" onclick="nextGram()">
+                ${state.gramIdx<GRAM_QS.length-1?'Next Question →':'Finish Grammar →'}
+            </button>
+        </div>`;
+    state.gramAnswered = false;
+}
+function answerGram(idx){
+    if(state.gramAnswered) return;
+    state.gramAnswered = true;
+    const q = GRAM_QS[state.gramIdx];
+    const correct = idx === q.correct;
+    document.querySelectorAll('.gq-opt').forEach(b=>b.disabled=true);
+    document.querySelectorAll('.gq-opt')[q.correct].classList.add('right');
+    if(!correct) document.querySelectorAll('.gq-opt')[idx].classList.add('wrong');
+    if(correct){
+        state.gramScore++; state.combo++; state.bestCombo=Math.max(state.bestCombo,state.combo);
+        state.totalRight++; addXP(10);
+        confettiBurst(document.querySelectorAll('.gq-opt')[q.correct].getBoundingClientRect().left+60, document.querySelectorAll('.gq-opt')[q.correct].getBoundingClientRect().top);
+    } else { state.combo=0; }
+    state.totalAnswered++;
+    const fb = $('gq-fb');
+    fb.className = 'gq-feedback show '+(correct?'right':'wrong');
+    fb.innerHTML = q.fb;
+    $('gq-nxt').style.display = 'flex';
+}
+function nextGram(){
+    const card = $('gq-card');
+    if(card){ card.classList.add('exit'); setTimeout(advanceGram, 220); } else advanceGram();
+}
+function advanceGram(){
+    state.gramIdx++;
+    if(state.gramIdx >= GRAM_QS.length){
+        state.gramDone = true;
+        addXP(20); showBadgeToast('📐',`Grammar done! ${state.gramScore}/${GRAM_QS.length} correct`);
+        updateProgress(); renderGrammarDone();
+        revealSection('sec-match');
+    } else { renderGrammar(); }
+}
+function renderGrammarDone(){
+    $('gq-slot').innerHTML = `
+        <div class="tap-done">
+            <span class="tap-done-icon">📐</span>
+            <div class="tap-done-title">${state.gramScore}/${GRAM_QS.length} on Relative Clauses</div>
+            <div class="tap-done-sub">who, which, where — you've got it!</div>
+            <button class="btn-continue" style="background:var(--purple);border-color:var(--purple-shadow)" onclick="revealSection('sec-match')">Word Match Game →</button>
+        </div>`;
+}
+
+/* ── WORD MATCH ── */
+function buildMatchSection(){
+    const sec = document.createElement('div');
+    sec.className = 'sec-card strip-teal';
+    sec.id = 'sec-match';
+    sec.innerHTML = `
+        <div class="sec-head">
+            <div class="sec-head-left">
+                <div class="sec-head-icon">🧩</div>
+                <div>
+                    <div class="sec-head-title">Word Match Game</div>
+                    <div class="sec-head-sub">Match all 8 words to their definitions</div>
+                </div>
+            </div>
+        </div>
+        <div class="sec-body" id="match-body">
+            <p style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:16px;">
+                Tap a word, then tap its matching definition. Clear the board to win!
+            </p>
+            <div id="match-game-container"></div>
+        </div>`;
+    return sec;
+}
+function initMatch(){
+    const container = $('match-game-container');
+    if(!container) return;
+    if(window.WordMatchGame){
+        window.WordMatchGame.init({
+            container,
+            pairs: MATCH_PAIRS,
+            onComplete: ()=>{
+                state.matchDone = true;
+                addXP(25); showBadgeToast('🧩','Word Match complete! +25 XP');
+                updateProgress();
+                setTimeout(()=>{ revealSection('sec-badge'); triggerBadgeUnlock(); }, 800);
+            }
+        });
+    } else {
+        // Fallback: simple built-in match
+        renderSimpleMatch(container);
+    }
+}
+function renderSimpleMatch(container){
+    const shuffledDefs  = [...MATCH_PAIRS].sort(()=>Math.random()-.5);
+    const shuffledTerms = [...MATCH_PAIRS].sort(()=>Math.random()-.5);
+    let selected = null; let matched = new Set();
+
+    function render(){
+        container.innerHTML = `
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
+                <div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);text-align:center">Words</div>
+                <div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);text-align:center">Definitions</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="match-grid">
+                ${shuffledTerms.map((p,i)=>`
+                    <button class="tap-opt" id="mt-${i}" onclick="selectItem('term',${i})" style="font-size:13px;${matched.has('t'+i)?'background:var(--teal);color:white;border-color:var(--teal-shadow);':''}">${p.term}</button>
+                    <button class="tap-opt" id="md-${i}" onclick="selectItem('def',${i})" style="font-size:12px;text-align:left;${matched.has('d'+i)?'background:var(--teal);color:white;border-color:var(--teal-shadow);':''}">${shuffledDefs[i].def}</button>
+                `).join('')}
+            </div>`;
+    }
+
+    window.selectItem = function(type, idx){
+        if(!selected){
+            selected = {type,idx};
+            const el = $(type==='term'?`mt-${idx}`:`md-${idx}`);
+            if(el){ el.style.background='var(--yellow)'; el.style.borderColor='var(--yellow-shadow)'; }
+        } else {
+            if(selected.type === type){ 
+                const oldEl = $(selected.type==='term'?`mt-${selected.idx}`:`md-${selected.idx}`);
+                if(oldEl){ oldEl.style.background=''; oldEl.style.borderColor=''; }
+                selected = {type,idx};
+                const el = $(type==='term'?`mt-${idx}`:`md-${idx}`);
+                if(el){ el.style.background='var(--yellow)'; el.style.borderColor='var(--yellow-shadow)'; }
+                return;
+            }
+            const termIdx = selected.type==='term'?selected.idx:idx;
+            const defIdx  = selected.type==='def'?selected.idx:idx;
+            const term = shuffledTerms[termIdx].term;
+            const def  = shuffledDefs[defIdx].def;
+            const correctDef = MATCH_PAIRS.find(p=>p.term===term)?.def;
+            if(def===correctDef){
+                matched.add('t'+termIdx); matched.add('d'+defIdx);
+                addXP(5); confettiBurst(200,300);
+                if(matched.size >= MATCH_PAIRS.length*2){
+                    state.matchDone=true; addXP(20);
+                    showBadgeToast('🧩','Word Match done! +25 XP');
+                    updateProgress();
+                    container.innerHTML = `<div class="tap-done"><span class="tap-done-icon">🧩</span><div class="tap-done-title">All matched!</div><div class="tap-done-sub">Perfect score — well done!</div><button class="btn-continue" style="background:var(--teal);border-color:var(--teal-shadow)" onclick="revealSection('sec-badge');triggerBadgeUnlock()">Claim Your Badge →</button></div>`;
+                    return;
+                }
+            } else {
+                const termEl = $(`mt-${termIdx}`); const defEl = $(`md-${defIdx}`);
+                if(termEl){ termEl.style.background='var(--punch)'; termEl.style.color='white'; setTimeout(()=>{termEl.style.background='';termEl.style.color='';},600); }
+                if(defEl){  defEl.style.background='var(--punch)';  defEl.style.color='white';  setTimeout(()=>{defEl.style.background='';defEl.style.color='';},600); }
+            }
+            selected = null; render();
+        }
+    };
+    render();
+}
+
+/* ── BADGE SECTION ── */
+function buildBadgeSection(){
+    const sec = document.createElement('div');
+    sec.className = 'sec-card strip-yellow';
+    sec.id = 'sec-badge';
+    sec.innerHTML = `
+        <div class="sec-head">
+            <div class="sec-head-left">
+                <div class="sec-head-icon">🏆</div>
+                <div>
+                    <div class="sec-head-title">Badge Unlock</div>
+                    <div class="sec-head-sub">Almost there…</div>
+                </div>
+            </div>
+        </div>
+        <div class="sec-body" id="badge-body">
+            <div style="text-align:center;padding:20px 0">
+                <div style="font-size:64px;margin-bottom:12px;animation:float 2.5s ease-in-out infinite">🏘️</div>
+                <div style="font-size:20px;font-weight:900;color:var(--ink-bold)">Fuggerei Fellow</div>
+                <div style="font-size:14px;font-weight:700;color:var(--ink-3);margin:8px 0 20px">Completing the lesson will unlock your badge!</div>
+                <button class="btn-continue" onclick="triggerBadgeUnlock()">🏆 Unlock Badge!</button>
+            </div>
+        </div>`;
+    return sec;
+}
+function triggerBadgeUnlock(){
+    const overlay = $('badge-unlock-overlay');
+    if(!overlay) return;
+    // Populate badge data
+    $('bu-icon').textContent = BADGE.icon;
+    $('bu-name').textContent = BADGE.name;
+    $('bu-desc').textContent = BADGE.desc;
+    $('bu-rarity').textContent = BADGE.rarity;
+
+    // Shiny prompt
+    const shinyPrompt = $('bu-shiny-prompt');
+    const shinyDesc   = $('bu-shiny-desc');
+    const shinyBtn    = $('bu-shiny-btn');
+    if(state.shinyOwned){
+        $('bu-icon-wrap').classList.add('shiny');
+        if(shinyPrompt) shinyPrompt.innerHTML = '<div class="bu-shiny-already">✨ Already shiny!</div>';
+        shinyPrompt.classList.add('visible');
+    } else if(state.xp >= BADGE.shinyXP){
+        shinyPrompt.classList.add('visible');
+        shinyDesc.innerHTML = `Make your badge holographic forever for <strong style="color:#CE82FF;">${BADGE.shinyXP} XP</strong>`;
+    } else {
+        shinyPrompt.classList.add('visible');
+        shinyPrompt.innerHTML = `<div class="bu-shiny-title">✨ Shiny Upgrade</div><div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.5)">Earn ${BADGE.shinyXP} XP total to unlock the shiny upgrade option!</div>`;
+    }
+
+    overlay.classList.add('open');
+    const r = document.body.getBoundingClientRect();
+    confettiBurst(r.width/2, r.height/2-100);
+    confettiBurst(r.width/3, r.height/2);
+    confettiBurst(r.width*2/3, r.height/2);
+}
+function upgradeToShiny(){
+    if(state.xp < BADGE.shinyXP || state.shinyOwned) return;
+    state.xp -= BADGE.shinyXP;
+    state.shinyOwned = true;
+    updateHeader();
+    $('bu-icon-wrap').classList.add('shiny');
+    $('bu-shiny-btn').disabled = true;
+    $('bu-shiny-btn').textContent = '✨ Done!';
+    const r = $('bu-card').getBoundingClientRect();
+    confettiBurst(r.left+r.width/2, r.top+60);
+}
+function closeBadgeUnlock(){
+    $('badge-unlock-overlay').classList.remove('open');
+    state.badgeDone = true;
+    updateProgress();
+    showCompletionScreen();
+}
+
+/* ── COMPLETION ── */
+function showCompletionScreen(){
+    const acc = state.totalAnswered > 0 ? Math.round((state.totalRight/state.totalAnswered)*100) : 0;
+    const totalXP = state.xp;
+    $('cc-xp').textContent = `+${totalXP}`;
+    $('cc-vocab').textContent = VOCAB.length;
+    $('cc-combo').textContent = state.bestCombo;
+    $('cc-accuracy').textContent = acc+'%';
+    $('cc-badge-icon').textContent = BADGE.icon;
+    $('cc-badge-name').textContent = BADGE.name;
+    const screen = $('completion-screen');
+    if(screen){ screen.classList.add('open'); }
+    try{
+        if(window.gamified){ window.gamified.completeLesson(LESSON_ID, totalXP); }
+    }catch(e){}
+}
+
+/* ── VOC POPUP ── */
+function openVoc(word){
+    const v = VOCAB.find(x=>x.word===word);
+    if(!v) return;
+    $('vp-body').innerHTML = `
+        <div class="voc-word">${v.word}</div>
+        <div class="voc-type">${v.type}</div>
+        <div class="voc-def">${v.def}</div>
+        <button class="voc-hear" onclick="speak('${v.word}')">🔊 Hear it pronounced</button>`;
+    $('voc-popup').style.display = 'block';
+}
+function closeVoc(){ $('voc-popup').style.display = 'none'; }
+
+/* ── NAV ── */
+function prevSec(){ /* handled by sections */ }
+function nextSec(){ /* handled by sections */ }
+
+/* ═══════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', ()=>{
+    buildAll();
+    updateProgress();
+    updateHeader();
+
+    // Observe sections to trigger sub-renders when they become visible
+    const obs2 = new IntersectionObserver(entries=>{
+        entries.forEach(e=>{
+            if(!e.isIntersecting) return;
+            const id = e.target.id;
+            if(id==='sec-vocab'    && !state.vocDone)  { renderVocab(); obs2.unobserve(e.target); }
+            if(id==='sec-hottakes' && !state.htDone)   { renderHotTakes(); obs2.unobserve(e.target); }
+            if(id==='sec-tap'      && !state.tapDone)  { renderTap(); obs2.unobserve(e.target); }
+            if(id==='sec-grammar'  && !state.gramDone) { renderGrammar(); obs2.unobserve(e.target); }
+            if(id==='sec-match'    && !state.matchDone){ initMatch(); obs2.unobserve(e.target); }
+        });
+    },{ threshold:0.15 });
+
+    ['sec-vocab','sec-hottakes','sec-tap','sec-grammar','sec-match'].forEach(id=>{
+        const el = $(id); if(el) obs2.observe(el);
+    });
+
+    // Load gamification state if available
+    try{
+        if(window.gamified){
+            const gs = window.gamified.getState();
+            if(gs){ state.xp=gs.xp||0; state.streak=gs.streak||0; updateHeader(); }
+        }
+    }catch(e){}
+
+    // Daily challenge widget
+    try{
+        if(window.DailyChallenges){ window.DailyChallenges.render('daily-challenge-widget', LESSON_ID); }
+    }catch(e){}
+});
+</script>
+</body>
+</html>
