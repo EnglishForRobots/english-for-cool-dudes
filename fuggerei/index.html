@@ -1876,6 +1876,18 @@ async function showCompletionScreen(){
 
     // ── XP / gamified hook ──
     try{ if(window.gamified) window.gamified.completeLesson(LESSON_ID, totalXP); }catch(e){}
+
+    // ── Daily challenge progress ──
+    try{
+        if(window.DailyChallenges){
+            const accuracy = state.totalAnswered > 0 ? Math.round((state.totalRight/state.totalAnswered)*100) : 100;
+            await window.DailyChallenges.updateChallengeProgress({
+                perfectScore:   accuracy === 100,
+                vocabCount:     VOCAB.length,
+                grammarPerfect: state.gramScore === GRAM_QS.length,
+            });
+        }
+    }catch(e){}
 }
 
 /* ── VOC POPUP ── */
@@ -1940,7 +1952,10 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
     // Daily challenge widget
     try{
-        if(window.DailyChallenges){ window.DailyChallenges.render('daily-challenge-widget', LESSON_ID); }
+        if(window.DailyChallenges){
+            document.getElementById('daily-challenge-widget').innerHTML =
+                window.DailyChallenges.renderDailyChallengeWidget();
+        }
     }catch(e){}
 });
 </script>
