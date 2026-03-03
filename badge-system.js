@@ -38,6 +38,12 @@ const EFCD_BADGES = [
         color:'#FFC800', shadow:'#E5B400', category:'special', secret:false,
         check:(p,l)=>l?.some(x=>x.lesson_link==='/pancakeday/'||(x.lesson_title||'').toLowerCase().includes('pancake'))
     },
+    {
+        id:'fuggerei_fellow', icon:'🏘️', name:'Fuggerei Fellow',
+        description:'Complete the Fuggerei lesson — 500 years of social history in one sitting!',
+        color:'#FF4B4B', shadow:'#EA2B2B', category:'special', secret:false,
+        check:(p,l)=>l?.some(x=>x.lesson_link==='/fuggerei/'||(x.lesson_title||'').toLowerCase().includes('fuggerei'))
+    },
     // ── SPECIAL ──────────────────────────────────────────────
     { id:'night_owl',    icon:'🦉', name:'Night Owl',    description:'Complete a lesson between 10pm and 6am', color:'#4B4B8F', shadow:'#2E2E6B', category:'special', secret:true,  check:(p)=>p.achievements?.includes('night_owl') },
     { id:'early_bird',   icon:'🐦', name:'Early Bird',   description:'Complete a lesson before 9am',           color:'#FF9600', shadow:'#E08000', category:'special', secret:true,  check:(p)=>p.achievements?.includes('early_bird') },
@@ -270,7 +276,7 @@ window.EFCD_Badges = {
     BADGES:       EFCD_BADGES,
     evaluate:     evaluateBadges,
     renderShelf:  renderBadgeShelf,
-    renderGrid:   renderBadgeGrid,   // now accepts optional 3rd arg: shinyBadges Set
+    renderGrid:   renderBadgeGrid,
 };
 
 console.log('🏅 EFCD Badge System loaded —', EFCD_BADGES.length, 'badges');
