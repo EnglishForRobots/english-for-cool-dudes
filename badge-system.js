@@ -39,7 +39,7 @@ const EFCD_BADGES = [
         check:(p,l)=>l?.some(x=>x.lesson_link==='/pancakeday/'||(x.lesson_title||'').toLowerCase().includes('pancake'))
     },
     {
-        id:'fuggerei_fellow', icon:'🏘️', name:'Fuggerei Fellow',
+        id:'fuggerei-fellow', icon:'🏘️', name:'Fuggerei Fellow',
         description:'Complete the Fuggerei lesson — 500 years of social history in one sitting!',
         color:'#FF4B4B', shadow:'#EA2B2B', category:'special', secret:false,
         check:(p,l)=>l?.some(x=>x.lesson_link==='/fuggerei/'||(x.lesson_title||'').toLowerCase().includes('fuggerei'))
