@@ -826,7 +826,7 @@ const HOT_TAKES = [
         statement: 'The Fuggerei was nearly destroyed during World War II — this wasn\'t in the video!',
         agree:     true,
         bonusFact: true,
-        explain:   'In February 1944, Allied bombing raids destroyed around 75% of the Fuggerei. Residents sheltered in an air-raid bunker built inside the complex walls. After the war it was <span class="ht-voc" onclick="openVoc(\"painstakingly\")">painstakingly</span> rebuilt to match its original 16th-century design — and that preserved WWII bunker is still open to visitors today.',
+        explain:   'In February 1944, Allied bombing raids destroyed around 75% of the Fuggerei. Residents sheltered in an air-raid bunker built inside the complex walls. After the war it was <span class="ht-voc" onclick="openVoc(\'painstakingly\')">painstakingly</span> rebuilt to match its original 16th-century design — and that preserved WWII bunker is still open to visitors today.',
         vocHighlight: { word: 'compound', idx: 8 },
     },
 ];
@@ -1843,7 +1843,7 @@ function closeBadgeUnlock(){
 }
 
 /* ── COMPLETION ── */
-function showCompletionScreen(){
+async function showCompletionScreen(){
     const acc = state.totalAnswered > 0 ? Math.round((state.totalRight/state.totalAnswered)*100) : 0;
     const totalXP = state.xp;
     $('cc-xp').textContent = `+${totalXP}`;
@@ -1854,9 +1854,28 @@ function showCompletionScreen(){
     $('cc-badge-name').textContent = BADGE.name;
     const screen = $('completion-screen');
     if(screen){ screen.classList.add('open'); }
+
+    // ── Save lesson record to Supabase so dashboard badge check can find it ──
     try{
-        if(window.gamified){ window.gamified.completeLesson(LESSON_ID, totalXP); }
-    }catch(e){}
+        if(window.EFCD_Auth){
+            const user = window.EFCD_Auth.getCurrentUser();
+            if(user && window.efcdSupabaseClient){
+                await window.efcdSupabaseClient.from('lessons').insert({
+                    user_id:       user.id,
+                    lesson_id:     LESSON_ID,
+                    lesson_title:  'Inside the Fuggerei',
+                    lesson_link:   '/fuggerei/',
+                    lesson_level:  'Advanced',
+                    xp_earned:     totalXP,
+                    completed_at:  new Date().toISOString(),
+                    vocabulary:    VOCAB.map(v=>({ word: v.word, definition: v.def })),
+                });
+            }
+        }
+    }catch(e){ console.warn('Lesson save error:', e); }
+
+    // ── XP / gamified hook ──
+    try{ if(window.gamified) window.gamified.completeLesson(LESSON_ID, totalXP); }catch(e){}
 }
 
 /* ── VOC POPUP ── */
