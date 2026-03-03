@@ -132,10 +132,32 @@
         width: 36px; height: 36px;
         background: rgba(255,75,75,.08); border: 2px solid rgba(255,75,75,.2);
         border-bottom: 4px solid rgba(255,75,75,.25); border-radius: 10px;
-        font-size: 18px; text-decoration: none; transition: all .15s;
+        font-size: 18px; text-decoration: none; transition: all .15s; flex-shrink: 0;
     }
     .btn-dash:hover  { background: var(--punch); }
     .btn-dash:active { border-bottom-width: 2px; transform: translateY(2px); }
+
+    .btn-signout {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 36px; height: 36px;
+        background: rgba(255,75,75,.08); border: 2px solid rgba(255,75,75,.25);
+        border-bottom: 4px solid rgba(255,75,75,.3); border-radius: 10px;
+        font-size: 18px; cursor: pointer; font-family: inherit; transition: all .15s; flex-shrink: 0;
+    }
+    .btn-signout:hover  { background: var(--punch); border-color: var(--punch-shadow); }
+    .btn-signout:active { border-bottom-width: 2px; transform: translateY(2px); }
+    .btn-signout.hidden { display: none; }
+
+    .btn-shop {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 6px 12px;
+        background: rgba(206,130,255,.15); border: 2px solid rgba(206,130,255,.3);
+        border-bottom: 4px solid rgba(165,89,217,.4); border-radius: 12px;
+        font-size: 13px; font-weight: 900; color: #CE82FF;
+        cursor: pointer; font-family: inherit; transition: all .15s; text-decoration: none;
+    }
+    .btn-shop:hover  { background: rgba(206,130,255,.25); }
+    .btn-shop:active { border-bottom-width: 2px; transform: translateY(2px); }
 
     /* ══ PAGE ══ */
     .page { max-width: 900px; margin: 0 auto; padding: 20px 14px 32px; display: flex; flex-direction: column; gap: 14px; }
@@ -570,7 +592,7 @@
 <!-- ══ HEADER ══ -->
 <header class="header">
     <div class="header-inner">
-        <a href="/" class="logo-link">
+        <a href="/advanced/" class="logo-link">
             <div class="logo-box">🏘️</div>
             <span class="site-name">English For Cool Dudes</span>
         </a>
@@ -579,8 +601,12 @@
                 <span>🔥</span>
                 <span id="hdr-streak">0</span>
             </div>
-            <div class="xp-pill">⚡ <span id="hdr-xp">0</span> XP</div>
+            <div class="xp-pill">
+                ⚡ <span class="xp-num" id="hdr-xp">0</span> XP
+            </div>
+            <a href="/xp-shop/" class="btn-shop" title="XP Shop">✨ Shop</a>
             <a href="/dashboard-gamified/" class="btn-dash" title="Dashboard">📊</a>
+            <button class="btn-signout hidden" id="hdr-signout" title="Sign out" onclick="handleSignOut()">👋</button>
         </div>
     </div>
 </header>
@@ -789,12 +815,13 @@ const HOT_TAKES = [
         vocHighlight: { word: 'obligation', idx: 5 },
     },
     {
-        heat:      'h1',
-        heatLabel: '🧊 Warm Take',
-        statement: 'Anyone in Germany can apply to live in the Fuggerei — not just people from Augsburg.',
-        agree:     false,
-        explain:   'You must be from Augsburg specifically — registered in the city for at least two years. Financial need and being Catholic are also required. It is very much a local institution, not a national one.',
-        vocHighlight: { word: 'qualify', idx: 2 },
+        heat:      'h2',
+        heatLabel: '💣 Bonus Fact',
+        statement: 'The Fuggerei was nearly destroyed during World War II — this wasn\'t in the video!',
+        agree:     true,
+        bonusFact: true,
+        explain:   'In February 1944, Allied bombing raids destroyed around 75% of the Fuggerei. Residents sheltered in an air-raid bunker built inside the complex walls. After the war it was painstakingly rebuilt to match its original 16th-century design — and that preserved WWII bunker is still open to visitors today.',
+        vocHighlight: { word: 'compound', idx: 8 },
     },
 ];
 
@@ -893,7 +920,7 @@ const MATCH_PAIRS = [
 ═══════════════════════════════════════════════════════ */
 let state = {
     section:      0,    // 0=video,1=vocab,2=hotTakes,3=tapQ,4=grammar,5=match,6=badge
-    totalSections: 7,
+    totalSections: 6,
     vocIdx:       0,
     vocBack:      false,
     htIdx:        0,
@@ -968,7 +995,7 @@ function showBadgeToast(icon, text){
     b.innerHTML = `<span class="badge-icon">${icon}</span><span class="badge-text">${text}</span>`;
     wrap.appendChild(b);
     setTimeout(()=>b.classList.add('show'),50);
-    setTimeout(()=>{ b.classList.remove('show'); setTimeout(()=>b.remove(),500); }, 3500);
+    setTimeout(()=>{ b.classList.remove('show'); setTimeout(()=>b.remove(),500); }, 6000);
 }
 function updateProgress(){
     const done = [state.vocDone,state.htDone,state.tapDone,state.gramDone,state.matchDone,state.badgeDone].filter(Boolean).length;
@@ -982,14 +1009,14 @@ function updateProgress(){
 /* ═══════════════════════════════════════════════════════
    SINGLE-STAGE FLOW — one section at a time
 ═══════════════════════════════════════════════════════ */
-const SECTION_ORDER = ['video','vocab','hottakes','bonus','tap','grammar','match','badge'];
+const SECTION_ORDER = ['video','vocab','hottakes','tap','grammar','match','badge'];
 let currentSectionIdx = 0;
 
 function revealSection(id){
     // id format: 'sec-vocab', 'sec-hottakes', etc. OR bare name like 'vocab'
     const nameMap = {
         'sec-video':'video','sec-vocab':'vocab','sec-hottakes':'hottakes',
-        'sec-bonus':'bonus','sec-tap':'tap','sec-grammar':'grammar',
+        'sec-tap':'tap','sec-grammar':'grammar',
         'sec-match':'match','sec-badge':'badge'
     };
     const name = nameMap[id] || id;
@@ -1083,7 +1110,7 @@ function buildVideoSection(){
                 <span class="fact-chip" style="animation-delay:.3s">👀 200k visitors/year</span>
             </div>
             <p style="font-size:14px;font-weight:700;color:var(--ink);line-height:1.65;margin-bottom:16px;">
-                The <strong>Fuggerei</strong> in Augsburg, Germany is the world's oldest social housing complex — still operating after more than 500 years. Watch the video, then work through the exercises below. New words will be highlighted throughout — tap them for instant definitions!
+                The <strong>Fuggerei</strong> in Augsburg, Germany is the world's oldest social housing complex — still operating after more than 500 years. Watch the video, then work through the exercises below. 
             </p>
             <button class="btn-continue" onclick="markVideoDone()">
                 Done Watching <span class="btn-arrow">→</span>
@@ -1094,8 +1121,8 @@ function buildVideoSection(){
 function markVideoDone(){
     addXP(10, $('sec-video'));
     showBadgeToast('▶️', 'Video watched! +10 XP');
-    revealSection('sec-vocab');
     updateProgress();
+    revealSection('sec-vocab');
 }
 
 /* ── VOCAB ── */
@@ -1168,7 +1195,7 @@ function advanceVocab(){
         showBadgeToast('📚','All vocab learned! +15 XP');
         updateProgress();
         renderVocabDone();
-        revealSection('sec-hottakes');
+        // No auto-advance — user taps the continue button
     } else {
         renderVocab();
     }
@@ -1178,7 +1205,7 @@ function renderVocabDone(){
         <div class="ht-done">
             <span class="ht-done-icon">🧠</span>
             <div class="ht-done-title">Vocab complete!</div>
-            <div class="ht-done-sub">You've studied all ${VOCAB.length} key words</div>
+            <div class="ht-done-sub">You've studied all ${VOCAB.length} key words — great work!</div>
             <button class="btn-continue" onclick="revealSection('sec-hottakes')">Hot Takes →</button>
         </div>`;
 }
@@ -1214,6 +1241,7 @@ function renderHotTakes(){
         <div class="ht-card" id="ht-card">
             <div class="ht-num">Statement ${state.htIdx+1} of ${HOT_TAKES.length}</div>
             <div class="ht-heat ${ht.heat}">${ht.heatLabel}</div>
+            ${ht.bonusFact ? '<div style="display:inline-block;font-size:11px;font-weight:900;background:rgba(255,200,0,.15);border:1.5px solid rgba(255,200,0,.4);color:#7A5800;padding:3px 10px;border-radius:8px;margin-bottom:10px;">⚡ Bonus — not in the video, but too good to skip!</div>' : ''}
             <div class="ht-statement">"${ht.statement}"</div>
             <div class="ht-votes">
                 <button class="ht-btn agree"    onclick="answerHT(true)"  id="ht-agree">👍 Agree</button>
@@ -1266,7 +1294,7 @@ function advanceHT(){
         state.htDone = true;
         addXP(15); showBadgeToast('🌶️','Hot Takes done! +15 XP');
         updateProgress(); renderHotTakesDone();
-        revealSection('sec-bonus');
+        // No auto-advance — user taps the continue button
     } else { renderHotTakes(); }
 }
 function renderHotTakesDone(){
@@ -1274,8 +1302,8 @@ function renderHotTakesDone(){
         <div class="ht-done">
             <span class="ht-done-icon">🌶️</span>
             <div class="ht-done-title">Hot Takes: done!</div>
-            <div class="ht-done-sub">But wait — there's a bonus fact you need to see…</div>
-            <button class="btn-continue" onclick="revealSection('sec-bonus')">Bonus Fact →</button>
+            <div class="ht-done-sub">Time to test your memory — comprehension quiz up next!</div>
+            <button class="btn-continue" onclick="revealSection('sec-tap')">Comprehension Quiz →</button>
         </div>`;
 }
 
@@ -1396,7 +1424,7 @@ function advanceTap(){
         state.tapDone = true;
         addXP(15); showBadgeToast('👆',`Quiz done! ${state.tapScore}/${state.tapTotal} correct`);
         updateProgress(); renderTapDone();
-        revealSection('sec-grammar');
+        // No auto-advance — user taps the continue button
     } else { renderTap(); }
 }
 function renderTapDone(){
@@ -1406,7 +1434,9 @@ function renderTapDone(){
             <span class="tap-done-icon">${acc>=80?'🏆':acc>=60?'👍':'📖'}</span>
             <div class="tap-done-title">${state.tapScore}/${state.tapTotal} Correct</div>
             <div class="tap-done-sub">${acc}% accuracy ${acc>=80?'— excellent!':acc>=60?'— good work!':'— keep learning!'}</div>
-            <button class="btn-continue" style="background:var(--blue);border-color:var(--blue-shadow)" onclick="revealSection('sec-grammar')">Grammar Time →</button>
+            <button class="btn-continue" style="background:var(--blue);border-color:var(--blue-shadow)" onclick="revealSection('sec-grammar')">
+                Grammar Time → <span class="btn-arrow">→</span>
+            </button>
         </div>`;
 }
 
@@ -1488,7 +1518,7 @@ function advanceGram(){
         state.gramDone = true;
         addXP(20); showBadgeToast('📐',`Grammar done! ${state.gramScore}/${GRAM_QS.length} correct`);
         updateProgress(); renderGrammarDone();
-        revealSection('sec-match');
+        // No auto-advance — user taps the continue button
     } else { renderGrammar(); }
 }
 function renderGrammarDone(){
@@ -1497,7 +1527,9 @@ function renderGrammarDone(){
             <span class="tap-done-icon">📐</span>
             <div class="tap-done-title">${state.gramScore}/${GRAM_QS.length} on Relative Clauses</div>
             <div class="tap-done-sub">who, which, where — you've got it!</div>
-            <button class="btn-continue" style="background:var(--purple);border-color:var(--purple-shadow)" onclick="revealSection('sec-match')">Word Match Game →</button>
+            <button class="btn-continue" style="background:var(--purple);border-color:var(--purple-shadow)" onclick="revealSection('sec-match')">
+                Word Match Game →
+            </button>
         </div>`;
 }
 
@@ -1637,6 +1669,8 @@ function launchMatchGame(container){
             matchCount++;
 
             setTimeout(()=>{
+                // Guard: if user navigated away, container may be detached
+                if(!container.isConnected){ selTerm=null; selDef=null; locked=false; return; }
                 [selTerm.el, selDef.el].forEach(el=>{
                     el.style.transition = 'all .3s ease';
                     el.style.opacity = '0';
@@ -1707,7 +1741,7 @@ function launchMatchGame(container){
                 <button id="mg-again" style="width:100%;margin-bottom:10px;padding:14px;background:var(--teal);color:white;border:2px solid var(--teal-shadow);border-bottom:5px solid var(--teal-shadow);border-radius:var(--rsm);font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;transition:all .15s;">
                     🔄 Play Again
                 </button>
-                <button onclick="revealSection('sec-badge');triggerBadgeUnlock();" style="width:100%;padding:14px;background:var(--punch);color:white;border:2px solid var(--punch-shadow);border-bottom:5px solid var(--punch-shadow);border-radius:var(--rsm);font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;transition:all .15s;">
+                <button id="mg-claim" style="width:100%;padding:14px;background:var(--punch);color:white;border:2px solid var(--punch-shadow);border-bottom:5px solid var(--punch-shadow);border-radius:var(--rsm);font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;transition:all .15s;">
                     🏆 Claim Badge →
                 </button>
             </div>`;
@@ -1720,7 +1754,8 @@ function launchMatchGame(container){
             ), i*220);
         }
 
-        $('mg-again').onclick = ()=>{
+        const againBtn = $('mg-again');
+        if(againBtn) againBtn.onclick = ()=>{
             matchCount = 0; mistakes = 0;
             remaining = new Set(pairs.map(p=>p.id));
             termOrder = [...pairs].sort(()=>Math.random()-.5);
@@ -1728,6 +1763,12 @@ function launchMatchGame(container){
             selTerm = null; selDef = null; locked = false;
             state.matchDone = false;
             render();
+        };
+        const claimBtn = $('mg-claim');
+        if(claimBtn) claimBtn.onclick = ()=>{
+            revealSection('sec-badge');
+            // small delay so section mounts before overlay opens
+            setTimeout(triggerBadgeUnlock, 150);
         };
     }
 
@@ -1844,8 +1885,35 @@ function nextSec(){ /* handled by sections */ }
 /* ═══════════════════════════════════════════════════════
    INIT
 ═══════════════════════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', ()=>{
-    // Load gamification state if available
+async function handleSignOut(){
+    if(window.EFCD_Auth?.signOut){
+        await window.EFCD_Auth.signOut();
+    } else if(window.efcdSupabaseClient){
+        await window.efcdSupabaseClient.auth.signOut();
+        window.location.href = '/';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', async ()=>{
+    // Load auth state
+    try{
+        if(window.efcdReady) await window.efcdReady;
+        if(window.EFCD_Auth){
+            await window.EFCD_Auth.initAuth();
+            const user = window.EFCD_Auth.getCurrentUser();
+            if(user){
+                const s = window.EFCD_Auth.getUserStats();
+                if(s){
+                    state.xp     = s.xp     || 0;
+                    state.streak = s.streak || 0;
+                }
+                const signoutBtn = $('hdr-signout');
+                if(signoutBtn) signoutBtn.classList.remove('hidden');
+            }
+        }
+    }catch(e){}
+
+    // Fallback: gamified state
     try{
         if(window.gamified){
             const gs = window.gamified.getState();
