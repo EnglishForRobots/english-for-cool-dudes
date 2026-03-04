@@ -1793,7 +1793,20 @@ function buildBadgeSection(){
         </div>`;
     return sec;
 }
-function triggerBadgeUnlock(){
+async function triggerBadgeUnlock(){
+    // ── Guard: skip badge overlay on repeat completions ──
+    try {
+        const user = window.EFCD_Auth?.getCurrentUser();
+        if (user && window.efcdSupabaseClient) {
+            const { data } = await window.efcdSupabaseClient
+                .from('lessons').select('id')
+                .eq('user_id', user.id)
+                .eq('lesson_link', '/fuggerei/')
+                .limit(2);
+            if (data && data.length > 1) { closeBadgeUnlock(); return; }
+        }
+    } catch(e) { /* non-fatal */ }
+
     const overlay = $('badge-unlock-overlay');
     if(!overlay) return;
     // Populate badge data
