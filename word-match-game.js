@@ -122,7 +122,7 @@ class WordMatchGame {
                 id: `def-${index}`,
                 pairId: index,
                 type: 'definition',
-                content: item.definition,
+                content: item.definition || item.def,
                 color: '#10B981',
                 bgColor: '#ECFDF5',
                 matched: false
