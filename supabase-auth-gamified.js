@@ -278,6 +278,8 @@ async function completeLesson(lessonData) {
             lessonTitle,
             lessonLevel,
             lessonLink,
+            badgeIcon = null,
+            badgeName = null,
             vocabulary = [],
             grammar = [],
             perfectScore = false,
@@ -355,6 +357,8 @@ async function completeLesson(lessonData) {
                     lesson_title: lessonTitle,
                     lesson_level: lessonLevel,
                     lesson_link: lessonLink,
+                    badge_icon: badgeIcon,
+                    badge_name: badgeName,
                     vocabulary: vocabulary,
                     grammar: grammar,
                     completed_at: new Date().toISOString()
