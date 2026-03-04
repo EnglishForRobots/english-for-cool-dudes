@@ -31,41 +31,11 @@ const EFCD_BADGES = [
     // ── LEVELS ───────────────────────────────────────────────
     { id:'level_3', icon:'⚡', name:'Cool Dude',      description:'Reach Level 3 — officially a Cool Dude',   color:'#1CB0F6', shadow:'#1899D6', category:'levels', secret:false, check:(p)=>p.level>=3 },
     { id:'level_5', icon:'👑', name:'English Legend', description:'Reach Level 5 — the highest honour',        color:'#FFC800', shadow:'#E5B400', category:'levels', secret:true,  check:(p)=>p.level>=5 },
-    // ── LESSON BADGES ────────────────────────────────────────
-    {
-        id:'pancake_day', icon:'🥞', name:'Pancake Flipper',
-        description:'Complete the intermediate Pancake Day lesson — a true British tradition!',
-        color:'#FFC800', shadow:'#E5B400', category:'special', secret:false,
-        check:(p,l)=>l?.some(x=>x.lesson_link==='/pancakeday/' || x.lesson_id==='pancakeday')
-    },
-    {
-        // Beginner Pancake Day: /pancakedaybeginner/
-        id:'pancake_fan', icon:'🍋', name:'Pancake Fan',
-        description:"Complete the beginner Pancake Day lesson — lemon and sugar forever!",
-        color:'#58CC02', shadow:'#58A700', category:'special', secret:false,
-        check:(p,l)=>l?.some(x=>x.lesson_link==='/pancakedaybeginner/' || x.lesson_id==='pancake-day-beginner')
-    },
-    {
-        // Chinese Robots Beginner: /chineserobotsbeginner/
-        id:'robot_fan', icon:'🤖', name:'Robot Fan',
-        description:"Complete the Chinese Robots beginner lesson — kung fu robots are real!",
-        color:'#58CC02', shadow:'#58A700', category:'special', secret:false,
-        check:(p,l)=>l?.some(x=>x.lesson_link==='/chineserobotsbeginner/' || x.lesson_id==='chineserobotsbeginner')
-    },
-    {
-        // Advanced lesson: /fuggerei/
-        id:'fuggerei-fellow', icon:'🏘️', name:'Fuggerei Fellow',
-        description:'Complete the advanced Fuggerei lesson — 500 years of social history!',
-        color:'#FF4B4B', shadow:'#EA2B2B', category:'special', secret:false,
-        check:(p,l)=>l?.some(x=>x.lesson_link==='/fuggerei/' || x.lesson_id==='fuggerei-social-housing')
-    },
-    {
-        // Beginner lesson: /fuggereibeginner/
-        id:'fuggerei-fan', icon:'🏡', name:'Fuggerei Fan',
-        description:'Complete the beginner Fuggerei lesson — the world\'s oldest cheap housing!',
-        color:'#58CC02', shadow:'#58A700', category:'special', secret:false,
-        check:(p,l)=>l?.some(x=>x.lesson_link==='/fuggereibeginner/' || x.lesson_id==='fuggerei-beginner')
-    },
+    // ── LESSON BADGES — auto-discovered from Supabase ────────
+    // No entries needed here. Each lesson saves badge_icon + badge_name
+    // into the lessons table. _lessonBadges() builds them dynamically.
+    // To add a badge to a new lesson: set badgeIcon + badgeName in the
+    // lesson's completeLesson() call. Nothing else to change. Ever.
     // ── SPECIAL ──────────────────────────────────────────────
     { id:'night_owl',    icon:'🦉', name:'Night Owl',    description:'Complete a lesson between 10pm and 6am', color:'#4B4B8F', shadow:'#2E2E6B', category:'special', secret:true,  check:(p)=>p.achievements?.includes('night_owl') },
     { id:'early_bird',   icon:'🐦', name:'Early Bird',   description:'Complete a lesson before 9am',           color:'#FF9600', shadow:'#E08000', category:'special', secret:true,  check:(p)=>p.achievements?.includes('early_bird') },
@@ -82,9 +52,48 @@ function _hasTrack(lessons, trackName) {
     return lessons.some(l=>(l.lesson_level||'').toLowerCase().includes(trackName.toLowerCase()));
 }
 
+// ── AUTO-DISCOVERED LESSON BADGES ────────────────────────────
+// Reads badge_icon + badge_name from each unique completed lesson.
+// Colour is derived from lesson_level. No manual entry ever needed.
+function _lessonBadges(lessons=[]) {
+    if (!lessons?.length) return [];
+    const seen = new Set();
+    const badges = [];
+    for (const l of lessons) {
+        if (!l.badge_icon || !l.badge_name) continue;
+        const id = 'lesson__' + (l.lesson_link||l.lesson_id||l.badge_name).replace(/[^a-z0-9]/gi,'_');
+        if (seen.has(id)) continue;
+        seen.add(id);
+        const level = (l.lesson_level||'').toLowerCase();
+        const color  = level.includes('advanced')     ? '#FF4B4B'
+                     : level.includes('intermediate') ? '#1CB0F6'
+                     : level.includes('business')     ? '#CE82FF'
+                     : level.includes('tax')          ? '#FFC800'
+                     : level.includes('legal')        ? '#2BDECC'
+                     : '#58CC02'; // beginner / default
+        const shadow = level.includes('advanced')     ? '#EA2B2B'
+                     : level.includes('intermediate') ? '#1899D6'
+                     : level.includes('business')     ? '#A559D9'
+                     : level.includes('tax')          ? '#E5B400'
+                     : level.includes('legal')        ? '#1FBFAF'
+                     : '#58A700';
+        badges.push({
+            id, icon: l.badge_icon, name: l.badge_name,
+            description: `Complete the ${l.lesson_title||l.badge_name} lesson`,
+            color, shadow, category: 'lessons', secret: false,
+            // Always earned — it only appears once the lesson has been completed
+            check: () => true,
+            _lessonLink: l.lesson_link,
+        });
+    }
+    return badges;
+}
+
 // ── CORE ─────────────────────────────────────────────────────
 function evaluateBadges(profile, lessons=[]) {
-    return EFCD_BADGES.map(badge=>({ ...badge, earned: badge.check(profile, lessons) }));
+    const staticBadges = EFCD_BADGES.map(badge=>({ ...badge, earned: badge.check(profile, lessons) }));
+    const lessonBadges = _lessonBadges(lessons).map(badge=>({ ...badge, earned: true }));
+    return [...staticBadges, ...lessonBadges];
 }
 
 // ── HOMEPAGE SHELF ───────────────────────────────────────────
@@ -147,12 +156,13 @@ function renderBadgeGrid(profile, lessons=[], shinyBadges=new Set()) {
         </div>` : '';
 
     const categories = [
-        { key:'milestones', label:'🎯 Milestones',   desc:'Lesson completion achievements' },
-        { key:'streaks',    label:'🔥 Streaks',       desc:'Consistency rewards'            },
-        { key:'vocab',      label:'📚 Vocabulary',    desc:'Word collection achievements'   },
-        { key:'tracks',     label:'📖 Course Tracks', desc:'Complete different courses'     },
-        { key:'levels',     label:'⚡ Levels',         desc:'XP level milestones'            },
-        { key:'special',    label:'✨ Special',        desc:'Surprise achievements'          },
+        { key:'milestones', label:'🎯 Milestones',      desc:'Lesson completion achievements' },
+        { key:'streaks',    label:'🔥 Streaks',          desc:'Consistency rewards'            },
+        { key:'vocab',      label:'📚 Vocabulary',       desc:'Word collection achievements'   },
+        { key:'tracks',     label:'📖 Course Tracks',    desc:'Complete different courses'     },
+        { key:'levels',     label:'⚡ Levels',            desc:'XP level milestones'            },
+        { key:'lessons',    label:'🏅 Lesson Badges',    desc:'One badge per lesson completed' },
+        { key:'special',    label:'✨ Special',           desc:'Surprise achievements'          },
     ];
 
     const sectionsHTML = categories.map(cat=>{
