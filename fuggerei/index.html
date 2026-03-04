@@ -1870,22 +1870,24 @@ async function showCompletionScreen(){
     const screen = $('completion-screen');
     if(screen){ screen.classList.add('open'); }
 
-    // ── Save lesson record to Supabase so dashboard badge check can find it ──
+    // ── Save lesson to dashboard (XP, streak, vocab, grammar) ──
     try{
-        if(window.EFCD_Auth){
-            const user = window.EFCD_Auth.getCurrentUser();
-            if(user && window.efcdSupabaseClient){
-                await window.efcdSupabaseClient.from('lessons').insert({
-                    user_id:       user.id,
-                    lesson_id:     LESSON_ID,
-                    lesson_title:  'Inside the Fuggerei',
-                    lesson_link:   '/fuggerei/',
-                    lesson_level:  'Advanced',
-                    xp_earned:     totalXP,
-                    completed_at:  new Date().toISOString(),
-                    vocabulary:    VOCAB.map(v=>({ word: v.word, definition: v.def })),
-                });
-            }
+        if(window.EFCD_Auth?.getCurrentUser()){
+            const acc = state.totalAnswered > 0 ? Math.round((state.totalRight/state.totalAnswered)*100) : 100;
+            await window.EFCD_Auth.completeLesson({
+                lessonId:       LESSON_ID,
+                lessonTitle:    'Inside the Fuggerei',
+                lessonLevel:    'Advanced',
+                lessonLink:     '/fuggerei/',
+                vocabulary:     VOCAB.map(v => ({ word: v.word, definition: v.def })),
+                grammar:        GRAM_QS.map(q => ({
+                    question:    q.sent.replace('___', '______'),
+                    answer:      q.opts[q.correct],
+                    explanation: q.fb.replace(/^✅\s*"[^"]*"\s*—\s*/, '').replace(/^✅\s*/, ''),
+                })),
+                perfectScore:   acc === 100,
+                completionTime: Math.floor((Date.now() - performance.timing.navigationStart) / 1000),
+            });
         }
     }catch(e){ console.warn('Lesson save error:', e); }
 
