@@ -715,7 +715,6 @@
 
 const LESSON_ID = 'fuggerei-social-housing';
 const LESSON_XP  = 120;
-const LESSON_LINK = '/fuggerei/'; 
 const BADGE = {
     id:   'fuggerei-fellow',
     icon: '🏘️',
@@ -1825,7 +1824,7 @@ function triggerBadgeUnlock(){
     confettiBurst(r.width/3, r.height/2);
     confettiBurst(r.width*2/3, r.height/2);
 }
-function upgradeToShiny(){
+async function upgradeToShiny(){
     if(state.xp < BADGE.shinyXP || state.shinyOwned) return;
     state.xp -= BADGE.shinyXP;
     state.shinyOwned = true;
@@ -1835,6 +1834,21 @@ function upgradeToShiny(){
     $('bu-shiny-btn').textContent = '✨ Done!';
     const r = $('bu-card').getBoundingClientRect();
     confettiBurst(r.left+r.width/2, r.top+60);
+    // Persist to Supabase so dashboard shiny collection shows it
+    try {
+        const user = window.EFCD_Auth?.getCurrentUser?.();
+        if(user && window.efcdSupabaseClient){
+            const { data } = await window.efcdSupabaseClient
+                .from('profiles').select('shiny_badges').eq('id', user.id).single();
+            const current = Array.isArray(data?.shiny_badges) ? data.shiny_badges : [];
+            if(!current.includes(BADGE.id)){
+                const updated = [...current, BADGE.id];
+                await window.efcdSupabaseClient
+                    .from('profiles').update({ shiny_badges: updated }).eq('id', user.id);
+                localStorage.setItem('efcd_shiny_badges', JSON.stringify(updated));
+            }
+        }
+    } catch(e){ console.warn('shiny_badges save error:', e); }
 }
 function closeBadgeUnlock(){
     $('badge-unlock-overlay').classList.remove('open');
