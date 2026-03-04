@@ -1383,6 +1383,19 @@ async function spendXPForShiny(cost) {
 //  BADGE UNLOCK OVERLAY
 // ══════════════════════════════════════════════════════
 async function showBadgeUnlock(onDone) {
+    // ── Guard: skip badge overlay on repeat completions ──
+    try {
+        const user = window.EFCD_Auth?.getCurrentUser();
+        if (user && window.efcdSupabaseClient) {
+            const { data } = await window.efcdSupabaseClient
+                .from('lessons').select('id')
+                .eq('user_id', user.id)
+                .eq('lesson_link', '/pancakeday/')
+                .limit(2);
+            if (data && data.length > 1) { if (onDone) onDone(); return; }
+        }
+    } catch(e) { /* non-fatal */ }
+
     const overlay  = document.getElementById('badge-unlock-overlay');
     const iconWrap = document.getElementById('bu-icon-wrap');
     const rarity   = document.getElementById('bu-rarity');
