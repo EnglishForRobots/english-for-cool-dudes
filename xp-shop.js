@@ -70,7 +70,19 @@ function getShinyBadges() {
         return new Set(Array.isArray(arr) ? arr : []);
     } catch { return new Set(); }
 }
-function saveShinyBadges(set) { localStorage.setItem(SK.shiny, JSON.stringify([...set])); }
+function saveShinyBadges(set) {
+    const arr = [...set];
+    localStorage.setItem(SK.shiny, JSON.stringify(arr));
+    // Sync to Supabase so dashboard reads it correctly
+    const user = window.EFCD_Auth?.getCurrentUser?.();
+    if (user && window.efcdSupabaseClient) {
+        window.efcdSupabaseClient
+            .from('profiles')
+            .update({ shiny_badges: arr })
+            .eq('id', user.id)
+            .then(({ error }) => { if (error) console.warn('shiny_badges sync error:', error); });
+    }
+}
 
 function getActiveTheme() {
     try { const d=JSON.parse(localStorage.getItem(SK.theme)); if (d&&d.expires>Date.now()) return d; } catch {}
