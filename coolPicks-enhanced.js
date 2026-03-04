@@ -8,14 +8,12 @@ const coolPicksWidget = {
     // Categories: 'beginner', 'intermediate', 'advanced', 'business', 'tax', 'legal', 'fun'
     actualLessons: [
         // Add your lesson folders here with their actual durations, names, and categories:
+        { url:'/fuggerei/',      time:'10 mins', name:'Advanced: Inside the Fuggerei',  category:'advanced', icon:'🏡' },
+        { url:'/redline/',      time:'7 mins', name:'Legal: The Redline Room',  category:'legal', icon:'📄' },
+        { url:'/fuggereibeginner/',      time:'9 mins', name:'Beginner: Inside the Fuggerei',  category:'beginner', icon:'🏡' },
         { url: '/chineserobotsbeginner/', time: '5 mins', name: 'Pre-Intermediate: Chinese Robots on TV', category: 'beginner' },
-        { url: '/pancakedaybeginner/', time: '4 mins', name: 'Beginner: Pancake Day!', category: 'beginner' },
-       
-        { url: '/invisibleofficegame/', time: '8 mins', name: 'Tax: Invisible Office', category: 'tax' },
-{ url: '/transferpricing/', time: '9 mins', name: 'The Transfer Pricing Trap', category: 'tax' },
-        { url: '/flyingtaxis/', time: '9 mins', name: 'Advanced: Flying Taxis', category: 'advanced' },
-        { url: '/sandwich/', time: '5 mins', name: 'Beginner: The Earl of Sandwich', category: 'beginner' },
-        { url: '/aivideos/', time: '11 mins', name: 'Advanced: AI Videos', category: 'advanced' },
+        { url: '/pancakeday/', time: '7 mins', name: 'Intermediate: Pancake Day!', category: 'intermediate' },       
+        { url: '/invoffice/', time: '8 mins', name: 'Tax: Invisible Office', category: 'tax' },
         { url:'/muskman/',      time:'12 mins', name:'Intermediate: Elon Musk: The Big Bet',  category:'intermediate', icon:'🚀', fact:'SpaceX is valued at more than the Dutch economy!' },
         { url:'/carnival/',      time:'9 mins', name:'Advanced: Satire in the Spotlight',  category:'advanced', icon:'🎭' },
     
