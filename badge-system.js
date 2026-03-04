@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════
 // EFCD BADGE SYSTEM — badge-system.js
-// 18 collectible badges. Auto-awards from existing user data.
+// 21 collectible badges. Auto-awards from existing user data.
 // Drop-in for homepage hero (compact shelf) + dashboard (full grid)
 // Shiny badges read from Supabase profiles.shiny_badges column.
 // ═══════════════════════════════════════════════════════════════
@@ -34,15 +34,37 @@ const EFCD_BADGES = [
     // ── LESSON BADGES ────────────────────────────────────────
     {
         id:'pancake_day', icon:'🥞', name:'Pancake Flipper',
-        description:'Complete the Pancake Day lesson — a true British tradition!',
+        description:'Complete the intermediate Pancake Day lesson — a true British tradition!',
         color:'#FFC800', shadow:'#E5B400', category:'special', secret:false,
-        check:(p,l)=>l?.some(x=>x.lesson_link==='/pancakeday/'||(x.lesson_title||'').toLowerCase().includes('pancake'))
+        check:(p,l)=>l?.some(x=>x.lesson_link==='/pancakeday/' || x.lesson_id==='pancakeday')
     },
     {
+        // Beginner Pancake Day: /pancakedaybeginner/
+        id:'pancake_fan', icon:'🍋', name:'Pancake Fan',
+        description:"Complete the beginner Pancake Day lesson — lemon and sugar forever!",
+        color:'#58CC02', shadow:'#58A700', category:'special', secret:false,
+        check:(p,l)=>l?.some(x=>x.lesson_link==='/pancakedaybeginner/' || x.lesson_id==='pancake-day-beginner')
+    },
+    {
+        // Chinese Robots Beginner: /chineserobotsbeginner/
+        id:'robot_fan', icon:'🤖', name:'Robot Fan',
+        description:"Complete the Chinese Robots beginner lesson — kung fu robots are real!",
+        color:'#58CC02', shadow:'#58A700', category:'special', secret:false,
+        check:(p,l)=>l?.some(x=>x.lesson_link==='/chineserobotsbeginner/' || x.lesson_id==='chineserobotsbeginner')
+    },
+    {
+        // Advanced lesson: /fuggerei/
         id:'fuggerei-fellow', icon:'🏘️', name:'Fuggerei Fellow',
-        description:'Complete the Fuggerei lesson — 500 years of social history in one sitting!',
+        description:'Complete the advanced Fuggerei lesson — 500 years of social history!',
         color:'#FF4B4B', shadow:'#EA2B2B', category:'special', secret:false,
-        check:(p,l)=>l?.some(x=>x.lesson_link==='/fuggerei/'||(x.lesson_title||'').toLowerCase().includes('fuggerei'))
+        check:(p,l)=>l?.some(x=>x.lesson_link==='/fuggerei/' || x.lesson_id==='fuggerei-social-housing')
+    },
+    {
+        // Beginner lesson: /fuggereibeginner/
+        id:'fuggerei-fan', icon:'🏡', name:'Fuggerei Fan',
+        description:'Complete the beginner Fuggerei lesson — the world\'s oldest cheap housing!',
+        color:'#58CC02', shadow:'#58A700', category:'special', secret:false,
+        check:(p,l)=>l?.some(x=>x.lesson_link==='/fuggereibeginner/' || x.lesson_id==='fuggerei-beginner')
     },
     // ── SPECIAL ──────────────────────────────────────────────
     { id:'night_owl',    icon:'🦉', name:'Night Owl',    description:'Complete a lesson between 10pm and 6am', color:'#4B4B8F', shadow:'#2E2E6B', category:'special', secret:true,  check:(p)=>p.achievements?.includes('night_owl') },
