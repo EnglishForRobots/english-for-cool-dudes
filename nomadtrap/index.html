@@ -157,10 +157,9 @@
     .sec-card {
         background: var(--white); border: 2px solid var(--border-heavy);
         border-bottom: 6px solid var(--border-heavy); border-radius: var(--r);
-        overflow: hidden; opacity: 0; transform: translateY(18px);
-        transition: opacity .4s ease, transform .4s ease;
+        overflow: hidden; display: none;
     }
-    .sec-card.visible { opacity: 1; transform: translateY(0); animation: up .4s ease both; }
+    .sec-card.visible { display: block; animation: up .4s ease both; }
 
     /* Coloured top strips — ::before pattern */
     .sec-card::before { content:''; display:block; height:8px; border-radius:var(--r) var(--r) 0 0; margin:-2px -2px 0; }
@@ -1272,9 +1271,14 @@ function btnRow(n, hasReveal) {
 function goTo(n) {
     curSec = n;
     const el = document.querySelector(`.sec-card[data-sec="${n}"]`);
+    alert('goTo(' + n + ') called. el found: ' + !!el);
     if (el) {
         el.classList.add('visible');
-        setTimeout(() => el.scrollIntoView({behavior:'smooth',block:'start'}), 50);
+        requestAnimationFrame(() => {
+            const top = el.getBoundingClientRect().top + window.scrollY - 8;
+            alert('scrolling to: ' + top + ' (rect.top=' + el.getBoundingClientRect().top + ', scrollY=' + window.scrollY + ')');
+            window.scrollTo({top, behavior:'smooth'});
+        });
     }
     updateNav();
 }
@@ -1288,7 +1292,10 @@ function completeSec(n) {
     const next = document.querySelector(`.sec-card[data-sec="${n+1}"]`);
     if (next) {
         next.classList.add('visible');
-        setTimeout(() => next.scrollIntoView({behavior:'smooth',block:'start'}), 50);
+        requestAnimationFrame(() => {
+            const top = next.getBoundingClientRect().top + window.scrollY - 8;
+            window.scrollTo({top, behavior:'smooth'});
+        });
     }
     if (Math.random() < .3) showBadge(rndBadge());
     curSec = n+1; updateNav();
