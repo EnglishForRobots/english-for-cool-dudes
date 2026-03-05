@@ -522,11 +522,11 @@
     /* report overlay (for timeline detail) */
     .report-overlay {
         position: fixed; inset: 0; background: rgba(0,0,0,.6);
-        z-index: 600; display: flex; align-items: flex-end; justify-content: center;
+        z-index: 600; display: none; align-items: flex-end; justify-content: center;
         opacity: 0; pointer-events: none; transition: opacity .25s;
     }
     @media(min-width:640px){ .report-overlay { align-items: center; } }
-    .report-overlay.open { opacity: 1; pointer-events: all; }
+    .report-overlay.open { display: flex; opacity: 1; pointer-events: all; }
     .report-sheet {
         background: var(--white); border-radius: var(--r) var(--r) 0 0;
         max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto;
@@ -1071,8 +1071,6 @@ function closeReport() {
 }
 
 function checkTimelineDone() {
-    const done = Object.keys(tlVoted).length;
-    if (done < L.timeline.length) { closeReport(); return; }
     closeReport();
     doneSecs = Math.max(doneSecs, 1); updateProg(); burst(); showBadge(rndBadge());
     const risks = L.timeline.filter(ev => ev.isRisk).length;
@@ -1271,12 +1269,10 @@ function btnRow(n, hasReveal) {
 function goTo(n) {
     curSec = n;
     const el = document.querySelector(`.sec-card[data-sec="${n}"]`);
-    alert('goTo(' + n + ') called. el found: ' + !!el);
     if (el) {
         el.classList.add('visible');
         requestAnimationFrame(() => {
             const top = el.getBoundingClientRect().top + window.scrollY - 8;
-            alert('scrolling to: ' + top + ' (rect.top=' + el.getBoundingClientRect().top + ', scrollY=' + window.scrollY + ')');
             window.scrollTo({top, behavior:'smooth'});
         });
     }
