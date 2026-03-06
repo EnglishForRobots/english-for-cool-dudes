@@ -1028,52 +1028,27 @@ function revealSection(id){
         'sec-tap':'tap','sec-grammar':'grammar','sec-match':'match','sec-badge':'badge'
     };
     const name = nameMap[id] || id;
-    const container = $('sections');
+    const sec = document.getElementById('sec-' + name);
+    if(!sec || sec.classList.contains('visible')) return;
 
-    // Don't append if already in DOM
-    if(container.querySelector(`#sec-${name}`)) return;
-
-    const builders = {
-        video:    buildVideoSection,
-        vocab:    buildVocabSection,
-        hottakes: buildHotTakesSection,
-        tap:      buildTapSection,
-        grammar:  buildGrammarSection,
-        match:    buildMatchSection,
-        badge:    buildBadgeSection,
-    };
-    const sec = builders[name] ? builders[name]() : null;
-    if(!sec) return;
-
-    // Start invisible
-    sec.style.opacity = '0';
-    sec.style.transform = 'translateY(16px)';
-    sec.style.transition = 'opacity .35s ease, transform .35s ease';
-    container.appendChild(sec);
-
-    // Trigger sub-renders
     const renders = { vocab:renderVocab, hottakes:renderHotTakes, tap:renderTap, grammar:renderGrammar, match:initMatch };
     if(renders[name]) renders[name]();
 
-    requestAnimationFrame(()=> requestAnimationFrame(()=>{
-    sec.style.opacity = '1';
-    sec.style.transform = 'translateY(0)';
-    setTimeout(()=>{
-    window.scrollBy({ top: 533, behavior:'smooth' });
-}, 350);
-}));
-
-window.scrollBy({ top: document.getElementById('sec-video').offsetHeight, behavior:'smooth' });
-    
-    // Update bottom nav indicator
-    const visible = container.querySelectorAll('.sec-card').length;
-    const ind = $('bn-ind');
-    if(ind) ind.textContent = visible + '/' + SECTION_ORDER.length;
-    const next = $('bn-next');
-    if(next) next.style.display = name === 'badge' ? 'none' : 'flex';
+    sec.classList.add('visible');
+    sec.scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
 function buildAll(){
+    const container = document.getElementById('sections');
+    [
+        buildVideoSection,
+        buildVocabSection,
+        buildHotTakesSection,
+        buildTapSection,
+        buildGrammarSection,
+        buildMatchSection,
+        buildBadgeSection,
+    ].forEach(b => container.appendChild(b()));
     revealSection('video');
 }
 
