@@ -859,33 +859,67 @@ let currentSectionIdx = 0;
 
 function revealSection(id){
     const nameMap = {
-        'sec-video':'video','sec-vocab':'vocab','sec-hottakes':'hottakes',
-        'sec-tap':'tap','sec-grammar':'grammar','sec-match':'match','sec-badge':'badge'
+        'sec-video':'video', 'sec-vocab':'vocab', 'sec-hottakes':'hottakes',
+        'sec-tap':'tap', 'sec-grammar':'grammar', 'sec-match':'match'
     };
     const name = nameMap[id] || id;
-    const sec = document.getElementById('sec-' + name);
-    if(!sec || sec.classList.contains('visible')) return;
+    currentSectionIdx = SECTION_ORDER.indexOf(name);
+    if(currentSectionIdx < 0) currentSectionIdx = 0;
+    swapToSection(name);
+}
 
-    const renders = { vocab:renderVocab, hottakes:renderHotTakes, tap:renderTap, grammar:renderGrammar, match:initMatch };
+function swapToSection(name){
+    const container = $('sections');
+    const existing  = container.querySelector('.sec-card');
+    const doMount   = () => {
+        container.innerHTML = '';
+        mountSection(name, container);
+        updateNavBar(name);
+    };
+    if(existing){
+        existing.style.transition = 'opacity .22s ease, transform .22s ease';
+        existing.style.opacity    = '0';
+        existing.style.transform  = 'translateX(-28px)';
+        setTimeout(doMount, 230);
+    } else {
+        doMount();
+    }
+}
+
+function mountSection(name, container){
+    const builders = {
+        video:    buildVideoSection,
+        vocab:    buildVocabSection,
+        hottakes: buildHotTakesSection,
+        tap:      buildTapSection,
+        grammar:  buildGrammarSection,
+        match:    buildMatchSection,
+    };
+    const sec = builders[name] ? builders[name]() : null;
+    if(!sec) return;
+    sec.style.cssText = 'opacity:0;transform:translateY(16px);transition:opacity .35s ease,transform .35s ease';
+    container.appendChild(sec);
+    const renders = { vocab: renderVocab, hottakes: renderHotTakes, tap: renderTap, grammar: renderGrammar, match: initMatch };
     if(renders[name]) renders[name]();
+    requestAnimationFrame(()=> requestAnimationFrame(()=>{
+        sec.style.opacity   = '1';
+        sec.style.transform = 'translateY(0)';
+        sec.scrollIntoView({behavior:'smooth', block:'start'})
+    }));
+}
 
-    sec.classList.add('visible');
-    sec.scrollIntoView({ behavior:'smooth', block:'start' });
+function updateNavBar(name){
+    const idx = SECTION_ORDER.indexOf(name);
+    const ind = $('bn-ind'); if(ind) ind.textContent = (idx + 1) + '/' + SECTION_ORDER.length;
+    const prev = $('bn-prev'); if(prev) prev.disabled = idx <= 0;
+    const next = $('bn-next'); if(next) next.style.display = name === 'match' ? 'none' : 'flex';
 }
 
 function buildAll(){
-    const container = document.getElementById('sections');
-    [
-        buildVideoSection,
-        buildVocabSection,
-        buildHotTakesSection,
-        buildTapSection,
-        buildGrammarSection,
-        buildMatchSection,
-        buildBadgeSection,
-    ].forEach(b => container.appendChild(b()));
-    revealSection('video');
+    swapToSection('video');
+    updateNavBar('video');
 }
+
 function prevSec(){}
 function nextSec(){}
 
