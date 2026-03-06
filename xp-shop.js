@@ -315,7 +315,11 @@ function renderShiny(body) {
     const profile  = window.EFCD_Auth?.getCurrentUser();
     const shinySet = getShinyBadges(); // always a Set
     if (!profile) { body.innerHTML = `<div style="text-align:center;padding:40px 20px;color:rgba(255,255,255,.4);font-weight:800;">Log in to manage shiny badges ✨</div>`; return; }
-    const owned = (window.EFCD_Badges?.evaluate?.(profile, []) || []).filter(b => b.earned);
+    const { data: lessons } = await window.efcdSupabaseClient
+    .from('lessons')
+    .select('lesson_link, lesson_level, badge_icon, badge_name, lesson_title')
+    .eq('user_id', profile.id);
+const owned = (window.EFCD_Badges?.evaluate?.(profile, lessons || []) || []).filter(b => b.earned);
     if (!owned.length) { body.innerHTML = `<div style="text-align:center;padding:40px 20px;"><div style="font-size:48px;margin-bottom:12px;">🔒</div><div style="font-size:15px;font-weight:900;color:#fff;margin-bottom:6px;">No badges yet!</div><div style="font-size:13px;font-weight:700;color:rgba(255,255,255,.4);">Complete lessons to earn badges first.</div></div>`; return; }
     const SHINY_COST = 200;
     let html = `<div class="shop-section-hd">Shiny Upgrades · Permanent · ⚡ ${SHINY_COST} XP each</div><div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.4);margin-bottom:12px;">Permanent holographic upgrade — trade XP to make your badge shimmer.</div><div class="shop-grid">`;
