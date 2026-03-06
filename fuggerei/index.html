@@ -713,14 +713,16 @@
    LESSON DATA
 ═══════════════════════════════════════════════════════ */
 
-const LESSON_ID = 'fuggerei-social-housing';
-const LESSON_XP  = 120;
+const LESSON_ID   = 'fuggerei-social-housing';
+const LESSON_XP   = 120;
+const LESSON_LINK = '/fuggerei/';
+
 const BADGE = {
-    id:   'lesson___fuggerei_',  // matches what _lessonBadges() generates
-    icon: '🏘️',
-    name: 'Fuggerei Fellow',
-    desc: 'You completed the Fuggerei lesson — 500 years of social history in one sitting!',
-    rarity: '🌟 Lesson Badge · Rare',
+    get id(){ return 'lesson__' + LESSON_LINK.replace(/[^a-z0-9]/gi,'_'); },
+    icon:    '🏘️',
+    name:    'Fuggerei Fellow',
+    desc:    'You completed the Fuggerei lesson — 500 years of social history in one sitting!',
+    rarity:  '🌟 Lesson Badge · Rare',
     shinyXP: 200,
 };
 
@@ -1067,11 +1069,12 @@ function mountSection(name, container){
     // Trigger sub-renders
     const renders = {vocab:renderVocab, hottakes:renderHotTakes, tap:renderTap, grammar:renderGrammar, match:initMatch};
     if(renders[name]) renders[name]();
-    // Animate in
+    // Animate in, then scroll so section sits just below sticky header
     requestAnimationFrame(()=> requestAnimationFrame(()=>{
         sec.style.opacity = '1';
         sec.style.transform = 'translateY(0)';
-        window.scrollTo({top:0, behavior:'smooth'});
+        const top = sec.getBoundingClientRect().top + window.scrollY - 72;
+        window.scrollTo({top: Math.max(0, top), behavior:'smooth'});
     }));
 }
 
@@ -1801,27 +1804,24 @@ async function triggerBadgeUnlock(){
             const { data } = await window.efcdSupabaseClient
                 .from('lessons').select('id')
                 .eq('user_id', user.id)
-                .eq('lesson_link', '/fuggerei/')
-                .limit(2);
-            if (data && data.length > 1) { closeBadgeUnlock(); return; }
+                .eq('lesson_title', 'Inside the Fuggerei')
+                .limit(1);
+            if (data && data.length > 0) { closeBadgeUnlock(); return; }
         }
     } catch(e) { /* non-fatal */ }
 
     const overlay = $('badge-unlock-overlay');
     if(!overlay) return;
-    // Populate badge data
-    $('bu-icon').textContent = BADGE.icon;
-    $('bu-name').textContent = BADGE.name;
-    $('bu-desc').textContent = BADGE.desc;
+    $('bu-icon').textContent  = BADGE.icon;
+    $('bu-name').textContent  = BADGE.name;
+    $('bu-desc').textContent  = BADGE.desc;
     $('bu-rarity').textContent = BADGE.rarity;
 
-    // Shiny prompt
     const shinyPrompt = $('bu-shiny-prompt');
     const shinyDesc   = $('bu-shiny-desc');
-    const shinyBtn    = $('bu-shiny-btn');
     if(state.shinyOwned){
         $('bu-icon-wrap').classList.add('shiny');
-        if(shinyPrompt) shinyPrompt.innerHTML = '<div class="bu-shiny-already">✨ Already shiny!</div>';
+        shinyPrompt.innerHTML = '<div class="bu-shiny-already">✨ Already shiny!</div>';
         shinyPrompt.classList.add('visible');
     } else if(state.xp >= BADGE.shinyXP){
         shinyPrompt.classList.add('visible');
@@ -1837,6 +1837,7 @@ async function triggerBadgeUnlock(){
     confettiBurst(r.width/3, r.height/2);
     confettiBurst(r.width*2/3, r.height/2);
 }
+    
 async function upgradeToShiny(){
     if(state.xp < BADGE.shinyXP || state.shinyOwned) return;
     state.xp -= BADGE.shinyXP;
