@@ -339,7 +339,7 @@ async function completeLesson(lessonData) {
         const finalLevel = calculateLevel(finalXP);
         
         // ── STEP 3: Save lesson to DB (AFTER achievement check) ──
-        if (vocabulary.length > 0) {
+      
             const { data: existingLesson, error: checkError } = await supabase
                 .from('lessons')
                 .select('id')
@@ -375,7 +375,7 @@ async function completeLesson(lessonData) {
             } else {
                 console.log('ℹ️ Lesson already saved, skipping');
             }
-        }
+     
         
         // Update profile
         const { error } = await supabase
