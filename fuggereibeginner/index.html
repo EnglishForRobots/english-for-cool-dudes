@@ -185,6 +185,7 @@
         transition: opacity .4s ease, transform .4s ease;
         scroll-margin-top: 72px;
     }
+    .sec-card.visible { opacity: 1; transform: translateY(0); }
     .sec-card::before { content: ''; display: block; height: 8px; border-radius: var(--r) var(--r) 0 0; margin: -2px -2px 0; }
     .strip-green::before  { background: var(--green); }
     .strip-blue::before   { background: var(--blue); }
@@ -854,75 +855,37 @@ function updateProgress(){
 /* ═══════════════════════════════════════════════════════
    SECTION FLOW — one section at a time
 ═══════════════════════════════════════════════════════ */
-const SECTION_ORDER = ['video', 'vocab', 'hottakes', 'tap', 'grammar', 'match'];
-let currentSectionIdx = 0;
+const SECTION_ORDER = ['video','vocab','hottakes','tap','grammar','match'];
 
 function revealSection(id){
     const nameMap = {
-        'sec-video':'video', 'sec-vocab':'vocab', 'sec-hottakes':'hottakes',
-        'sec-tap':'tap', 'sec-grammar':'grammar', 'sec-match':'match'
+        'sec-video':'video','sec-vocab':'vocab','sec-hottakes':'hottakes',
+        'sec-tap':'tap','sec-grammar':'grammar','sec-match':'match'
     };
     const name = nameMap[id] || id;
-    currentSectionIdx = SECTION_ORDER.indexOf(name);
-    if(currentSectionIdx < 0) currentSectionIdx = 0;
-    swapToSection(name);
-}
-
-function swapToSection(name){
-    const container = $('sections');
-    const existing  = container.querySelector('.sec-card');
-    const doMount   = () => {
-        container.innerHTML = '';
-        mountSection(name, container);
-        updateNavBar(name);
-    };
-    if(existing){
-        existing.style.transition = 'opacity .22s ease, transform .22s ease';
-        existing.style.opacity    = '0';
-        existing.style.transform  = 'translateX(-28px)';
-        setTimeout(doMount, 230);
-    } else {
-        doMount();
-    }
-}
-
-function mountSection(name, container){
-    const builders = {
-        video:    buildVideoSection,
-        vocab:    buildVocabSection,
-        hottakes: buildHotTakesSection,
-        tap:      buildTapSection,
-        grammar:  buildGrammarSection,
-        match:    buildMatchSection,
-    };
-    const sec = builders[name] ? builders[name]() : null;
-    if(!sec) return;
-    sec.style.cssText = 'opacity:0;transform:translateY(16px);transition:opacity .35s ease,transform .35s ease';
-    container.appendChild(sec);
-    const renders = { vocab: renderVocab, hottakes: renderHotTakes, tap: renderTap, grammar: renderGrammar, match: initMatch };
+    const sec = document.getElementById('sec-' + name);
+    if(!sec || sec.classList.contains('visible')) return;
+    const renders = { vocab:renderVocab, hottakes:renderHotTakes, tap:renderTap, grammar:renderGrammar, match:initMatch };
     if(renders[name]) renders[name]();
-    requestAnimationFrame(()=> requestAnimationFrame(()=>{
-        sec.style.opacity   = '1';
-        sec.style.transform = 'translateY(0)';
-        sec.scrollIntoView({behavior:'smooth', block:'start'})
-    }));
-}
-
-function updateNavBar(name){
-    const idx = SECTION_ORDER.indexOf(name);
-    const ind = $('bn-ind'); if(ind) ind.textContent = (idx + 1) + '/' + SECTION_ORDER.length;
-    const prev = $('bn-prev'); if(prev) prev.disabled = idx <= 0;
-    const next = $('bn-next'); if(next) next.style.display = name === 'match' ? 'none' : 'flex';
+    sec.classList.add('visible');
+    sec.scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
 function buildAll(){
-    swapToSection('video');
-    updateNavBar('video');
+    const container = document.getElementById('sections');
+    [
+        buildVideoSection,
+        buildVocabSection,
+        buildHotTakesSection,
+        buildTapSection,
+        buildGrammarSection,
+        buildMatchSection,
+    ].forEach(b => container.appendChild(b()));
+    revealSection('video');
 }
 
 function prevSec(){}
 function nextSec(){}
-
 /* ── VIDEO ── */
 function buildVideoSection(){
     const sec = document.createElement('div');
