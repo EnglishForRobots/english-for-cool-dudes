@@ -389,18 +389,15 @@ function openPicker() { document.getElementById('course-modal').classList.add('o
 function closePicker() { document.getElementById('course-modal').classList.remove('open'); }
 document.getElementById('course-modal').addEventListener('click', function(e) {
     if (e.target === this) { closePicker(); return; }
-    
-    // If a challenge is active, store it before navigating to the lesson
+
     const link = e.target.closest('.modal-choice');
     if (link && window.DailyChallenges) {
-        const stored = window.DailyChallenges.loadHUDChallenge 
-            ? null  // already stored, don't overwrite
-            : null;
         const ch = window.DailyChallenges.getTodaysChallenge();
         const progress = JSON.parse(localStorage.getItem('dailyChallenge') || '{}');
-        const isComplete = progress.challengeId === ch.id && progress.progress >= ch.target;
+        const isComplete = progress.challengeId === ch.id && (progress.progress || 0) >= ch.target;
         if (!isComplete) {
-            window.DailyChallenges.storeHUDChallenge(ch);
+            e.preventDefault();
+            window.DailyChallenges.acceptAndNavigate(ch, link.href);
         }
     }
 });
