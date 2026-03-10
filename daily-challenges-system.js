@@ -653,8 +653,16 @@ function activateChallengeHUD(ch, navigateAfter) {
 }
 
 // ── AUTO-RESTORE HUD ON LESSON PAGES ─────────────────────────
+// ── AUTO-RESTORE HUD ON LESSON PAGES ─────────────────────────
 (function restoreHUDIfNeeded() {
     if (isOnDashboard()) { return; }
+    
+    var ch = getTodaysChallenge();
+    var progress = getStoredProgress(ch);
+    if (progress >= ch.target) { clearHUDChallenge(); return; } // already done today
+    
+    // Auto-store so the rest of the function has something to read
+    storeHUDChallenge(ch);
     var stored = loadHUDChallenge();
     if (!stored) return;
     var ch = getTodaysChallenge();
