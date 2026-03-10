@@ -1,14 +1,12 @@
 // ═══════════════════════════════════════════════════════════
 // DAILY CHALLENGES SYSTEM — daily-challenges-system.js
+// v3.1 — fixes:
+//  FIX E: Time-sensitive challenges show deadline timer not midnight
+//  FIX F: HUD auto-restores reliably on lesson pages (DOMContentLoaded guard)
+//  FIX G: Early Bird widget shows bird animation + urgency when active
 // v3 — major update:
-//  NEW: 9 new challenges (night_owl, comeback_kid, hat_trick,
-//       section_hopper, level_up, lunchtime_learner, perfectionist,
-//       monday_motivation, friday_feeling)
-//  NEW: Contextual rotation — time/day-aware getTodaysChallenge()
-//  NEW: Bulletproof checkProgress using lessonId, lessonSection,
-//       dc_last_lesson_date, dc_last_lesson_section
-//  FIX: Dismiss persists across pages (dc_dismissed sessionStorage)
-//  KEPT: All v2 fixes (A/B/C/D)
+//  NEW: 9 new challenges, contextual rotation, bulletproof checkProgress
+//  FIX: Dismiss persists across pages
 // ═══════════════════════════════════════════════════════════
 
 'use strict';
@@ -29,42 +27,42 @@ const DAILY_CHALLENGES = {
 
     perfect_score: {
         id:           'perfect_score',
-        title:        'Perfect Score',
-        description:  'Complete any lesson and score 100%',
+        title:        'PERFECT SCORE 💯',
+        description:  'Zero mistakes. Zero. Absolute domination of this lesson.',
         icon:         '💯',
         target:       1,
         xpReward:     75,
-        ctaLabel:     '🎯 Pick a Lesson',
+        ctaLabel:     '💯 GO FOR PERFECTION',
         ctaAction:    'picker',
-        motivational: "You've got an eye for detail — keep it up!",
+        motivational: "FLAWLESS!! You just proved you're built different. LEGEND. 🏆",
         color:        '#1a1a2e', colorAccent: '#FFC800', colorShadow: '#E5B400',
         checkProgress: (cur, data) => data?.perfectScore === true ? 1 : cur,
     },
 
     vocab_learner: {
         id:           'vocab_learner',
-        title:        'Word Hunter',
-        description:  'Learn 10 new vocabulary words today',
+        title:        'Word BEAST 📚',
+        description:  'Devour 10 new vocabulary words. Knowledge is POWER.',
         icon:         '📚',
         target:       10,
         xpReward:     50,
-        ctaLabel:     '📖 Find a Vocab Lesson',
+        ctaLabel:     '📚 HUNT THOSE WORDS',
         ctaAction:    'picker',
-        motivational: "Your vocabulary is growing fast — impressive!",
+        motivational: "10 new words locked in your brain FOREVER. You're unstoppable! 🧠⚡",
         color:        '#6B21A8', colorAccent: '#CE82FF', colorShadow: '#A559D9',
         checkProgress: (cur, data) => Math.min(cur + (data?.vocabCount || 0), 10),
     },
 
     speed_run: {
         id:           'speed_run',
-        title:        'Speed Runner',
-        description:  'Complete any lesson in under 8 minutes',
+        title:        'SPEED DEMON ⚡',
+        description:  'Smash a lesson in under 8 minutes. Fast brain. BIG XP.',
         icon:         '⚡',
         target:       1,
         xpReward:     60,
-        ctaLabel:     '⚡ Start a Quick Lesson',
+        ctaLabel:     '⚡ LAUNCH SPEED RUN',
         ctaAction:    'picker',
-        motivational: "Fast AND smart — that's the Cool Dude way!",
+        motivational: "BLAZING FAST!! They said it couldn't be done. You said watch me. 🚀",
         color:        '#92400E', colorAccent: '#FFC800', colorShadow: '#E5B400',
         checkProgress: (cur, data) =>
             (data?.completionTime && data.completionTime < 480) ? 1 : cur,
@@ -72,14 +70,14 @@ const DAILY_CHALLENGES = {
 
     double_trouble: {
         id:           'double_trouble',
-        title:        'Double Trouble',
-        description:  'Complete 2 different lessons today',
-        icon:         '🎯',
+        title:        'DOUBLE TROUBLE 🔥🔥',
+        description:  'Two different lessons. Today. Because one just isn\'t enough.',
+        icon:         '🔥',
         target:       2,
         xpReward:     100,
-        ctaLabel:     '🚀 Start a Lesson',
+        ctaLabel:     '🔥 START LESSON #1',
         ctaAction:    'picker',
-        motivational: "Two lessons in one day — you're on fire! 🔥",
+        motivational: "TWO LESSONS DOWN!! While everyone else napped, you DOMINATED. 🏆🏆",
         color:        '#991B1B', colorAccent: '#FF4B4B', colorShadow: '#EA2B2B',
         checkProgress: (cur, data) => {
             if (!data?.lessonId) return cur + 1; // fallback if no lessonId
@@ -99,28 +97,28 @@ const DAILY_CHALLENGES = {
 
     early_bird: {
         id:           'early_bird',
-        title:        'Early Bird',
-        description:  'Complete a lesson before 10 AM',
+        title:        'EARLY BIRD 🐦',
+        description:  'The worm is YOURS — complete a lesson before 10 AM!',
         icon:         '🐦',
         target:       1,
         xpReward:     50,
-        ctaLabel:     '🌅 Start Early',
+        ctaLabel:     '🌅 GRAB THAT WORM NOW',
         ctaAction:    'picker',
-        motivational: "Early mornings = early wins. Respect!",
+        motivational: "UP BEFORE THE WORLD AND ALREADY LEARNING?! You absolute MACHINE! 🌅🔥",
         color:        '#92400E', colorAccent: '#FFB800', colorShadow: '#cc9000',
         checkProgress: (cur) => new Date().getHours() < 10 ? 1 : cur,
     },
 
     weekend_warrior: {
         id:           'weekend_warrior',
-        title:        'Weekend Warrior',
-        description:  'Learn something new this weekend',
+        title:        'WEEKEND WARRIOR 🎮',
+        description:  'Most people are chilling. You\'re LEVELLING UP. Respect.',
         icon:         '🎮',
         target:       1,
         xpReward:     75,
-        ctaLabel:     '🎮 Pick Any Lesson',
+        ctaLabel:     '🎮 WARRIOR MODE: ON',
         ctaAction:    'picker',
-        motivational: "Who said weekends are for rest? Legend status!",
+        motivational: "WEEKEND WARRIOR STATUS UNLOCKED!! You chose growth over the sofa. ELITE. 🏆",
         color:        '#065F46', colorAccent: '#2BDECC', colorShadow: '#1FBFAF',
         checkProgress: (cur) => {
             var d = new Date().getDay();
@@ -130,14 +128,14 @@ const DAILY_CHALLENGES = {
 
     grammar_guru: {
         id:           'grammar_guru',
-        title:        'Grammar Guru',
-        description:  'Ace the grammar exercises in any lesson',
+        title:        'GRAMMAR GURU 📝',
+        description:  'Ace every grammar question. No errors. Pure mastery.',
         icon:         '📝',
         target:       1,
         xpReward:     60,
-        ctaLabel:     '✏️ Accept the Challenge',
+        ctaLabel:     '📝 SHOW YOUR MASTERY',
         ctaAction:    'picker',
-        motivational: "Grammar master in the making — brilliant!",
+        motivational: "GRAMMAR GURU ACHIEVED!! Your English is getting seriously DANGEROUS. The world isn't ready! 🌍⚡",
         color:        '#1e3a5f', colorAccent: '#1CB0F6', colorShadow: '#1899D6',
         checkProgress: (cur, data) => data?.grammarPerfect === true ? 1 : cur,
     },
@@ -146,28 +144,28 @@ const DAILY_CHALLENGES = {
 
     night_owl: {
         id:           'night_owl',
-        title:        'Night Owl',
-        description:  'Complete a lesson after 9 PM',
+        title:        'NIGHT OWL 🦉',
+        description:  'The whole world is asleep. You\'re in here LEARNING. Iconic.',
         icon:         '🦉',
         target:       1,
         xpReward:     60,
-        ctaLabel:     '🌙 Start a Late Lesson',
+        ctaLabel:     '🌙 OWL MODE: ACTIVATED',
         ctaAction:    'picker',
-        motivational: "Burning the midnight oil — we love the dedication!",
+        motivational: "11PM AND YOU JUST CRUSHED A LESSON?! You are absolutely WILD for this. We love it. 🦉🔥",
         color:        '#1e1b4b', colorAccent: '#818CF8', colorShadow: '#6366F1',
         checkProgress: (cur) => new Date().getHours() >= 21 ? 1 : cur,
     },
 
     lunchtime_learner: {
         id:           'lunchtime_learner',
-        title:        'Lunchtime Learner',
-        description:  'Complete a lesson between 12 PM and 2 PM',
+        title:        'LUNCH BREAK LEGEND 🥪',
+        description:  'Sandwich in one hand, English in the other. That\'s EFFICIENCY.',
         icon:         '🥪',
         target:       1,
         xpReward:     50,
-        ctaLabel:     '🕛 Start Your Lunch Lesson',
+        ctaLabel:     '🥪 SMASH YOUR LUNCH BREAK',
         ctaAction:    'picker',
-        motivational: "Learning over lunch — most productive meal of the day!",
+        motivational: "LUNCH BREAK LEGEND!! You just out-learned every single person eating at their desk. 🏆",
         color:        '#713f12', colorAccent: '#FCD34D', colorShadow: '#F59E0B',
         checkProgress: (cur) => {
             var h = new Date().getHours();
@@ -177,42 +175,42 @@ const DAILY_CHALLENGES = {
 
     monday_motivation: {
         id:           'monday_motivation',
-        title:        'Monday Motivation',
-        description:  'Start the week strong — complete a lesson today',
+        title:        'MONDAY CRUSHER 💪',
+        description:  'Monday is scared of you. Complete a lesson and PROVE IT.',
         icon:         '💪',
         target:       1,
         xpReward:     60,
-        ctaLabel:     '💪 Smash Monday',
+        ctaLabel:     '💪 DESTROY MONDAY',
         ctaAction:    'picker',
-        motivational: "Monday champion! The week is already yours.",
+        motivational: "MONDAY CRUSHED!! The week didn't stand a chance. You came in SWINGING. 🥊🔥",
         color:        '#1e3a5f', colorAccent: '#60A5FA', colorShadow: '#3B82F6',
         checkProgress: (cur) => new Date().getDay() === 1 ? 1 : cur,
     },
 
     friday_feeling: {
         id:           'friday_feeling',
-        title:        'Friday Feeling',
-        description:  'End the week with a lesson — you deserve it!',
+        title:        'FRIDAY LEGEND 🎉',
+        description:  'It\'s FRIDAY and you\'re still learning?! Absolute royalty.',
         icon:         '🎉',
         target:       1,
         xpReward:     65,
-        ctaLabel:     '🎉 Friday Lesson Go!',
+        ctaLabel:     '🎉 END THE WEEK IN STYLE',
         ctaAction:    'picker',
-        motivational: "Friday AND learning? You're officially a Cool Dude.",
+        motivational: "FRIDAY LEGEND CONFIRMED!! You learned ALL week and finished with a BANG. Royalty. 👑",
         color:        '#4c1d95', colorAccent: '#C084FC', colorShadow: '#A855F7',
         checkProgress: (cur) => new Date().getDay() === 5 ? 1 : cur,
     },
 
     hat_trick: {
         id:           'hat_trick',
-        title:        'Hat Trick',
-        description:  'Complete 3 different lessons today',
+        title:        'HAT TRICK 🎩🎩🎩',
+        description:  'THREE lessons. ONE day. Pure. Unstoppable. POWER.',
         icon:         '🎩',
         target:       3,
         xpReward:     150,
-        ctaLabel:     '🎩 Go for the Hat Trick',
+        ctaLabel:     '🎩 GO FOR THE HAT TRICK',
         ctaAction:    'picker',
-        motivational: "Three lessons in one day — absolute legend!",
+        motivational: "THREE LESSONS IN ONE DAY?! You are NOT human. You are a LANGUAGE MACHINE. 🤖🔥 LEGENDARY.",
         color:        '#064e3b', colorAccent: '#34D399', colorShadow: '#10B981',
         checkProgress: (cur, data) => {
             if (!data?.lessonId) return Math.min(cur + 1, 3);
@@ -231,14 +229,14 @@ const DAILY_CHALLENGES = {
 
     perfectionist: {
         id:           'perfectionist',
-        title:        'Perfectionist',
-        description:  'Score 100% on two different lessons today',
+        title:        'DOUBLE PERFECT 🌟🌟',
+        description:  '100% on TWO different lessons. Anything less? Not your style.',
         icon:         '🌟',
         target:       2,
         xpReward:     120,
-        ctaLabel:     '🌟 Aim for Perfect',
+        ctaLabel:     '🌟 PERFECTION ONLY',
         ctaAction:    'picker',
-        motivational: "Two perfect scores — you don't do things by halves!",
+        motivational: "DOUBLE PERFECTION!! Flawless. Twice. In one day. You don't miss. EVER. 💎👑",
         color:        '#1a1a2e', colorAccent: '#FFC800', colorShadow: '#E5B400',
         checkProgress: (cur, data) => {
             if (data?.perfectScore !== true) return cur;
@@ -258,19 +256,19 @@ const DAILY_CHALLENGES = {
 
     comeback_kid: {
         id:           'comeback_kid',
-        title:        'Comeback Kid',
-        description:  'Return after 3+ days away and complete a lesson',
+        title:        'COMEBACK KID 🔄',
+        description:  'You were away. Now you\'re BACK. And you\'re stronger than ever.',
         icon:         '🔄',
         target:       1,
         xpReward:     100,
-        ctaLabel:     '🔄 Make Your Comeback',
+        ctaLabel:     '🔄 MAKE YOUR COMEBACK',
         ctaAction:    'picker',
-        motivational: "You came back — that's the hardest part. Proud of you!",
+        motivational: "YOU CAME BACK AND YOU SMASHED IT!! The comeback is ALWAYS better than the setback. PROUD of you! 🙌🔥",
         color:        '#7c2d12', colorAccent: '#FB923C', colorShadow: '#EA580C',
         checkProgress: (cur) => {
             try {
                 var last = localStorage.getItem('dc_last_lesson_date');
-                if (!last) return cur; // never done a lesson — don't count
+                if (!last) return cur;
                 var lastDate = new Date(last);
                 var today = new Date();
                 var diffDays = Math.floor((today - lastDate) / 86400000);
@@ -282,20 +280,20 @@ const DAILY_CHALLENGES = {
 
     section_hopper: {
         id:           'section_hopper',
-        title:        'Section Hopper',
-        description:  'Complete a lesson from a different section than usual',
+        title:        'SECTION HOPPER 🦘',
+        description:  'Mix it up! Try a completely different section today.',
         icon:         '🦘',
         target:       1,
         xpReward:     75,
-        ctaLabel:     '🦘 Try Something Different',
+        ctaLabel:     '🦘 JUMP TO SOMETHING NEW',
         ctaAction:    'picker',
-        motivational: "Mixing it up — a well-rounded Cool Dude!",
+        motivational: "SECTION HOPPER UNLOCKED!! Your brain is firing on ALL cylinders. Versatile genius! 🧠✨",
         color:        '#064e3b', colorAccent: '#2BDECC', colorShadow: '#1FBFAF',
         checkProgress: (cur, data) => {
             if (!data?.lessonSection) return cur;
             try {
                 var last = localStorage.getItem('dc_last_lesson_section');
-                if (!last) return 1; // no previous section — any lesson counts
+                if (!last) return 1;
                 return data.lessonSection !== last ? 1 : cur;
             } catch(_) {}
             return cur;
@@ -304,20 +302,20 @@ const DAILY_CHALLENGES = {
 
     level_up: {
         id:           'level_up',
-        title:        'Level Up',
-        description:  'Complete a lesson from a harder section than usual',
+        title:        'LEVEL UP 📈',
+        description:  'You\'ve outgrown easy. Go HARDER. You\'re ready.',
         icon:         '📈',
         target:       1,
         xpReward:     80,
-        ctaLabel:     '📈 Challenge Yourself',
+        ctaLabel:     '📈 LEVEL UP RIGHT NOW',
         ctaAction:    'picker',
-        motivational: "Pushing yourself further — that's real growth!",
+        motivational: "LEVELLED UP!! You chose the harder path and CONQUERED IT. That's how legends are made! 👑🚀",
         color:        '#1e3a5f', colorAccent: '#FFC800', colorShadow: '#E5B400',
         checkProgress: (cur, data) => {
             if (!data?.lessonSection) return cur;
             try {
                 var last = localStorage.getItem('dc_last_lesson_section');
-                if (!last) return cur; // no history — can't tell if it's harder
+                if (!last) return cur;
                 var lastLevel = SECTION_LEVELS[last] || 0;
                 var thisLevel = SECTION_LEVELS[data.lessonSection] || 0;
                 return thisLevel > lastLevel ? 1 : cur;
@@ -402,6 +400,52 @@ function getTimeUntilMidnight() {
     var h = Math.floor(diff / 3600000);
     var m = Math.floor((diff % 3600000) / 60000);
     return { h: h, m: m, label: h + 'h ' + m + 'm' };
+}
+
+// Returns the deadline for the current challenge.
+// Time-sensitive challenges expire before midnight — show that deadline instead.
+function getChallengeDeadline(challenge) {
+    var now  = new Date();
+    var h    = now.getHours();
+    var min  = now.getMinutes();
+
+    if (challenge.id === 'early_bird') {
+        // Expires at 10:00am
+        var minsLeft = (10 * 60) - (h * 60 + min);
+        if (minsLeft <= 0) return { label: '⏰ Expired', urgent: true, expired: true };
+        var hh = Math.floor(minsLeft / 60);
+        var mm = minsLeft % 60;
+        var urgent = minsLeft <= 30;
+        var label = hh > 0 ? hh + 'h ' + mm + 'm left' : mm + 'm left';
+        return { label: (urgent ? '🚨 ' : '⏰ ') + label, urgent: urgent, expired: false };
+    }
+
+    if (challenge.id === 'night_owl') {
+        // Active from 21:00 to midnight
+        var minsLeft = (24 * 60) - (h * 60 + min);
+        if (h < 21) return { label: '🦉 Unlocks at 9pm', urgent: false, expired: false };
+        var hh = Math.floor(minsLeft / 60);
+        var mm = minsLeft % 60;
+        var urgent = minsLeft <= 30;
+        var label = hh > 0 ? hh + 'h ' + mm + 'm left' : mm + 'm left';
+        return { label: (urgent ? '🚨 ' : '⏰ ') + label, urgent: urgent, expired: false };
+    }
+
+    if (challenge.id === 'lunchtime_learner') {
+        // Active 12:00–14:00
+        if (h < 12) {
+            var minsTo = (12 * 60) - (h * 60 + min);
+            var hh = Math.floor(minsTo / 60); var mm = minsTo % 60;
+            return { label: '⏰ Unlocks in ' + (hh > 0 ? hh + 'h ' : '') + mm + 'm', urgent: false, expired: false };
+        }
+        if (h >= 14) return { label: '⏰ Expired', urgent: true, expired: true };
+        var minsLeft = (14 * 60) - (h * 60 + min);
+        var urgent = minsLeft <= 20;
+        return { label: (urgent ? '🚨 ' : '⏰ ') + minsLeft + 'm left', urgent: urgent, expired: false };
+    }
+
+    // Default: time until midnight
+    return getTimeUntilMidnight();
 }
 
 function getStoredProgress(challenge) {
@@ -606,6 +650,43 @@ function injectCSS() {
 .dc-tomorrow-desc { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.75); }
 @keyframes wormPop { from{transform:scale(.8);opacity:0} to{transform:scale(1);opacity:1} }
 @keyframes wormWiggle { 0%,100%{transform:rotate(-8deg)} 50%{transform:rotate(8deg)} }
+.dc-bird-banner {
+    display: flex; align-items: center; gap: 10px;
+    background: linear-gradient(135deg, #FF9500 0%, #FFB800 100%);
+    border: 2px solid #E5B400; border-bottom: none;
+    border-radius: 16px 16px 0 0; padding: 8px 16px;
+    margin-bottom: -6px;
+    font-family: 'Nunito', -apple-system, sans-serif;
+}
+.dc-bird-fly {
+    font-size: 22px;
+    animation: dcBirdFly 1.2s ease-in-out infinite;
+    display: inline-block;
+}
+.dc-bird-worm {
+    font-size: 18px;
+    animation: wormWiggle .8s ease-in-out infinite;
+    display: inline-block;
+}
+@keyframes dcBirdFly {
+    0%,100% { transform: translateY(0) rotate(-5deg); }
+    50%     { transform: translateY(-6px) rotate(5deg); }
+}
+.dc-quest-timer--urgent {
+    background: rgba(255,50,50,.35) !important;
+    color: #fff !important;
+    animation: dcTimerPulse 1s ease-in-out infinite;
+}
+@keyframes dcTimerPulse {
+    0%,100% { opacity: 1; }
+    50%     { opacity: .6; }
+}
+.dc-quest-btn--urgent {
+    background: #FF4B4B !important;
+    border-color: #EA2B2B !important;
+    border-bottom-color: #c92020 !important;
+    animation: dcBtnPulse .8s ease-in-out infinite !important;
+}
     `;
     document.head.appendChild(style);
 }
@@ -618,43 +699,73 @@ function renderDailyChallengeWidget(context) {
     var isComplete = progress >= challenge.target;
     var pct        = Math.min(100, Math.round((progress / challenge.target) * 100));
     var time       = getTimeUntilMidnight();
+    var deadline   = getChallengeDeadline(challenge);
     injectCSS();
     if (isComplete) return renderCompletedState(challenge, tomorrow, time);
-    return renderActiveState(challenge, progress, pct, time, context);
+    return renderActiveState(challenge, progress, pct, deadline, context);
 }
 
-function renderActiveState(challenge, progress, pct, time, context) {
+function renderActiveState(challenge, progress, pct, deadline, context) {
     var timerId = 'dc-quest-timer-' + Math.random().toString(36).slice(2, 7);
 
     setInterval(function() {
         var el = document.getElementById(timerId);
         if (!el) return;
-        var t = getTimeUntilMidnight();
-        el.textContent = '⏰ ' + t.label + ' left';
-    }, 60000);
+        var d = getChallengeDeadline(getTodaysChallenge());
+        el.textContent = d.label;
+    }, 30000); // update every 30s for time-sensitive challenges
 
     var hudInDOM  = !!document.getElementById('dc-hud');
     var hudStored = !!loadHUDChallenge();
     var isActive  = hudInDOM || hudStored;
     var onDash    = !!document.getElementById('dc-slot');
 
+    // Early bird special: animated bird + urgency copy when active
+    var isEarlyBird = challenge.id === 'early_bird';
+    var isUrgent    = deadline.urgent;
+
     var btnLabel, btnClass;
     if (isActive && onDash) {
         btnLabel = challenge.icon + ' Continue Challenge →';
         btnClass = 'dc-quest-btn dc-quest-btn--active';
     } else if (isActive) {
-        btnLabel = challenge.icon + ' Challenge On! Let\'s do this 💪';
-        btnClass = 'dc-quest-btn dc-quest-btn--active';
+        if (isEarlyBird) {
+            btnLabel = isUrgent
+                ? '🚨 HURRY! Get that worm before 10am! 🐦'
+                : '🐦 Early Bird active — do this lesson NOW! 🪱';
+        } else {
+            btnLabel = challenge.icon + ' Challenge On! Let\'s do this 💪';
+        }
+        btnClass = 'dc-quest-btn dc-quest-btn--active' + (isUrgent ? ' dc-quest-btn--urgent' : '');
     } else {
         btnLabel = challenge.ctaLabel + ' <span class="dc-quest-arrow">›</span>';
         btnClass = 'dc-quest-btn';
     }
 
-    return '<div class="dc-quest-card" id="dc-quest-card">'
+    // Early bird active: show flying bird animation above card
+    var birdBanner = '';
+    if (isEarlyBird && isActive) {
+        birdBanner = '<div class="dc-bird-banner">'
+            + '<span class="dc-bird-fly">🐦</span>'
+            + '<span class="dc-bird-worm">🪱</span>'
+            + '<span style="font-size:11px;font-weight:900;color:rgba(255,255,255,.9);text-transform:uppercase;letter-spacing:1px;">'
+            + (isUrgent ? '⚠️ Less than 30 mins to grab that worm!' : 'The early bird gets the worm!')
+            + '</span>'
+            + '</div>';
+    }
+
+    // Card background — urgent early bird gets orange tint
+    var cardStyle = '';
+    if (isEarlyBird && isUrgent) {
+        cardStyle = ' style="background:linear-gradient(135deg,#c05000 0%,#e07000 100%);border-color:#FF9500;"';
+    }
+
+    return birdBanner
+        + '<div class="dc-quest-card" id="dc-quest-card"' + cardStyle + '>'
         + '<div class="dc-quest-glow"></div>'
         + '<div class="dc-quest-eyebrow">'
         + '<span>⚔️ Daily Quest</span>'
-        + '<span class="dc-quest-timer" id="' + timerId + '">⏰ ' + time.label + ' left</span>'
+        + '<span class="dc-quest-timer' + (deadline.urgent ? ' dc-quest-timer--urgent' : '') + '" id="' + timerId + '">' + deadline.label + '</span>'
         + '</div>'
         + '<div class="dc-quest-hero">'
         + '<div class="dc-quest-icon">' + challenge.icon + '</div>'
@@ -701,8 +812,8 @@ function renderCompletedState(challenge, tomorrow, time) {
         + '<div class="dc-quest-done-confetti">🎊</div>'
         + '<div class="dc-quest-done-top">'
         + '<div class="dc-quest-done-check">✓</div>'
-        + '<div><div class="dc-quest-done-title">Quest Complete!</div>'
-        + '<div class="dc-quest-done-sub">' + challenge.title + ' · +' + challenge.xpReward + ' XP earned</div></div>'
+        + '<div><div class="dc-quest-done-title">🏆 QUEST CRUSHED!!</div>'
+        + '<div class="dc-quest-done-sub">' + challenge.title + ' · +' + challenge.xpReward + ' XP EARNED 🔥</div></div>'
         + '</div>'
         + '<div class="dc-quest-done-msg">' + challenge.motivational + '</div>'
         + nextBlock
@@ -902,7 +1013,7 @@ function activateChallengeHUD(ch, navigateAfter) {
 }
 
 // ── AUTO-RESTORE HUD ON LESSON PAGES ─────────────────────
-(function restoreHUDIfNeeded() {
+function restoreHUDIfNeeded() {
     if (isOnDashboard()) return;
 
     // Dismiss fix — if user hit × today, don't restore
@@ -918,69 +1029,87 @@ function activateChallengeHUD(ch, navigateAfter) {
     var stored = loadHUDChallenge();
     if (!stored) return;
 
+    // Don't show if HUD already in DOM
+    if (document.getElementById('dc-hud')) return;
+
+    var acc = stored.colorAccent || '#FFC800';
+    var bg  = stored.color       || '#1CB0F6';
+
+    if (!document.getElementById('dc-hud-styles')) {
+        var s = document.createElement('style');
+        s.id  = 'dc-hud-styles';
+        s.textContent = ''
+            + '@keyframes dcHudSlideIn { from{transform:translateY(-110%);opacity:0} to{transform:translateY(0);opacity:1} }'
+            + '@keyframes dcHudPulse   { 0%,100%{opacity:1} 50%{opacity:.6} }';
+        document.head.appendChild(s);
+    }
+
+    var hud = document.createElement('div');
+    hud.id  = 'dc-hud';
+    hud.style.cssText = [
+        'position:fixed', 'top:0', 'left:0', 'right:0', 'z-index:9000',
+        'background:' + bg,
+        'border-bottom:3px solid ' + acc,
+        'padding:10px 16px',
+        'display:flex', 'align-items:center', 'justify-content:space-between', 'gap:12px',
+        'font-family:Nunito,-apple-system,sans-serif',
+        'animation:dcHudSlideIn .5s cubic-bezier(.175,.885,.32,1.275) both',
+        'box-shadow:0 4px 24px rgba(0,0,0,.3)'
+    ].join(';');
+
+    // Early bird HUD gets extra urgency styling
+    var deadline   = getChallengeDeadline(ch);
+    var timerColor = deadline.urgent ? '#FF4B4B' : acc;
+    var deadlineChip = '<div style="background:rgba(0,0,0,.2);border-radius:8px;padding:3px 8px;font-size:11px;font-weight:900;color:' + timerColor + ';white-space:nowrap;">' + deadline.label + '</div>';
+
+    hud.innerHTML = ''
+        + '<div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">'
+        +   '<span style="font-size:24px;flex-shrink:0;animation:dcHudPulse 2s ease infinite;">' + stored.icon + '</span>'
+        +   '<div style="min-width:0;">'
+        +     '<div style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:' + acc + ';line-height:1;">' + stored.title + ' — Active 🔥</div>'
+        +     '<div style="font-size:11px;font-weight:800;color:rgba(255,255,255,.8);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + stored.motivational + '</div>'
+        +   '</div>'
+        + '</div>'
+        + '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">'
+        +   deadlineChip
+        +   '<div style="background:rgba(255,255,255,.12);border:2px solid ' + acc + ';border-radius:10px;padding:6px 12px;font-size:13px;font-weight:900;color:' + acc + ';white-space:nowrap;">+' + stored.xpReward + ' XP</div>'
+        +   '<button id="dc-hud-dismiss" style="background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);border-radius:8px;color:rgba(255,255,255,.5);font-size:16px;font-weight:900;width:30px;height:30px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;line-height:1;">×</button>'
+        + '</div>';
+
+    document.body.prepend(hud);
+    var existingPad = parseInt(document.body.style.paddingTop) || 0;
+    document.body.style.paddingTop = (existingPad + hud.offsetHeight) + 'px';
+
+    document.getElementById('dc-hud-dismiss').addEventListener('click', function() {
+        clearHUDChallenge();
+        sessionStorage.setItem('dc_dismissed', new Date().toDateString());
+        hud.style.transition = 'transform .3s ease, opacity .3s ease';
+        hud.style.transform  = 'translateY(-110%)';
+        hud.style.opacity    = '0';
+        var pad = parseInt(document.body.style.paddingTop) || 0;
+        document.body.style.paddingTop = Math.max(0, pad - hud.offsetHeight) + 'px';
+        setTimeout(function() { hud.remove(); }, 320);
+    });
+
     setTimeout(function() {
-        if (document.getElementById('dc-hud')) return;
-        var acc = stored.colorAccent || '#FFC800';
-        var bg  = stored.color       || '#1CB0F6';
-
-        if (!document.getElementById('dc-hud-styles')) {
-            var s = document.createElement('style');
-            s.id  = 'dc-hud-styles';
-            s.textContent = ''
-                + '@keyframes dcHudSlideIn { from{transform:translateY(-110%);opacity:0} to{transform:translateY(0);opacity:1} }'
-                + '@keyframes dcHudPulse   { 0%,100%{opacity:1} 50%{opacity:.6} }';
-            document.head.appendChild(s);
-        }
-
-        var hud = document.createElement('div');
-        hud.id  = 'dc-hud';
-        hud.style.cssText = [
-            'position:fixed', 'top:0', 'left:0', 'right:0', 'z-index:9000',
-            'background:' + bg,
-            'border-bottom:3px solid ' + acc,
-            'padding:10px 16px',
-            'display:flex', 'align-items:center', 'justify-content:space-between', 'gap:12px',
-            'font-family:Nunito,-apple-system,sans-serif',
-            'animation:dcHudSlideIn .5s cubic-bezier(.175,.885,.32,1.275) both',
-            'box-shadow:0 4px 24px rgba(0,0,0,.3)'
-        ].join(';');
-        hud.innerHTML = ''
-            + '<div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">'
-            +   '<span style="font-size:24px;flex-shrink:0;animation:dcHudPulse 2s ease infinite;">' + stored.icon + '</span>'
-            +   '<div style="min-width:0;">'
-            +     '<div style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:' + acc + ';line-height:1;">' + stored.title + ' — Active 🔥</div>'
-            +     '<div style="font-size:11px;font-weight:800;color:rgba(255,255,255,.8);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + stored.motivational + '</div>'
-            +   '</div>'
-            + '</div>'
-            + '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">'
-            +   '<div style="background:rgba(255,255,255,.12);border:2px solid ' + acc + ';border-radius:10px;padding:6px 12px;font-size:13px;font-weight:900;color:' + acc + ';white-space:nowrap;">+' + stored.xpReward + ' XP</div>'
-            +   '<button id="dc-hud-dismiss" style="background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);border-radius:8px;color:rgba(255,255,255,.5);font-size:16px;font-weight:900;width:30px;height:30px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;line-height:1;">×</button>'
-            + '</div>';
-        document.body.prepend(hud);
-        var existingPad = parseInt(document.body.style.paddingTop) || 0;
-        document.body.style.paddingTop = (existingPad + hud.offsetHeight) + 'px';
-
-        document.getElementById('dc-hud-dismiss').addEventListener('click', function() {
-            clearHUDChallenge();
-            sessionStorage.setItem('dc_dismissed', new Date().toDateString());
-            hud.style.transition = 'transform .3s ease, opacity .3s ease';
-            hud.style.transform  = 'translateY(-110%)';
-            hud.style.opacity    = '0';
-            var pad = parseInt(document.body.style.paddingTop) || 0;
-            document.body.style.paddingTop = Math.max(0, pad - hud.offsetHeight) + 'px';
-            setTimeout(function() { hud.remove(); }, 320);
+        var todaysCh = getTodaysChallenge();
+        document.querySelectorAll('.dc-quest-btn').forEach(function(btn) {
+            if (btn.classList.contains('dc-quest-btn--active')) return;
+            btn.classList.add('dc-quest-btn--active');
+            btn.innerHTML = todaysCh.icon + ' Challenge On! Let\'s do this 💪';
         });
+    }, 600);
+}
 
-        setTimeout(function() {
-            var todaysCh = getTodaysChallenge();
-            document.querySelectorAll('.dc-quest-btn').forEach(function(btn) {
-                if (btn.classList.contains('dc-quest-btn--active')) return;
-                btn.classList.add('dc-quest-btn--active');
-                btn.innerHTML = todaysCh.icon + ' Challenge On! Let\'s do this 💪';
-            });
-        }, 600);
-    }, 400);
-})();
+// Run after DOM ready — fixes padding calculation on cold page load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(restoreHUDIfNeeded, 200);
+    });
+} else {
+    // DOM already ready (script loaded late / deferred)
+    setTimeout(restoreHUDIfNeeded, 200);
+}
 
 // ── GLOBAL EVENT DELEGATION ───────────────────────────────
 document.addEventListener('click', function(e) {
@@ -1049,12 +1178,12 @@ function showChallengeCompletionCelebration(challenge) {
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:99998;display:flex;align-items:center;justify-content:center;padding:20px;';
     overlay.innerHTML = '<div style="background:linear-gradient(135deg,#58CC02 0%,#48a800 100%);padding:36px 28px;border-radius:24px;border:2px solid #58A700;border-bottom:6px solid #48a800;text-align:center;max-width:380px;width:100%;font-family:Nunito,sans-serif;color:#fff;">'
         + '<div style="font-size:72px;margin-bottom:8px;">' + challenge.icon + '</div>'
-        + '<div style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.75);margin-bottom:6px;">Quest Complete!</div>'
+        + '<div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:3px;color:rgba(255,255,255,.8);margin-bottom:6px;">🏆 QUEST DESTROYED 🏆</div>'
         + '<div style="font-size:28px;font-weight:900;letter-spacing:-.5px;margin-bottom:8px;">' + challenge.title + '</div>'
-        + '<div style="font-size:14px;font-weight:800;color:rgba(255,255,255,.85);margin-bottom:20px;font-style:italic;">' + challenge.motivational + '</div>'
+        + '<div style="font-size:15px;font-weight:800;color:rgba(255,255,255,.9);margin-bottom:20px;font-style:italic;line-height:1.5;">' + challenge.motivational + '</div>'
         + '<div style="background:rgba(255,255,255,.2);border-radius:16px;padding:16px;margin-bottom:16px;">'
-        + '<div style="font-size:48px;font-weight:900;color:#FFC800;">+' + challenge.xpReward + ' XP</div>'
-        + '<div style="font-size:12px;font-weight:800;color:rgba(255,255,255,.75);margin-top:4px;">Bonus reward earned!</div>'
+        + '<div style="font-size:48px;font-weight:900;color:#FFC800;text-shadow:0 2px 0 rgba(0,0,0,.2);">+' + challenge.xpReward + ' XP</div>'
+        + '<div style="font-size:13px;font-weight:800;color:rgba(255,255,255,.8);margin-top:4px;">💰 BONUS XP BANKED!</div>'
         + '</div>'
         + '<div style="background:rgba(0,0,0,.2);border-radius:14px;padding:14px;margin-bottom:20px;text-align:left;">'
         + (isSameChallengeTomorrow()
@@ -1067,7 +1196,7 @@ function showChallengeCompletionCelebration(challenge) {
               + '</div>'
           )
         + '</div>'
-        + '<button id="dc-celeb-close" style="width:100%;padding:14px;background:#FFC800;color:#111827;border:2px solid #E5B400;border-bottom:4px solid #E5B400;border-radius:16px;font-size:16px;font-weight:900;cursor:pointer;font-family:inherit;">Let\'s go! 🎉</button>'
+        + '<button id="dc-celeb-close" style="width:100%;padding:14px;background:#FFC800;color:#111827;border:2px solid #E5B400;border-bottom:4px solid #E5B400;border-radius:16px;font-size:17px;font-weight:900;cursor:pointer;font-family:inherit;letter-spacing:-.2px;">LET\'S GO!! 🚀🔥</button>'
         + '</div>';
     document.body.appendChild(overlay);
     document.getElementById('dc-celeb-close').addEventListener('click', function() { overlay.remove(); });
