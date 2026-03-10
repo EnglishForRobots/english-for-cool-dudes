@@ -790,7 +790,7 @@ function handleDCButtonForChallenge(challenge) {
             const lvInfo   = window.EFCD_Auth.getLevelInfo(stats.level);
 
             renderHero(user, stats, lvInfo, progress);
-            renderStatCards(stats, progress);
+            renderStatCards(stats);
 
             // Use our wrapper — not the raw DailyChallenges call (fixes bugs 1 + 2)
             renderDCWidget();
@@ -855,15 +855,18 @@ function handleDCButtonForChallenge(challenge) {
     // ══════════════════════════════════════════════════════════════════
     //  STAT CARDS
     // ══════════════════════════════════════════════════════════════════
-    function renderStatCards(stats, progress) {
-        document.getElementById('stat-cards').innerHTML = `
-            <div class="stat-card c-yellow">
-                <div class="stat-card-label">Level & XP</div>
-                <div class="stat-card-value">Lv ${stats.level}</div>
-                <div class="stat-card-sub">${stats.xp.toLocaleString()} XP total</div>
-                <div class="stat-card-bar"><div class="stat-card-fill" style="width:${progress.percent}%;background:var(--yellow);"></div></div>
-                <div style="font-size:11px;font-weight:800;color:var(--ink-3);margin-top:6px;">${progress.remaining} XP to Level ${stats.level + 1}</div>
-            </div>
+    function renderStatCards(stats) {
+    const xpIn  = (stats.xp || 0) % 500;
+    const xpLeft = 500 - xpIn;
+    const xpPct  = Math.min(100, Math.round((xpIn / 500) * 100));
+    document.getElementById('stat-cards').innerHTML = `
+        <div class="stat-card c-yellow">
+            <div class="stat-card-label">Level & XP</div>
+            <div class="stat-card-value">Lv ${stats.level}</div>
+            <div class="stat-card-sub">${(stats.xp || 0).toLocaleString()} XP total</div>
+            <div class="stat-card-bar"><div class="stat-card-fill" style="width:${xpPct}%;background:var(--yellow);"></div></div>
+            <div style="font-size:11px;font-weight:800;color:var(--ink-3);margin-top:6px;">${xpLeft} XP to Level ${stats.level + 1}</div>
+        </div>
             <div class="stat-card c-punch">
                 <div class="stat-card-label">Streak</div>
                 <div class="stat-card-value" style="font-size:44px;line-height:1;">🔥</div>
