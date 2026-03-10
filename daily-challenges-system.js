@@ -960,7 +960,7 @@ function activateChallengeHUD(ch, navigateAfter) {
             document.head.appendChild(ss);
         }
         document.body.appendChild(redir);
-        setTimeout(function() { window.location.href = '/'; }, 1400);
+        setTimeout(function() { window.location.href = '/?picker=1'; }, 1400);
     }
 
     function buildHUD(ch, acc, bg, shd) {
@@ -1117,10 +1117,15 @@ document.addEventListener('click', function(e) {
     if (!btn) return;
     e.preventDefault();
 
+    var ch = getTodaysChallenge();
+
+    // "Continue Challenge" button — challenge already active, send to picker
     if (btn.classList.contains('dc-quest-btn--active')) {
         if (isOnDashboard()) {
-            acceptAndNavigate(getTodaysChallenge(), '/');
+            // Full launch sequence then open picker
+            activateChallengeHUD(ch, true);
         } else {
+            // Already on a lesson page — scroll to lesson content
             var target = document.getElementById('sections')
                 || document.querySelector('.quest-section')
                 || document.querySelector('.lesson-banner');
@@ -1129,11 +1134,13 @@ document.addEventListener('click', function(e) {
         return;
     }
 
+    // Dashboard registers _dcButtonHandler — still run full launch
     if (typeof window._dcButtonHandler === 'function') {
-        window._dcButtonHandler(getTodaysChallenge());
+        window._dcButtonHandler(ch);
         return;
     }
 
+    // HUD already showing on a lesson page — scroll to content
     if (document.getElementById('dc-hud')) {
         var target = document.getElementById('sections')
             || document.querySelector('.quest-section')
@@ -1142,11 +1149,13 @@ document.addEventListener('click', function(e) {
         return;
     }
 
+    // On a lesson page without HUD — activate it here
     if (isOnLessonPage()) {
-        activateChallengeHUD(getTodaysChallenge(), false);
+        activateChallengeHUD(ch, false);
         return;
     }
 
+    // On index — open picker directly if available, else show modal
     if (typeof openPicker === 'function') { openPicker(); return; }
     showChallengeClickModal();
 });
