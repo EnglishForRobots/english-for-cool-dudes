@@ -633,6 +633,7 @@ function activateChallengeHUD(ch, navigateAfter) {
         document.body.style.paddingTop = (existingPad + hud.offsetHeight) + 'px';
         document.getElementById('dc-hud-dismiss').addEventListener('click', function() {
             clearHUDChallenge();
+            sessionStorage.setItem('dc_dismissed', new Date().toDateString());
             hud.style.transition = 'transform .3s ease, opacity .3s ease';
             hud.style.transform  = 'translateY(-110%)';
             hud.style.opacity    = '0';
@@ -656,6 +657,9 @@ function activateChallengeHUD(ch, navigateAfter) {
 // ── AUTO-RESTORE HUD ON LESSON PAGES ─────────────────────────
 (function restoreHUDIfNeeded() {
     if (isOnDashboard()) { return; }
+    
+    var dismissed = sessionStorage.getItem('dc_dismissed');
+    if (dismissed === new Date().toDateString()) return;
     
     var ch = getTodaysChallenge();
     var progress = getStoredProgress(ch);
@@ -709,6 +713,7 @@ function activateChallengeHUD(ch, navigateAfter) {
         document.body.style.paddingTop = (existingPad + hud.offsetHeight) + 'px';
         document.getElementById('dc-hud-dismiss').addEventListener('click', function() {
             clearHUDChallenge();
+            sessionStorage.setItem('dc_dismissed', new Date().toDateString());
             hud.style.transition = 'transform .3s ease, opacity .3s ease';
             hud.style.transform  = 'translateY(-110%)';
             hud.style.opacity    = '0';
