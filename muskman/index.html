@@ -700,6 +700,20 @@ async function finishLesson(){
         return;
     }
     const result=await window.EFCD_Auth.completeLesson({lessonId:L.lessonId,lessonTitle:L.title,lessonLevel:L.level,lessonLink:L.lessonLink,vocabulary:L.vocabulary,grammar:L.grammar,perfectScore:true,completionTime:Math.floor((Date.now()-performance.timing.navigationStart)/1000)});
+    try {
+    if (window.DailyChallenges) {
+        await window.DailyChallenges.updateChallengeProgress({
+            perfectScore:   true,
+            vocabCount:     L.vocabulary.length,
+            grammarPerfect: true,
+            completionTime: Math.floor((Date.now() - performance.timing.navigationStart) / 1000),
+            lessonId:       L.lessonId,
+            lessonSection:  'business',
+        });
+        localStorage.setItem('dc_last_lesson_date', new Date().toDateString());
+        localStorage.setItem('dc_last_lesson_section', 'business');
+    }
+} catch(e) {}
     if(typeof showWordMatchGame==='function')showWordMatchGame(L.vocabulary,gr=>showEndScreen(result,gr));
     else showEndScreen(result,null);
 }
