@@ -35,6 +35,7 @@ const DAILY_CHALLENGES = {
         ctaLabel:     '💯 GO FOR PERFECTION',
         ctaAction:    'picker',
         motivational: "FLAWLESS!! You just proved you're built different. LEGEND. 🏆",
+        hudMessage:   "Zero mistakes — can you do it? Complete this lesson to find out! 🎯",
         color:        '#1a1a2e', colorAccent: '#FFC800', colorShadow: '#E5B400',
         checkProgress: (cur, data) => data?.perfectScore === true ? 1 : cur,
     },
@@ -49,6 +50,7 @@ const DAILY_CHALLENGES = {
         ctaLabel:     '📚 HUNT THOSE WORDS',
         ctaAction:    'picker',
         motivational: "10 new words locked in your brain FOREVER. You're unstoppable! 🧠⚡",
+        hudMessage:   "Learn 10 new words in this lesson to claim your XP! 📚",
         color:        '#6B21A8', colorAccent: '#CE82FF', colorShadow: '#A559D9',
         checkProgress: (cur, data) => Math.min(cur + (data?.vocabCount || 0), 10),
     },
@@ -63,6 +65,7 @@ const DAILY_CHALLENGES = {
         ctaLabel:     '⚡ LAUNCH SPEED RUN',
         ctaAction:    'picker',
         motivational: "BLAZING FAST!! They said it couldn't be done. You said watch me. 🚀",
+        hudMessage:   "Under 8 minutes — clock is ticking! Go go go! ⚡",
         color:        '#92400E', colorAccent: '#FFC800', colorShadow: '#E5B400',
         checkProgress: (cur, data) =>
             (data?.completionTime && data.completionTime < 480) ? 1 : cur,
@@ -78,6 +81,7 @@ const DAILY_CHALLENGES = {
         ctaLabel:     '🔥 START LESSON #1',
         ctaAction:    'picker',
         motivational: "TWO LESSONS DOWN!! While everyone else napped, you DOMINATED. 🏆🏆",
+        hudMessage:   "Lesson 1 of 2 — finish this then go again! 🔥",
         color:        '#991B1B', colorAccent: '#FF4B4B', colorShadow: '#EA2B2B',
         checkProgress: (cur, data) => {
             if (!data?.lessonId) return cur + 1; // fallback if no lessonId
@@ -105,6 +109,7 @@ const DAILY_CHALLENGES = {
         ctaLabel:     '🌅 GRAB THAT WORM NOW',
         ctaAction:    'picker',
         motivational: "UP BEFORE THE WORLD AND ALREADY LEARNING?! You absolute MACHINE! 🌅🔥",
+        hudMessage:   "Complete this lesson before 10am to grab that worm! 🐦",
         color:        '#92400E', colorAccent: '#FFB800', colorShadow: '#cc9000',
         checkProgress: (cur) => new Date().getHours() < 10 ? 1 : cur,
     },
@@ -119,6 +124,7 @@ const DAILY_CHALLENGES = {
         ctaLabel:     '🎮 WARRIOR MODE: ON',
         ctaAction:    'picker',
         motivational: "WEEKEND WARRIOR STATUS UNLOCKED!! You chose growth over the sofa. ELITE. 🏆",
+        hudMessage:   "Weekend warrior mode ON — finish this lesson and own the weekend! 🎮",
         color:        '#065F46', colorAccent: '#2BDECC', colorShadow: '#1FBFAF',
         checkProgress: (cur) => {
             var d = new Date().getDay();
@@ -136,6 +142,7 @@ const DAILY_CHALLENGES = {
         ctaLabel:     '📝 SHOW YOUR MASTERY',
         ctaAction:    'picker',
         motivational: "GRAMMAR GURU ACHIEVED!! Your English is getting seriously DANGEROUS. The world isn't ready! 🌍⚡",
+        hudMessage:   "Ace every grammar question in this lesson — no errors allowed! 📝",
         color:        '#1e3a5f', colorAccent: '#1CB0F6', colorShadow: '#1899D6',
         checkProgress: (cur, data) => data?.grammarPerfect === true ? 1 : cur,
     },
@@ -152,6 +159,7 @@ const DAILY_CHALLENGES = {
         ctaLabel:     '🌙 OWL MODE: ACTIVATED',
         ctaAction:    'picker',
         motivational: "11PM AND YOU JUST CRUSHED A LESSON?! You are absolutely WILD for this. We love it. 🦉🔥",
+        hudMessage:   "The world is asleep — this lesson is all yours. Own it! 🌙",
         color:        '#1e1b4b', colorAccent: '#818CF8', colorShadow: '#6366F1',
         checkProgress: (cur) => new Date().getHours() >= 21 ? 1 : cur,
     },
@@ -166,6 +174,7 @@ const DAILY_CHALLENGES = {
         ctaLabel:     '🥪 SMASH YOUR LUNCH BREAK',
         ctaAction:    'picker',
         motivational: "LUNCH BREAK LEGEND!! You just out-learned every single person eating at their desk. 🏆",
+        hudMessage:   "Best lunch break ever — finish this lesson before 2pm! 🥪",
         color:        '#713f12', colorAccent: '#FCD34D', colorShadow: '#F59E0B',
         checkProgress: (cur) => {
             var h = new Date().getHours();
@@ -183,6 +192,7 @@ const DAILY_CHALLENGES = {
         ctaLabel:     '💪 DESTROY MONDAY',
         ctaAction:    'picker',
         motivational: "MONDAY CRUSHED!! The week didn't stand a chance. You came in SWINGING. 🥊🔥",
+        hudMessage:   "Start the week like a champion — finish this lesson! 💪",
         color:        '#1e3a5f', colorAccent: '#60A5FA', colorShadow: '#3B82F6',
         checkProgress: (cur) => new Date().getDay() === 1 ? 1 : cur,
     },
@@ -197,6 +207,7 @@ const DAILY_CHALLENGES = {
         ctaLabel:     '🎉 END THE WEEK IN STYLE',
         ctaAction:    'picker',
         motivational: "FRIDAY LEGEND CONFIRMED!! You learned ALL week and finished with a BANG. Royalty. 👑",
+        hudMessage:   "End the week in style — finish this lesson and you're done! 🎉",
         color:        '#4c1d95', colorAccent: '#C084FC', colorShadow: '#A855F7',
         checkProgress: (cur) => new Date().getDay() === 5 ? 1 : cur,
     },
@@ -211,6 +222,7 @@ const DAILY_CHALLENGES = {
         ctaLabel:     '🎩 GO FOR THE HAT TRICK',
         ctaAction:    'picker',
         motivational: "THREE LESSONS IN ONE DAY?! You are NOT human. You are a LANGUAGE MACHINE. 🤖🔥 LEGENDARY.",
+        hudMessage:   "Hat trick in progress — complete this then keep going! 🎩",
         color:        '#064e3b', colorAccent: '#34D399', colorShadow: '#10B981',
         checkProgress: (cur, data) => {
             if (!data?.lessonId) return Math.min(cur + 1, 3);
@@ -237,6 +249,7 @@ const DAILY_CHALLENGES = {
         ctaLabel:     '🌟 PERFECTION ONLY',
         ctaAction:    'picker',
         motivational: "DOUBLE PERFECTION!! Flawless. Twice. In one day. You don't miss. EVER. 💎👑",
+        hudMessage:   "100% only — no mistakes allowed. You've got this! 🌟",
         color:        '#1a1a2e', colorAccent: '#FFC800', colorShadow: '#E5B400',
         checkProgress: (cur, data) => {
             if (data?.perfectScore !== true) return cur;
@@ -264,6 +277,7 @@ const DAILY_CHALLENGES = {
         ctaLabel:     '🔄 MAKE YOUR COMEBACK',
         ctaAction:    'picker',
         motivational: "YOU CAME BACK AND YOU SMASHED IT!! The comeback is ALWAYS better than the setback. PROUD of you! 🙌🔥",
+        hudMessage:   "Welcome back! Finish this lesson and complete your comeback! 🔄",
         color:        '#7c2d12', colorAccent: '#FB923C', colorShadow: '#EA580C',
         checkProgress: (cur) => {
             try {
@@ -288,6 +302,7 @@ const DAILY_CHALLENGES = {
         ctaLabel:     '🦘 JUMP TO SOMETHING NEW',
         ctaAction:    'picker',
         motivational: "SECTION HOPPER UNLOCKED!! Your brain is firing on ALL cylinders. Versatile genius! 🧠✨",
+        hudMessage:   "Something different today — finish this lesson and hop! 🦘",
         color:        '#064e3b', colorAccent: '#2BDECC', colorShadow: '#1FBFAF',
         checkProgress: (cur, data) => {
             if (!data?.lessonSection) return cur;
@@ -310,6 +325,7 @@ const DAILY_CHALLENGES = {
         ctaLabel:     '📈 LEVEL UP RIGHT NOW',
         ctaAction:    'picker',
         motivational: "LEVELLED UP!! You chose the harder path and CONQUERED IT. That's how legends are made! 👑🚀",
+        hudMessage:   "You chose harder — now finish it and level up for real! 📈",
         color:        '#1e3a5f', colorAccent: '#FFC800', colorShadow: '#E5B400',
         checkProgress: (cur, data) => {
             if (!data?.lessonSection) return cur;
@@ -486,6 +502,7 @@ function storeHUDChallenge(ch) {
             icon:         ch.icon,
             xpReward:     ch.xpReward,
             motivational: ch.motivational,
+            hudMessage:   ch.hudMessage,
             color:        ch.color,
             colorAccent:  ch.colorAccent,
             colorShadow:  ch.colorShadow,
@@ -975,7 +992,7 @@ function activateChallengeHUD(ch, navigateAfter) {
             +   '<span style="font-size:24px;flex-shrink:0;animation:dcHudPulse 2s ease infinite;">' + ch.icon + '</span>'
             +   '<div style="min-width:0;">'
             +     '<div style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:' + acc + ';line-height:1;">' + ch.title + ' — Active 🔥</div>'
-            +     '<div style="font-size:11px;font-weight:800;color:rgba(255,255,255,.8);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + ch.motivational + '</div>'
+            +     '<div style="font-size:11px;font-weight:800;color:rgba(255,255,255,.8);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (ch.hudMessage || ch.motivational) + '</div>'
             +   '</div>'
             + '</div>'
             + '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">'
@@ -1064,7 +1081,7 @@ function restoreHUDIfNeeded() {
         +   '<span style="font-size:24px;flex-shrink:0;animation:dcHudPulse 2s ease infinite;">' + stored.icon + '</span>'
         +   '<div style="min-width:0;">'
         +     '<div style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:' + acc + ';line-height:1;">' + stored.title + ' — Active 🔥</div>'
-        +     '<div style="font-size:11px;font-weight:800;color:rgba(255,255,255,.8);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + stored.motivational + '</div>'
+        +     '<div style="font-size:11px;font-weight:800;color:rgba(255,255,255,.8);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (stored.hudMessage || stored.motivational) + '</div>'
         +   '</div>'
         + '</div>'
         + '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">'
