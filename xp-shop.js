@@ -5,7 +5,7 @@
 //   2. Themes: subtle accent-only CSS — site stays readable
 //   3. Emoji packs: MutationObserver covers dynamic content
 //   4. Titles: displayed in dashboard hero + leaderboard, described clearly
-//   5. Lesson request: Supabase insert + mailto fallback → tonyfrombrighton@gmail.com
+//   5. Lesson request: Supabase only — check lesson_requests table in Supabase
 //   6. XP rebalance: themes 100xp, titles show real value, better copy
 // ═══════════════════════════════════════════════════════════════
 'use strict';
@@ -749,7 +749,7 @@ function _injectTitleIntoPage(icon, name) {
     if (dhName) dhName.insertAdjacentHTML('afterend', badge);
 }
 
-// ── FIX 5: _submitRequest — Supabase + mailto fallback ───────
+// ── _submitRequest — Supabase only, no mailto ────────────────
 async function _submitRequest() {
     const topic  = document.getElementById('req-topic')?.value?.trim();
     const detail = document.getElementById('req-detail')?.value?.trim();
@@ -757,11 +757,9 @@ async function _submitRequest() {
     const user = window.EFCD_Auth?.getCurrentUser();
     if (!user) { _showToast('Please log in first!', 'error'); return; }
 
-    await _confirmPurchase('📬', 'Lesson Request', 250, 'Sent directly to Tony!', async () => {
+    await _confirmPurchase('📬', 'Lesson Request', 250, 'Saved — Tony reviews these regularly!', async () => {
         if (!await spendXP(250)) { _showToast('Not enough XP! 😬', 'error'); return; }
 
-        // Try Supabase first
-        let supabaseOk = false;
         try {
             const { error } = await window.efcdSupabaseClient.from('lesson_requests').insert([{
                 user_id:    user.id,
@@ -771,29 +769,22 @@ async function _submitRequest() {
                 detail:     detail || null,
                 created_at: new Date().toISOString(),
             }]);
-            if (!error) supabaseOk = true;
-        } catch(e) { console.warn('lesson_requests insert failed:', e.message); }
-
-        // mailto fallback — fires regardless so Tony always gets it
-        const subject = encodeURIComponent(`EFCD Lesson Request: ${topic}`);
-        const body    = encodeURIComponent(
-            `New lesson request from ${user.name || 'Anonymous'} (${user.email || 'no email'})\n\n`
-            + `TOPIC: ${topic}\n\n`
-            + `DETAILS: ${detail || 'None provided'}\n\n`
-            + `---\nSent via EFCD XP Shop\n`
-            + `Supabase saved: ${supabaseOk ? 'yes' : 'no (table may not exist yet)'}`
-        );
-        // Open in background tab so shop stays open
-        const link = document.createElement('a');
-        link.href   = `mailto:tonyfrombrighton@gmail.com?subject=${subject}&body=${body}`;
-        link.target = '_blank';
-        link.style.display = 'none';
-        document.body.appendChild(link);
-        link.click();
-        setTimeout(() => link.remove(), 1000);
+            if (error) throw error;
+        } catch(e) {
+            console.error('lesson_requests insert failed:', e.message);
+            // XP already spent — refund it
+            try {
+                const current = getXP();
+                await window.efcdSupabaseClient
+                    .from('profiles').update({ xp: current + 250 }).eq('id', user.id);
+                if (window.EFCD_Auth?.refreshUserData) await window.EFCD_Auth.refreshUserData();
+            } catch(_) {}
+            _showToast('Could not save — XP refunded, try again!', 'error');
+            return;
+        }
 
         _shopXP = getXP();
-        _showSuccess('📬', "Request sent to Tony!", "He'll review it and the best ideas get made. Fingers crossed! 🤞");
+        _showSuccess('📬', 'Request saved!', "Tony will check the list and the best ideas get built. Good luck! 🤞");
         setTimeout(() => renderTab('request'), 1400);
     });
 }
