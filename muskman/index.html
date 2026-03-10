@@ -702,14 +702,15 @@ async function finishLesson(){
     const result=await window.EFCD_Auth.completeLesson({lessonId:L.lessonId,lessonTitle:L.title,lessonLevel:L.level,lessonLink:L.lessonLink,vocabulary:L.vocabulary,grammar:L.grammar,perfectScore:true,completionTime:Math.floor((Date.now()-performance.timing.navigationStart)/1000)});
     try {
     if (window.DailyChallenges) {
-        await window.DailyChallenges.updateChallengeProgress({
-            perfectScore:   true,
-            vocabCount:     L.vocabulary.length,
-            grammarPerfect: true,
-            completionTime: Math.floor((Date.now() - performance.timing.navigationStart) / 1000),
-            lessonId:       L.lessonId,
-            lessonSection:  'business',
-        });
+        const dcResult = await window.DailyChallenges.updateChallengeProgress({
+    perfectScore:   acc === 100,
+    // ... etc
+});
+if (dcResult?.justCompleted) {
+    setTimeout(() => {
+        window.DailyChallenges.showChallengeCompletionCelebration(dcResult.challenge);
+    }, 1800); // let the lesson completion screen settle first
+}
         localStorage.setItem('dc_last_lesson_date', new Date().toDateString());
         localStorage.setItem('dc_last_lesson_section', 'business');
     }
