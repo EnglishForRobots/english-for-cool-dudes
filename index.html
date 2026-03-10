@@ -385,11 +385,104 @@ function isLastLessonDone() {
 // COURSE PICKER MODAL
 // ═══════════════════════════════════════════════
 
-function openPicker() { document.getElementById('course-modal').classList.add('open'); }
-function closePicker() { document.getElementById('course-modal').classList.remove('open'); }
+function openPicker() {
+    document.getElementById('course-modal').classList.add('open');
+    decoratePickerForChallenge();
+}
+
+function closePicker() {
+    document.getElementById('course-modal').classList.remove('open');
+    // Reset header in case it was decorated for a challenge
+    const label = document.querySelector('.modal-head-label');
+    const title = document.querySelector('.modal-head-title');
+    if (label) label.textContent = 'Where do you want to go?';
+    if (title) title.textContent = 'Pick your level 🎯';
+}
+
+function decoratePickerForChallenge() {
+    // Clear any previous decoration
+    document.querySelectorAll('.modal-choice').forEach(el => {
+        el.style.removeProperty('border-color');
+        el.style.removeProperty('background');
+        el.style.removeProperty('box-shadow');
+        const old = el.querySelector('.dc-picker-nudge');
+        if (old) old.remove();
+    });
+
+    if (!window.DailyChallenges) return;
+    const ch = window.DailyChallenges.getTodaysChallenge();
+    if (ch.id !== 'level_up' && ch.id !== 'section_hopper') return;
+
+    const SECTION_LEVELS = {
+        beginner: 1, intermediate: 2, advanced: 3,
+        business: 4, tax: 4, legal: 4,
+    };
+    const HREF_TO_SECTION = {
+        '/beginner/':     'beginner',
+        '/intermediate/': 'intermediate',
+        '/advanced/':     'advanced',
+        '/business/':     'business',
+        '/tax/':          'tax',
+        '/legal/':        'legal',
+    };
+
+    const lastSection = localStorage.getItem('dc_last_lesson_section');
+    const lastLevel   = SECTION_LEVELS[lastSection] || 0;
+
+    document.querySelectorAll('.modal-choice').forEach(el => {
+        const section = HREF_TO_SECTION[el.getAttribute('href')];
+        if (!section) return;
+
+        let shouldHighlight = false;
+        let nudgeText = '';
+
+        if (ch.id === 'level_up') {
+            if (!lastSection) {
+                shouldHighlight = true;
+                nudgeText = '✨ Any section counts!';
+            } else if (SECTION_LEVELS[section] > lastLevel) {
+                shouldHighlight = true;
+                nudgeText = '📈 LEVEL UP HERE!';
+            }
+        }
+
+        if (ch.id === 'section_hopper') {
+            if (!lastSection) {
+                shouldHighlight = true;
+                nudgeText = '🦘 Pick anything!';
+            } else if (section !== lastSection) {
+                shouldHighlight = true;
+                nudgeText = '🦘 HOP HERE!';
+            }
+        }
+
+        if (shouldHighlight) {
+            el.style.borderColor = '#58CC02';
+            el.style.background  = 'rgba(88,204,2,.07)';
+            el.style.boxShadow   = '0 0 0 3px rgba(88,204,2,.25)';
+            const badge = document.createElement('span');
+            badge.className = 'dc-picker-nudge';
+            badge.style.cssText = 'display:inline-block;margin-left:8px;font-size:10px;font-weight:900;background:#58CC02;color:#fff;padding:2px 8px;border-radius:6px;letter-spacing:.5px;vertical-align:middle;';
+            badge.textContent = nudgeText;
+            const strong = el.querySelector('strong');
+            if (strong) strong.after(badge);
+        }
+    });
+
+    // Update modal header to explain the challenge
+    const label = document.querySelector('.modal-head-label');
+    const title = document.querySelector('.modal-head-title');
+    if (ch.id === 'level_up' && lastSection) {
+        if (label) label.textContent = '📈 Level Up Challenge Active!';
+        if (title) title.textContent = 'Go harder than usual 💪';
+    } else if (ch.id === 'section_hopper' && lastSection) {
+        if (label) label.textContent = '🦘 Section Hopper Active!';
+        if (title) title.textContent = 'Try something different today!';
+    }
+}
+
 document.getElementById('course-modal').addEventListener('click', function(e) {
     if (e.target === this) { closePicker(); return; }
-
     const link = e.target.closest('.modal-choice');
     if (link && window.DailyChallenges) {
         const ch = window.DailyChallenges.getTodaysChallenge();
@@ -401,25 +494,26 @@ document.getElementById('course-modal').addEventListener('click', function(e) {
         }
     }
 });
-// Auto-open picker if redirected from dashboard challenge
+
+// Auto-open picker if redirected here with ?picker=1
 if (new URLSearchParams(window.location.search).get('picker') === '1') {
     window.history.replaceState({}, '', '/');
     setTimeout(openPicker, 400);
 }
+
 // ═══════════════════════════════════════════════
 // COOL PICKS
 // ═══════════════════════════════════════════════
 
 const PICKS_LESSONS = [
-     { url:'/fuggerei/',      time:'10 mins', name:'Advanced: Inside the Fuggerei',  category:'advanced', icon:'🏡', fact:'Jakob Fugger (1459–1525) would be worth roughly $400 billion today.' },
-        { url:'/redline/',      time:'7 mins', name:'Legal: The Redline Room',  category:'legal', icon:'📄', fact: 'Acts of God include earthquakes, floods, hurricanes, fires.' },
-        { url:'/fuggereibeginner/',      time:'9 mins', name:'Beginner: Inside the Fuggerei',  category:'beginner', icon:'🏡', fact: 'The Fuggerei is the world\'s oldest social housing complex.' },
-        { url:'/chineserobotsbeginner/', time:'5 mins', name:'Pre-Intermediate: Chinese Robots on TV',  category:'beginner', icon:'🤖', fact:'AI now stars in Chinese prime-time TV!' },
-        { url: '/pancakeday/', time: '7 mins', name: 'Intermediate: Pancake Day!', category: 'intermediate', icon:'🥞', fact:'Brits toss pancakes every Shrove Tuesday.' },     
-        { url: '/invoffice/', time: '8 mins', name: 'Tax: Invisible Office', category: 'tax', icon:'🏢', fact:'Remote work has changed tax residency rules worldwide.' },
-        { url:'/muskman/',      time:'12 mins', name:'Intermediate: Elon Musk: The Big Bet',  category:'intermediate', icon:'🚀', fact:'SpaceX is valued at more than the Dutch economy!' },
-        { url:'/carnival/',      time:'9 mins', name:'Advanced: Satire in the Spotlight',  category:'advanced', icon:'🎭', fact:'Satirist Jonathan Swift famously suggested poor people eat their children.' },
-   
+    { url:'/fuggerei/',           time:'10 mins', name:'Advanced: Inside the Fuggerei',        category:'advanced',     icon:'🏡', fact:'Jakob Fugger (1459–1525) would be worth roughly $400 billion today.' },
+    { url:'/redline/',            time:'7 mins',  name:'Legal: The Redline Room',               category:'legal',        icon:'📄', fact:'Acts of God include earthquakes, floods, hurricanes, fires.' },
+    { url:'/fuggereibeginner/',   time:'9 mins',  name:'Beginner: Inside the Fuggerei',         category:'beginner',     icon:'🏡', fact:'The Fuggerei is the world\'s oldest social housing complex.' },
+    { url:'/chineserobotsbeginner/', time:'5 mins', name:'Pre-Intermediate: Chinese Robots on TV', category:'beginner', icon:'🤖', fact:'AI now stars in Chinese prime-time TV!' },
+    { url:'/pancakeday/',         time:'7 mins',  name:'Intermediate: Pancake Day!',            category:'intermediate', icon:'🥞', fact:'Brits toss pancakes every Shrove Tuesday.' },
+    { url:'/invoffice/',          time:'8 mins',  name:'Tax: Invisible Office',                 category:'tax',          icon:'🏢', fact:'Remote work has changed tax residency rules worldwide.' },
+    { url:'/muskman/',            time:'12 mins', name:'Intermediate: Elon Musk: The Big Bet', category:'intermediate', icon:'🚀', fact:'SpaceX is valued at more than the Dutch economy!' },
+    { url:'/carnival/',           time:'9 mins',  name:'Advanced: Satire in the Spotlight',     category:'advanced',     icon:'🎭', fact:'Satirist Jonathan Swift famously suggested poor people eat their children.' },
 ];
 
 let currentPickIdx = -1;
@@ -433,7 +527,7 @@ function getRandomPickIdx() {
 
 function renderPick() {
     currentPickIdx = getRandomPickIdx();
-    const pick = PICKS_LESSONS[currentPickIdx];
+    const pick   = PICKS_LESSONS[currentPickIdx];
     const desc   = document.getElementById('picks-desc');
     const goLink = document.getElementById('picks-go-link');
     if (!desc || !goLink) return;
@@ -445,8 +539,8 @@ function renderPick() {
             <div class="picks-name">${pick.icon} ${pick.name}</div>
             <div class="picks-fact">💡 ${pick.fact}</div>
         `;
-        goLink.href = pick.url;
-        goLink.onclick = null;
+        goLink.href      = pick.url;
+        goLink.onclick   = null;
         goLink.textContent = '👀 Take Me There';
         desc.style.transition = 'opacity .4s, transform .4s';
         desc.style.opacity    = '1';
@@ -461,7 +555,6 @@ function renderPick() {
 function renderDC() {
     const slot = document.getElementById('dc-card-slot');
     if (!slot) return;
-
     if (window.DailyChallenges) {
         slot.innerHTML = window.DailyChallenges.renderDailyChallengeWidget('homepage');
     } else {
@@ -481,22 +574,19 @@ function renderDC() {
 }
 
 // ═══════════════════════════════════════════════
-// BADGE SHELF  ← clean standalone function
+// BADGE SHELF
 // ═══════════════════════════════════════════════
 
 async function loadAndRenderShelf() {
     if (!window.EFCD_Badges || !window.EFCD_Auth) return;
     const profile = window.EFCD_Auth.getCurrentUser();
     if (!profile) return;
-
     try {
         const { data: lessons } = await window.efcdSupabaseClient
             .from('lessons')
             .select('vocabulary, lesson_level')
             .eq('user_id', profile.id);
-
         const shelfHTML = window.EFCD_Badges.renderShelf(profile, lessons || []);
-
         const sbWrap = document.getElementById('sb-wrap');
         if (sbWrap) {
             const shelfDiv = document.createElement('div');
@@ -548,7 +638,6 @@ async function renderUser(stats, user) {
             ? '🎉 Find Your Next Lesson'
             : '🚀 Start a Lesson';
 
-    // ── Fetch top track title ────────────────────
     let trackBadgeHTML = '';
     try {
         if (window.EFCD_TrackMastery && profile?.id) {
@@ -556,19 +645,14 @@ async function renderUser(stats, user) {
                 .from('lessons')
                 .select('lesson_link')
                 .eq('user_id', profile.id);
-
             if (userLessons?.length) {
-                const counts  = window.EFCD_TrackMastery.countByTrack(userLessons);
-                const tracks  = window.EFCD_TrackMastery.TRACKS;
-
-                // Find the track with the most lessons
+                const counts   = window.EFCD_TrackMastery.countByTrack(userLessons);
+                const tracks   = window.EFCD_TrackMastery.TRACKS;
                 const topTrack = tracks
                     .filter(t => counts[t.id] > 0)
                     .sort((a, b) => counts[b.id] - counts[a.id])[0];
-
                 if (topTrack) {
                     const count = counts[topTrack.id];
-                    // Compute title index
                     let idx = 0;
                     topTrack.thresholds.forEach((thresh, i) => { if (count >= thresh) idx = i; });
                     const title = topTrack.titles[idx];
@@ -616,7 +700,6 @@ async function renderUser(stats, user) {
             <div class="stat-pill"><span class="sn">${badges}</span><span class="sl">Badges</span></div>
         </div>`;
 
-    // ── Badge shelf ──────────────────────────────
     loadAndRenderShelf();
 
     if (!showContinue) {
@@ -637,7 +720,7 @@ async function renderUser(stats, user) {
         const link  = document.getElementById('sb-link');
         if (wrap)  wrap.style.display = 'block';
         if (title) title.textContent  = `🔥 ${streak}-day streak — don't lose it!`;
-        if (sub) sub.textContent = showContinue
+        if (sub)   sub.textContent    = showContinue
             ? `Tap to continue: ${lastNm} →`
             : 'Pick a new lesson to keep your streak alive →';
         if (link) {
@@ -708,23 +791,20 @@ function boot() {
             if (user) { renderUser(window.EFCD_Auth.getUserStats(), user); }
             else       { renderGuest(); }
             if (window.EFCD_UI) {
-    window.EFCD_UI.updateHeaderUI();
-    window.EFCD_UI.showWelcomeMessage();
-}
-// Inject shop button after header UI is ready
-// Inject shop button directly into header-auth-container
-setTimeout(() => {
-    const container = document.getElementById('header-auth-container');
-    if (!container || !window.EFCD_Shop || document.querySelector('.btn-shop')) return;
-    const btn = document.createElement('button');
-    btn.className = 'btn-shop';
-    btn.innerHTML = '🛍️ Shop';
-    btn.onclick = () => window.EFCD_Shop.open();
-    // Insert before the last child (sign out button)
-    const lastChild = container.lastElementChild;
-    if (lastChild) container.insertBefore(btn, lastChild);
-    else container.appendChild(btn);
-}, 300);
+                window.EFCD_UI.updateHeaderUI();
+                window.EFCD_UI.showWelcomeMessage();
+            }
+            setTimeout(() => {
+                const container = document.getElementById('header-auth-container');
+                if (!container || !window.EFCD_Shop || document.querySelector('.btn-shop')) return;
+                const btn = document.createElement('button');
+                btn.className = 'btn-shop';
+                btn.innerHTML = '🛍️ Shop';
+                btn.onclick = () => window.EFCD_Shop.open();
+                const lastChild = container.lastElementChild;
+                if (lastChild) container.insertBefore(btn, lastChild);
+                else container.appendChild(btn);
+            }, 300);
         } catch(e) {
             console.error('Boot error:', e);
             renderGuest();
