@@ -946,21 +946,13 @@ function activateChallengeHUD(ch, navigateAfter) {
 
     function showLaunchRedirect(ch, acc, bg, shd) {
         var redir = document.createElement('div');
-        redir.style.cssText = 'position:fixed;inset:0;background:' + bg + ';z-index:99992;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;font-family:Nunito,sans-serif;';
+        redir.style.cssText = 'position:fixed;inset:0;background:' + bg + ';z-index:99992;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;font-family:Nunito,sans-serif;';
         redir.innerHTML = ''
-            + '<div style="font-size:64px;animation:dcDestPulse 1s ease-in-out infinite;">' + ch.icon + '</div>'
-            + '<div style="font-size:22px;font-weight:900;color:#fff;letter-spacing:-.4px;text-align:center;padding:0 20px;">' + ch.title + ' — Challenge Active!</div>'
-            + '<div style="font-size:15px;font-weight:800;color:' + acc + ';text-align:center;padding:0 24px;">' + ch.motivational + '</div>'
-            + '<div style="margin-top:8px;font-size:14px;font-weight:800;color:rgba(255,255,255,.65);">Finding you a lesson… 🚀</div>'
-            + '<div style="width:48px;height:48px;border:4px solid rgba(255,255,255,.3);border-top-color:' + acc + ';border-radius:50%;animation:spin .8s linear infinite;margin-top:4px;"></div>';
-        if (!document.getElementById('dc-spin-style')) {
-            var ss = document.createElement('style');
-            ss.id = 'dc-spin-style';
-            ss.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
-            document.head.appendChild(ss);
-        }
+            + '<div style="font-size:96px;line-height:1;animation:dcDestPulse .6s ease-in-out infinite;">' + ch.icon + '</div>'
+            + '<div style="font-size:32px;font-weight:900;color:#fff;letter-spacing:-.5px;text-align:center;padding:0 24px;line-height:1.2;">' + ch.title + '</div>'
+            + '<div style="font-size:16px;font-weight:900;color:' + acc + ';text-transform:uppercase;letter-spacing:3px;margin-top:4px;">ACTIVATED 🔥</div>';
         document.body.appendChild(redir);
-        setTimeout(function() { window.location.href = '/?picker=1'; }, 1400);
+        setTimeout(function() { window.location.href = '/?picker=1'; }, 900);
     }
 
     function buildHUD(ch, acc, bg, shd) {
