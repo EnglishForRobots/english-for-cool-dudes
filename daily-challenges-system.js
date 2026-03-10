@@ -490,6 +490,8 @@ function storeHUDChallenge(ch) {
             colorAccent:  ch.colorAccent,
             colorShadow:  ch.colorShadow,
         }));
+        // Explicit accept always clears any previous dismiss
+        sessionStorage.removeItem('dc_dismissed');
     } catch(_) {}
 }
 
@@ -1008,15 +1010,18 @@ function activateChallengeHUD(ch, navigateAfter) {
 function restoreHUDIfNeeded() {
     if (isOnDashboard()) return;
 
-    // Dismiss fix — if user hit × today, don't restore
-    var dismissed = sessionStorage.getItem('dc_dismissed');
-    if (dismissed === new Date().toDateString()) return;
-
     var ch       = getTodaysChallenge();
     var progress = getStoredProgress(ch);
     if (progress >= ch.target) { clearHUDChallenge(); return; }
 
-    // Auto-store so HUD can read it
+    // If user explicitly accepted a challenge (dc_active_hud is set),
+    // always show — their accept overrides any previous dismiss.
+    // Only skip if they dismissed AND there's no active stored challenge.
+    var hasActiveHUD = !!loadHUDChallenge();
+    var dismissed    = sessionStorage.getItem('dc_dismissed');
+    if (!hasActiveHUD && dismissed === new Date().toDateString()) return;
+
+    // Auto-store so HUD can read it (no-op if already stored from accept)
     storeHUDChallenge(ch);
     var stored = loadHUDChallenge();
     if (!stored) return;
