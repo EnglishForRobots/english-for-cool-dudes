@@ -381,7 +381,7 @@ function injectShopCSS() {
 .shop-active-pill{display:flex;align-items:center;gap:5px;background:rgba(88,204,2,.12);border:1px solid rgba(88,204,2,.3);border-radius:99px;padding:4px 10px;font-size:11px;font-weight:900;color:#58CC02;cursor:pointer}
 .shop-active-pill.warn{background:rgba(255,140,0,.12);border-color:rgba(255,140,0,.3);color:#FF8C00}
 
-.shop-tabs{display:flex;gap:4px;padding:0 0 14px;overflow-x:auto;scrollbar-width:none;position:relative;z-index:1}
+.shop-tabs{display:flex;gap:4px;padding:0 0 14px;overflow-x:auto;scrollbar-width:thin;scrollbar-color:rgba(206,130,255,.3) transparent;position:relative;z-index:1;-webkit-overflow-scrolling:touch}
 .shop-tabs::-webkit-scrollbar{display:none}
 .shop-tab{flex-shrink:0;padding:7px 12px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1);border-radius:99px;font-size:11px;font-weight:900;color:rgba(255,255,255,.5);cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;gap:4px;white-space:nowrap}
 .shop-tab.active{background:#CE82FF;color:#fff;border-color:#A559D9;box-shadow:0 0 12px rgba(206,130,255,.4)}
