@@ -286,7 +286,7 @@ async function completeLesson(lessonData) {
             completionTime = null
         } = lessonData;
 
-        const today = new Date().toDateString();
+        const today = new Date().toLocaleDateString('en-CA'); // produces "2026-03-11"
 
         // ── STEP 1: Fetch existing vocab count BEFORE saving anything ──
         // This is the key fix — we capture the "before" state so the
@@ -542,7 +542,7 @@ function isYesterday(dateStr) {
     if (!dateStr) return false;
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    return dateStr === yesterday.toDateString();
+    return dateStr === yesterday.toLocaleDateString('en-CA');
 }
 
 function getStreakEmoji(streak) {
