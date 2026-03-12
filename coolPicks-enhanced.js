@@ -8,6 +8,8 @@ const coolPicksWidget = {
     // Categories: 'beginner', 'intermediate', 'advanced', 'business', 'tax', 'legal', 'fun'
     actualLessons: [
         // Add your lesson folders here with their actual durations, names, and categories:
+        { url:'/euvatlaw/',           time:'9 mins', name:'Tax: VAT Battleground',        category:'tax',     icon:'📚' },
+    { url:'/flyingtaxisbeginner/',           time:'8 mins', name:'Beginner: Flying Taxis',        category:'beginner',     icon:'✈️' },
         { url:'/fuggerei/',      time:'10 mins', name:'Advanced: Inside the Fuggerei',  category:'advanced', icon:'🏡' },
         { url:'/redline/',      time:'7 mins', name:'Legal: The Redline Room',  category:'legal', icon:'📄' },
         { url:'/fuggereibeginner/',      time:'9 mins', name:'Beginner: Inside the Fuggerei',  category:'beginner', icon:'🏡' },
