@@ -75,9 +75,8 @@
     @keyframes xpPop     { 0%{opacity:1;transform:translateY(0) scale(1)} 100%{opacity:0;transform:translateY(-60px) scale(1.5)} }
     @keyframes flick     { 0%,100%{transform:rotate(-4deg) scale(1)} 50%{transform:rotate(4deg) scale(1.12)} }
     @keyframes fadeIn    { from{opacity:0} to{opacity:1} }
-    @keyframes badgeDrop { 0%{opacity:0;transform:scale(0.3)} 60%{transform:scale(1.2)} 80%{transform:scale(0.95)} 100%{opacity:1;transform:scale(1)} }
-    @keyframes shimmer   { 0%,100%{box-shadow:0 0 0 0 rgba(255,200,0,0)} 50%{box-shadow:0 0 0 8px rgba(255,200,0,.25),0 0 24px 4px rgba(255,200,0,.15)} }
-    @keyframes nameUp    { 0%{opacity:0;transform:translateY(10px)} 100%{opacity:1;transform:translateY(0)} }
+    @keyframes pillIn { 0%{opacity:0;transform:scale(.9)} 100%{opacity:1;transform:scale(1)} }
+    @keyframes shine  { 0%{left:-80%} 100%{left:130%} }
 
     .u1{animation:up .44s ease both .04s}
     .u2{animation:up .44s ease both .14s}
@@ -466,22 +465,20 @@
     .cc-badge-row { margin-bottom: 16px; }
     .cc-badge-pill {
         display: flex; align-items: center; gap: 12px;
-        background: linear-gradient(135deg, rgba(255,200,0,.15), rgba(255,200,0,.05));
-        border: 2px solid rgba(255,200,0,.5); border-radius: var(--rsm); padding: 14px 16px;
-        animation: shimmer 2s ease-in-out infinite;
+        background: linear-gradient(135deg, #fffbe6, #fff8c0, #fffbe6);
+        border: 2.5px solid #f5c400; border-radius: var(--rsm); padding: 14px 16px;
+        position: relative; overflow: hidden;
+        box-shadow: 0 0 0 4px rgba(245,196,0,.15), 0 4px 16px rgba(245,196,0,.25);
+        animation: pillIn .5s cubic-bezier(.175,.885,.32,1.275) .3s both;
     }
-    .cc-badge-icon  {
-        font-size: 44px; flex-shrink: 0; line-height: 1;
-        animation: badgeDrop .7s cubic-bezier(.175,.885,.32,1.275) .3s both;
+    .cc-badge-pill::after {
+        content: ''; position: absolute; top: 0; width: 60px; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,.7), transparent);
+        animation: shine 1s ease .9s both;
     }
-    .cc-badge-name  {
-        font-size: 17px; font-weight: 900; color: var(--ink-bold);
-        animation: nameUp .4s ease .8s both;
-    }
-    .cc-badge-sub   {
-        font-size: 12px; font-weight: 700; color: var(--green-shadow); margin-top: 3px;
-        animation: nameUp .4s ease 1s both;
-    }
+    .cc-badge-icon  { font-size: 44px; flex-shrink: 0; line-height: 1; }
+    .cc-badge-name  { font-size: 17px; font-weight: 900; color: #7a5c00; }
+    .cc-badge-sub   { font-size: 12px; font-weight: 700; color: #a07800; margin-top: 3px; }
     .cc-badge-tick  {
         margin-left: auto; flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
         background: var(--green); color: var(--white); font-size: 14px; font-weight: 900;
@@ -521,6 +518,15 @@
         animation: up .4s ease both;
     }
     </style>
+<style>
+#match-game-container button:focus,
+#match-game-container button:focus-visible,
+#match-game-container button:focus-within {
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+</style>
 </head>
 <body>
 
@@ -789,15 +795,12 @@ const GRAM_QS = [
     },
 ];
 
-const MATCH_PAIRS = [
-    { term: 'flying car',  def: 'A car that can also fly' },
-    { term: 'take off',    def: 'To go up into the air' },
-    { term: 'hover',       def: 'To stay in one place in the air' },
-    { term: 'electric',    def: 'Using batteries, not petrol' },
-    { term: 'air taxi',    def: 'A small flying vehicle for passengers' },
-    { term: 'traffic',     def: 'Too many cars on the road' },
-    { term: 'vertiport',   def: 'A place for flying cars to land' },
-    { term: 'safety',      def: 'Being protected from danger' },
+const SENTENCES = [
+    { words: ['Flying', 'cars', 'can', 'take', 'off', 'vertically'], emoji: '🚗' },
+    { words: ['Air', 'taxis', 'are', 'electric', 'and', 'quiet'], emoji: '⚡' },
+    { words: ['A', 'vertiport', 'is', 'like', 'an', 'airport'], emoji: '🏢' },
+    { words: ['Flying', 'cars', 'avoid', 'traffic', 'on', 'roads'], emoji: '🛣️' },
+    { words: ['Safety', 'is', 'the', 'most', 'important', 'thing'], emoji: '🛡️' },
 ];
 
 /* ═══════════════════════════════════════════════════════
@@ -810,7 +813,7 @@ let state = {
     htIdx:   0, htAnswered: false, htDone: false,
     tapIdx:  0, tapAnswered: false, tapScore: 0, tapDone: false,
     gramIdx: 0, gramAnswered: false, gramScore: 0, gramDone: false,
-    matchDone: false,
+    sentDone: false,
     xp: 0, streak: 0, combo: 0, bestCombo: 0,
     totalRight: 0, totalAnswered: 0,
 };
@@ -866,7 +869,7 @@ function showBadgeToast(icon, text){
     setTimeout(()=>{ b.classList.remove('show'); setTimeout(()=>b.remove(), 500); }, 6000);
 }
 function updateProgress(){
-    const done = [state.vocDone, state.htDone, state.tapDone, state.gramDone, state.matchDone].filter(Boolean).length;
+    const done = [state.vocDone, state.htDone, state.tapDone, state.gramDone, state.sentDone].filter(Boolean).length;
     const pct  = Math.round((done / state.totalSections) * 100);
     const fill = $('prog-fill'); if(fill) fill.style.width = pct + '%';
     const lbl  = $('prog-label'); if(lbl) lbl.textContent = `${done} / ${state.totalSections} sections`;
@@ -879,7 +882,7 @@ function updateProgress(){
 function revealSection(name){
     const sec = $('sec-' + name);
     if(!sec || sec.classList.contains('visible')) return;
-    const renders = { video:initReadingParas, vocab:renderVocab, hottakes:renderHotTakes, tap:renderTap, grammar:renderGrammar, match:initMatch };
+    const renders = { video:initReadingParas, vocab:renderVocab, hottakes:renderHotTakes, tap:renderTap, grammar:renderGrammar, sentence:initSentence };
     if(renders[name]) renders[name]();
     sec.classList.add('visible');
     setTimeout(() => sec.scrollIntoView({ behavior:'smooth', block:'start' }), 80);
@@ -893,7 +896,7 @@ function buildAll(){
         buildHotTakesSection,
         buildTapSection,
         buildGrammarSection,
-        buildMatchSection,
+        buildSentenceSection,
     ].forEach(b => container.appendChild(b()));
     revealSection('video');
 }
@@ -1364,202 +1367,128 @@ function renderGrammarDone(){
             <span class="tap-done-icon">📐</span>
             <div class="tap-done-title">${state.gramScore}/${GRAM_QS.length} on Grammar</div>
             <div class="tap-done-sub">will be, uses, would — you've got it!</div>
-            <button class="btn-continue" style="background:var(--teal);border-color:var(--teal-shadow)" onclick="revealSection('match')">
-                Word Match Game →
+            <button class="btn-continue" style="background:var(--teal);border-color:var(--teal-shadow)" onclick="revealSection('sentence')">
+                Build the Sentence! →
             </button>
         </div>`;
 }
 
-/* ── WORD MATCH ── */
-function buildMatchSection(){
+/* ── BUILD THE SENTENCE ── */
+function buildSentenceSection(){
     const sec = document.createElement('div');
     sec.className = 'sec-card strip-teal';
-    sec.id = 'sec-match';
+    sec.id = 'sec-sentence';
     sec.innerHTML = `
         <div class="sec-head">
-            <div class="sec-head-icon">🧩</div>
+            <div class="sec-head-icon">🔤</div>
             <div>
-                <div class="sec-head-title">Word Match Game</div>
-                <div class="sec-head-sub">Tap a word · tap its meaning · clear the board!</div>
+                <div class="sec-head-title">Build the Sentence</div>
+                <div class="sec-head-sub">Tap the words in the correct order!</div>
             </div>
         </div>
         <div class="sec-body">
-            <div id="match-game-container"></div>
+            <div id="sentence-game-container"></div>
         </div>`;
     return sec;
 }
 
-function initMatch(){
-    const container = $('match-game-container');
+function initSentence(){
+    const container = $('sentence-game-container');
     if(!container) return;
-    launchMatchGame(container);
+    launchSentenceGame(container);
 }
 
-function launchMatchGame(container){
-    let pairs      = [...MATCH_PAIRS].map((p,i) => ({...p, id: i}));
-    let termOrder  = [...pairs].sort(() => Math.random() - .5);
-    let defOrder   = [...pairs].sort(() => Math.random() - .5);
-    let remaining  = new Set(pairs.map(p => p.id));
-    let selTerm    = null;
-    let selDef     = null;
-    let locked     = false;
-    let matchCount = 0;
-    let mistakes   = 0;
+function launchSentenceGame(container){
+    let sentIdx   = 0;
+    let score     = 0;
+    let mistakes  = 0;
 
-    function render(){
-        container.innerHTML = `
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                <div style="font-size:12px;font-weight:900;color:var(--ink-3);"><span id="mg-left">${remaining.size}</span> pairs left</div>
-                <div id="mg-score" style="font-size:13px;font-weight:900;color:var(--teal-shadow);">✓ ${matchCount}/${pairs.length}</div>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                <div id="mg-terms" style="display:flex;flex-direction:column;gap:7px;"></div>
-                <div id="mg-defs"  style="display:flex;flex-direction:column;gap:7px;"></div>
-            </div>`;
+    function renderSentence(){
+        if(sentIdx >= SENTENCES.length){ showSentenceDone(); return; }
+        const s        = SENTENCES[sentIdx];
+        const shuffled = [...s.words].sort(() => Math.random() - .5);
+        let built      = [];
+        let wrong      = false;
 
-        const termsCol = $('mg-terms');
-        const defsCol  = $('mg-defs');
-
-        termOrder.filter(p => remaining.has(p.id)).forEach(p => {
-            const btn = document.createElement('button');
-            btn.id = 'mgt-' + p.id;
-            btn.textContent = p.term;
-            btn.style.cssText = 'padding:11px 8px;font-size:13px;font-weight:900;background:var(--white);color:var(--ink-bold);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);cursor:pointer;transition:all .15s;text-align:center;font-family:inherit;width:100%;outline:none;';
-            btn.onclick = () => selectTerm(p.id, btn);
-            termsCol.appendChild(btn);
-        });
-
-        defOrder.filter(p => remaining.has(p.id)).forEach(p => {
-            const btn = document.createElement('button');
-            btn.id = 'mgd-' + p.id;
-            btn.textContent = p.def;
-            btn.style.cssText = 'padding:11px 8px;font-size:11px;font-weight:700;background:var(--white);color:var(--ink-bold);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);cursor:pointer;transition:all .15s;text-align:left;font-family:inherit;width:100%;line-height:1.4;outline:none;';
-            btn.onclick = () => selectDef(p.id, btn);
-            defsCol.appendChild(btn);
-        });
-    }
-
-    function selectTerm(id, btn){
-        if(locked) return;
-        if(selTerm){ selTerm.el.style.background=''; selTerm.el.style.borderColor=''; }
-        selTerm = {id, el: btn};
-        btn.style.background  = 'var(--yellow)';
-        btn.style.borderColor = 'var(--yellow-shadow)';
-        if(selDef) tryMatch();
-    }
-
-    function selectDef(id, btn){
-        if(locked) return;
-        if(selDef){ selDef.el.style.background=''; selDef.el.style.borderColor=''; }
-        selDef = {id, el: btn};
-        btn.style.background  = 'var(--yellow)';
-        btn.style.borderColor = 'var(--yellow-shadow)';
-        if(selTerm) tryMatch();
-    }
-
-    function tryMatch(){
-        locked = true;
-        const correct = selTerm.id === selDef.id;
-        if(correct){
-            [selTerm.el, selDef.el].forEach(el => {
-                el.style.background  = 'var(--green)';
-                el.style.borderColor = 'var(--green-shadow)';
-                el.style.color       = 'white';
-                el.style.transform   = 'scale(1.04)';
-            });
-            confettiBurst(selTerm.el.getBoundingClientRect().left + 40, selTerm.el.getBoundingClientRect().top);
-            addXP(8);
-            matchCount++;
-            setTimeout(() => {
-                if(!container.isConnected){ selTerm=null; selDef=null; locked=false; return; }
-                [selTerm.el, selDef.el].forEach(el => {
-                    el.style.transition = 'all .3s ease';
-                    el.style.opacity    = '0';
-                    el.style.transform  = 'scale(0.7)';
-                    el.style.maxHeight  = el.offsetHeight + 'px';
-                    requestAnimationFrame(() => requestAnimationFrame(() => {
-                        el.style.maxHeight    = '0';
-                        el.style.padding      = '0';
-                        el.style.marginBottom = '0';
-                        el.style.border       = 'none';
-                    }));
-                });
-                remaining.delete(selTerm.id);
-                const leftEl  = $('mg-left');  if(leftEl)  leftEl.textContent  = remaining.size;
-                const scoreEl = $('mg-score'); if(scoreEl) scoreEl.textContent = `✓ ${matchCount}/${pairs.length}`;
-                selTerm = null; selDef = null; locked = false;
-                if(remaining.size === 0) setTimeout(showMatchCelebration, 400);
-            }, 420);
-        } else {
-            mistakes++;
-            [selTerm.el, selDef.el].forEach(el => {
-                el.style.background  = 'var(--punch)';
-                el.style.borderColor = 'var(--punch-shadow)';
-                el.style.color       = 'white';
-                el.style.animation   = 'shake .4s ease';
-            });
-            setTimeout(() => {
-                [selTerm.el, selDef.el].forEach(el => {
-                    el.style.background = ''; el.style.borderColor = '';
-                    el.style.color      = ''; el.style.animation   = '';
-                    el.style.outline    = 'none'; el.style.boxShadow = 'none';
-                });
-                selTerm = null; selDef = null; locked = false;
-            }, 500);
-        }
-    }
-
-    function showMatchCelebration(){
-        state.matchDone = true;
-        addXP(17);
-        showBadgeToast('🧩', 'Board cleared! +25 XP total');
-        updateProgress();
-        const accuracy = Math.round((pairs.length / (pairs.length + mistakes)) * 100);
-        container.innerHTML = `
-            <div style="text-align:center;padding:22px 10px 10px;animation:popin .4s cubic-bezier(.175,.885,.32,1.275) both;">
-                <div style="font-size:64px;margin-bottom:10px;animation:float 2.5s ease-in-out infinite;">🎉</div>
-                <div style="font-size:24px;font-weight:900;color:var(--ink-bold);margin-bottom:4px;">Board cleared!</div>
-                <div style="font-size:14px;font-weight:700;color:var(--ink-3);margin-bottom:20px;">${accuracy}% accuracy · ${mistakes} mistake${mistakes===1?'':'s'}</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;">
-                    <div style="background:rgba(43,222,204,.1);border:2px solid var(--teal-shadow);border-radius:var(--rsm);padding:14px 8px;">
-                        <div style="font-size:28px;font-weight:900;color:var(--teal-shadow);">${pairs.length}</div>
-                        <div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);margin-top:2px;">Matched</div>
-                    </div>
-                    <div style="background:rgba(255,75,75,.07);border:2px solid rgba(255,75,75,.2);border-radius:var(--rsm);padding:14px 8px;">
-                        <div style="font-size:28px;font-weight:900;color:var(--punch-shadow);">${mistakes}</div>
-                        <div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);margin-top:2px;">Mistakes</div>
-                    </div>
+        function draw(){
+            container.innerHTML = `
+                <div style="text-align:center;margin-bottom:6px;font-size:12px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:.5px;">
+                    Sentence ${sentIdx+1} of ${SENTENCES.length}
                 </div>
-                <button id="mg-again" style="width:100%;margin-bottom:10px;padding:14px;background:var(--teal);color:white;border:2px solid var(--teal-shadow);border-bottom:5px solid var(--teal-shadow);border-radius:var(--rsm);font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;">
-                    🔄 Play Again
-                </button>
-                <button id="mg-finish" style="width:100%;padding:14px;background:var(--green);color:white;border:2px solid var(--green-shadow);border-bottom:5px solid var(--green-shadow);border-radius:var(--rsm);font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;">
-                    🏆 Finish Lesson →
-                </button>
-            </div>`;
+                <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:14px;">
+                    ${Array.from({length:SENTENCES.length},(_,i)=>`<div style="width:28px;height:6px;border-radius:3px;background:${i<sentIdx?'var(--green)':i===sentIdx?'var(--teal)':'var(--border-heavy)'}"></div>`).join('')}
+                </div>
+                <div style="font-size:36px;text-align:center;margin-bottom:10px;">${s.emoji}</div>
 
-        for(let i=0;i<3;i++){
-            setTimeout(() => confettiBurst(
-                Math.random() * window.innerWidth,
-                Math.random() * window.innerHeight * 0.4
-            ), i * 220);
+                <!-- Drop zone -->
+                <div id="sent-drop" style="min-height:52px;border:2.5px dashed ${wrong?'var(--punch)':'var(--teal)'};border-radius:var(--rsm);padding:10px 12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:14px;background:${wrong?'rgba(255,75,75,.05)':'rgba(43,222,204,.05)'};transition:all .2s;">
+                    ${built.length===0 ? '<span style="color:var(--ink-3);font-size:13px;font-weight:700;">Tap words below to build the sentence…</span>' : 
+                      built.map((w,i)=>`<button onclick="removeWord(${i})" style="padding:7px 12px;font-size:14px;font-weight:900;background:var(--teal);color:white;border:2px solid var(--teal-shadow);border-radius:var(--rsm);cursor:pointer;font-family:inherit;">${w}</button>`).join('')}
+                </div>
+
+                <!-- Word bank -->
+                <div id="sent-bank" style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px;">
+                    ${shuffled.filter(w => !built.includes(w) || built.filter(b=>b===w).length < s.words.filter(sw=>sw===w).length)
+                      .map((w,i)=>`<button onclick="addWord('${w}')" style="padding:8px 14px;font-size:14px;font-weight:900;background:var(--white);color:var(--ink-bold);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);cursor:pointer;font-family:inherit;transition:all .15s;">${w}</button>`).join('')}
+                </div>
+
+                <button id="sent-check" onclick="checkSentence()" style="width:100%;padding:14px;background:var(--teal);color:white;border:2px solid var(--teal-shadow);border-bottom:5px solid var(--teal-shadow);border-radius:var(--rsm);font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;${built.length===s.words.length?'':'opacity:.45;pointer-events:none;'}">
+                    ✓ Check it!
+                </button>`;
+
+            window.addWord = (w) => {
+                const usedCount  = built.filter(b=>b===w).length;
+                const totalCount = s.words.filter(sw=>sw===w).length;
+                if(usedCount >= totalCount) return;
+                built.push(w); wrong=false; draw();
+            };
+            window.removeWord = (i) => { built.splice(i,1); wrong=false; draw(); };
+            window.checkSentence = () => {
+                if(built.join(' ') === s.words.join(' ')){
+                    addXP(10);
+                    score++;
+                    container.innerHTML = `
+                        <div style="text-align:center;padding:28px 16px;animation:popin .4s cubic-bezier(.175,.885,.32,1.275) both;">
+                            <div style="font-size:52px;margin-bottom:8px;">✅</div>
+                            <div style="font-size:20px;font-weight:900;color:var(--green-shadow);margin-bottom:6px;">Perfect!</div>
+                            <div style="font-size:16px;font-weight:700;color:var(--ink-bold);background:rgba(88,204,2,.1);border:2px solid rgba(88,204,2,.3);border-radius:var(--rsm);padding:12px 16px;margin-bottom:20px;line-height:1.5;">
+                                ${s.words.join(' ')}
+                            </div>
+                            <button onclick="nextSentence()" style="width:100%;padding:14px;background:var(--green);color:white;border:2px solid var(--green-shadow);border-bottom:5px solid var(--green-shadow);border-radius:var(--rsm);font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;">
+                                ${sentIdx+1 < SENTENCES.length ? 'Next Sentence →' : '🏆 Finish Lesson →'}
+                            </button>
+                        </div>`;
+                    confettiBurst(window.innerWidth/2, window.innerHeight*0.4);
+                } else {
+                    mistakes++; wrong=true; draw();
+                    const drop = $('sent-drop');
+                    if(drop){ drop.style.animation='shake .4s ease'; setTimeout(()=>drop.style.animation='',400); }
+                }
+            };
         }
-
-        const againBtn = $('mg-again');
-        if(againBtn) againBtn.onclick = () => {
-            matchCount = 0; mistakes = 0;
-            remaining  = new Set(pairs.map(p => p.id));
-            termOrder  = [...pairs].sort(() => Math.random() - .5);
-            defOrder   = [...pairs].sort(() => Math.random() - .5);
-            selTerm = null; selDef = null; locked = false;
-            state.matchDone = false;
-            render();
-        };
-        const finishBtn = $('mg-finish');
-        if(finishBtn) finishBtn.onclick = () => showCompletionScreen();
+        draw();
     }
 
-    render();
+    window.nextSentence = () => { sentIdx++; renderSentence(); };
+
+    function showSentenceDone(){
+        state.sentDone = true;
+        addXP(15);
+        showBadgeToast('🔤', 'All sentences built! +25 XP total');
+        updateProgress();
+        for(let i=0;i<4;i++) setTimeout(()=>confettiBurst(Math.random()*window.innerWidth, Math.random()*window.innerHeight*.4), i*200);
+        container.innerHTML = `
+            <div style="text-align:center;padding:24px 10px 10px;animation:popin .4s cubic-bezier(.175,.885,.32,1.275) both;">
+                <div style="font-size:60px;margin-bottom:10px;animation:float 2.5s ease-in-out infinite;">🏆</div>
+                <div style="font-size:24px;font-weight:900;color:var(--ink-bold);margin-bottom:4px;">All done!</div>
+                <div style="font-size:14px;font-weight:700;color:var(--ink-3);margin-bottom:20px;">${score}/${SENTENCES.length} correct · ${mistakes} mistake${mistakes===1?'':'s'}</div>
+                <button onclick="showCompletionScreen()" style="width:100%;padding:14px;background:var(--green);color:white;border:2px solid var(--green-shadow);border-bottom:5px solid var(--green-shadow);border-radius:var(--rsm);font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;">
+                    🎓 See My Results →
+                </button>
+            </div>`;
+    }
+
+    renderSentence();
 }
 
 /* ── VOCAB POPUP ── */
