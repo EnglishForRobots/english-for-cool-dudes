@@ -8,6 +8,7 @@ const coolPicksWidget = {
     // Categories: 'beginner', 'intermediate', 'advanced', 'business', 'tax', 'legal', 'fun'
     actualLessons: [
         // Add your lesson folders here with their actual durations, names, and categories:
+        { url:'/databreach/',           time:'8 mins',  name:'Legal: The Data Breach',     category:'legal',     icon:'💾' },
         { url:'/euvatlaw/',           time:'9 mins', name:'Tax: VAT Battleground',        category:'tax',     icon:'📚' },
     { url:'/flyingtaxisbeginner/',           time:'8 mins', name:'Beginner: Flying Taxis',        category:'beginner',     icon:'✈️' },
         { url:'/fuggerei/',      time:'10 mins', name:'Advanced: Inside the Fuggerei',  category:'advanced', icon:'🏡' },
@@ -17,7 +18,7 @@ const coolPicksWidget = {
         { url: '/pancakeday/', time: '7 mins', name: 'Intermediate: Pancake Day!', category: 'intermediate' },       
         { url: '/invoffice/', time: '8 mins', name: 'Tax: Invisible Office', category: 'tax' },
         { url:'/muskman/',      time:'12 mins', name:'Intermediate: Elon Musk: The Big Bet',  category:'intermediate', icon:'🚀', fact:'SpaceX is valued at more than the Dutch economy!' },
-        { url:'/carnival/',      time:'9 mins', name:'Advanced: Satire in the Spotlight',  category:'advanced', icon:'🎭' },
+     
     
         
         // Add more lessons with appropriate categories:
