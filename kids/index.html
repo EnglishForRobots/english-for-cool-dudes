@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+    <link rel="manifest" href="/manifest.json">
+    <title>English for Cool Kids 🤪 - English For Cool Dudes</title>
+
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/init-auth.js"></script>
+
+    <style>
+        :root {
+            --blue:         #1CB0F6;
+            --blue-shadow:  #1899D6;
+            --yellow:       #FFC800;
+            --yellow-shadow:#E5B400;
+            --green:        #58CC02;
+            --green-shadow: #58A700;
+            --punch:        #FF4B4B;
+            --punch-shadow: #EA2B2B;
+            --purple:       #CE82FF;
+            --purple-shadow:#A559D9;
+            --teal:         #2BDECC;
+            --pink:         #FF6EB4;
+            --pink-shadow:  #d94a8a;
+            --pink-light:   rgba(255,110,180,.12);
+            --pink-border:  rgba(255,110,180,.3);
+            --bg:           #F7F9FA;
+            --ink:          #4B4B4B;
+            --ink-bold:     #111827;
+            --ink-3:        #AFAFAF;
+            --white:        #FFFFFF;
+            --border:       #E5E5E5;
+            --border-heavy: #CECECE;
+            --r:            24px;
+            --rsm:          16px;
+        }
+
+        *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+        html { -webkit-text-size-adjust:100%; scroll-behavior:smooth; }
+        body {
+            background:var(--bg); color:var(--ink);
+            font-family:'Nunito',-apple-system,system-ui,sans-serif;
+            line-height:1.5; overflow-x:hidden;
+            -webkit-font-smoothing:antialiased;
+        }
+        a { color:inherit; text-decoration:none; }
+
+        @keyframes up    { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes shim  { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+        @keyframes flick { 0%,100%{transform:rotate(-4deg) scale(1)} 50%{transform:rotate(4deg) scale(1.12)} }
+        @keyframes nudge { 0%,100%{transform:translateX(0)} 30%{transform:translateX(5px)} }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+        @keyframes wiggle{ 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(-8deg)} 75%{transform:rotate(8deg)} }
+        @keyframes bounce{ 0%,100%{transform:translateY(0) scale(1)} 40%{transform:translateY(-10px) scale(1.05)} 60%{transform:translateY(-6px) scale(1.02)} }
+        @keyframes emojiroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+        @keyframes rainbow { 0%{color:#FF6EB4} 16%{color:#FFC800} 33%{color:#58CC02} 50%{color:#1CB0F6} 66%{color:#CE82FF} 83%{color:#FF4B4B} 100%{color:#FF6EB4} }
+
+        .u1{animation:up .44s ease both .04s}
+        .u2{animation:up .44s ease both .14s}
+        .u3{animation:up .44s ease both .24s}
+
+        /* ── HEADER ── */
+        .header {
+            background:var(--white); border-bottom:3px solid var(--pink);
+            position:sticky; top:0; z-index:200;
+            padding:0 20px; height:60px; display:flex; align-items:center;
+            box-shadow:0 3px 12px rgba(255,110,180,.15);
+        }
+        .hc { max-width:900px; width:100%; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+        .hl { display:flex; align-items:center; gap:10px; }
+        .logo { width:40px; height:40px; border-radius:12px; background:var(--yellow); border:2px solid var(--yellow-shadow); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; box-shadow:0 3px 0 var(--yellow-shadow); }
+        .site-title { font-size:18px; font-weight:900; color:var(--ink-bold); letter-spacing:-.4px; }
+        @media(max-width:380px){ .site-title{display:none} }
+        #header-auth-container { display:flex; align-items:center; gap:8px; }
+
+        .sk { background:linear-gradient(90deg,#EBEBEB 25%,#F5F5F5 50%,#EBEBEB 75%); background-size:400px 100%; animation:shim 1.4s infinite; border-radius:var(--rsm); }
+
+        .page { max-width:900px; margin:0 auto; padding:24px 16px 80px; display:flex; flex-direction:column; gap:20px; }
+
+        /* ── HERO ── */
+        .hero {
+            background:var(--pink);
+            border:2px solid var(--pink-shadow);
+            border-bottom:6px solid var(--pink-shadow);
+            border-radius:var(--r);
+            padding:24px 20px;
+            position:relative; overflow:hidden;
+        }
+
+        /* Emoji ticker in hero */
+        .hero-ticker-wrap {
+            overflow:hidden; margin-bottom:16px;
+            mask-image:linear-gradient(to right,transparent,black 8%,black 92%,transparent);
+            -webkit-mask-image:linear-gradient(to right,transparent,black 8%,black 92%,transparent);
+        }
+        .hero-ticker {
+            display:inline-flex; gap:10px; white-space:nowrap;
+            animation:emojiroll 10s linear infinite;
+            font-size:28px; line-height:1;
+        }
+
+        .hero-eyebrow {
+            display:inline-flex; align-items:center; gap:6px;
+            background:var(--yellow); color:var(--ink-bold);
+            font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:1.5px;
+            padding:4px 12px; border-radius:8px; margin-bottom:14px;
+            border:2px solid var(--yellow-shadow);
+        }
+
+        .hero-title {
+            font-size:clamp(28px,7vw,50px); font-weight:900; color:var(--white);
+            line-height:1.1; letter-spacing:-1px; margin-bottom:8px;
+            position:relative; z-index:1;
+            text-shadow:0 3px 0 var(--pink-shadow);
+        }
+        .hero-title .yellow { color:var(--yellow); text-shadow:0 3px 0 var(--yellow-shadow); }
+
+        .hero-sub {
+            font-size:15px; font-weight:700; color:rgba(255,255,255,.95);
+            margin-bottom:20px; position:relative; z-index:1; line-height:1.6; max-width:420px;
+        }
+
+        /* stat pills */
+        .hero-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:20px; position:relative; z-index:1; }
+        .hs-pill { background:rgba(255,255,255,.2); border:2px solid rgba(255,255,255,.3); border-radius:var(--rsm); padding:10px 6px; text-align:center; }
+        .hs-num { display:block; font-size:clamp(16px,4vw,24px); font-weight:900; color:var(--white); line-height:1; }
+        .hs-lbl { font-size:9px; font-weight:900; color:rgba(255,255,255,.85); text-transform:uppercase; letter-spacing:1px; margin-top:3px; display:block; }
+
+        .hero-cta {
+            display:flex; align-items:center; justify-content:space-between;
+            width:100%; padding:16px 20px;
+            background:var(--yellow); color:var(--ink-bold);
+            font-size:17px; font-weight:900;
+            border-radius:var(--rsm); border:2px solid var(--yellow-shadow);
+            border-bottom:5px solid var(--yellow-shadow);
+            cursor:pointer; letter-spacing:-.3px;
+            transition:transform .1s,border-bottom-width .1s;
+            position:relative; z-index:1;
+        }
+        .hero-cta:active { border-bottom-width:2px; transform:translateY(3px); }
+        .cta-arrow { font-size:22px; animation:nudge 2s ease-in-out infinite; }
+
+        /* Guest hero */
+        .eyebrow { display:inline-block; background:var(--yellow); color:var(--ink-bold); font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:1.5px; padding:4px 12px; border-radius:8px; margin-bottom:14px; border:2px solid var(--yellow-shadow); }
+        .big-title { font-size:clamp(26px,6vw,44px); font-weight:900; color:var(--white); line-height:1.1; letter-spacing:-1px; margin-bottom:10px; position:relative; z-index:1; }
+        .big-title .yellow { color:var(--yellow); text-shadow:0 3px 0 var(--yellow-shadow); }
+        .hero-sub-guest { font-size:15px; font-weight:700; color:rgba(255,255,255,.95); margin-bottom:20px; max-width:400px; position:relative; z-index:1; line-height:1.6; }
+        .guest-btns { display:flex; gap:12px; flex-wrap:wrap; position:relative; z-index:1; }
+        .btn-yellow { display:inline-flex; align-items:center; gap:6px; padding:13px 22px; background:var(--yellow); color:var(--ink-bold); font-size:15px; font-weight:900; border-radius:var(--rsm); border:2px solid var(--yellow-shadow); border-bottom:4px solid var(--yellow-shadow); cursor:pointer; transition:transform .1s,border-bottom-width .1s; }
+        .btn-yellow:active { border-bottom-width:2px; transform:translateY(2px); }
+        .btn-white  { display:inline-flex; align-items:center; gap:6px; padding:13px 18px; background:var(--white); color:var(--ink-bold); font-size:15px; font-weight:900; border-radius:var(--rsm); border:2px solid var(--border-heavy); border-bottom:4px solid var(--border-heavy); cursor:pointer; transition:transform .1s,border-bottom-width .1s; }
+        .btn-white:active { border-bottom-width:2px; transform:translateY(2px); }
+
+        .streak-block { text-align:center; flex-shrink:0; background:var(--white); border:2px solid var(--border-heavy); border-bottom:4px solid var(--border-heavy); border-radius:var(--rsm); padding:10px 16px; min-width:80px; }
+        .sfire { font-size:32px; display:block; line-height:1; animation:flick 1.8s ease-in-out infinite; }
+        .snum  { font-size:24px; font-weight:900; color:var(--punch); display:block; line-height:1.1; margin-top:4px; }
+        .sword { font-size:10px; font-weight:900; color:var(--ink-3); text-transform:uppercase; letter-spacing:1px; }
+        .xp-wrap { position:relative; z-index:1; margin-bottom:16px; background:rgba(255,255,255,.2); padding:12px; border-radius:var(--rsm); }
+        .xp-row   { display:flex; justify-content:space-between; font-size:13px; font-weight:800; margin-bottom:8px; color:var(--white); }
+        .xp-track { height:14px; background:rgba(0,0,0,.15); border-radius:99px; overflow:hidden; border:2px solid rgba(0,0,0,.1); }
+        .xp-fill  { height:100%; width:0%; border-radius:99px; background:var(--yellow); border-top:3px solid rgba(255,255,255,.4); transition:width 1.3s cubic-bezier(.4,0,.2,1); }
+        .hero-top { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:18px; position:relative; z-index:1; }
+        .greet { font-size:13px; font-weight:800; color:rgba(255,255,255,.85); text-transform:uppercase; letter-spacing:1px; margin-bottom:2px; }
+        .uname { font-size:clamp(20px,5vw,32px); font-weight:900; color:var(--white); letter-spacing:-1px; line-height:1.1; text-shadow:0 2px 0 var(--pink-shadow); }
+
+        /* ── SECTION LABEL ── */
+        .sec-label { font-size:13px; font-weight:900; color:var(--ink-3); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:16px; display:flex; align-items:center; gap:12px; }
+        .sec-label::after { content:''; flex:1; height:2px; background:var(--border); border-radius:2px; }
+
+        /* ── COMING SOON BANNER ── */
+        .coming-banner {
+            background:linear-gradient(135deg,var(--pink),#ff8eca);
+            border:2px solid var(--pink-shadow); border-bottom:6px solid var(--pink-shadow);
+            border-radius:var(--r); padding:24px 20px;
+            display:flex; align-items:center; gap:16px;
+            position:relative; overflow:hidden;
+        }
+        .coming-banner::after { content:'🎉'; position:absolute; right:-10px; bottom:-14px; font-size:100px; opacity:.12; pointer-events:none; transform:rotate(15deg); }
+        .cb-icon  { font-size:48px; flex-shrink:0; animation:bounce 2s ease-in-out infinite; }
+        .cb-body  { flex:1; position:relative; z-index:1; }
+        .cb-title { font-size:20px; font-weight:900; color:var(--white); letter-spacing:-.4px; margin-bottom:4px; text-shadow:0 2px 0 var(--pink-shadow); }
+        .cb-sub   { font-size:14px; font-weight:700; color:rgba(255,255,255,.9); line-height:1.5; }
+        .cb-pill  { display:inline-block; background:var(--yellow); color:var(--ink-bold); font-size:11px; font-weight:900; padding:4px 12px; border-radius:8px; border:2px solid var(--yellow-shadow); margin-top:8px; text-transform:uppercase; letter-spacing:1px; animation:wiggle 3s ease-in-out infinite; }
+
+        /* ── LESSON GRID ── */
+        .lesson-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:16px; }
+        @media(max-width:600px){ .lesson-grid { grid-template-columns:1fr; } }
+        @media(min-width:601px) and (max-width:860px){ .lesson-grid { grid-template-columns:1fr 1fr; } }
+
+        /* ── LESSON CARD ── */
+        .lcard {
+            background:var(--white);
+            border:2px solid var(--border-heavy);
+            border-bottom:6px solid var(--border-heavy);
+            border-radius:var(--r);
+            display:flex; flex-direction:column;
+            overflow:hidden; position:relative;
+            transition:transform .15s, box-shadow .15s;
+            text-decoration:none; color:inherit;
+        }
+        .lcard:not(.coming-soon):hover {
+            transform:translateY(-4px);
+            box-shadow:0 8px 28px rgba(255,110,180,.2);
+        }
+        /* Pink top strip */
+        .lcard::before { content:''; display:block; height:7px; background:linear-gradient(90deg,var(--pink) 0%,#ffaad8 100%); flex-shrink:0; }
+
+        /* Coming soon cards */
+        .lcard.coming-soon { opacity:.62; filter:grayscale(.3); pointer-events:none; }
+        .lcard.coming-soon::before { background:linear-gradient(90deg,#ddd,#eee); }
+
+        .lcard-body { padding:20px; flex:1; display:flex; flex-direction:column; gap:10px; }
+
+        .lcard-icon { font-size:44px; line-height:1; animation:float 3s ease-in-out infinite; }
+        .lcard:nth-child(2)  .lcard-icon { animation-delay:.4s; }
+        .lcard:nth-child(3)  .lcard-icon { animation-delay:.8s; }
+        .lcard:nth-child(4)  .lcard-icon { animation-delay:.2s; }
+        .lcard:nth-child(5)  .lcard-icon { animation-delay:.6s; }
+        .lcard:nth-child(6)  .lcard-icon { animation-delay:1s; }
+        .lcard:nth-child(odd)  .lcard-icon { animation-delay:.3s; }
+        .lcard:nth-child(even) .lcard-icon { animation-delay:.7s; }
+
+        .lcard-title { font-size:17px; font-weight:900; color:var(--ink-bold); letter-spacing:-.3px; line-height:1.25; }
+
+        .lcard-badge {
+            display:inline-flex; align-items:center;
+            background:var(--pink-light); color:#a0196a;
+            font-size:11px; font-weight:900; text-transform:uppercase;
+            letter-spacing:1px; padding:4px 10px;
+            border-radius:99px; border:2px solid var(--pink-border);
+            width:fit-content;
+        }
+        .lcard-badge.new  { background:rgba(255,200,0,.18); color:#92600A; border-color:rgba(255,200,0,.5); }
+        .lcard-badge.soon { background:var(--bg); color:var(--ink-3); border-color:var(--border); }
+        .lcard-badge.fact { background:rgba(43,222,204,.12); color:#0f7a72; border-color:rgba(43,222,204,.3); }
+        .lcard-badge.world{ background:rgba(88,204,2,.1); color:#3a7a00; border-color:rgba(88,204,2,.25); }
+
+        .lcard-desc { font-size:14px; font-weight:700; color:var(--ink); line-height:1.55; flex:1; }
+
+        .lcard-meta { display:flex; align-items:center; gap:14px; padding-top:12px; border-top:2px dashed var(--border); font-size:12px; font-weight:800; color:var(--ink-3); }
+
+        .lcard-go {
+            margin-top:12px; display:flex; align-items:center; justify-content:space-between;
+            padding:11px 16px;
+            background:var(--pink); color:var(--white);
+            font-size:14px; font-weight:900;
+            border-radius:var(--rsm);
+            border:2px solid var(--pink-shadow); border-bottom:4px solid var(--pink-shadow);
+            transition:transform .1s,border-bottom-width .1s; letter-spacing:-.2px;
+        }
+        .lcard:hover .lcard-go { border-bottom-width:2px; transform:translateY(2px); }
+        .lcard-go-arrow { font-size:18px; font-weight:900; }
+
+        /* ── BACK LINK ── */
+        .back-link { display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:900; color:var(--ink-3); text-transform:uppercase; letter-spacing:1px; padding:8px 14px; border-radius:var(--rsm); border:2px solid var(--border); background:var(--white); transition:color .15s,border-color .15s; width:fit-content; }
+        .back-link:hover { color:var(--ink-bold); border-color:var(--border-heavy); }
+
+        /* ── FOOTER ── */
+        .footer { padding:32px 20px; text-align:center; }
+        .footer-text { font-size:14px; font-weight:800; color:var(--ink-3); margin-bottom:10px; }
+        .footer a { color:var(--ink-3); font-size:13px; font-weight:800; margin:0 12px; text-decoration:underline; }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="hc">
+        <div class="hl">
+            <a href="/" class="logo">😎</a>
+            <a href="/" class="site-title">English For Cool Dudes</a>
+        </div>
+        <div id="header-auth-container"></div>
+    </div>
+</header>
+
+<div class="page">
+
+    <!-- HERO -->
+    <div class="u1">
+        <div class="hero" id="hero-card">
+            <!-- Skeleton while auth loads -->
+            <div class="sk" style="height:13px;width:35%;margin-bottom:10px;"></div>
+            <div class="sk" style="height:44px;width:65%;margin-bottom:20px;"></div>
+            <div class="sk" style="height:13px;margin-bottom:8px;border-radius:99px;"></div>
+            <div class="sk" style="height:52px;border-radius:var(--rsm);margin-top:16px;"></div>
+        </div>
+    </div>
+
+    <!-- COMING SOON BANNER -->
+    <div class="u2">
+        <div class="coming-banner">
+            <div class="cb-icon">🚀</div>
+            <div class="cb-body">
+                <div class="cb-title">Lessons dropping very soon!</div>
+                <div class="cb-sub">We're building the most fun English lessons on the internet. Pop stars, world records, silly facts, different countries — all the good stuff. Stay cool. 😎</div>
+                <span class="cb-pill">🔔 New lessons every week</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- LESSONS -->
+    <div class="u2">
+        <div class="sec-label">🤪 English for Cool Kids</div>
+
+        <div class="lesson-grid">
+
+            <!-- LIVE LESSONS -->
+            <a href="/kids/ariana/" class="lcard">
+                <div class="lcard-body">
+                    <div class="lcard-icon">🎤</div>
+                    <div class="lcard-badge new">⭐ NEW · Pop Music</div>
+                    <div class="lcard-title">Ariana Grande & the Power of Words</div>
+                    <div class="lcard-desc">Amazing facts, fun vocab, true or false, and a word match game — all about one of the biggest pop stars on the planet!</div>
+                    <div class="lcard-meta"><span>⏱️ 6 mins</span><span>📅 16/03/2026</span></div>
+                    <div class="lcard-go">Play Now! 🚀 <span class="lcard-go-arrow">→</span></div>
+                </div>
+            </a>
+
+            <!-- COMING SOON CARDS -->
+
+            <div class="lcard coming-soon">
+                <div class="lcard-body">
+                    <div class="lcard-icon">🏆</div>
+                    <div class="lcard-badge world">🌍 World Records</div>
+                    <div class="lcard-title">The Most Incredible World Records Ever</div>
+                    <div class="lcard-desc">The longest fingernails. The fastest eater. The tallest man. These records will make you say WOW.</div>
+                    <div class="lcard-meta"><span>⏱️ 5 mins</span><span>📅 Coming soon</span></div>
+                </div>
+            </div>
+
+            <div class="lcard coming-soon">
+                <div class="lcard-body">
+                    <div class="lcard-icon">🤯</div>
+                    <div class="lcard-badge fact">💡 Funny Facts</div>
+                    <div class="lcard-title">100 Facts That Will Blow Your Mind</div>
+                    <div class="lcard-desc">Did you know a group of flamingos is called a flamboyance? Or that wombats poo in cubes? YES, really.</div>
+                    <div class="lcard-meta"><span>⏱️ 7 mins</span><span>📅 Coming soon</span></div>
+                </div>
+            </div>
+
+            <div class="lcard coming-soon">
+                <div class="lcard-body">
+                    <div class="lcard-icon">🌍</div>
+                    <div class="lcard-badge world">🌍 Around the World</div>
+                    <div class="lcard-title">What Kids Do in Different Countries</div>
+                    <div class="lcard-desc">In Japan, kids clean their own classrooms. In Finland, they spend hours playing outside in the snow. What about you?</div>
+                    <div class="lcard-meta"><span>⏱️ 6 mins</span><span>📅 Coming soon</span></div>
+                </div>
+            </div>
+
+            <div class="lcard coming-soon">
+                <div class="lcard-body">
+                    <div class="lcard-icon">🦕</div>
+                    <div class="lcard-badge fact">💡 History</div>
+                    <div class="lcard-title">Dinosaurs — The Coolest Creatures Ever</div>
+                    <div class="lcard-desc">T-Rex had arms too short to reach its own mouth. Velociraptors were actually the size of a turkey. Mind = blown.</div>
+                    <div class="lcard-meta"><span>⏱️ 6 mins</span><span>📅 Coming soon</span></div>
+                </div>
+            </div>
+
+            <div class="lcard coming-soon">
+                <div class="lcard-body">
+                    <div class="lcard-icon">📱</div>
+                    <div class="lcard-badge new">⭐ Trends</div>
+                    <div class="lcard-title">TikTok, Trends & the English of the Internet</div>
+                    <div class="lcard-desc">POV, slay, no cap, lowkey — what does it all mean? Learn the English of the internet.</div>
+                    <div class="lcard-meta"><span>⏱️ 5 mins</span><span>📅 Coming soon</span></div>
+                </div>
+            </div>
+
+            <div class="lcard coming-soon">
+                <div class="lcard-body">
+                    <div class="lcard-icon">🍕</div>
+                    <div class="lcard-badge fact">💡 Food</div>
+                    <div class="lcard-title">The Most Disgusting School Lunches Around the World</div>
+                    <div class="lcard-desc">Fermented shark in Iceland. Fried insects in Thailand. Mystery meat in the UK. Which is worst?!</div>
+                    <div class="lcard-meta"><span>⏱️ 6 mins</span><span>📅 Coming soon</span></div>
+                </div>
+            </div>
+
+            <div class="lcard coming-soon">
+                <div class="lcard-body">
+                    <div class="lcard-icon">🏰</div>
+                    <div class="lcard-badge fact">💡 History</div>
+                    <div class="lcard-title">Kings, Queens & Totally Ridiculous Royal Rules</div>
+                    <div class="lcard-desc">In England, the Queen technically owned all the swans. In France, the King had someone whose ONLY job was to hold his towel.</div>
+                    <div class="lcard-meta"><span>⏱️ 7 mins</span><span>📅 Coming soon</span></div>
+                </div>
+            </div>
+
+            <div class="lcard coming-soon">
+                <div class="lcard-body">
+                    <div class="lcard-icon">🚀</div>
+                    <div class="lcard-badge world">🌍 Science</div>
+                    <div class="lcard-title">Space: The Wildest Place in the Universe</div>
+                    <div class="lcard-desc">A day on Venus is longer than a year on Venus. There's a planet made of diamonds. Space is absolutely insane.</div>
+                    <div class="lcard-meta"><span>⏱️ 6 mins</span><span>📅 Coming soon</span></div>
+                </div>
+            </div>
+
+            <div class="lcard coming-soon">
+                <div class="lcard-body">
+                    <div class="lcard-icon">🐙</div>
+                    <div class="lcard-badge fact">💡 Animals</div>
+                    <div class="lcard-title">The Weirdest Animals You've Never Heard Of</div>
+                    <div class="lcard-desc">Meet the blobfish, the axolotl, and the star-nosed mole. These creatures make up their own rules.</div>
+                    <div class="lcard-meta"><span>⏱️ 5 mins</span><span>📅 Coming soon</span></div>
+                </div>
+            </div>
+
+            <div class="lcard coming-soon">
+                <div class="lcard-body">
+                    <div class="lcard-icon">⚽</div>
+                    <div class="lcard-badge world">🌍 Sport</div>
+                    <div class="lcard-title">The World's Most Bizarre Sports</div>
+                    <div class="lcard-desc">Cheese rolling in England. Underwater hockey. Competitive dog grooming. These are actual sports.</div>
+                    <div class="lcard-meta"><span>⏱️ 6 mins</span><span>📅 Coming soon</span></div>
+                </div>
+            </div>
+
+            <div class="lcard coming-soon">
+                <div class="lcard-body">
+                    <div class="lcard-icon">🎮</div>
+                    <div class="lcard-badge new">⭐ Gaming</div>
+                    <div class="lcard-title">Minecraft, Roblox & the English of Gaming</div>
+                    <div class="lcard-desc">Noob, respawn, griefer, speedrun — the world of gaming has its own incredible language. Let's learn it.</div>
+                    <div class="lcard-meta"><span>⏱️ 6 mins</span><span>📅 Coming soon</span></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- BACK -->
+    <div class="u3">
+        <a href="/" class="back-link">← All Courses</a>
+    </div>
+
+</div>
+
+<footer class="footer">
+    <p class="footer-text">© 2026 English For Cool Dudes 😎</p>
+    <div>
+        <a href="/impressum/">Impressum</a>
+        <a href="/datenschutz/">Privacy</a>
+    </div>
+</footer>
+
+<script src="/supabase-auth-gamified.js"></script>
+<script src="/badge-system.js"></script>
+<script src="/track-mastery.js"></script>
+
+<script>
+'use strict';
+
+function greet() {
+    const h = new Date().getHours();
+    return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+}
+
+async function renderUserHero(stats, user) {
+    const profile   = window.EFCD_Auth.getCurrentUser();
+    const rawName   = profile?.name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Dude';
+    const firstName = rawName.split(' ')[0].replace(/^\w/, c => c.toUpperCase());
+
+    const streak = stats?.streak || 0;
+    const xp     = stats?.xp     || 0;
+    const level  = stats?.level  || 1;
+    const xpIn   = xp % 500;
+    const xpPct  = Math.min(100, Math.round((xpIn / 500) * 100));
+    const xpLeft = 500 - xpIn;
+
+    document.getElementById('hero-card').innerHTML = `
+        <div class="hero-ticker-wrap">
+            <div class="hero-ticker">🤪🐸🦋🧸🍬🦕🎪🎠🦖🎤🌍🏆🚀🎮🍕🐙🤯🏰🦄🎨🤪🐸🦋🧸🍬🦕🎪🎠🦖🎤🌍🏆🚀🎮🍕🐙🤯🏰🦄🎨</div>
+        </div>
+        <div class="hero-top">
+            <div>
+                <div class="greet">${greet()}, ${firstName}! 👋</div>
+                <div class="uname">English for Cool Kids</div>
+            </div>
+            ${streak > 0 ? `
+            <div class="streak-block">
+                <span class="sfire">🔥</span>
+                <span class="snum">${streak}</span>
+                <span class="sword">Day Streak</span>
+            </div>` : ''}
+        </div>
+        <div class="xp-wrap">
+            <div class="xp-row"><span>Level ${level}</span><span>${xpLeft} XP to Level ${level + 1}</span></div>
+            <div class="xp-track"><div class="xp-fill" id="xp-fill"></div></div>
+        </div>
+        <a href="/dashboard-gamified/" class="hero-cta">
+            <span>📊 View My Dashboard</span>
+            <span class="cta-arrow">›</span>
+        </a>`;
+
+    requestAnimationFrame(() => setTimeout(() => {
+        const f = document.getElementById('xp-fill');
+        if (f) f.style.width = xpPct + '%';
+    }, 80));
+}
+
+function renderGuestHero() {
+    document.getElementById('hero-card').innerHTML = `
+        <div class="hero-ticker-wrap">
+            <div class="hero-ticker">🤪🐸🦋🧸🍬🦕🎪🎠🦖🎤🌍🏆🚀🎮🍕🐙🤯🏰🦄🎨🤪🐸🦋🧸🍬🦕🎪🎠🦖🎤🌍🏆🚀🎮🍕🐙🤯🏰🦄🎨</div>
+        </div>
+        <div class="hero-eyebrow">🤪 For Cool Kids Everywhere</div>
+        <div class="big-title">English.<br><span class="yellow">But Make It Fun.</span></div>
+        <div class="hero-sub-guest">Pop stars. Dinosaurs. World records. Disgusting food. Weird animals. Real English — the fun way. Free forever. 🎉</div>
+        <div class="guest-btns">
+            <a href="/signup/" class="btn-yellow">🚀 Start Free</a>
+            <a href="/login/"  class="btn-white">Log In</a>
+        </div>`;
+}
+
+function boot() {
+    if (typeof window.efcdReady === 'undefined') { setTimeout(boot, 50); return; }
+    window.efcdReady.then(async () => {
+        try {
+            await window.EFCD_Auth.initAuth();
+            const user = window.EFCD_Auth.getCurrentUser();
+            if (user) { await renderUserHero(window.EFCD_Auth.getUserStats(), user); }
+            else       { renderGuestHero(); }
+            if (window.EFCD_UI) window.EFCD_UI.updateHeaderUI();
+        } catch(e) {
+            console.error('Boot error:', e);
+            renderGuestHero();
+        }
+    }).catch(() => renderGuestHero());
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+} else {
+    boot();
+}
+</script>
+
+</body>
+</html>
