@@ -25,7 +25,7 @@ async function init() {
 }
 
 // =========================================
-// HEADER AUTH UI (ENHANCED)
+// HEADER AUTH UI — matches lesson page style
 // =========================================
 
 function updateHeaderUI() {
@@ -58,106 +58,46 @@ function updateHeaderUI() {
         const stats = window.EFCD_Auth.getUserStats();
         
         container.innerHTML = `
-            <div style="
-                display: flex;
-                align-items: center;
-                gap: 12px;
-            ">
-                <!-- User Stats Badge -->
-                <div style="
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
-                    padding: 8px 16px;
-                    border-radius: 20px;
-                    border: 2px solid #FED7AA;
-                    box-shadow: 0 2px 8px rgba(251, 146, 60, 0.2);
-                ">
-                    <span style="
-                        background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-                        color: white;
-                        padding: 4px 12px;
-                        border-radius: 12px;
-                        font-size: 13px;
-                        font-weight: 800;
-                        letter-spacing: 0.5px;
-                    ">Lv.${stats.level}</span>
-                    
-                    <span style="
-                        color: #92400E;
-                        font-size: 14px;
-                        font-weight: 700;
-                    ">${stats.xp.toLocaleString()} XP</span>
-                    
-                    <span style="
-                        color: #DC2626;
-                        font-size: 16px;
-                        font-weight: 800;
-                    ">${stats.streakEmoji} ${stats.streak}</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+
+                <div style="display:flex;align-items:center;gap:4px;font-size:14px;font-weight:900;color:#FF4B4B;">
+                    <span style="display:inline-block;animation:flick 1.8s ease-in-out infinite;">🔥</span>
+                    <span>${stats.streak}</span>
                 </div>
-                
-                <!-- Dashboard Link -->
-                <a href="/dashboard-gamified/" style="
-                    color: #667EEA;
-                    font-weight: 600;
-                    text-decoration: none;
-                    padding: 8px 16px;
-                    border-radius: 6px;
-                    transition: all 0.2s;
-                    background: #EEF2FF;
-                    border: 1px solid #C7D2FE;
-                " onmouseover="this.style.background='#E0E7FF'" onmouseout="this.style.background='#EEF2FF'">
-                    👋 ${user.name}
-                </a>
-                
-                <!-- Logout Button -->
-                <button onclick="window.EFCD_Auth.logout()" style="
-                    background: #EF4444;
-                    color: white;
-                    border: none;
-                    padding: 8px 16px;
-                    border-radius: 6px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                    font-size: 14px;
-                " onmouseover="this.style.background='#DC2626'" onmouseout="this.style.background='#EF4444'">
-                    Logout
-                </button>
+
+                <div style="background:rgba(28,176,246,.08);border:2px solid rgba(28,176,246,.2);border-radius:99px;padding:5px 12px;font-size:14px;font-weight:900;color:#1899D6;display:flex;align-items:center;gap:5px;">
+                    ⚡ <span>${stats.xp.toLocaleString()} XP</span>
+                </div>
+
+                <a href="/dashboard-gamified/" style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:rgba(28,176,246,.08);border:2px solid rgba(28,176,246,.2);border-bottom:4px solid rgba(28,176,246,.25);border-radius:10px;font-size:18px;text-decoration:none;transition:all .15s;flex-shrink:0;" title="My Dashboard">📊</a>
+
+                <button onclick="handleSignOut()" style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:rgba(255,75,75,.08);border:2px solid rgba(255,75,75,.25);border-bottom:4px solid rgba(255,75,75,.3);border-radius:10px;font-size:18px;cursor:pointer;font-family:inherit;transition:all .15s;flex-shrink:0;" title="Sign out">👋</button>
+
             </div>
         `;
+
+        // Wire up sign out
+        window.handleSignOut = async function() {
+            if (window.EFCD_Auth?.signOut) {
+                await window.EFCD_Auth.signOut();
+            } else if (window.EFCD_Auth?.logout) {
+                await window.EFCD_Auth.logout();
+            } else if (window.efcdSupabaseClient) {
+                await window.efcdSupabaseClient.auth.signOut();
+                window.location.href = '/';
+            }
+        };
+
     } else {
         console.log('ℹ️ Rendering logged-out UI');
         
         container.innerHTML = `
-            <div style="
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            ">
-                <a href="/login/" style="
-                    color: #667EEA;
-                    font-weight: 600;
-                    text-decoration: none;
-                    padding: 8px 16px;
-                    border-radius: 6px;
-                    transition: all 0.2s;
-                " onmouseover="this.style.color='#5A67D8'" onmouseout="this.style.color='#667EEA'">
-                    Login
+            <div style="display:flex;align-items:center;gap:10px;">
+                <a href="/login/" style="color:#667EEA;font-weight:700;text-decoration:none;padding:8px 16px;border-radius:6px;transition:all .2s;font-family:inherit;" onmouseover="this.style.color='#5A67D8'" onmouseout="this.style.color='#667EEA'">
+                    Log In
                 </a>
-                
-                <a href="/signup/" style="
-                    background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
-                    color: white;
-                    padding: 8px 20px;
-                    border-radius: 6px;
-                    font-weight: 600;
-                    text-decoration: none;
-                    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-                    transition: all 0.2s;
-                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(102, 126, 234, 0.3)'">
-                    Sign Up Free
+                <a href="/signup/" style="background:linear-gradient(135deg,#667EEA 0%,#764BA2 100%);color:white;padding:8px 20px;border-radius:6px;font-weight:700;text-decoration:none;box-shadow:0 2px 8px rgba(102,126,234,.3);transition:all .2s;font-family:inherit;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                    🚀 Sign Up Free
                 </a>
             </div>
         `;
@@ -250,25 +190,16 @@ function showWelcomeMessage() {
 // =========================================
 
 function hideTickers() {
-    // Hide top ticker
     const topTicker = document.getElementById('latest-updates-ticker');
-    if (topTicker) {
-        topTicker.style.display = 'none';
-        console.log('🗑️ Top ticker hidden');
-    }
+    if (topTicker) { topTicker.style.display = 'none'; console.log('🗑️ Top ticker hidden'); }
     
-    // Hide bottom ticker
     const bottomTicker = document.getElementById('pulse-ticker-text');
     if (bottomTicker) {
         const infoBox = bottomTicker.closest('.info-box');
-        if (infoBox) {
-            infoBox.style.display = 'none';
-            console.log('🗑️ Bottom ticker hidden');
-        }
+        if (infoBox) { infoBox.style.display = 'none'; console.log('🗑️ Bottom ticker hidden'); }
     }
 }
 
-// Hide tickers on load
 document.addEventListener('DOMContentLoaded', hideTickers);
 
 // =========================================
