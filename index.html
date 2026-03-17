@@ -59,9 +59,6 @@
         .site-title { font-size:18px; font-weight:900; color:var(--ink-bold); letter-spacing:-.4px; }
         @media(max-width:380px){ .site-title{display:none} }
         #header-auth-container { display:flex; align-items:center; gap:8px; }
-        .btn-dash-home { display:none; align-items:center; justify-content:center; width:36px; height:36px; background:rgba(28,176,246,.08); border:2px solid rgba(28,176,246,.2); border-bottom:4px solid rgba(28,176,246,.25); border-radius:10px; font-size:18px; text-decoration:none; transition:all .15s; flex-shrink:0; }
-        .btn-dash-home.visible { display:inline-flex; }
-        .btn-dash-home:active { border-bottom-width:2px; transform:translateY(2px); }
         .new-dot { font-size:16px; line-height:1; flex-shrink:0; animation:float 1.8s ease-in-out infinite; filter:drop-shadow(0 1px 3px rgba(255,200,0,.5)); }
         .page { max-width:900px; margin:0 auto; padding:24px 16px 96px; display:flex; flex-direction:column; gap:20px; }
         .sk { background:linear-gradient(90deg,#EBEBEB 25%,#F5F5F5 50%,#EBEBEB 75%); background-size:400px 100%; animation:shim 1.4s infinite; border-radius:var(--rsm); }
@@ -238,7 +235,6 @@
             <a href="/" class="site-title">English For Cool Dudes</a>
         </div>
         <div id="header-auth-container">
-            <a href="/dashboard-gamified/" class="btn-dash-home" id="hdr-dash" title="My Dashboard">📊</a>
         </div>
     </div>
 </header>
@@ -632,12 +628,11 @@ function boot() {
         try {
             await window.EFCD_Auth.initAuth();
             const user = window.EFCD_Auth.getCurrentUser();
-            if (user) { renderUser(window.EFCD_Auth.getUserStats(), user);
-                const dash=document.getElementById('hdr-dash'); if(dash) dash.classList.add('visible');
-            }
+            if (user) { renderUser(window.EFCD_Auth.getUserStats(), user); }
             else       { renderGuest(); }
             if (window.EFCD_UI) { window.EFCD_UI.updateHeaderUI(); window.EFCD_UI.showWelcomeMessage(); }
             setTimeout(() => {
+                if (!user) return; // guests don't need the shop
                 const container = document.getElementById('header-auth-container');
                 if (!container || !window.EFCD_Shop || document.querySelector('.btn-shop')) return;
                 const btn = document.createElement('button');
