@@ -1136,8 +1136,15 @@ async function _buyShiny(badgeId, badgeName, badgeIcon) {
         shinySet.add(badgeId);
         await saveShinyBadges(shinySet);
         _shopXP = getXP();
-        _showSuccess(badgeIcon, `${badgeName} is now SHINY!`, '✨ Holographic forever — check your dashboard!');
-        setTimeout(() => renderTab('shiny'), 900);
+        _showSuccess(badgeIcon, `${badgeName} is now SHINY!`, '✨ Holographic forever — applied right now!');
+        // Instantly refresh the badge collection on the dashboard if it's visible
+        setTimeout(() => {
+            renderTab('shiny');
+            const userId = window.EFCD_Auth?.getCurrentUser?.()?.id;
+            if (userId && typeof renderBadgeCollection === 'function') {
+                renderBadgeCollection(userId);
+            }
+        }, 900);
     });
 }
 
