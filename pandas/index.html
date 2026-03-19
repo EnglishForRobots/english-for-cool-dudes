@@ -894,6 +894,8 @@ function checkBuilt(){
         slots.forEach(s=>s.classList.add('correct-final'));
         S.wbScore++; S.totalRight++; S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo);
         addXP(10);
+        // Disable both buttons immediately — prevents pressing Check again during the 1.6s delay
+        document.querySelectorAll('.wb-check,.wb-clear').forEach(b=>{ b.disabled=true; b.style.opacity='.4'; });
         confettiBurst(slots[0].getBoundingClientRect().left+80,slots[0].getBoundingClientRect().top);
         fb.className='wb-feedback show right';
         fb.innerHTML=`✅ <strong>${w.word.toUpperCase()}</strong>! Brilliant! — ${w.def}`;
@@ -1185,6 +1187,9 @@ function buildDiaryInner(){
     let filledGaps={};
 
     function buildPage(){
+        // Track which WORDS have been placed (values), not which gaps are filled (keys)
+        const placedWords = new Set(Object.values(filledGaps));
+
         let textHTML='';
         DIARY.text.forEach((part,i)=>{
             if(part.type==='text'){
@@ -1208,7 +1213,7 @@ function buildDiaryInner(){
                 <div class="diary-bank">
                     <div class="diary-bank-label">📦 Word Bank — tap a word, then tap a gap</div>
                     <div class="diary-chips" id="diary-chips">
-                        ${DIARY.wordbank.map(w=>`<button class="diary-chip ${filledGaps[w]?'used':''}" id="dc-${w}" onclick="selectDiaryWord('${w}')">${w}</button>`).join('')}
+                        ${DIARY.wordbank.map(w=>`<button class="diary-chip ${placedWords.has(w)?'used':''} ${selectedWord===w?'selected':''}" id="dc-${w}" onclick="selectDiaryWord('${w}')">${w}</button>`).join('')}
                     </div>
                 </div>
             </div>
@@ -1223,38 +1228,30 @@ function buildDiaryInner(){
     }
 
     window.selectDiaryWord=function(word){
+        const placedWords=new Set(Object.values(filledGaps));
+        if(placedWords.has(word)) return; // already placed — can't re-select
         // Toggle off if tapping the already-selected word
         if(selectedWord===word){
             selectedWord=null;
-            document.querySelectorAll('.diary-chip').forEach(c=>c.classList.remove('selected'));
-            return;
+        } else {
+            selectedWord=word;
         }
-        selectedWord=word;
-        document.querySelectorAll('.diary-chip').forEach(c=>c.classList.remove('selected'));
-        const chip=$(`dc-${word}`); if(chip&&!chip.classList.contains('used')) chip.classList.add('selected');
+        buildPage(); // re-render cleanly with correct selected + used states
     };
 
     window.tapGap=function(gapWord){
         if(!selectedWord){
-            // No word selected — if this gap is filled, remove it (change mind)
+            // No word selected — tap filled gap to remove it
             if(filledGaps[gapWord]){
-                const old=filledGaps[gapWord];
                 delete filledGaps[gapWord];
-                const chip=$(`dc-${old}`); if(chip){ chip.classList.remove('used','selected'); }
                 buildPage();
             }
             return;
         }
-        // Swap out any previously filled word in this gap
-        if(filledGaps[gapWord]){
-            const old=filledGaps[gapWord];
-            const chip=$(`dc-${old}`); if(chip){ chip.classList.remove('used','selected'); }
-        }
+        // Place selected word into this gap (swapping out any previous word)
         filledGaps[gapWord]=selectedWord;
-        const chip=$(`dc-${selectedWord}`); if(chip) chip.classList.add('used');
         selectedWord=null;
-        document.querySelectorAll('.diary-chip').forEach(c=>c.classList.remove('selected'));
-        buildPage();
+        buildPage(); // buildPage recalculates placedWords from scratch — always correct
     };
 
     window.submitDiary=function(){
@@ -1281,7 +1278,7 @@ function buildDiaryInner(){
         const res=$('diary-result');
         res.className='diary-result show';
         if(allCorrect){
-            res.innerHTML=`✅ <strong>Perfect diary!</strong> All ${DIARY.gaps.length} words correct! Panda Power! 🐼🎉`;
+            res.innerHTML=`✅ <strong>Perfect diary!</strong> All ${DIARY.gaps.length} words correct! Sandi would be proud! 🐼🎉`;
             S.totalRight+=DIARY.gaps.length; S.combo+=DIARY.gaps.length; S.bestCombo=Math.max(S.bestCombo,S.combo);
             addXP(20);
             confettiBurst(window.innerWidth/2,window.innerHeight*.4);
