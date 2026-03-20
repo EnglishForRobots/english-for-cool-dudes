@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+    <title>🃏 Word Thief — The Break Room · English For Cool Dudes</title>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/init-auth.js"></script>
+    <style>
+    :root {
+        --blue:#1CB0F6;       --blue-shadow:#1899D6;
+        --yellow:#FFC800;     --yellow-shadow:#E5B400;
+        --green:#58CC02;      --green-shadow:#58A700;
+        --punch:#FF4B4B;      --punch-shadow:#EA2B2B;
+        --purple:#CE82FF;     --purple-shadow:#A559D9;
+        --teal:#2BDECC;       --teal-shadow:#1FBFAF;
+        --orange:#FF9600;     --orange-shadow:#E07800;
+        --bg:#F7F9FA;         --white:#FFFFFF;
+        --ink:#4B4B4B;        --ink-bold:#111827; --ink-3:#AFAFAF;
+        --border:#E5E5E5;     --border-heavy:#CECECE;
+        --r:24px; --rsm:16px; --rxs:10px;
+
+        /* Thief palette */
+        --shadow:#1a1a2e;     --shadow-light:#16213e;
+        --shadow-accent:#e94560;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{-webkit-text-size-adjust:100%;}
+    body{background:var(--bg);color:var(--ink);font-family:'Nunito',system-ui,sans-serif;line-height:1.5;overflow-x:hidden;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;}
+    a{color:inherit;text-decoration:none;}
+    button{font-family:inherit;cursor:pointer;border:none;background:none;}
+
+    @keyframes up      {from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes float   {0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    @keyframes nudge   {0%,100%{transform:translateX(0)}35%{transform:translateX(7px)}}
+    @keyframes popIn   {0%{opacity:0;transform:scale(.6) rotate(-8deg)}60%{transform:scale(1.1) rotate(2deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+    @keyframes fadeIn  {from{opacity:0}to{opacity:1}}
+    @keyframes confetti{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(180px) rotate(520deg)}}
+    @keyframes xpPop   {0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-70px) scale(1.6)}}
+    @keyframes shake   {0%,100%{transform:translateX(0)}20%{transform:translateX(-12px)}40%{transform:translateX(12px)}60%{transform:translateX(-7px)}80%{transform:translateX(7px)}}
+    @keyframes steal   {0%{opacity:1;transform:translate(0,0) scale(1) rotate(0deg)}40%{transform:translate(-30px,-20px) scale(1.2) rotate(-10deg)}100%{opacity:0;transform:translate(-120px,-60px) scale(0.3) rotate(-30deg)}}
+    @keyframes vault   {0%{opacity:1;transform:translate(0,0) scale(1)}40%{transform:translate(30px,-20px) scale(1.2)}100%{opacity:0;transform:translate(120px,-50px) scale(0.2)}}
+    @keyframes taunt   {0%,100%{transform:scale(1) rotate(0deg)}25%{transform:scale(1.3) rotate(-15deg)}50%{transform:scale(1.4) rotate(10deg)}75%{transform:scale(1.2) rotate(-5deg)}}
+    @keyframes celebrate{0%,100%{transform:scale(1)}30%{transform:scale(1.35) rotate(-8deg)}60%{transform:scale(1.3) rotate(8deg)}}
+    @keyframes timerBar {from{width:100%}to{width:0%}}
+    @keyframes slideDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes wordIn  {0%{opacity:0;transform:translateY(24px) scale(.85)}100%{opacity:1;transform:translateY(0) scale(1)}}
+    @keyframes pulse   {0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+    @keyframes smokeOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(2)}}
+
+    /* ── HEADER ── */
+    .header{background:var(--white);border-bottom:3px solid var(--shadow-accent);padding:0 20px;height:60px;position:sticky;top:0;z-index:300;display:flex;align-items:center;box-shadow:0 4px 12px rgba(233,69,96,.12);}
+    .hc{max-width:860px;width:100%;margin:0 auto;display:flex;align-items:center;}
+    .logo-box{width:38px;height:38px;background:var(--yellow);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid var(--yellow-shadow);box-shadow:0 3px 0 var(--yellow-shadow);flex-shrink:0;}
+    .site-title{font-size:17px;font-weight:900;color:var(--ink-bold);letter-spacing:-.3px;margin-left:10px;}
+    @media(max-width:400px){.site-title{display:none}}
+
+    /* ── PAGE ── */
+    .page{max-width:860px;margin:0 auto;padding:24px 16px 80px;display:flex;flex-direction:column;gap:16px;}
+
+    /* ── SETUP SCREEN ── */
+    .setup-hero{background:var(--shadow);border:2px solid #333;border-bottom:6px solid #000;border-radius:var(--r);padding:32px 28px;position:relative;overflow:hidden;animation:up .45s ease both;}
+    .setup-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(233,69,96,.2),transparent 60%);pointer-events:none;}
+    .setup-hero::after{content:'🃏';position:absolute;bottom:-20px;right:4px;font-size:160px;opacity:.1;pointer-events:none;transform:rotate(-15deg);animation:float 4s ease-in-out infinite;}
+    .setup-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(233,69,96,.2);border:2px solid rgba(233,69,96,.4);border-radius:8px;padding:4px 14px;font-size:11px;font-weight:900;color:rgba(255,255,255,.9);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;position:relative;z-index:1;}
+    .setup-title{font-size:clamp(32px,7vw,56px);font-weight:900;color:var(--white);letter-spacing:-2px;line-height:1;margin-bottom:10px;text-shadow:0 3px 0 #000;position:relative;z-index:1;}
+    .setup-title .red{color:var(--shadow-accent);}
+    .setup-sub{font-size:15px;font-weight:700;color:rgba(255,255,255,.8);max-width:460px;line-height:1.6;position:relative;z-index:1;}
+
+    .setup-panel{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);padding:28px;animation:up .45s ease both .1s;}
+    .setup-section-label{font-size:11px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;}
+
+    .cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:24px;}
+    .cat-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 12px;background:var(--bg);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);cursor:pointer;transition:all .15s;font-family:inherit;text-align:center;}
+    .cat-btn:active{border-bottom-width:2px;transform:translateY(2px);}
+    .cat-btn.selected{border-color:var(--shadow-accent);border-bottom-color:#c0283e;background:rgba(233,69,96,.06);}
+    .cat-btn-icon{font-size:28px;line-height:1;}
+    .cat-btn-label{font-size:13px;font-weight:900;color:var(--ink-bold);}
+    .cat-btn.selected .cat-btn-label{color:var(--shadow-accent);}
+
+    .diff-row{display:flex;gap:10px;margin-bottom:24px;}
+    .diff-btn{flex:1;padding:13px 10px;background:var(--bg);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);cursor:pointer;transition:all .15s;font-family:inherit;text-align:center;}
+    .diff-btn:active{border-bottom-width:2px;transform:translateY(2px);}
+    .diff-btn.selected{border-color:var(--shadow-accent);background:rgba(233,69,96,.06);}
+    .diff-btn-icon{font-size:24px;display:block;margin-bottom:4px;}
+    .diff-btn-label{font-size:13px;font-weight:900;color:var(--ink-bold);}
+    .diff-btn-sub{font-size:11px;font-weight:700;color:var(--ink-3);margin-top:2px;}
+    .diff-btn.selected .diff-btn-label{color:var(--shadow-accent);}
+
+    .btn-launch{display:flex;align-items:center;justify-content:space-between;width:100%;padding:18px 24px;background:var(--shadow-accent);color:var(--white);font-size:18px;font-weight:900;border-radius:var(--rsm);border:2px solid #c0283e;border-bottom:6px solid #c0283e;cursor:pointer;transition:transform .1s,border-bottom-width .1s;letter-spacing:-.3px;}
+    .btn-launch:active{border-bottom-width:2px;transform:translateY(4px);}
+
+    .back-link{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;padding:10px 18px;border-radius:var(--rsm);border:2px solid var(--border);background:var(--white);transition:all .15s;}
+    .back-link:hover{color:var(--ink-bold);border-color:var(--border-heavy);}
+
+    /* ── SCOREBOARD ── */
+    .scoreboard{display:grid;grid-template-columns:1fr auto 1fr;gap:0;background:var(--shadow);border:2px solid #333;border-bottom:4px solid #000;border-radius:var(--r);overflow:hidden;}
+    .score-side{padding:16px 20px;display:flex;flex-direction:column;align-items:center;gap:6px;}
+    .score-side.you{background:linear-gradient(135deg,rgba(88,204,2,.15),rgba(88,204,2,.05));}
+    .score-side.thief{background:linear-gradient(135deg,rgba(233,69,96,.15),rgba(233,69,96,.05));}
+    .score-avatar{font-size:36px;line-height:1;animation:float 3s ease-in-out infinite;}
+    .score-name{font-size:12px;font-weight:900;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:1px;}
+    .score-num{font-size:38px;font-weight:900;color:var(--white);line-height:1;}
+    .score-num.you{color:var(--green);}
+    .score-num.thief{color:var(--shadow-accent);}
+    .score-goal{font-size:10px;font-weight:800;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;}
+    .score-divider{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 12px;background:rgba(255,255,255,.04);border-left:2px solid rgba(255,255,255,.08);border-right:2px solid rgba(255,255,255,.08);}
+    .score-vs{font-size:14px;font-weight:900;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:2px;}
+
+    /* Word vault dots */
+    .vault-dots{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;max-width:120px;}
+    .vault-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.2);transition:all .3s;}
+    .vault-dot.filled.you{background:var(--green);border-color:var(--green-shadow);animation:popIn .3s cubic-bezier(.175,.885,.32,1.275) both;}
+    .vault-dot.filled.thief{background:var(--shadow-accent);border-color:#c0283e;animation:popIn .3s cubic-bezier(.175,.885,.32,1.275) both;}
+
+    /* ── THIEF STATUS ── */
+    .thief-status{background:var(--shadow);border:2px solid rgba(233,69,96,.3);border-radius:var(--rsm);padding:12px 16px;display:flex;align-items:center;gap:12px;min-height:58px;}
+    .thief-avatar-big{font-size:32px;line-height:1;flex-shrink:0;transition:all .3s;}
+    .thief-avatar-big.taunt{animation:taunt .5s ease both;}
+    .thief-avatar-big.celebrate{animation:celebrate .6s ease both;}
+    .thief-message{font-size:14px;font-weight:800;color:rgba(255,255,255,.9);line-height:1.4;animation:slideDown .3s ease both;}
+    .thief-message .red{color:var(--shadow-accent);}
+
+    /* ── TIMER BAR ── */
+    .timer-track{height:8px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden;border:2px solid rgba(255,255,255,.08);}
+    .timer-fill{height:100%;border-radius:99px;background:var(--green);transform-origin:left;}
+    .timer-fill.warn{background:var(--yellow);}
+    .timer-fill.crit{background:var(--punch);}
+
+    /* ── SENTENCE CARD ── */
+    .sentence-card{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);overflow:hidden;}
+    .sentence-card::before{content:'';display:block;height:8px;background:linear-gradient(90deg,var(--shadow-accent),var(--purple));margin:-2px -2px 0;}
+    .sentence-body{padding:clamp(20px,4vw,32px);}
+    .sentence-round{font-size:11px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;}
+    .sentence-text{font-size:clamp(18px,4vw,26px);font-weight:900;color:var(--ink-bold);line-height:1.5;letter-spacing:-.3px;text-align:center;}
+    .sentence-gap{display:inline-block;min-width:100px;border-bottom:4px dashed var(--shadow-accent);color:var(--shadow-accent);padding:0 8px;font-weight:900;transition:all .3s;}
+    .sentence-gap.filled{border-bottom:4px solid var(--green);color:var(--green-shadow);background:rgba(88,204,2,.08);border-radius:6px;animation:popIn .3s ease both;}
+    .sentence-gap.stolen{border-bottom:4px solid var(--punch);color:var(--punch-shadow);background:rgba(255,75,75,.08);border-radius:6px;}
+    .sentence-cat{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;padding:3px 10px;border-radius:6px;border:2px solid var(--border);background:var(--bg);color:var(--ink-3);margin-bottom:10px;}
+
+    /* ── WORD CARDS ── */
+    .word-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 clamp(12px,3vw,24px) clamp(16px,3vw,24px);}
+    .word-card{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--rsm);padding:16px 12px;font-size:clamp(15px,3vw,19px);font-weight:900;color:var(--ink-bold);cursor:pointer;transition:all .15s;text-align:center;font-family:inherit;animation:wordIn .35s ease both;position:relative;overflow:hidden;}
+    .word-card:nth-child(1){animation-delay:.05s;}
+    .word-card:nth-child(2){animation-delay:.1s;}
+    .word-card:nth-child(3){animation-delay:.15s;}
+    .word-card:nth-child(4){animation-delay:.2s;}
+    .word-card:hover:not(:disabled){transform:translateY(-4px);box-shadow:0 8px 20px rgba(0,0,0,.12);border-color:var(--shadow-accent);color:var(--shadow-accent);}
+    .word-card:active:not(:disabled){border-bottom-width:2px;transform:translateY(2px);}
+    .word-card:disabled{cursor:default;}
+    .word-card.correct{background:var(--green);color:var(--white);border-color:var(--green-shadow);animation:popIn .35s cubic-bezier(.175,.885,.32,1.275) both;}
+    .word-card.wrong{background:var(--punch);color:var(--white);border-color:var(--punch-shadow);animation:shake .4s ease both;}
+    .word-card.stolen-away{animation:steal .5s ease both;pointer-events:none;}
+    .word-card.vaulted{animation:vault .5s ease both;pointer-events:none;}
+
+    /* ── RESULT SCREEN ── */
+    #result-screen{display:none;}
+    .result-card{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);padding:36px 28px;text-align:center;animation:popIn .5s cubic-bezier(.175,.885,.32,1.275) both;}
+    .result-card::before{content:'';display:block;height:10px;border-radius:var(--r) var(--r) 0 0;margin:-36px -28px 28px;}
+    .result-win::before{background:linear-gradient(90deg,var(--green),var(--teal));}
+    .result-lose::before{background:linear-gradient(90deg,var(--shadow-accent),var(--purple));}
+    .result-icon{font-size:80px;display:block;margin-bottom:12px;animation:float 3s ease-in-out infinite;}
+    .result-title{font-size:28px;font-weight:900;letter-spacing:-1px;margin-bottom:6px;}
+    .result-title.win{color:var(--green-shadow);}
+    .result-title.lose{color:var(--shadow-accent);}
+    .result-sub{font-size:15px;font-weight:700;color:var(--ink-3);margin-bottom:22px;line-height:1.6;}
+    .result-xp{background:var(--shadow);border:2px solid #333;border-bottom:6px solid #000;border-radius:var(--r);padding:20px;margin-bottom:16px;}
+    .result-xp-num{font-size:52px;font-weight:900;color:var(--white);line-height:1;}
+    .result-xp-label{font-size:12px;font-weight:900;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+    .result-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;}
+    .rs{background:var(--bg);border:2px solid var(--border-heavy);border-radius:var(--rsm);padding:12px 8px;}
+    .rs-n{font-size:22px;font-weight:900;color:var(--ink-bold);}
+    .rs-l{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);margin-top:2px;}
+    .result-btns{display:flex;flex-direction:column;gap:10px;}
+    .btn-play-again{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;background:var(--shadow-accent);color:var(--white);font-size:17px;font-weight:900;border:2px solid #c0283e;border-bottom:5px solid #c0283e;border-radius:var(--rsm);transition:all .1s;font-family:inherit;}
+    .btn-play-again:active{border-bottom-width:2px;transform:translateY(3px);}
+    .btn-secondary{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;background:var(--white);color:var(--ink-bold);font-size:15px;font-weight:900;border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);transition:all .1s;font-family:inherit;}
+    .btn-secondary:active{border-bottom-width:2px;transform:translateY(2px);}
+
+    /* ── CONFETTI / XP FLOAT ── */
+    .confetti-dot{position:fixed;width:11px;height:11px;border-radius:3px;pointer-events:none;z-index:9999;animation:confetti 1.1s ease-out both;}
+    .xp-float{position:fixed;font-size:22px;font-weight:900;color:var(--yellow-shadow);text-shadow:0 2px 0 rgba(0,0,0,.15);pointer-events:none;z-index:9998;animation:xpPop .95s ease-out forwards;}
+
+    /* ── GAME CONTROLS ── */
+    .game-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+    .btn-quit{display:flex;align-items:center;gap:6px;padding:10px 16px;background:var(--white);color:var(--ink-3);font-size:13px;font-weight:900;border-radius:var(--rsm);border:2px solid var(--border-heavy);border-bottom:3px solid var(--border-heavy);transition:all .1s;font-family:inherit;}
+    .btn-quit:active{border-bottom-width:2px;transform:translateY(1px);}
+    .session-xp{font-size:14px;font-weight:900;color:var(--shadow-accent);display:flex;align-items:center;gap:5px;}
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="hc">
+        <a href="/breakroom/" class="logo-box">😎</a>
+        <a href="/breakroom/" class="site-title">English For Cool Dudes</a>
+    </div>
+</header>
+
+<div class="page">
+
+    <!-- ═══ SETUP ═══ -->
+    <div id="setup-screen" style="display:flex;flex-direction:column;gap:16px;">
+
+        <div class="setup-hero">
+            <div style="position:relative;z-index:1;">
+                <div class="setup-eyebrow">🃏 The Break Room · Word Thief</div>
+                <div class="setup-title">Steal the<br><span class="red">right word.</span></div>
+                <p class="setup-sub">The Shadow wants those words too. First to steal 10 wins. Pick fast — hesitate and they're gone.</p>
+            </div>
+        </div>
+
+        <div class="setup-panel">
+            <div class="setup-section-label">Category</div>
+            <div class="cat-grid">
+                <button class="cat-btn selected" data-cat="all" onclick="selectCat(this)">
+                    <span class="cat-btn-icon">🎲</span>
+                    <span class="cat-btn-label">All Topics</span>
+                </button>
+                <button class="cat-btn" data-cat="business" onclick="selectCat(this)">
+                    <span class="cat-btn-icon">💼</span>
+                    <span class="cat-btn-label">Business</span>
+                </button>
+                <button class="cat-btn" data-cat="legal" onclick="selectCat(this)">
+                    <span class="cat-btn-icon">⚖️</span>
+                    <span class="cat-btn-label">Legal & Tax</span>
+                </button>
+                <button class="cat-btn" data-cat="social" onclick="selectCat(this)">
+                    <span class="cat-btn-icon">🌍</span>
+                    <span class="cat-btn-label">Social</span>
+                </button>
+                <button class="cat-btn" data-cat="tech" onclick="selectCat(this)">
+                    <span class="cat-btn-icon">🤖</span>
+                    <span class="cat-btn-label">Tech</span>
+                </button>
+            </div>
+
+            <div class="setup-section-label">Difficulty — how fast is The Shadow?</div>
+            <div class="diff-row">
+                <button class="diff-btn" data-diff="easy" onclick="selectDiff(this)">
+                    <span class="diff-btn-icon">🐢</span>
+                    <span class="diff-btn-label">Slow</span>
+                    <span class="diff-btn-sub">8 seconds</span>
+                </button>
+                <button class="diff-btn selected" data-diff="medium" onclick="selectDiff(this)">
+                    <span class="diff-btn-icon">⚡</span>
+                    <span class="diff-btn-label">Fast</span>
+                    <span class="diff-btn-sub">5 seconds</span>
+                </button>
+                <button class="diff-btn" data-diff="hard" onclick="selectDiff(this)">
+                    <span class="diff-btn-icon">🔥</span>
+                    <span class="diff-btn-label">Brutal</span>
+                    <span class="diff-btn-sub">3 seconds</span>
+                </button>
+            </div>
+
+            <button class="btn-launch" onclick="startGame()">
+                <span>🃏 &nbsp;Start the Heist!</span>
+                <span style="font-size:22px;animation:nudge 2s ease-in-out infinite">→</span>
+            </button>
+        </div>
+
+        <a href="/breakroom/" class="back-link">← Back to Break Room</a>
+    </div>
+
+    <!-- ═══ GAME SCREEN ═══ -->
+    <div id="game-screen" style="display:none;flex-direction:column;gap:10px;">
+
+        <!-- Scoreboard -->
+        <div class="scoreboard">
+            <div class="score-side you">
+                <div class="score-avatar" id="player-avatar">😎</div>
+                <div class="score-name">You</div>
+                <div class="score-num you" id="score-you">0</div>
+                <div class="vault-dots" id="vault-you"></div>
+                <div class="score-goal">First to 10</div>
+            </div>
+            <div class="score-divider">
+                <div class="score-vs">VS</div>
+            </div>
+            <div class="score-side thief">
+                <div class="score-avatar" id="thief-avatar">🦹</div>
+                <div class="score-name">The Shadow</div>
+                <div class="score-num thief" id="score-thief">0</div>
+                <div class="vault-dots" id="vault-thief"></div>
+                <div class="score-goal">First to 10</div>
+            </div>
+        </div>
+
+        <!-- Thief status -->
+        <div class="thief-status">
+            <div class="thief-avatar-big" id="thief-big">🦹</div>
+            <div class="thief-message" id="thief-msg">
+                <span class="red">The Shadow</span> is watching... Better move fast. 😈
+            </div>
+        </div>
+
+        <!-- Timer -->
+        <div class="timer-track">
+            <div class="timer-fill" id="timer-fill"></div>
+        </div>
+
+        <!-- Sentence card -->
+        <div class="sentence-card" id="sentence-card">
+            <div class="sentence-body">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                    <div class="sentence-round" id="round-label">Round 1</div>
+                    <div class="sentence-cat" id="cat-label">💼 Business</div>
+                </div>
+                <div class="sentence-text" id="sentence-text">Loading...</div>
+            </div>
+            <div class="word-grid" id="word-grid"></div>
+        </div>
+
+        <!-- Game bar -->
+        <div class="game-bar">
+            <button class="btn-quit" onclick="quitGame()">✕ Quit</button>
+            <div class="session-xp">⚡ <span id="session-xp">0</span> XP</div>
+        </div>
+
+    </div>
+
+    <!-- ═══ RESULT SCREEN ═══ -->
+    <div id="result-screen"></div>
+
+</div>
+
+<script src="/supabase-auth-gamified.js"></script>
+<script>
+'use strict';
+
+/* ═══ SUPABASE ═══ */
+const SB_URL  = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+let sb;
+try{ sb = window.supabase?.createClient(SB_URL, SB_KEY); }catch(e){}
+
+/* ═══ WORD BANK (hardcoded starter pack — 40 rounds) ═══ */
+const WORD_BANK = [
+    // BUSINESS
+    {cat:'business',sentence:'She ___ the proposal before the deadline.',correct:'submitted',distractors:['delivered','handed','presented'],level:'intermediate'},
+    {cat:'business',sentence:'The merger was ___ by the board last Tuesday.',correct:'approved',distractors:['accepted','agreed','confirmed'],level:'intermediate'},
+    {cat:'business',sentence:'We need to ___ the budget before Q3.',correct:'finalise',distractors:['finish','complete','close'],level:'intermediate'},
+    {cat:'business',sentence:'The report ___ several key risks.',correct:'identified',distractors:['found','showed','mentioned'],level:'intermediate'},
+    {cat:'business',sentence:'Please ___ the contract before signing.',correct:'review',distractors:['read','check','scan'],level:'beginner'},
+    {cat:'business',sentence:'Sales ___ by 12% in the final quarter.',correct:'increased',distractors:['grew','rose','jumped'],level:'beginner'},
+    {cat:'business',sentence:'The client ___ the invoice within 30 days.',correct:'settled',distractors:['paid','cleared','sent'],level:'intermediate'},
+    {cat:'business',sentence:'He ___ his resignation after the audit.',correct:'submitted',distractors:['gave','handed','sent'],level:'intermediate'},
+    {cat:'business',sentence:'The team ___ the project on time and under budget.',correct:'delivered',distractors:['finished','completed','gave'],level:'intermediate'},
+    {cat:'business',sentence:'We need to ___ the client on the project status.',correct:'update',distractors:['tell','inform','contact'],level:'beginner'},
+    {cat:'business',sentence:'The CEO ___ a press conference after the scandal.',correct:'called',distractors:['made','organised','held'],level:'advanced'},
+    {cat:'business',sentence:'Profits ___ sharply after the product recall.',correct:'fell',distractors:['dropped','went','decreased'],level:'intermediate'},
+    {cat:'business',sentence:'The new policy will ___ effect from January.',correct:'take',distractors:['come','go','have'],level:'advanced'},
+    {cat:'business',sentence:'Could you ___ a meeting for Thursday afternoon?',correct:'schedule',distractors:['arrange','book','make'],level:'beginner'},
+    {cat:'business',sentence:'The department has ___ significant cost savings this year.',correct:'achieved',distractors:['made','found','gotten'],level:'advanced'},
+    // LEGAL & TAX
+    {cat:'legal',sentence:'You must ___ your income to the tax authority.',correct:'declare',distractors:['report','tell','submit'],level:'intermediate'},
+    {cat:'legal',sentence:'The contract is ___ if signed under duress.',correct:'void',distractors:['invalid','cancelled','illegal'],level:'advanced'},
+    {cat:'legal',sentence:'She was ___ damages of €50,000.',correct:'awarded',distractors:['given','paid','received'],level:'advanced'},
+    {cat:'legal',sentence:'The defendant was found ___ of all charges.',correct:'not guilty',distractors:['innocent','clear','free'],level:'intermediate'},
+    {cat:'legal',sentence:'You can ___ your tax return online before April.',correct:'file',distractors:['send','submit','complete'],level:'intermediate'},
+    {cat:'legal',sentence:'The company was fined for ___ health and safety laws.',correct:'breaching',distractors:['breaking','violating','ignoring'],level:'advanced'},
+    {cat:'legal',sentence:'She signed the document under ___.',correct:'duress',distractors:['pressure','force','stress'],level:'advanced'},
+    {cat:'legal',sentence:'The court ___ the appeal last Monday.',correct:'dismissed',distractors:['rejected','refused','denied'],level:'advanced'},
+    {cat:'legal',sentence:'Please ___ your signature on the dotted line.',correct:'place',distractors:['put','write','add'],level:'beginner'},
+    {cat:'legal',sentence:'The lawyer filed a ___ against the corporation.',correct:'lawsuit',distractors:['complaint','case','claim'],level:'intermediate'},
+    // SOCIAL
+    {cat:'social',sentence:'I was completely ___ by his response.',correct:'taken aback',distractors:['surprised','shocked','confused'],level:'advanced'},
+    {cat:'social',sentence:'She ___ the subject whenever her ex came up.',correct:'avoided',distractors:['ignored','skipped','dodged'],level:'intermediate'},
+    {cat:'social',sentence:'He ___ the bill without being asked.',correct:'picked up',distractors:['paid','took','grabbed'],level:'advanced'},
+    {cat:'social',sentence:'They ___ the hatchet after years of arguments.',correct:'buried',distractors:['dropped','left','forgot'],level:'advanced'},
+    {cat:'social',sentence:'She ___ her composure during the difficult conversation.',correct:'kept',distractors:['had','held','maintained'],level:'intermediate'},
+    {cat:'social',sentence:'He always ___ his promises, no matter what.',correct:'keeps',distractors:['holds','makes','gives'],level:'beginner'},
+    {cat:'social',sentence:'Can you ___ a favour for me?',correct:'do',distractors:['make','give','have'],level:'beginner'},
+    {cat:'social',sentence:'She ___ a lot of effort into her presentation.',correct:'put',distractors:['gave','made','spent'],level:'intermediate'},
+    // TECH
+    {cat:'tech',sentence:'The system ___ unexpectedly during the demo.',correct:'crashed',distractors:['stopped','failed','broke'],level:'intermediate'},
+    {cat:'tech',sentence:'They ___ the software update overnight.',correct:'deployed',distractors:['installed','released','launched'],level:'advanced'},
+    {cat:'tech',sentence:'The data was ___ before the hack occurred.',correct:'encrypted',distractors:['protected','secured','saved'],level:'advanced'},
+    {cat:'tech',sentence:'The app ___ too much battery in the background.',correct:'drains',distractors:['uses','takes','eats'],level:'intermediate'},
+    {cat:'tech',sentence:'Please ___ your password every 90 days.',correct:'update',distractors:['change','reset','renew'],level:'beginner'},
+    {cat:'tech',sentence:'The server was ___ for three hours during peak time.',correct:'down',distractors:['off','broken','stopped'],level:'intermediate'},
+    {cat:'tech',sentence:'She ___ into the system using her admin credentials.',correct:'logged',distractors:['signed','went','got'],level:'beginner'},
+    {cat:'tech',sentence:'The new feature is still in ___ — not ready for users.',correct:'beta',distractors:['testing','preview','draft'],level:'advanced'},
+];
+
+/* ═══ THIEF PERSONALITY ═══ */
+const THIEF_TAUNTS = [
+    "Too slow! That one's <span class='red'>mine</span> now. 😈",
+    "Ha! <span class='red'>Snatched</span> it right from under you.",
+    "Did you even try? <span class='red'>The Shadow</span> thanks you. 🦹",
+    "Hesitation is <span class='red'>weakness</span>. I love weakness.",
+    "Another one for <span class='red'>my vault</span>. Keep it up!",
+    "You snooze, you <span class='red'>lose</span>. Classic.",
+    "I've stolen <span class='red'>better words</span> in my sleep.",
+    "That word looked lonely in your hand. <span class='red'>I freed it</span>. 😏",
+];
+
+const THIEF_WATCHING = [
+    "<span class='red'>The Shadow</span> is watching... move. 😈",
+    "Tick tock. <span class='red'>I'm faster</span> than you think.",
+    "Choose wisely. <span class='red'>The Shadow</span> never hesitates.",
+    "I can see which one you're thinking. <span class='red'>Wrong choice</span>.",
+    "Every second you wait, <span class='red'>I get closer</span>.",
+    "<span class='red'>Four words.</span> One is mine. Which one will you miss?",
+];
+
+const THIEF_LOSING = [
+    "Lucky. <span class='red'>Very lucky.</span> Don't get comfortable.",
+    "Fine. You got that one. <span class='red'>I'll take the next.</span>",
+    "Hmm. <span class='red'>Not bad</span> for an amateur.",
+    "You surprised me. <span class='red'>It won't happen again.</span>",
+];
+
+const THIEF_WIN_LINES = [
+    "Game over. <span class='red'>The Shadow</span> wins again. 🦹",
+    "Your words are <span class='red'>mine now</span>. Better luck next time.",
+    "10 words. All mine. <span class='red'>You never stood a chance.</span>",
+];
+
+const PLAYER_WIN_LINES = [
+    "Impossible... <span class='red'>defeated?!</span> This isn't over. 😤",
+    "You... actually beat me? <span class='red'>Don't tell anyone.</span>",
+    "Fine. You win <span class='red'>this time</span>, Cool Dude. 😤",
+];
+
+/* ═══ STATE ═══ */
+let selectedCat  = 'all';
+let selectedDiff = 'medium';
+let scoreYou     = 0;
+let scoreThief   = 0;
+let sessionXP    = 0;
+let roundNum     = 0;
+let queue        = [];
+let timerInterval= null;
+let timerSeconds = 5;
+let roundActive  = false;
+let correct      = 0;
+let total        = 0;
+const WIN_TARGET = 10;
+
+const CONF_COLS  = ['#e94560','#FFC800','#1CB0F6','#58CC02','#CE82FF','#FF9600','#2BDECC'];
+const DIFF_SECS  = {easy:8, medium:5, hard:3};
+
+/* ═══ UTILS ═══ */
+function $(id){return document.getElementById(id);}
+
+function shuffle(arr){
+    const a=[...arr];
+    for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+    return a;
+}
+
+function confettiBurst(x,y){
+    for(let i=0;i<28;i++){
+        const d=document.createElement('div'); d.className='confetti-dot';
+        d.style.cssText=`left:${x+Math.random()*100-50}px;top:${y+Math.random()*30-15}px;background:${CONF_COLS[i%CONF_COLS.length]};animation-delay:${Math.random()*.4}s;animation-duration:${.9+Math.random()*.7}s;transform:rotate(${Math.random()*360}deg)`;
+        document.body.appendChild(d); setTimeout(()=>d.remove(),1700);
+    }
+}
+
+function xpFloat(amount){
+    const el=document.createElement('div'); el.className='xp-float';
+    el.textContent=`+${amount} XP`;
+    el.style.cssText=`right:20px;top:72px`;
+    document.body.appendChild(el); setTimeout(()=>el.remove(),1100);
+}
+
+function addXP(amount){
+    sessionXP+=amount;
+    $('session-xp').textContent=sessionXP;
+    if(amount>0) xpFloat(amount);
+}
+
+function setThiefMsg(html, mood){
+    const big=$('thief-big'), msg=$('thief-msg');
+    msg.innerHTML=html;
+    big.className='thief-avatar-big '+mood;
+    setTimeout(()=>big.className='thief-avatar-big',600);
+}
+
+function randFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+/* ═══ SETUP ═══ */
+function selectCat(btn){
+    document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedCat = btn.dataset.cat;
+}
+
+function selectDiff(btn){
+    document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedDiff = btn.dataset.diff;
+}
+
+/* ═══ START ═══ */
+async function startGame(){
+    timerSeconds = DIFF_SECS[selectedDiff];
+    scoreYou=0; scoreThief=0; sessionXP=0; roundNum=0; correct=0; total=0;
+
+    // Build queue — try Supabase first, fall back to hardcoded
+    let bank = [];
+    try{
+        if(sb){
+            let q = sb.from('word_thief').select('*');
+            if(selectedCat !== 'all') q = q.eq('cat', selectedCat);
+            const {data} = await q;
+            if(data?.length >= 10) bank = data.map(r=>({
+                cat: r.cat,
+                sentence: r.sentence,
+                correct: r.correct,
+                distractors: r.distractors,
+                level: r.level
+            }));
+        }
+    }catch(e){}
+
+    if(bank.length < 10){
+        bank = selectedCat === 'all'
+            ? [...WORD_BANK]
+            : WORD_BANK.filter(w=>w.cat===selectedCat);
+        if(bank.length < 4) bank = [...WORD_BANK]; // absolute fallback
+    }
+
+    queue = shuffle(bank);
+
+    // UI reset
+    $('setup-screen').style.display='none';
+    $('result-screen').style.display='none';
+    const gs=$('game-screen');
+    gs.style.display='flex'; gs.style.flexDirection='column'; gs.style.gap='10px';
+
+    $('score-you').textContent='0';
+    $('score-thief').textContent='0';
+    $('session-xp').textContent='0';
+    renderVaultDots();
+
+    setThiefMsg("<span class='red'>The Shadow</span> is watching... Better move fast. 😈", '');
+
+    addXP(5);
+    setTimeout(nextRound, 600);
+}
+
+/* ═══ VAULT DOTS ═══ */
+function renderVaultDots(){
+    ['you','thief'].forEach(side=>{
+        const el=$(`vault-${side}`);
+        el.innerHTML='';
+        for(let i=0;i<WIN_TARGET;i++){
+            const d=document.createElement('div');
+            const score = side==='you' ? scoreYou : scoreThief;
+            d.className=`vault-dot${i<score?' filled '+side:''}`;
+            el.appendChild(d);
+        }
+    });
+}
+
+/* ═══ ROUND ═══ */
+function nextRound(){
+    if(scoreYou >= WIN_TARGET || scoreThief >= WIN_TARGET){ showResult(); return; }
+    if(queue.length===0) queue = shuffle(selectedCat==='all'?[...WORD_BANK]:WORD_BANK.filter(w=>w.cat===selectedCat));
+
+    roundNum++;
+    roundActive=true;
+    clearInterval(timerInterval);
+
+    const item = queue.pop();
+    const options = shuffle([item.correct, ...item.distractors]);
+    const catLabels={business:'💼 Business',legal:'⚖️ Legal & Tax',social:'🌍 Social',tech:'🤖 Tech'};
+
+    // Round label + cat
+    $('round-label').textContent=`Round ${roundNum}`;
+    $('cat-label').textContent=catLabels[item.cat]||'📚';
+
+    // Sentence with gap
+    const gapHTML=`<span class="sentence-gap" id="gap-span">___</span>`;
+    $('sentence-text').innerHTML = item.sentence.replace('___', gapHTML);
+
+    // Word cards
+    const grid=$('word-grid');
+    grid.innerHTML='';
+    options.forEach(opt=>{
+        const btn=document.createElement('button');
+        btn.className='word-card';
+        btn.textContent=opt;
+        btn.onclick=()=>handlePick(opt, item.correct, btn, grid);
+        grid.appendChild(btn);
+    });
+
+    // Thief watching message
+    setThiefMsg(randFrom(THIEF_WATCHING), '');
+
+    // Start countdown
+    let timeLeft = timerSeconds;
+    const fill=$('timer-fill');
+    fill.style.transition='none';
+    fill.style.width='100%';
+    fill.className='timer-fill';
+
+    setTimeout(()=>{
+        fill.style.transition=`width ${timerSeconds}s linear`;
+        fill.style.width='0%';
+    },50);
+
+    timerInterval = setInterval(()=>{
+        timeLeft-=.1;
+        const pct=(timeLeft/timerSeconds)*100;
+        if(pct<=30) fill.className='timer-fill crit';
+        else if(pct<=55) fill.className='timer-fill warn';
+        if(timeLeft<=0){
+            clearInterval(timerInterval);
+            if(roundActive) thiefSteals(item.correct, grid);
+        }
+    },100);
+}
+
+/* ═══ PLAYER PICKS ═══ */
+function handlePick(chosen, correctWord, btn, grid){
+    if(!roundActive) return;
+    clearInterval(timerInterval);
+    roundActive=false;
+    total++;
+
+    // Disable all cards
+    grid.querySelectorAll('.word-card').forEach(b=>b.disabled=true);
+
+    if(chosen===correctWord){
+        correct++;
+        btn.classList.add('correct');
+        // Fill the gap
+        setTimeout(()=>{
+            const gap=$('gap-span');
+            if(gap){gap.textContent=correctWord;gap.className='sentence-gap filled';}
+            btn.classList.add('vaulted');
+        },300);
+
+        scoreYou++;
+        addXP(10);
+        renderVaultDots();
+        $('score-you').textContent=scoreYou;
+
+        setThiefMsg(randFrom(THIEF_LOSING),'');
+
+        if(scoreYou>=WIN_TARGET){ setTimeout(showResult,800); return; }
+        setTimeout(nextRound, 1200);
+    } else {
+        btn.classList.add('wrong');
+        // Show correct card
+        grid.querySelectorAll('.word-card').forEach(b=>{
+            if(b.textContent===correctWord) b.classList.add('correct');
+        });
+        // Thief gets a point too
+        setTimeout(()=>thiefSteals(correctWord, grid, true), 500);
+    }
+}
+
+/* ═══ THIEF STEALS ═══ */
+function thiefSteals(correctWord, grid, afterWrong=false){
+    if(!afterWrong) roundActive=false;
+    grid.querySelectorAll('.word-card').forEach(b=>b.disabled=true);
+
+    // Show correct card briefly then animate stolen
+    const correctBtn = [...grid.querySelectorAll('.word-card')].find(b=>b.textContent===correctWord);
+    if(correctBtn && !afterWrong){
+        correctBtn.classList.add('correct');
+    }
+
+    setTimeout(()=>{
+        const gap=$('gap-span');
+        if(gap){gap.textContent=correctWord;gap.className='sentence-gap stolen';}
+        if(correctBtn) correctBtn.classList.add('stolen-away');
+
+        scoreThief++;
+        renderVaultDots();
+        $('score-thief').textContent=scoreThief;
+        setThiefMsg(randFrom(THIEF_TAUNTS),'taunt');
+
+        if(scoreThief>=WIN_TARGET){ setTimeout(showResult,900); return; }
+        setTimeout(nextRound, 1400);
+    }, afterWrong ? 600 : 400);
+}
+
+/* ═══ RESULT ═══ */
+function showResult(){
+    clearInterval(timerInterval);
+    $('game-screen').style.display='none';
+    const rs=$('result-screen');
+    rs.style.display='block';
+
+    const won = scoreYou>=WIN_TARGET;
+    const acc = total>0?Math.round((correct/total)*100):0;
+    const xpBonus = won ? 30 : 10;
+    addXP(xpBonus);
+
+    const thiefLine = won ? randFrom(PLAYER_WIN_LINES) : randFrom(THIEF_WIN_LINES);
+
+    rs.innerHTML=`
+        <div class="result-card ${won?'result-win':'result-lose'}">
+            <span class="result-icon">${won?'🏆':'🦹'}</span>
+            <div class="result-title ${won?'win':'lose'}">${won?'Heist Complete!':'The Shadow Wins.'}</div>
+            <div class="result-sub">${won
+                ?`You outran The Shadow and stole ${scoreYou} words. Incredible work!`
+                :`The Shadow stole ${scoreThief} words. Don't let them win again.`
+            }</div>
+            <div style="background:rgba(233,69,96,.1);border:2px solid rgba(233,69,96,.3);border-radius:var(--rsm);padding:12px 16px;font-size:14px;font-weight:800;color:var(--ink-bold);margin-bottom:16px;line-height:1.5;">${thiefLine}</div>
+            <div class="result-xp">
+                <div class="result-xp-num">+${sessionXP}</div>
+                <div class="result-xp-label">XP Earned</div>
+            </div>
+            <div class="result-stats">
+                <div class="rs"><div class="rs-n">${scoreYou}</div><div class="rs-l">You stole</div></div>
+                <div class="rs"><div class="rs-n">${scoreThief}</div><div class="rs-l">Shadow stole</div></div>
+                <div class="rs"><div class="rs-n">${acc}%</div><div class="rs-l">Accuracy</div></div>
+            </div>
+            <div class="result-btns">
+                <button class="btn-play-again" onclick="startGame()">🃏 Play Again</button>
+                <button class="btn-secondary" onclick="quitGame()">⚙️ Change Settings</button>
+                <a href="/breakroom/" class="btn-secondary">← Back to Break Room</a>
+            </div>
+        </div>`;
+
+    if(won){
+        for(let i=0;i<5;i++) setTimeout(()=>confettiBurst(Math.random()*window.innerWidth, Math.random()*window.innerHeight*.5),i*200);
+    }
+}
+
+function quitGame(){
+    clearInterval(timerInterval);
+    $('game-screen').style.display='none';
+    $('result-screen').style.display='none';
+    $('setup-screen').style.display='flex';
+}
+</script>
+</body>
+</html>
