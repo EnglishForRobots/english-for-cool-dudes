@@ -2,629 +2,856 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Chatterbox - English For Cool Dudes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+    <title>💬 Chat Attack! — The Break Room · English For Cool Dudes</title>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/init-auth.js"></script>
     <style>
-        /* --- BRANDING VARIABLES --- */
-        :root {
-            --color-primary: #0EA5E9; /* Sky Blue */
-            --color-secondary: #8B5CF6; /* Violet */
-            --color-accent: #F472B6; /* Pink */
-            --color-background: #F0F9FF;
-            --color-text: #0F172A;
-            --color-card-bg: #FFFFFF;
-        }
+    :root {
+        --blue:#1CB0F6;       --blue-shadow:#1899D6;
+        --yellow:#FFC800;     --yellow-shadow:#E5B400;
+        --green:#58CC02;      --green-shadow:#58A700;
+        --punch:#FF4B4B;      --punch-shadow:#EA2B2B;
+        --purple:#CE82FF;     --purple-shadow:#A559D9;
+        --teal:#2BDECC;       --teal-shadow:#1FBFAF;
+        --orange:#FF9600;     --orange-shadow:#E07800;
+        --bg:#F7F9FA;         --white:#FFFFFF;
+        --ink:#4B4B4B;        --ink-bold:#111827; --ink-3:#AFAFAF;
+        --border:#E5E5E5;     --border-heavy:#CECECE;
+        --r:24px; --rsm:16px; --rxs:10px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--ink);font-family:'Nunito',system-ui,sans-serif;line-height:1.5;overflow-x:hidden;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;}
+    a{color:inherit;text-decoration:none;}
+    button{font-family:inherit;cursor:pointer;border:none;background:none;}
 
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-            background: var(--color-background); 
-            color: var(--color-text); 
-            margin: 0; 
-        }
+    @keyframes up     {from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes float  {0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    @keyframes nudge  {0%,100%{transform:translateX(0)}35%{transform:translateX(6px)}}
+    @keyframes shake  {0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+    @keyframes popin  {0%{opacity:0;transform:scale(.7)}60%{transform:scale(1.06)}100%{opacity:1;transform:scale(1)}}
+    @keyframes fadeIn {from{opacity:0}to{opacity:1}}
+    @keyframes confetti{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(160px) rotate(480deg)}}
+    @keyframes timerPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+    @keyframes slideUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes ringFill{from{stroke-dashoffset:var(--dash-total)}to{stroke-dashoffset:var(--dash-offset)}}
+    @keyframes shimmer{0%{left:-80%}100%{left:130%}}
+    @keyframes blink  {0%,100%{opacity:1}50%{opacity:.3}}
 
-        .container { 
-            max-width: 900px; 
-            margin: 0 auto; 
-            padding: 20px; 
-            text-align: center; 
-            min-height: 80vh; 
-        }
+    /* ── HEADER ── */
+    .header{background:var(--white);border-bottom:3px solid var(--orange);padding:0 20px;height:60px;position:sticky;top:0;z-index:300;display:flex;align-items:center;box-shadow:0 4px 12px rgba(255,150,0,.1);}
+    .hc{max-width:960px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
+    .hl{display:flex;align-items:center;gap:10px;}
+    .logo-box{width:38px;height:38px;background:var(--yellow);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid var(--yellow-shadow);box-shadow:0 3px 0 var(--yellow-shadow);}
+    .site-name{font-size:15px;font-weight:900;color:var(--ink-bold);letter-spacing:-.3px;}
+    @media(max-width:420px){.site-name{display:none}}
+    .header-right{display:flex;align-items:center;gap:8px;}
+    .xp-pill{background:rgba(255,150,0,.1);border:2px solid rgba(255,150,0,.25);border-radius:99px;padding:5px 12px;font-size:14px;font-weight:900;color:var(--orange-shadow);display:flex;align-items:center;gap:5px;}
+    .btn-dash{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:rgba(255,150,0,.08);border:2px solid rgba(255,150,0,.2);border-bottom:4px solid rgba(255,150,0,.25);border-radius:10px;font-size:18px;text-decoration:none;transition:all .15s;flex-shrink:0;}
+    .btn-dash:active{border-bottom-width:2px;transform:translateY(2px);}
+    .btn-dash.hidden{display:none;}
+    .btn-signout{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:rgba(255,75,75,.08);border:2px solid rgba(255,75,75,.25);border-bottom:4px solid rgba(255,75,75,.3);border-radius:10px;font-size:18px;cursor:pointer;transition:all .15s;flex-shrink:0;}
+    .btn-signout:active{border-bottom-width:2px;transform:translateY(2px);}
+    .btn-signout.hidden{display:none;}
 
-        /* Header */
-        .header { background: #FFFFFF; border-bottom: 1px solid #E2E8F0; padding: 20px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.04); margin-bottom: 20px; }
-        .header-content { max-width: 1000px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; gap: 15px; }
-        .logo { width: 36px; height: 36px; background: linear-gradient(135deg, #F59E0B, #D97706); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-        .site-title { font-size: 20px; font-weight: 600; color: var(--color-text); text-decoration: none; }
+    /* ── PAGE ── */
+    .page{max-width:960px;margin:0 auto;padding:28px 16px 80px;display:flex;flex-direction:column;gap:20px;}
 
-        /* Setup Controls */
-        .controls {
-            background: white;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            max-width: 500px;
-            margin-inline: auto;
-            border: 1px solid #E5E9F2;
-        }
-        
-        .control-row { display: flex; gap: 15px; justify-content: space-between; }
-        .control-group { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; flex: 1; }
-        
-        label { font-size: 12px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; }
-        select { width: 100%; padding: 12px 16px; border-radius: 8px; border: 2px solid #E2E8F0; font-size: 15px; background: #FFFFFF; transition: border 0.2s; }
-        select:focus { border-color: var(--color-primary); outline: none; }
-        
-        .btn { 
-            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%); 
-            color: white; padding: 14px 30px; border-radius: 8px; border: none; cursor: pointer; 
-            font-size: 16px; font-weight: 700; transition: transform 0.2s, box-shadow 0.2s; 
-            width: 100%; margin-top: 10px;
-        }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); }
+    /* ── SETUP SCREEN ── */
+    .setup-hero{background:var(--orange);border:2px solid var(--orange-shadow);border-bottom:6px solid var(--orange-shadow);border-radius:var(--r);padding:32px 28px;position:relative;overflow:hidden;animation:up .45s ease both;}
+    .setup-hero::after{content:'💬';position:absolute;bottom:-20px;right:4px;font-size:160px;opacity:.12;pointer-events:none;transform:rotate(-10deg);animation:float 4s ease-in-out infinite;}
+    .setup-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.4);border-radius:8px;padding:4px 14px;font-size:11px;font-weight:900;color:var(--white);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;}
+    .setup-title{font-size:clamp(32px,7vw,56px);font-weight:900;color:var(--white);letter-spacing:-2px;line-height:1;margin-bottom:10px;text-shadow:0 3px 0 var(--orange-shadow);}
+    .setup-title .yellow{color:var(--yellow);text-shadow:0 3px 0 var(--yellow-shadow);}
+    .setup-sub{font-size:15px;font-weight:700;color:rgba(255,255,255,.9);max-width:460px;line-height:1.6;margin-bottom:0;position:relative;z-index:1;}
 
-        /* Game Area */
-        #game-area { display: none; text-align: left; }
-        
-        .topic-card {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            border: 1px solid #E2E8F0;
-            overflow: hidden;
-            margin-bottom: 30px;
-            animation: slideUp 0.4s ease-out;
-            position: relative;
-        }
+    /* ── SETUP PANEL ── */
+    .setup-panel{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);padding:28px;animation:up .45s ease both .1s;}
+    .setup-section-label{font-size:11px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;}
 
-        .topic-header {
-            background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-accent) 100%);
-            padding: 40px 30px;
-            color: white;
-            text-align: center;
-        }
+    /* Category buttons */
+    .cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:24px;}
+    .cat-btn{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:14px 16px;background:var(--bg);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);cursor:pointer;transition:all .15s;font-family:inherit;text-align:left;}
+    .cat-btn:active{border-bottom-width:2px;transform:translateY(2px);}
+    .cat-btn.selected{border-color:var(--orange);border-bottom-color:var(--orange-shadow);background:rgba(255,150,0,.08);}
+    .cat-btn-icon{font-size:24px;line-height:1;}
+    .cat-btn-label{font-size:13px;font-weight:900;color:var(--ink-bold);letter-spacing:-.2px;}
+    .cat-btn-sub{font-size:11px;font-weight:700;color:var(--ink-3);}
+    .cat-btn.selected .cat-btn-label{color:var(--orange-shadow);}
 
-        .topic-label {
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            opacity: 0.9;
-            margin-bottom: 15px;
-            background: rgba(255,255,255,0.2);
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-        }
+    /* Level + timer row */
+    .options-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;}
+    @media(max-width:500px){.options-row{grid-template-columns:1fr;}}
+    .option-group{}
+    .option-group-label{font-size:11px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;display:block;}
+    .option-chips{display:flex;gap:7px;flex-wrap:wrap;}
+    .chip{padding:9px 16px;background:var(--bg);border:2px solid var(--border-heavy);border-bottom:3px solid var(--border-heavy);border-radius:99px;font-size:13px;font-weight:900;color:var(--ink-bold);cursor:pointer;transition:all .15s;font-family:inherit;}
+    .chip:active{border-bottom-width:2px;transform:translateY(1px);}
+    .chip.selected{background:var(--blue);color:var(--white);border-color:var(--blue-shadow);}
 
-        .main-question {
-            font-size: 1.8rem;
-            font-weight: 800;
-            line-height: 1.3;
-        }
+    /* Launch button */
+    .btn-launch{display:flex;align-items:center;justify-content:space-between;width:100%;padding:18px 24px;background:var(--orange);color:var(--white);font-size:18px;font-weight:900;border-radius:var(--rsm);border:2px solid var(--orange-shadow);border-bottom:6px solid var(--orange-shadow);cursor:pointer;transition:transform .1s,border-bottom-width .1s;letter-spacing:-.3px;}
+    .btn-launch:active{border-bottom-width:2px;transform:translateY(4px);}
+    .btn-launch-arrow{font-size:24px;animation:nudge 2s ease-in-out infinite;}
+    .btn-launch:disabled{opacity:.5;cursor:not-allowed;}
 
-        .topic-body {
-            padding: 30px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
+    /* ── GAME SCREEN ── */
+    #game-screen{display:none;}
 
-        .section-title {
-            color: var(--color-secondary);
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+    /* Topic card — designed for classroom projection */
+    .topic-card{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);overflow:hidden;animation:slideUp .4s cubic-bezier(.175,.885,.32,1.275) both;}
+    .topic-card::before{content:'';display:block;height:10px;background:linear-gradient(90deg,var(--orange),var(--yellow));margin:-2px -2px 0;}
 
-        .vocab-list, .points-list { list-style: none; padding: 0; margin: 0; }
+    .topic-head{background:linear-gradient(135deg,var(--orange),#E07000);padding:clamp(24px,4vw,40px) clamp(20px,4vw,36px);position:relative;overflow:hidden;}
+    .topic-head::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at top right,rgba(255,255,255,.12),transparent 60%);pointer-events:none;}
+    .topic-cat{display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.15);border:2px solid rgba(255,255,255,.25);border-radius:8px;padding:4px 14px;font-size:11px;font-weight:900;color:rgba(255,255,255,.9);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;position:relative;z-index:1;}
+    .topic-question{font-size:clamp(22px,4.5vw,38px);font-weight:900;color:var(--white);letter-spacing:-1px;line-height:1.2;position:relative;z-index:1;text-shadow:0 2px 0 rgba(0,0,0,.2);}
 
-        .vocab-item {
-            background: #F0F9FF;
-            color: #0369A1;
-            padding: 8px 12px;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            display: inline-block;
-            margin-right: 5px;
-            border: 1px solid #BAE6FD;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .vocab-item:hover { background: #E0F2FE; transform: scale(1.05); }
-        .vocab-item::after { content: " 🔊"; font-size: 0.8em; opacity: 0.5; }
+    /* Body: vocab + angles + timer in one row on desktop */
+    .topic-body{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:2px solid var(--border);}
+    @media(max-width:640px){.topic-body{grid-template-columns:1fr;}}
 
-        .point-item {
-            margin-bottom: 12px;
-            padding-left: 24px;
-            position: relative;
-            color: #475569;
-            line-height: 1.5;
-        }
-        .point-item::before { content: "💬"; position: absolute; left: 0; font-size: 14px; top: 3px; }
+    .topic-col{padding:clamp(16px,3vw,28px);}
+    .topic-col+.topic-col{border-left:2px solid var(--border);}
+    @media(max-width:640px){.topic-col+.topic-col{border-left:none;border-top:2px solid var(--border);}}
 
-        /* Timer & Action Bar */
-        .timer-bar {
-            background: #1E293B;
-            color: white;
-            padding: 10px;
-            border-radius: 0 0 20px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 30px;
-            font-weight: bold;
-            font-family: monospace;
-            font-size: 1.2rem;
-        }
+    .col-label{font-size:11px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;display:flex;align-items:center;gap:6px;}
 
-        .action-bar { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
-        .btn-outline {
-            background: transparent; border: 2px solid #CBD5E1; color: #64748B;
-            padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;
-        }
-        .btn-outline:hover { border-color: var(--color-secondary); color: var(--color-secondary); }
+    /* Vocab chips */
+    .vocab-chips{display:flex;flex-wrap:wrap;gap:8px;}
+    .vocab-chip{display:inline-flex;align-items:center;gap:5px;padding:9px 16px;background:rgba(255,150,0,.08);border:2px solid rgba(255,150,0,.25);border-bottom:3px solid rgba(255,150,0,.3);border-radius:99px;font-size:14px;font-weight:900;color:var(--orange-shadow);cursor:pointer;transition:all .15s;font-family:inherit;}
+    .vocab-chip:hover{background:var(--orange);color:var(--white);border-color:var(--orange-shadow);transform:translateY(-2px);}
+    .vocab-chip:active{transform:translateY(1px);}
+    .vocab-chip .chip-speaker{font-size:12px;opacity:.7;}
 
-        /* Modal for Dictionary */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: none; justify-content: center; align-items: center; z-index: 1000;
-            backdrop-filter: blur(3px);
-        }
-        .dict-card {
-            background: white; width: 90%; max-width: 400px;
-            border-radius: 16px; padding: 30px;
-            text-align: left;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            animation: slideUp 0.3s;
-        }
-        .word-title { font-size: 2rem; font-weight: 800; margin: 0 0 10px 0; color: var(--color-primary); display: flex; justify-content: space-between; align-items: center; }
-        .word-phonetic { color: #64748B; font-family: monospace; font-size: 1.1rem; margin-bottom: 20px; }
-        .word-def { font-size: 1.1rem; line-height: 1.6; color: #334155; border-left: 4px solid #E2E8F0; padding-left: 15px; }
-        .audio-btn { 
-            background: #F1F5F9; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; 
-            display: flex; align-items: center; justify-content: center; font-size: 20px; transition: background 0.2s;
-        }
-        .audio-btn:hover { background: #E2E8F0; }
+    /* Discussion angles */
+    .angle-list{display:flex;flex-direction:column;gap:10px;}
+    .angle-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--bg);border-radius:var(--rxs);border:2px solid var(--border);}
+    .angle-num{font-size:12px;font-weight:900;color:var(--white);background:var(--blue);width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+    .angle-text{font-size:clamp(13px,2.5vw,15px);font-weight:700;color:var(--ink-bold);line-height:1.5;}
 
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    /* ── TIMER SECTION ── */
+    .timer-section{border-top:2px solid var(--border);padding:clamp(16px,3vw,24px);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
 
-        /* Responsive */
-        @media (max-width: 700px) { .topic-body { grid-template-columns: 1fr; } .control-row { flex-direction: column; gap: 20px; } }
-        
-        #loading-overlay {
-            position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(255,255,255,0.9);
-            display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 50;
-            font-weight: bold; color: var(--color-secondary);
-        }
-         .footer {
-            background: #FFFFFF;
-            border-top: 1px solid #E5E9F2;
-            padding: 32px 20px;
-            margin-top: 60px;
-            text-align: center;
-        }
+    /* Ring timer */
+    .timer-ring-wrap{position:relative;width:88px;height:88px;flex-shrink:0;}
+    .timer-ring-wrap svg{position:absolute;inset:0;transform:rotate(-90deg);}
+    .timer-ring-bg{stroke:var(--border);stroke-width:7;fill:none;}
+    .timer-ring-fill{stroke:var(--green);stroke-width:7;fill:none;stroke-linecap:round;transition:stroke-dashoffset .9s linear,stroke .5s ease;}
+    .timer-ring-fill.warn{stroke:var(--yellow);}
+    .timer-ring-fill.crit{stroke:var(--punch);animation:blink 1s ease-in-out infinite;}
+    .timer-display{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+    .timer-time{font-size:20px;font-weight:900;color:var(--ink-bold);line-height:1;letter-spacing:-1px;}
+    .timer-time.crit{color:var(--punch);}
+    .timer-label{font-size:9px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;margin-top:1px;}
 
-        .footer-text {
-            font-size: 14px;
-            color: #718096;
-        }
+    /* Timer controls */
+    .timer-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    .btn-timer{display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 20px;font-size:15px;font-weight:900;border-radius:var(--rsm);border:2px solid;border-bottom:4px solid;transition:all .1s;font-family:inherit;}
+    .btn-timer:active{border-bottom-width:2px;transform:translateY(2px);}
+    .btn-start-timer{background:var(--green);color:var(--white);border-color:var(--green-shadow);}
+    .btn-pause-timer{background:var(--yellow);color:var(--ink-bold);border-color:var(--yellow-shadow);}
+    .btn-reset-timer{background:var(--white);color:var(--ink-bold);border-color:var(--border-heavy);}
+
+    /* Time's up banner */
+    .timesup-banner{display:none;background:var(--punch);color:var(--white);text-align:center;padding:14px 20px;font-size:18px;font-weight:900;letter-spacing:-.3px;animation:popin .4s cubic-bezier(.175,.885,.32,1.275) both;}
+    .timesup-banner.show{display:block;}
+
+    /* ── GAME CONTROLS BAR ── */
+    .game-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    .btn-next{display:flex;align-items:center;justify-content:space-between;flex:1;min-width:180px;padding:15px 20px;background:var(--blue);color:var(--white);font-size:16px;font-weight:900;border-radius:var(--rsm);border:2px solid var(--blue-shadow);border-bottom:5px solid var(--blue-shadow);transition:all .1s;font-family:inherit;}
+    .btn-next:active{border-bottom-width:2px;transform:translateY(3px);}
+    .btn-setup{display:flex;align-items:center;gap:6px;padding:15px 18px;background:var(--white);color:var(--ink-bold);font-size:15px;font-weight:900;border-radius:var(--rsm);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);transition:all .1s;font-family:inherit;}
+    .btn-setup:active{border-bottom-width:2px;transform:translateY(2px);}
+
+    /* ── XP TOAST SYSTEM ── */
+    .xp-float{position:fixed;font-size:22px;font-weight:900;color:var(--yellow-shadow);text-shadow:0 2px 0 rgba(0,0,0,.12);pointer-events:none;z-index:9998;animation:xpPop .9s ease-out forwards;}
+    @keyframes xpPop{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-70px) scale(1.5)}}
+    .confetti-dot{position:fixed;width:10px;height:10px;border-radius:3px;pointer-events:none;z-index:9999;animation:confetti 1s ease-out both;}
+
+    /* ── VOCAB POPUP ── */
+    #voc-popup{position:fixed;z-index:500;background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-top:4px solid var(--orange);padding:20px;border-radius:var(--r);display:none;box-shadow:0 12px 40px rgba(0,0,0,.15);max-width:320px;width:calc(100vw - 32px);animation:popin .25s cubic-bezier(.175,.885,.32,1.275) both;}
+    .vp-close{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:var(--rxs);background:var(--bg);border:2px solid var(--border-heavy);font-size:18px;font-weight:900;color:var(--ink-3);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+    .vp-word{font-size:24px;font-weight:900;color:var(--orange-shadow);margin-bottom:2px;}
+    .vp-phonetic{font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:10px;font-style:italic;}
+    .vp-def{font-size:14px;font-weight:700;color:var(--ink-bold);line-height:1.65;margin-bottom:14px;}
+    .vp-hear{width:100%;padding:11px;background:var(--orange);color:var(--white);border:2px solid var(--orange-shadow);border-bottom:4px solid var(--orange-shadow);border-radius:var(--rsm);font-size:15px;font-weight:900;transition:all .1s;font-family:inherit;}
+    .vp-hear:active{border-bottom-width:2px;transform:translateY(2px);}
+
+    /* ── SESSION STATS ── */
+    .session-stats{background:var(--white);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--r);padding:16px 20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+    .stat-pill{display:flex;flex-direction:column;align-items:center;gap:2px;}
+    .stat-pill-n{font-size:22px;font-weight:900;color:var(--ink-bold);}
+    .stat-pill-l{font-size:10px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;}
+
+    /* ── TIME'S UP COMPLETION ── */
+    #complete-screen{display:none;animation:fadeIn .4s ease both;}
+    .complete-card{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);padding:36px 28px;text-align:center;}
+    .complete-icon{font-size:72px;display:block;margin-bottom:12px;animation:float 3s ease-in-out infinite;}
+    .complete-title{font-size:28px;font-weight:900;color:var(--ink-bold);letter-spacing:-1px;margin-bottom:6px;}
+    .complete-sub{font-size:15px;font-weight:700;color:var(--ink-3);margin-bottom:24px;}
+    .complete-xp{background:var(--orange);border:2px solid var(--orange-shadow);border-bottom:6px solid var(--orange-shadow);border-radius:var(--r);padding:20px;margin-bottom:20px;}
+    .complete-xp-num{font-size:52px;font-weight:900;color:var(--white);line-height:1;}
+    .complete-xp-label{font-size:13px;font-weight:900;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+    .complete-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;}
+    .cs-stat{background:rgba(255,150,0,.07);border:2px solid rgba(255,150,0,.2);border-radius:var(--rsm);padding:12px 8px;}
+    .cs-n{font-size:22px;font-weight:900;color:var(--orange-shadow);}
+    .cs-l{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);margin-top:2px;}
+    .btn-play-again{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;background:var(--orange);color:var(--white);font-size:17px;font-weight:900;border:2px solid var(--orange-shadow);border-bottom:5px solid var(--orange-shadow);border-radius:var(--rsm);transition:all .1s;font-family:inherit;margin-bottom:10px;}
+    .btn-play-again:active{border-bottom-width:2px;transform:translateY(3px);}
+    .btn-back-br{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;background:var(--white);color:var(--ink-bold);font-size:15px;font-weight:900;border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);transition:all .1s;font-family:inherit;text-decoration:none;}
+    .btn-back-br:active{border-bottom-width:2px;transform:translateY(2px);}
+
+    /* ── LOADING STATE ── */
+    .loading-card{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);padding:40px;text-align:center;}
+    .loading-emoji{font-size:52px;display:block;margin-bottom:12px;animation:float 1.5s ease-in-out infinite;}
+    .loading-text{font-size:16px;font-weight:800;color:var(--ink-3);}
+
+    /* ── BACK LINK ── */
+    .back-link{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;padding:10px 18px;border-radius:var(--rsm);border:2px solid var(--border);background:var(--white);transition:all .15s;}
+    .back-link:hover{color:var(--ink-bold);border-color:var(--border-heavy);}
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-content">
-            <span class="logo">🗣️</span>
-            <a href="/games/" class="site-title">English For Cool Dudes</a>
-        </div>
-    </header>
 
-    <div id="loading-overlay">
-        <div style="font-size: 40px; margin-bottom: 10px;">🎲</div>
-        <div>Picking a topic...</div>
+<header class="header">
+    <div class="hc">
+        <div class="hl">
+            <a href="/breakroom/" class="logo-box">😎</a>
+            <span class="site-name">English For Cool Dudes</span>
+        </div>
+        <div class="header-right">
+            <div class="xp-pill" id="hdr-xp-wrap" style="display:none">⚡ <span id="hdr-xp">0</span> XP</div>
+            <a href="/dashboard-gamified/" class="btn-dash hidden" id="hdr-dash" title="Dashboard">📊</a>
+            <button class="btn-signout hidden" id="hdr-signout" title="Sign out" onclick="handleSignOut()">👋</button>
+        </div>
     </div>
+</header>
 
-    <div class="container">
-        <h1 style="margin-bottom:10px;">💬 The Chatterbox</h1>
-        <p style="color:#64748B; margin-bottom:30px; max-width: 600px; margin-inline: auto;">
-            Generate a discussion topic, create a timer, and click words for definitions.
-        </p>
+<div id="voc-popup">
+    <button class="vp-close" onclick="closeVoc()">×</button>
+    <div id="vp-body"></div>
+</div>
 
-        <div class="controls" id="setup-panel">
-            <div class="control-group">
-                <label for="themeSelect">Topic</label>
-                <select id="themeSelect" onchange="handleThemeChange()">
-                    <option value="random">🎲 Surprise Me (Random)</option>
-                    <option value="business">💼 Business & Work</option>
-                    <option value="social">🌍 Social & Travel</option>
-                    <option value="legal">⚖️ The Fine Print (Legal & Tax)</option>
-                    <option value="tech">🤖 Technology & Future</option>
-                    
-                </select>
+<div class="page">
+
+    <!-- ═══ SETUP SCREEN ═══ -->
+    <div id="setup-screen">
+
+        <div class="setup-hero">
+            <div class="hero-inner" style="position:relative;z-index:1;">
+                <div class="setup-eyebrow">💬 The Break Room · Chat Attack!</div>
+                <div class="setup-title">Pick a topic.<br>Start <span class="yellow">talking.</span></div>
+                <p class="setup-sub">Choose a topic, set your timer, and go! Great for warm-ups, solo practice, or the whole class.</p>
             </div>
-            
-            <div class="control-row">
-                <div class="control-group">
-                    <label for="levelSelect">Level</label>
-                    <select id="levelSelect">
-                        <option value="intermediate">Intermediate</option>
-                        <option value="beginner">Beginner</option>
-                        <option value="advanced">Advanced</option>
-                    </select>
-                </div>
-                <div class="control-group">
-                    <label for="timeSelect">Duration</label>
-                    <select id="timeSelect">
-                        <option value="120">2 Minutes</option>
-                        <option value="300">5 Minutes</option>
-                        <option value="600">10 Minutes</option>
-                        <option value="0">Unlimited</option>
-                    </select>
-                </div>
-            </div>
-            
-            <button class="btn" onclick="startGame()">Start Conversation</button>
         </div>
 
-        <div id="game-area">
-            <div class="topic-card" id="cardContainer">
-                <div class="topic-header">
-                    <div class="topic-label" id="cardCategory">Business • Intermediate</div>
-                    <div class="main-question" id="cardQuestion">Loading...</div>
-                </div>
-                
-                <div class="topic-body">
-                    <div class="left-col">
-                        <div class="section-title">⚡ Power Vocabulary <small style="font-weight:400; font-size:0.8em; margin-left:auto; opacity:0.7;">(Click for def)</small></div>
-                        <ul class="vocab-list" id="cardVocab"></ul>
+        <div class="setup-panel">
+            <div class="setup-section-label">Choose a topic category</div>
+            <div class="cat-grid" id="cat-grid">
+                <button class="cat-btn selected" data-cat="random" onclick="selectCat(this)">
+                    <span class="cat-btn-icon">🎲</span>
+                    <span class="cat-btn-label">Surprise Me</span>
+                    <span class="cat-btn-sub">Random topic</span>
+                </button>
+                <button class="cat-btn" data-cat="business" onclick="selectCat(this)">
+                    <span class="cat-btn-icon">💼</span>
+                    <span class="cat-btn-label">Business & Work</span>
+                    <span class="cat-btn-sub">Professional English</span>
+                </button>
+                <button class="cat-btn" data-cat="social" onclick="selectCat(this)">
+                    <span class="cat-btn-icon">🌍</span>
+                    <span class="cat-btn-label">Social & Travel</span>
+                    <span class="cat-btn-sub">Everyday conversation</span>
+                </button>
+                <button class="cat-btn" data-cat="legal" onclick="selectCat(this)">
+                    <span class="cat-btn-icon">⚖️</span>
+                    <span class="cat-btn-label">Legal & Tax</span>
+                    <span class="cat-btn-sub">The fine print</span>
+                </button>
+                <button class="cat-btn" data-cat="tech" onclick="selectCat(this)">
+                    <span class="cat-btn-icon">🤖</span>
+                    <span class="cat-btn-label">Tech & Future</span>
+                    <span class="cat-btn-sub">Tomorrow's world</span>
+                </button>
+            </div>
+
+            <div class="options-row">
+                <div class="option-group">
+                    <span class="option-group-label">Level</span>
+                    <div class="option-chips" id="level-chips">
+                        <button class="chip" data-level="beginner" onclick="selectChip('level',this)">🟢 Beginner</button>
+                        <button class="chip selected" data-level="intermediate" onclick="selectChip('level',this)">🔵 Intermediate</button>
+                        <button class="chip" data-level="advanced" onclick="selectChip('level',this)">🔴 Advanced</button>
                     </div>
-                    
-                    <div class="right-col">
-                        <div class="section-title">⚖️ Discussion Angles</div>
-                        <div id="cardPoints"></div>
+                </div>
+                <div class="option-group">
+                    <span class="option-group-label">Timer</span>
+                    <div class="option-chips" id="timer-chips">
+                        <button class="chip" data-secs="120" onclick="selectChip('timer',this)">2 min</button>
+                        <button class="chip selected" data-secs="300" onclick="selectChip('timer',this)">5 min</button>
+                        <button class="chip" data-secs="600" onclick="selectChip('timer',this)">10 min</button>
+                        <button class="chip" data-secs="0" onclick="selectChip('timer',this)">∞ Free</button>
                     </div>
                 </div>
-
-                <div class="timer-bar">
-                    <span id="timerStatus">Time Remaining:</span>
-                    <span id="timerDisplay">00:00</span>
-                </div>
             </div>
 
-            <div class="action-bar">
-                <button class="btn-outline" onclick="showSetup()">⚙️ Change Settings</button>
-                <button class="btn" style="width:auto; margin-top:0;" onclick="startGame()">🔄 New Topic</button>
-            </div>
+            <button class="btn-launch" id="btn-launch" onclick="launchGame()">
+                <span>🚀 &nbsp;Launch Chat Attack!</span>
+                <span class="btn-launch-arrow">→</span>
+            </button>
         </div>
-        
-        <br><br>
-        <a href="/games/" style="color: var(--color-secondary); text-decoration: none; font-weight:600;">&larr; Back to Break Room ☕</a>
+
+        <a href="/breakroom/" class="back-link">← Back to Break Room</a>
     </div>
 
-    <div class="modal-overlay" id="dictModal" onclick="closeDict()">
-        <div class="dict-card" onclick="event.stopPropagation()">
-            <div class="word-title">
-                <span id="dictWord">Word</span>
-                <button class="audio-btn" id="audioBtn" onclick="playAudio()">🔊</button>
+    <!-- ═══ GAME SCREEN ═══ -->
+    <div id="game-screen" style="display:none;">
+
+        <!-- Loading -->
+        <div id="loading-card" class="loading-card">
+            <span class="loading-emoji">🎲</span>
+            <div class="loading-text">Picking your topic...</div>
+        </div>
+
+        <!-- Session stats bar -->
+        <div class="session-stats" id="session-stats" style="display:none;">
+            <div class="stat-pill"><span class="stat-pill-n" id="stat-topics">0</span><span class="stat-pill-l">Topics</span></div>
+            <div class="stat-pill"><span class="stat-pill-n" id="stat-vocab">0</span><span class="stat-pill-l">Words tapped</span></div>
+            <div class="stat-pill"><span class="stat-pill-n" id="stat-xp">0</span><span class="stat-pill-l">XP earned</span></div>
+            <div style="flex:1;"></div>
+            <div class="stat-pill" id="stat-cat-pill" style="text-align:right;"></div>
+        </div>
+
+        <!-- Topic card -->
+        <div id="topic-card-wrap"></div>
+
+        <!-- Game controls -->
+        <div class="game-controls" id="game-controls" style="display:none;">
+            <button class="btn-next" onclick="nextTopic()">
+                🔄 &nbsp;Next Topic
+                <span style="font-size:20px;animation:nudge 2s ease-in-out infinite">→</span>
+            </button>
+            <button class="btn-setup" onclick="backToSetup()">⚙️ Settings</button>
+        </div>
+
+    </div>
+
+    <!-- ═══ COMPLETE SCREEN ═══ -->
+    <div id="complete-screen">
+        <div class="complete-card">
+            <span class="complete-icon">🏆</span>
+            <div class="complete-title">Time's Up!</div>
+            <div class="complete-sub" id="complete-sub">Great session — you kept the conversation going!</div>
+            <div class="complete-xp">
+                <div class="complete-xp-num" id="complete-xp">+0</div>
+                <div class="complete-xp-label">XP Earned This Session</div>
             </div>
-            <div class="word-phonetic" id="dictPhonetic">/wɜːd/</div>
-            <div class="word-def" id="dictDef">Definition goes here...</div>
-            <button class="btn" style="margin-top:20px; padding:10px;" onclick="closeDict()">Got it</button>
+            <div class="complete-stats">
+                <div class="cs-stat"><div class="cs-n" id="cs-topics">0</div><div class="cs-l">Topics</div></div>
+                <div class="cs-stat"><div class="cs-n" id="cs-vocab">0</div><div class="cs-l">Words Tapped</div></div>
+                <div class="cs-stat"><div class="cs-n" id="cs-mins">0</div><div class="cs-l">Minutes</div></div>
+            </div>
+            <button class="btn-play-again" onclick="playAgain()">💬 Play Again!</button>
+            <a href="/breakroom/" class="btn-back-br">← Back to Break Room</a>
         </div>
     </div>
 
-    <footer class="footer">
-    <p class="footer-text">© 2026 English For Cool Dudes - 😎</p>
-    <div style="margin-top: 10px;">
-        <a href="/impressum/" style="color: #667EEA; margin-right: 15px; text-decoration: none;">Impressum</a>
-        <a href="/datenschutz/" style="color: #667EEA; text-decoration: none;">Datenschutzerklärung</a>
-    </div>
-</footer>
-     </div>
-    <script>
-    // --- CONFIG ---
-    const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-    const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+</div>
 
-    // --- 1. MANUAL DEFINITION OVERRIDES ---
-    // Add words here if the dictionary gives the wrong context!
-    // Format: "word": "Your custom definition",
-    const customDefinitions = {
-        "fine": "A sum of money you must pay as a punishment for breaking a rule.",
-        "interest": "Money paid for the use of money lent, or for delaying the repayment of a debt.",
-        "capital": "Wealth in the form of money or other assets owned by a person or organization.",
-        "gross": "Income before tax or other deductions are taken out.",
-        "mean": "The average value of a set of numbers.",
-        "focus": "To concentrate, pay attention.",
-        "schedule": "A list of tasks, events, a plan.",
-        "support": "To provide help, strength, assistance.",
-        "sentience": "Capacity for feeling, perception, or consciousness.",
-        "space": "The area beyond the Earth's atmosphere, where the stars and planets are.",
-        "environment": "External conditions or surroundings, esp those in which people live or work.",
-        "speeding": "The act of driving a vehicle at high speed, esp in excess of the speed limit.",
-        "expensive": "Costing a lot of money, high price.",
-        "easy": "Not difficult.",
-        "grant": "An amount of money that a government or other institution gives to an individual or to an organization for a particular purpose.",
-        "pollution": "Harmful or poisonous substances introduced into an environment.",
-        "nature": "All the animals, plants, and other things in the world that are not made by people.",
-        "traffic": "The movement of ships, trains, or aircraft between one place and another.",
-        "efficient": "Functioning or producing effectively and with the least waste of effort.",
-        "copyright": "The exclusive right to produce copies and to control an original literary, musical, or artistic work, granted by law for a specified number of years.",
-        "digital": "Of, relating to, resembling, or possessing a digit or digits.",
-        "progressive tax": "A system where the tax rate increases as the amount being taxed (usually income) increases.",
-        "wealth gap": "A significant difference or disparity in the possession of money, property, and valuable assets between different groups or individuals.",
-        "loophole": "An ambiguity, omission, etc, as in a law, by which one can avoid a penalty or responsibility.",
-        "economy": "The system according to which the money, industry, and trade of a country or region are organized.",
-        "active": "In a state of action; moving, working, or doing something.",
-        "wage gap": "The difference or disparity in pay between groups, most commonly the gender wage gap.",
-        "integration": "The act of combining or adding parts to make a unified whole.",
-        "greenwashing": "The act or practice by an organization of making a superficial or insincere display of concern for the environment.",
-        "justice system": "The combination of courts and legal processes that deal with crime.",
-        "right to counsel": "Ensures a defendant's access to legal representation, guaranteeing advice and a fair defense.",
-        "entitled": "Behaving as if having special privileges.",
-        "clothing": "The things that people wear.",
-        "universal income": "Or Universal Basic Income (UBI), a proposed regular payment from the state to all citizens, regardless of their income or work status.",
-        "replace": "To take the place of; supersede.",
-        "schools": "A place where children are educated.",
-        "evolution": "The gradual change in characteristics of plants or animals over successive generations, leading to new species from ancestors.",
-        "peaceful": "Not in a state of war or disagreement; tranquil; calm.",
-        "innocent": "Not guilty.",
-        "deterrent": "Something that discourages or prevents someone from doing something.",
-        "commute": "To travel some distance regularly between one's home and one's place of work.",
-        "independent": "Free from control or influence by others, self-reliant, autonomous.",
-        "backpack": "Also rucksack; Bag with shoulder straps for carrying items on your back, used for hiking, school, etc.",
-        "tinder": "A popular location-based dating app/website.",
-        "profile": "Short description of person including appearance, age, hobbies etc on a website.",
-        "chemistry": "The interaction between personalities, or the fundamental elements making up something.",
-        "alarm": "A sound, light, or mechanism (like a bell or siren) to warn about danger; alert.",
-        "catfish": "To create a false online identity (a catfish) to deceive someone romantically or socially.",
-        "streaming": "Transmitting data (audio/video) over the internet directly to a device for continuous playback, without needing a full download.",
-        "screen time": "Time spent using a device with a screen, such as a mobile, tablet, laptop, television.",
-        "illegal": "Forbidden by law, unlawful, or illicit.",
-        "expression": "Showing feelings via words/actions, a look on the face, a phrase (like an idiom), musical/artistic communication.",
-        "short-form": "Expressed using few words or relatively little detail.",
-        "emissions": "Harmful gases (carbon dioxide, sulfur) from industry or vehicles, or radiation.",
-        "urban planning": "The study or profession dealing with the growth and functioning of cities and towns, including environmental concerns, zoning, the infrastructure, etc.",
-        "fake news": "False, often sensational, information disseminated under the guise of news reporting.",
-        "manipulation": "The skillful or artful management, handling, or control of something or someone.",
-        "verification": "Establishment of the correctness of a theory, fact, etc.",
-        "identity": "Who you are; characteristics, individuality, name.",
-        "juvenile": "Young, youthful, or immature.",
-        "punishment": "Inflicting pain, loss, or confinement as a penalty.",
-        "upbringing": "The way that your parents or carers treat you and the things that they teach you when you are growing up.",
-        "negligence": "The quality or result of being careless or failing to do what is required, especially in a legal sense.",
-        
-        
-    };
+<script src="/supabase-auth-gamified.js"></script>
+<script src="/daily-challenges-system.js"></script>
+<script>
+'use strict';
 
-    // --- STATE ---
-    let timerInterval;
-    let timeRemaining = 0;
-    let currentAudioUrl = null;
+/* ═══ SUPABASE ═══ */
+const SUPABASE_URL      = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+let sb;
+try { sb = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch(e){}
 
-    function handleThemeChange() {
-        const theme = document.getElementById('themeSelect').value;
-        const levelSelect = document.getElementById('levelSelect');
-        if (theme === 'mistakes') {
-            levelSelect.disabled = true;
-            levelSelect.innerHTML = '<option>Personalized</option>';
-        } else {
-            levelSelect.disabled = false;
-            levelSelect.innerHTML = `
-                <option value="beginner">Beginner</option>
-                <option value="intermediate">Intermediate</option>
-                <option value="advanced">Advanced</option>
-            `;
-        }
+/* ═══ CUSTOM DEFINITIONS ═══ */
+const CUSTOM_DEFS = {
+    'fine':'A sum of money paid as a punishment for breaking a rule.',
+    'interest':'Money paid for the use of borrowed money, or for delaying repayment of a debt.',
+    'capital':'Wealth in the form of money or assets owned by a person or organisation.',
+    'gross':'Income before tax or other deductions.',
+    'mean':'The average value of a set of numbers.',
+    'streaming':'Watching video or listening to audio directly from the internet without downloading.',
+    'loophole':'An ambiguity in a law or contract that allows someone to avoid a penalty.',
+    'greenwashing':'Making a superficial or insincere display of environmental concern.',
+    'deterrent':'Something that discourages someone from doing something.',
+    'commute':'To travel regularly between home and work.',
+    'catfish':'To create a false online identity to deceive someone.',
+    'fake news':'False information presented as genuine news.',
+};
+
+/* ═══ STATE ═══ */
+let selectedCat   = 'random';
+let selectedLevel = 'intermediate';
+let selectedSecs  = 300;
+let sessionXP     = 0;
+let sessionTopics = 0;
+let sessionVocab  = 0;
+let timerInterval = null;
+let timerRunning  = false;
+let timeTotal     = 300;
+let timeLeft      = 300;
+let timerStarted  = false;
+let vocabAudioUrl = null;
+let currentAudioUrl = null;
+
+const CONF_COLS = ['#FF9600','#FFC800','#1CB0F6','#58CC02','#CE82FF','#2BDECC','#FF4B4B'];
+
+/* ═══ UTILS ═══ */
+function $(id){return document.getElementById(id);}
+
+function confettiBurst(x,y){
+    for(let i=0;i<22;i++){
+        const d=document.createElement('div'); d.className='confetti-dot';
+        d.style.cssText=`left:${x+Math.random()*80-40}px;top:${y+Math.random()*30-15}px;background:${CONF_COLS[i%CONF_COLS.length]};animation-delay:${Math.random()*.4}s;animation-duration:${.8+Math.random()*.6}s;transform:rotate(${Math.random()*360}deg)`;
+        document.body.appendChild(d); setTimeout(()=>d.remove(),1400);
     }
+}
 
-    function showSetup() {
-        clearInterval(timerInterval);
-        document.getElementById('game-area').style.display = 'none';
-        document.getElementById('setup-panel').style.display = 'flex';
+function xpFloat(x,y,amount){
+    const el=document.createElement('div'); el.className='xp-float';
+    el.textContent=`+${amount} XP`; el.style.cssText=`left:${x}px;top:${y}px`;
+    document.body.appendChild(el); setTimeout(()=>el.remove(),1100);
+}
+
+function addXP(amount, el){
+    sessionXP += amount;
+    $('stat-xp').textContent = sessionXP;
+    $('hdr-xp').textContent  = sessionXP;
+    if(el){
+        const r = el.getBoundingClientRect();
+        xpFloat(r.left + r.width/2 - 28, r.top - 12, amount);
     }
-
-    async function startGame() {
-        const theme = document.getElementById('themeSelect').value;
-        const level = document.getElementById('levelSelect').value;
-        const duration = parseInt(document.getElementById('timeSelect').value);
-        
-        document.getElementById('loading-overlay').style.display = 'flex';
-
-        // Fetch Data
-        let topicData = null;
-        if (theme === 'mistakes') {
-            topicData = await fetchMistakes();
-        } else {
-            topicData = await fetchTopicFromSupabase(theme, level);
+    // Save to auth if logged in
+    try {
+        if(window.EFCD_Auth?.getCurrentUser()) {
+            window.EFCD_Auth.addXP?.(amount);
         }
+    } catch(e){}
+}
 
-        // Fallback if fetch fails
-        if (!topicData) {
-            topicData = {
-                category: 'System', level: 'Error',
-                question: "Could not load a topic. Check your connection.",
-                vocab: ["Error", "Wifi", "Retry"],
-                points: ["Try refreshing the page."]
-            };
-        }
+/* ═══ SETUP ═══ */
+function selectCat(btn){
+    document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedCat = btn.dataset.cat;
+}
 
-        renderCard(topicData);
-        setupTimer(duration);
+function selectChip(group, btn){
+    const container = group==='level' ? $('level-chips') : $('timer-chips');
+    container.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));
+    btn.classList.add('selected');
+    if(group==='level') selectedLevel = btn.dataset.level;
+    else selectedSecs = parseInt(btn.dataset.secs);
+}
 
-        document.getElementById('loading-overlay').style.display = 'none';
-        document.getElementById('setup-panel').style.display = 'none';
-        document.getElementById('game-area').style.display = 'block';
-    }
+/* ═══ LAUNCH ═══ */
+async function launchGame(){
+    $('setup-screen').style.display='none';
+    $('game-screen').style.display='flex';
+    $('game-screen').style.flexDirection='column';
+    $('game-screen').style.gap='14px';
+    $('complete-screen').style.display='none';
+    $('loading-card').style.display='block';
+    $('session-stats').style.display='none';
+    $('topic-card-wrap').innerHTML='';
+    $('game-controls').style.display='none';
 
-    async function fetchTopicFromSupabase(category, level) {
-        if (!sb) return null;
-        let query = sb.from('discussion_topics').select('*');
-        query = query.eq('level', level);
-        if (category !== 'random') {
-            query = query.eq('category', category)
-        }
+    // Reset session
+    sessionXP=0; sessionTopics=0; sessionVocab=0;
+    timeTotal = selectedSecs; timeLeft = selectedSecs;
+    timerStarted=false; timerRunning=false;
+    clearInterval(timerInterval);
+
+    await loadTopic();
+}
+
+async function loadTopic(){
+    $('loading-card').style.display='block';
+
+    try {
+        let query = sb.from('discussion_topics').select('*').eq('level', selectedLevel);
+        if(selectedCat !== 'random') query = query.eq('category', selectedCat);
         const { data, error } = await query;
-        if (error || !data || data.length === 0) return null;
-        return data[Math.floor(Math.random() * data.length)];
-    }
-
-    async function fetchMistakes() {
-        if (!sb) return null;
-        const { data: { user } } = await sb.auth.getUser();
-        if (!user) {
-            alert("Please log in to use 'My Mistakes'");
-            window.location.href = '/login/';
-            return null;
-        }
-        const { data: mistakes } = await sb.from('user_mistakes').select('word').limit(50);
-        if (!mistakes || mistakes.length < 3) return null;
-        const words = mistakes.sort(() => 0.5 - Math.random()).slice(0, 3).map(m => m.word);
-        return {
-            category: 'Review', level: 'Personal',
-            question: "Create a story using these words you struggled with:",
-            vocab: words,
-            points: ["Define the words first.", "Use them in a sentence.", "Create a dialogue."]
-        };
-    }
-
-    function renderCard(data) {
-        document.getElementById('cardCategory').innerText = `${data.category.toUpperCase()} • ${data.level.toUpperCase()}`;
-        document.getElementById('cardQuestion').innerText = data.question;
-
-        const vocabList = document.getElementById('cardVocab');
-        vocabList.innerHTML = '';
-        data.vocab.forEach(word => {
-            const li = document.createElement('li');
-            li.className = 'vocab-item';
-            li.innerText = word;
-            li.onclick = () => showDefinition(word);
-            vocabList.appendChild(li);
-        });
-
-        const pointsList = document.getElementById('cardPoints');
-        pointsList.innerHTML = '';
-        data.points.forEach(point => {
-            const div = document.createElement('div');
-            div.className = 'point-item';
-            div.innerText = point;
-            pointsList.appendChild(div);
+        if(error || !data?.length) throw new Error('No topics');
+        const topic = data[Math.floor(Math.random() * data.length)];
+        renderTopic(topic);
+    } catch(e) {
+        // Fallback topic if DB fails
+        renderTopic({
+            category: 'General',
+            level: selectedLevel,
+            question: 'What would you do differently if you could restart your career?',
+            vocab: ['career path', 'opportunity', 'regret', 'resilience'],
+            points: [
+                'Would you choose a different industry?',
+                'What skills do you wish you had learned earlier?',
+                'How has your definition of success changed?'
+            ]
         });
     }
+}
 
-    function setupTimer(seconds) {
+/* ═══ RENDER TOPIC ═══ */
+function renderTopic(topic){
+    $('loading-card').style.display='none';
+    $('session-stats').style.display='flex';
+    $('game-controls').style.display='flex';
+
+    sessionTopics++;
+    $('stat-topics').textContent = sessionTopics;
+
+    // XP for new topic
+    if(sessionTopics === 1){
+        addXP(10);
+        confettiBurst(window.innerWidth/2, 150);
+    } else {
+        addXP(5);
+    }
+
+    // Cat label
+    const catLabels = {business:'💼 Business',social:'🌍 Social',legal:'⚖️ Legal & Tax',tech:'🤖 Tech',random:'🎲 Random'};
+    $('stat-cat-pill').innerHTML=`<span style="font-size:12px;font-weight:900;color:var(--ink-3);">${catLabels[selectedCat]||'🎲'} · ${selectedLevel}</span>`;
+
+    // Vocab HTML
+    const vocabHTML = (topic.vocab||[]).map(w=>
+        `<button class="vocab-chip" onclick="showVocab('${w.replace(/'/g,"\\'")}',this)">
+            ${w} <span class="chip-speaker">🔊</span>
+         </button>`
+    ).join('');
+
+    // Angles HTML
+    const anglesHTML = (topic.points||[]).map((p,i)=>
+        `<div class="angle-item">
+            <span class="angle-num">${i+1}</span>
+            <span class="angle-text">${p}</span>
+         </div>`
+    ).join('');
+
+    // Timer HTML
+    const circumference = 2 * Math.PI * 36; // r=36
+    const timerHTML = selectedSecs === 0
+        ? `<div class="timer-ring-wrap" style="opacity:.3">
+                <svg viewBox="0 0 88 88"><circle class="timer-ring-bg" cx="44" cy="44" r="36"/></svg>
+                <div class="timer-display"><span class="timer-time">∞</span><span class="timer-label">Free</span></div>
+           </div>`
+        : `<div class="timer-ring-wrap" id="timer-ring-wrap">
+                <svg viewBox="0 0 88 88">
+                    <circle class="timer-ring-bg" cx="44" cy="44" r="36"/>
+                    <circle class="timer-ring-fill" id="timer-ring" cx="44" cy="44" r="36"
+                        stroke-dasharray="${circumference}"
+                        stroke-dashoffset="${circumference * (1 - timeLeft/timeTotal)}"/>
+                </svg>
+                <div class="timer-display">
+                    <span class="timer-time" id="timer-time">${formatTime(timeLeft)}</span>
+                    <span class="timer-label">left</span>
+                </div>
+           </div>`;
+
+    const timerBtns = selectedSecs === 0
+        ? `<span style="font-size:14px;font-weight:800;color:var(--ink-3);">Free conversation — no timer</span>`
+        : `<button class="btn-timer btn-start-timer" id="btn-start-timer" onclick="toggleTimer()">▶ Start</button>
+           <button class="btn-timer btn-reset-timer" onclick="resetTimer()">↺ Reset</button>`;
+
+    $('topic-card-wrap').innerHTML = `
+        <div class="topic-card" id="topic-card">
+            <div class="timesup-banner" id="timesup-banner">⏰ Time's Up! Great discussion!</div>
+            <div class="topic-head">
+                <div class="topic-cat">${topic.category?.toUpperCase() || 'TOPIC'} · ${topic.level?.toUpperCase() || selectedLevel.toUpperCase()}</div>
+                <div class="topic-question">${topic.question}</div>
+            </div>
+            <div class="topic-body">
+                <div class="topic-col">
+                    <div class="col-label">⚡ Key Vocabulary <span style="font-size:10px;opacity:.6;">(tap for definition)</span></div>
+                    <div class="vocab-chips">${vocabHTML}</div>
+                </div>
+                <div class="topic-col">
+                    <div class="col-label">💬 Discussion Angles</div>
+                    <div class="angle-list">${anglesHTML}</div>
+                </div>
+            </div>
+            <div class="timer-section">
+                ${timerHTML}
+                <div class="timer-controls">${timerBtns}</div>
+            </div>
+        </div>`;
+
+    // If timer was already running (next topic mid-session), keep it going
+    if(timerStarted && selectedSecs > 0){
+        updateRing();
+    }
+}
+
+/* ═══ TIMER ═══ */
+function formatTime(s){
+    const m = Math.floor(s/60).toString().padStart(2,'0');
+    const sec = (s%60).toString().padStart(2,'0');
+    return `${m}:${sec}`;
+}
+
+function toggleTimer(){
+    if(!timerRunning){
+        startTimer();
+    } else {
+        pauseTimer();
+    }
+}
+
+function startTimer(){
+    if(timeLeft <= 0) return;
+    timerRunning = true;
+    timerStarted = true;
+    const btn = $('btn-start-timer');
+    if(btn){btn.textContent='⏸ Pause'; btn.className='btn-timer btn-pause-timer';}
+    timerInterval = setInterval(tickTimer, 1000);
+}
+
+function pauseTimer(){
+    timerRunning = false;
+    clearInterval(timerInterval);
+    const btn = $('btn-start-timer');
+    if(btn){btn.textContent='▶ Resume'; btn.className='btn-timer btn-start-timer';}
+}
+
+function resetTimer(){
+    clearInterval(timerInterval);
+    timerRunning=false; timerStarted=false;
+    timeLeft = timeTotal;
+    const btn = $('btn-start-timer');
+    if(btn){btn.textContent='▶ Start'; btn.className='btn-timer btn-start-timer';}
+    updateRing();
+    const banner = $('timesup-banner');
+    if(banner) banner.classList.remove('show');
+}
+
+function tickTimer(){
+    timeLeft--;
+    updateRing();
+    if(timeLeft <= 0){
         clearInterval(timerInterval);
-        const display = document.getElementById('timerDisplay');
-        const status = document.getElementById('timerStatus');
-        
-        if (seconds === 0) {
-            display.innerText = "∞";
-            status.innerText = "Discussion Time:";
-            return;
-        }
-
-        timeRemaining = seconds;
-        updateTimerUI();
-
-        timerInterval = setInterval(() => {
-            timeRemaining--;
-            updateTimerUI();
-            if (timeRemaining <= 0) {
-                clearInterval(timerInterval);
-                status.innerText = "TIME'S UP!";
-                display.style.color = "#EF4444";
-                playBeep();
-            }
-        }, 1000);
+        timerRunning=false;
+        timeUp();
     }
+}
 
-    function updateTimerUI() {
-        const m = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
-        const s = (timeRemaining % 60).toString().padStart(2, '0');
-        document.getElementById('timerDisplay').innerText = `${m}:${s}`;
+function updateRing(){
+    const ring = $('timer-ring');
+    const timeEl = $('timer-time');
+    if(!ring || !timeEl) return;
+
+    const circumference = 2 * Math.PI * 36;
+    const pct = timeTotal > 0 ? timeLeft / timeTotal : 0;
+    ring.style.strokeDashoffset = circumference * (1 - pct);
+
+    timeEl.textContent = formatTime(timeLeft);
+
+    // Colour states
+    ring.classList.remove('warn','crit');
+    timeEl.classList.remove('crit');
+    if(pct <= 0.15){
+        ring.classList.add('crit');
+        timeEl.classList.add('crit');
+    } else if(pct <= 0.35){
+        ring.classList.add('warn');
     }
+}
 
-    function playBeep() {
+function timeUp(){
+    // Show banner on card
+    const banner = $('timesup-banner');
+    if(banner) banner.classList.add('show');
+    // Beep
+    try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        osc.connect(ctx.destination);
-        osc.start();
-        osc.stop(0.5);
+        [0, 200, 400].forEach(delay => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.frequency.value = 880;
+            gain.gain.setValueAtTime(0.3, ctx.currentTime + delay/1000);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay/1000 + 0.3);
+            osc.start(ctx.currentTime + delay/1000);
+            osc.stop(ctx.currentTime + delay/1000 + 0.3);
+        });
+    } catch(e){}
+    // Add completion XP
+    addXP(20);
+    // Show complete screen after a moment
+    setTimeout(showComplete, 2200);
+}
+
+function showComplete(){
+    $('game-screen').style.display='none';
+    const screen = $('complete-screen');
+    screen.style.display='block';
+
+    const mins = Math.round((timeTotal - timeLeft) / 60) || Math.round(timeTotal/60);
+    const sub = sessionTopics >= 3
+        ? `You smashed ${sessionTopics} topics and talked for ${mins} minutes! Incredible work! 🔥`
+        : `You talked for ${mins} minutes and covered ${sessionTopics} topic${sessionTopics===1?'':'s'}. Keep it up!`;
+
+    $('complete-sub').textContent = sub;
+    $('complete-xp').textContent = '+'+sessionXP;
+    $('cs-topics').textContent = sessionTopics;
+    $('cs-vocab').textContent = sessionVocab;
+    $('cs-mins').textContent = mins;
+
+    for(let i=0;i<4;i++) setTimeout(()=>confettiBurst(Math.random()*window.innerWidth, Math.random()*window.innerHeight*.5),i*220);
+
+    // Save to daily challenges
+    try {
+        if(window.DailyChallenges) {
+            window.DailyChallenges.updateChallengeProgress({
+                perfectScore: false,
+                completionTime: timeTotal,
+            });
+        }
+    } catch(e){}
+}
+
+/* ═══ VOCAB POPUP ═══ */
+async function showVocab(word, btn){
+    sessionVocab++;
+    $('stat-vocab').textContent = sessionVocab;
+    addXP(3, btn);
+
+    // Position popup
+    const popup = $('voc-popup');
+    const r = btn.getBoundingClientRect();
+    popup.style.display='block';
+
+    // Show loading state
+    $('vp-body').innerHTML=`
+        <div class="vp-word">${word}</div>
+        <div class="vp-phonetic">loading...</div>
+        <div class="vp-def" style="color:var(--ink-3)">Fetching definition...</div>`;
+
+    // Position after display
+    setTimeout(()=>{
+        const pr = popup.getBoundingClientRect();
+        let top = r.bottom + window.scrollY + 8;
+        let left = r.left + window.scrollX;
+        if(left + pr.width > window.innerWidth - 16) left = window.innerWidth - pr.width - 16;
+        if(top + pr.height > window.scrollY + window.innerHeight - 16) top = r.top + window.scrollY - pr.height - 8;
+        popup.style.top = top + 'px';
+        popup.style.left = left + 'px';
+    }, 10);
+
+    // Fetch definition
+    const lower = word.toLowerCase();
+    const customDef = CUSTOM_DEFS[lower];
+    let phonetic = '';
+    let definition = '';
+    let audioUrl = null;
+
+    try {
+        const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
+        const data = await res.json();
+        if(Array.isArray(data) && data[0]){
+            const entry = data[0];
+            phonetic = entry.phonetic || '';
+            definition = customDef ? '★ ' + customDef : (entry.meanings?.[0]?.definitions?.[0]?.definition || 'No definition found.');
+            const phoneticWithAudio = entry.phonetics?.find(p=>p.audio);
+            if(phoneticWithAudio) audioUrl = phoneticWithAudio.audio;
+        } else {
+            definition = customDef || 'Definition not found.';
+        }
+    } catch(e) {
+        definition = customDef || 'Could not fetch definition.';
     }
 
-    // --- DICTIONARY LOGIC (UPDATED) ---
-    async function showDefinition(word) {
-        document.getElementById('dictModal').style.display = 'flex';
-        document.getElementById('dictWord').innerText = word;
-        document.getElementById('dictDef').innerText = "Loading definition...";
-        document.getElementById('dictPhonetic').innerText = "...";
-        currentAudioUrl = null;
-        document.getElementById('audioBtn').style.opacity = "0.3"; // Dim audio initially
+    currentAudioUrl = audioUrl;
 
-        // 1. Check for Manual Override FIRST
-        const lowerWord = word.toLowerCase();
-        let manualDef = customDefinitions[lowerWord];
+    $('vp-body').innerHTML=`
+        <div class="vp-word">${word}</div>
+        ${phonetic ? `<div class="vp-phonetic">${phonetic}</div>` : ''}
+        <div class="vp-def">${definition}</div>
+        <button class="vp-hear" onclick="playVocabAudio()" ${!audioUrl?'style="opacity:.5;cursor:default;"':''}>
+            🔊 Hear it pronounced
+        </button>`;
 
-        try {
-            // 2. Always fetch API (we need it for Audio and Phonetics, even if we use manual text)
-            const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
-            const data = await res.json();
+    // Auto-speak
+    if(window.speechSynthesis){
+        const u = new SpeechSynthesisUtterance(word);
+        u.lang='en-GB'; u.rate=0.9;
+        speechSynthesis.cancel(); speechSynthesis.speak(u);
+    }
+}
 
-            if (Array.isArray(data)) {
-                const entry = data[0];
-                document.getElementById('dictPhonetic').innerText = entry.phonetic || "";
-                
-                // If we have a manual definition, use it. Otherwise use the API definition.
-                if (manualDef) {
-                    document.getElementById('dictDef').innerText = "★ " + manualDef; // Star indicates custom
-                } else {
-                    document.getElementById('dictDef').innerText = entry.meanings[0].definitions[0].definition;
-                }
-                
-                // Set up Audio
-                const phoneticWithAudio = entry.phonetics.find(p => p.audio && p.audio.length > 0);
-                if (phoneticWithAudio) {
-                    currentAudioUrl = phoneticWithAudio.audio;
-                    document.getElementById('audioBtn').style.opacity = "1";
-                }
-            } else {
-                // API failed, fallback to manual if available
-                if (manualDef) {
-                    document.getElementById('dictDef').innerText = manualDef;
-                } else {
-                    document.getElementById('dictDef').innerText = "Definition not found.";
-                }
-            }
-        } catch (e) {
-            // Network error, fallback to manual if available
-            if (manualDef) {
-                document.getElementById('dictDef').innerText = manualDef;
-            } else {
-                document.getElementById('dictDef').innerText = "Could not fetch definition.";
+function playVocabAudio(){
+    if(currentAudioUrl) new Audio(currentAudioUrl).play();
+}
+
+function closeVoc(){
+    $('voc-popup').style.display='none';
+}
+
+document.addEventListener('click', e=>{
+    const popup = $('voc-popup');
+    if(popup && !popup.contains(e.target) && !e.target.classList.contains('vocab-chip') && !e.target.closest('.vocab-chip')) {
+        popup.style.display='none';
+    }
+});
+
+/* ═══ NEXT / BACK ═══ */
+async function nextTopic(){
+    clearInterval(timerInterval);
+    timerRunning=false; timerStarted=false;
+    timeLeft=timeTotal;
+    $('topic-card-wrap').innerHTML='';
+    $('game-controls').style.display='none';
+    $('loading-card').style.display='block';
+    await loadTopic();
+}
+
+function backToSetup(){
+    clearInterval(timerInterval);
+    $('game-screen').style.display='none';
+    $('complete-screen').style.display='none';
+    $('setup-screen').style.display='flex';
+    $('setup-screen').style.flexDirection='column';
+    $('setup-screen').style.gap='20px';
+}
+
+function playAgain(){
+    $('complete-screen').style.display='none';
+    backToSetup();
+}
+
+/* ═══ AUTH ═══ */
+async function handleSignOut(){
+    if(window.EFCD_Auth?.signOut) await window.EFCD_Auth.signOut();
+    else if(window.efcdSupabaseClient){ await window.efcdSupabaseClient.auth.signOut(); window.location.href='/'; }
+}
+
+document.addEventListener('DOMContentLoaded', async()=>{
+    try{
+        if(window.efcdReady) await window.efcdReady;
+        if(window.EFCD_Auth){
+            await window.EFCD_Auth.initAuth();
+            const user = window.EFCD_Auth.getCurrentUser();
+            if(user){
+                const st = window.EFCD_Auth.getUserStats();
+                if(st){ sessionXP = st.xp||0; }
+                $('hdr-xp').textContent = sessionXP;
+                $('hdr-xp-wrap').style.display='flex';
+                const db = $('hdr-dash'); if(db) db.classList.remove('hidden');
+                const sb2 = $('hdr-signout'); if(sb2) sb2.classList.remove('hidden');
             }
         }
-    }
-
-    function playAudio() {
-        if (currentAudioUrl) {
-            new Audio(currentAudioUrl).play();
-        }
-    }
-
-    function closeDict() {
-        document.getElementById('dictModal').style.display = 'none';
-    }
+    } catch(e){}
+});
 </script>
 </body>
 </html>
