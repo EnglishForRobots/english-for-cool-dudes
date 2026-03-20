@@ -8,6 +8,9 @@ const coolPicksWidget = {
     // Categories: 'beginner', 'intermediate', 'advanced', 'business', 'tax', 'legal', 'fun'
     actualLessons: [
         // Add your lesson folders here with their actual durations, names, and categories:
+        { url:'/blockbuster/',           time:'6 mins',  name:'Intermediate: The Last Blockbuster',     category:'intermediate',        icon:'🎞️' },
+        { url:'/weeklydropoil/',           time:'5 mins',  name:'Weekly Drop: Iran, Oil and Predictions',     category:'intermediate',        icon:'🛢️' },
+        { url:'/pandas/',           time:'7 mins',  name:'Beginner: Giant Pandas: Saved from Extinction!',     category:'beginner',        icon:'🐼' },
         { url:'/petrodollar/',           time:'8 mins',  name:'Business: The Petrodollar: Who Controls the World?',     category:'business',        icon:'⛽' },
     { url:'/ariana/',           time:'5 mins',  name:'Kids: Ariana Grande!',     category:'kids',        icon:'🎤' },
         { url:'/databreach/',           time:'8 mins',  name:'Legal: The Data Breach',     category:'legal',     icon:'💾' },
@@ -17,9 +20,7 @@ const coolPicksWidget = {
         { url:'/redline/',      time:'7 mins', name:'Legal: The Redline Room',  category:'legal', icon:'📄' },
         { url:'/fuggereibeginner/',      time:'9 mins', name:'Beginner: Inside the Fuggerei',  category:'beginner', icon:'🏡' },
         { url: '/chineserobotsbeginner/', time: '5 mins', name: 'Pre-Intermediate: Chinese Robots on TV', category: 'beginner' },
-        { url: '/pancakeday/', time: '7 mins', name: 'Intermediate: Pancake Day!', category: 'intermediate' },       
-        { url: '/invoffice/', time: '8 mins', name: 'Tax: Invisible Office', category: 'tax' },
-        { url:'/muskman/',      time:'12 mins', name:'Intermediate: Elon Musk: The Big Bet',  category:'intermediate', icon:'🚀', fact:'SpaceX is valued at more than the Dutch economy!' },
+      
      
     
         
