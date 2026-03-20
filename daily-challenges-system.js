@@ -1219,11 +1219,26 @@ function showChallengeCompletionCelebration(challenge) {
               + '</div>'
           )
         + '</div>'
-        + '<button id="dc-celeb-close" style="width:100%;padding:14px;background:#FFC800;color:#111827;border:2px solid #E5B400;border-bottom:4px solid #E5B400;border-radius:16px;font-size:17px;font-weight:900;cursor:pointer;font-family:inherit;letter-spacing:-.2px;">LET\'S GO!! 🚀🔥</button>'
+        + '<button id="dc-celeb-close" style="width:100%;padding:14px;background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.3);border-radius:16px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;letter-spacing:-.2px;">✓ Got it — thanks!</button>'
         + '</div>';
     document.body.appendChild(overlay);
-    document.getElementById('dc-celeb-close').addEventListener('click', function() { overlay.remove(); });
-    overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+
+    // Auto-fade after 7 seconds
+    var autoFade = setTimeout(function() {
+        overlay.style.transition = 'opacity .8s ease';
+        overlay.style.opacity = '0';
+        setTimeout(function() { overlay.remove(); }, 800);
+    }, 7000);
+
+    function closeCeleb() {
+        clearTimeout(autoFade);
+        overlay.style.transition = 'opacity .4s ease';
+        overlay.style.opacity = '0';
+        setTimeout(function() { overlay.remove(); }, 400);
+    }
+
+    document.getElementById('dc-celeb-close').addEventListener('click', closeCeleb);
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) closeCeleb(); });
 }
 
 // ── PUBLIC API ────────────────────────────────────────────
