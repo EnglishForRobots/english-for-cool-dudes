@@ -180,6 +180,9 @@
     .wb-clear:active { border-bottom-width:2px; transform:translateY(2px); }
     .wb-check { flex:2; padding:12px; background:var(--green); color:var(--white); border:2px solid var(--green-shadow); border-bottom:4px solid var(--green-shadow); border-radius:var(--rsm); font-size:14px; font-weight:900; transition:all .1s; }
     .wb-check:active { border-bottom-width:2px; transform:translateY(2px); }
+    .wb-reveal{width:100%;margin-top:8px;padding:11px;background:transparent;color:var(--ink-3);border:2px dashed var(--border-heavy);border-radius:var(--rsm);font-size:13px;font-weight:900;transition:all .15s;display:none;}
+    .wb-reveal:hover{color:var(--ink-bold);background:var(--bg);}
+    .wb-reveal.show{display:block;animation:up .3s ease both;}
     .wb-feedback { margin-top:12px; padding:12px 14px; border-radius:var(--rsm); font-size:14px; font-weight:800; border:2px solid; display:none; line-height:1.6; }
     .wb-feedback.show.right { display:block; background:rgba(88,204,2,.1); color:var(--green-shadow); border-color:rgba(88,167,0,.3); animation:up .2s ease both; }
     .wb-feedback.show.wrong { display:block; background:rgba(255,75,75,.1); color:var(--punch-shadow); border-color:rgba(255,75,75,.3); animation:up .2s ease both; }
@@ -814,7 +817,9 @@ function buildBuilderSec(){
 
 function buildWordBuilderInner(){ renderWordBuilder(); }
 
-let wbBuilt=[];
+wbBuilt=[]; wbWrongAttempts=0;
+
+let wbWrongAttempts = 0;
 
 function renderWordBuilder(){
     const prog=$('wb-prog');
@@ -835,6 +840,7 @@ function renderWordBuilder(){
             <button class="wb-clear" onclick="clearBuilt()">🗑️ Clear</button>
             <button class="wb-check" onclick="checkBuilt()">✓ Check it!</button>
         </div>`;
+    <button class="wb-reveal" id="wb-reveal" onclick="revealBuilt()">👁️ Reveal the answer</button>
     renderAnswer();
 }
 
@@ -880,7 +886,23 @@ function clearBuilt(){
     renderAnswer();
     const fb=$('wb-fb'); if(fb){ fb.className='wb-feedback'; fb.textContent=''; }
 }
-
+function revealBuilt(){
+    const w=WORDS[S.wbIdx];
+    wbBuilt=[...w.letters];
+    document.querySelectorAll('.wb-tile').forEach(t=>t.classList.add('used'));
+    renderAnswer();
+    const fb=$('wb-fb');
+    fb.className='wb-feedback show wrong';
+    fb.innerHTML=`👁️ The answer is <strong>${w.word.toUpperCase()}</strong> — ${w.def}`;
+    const revBtn=$('wb-reveal'); if(revBtn) revBtn.style.display='none';
+    document.querySelectorAll('.wb-check,.wb-clear').forEach(b=>{b.disabled=true;b.style.opacity='.4';});
+    S.totalAnswered++;
+    setTimeout(()=>{
+        S.wbIdx++;
+        if(S.wbIdx>=WORDS.length){S.wbDone=true;addXP(15);toast('🧱',`All ${WORDS.length} words done! +15 XP`);updateProgress();renderWBDone();}
+        else renderWordBuilder();
+    },2500);
+}
 function checkBuilt(){
     const w=WORDS[S.wbIdx];
     const built=wbBuilt.join('').toLowerCase();
@@ -917,6 +939,9 @@ function checkBuilt(){
         fb.textContent=`Not quite! Try again — hint: ${w.hint}`;
     }
     S.totalAnswered++;
+    wbWrongAttempts++;
+const revBtn=$('wb-reveal');
+if(revBtn && wbWrongAttempts>=2) revBtn.classList.add('show');
 }
 
 function renderWBDone(){
