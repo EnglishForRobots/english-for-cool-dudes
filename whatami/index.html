@@ -2,581 +2,747 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>What Am I? Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+    <title>🤔 What Am I? — English For Cool Dudes</title>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
     :root {
-        --primary: #0EA5E9;
-        --secondary: #8B5CF6;
-        --accent: #F472B6;
-        --surface: #FFFFFF;
-        --background: #F0F9FF;
-        --text: #0F172A;
-        --text-light: #64748B;
+        --orange:#FF9600; --orange-shadow:#E07800; --orange-light:rgba(255,150,0,.1);
+        --blue:#1CB0F6;   --blue-shadow:#1899D6;
+        --green:#58CC02;  --green-shadow:#58A700;
+        --punch:#FF4B4B;  --punch-shadow:#EA2B2B;
+        --yellow:#FFC800; --yellow-shadow:#E5B400;
+        --purple:#CE82FF; --purple-shadow:#A559D9;
+        --teal:#2BDECC;   --teal-shadow:#1FBFAF;
+        --bg:#F7F9FA;     --white:#FFFFFF;
+        --ink:#4B4B4B;    --ink-bold:#111827; --ink-3:#AFAFAF;
+        --border:#E5E5E5; --border-heavy:#CECECE;
+        --r:24px; --rsm:16px; --rxs:10px;
     }
-    
-    * { box-sizing: border-box; }
-    
-    body { 
-        font-family: system-ui, -apple-system, sans-serif; 
-        background: var(--background); 
-        margin: 0; 
-        color: var(--text); 
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--ink);font-family:'Nunito',system-ui,sans-serif;line-height:1.5;overflow-x:hidden;padding-bottom:40px;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;}
+    a{color:inherit;text-decoration:none;}
+    button{font-family:inherit;cursor:pointer;border:none;background:none;}
 
-    .main-content {
-        flex: 1 0 auto;
-    }
-    .navbar {
-        background: white;
-        border-bottom: 1px solid #E2E8F0;
-        padding: 15px 0;
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-    }
-    .header-content {
-        max-width: 1000px;
-        margin: 0 auto;
-        padding: 0 20px;
-        display: flex;
-        align-items: center;
-    }
-    .nav-brand {
-        font-size: 20px;
-        font-weight: 800;
-        color: var(--primary);
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-    .game-header {
-        background: white;
-        border-bottom: 1px solid #E2E8F0;
-        padding: 30px 20px;
-        text-align: center;
-        margin-bottom: 30px;
-        border-radius: 0 0 16px 16px;
-    }
-    .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-    .controls, .game-card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 20px; }
-    label { display: block; font-size: 12px; font-weight: 700; color: #718096; text-transform: uppercase; margin-bottom: 8px; }
-    select, input { width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #E2E8F0; font-size: 15px; margin-bottom: 15px; }
-    
-    .btn { 
-        background: linear-gradient(135deg, var(--primary), var(--secondary)); 
-        color: white; 
-        /* UPDATED: Reduced padding and locked text wrapping */
-        padding: 14px 10px; 
-        border-radius: 8px; 
-        border: none; 
-        cursor: pointer; 
-        font-size: 16px; 
-        font-weight: 700; 
-        width: 100%; 
-        transition: transform 0.2s; 
-        white-space: normal; 
-        line-height: 1.2;   
-    height: auto;
-    }
-    .btn:hover { transform: translateY(-2px); }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-secondary { background: white; border: 2px solid #E2E8F0; color: #64748B; }
-    
-    #game-area { display: none; }
-    .score-bar { display: flex; justify-content: space-around; padding: 20px; background: #F8FAFC; border-radius: 8px; margin-bottom: 20px; }
-    .score-item { text-align: center; }
-    .score-label { font-size: 12px; color: #64748B; text-transform: uppercase; font-weight: 700; }
-    .score-value { font-size: 24px; font-weight: 800; color: var(--secondary); margin-top: 5px; }
-    
-    .clue-box { background: #F0F9FF; border: 2px solid #BAE6FD; border-radius: 12px; padding: 20px; margin-bottom: 15px; }
-    .clue-box.locked { background: #E2E8F0; border-color: #CBD5E1; filter: grayscale(1); }
-    .clue-text-locked { font-style: italic; color: #94A3B8; filter: blur(4px); pointer-events: none; }
-    .clue-difficulty { font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; }
-    .very-hard { color: #DC2626; }
-    .hard { color: #EA580C; }
-    .medium { color: #CA8A04; }
-    .easy { color: #16A34A; }
-    
-    .answer-section { display: flex; gap: 10px; margin-top: 20px; }
-    .answer-prefix { background: #F1F5F9; padding: 12px 16px; border-radius: 8px; font-weight: 600; color: #64748B; border: 2px solid #E2E8F0; display: flex; align-items: center; flex-shrink: 0; white-space: nowrap; }
-    
-    .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
-    .modal-content { background: white; width: 90%; max-width: 450px; border-radius: 16px; padding: 40px; text-align: center; }
-    .footer {
-        flex-shrink: 0;
-        background: #FFFFFF;
-        border-top: 1px solid #E5E9F2;
-        padding: 32px 20px;
-        margin-top: auto;
-        text-align: center;
-    }
-    .footer-text { font-size: 14px; color: #718096; }
-    .player-list { background: #F8FAFC; border-radius: 8px; padding: 10px; margin-top: 10px; }
-    .player-tag { display: inline-block; background: var(--primary); color: white; padding: 5px 12px; border-radius: 20px; margin: 3px; font-size: 14px; }
-    #multiplayerSetup { display: none; margin-top: 15px; padding-top: 15px; border-top: 2px solid #E2E8F0; }
-    .loading { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.9); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 50; }
-</style>
+    @keyframes up      {from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes popin   {0%{opacity:0;transform:scale(.7) rotate(-4deg)}60%{transform:scale(1.08) rotate(1deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+    @keyframes float   {0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    @keyframes shake   {0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+    @keyframes heartbeat{0%,100%{transform:scale(1)}14%{transform:scale(1.18)}28%{transform:scale(1)}42%{transform:scale(1.1)}}
+    @keyframes confetti{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(140px) rotate(420deg)}}
+    @keyframes xpPop   {0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(1.5)}}
+    @keyframes fadeIn  {from{opacity:0}to{opacity:1}}
+    @keyframes megaConf{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(200px) rotate(540deg)}}
+    @keyframes clueIn  {0%{opacity:0;transform:translateX(-20px)}100%{opacity:1;transform:translateX(0)}}
+    @keyframes lockPop {0%{transform:scale(.6)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+    @keyframes shimmer {0%{left:-80%}100%{left:130%}}
+    @keyframes bounce  {0%,100%{transform:translateY(0)}40%{transform:translateY(-14px)}60%{transform:translateY(-6px)}}
+    @keyframes wiggle  {0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+    @keyframes timerPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+
+    /* ── HEADER ── */
+    .header{background:var(--white);border-bottom:3px solid var(--orange);padding:0 20px;height:60px;position:sticky;top:0;z-index:300;display:flex;align-items:center;box-shadow:0 4px 12px rgba(255,150,0,.15);}
+    .header-inner{max-width:860px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
+    .logo-link{display:flex;align-items:center;gap:10px;text-decoration:none;}
+    .logo-box{width:38px;height:38px;background:var(--yellow);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid var(--yellow-shadow);box-shadow:0 3px 0 var(--yellow-shadow);}
+    .site-name{font-size:15px;font-weight:900;color:var(--ink-bold);letter-spacing:-.3px;}
+    @media(max-width:420px){.site-name{display:none}}
+
+    /* ── PAGE ── */
+    .page{max-width:600px;margin:0 auto;padding:20px 14px 40px;display:flex;flex-direction:column;gap:14px;}
+
+    /* ── HERO BANNER ── */
+    .hero{background:var(--orange);border:2px solid var(--orange-shadow);border-bottom:6px solid var(--orange-shadow);border-radius:var(--r);padding:28px 22px 24px;position:relative;overflow:hidden;text-align:center;}
+    .hero::after{content:'🤔';position:absolute;bottom:-20px;right:6px;font-size:140px;opacity:.1;pointer-events:none;animation:wiggle 4s ease-in-out infinite;}
+    .hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.4);border-radius:8px;padding:4px 12px;margin-bottom:10px;font-size:11px;font-weight:900;color:var(--white);text-transform:uppercase;letter-spacing:1.5px;}
+    .hero-title{font-size:clamp(28px,8vw,48px);font-weight:900;color:var(--white);letter-spacing:-1.5px;line-height:1;margin-bottom:6px;text-shadow:0 3px 0 var(--orange-shadow);position:relative;z-index:1;}
+    .hero-sub{font-size:14px;font-weight:700;color:rgba(255,255,255,.9);line-height:1.5;position:relative;z-index:1;}
+
+    /* ── SETUP CARD ── */
+    .setup-card{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);padding:22px;animation:up .4s ease both;}
+    .setup-section{margin-bottom:18px;}
+    .setup-label{font-size:11px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;display:block;}
+    .cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+    .cat-btn{padding:10px 6px;background:var(--white);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);font-size:12px;font-weight:900;color:var(--ink-bold);cursor:pointer;transition:all .1s;text-align:center;line-height:1.3;font-family:inherit;}
+    .cat-btn:active{border-bottom-width:2px;transform:translateY(2px);}
+    .cat-btn.selected{background:var(--orange);color:var(--white);border-color:var(--orange-shadow);}
+    .level-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+    .level-btn{padding:12px 8px;background:var(--white);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);font-size:13px;font-weight:900;color:var(--ink-bold);cursor:pointer;transition:all .1s;text-align:center;font-family:inherit;}
+    .level-btn:active{border-bottom-width:2px;transform:translateY(2px);}
+    .level-btn.selected{border-color:var(--orange-shadow);}
+    .level-btn.sel-beginner{background:#f0fff4;color:var(--green-shadow);border-color:var(--green-shadow);}
+    .level-btn.sel-intermediate{background:#eff6ff;color:var(--blue-shadow);border-color:var(--blue-shadow);}
+    .level-btn.sel-advanced{background:#fdf4ff;color:var(--purple-shadow);border-color:var(--purple-shadow);}
+    .mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    .mode-btn{padding:14px;background:var(--white);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);font-size:14px;font-weight:900;color:var(--ink-bold);cursor:pointer;transition:all .1s;text-align:center;font-family:inherit;}
+    .mode-btn:active{border-bottom-width:2px;transform:translateY(2px);}
+    .mode-btn.selected{background:var(--orange);color:var(--white);border-color:var(--orange-shadow);}
+    .player-setup{margin-top:12px;padding:14px;background:var(--bg);border:2px solid var(--border-heavy);border-radius:var(--rsm);display:none;}
+    .player-setup.show{display:block;animation:up .25s ease both;}
+    .player-input-row{display:flex;gap:8px;margin-bottom:10px;}
+    .player-input{flex:1;padding:11px 14px;border:2px solid var(--border-heavy);border-radius:var(--rsm);font-size:14px;font-weight:700;font-family:inherit;background:var(--white);}
+    .player-input:focus{outline:none;border-color:var(--orange);}
+    .add-player-btn{padding:11px 16px;background:var(--orange);color:var(--white);border:2px solid var(--orange-shadow);border-bottom:4px solid var(--orange-shadow);border-radius:var(--rsm);font-size:14px;font-weight:900;font-family:inherit;cursor:pointer;white-space:nowrap;transition:all .1s;}
+    .add-player-btn:active{border-bottom-width:2px;transform:translateY(2px);}
+    .player-chips{display:flex;flex-wrap:wrap;gap:6px;}
+    .player-chip{display:inline-flex;align-items:center;gap:6px;background:var(--orange);color:var(--white);padding:6px 12px;border-radius:99px;font-size:13px;font-weight:900;}
+    .player-chip-remove{cursor:pointer;opacity:.7;font-size:16px;line-height:1;}
+    .start-btn{width:100%;padding:16px;background:var(--orange);color:var(--white);border:2px solid var(--orange-shadow);border-bottom:6px solid var(--orange-shadow);border-radius:var(--rsm);font-size:17px;font-weight:900;cursor:pointer;transition:all .1s;font-family:inherit;margin-top:4px;}
+    .start-btn:active{border-bottom-width:2px;transform:translateY(3px);}
+    .start-btn:disabled{opacity:.45;cursor:default;}
+
+    /* ── GAME AREA ── */
+    .game-area{display:none;flex-direction:column;gap:12px;}
+    .game-area.active{display:flex;}
+
+    /* Score bar */
+    .score-bar{background:var(--white);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--r);padding:14px 18px;display:grid;grid-template-columns:1fr 1fr 1fr;text-align:center;gap:8px;}
+    .sb-item{}
+    .sb-label{font-size:10px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;}
+    .sb-val{font-size:22px;font-weight:900;color:var(--orange-shadow);line-height:1.1;margin-top:2px;}
+    .sb-val.player-name{font-size:16px;}
+
+    /* Player turn banner */
+    .turn-banner{background:var(--orange);border:2px solid var(--orange-shadow);border-bottom:4px solid var(--orange-shadow);border-radius:var(--rsm);padding:10px 16px;font-size:14px;font-weight:900;color:var(--white);text-align:center;display:none;}
+    .turn-banner.show{display:block;animation:up .3s ease both;}
+
+    /* Clues card */
+    .clues-card{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);overflow:hidden;}
+    .clues-card-head{background:linear-gradient(135deg,var(--orange),#ff6600);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;}
+    .clues-card-title{font-size:16px;font-weight:900;color:var(--white);}
+    .clues-counter{background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.4);border-radius:99px;padding:4px 12px;font-size:12px;font-weight:900;color:var(--white);}
+    .clues-body{padding:16px;}
+
+    /* Individual clue */
+    .clue-item{border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);margin-bottom:10px;overflow:hidden;transition:all .3s;}
+    .clue-item:last-child{margin-bottom:0;}
+    .clue-item.locked{background:var(--bg);opacity:.55;}
+    .clue-item.revealed{animation:clueIn .35s ease both;}
+    .clue-header{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:2px solid var(--border);}
+    .clue-item.locked .clue-header{border-bottom:none;}
+    .clue-pts{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;}
+    .pts-40{color:#DC2626;}
+    .pts-30{color:#EA580C;}
+    .pts-20{color:#CA8A04;}
+    .pts-10{color:#16A34A;}
+    .clue-lock-icon{margin-left:auto;font-size:18px;}
+    .clue-text{padding:12px 14px;font-size:15px;font-weight:700;color:var(--ink-bold);line-height:1.6;}
+    .clue-item.locked .clue-text{display:none;}
+
+    /* Answer area */
+    .answer-card{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);padding:18px;}
+    .answer-prompt{font-size:13px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+    .answer-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+    .answer-prefix{background:var(--orange);color:var(--white);padding:12px 16px;border-radius:var(--rsm);font-size:15px;font-weight:900;flex-shrink:0;border:2px solid var(--orange-shadow);border-bottom:4px solid var(--orange-shadow);}
+    .answer-input{flex:1;padding:12px 14px;border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);font-size:16px;font-weight:800;font-family:inherit;color:var(--ink-bold);background:var(--bg);transition:border-color .2s;}
+    .answer-input:focus{outline:none;border-color:var(--orange);background:var(--white);}
+    .answer-input.shake{animation:shake .4s;}
+    .action-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .btn-clue{padding:13px;background:var(--white);color:var(--ink-bold);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);font-size:14px;font-weight:900;cursor:pointer;transition:all .1s;font-family:inherit;text-align:center;}
+    .btn-clue:active{border-bottom-width:2px;transform:translateY(2px);}
+    .btn-clue:disabled{opacity:.4;cursor:default;}
+    .btn-submit{padding:13px;background:var(--green);color:var(--white);border:2px solid var(--green-shadow);border-bottom:4px solid var(--green-shadow);border-radius:var(--rsm);font-size:14px;font-weight:900;cursor:pointer;transition:all .1s;font-family:inherit;text-align:center;}
+    .btn-submit:active{border-bottom-width:2px;transform:translateY(2px);}
+    .btn-menu{display:block;text-align:center;padding:10px;font-size:13px;font-weight:900;color:var(--ink-3);cursor:pointer;font-family:inherit;margin-top:4px;}
+
+    /* ── RESULT OVERLAY ── */
+    .result-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;justify-content:center;align-items:center;z-index:500;padding:20px;}
+    .result-overlay.show{display:flex;animation:fadeIn .25s ease both;}
+    .result-card{background:var(--white);border:3px solid var(--border-heavy);border-bottom:8px solid var(--border-heavy);border-radius:var(--r);padding:32px 24px;max-width:420px;width:100%;text-align:center;position:relative;overflow:hidden;}
+    .result-icon{font-size:72px;margin-bottom:8px;display:block;animation:popin .5s cubic-bezier(.175,.885,.32,1.275) both;}
+    .result-title{font-size:28px;font-weight:900;letter-spacing:-1px;margin-bottom:6px;}
+    .result-msg{font-size:15px;font-weight:700;color:var(--ink-3);margin-bottom:16px;line-height:1.5;}
+    .result-answer-box{background:var(--orange-light);border:2px solid rgba(255,150,0,.3);border-radius:var(--rsm);padding:14px;margin-bottom:16px;font-size:20px;font-weight:900;color:var(--orange-shadow);}
+    .result-pts{background:var(--green);border:2px solid var(--green-shadow);border-bottom:6px solid var(--green-shadow);border-radius:var(--rsm);padding:16px;margin-bottom:16px;font-size:40px;font-weight:900;color:var(--white);line-height:1;}
+    .result-pts-label{font-size:12px;font-weight:900;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+    .result-scores{background:var(--bg);border:2px solid var(--border-heavy);border-radius:var(--rsm);padding:12px;margin-bottom:16px;text-align:left;display:none;}
+    .result-score-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px;font-weight:800;}
+    .result-score-row:last-child{border-bottom:none;}
+    .result-score-name{color:var(--ink-bold);}
+    .result-score-pts{color:var(--orange-shadow);}
+    .result-next-btn{width:100%;padding:15px;background:var(--orange);color:var(--white);border:2px solid var(--orange-shadow);border-bottom:5px solid var(--orange-shadow);border-radius:var(--rsm);font-size:16px;font-weight:900;cursor:pointer;transition:all .1s;font-family:inherit;}
+    .result-next-btn:active{border-bottom-width:2px;transform:translateY(3px);}
+    .result-try-btn{width:100%;padding:13px;background:var(--white);color:var(--ink-bold);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);font-size:15px;font-weight:900;cursor:pointer;transition:all .1s;font-family:inherit;margin-top:8px;}
+    .result-try-btn:active{border-bottom-width:2px;transform:translateY(2px);}
+
+    /* ── BADGES + CONFETTI ── */
+    .badge-wrap{position:fixed;top:68px;right:12px;display:flex;flex-direction:column;gap:8px;z-index:999;pointer-events:none;}
+    .badge{background:var(--white);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-left:4px solid var(--orange);padding:10px 14px;border-radius:var(--rsm);display:flex;align-items:center;gap:8px;transform:translateX(240px);opacity:0;transition:transform .4s,opacity .4s;box-shadow:0 4px 14px rgba(0,0,0,.08);}
+    .badge.show{transform:translateX(0);opacity:1;}
+    .badge-icon{font-size:22px;}
+    .badge-text{font-size:13px;font-weight:900;color:var(--ink-bold);}
+    .confetti-dot{position:fixed;width:10px;height:10px;border-radius:3px;pointer-events:none;z-index:9999;animation:confetti .9s ease-out both;}
+    .mega-conf-dot{position:fixed;pointer-events:none;z-index:9999;border-radius:4px;animation:megaConf 1.4s ease-out both;}
+
+    /* ── LOADING ── */
+    .loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.92);display:none;flex-direction:column;justify-content:center;align-items:center;z-index:600;gap:12px;}
+    .loading-overlay.show{display:flex;}
+    .loading-spinner{font-size:48px;animation:wiggle 1s ease-in-out infinite;}
+    .loading-text{font-size:16px;font-weight:900;color:var(--ink-3);}
+
+    /* ── WINNER ── */
+    .winner-card .result-title{color:var(--yellow-shadow);}
+
+    /* ── WRONG FLASH ── */
+    .wrong-flash{background:rgba(255,75,75,.08);border-color:var(--punch);}
+    </style>
 </head>
 <body>
-<div class="main-content">
-<nav class="navbar">
-    <div class="header-content">
-        <a href="/games/" class="nav-brand"><span>🤔</span> English For Cool Dudes</a>
+
+<header class="header">
+    <div class="header-inner">
+        <a href="/" class="logo-link">
+            <div class="logo-box">😎</div>
+            <span class="site-name">English For Cool Dudes</span>
+        </a>
     </div>
-</nav>
+</header>
 
-<div class="game-header">
-    <h1 style="margin: 0;">🤔 What Am I?</h1>
-    <p style="color: var(--text-light);">Get clues one by one and guess the mystery object!</p>
+<div class="badge-wrap" id="badge-wrap"></div>
+
+<div class="loading-overlay" id="loading">
+    <div class="loading-spinner">🤔</div>
+    <div class="loading-text">Loading riddles…</div>
 </div>
 
-<div class="loading" id="loading">
-    <div style="font-size: 40px;">🤔</div>
-    <div>Loading riddle...</div>
+<div class="result-overlay" id="result-overlay">
+    <div class="result-card" id="result-card">
+        <span class="result-icon" id="result-icon">🎉</span>
+        <div class="result-title" id="result-title">Correct!</div>
+        <div class="result-msg" id="result-msg"></div>
+        <div class="result-pts" id="result-pts" style="display:none">
+            <div id="result-pts-num">+40</div>
+            <div class="result-pts-label">Points Earned</div>
+        </div>
+        <div class="result-answer-box" id="result-answer" style="display:none"></div>
+        <div class="result-scores" id="result-scores"></div>
+        <button class="result-next-btn" id="result-next-btn" onclick="nextRound()">Next Riddle →</button>
+        <button class="result-try-btn" id="result-try-btn" style="display:none" onclick="closeWrongResult()">💡 Keep Guessing</button>
+    </div>
 </div>
 
-<div class="container">
-    <div class="controls" id="setup">
-        <label>Category</label>
-        <select id="category">
-            <option value="random">🎲 Random</option>
-            <option value="business">💼 Business & Office</option>
-            <option value="tax">📊 Tax & Finance</option>
-            <option value="legal">⚖️ Legal</option>
-            <option value="everyday">🏠 Everyday Objects</option>
-            <option value="animals">🦁 Animals</option>
-            <option value="food">🍕 Food & Drink</option>
-            <option value="places">🌍 Places</option>
-            <option value="jobs">💼 Jobs</option>
-        </select>
+<div class="page">
+    <!-- HERO -->
+    <div class="hero u1">
+        <div class="hero-badge">🧠 Break Room Game</div>
+        <div class="hero-title">What Am I? 🤔</div>
+        <div class="hero-sub">Get clues one by one · guess the mystery object · score big!</div>
+    </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div>
-                <label>Level</label>
-                <select id="level">
-                    <option value="beginner">Beginner</option>
-                    <option value="intermediate">Intermediate</option>
-                    <option value="advanced">Advanced</option>
-                </select>
+    <!-- SETUP -->
+    <div class="setup-card" id="setup-card">
+        <div class="setup-section">
+            <span class="setup-label">Category</span>
+            <div class="cat-grid" id="cat-grid"></div>
+        </div>
+        <div class="setup-section">
+            <span class="setup-label">Level</span>
+            <div class="level-grid">
+                <button class="level-btn sel-beginner selected" data-level="beginner" onclick="selectLevel(this)">🌱 Beginner</button>
+                <button class="level-btn" data-level="intermediate" onclick="selectLevel(this)">📘 Intermediate</button>
+                <button class="level-btn" data-level="advanced" onclick="selectLevel(this)">🔴 Advanced</button>
             </div>
-            <div>
-                <label>Points to Win</label>
-                <select id="points">
-                    <option value="50">50</option>
-                    <option value="100" selected>100</option>
-                    <option value="150">150</option>
-                </select>
+        </div>
+        <div class="setup-section">
+            <span class="setup-label">Points to Win</span>
+            <div class="level-grid">
+                <button class="level-btn" data-pts="50" onclick="selectPts(this)">50</button>
+                <button class="level-btn selected sel-intermediate" data-pts="100" onclick="selectPts(this)">100</button>
+                <button class="level-btn" data-pts="150" onclick="selectPts(this)">150</button>
+            </div>
+        </div>
+        <div class="setup-section">
+            <span class="setup-label">Game Mode</span>
+            <div class="mode-grid">
+                <button class="mode-btn selected" data-mode="single" onclick="selectMode(this)">👤 Solo</button>
+                <button class="mode-btn" data-mode="multi" onclick="selectMode(this)">👥 Multiplayer</button>
+            </div>
+            <div class="player-setup" id="player-setup">
+                <div class="player-input-row">
+                    <input type="text" class="player-input" id="player-name-input" placeholder="Player name…" onkeypress="if(event.key==='Enter')addPlayer()">
+                    <button class="add-player-btn" onclick="addPlayer()">Add</button>
+                </div>
+                <div class="player-chips" id="player-chips"></div>
+            </div>
+        </div>
+        <button class="start-btn" id="start-btn" onclick="startGame()">🤔 Start Game!</button>
+    </div>
+
+    <!-- GAME AREA -->
+    <div class="game-area" id="game-area">
+        <div class="score-bar" id="score-bar">
+            <div class="sb-item">
+                <div class="sb-label">Player</div>
+                <div class="sb-val player-name" id="sb-player">You</div>
+            </div>
+            <div class="sb-item">
+                <div class="sb-label">Round</div>
+                <div class="sb-val" id="sb-round">1</div>
+            </div>
+            <div class="sb-item">
+                <div class="sb-label">Score</div>
+                <div class="sb-val"><span id="sb-score">0</span>/<span id="sb-target">100</span></div>
             </div>
         </div>
 
-        <label>Game Mode</label>
-        <select id="mode" onchange="toggleMultiplayer()">
-            <option value="single">👤 Single Player</option>
-            <option value="multi">👥 Multiplayer</option>
-        </select>
+        <div class="turn-banner" id="turn-banner"></div>
 
-        <div id="multiplayerSetup">
-            <label>Add Players (min 2)</label>
-            <div style="display: flex; gap: 10px;">
-                <input type="text" id="playerName" placeholder="Player name">
-                <button class="btn btn-secondary" onclick="addPlayer()" style="width: auto;">Add</button>
+        <div class="clues-card" id="clues-card">
+            <div class="clues-card-head">
+                <div class="clues-card-title">🤔 Who or what am I?</div>
+                <div class="clues-counter" id="clues-counter">Clue 1 of 4</div>
             </div>
-            <div class="player-list" id="playerList"></div>
+            <div class="clues-body" id="clues-body"></div>
         </div>
 
-        <button class="btn" onclick="startGame()">Start Game</button>
-    </div>
-
-    <div id="game-area">
-        <div class="game-card">
-            <div class="score-bar">
-                <div class="score-item">
-                    <div class="score-label">Player</div>
-                    <div id="currentPlayer" class="score-value">You</div>
-                </div>
-                <div class="score-item">
-                    <div class="score-label">Round</div>
-                    <div id="round" class="score-value">1</div>
-                </div>
-                <div class="score-item">
-                    <div class="score-label">Score</div>
-                    <div class="score-value"><span id="score">0</span>/<span id="target">100</span></div>
-                </div>
-            </div>
-
-            <div id="clue1" class="clue-box">
-                <div class="clue-difficulty very-hard">🔥 Very Hard (+40 pts)</div>
-                <div id="clue1Text"></div>
-            </div>
-            <div id="clue2" class="clue-box locked">
-                <div class="clue-difficulty hard">🟠 Hard (+30 pts)</div>
-                <div id="clue2Text">Locked</div>
-            </div>
-            <div id="clue3" class="clue-box locked">
-                <div class="clue-difficulty medium">🟡 Medium (+20 pts)</div>
-                <div id="clue3Text">Locked</div>
-            </div>
-            <div id="clue4" class="clue-box locked">
-                <div class="clue-difficulty easy">🟢 Easy (+10 pts)</div>
-                <div id="clue4Text">Locked</div>
-            </div>
-
-            <div class="answer-section">
+        <div class="answer-card">
+            <div class="answer-prompt">Your answer:</div>
+            <div class="answer-row">
                 <div class="answer-prefix">I am</div>
-                <input type="text" id="answer" placeholder="Type answer..." onkeypress="if(event.key==='Enter') checkAnswer()">
+                <input type="text" class="answer-input" id="answer-input" placeholder="type here…" onkeypress="if(event.key==='Enter')checkAnswer()">
             </div>
-
-            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-top: 15px;">
-                <button class="btn btn-secondary" id="clueBtn" onclick="nextClue()">💡 Next Clue</button>
-                <button class="btn" onclick="checkAnswer()">✓ Submit</button>
+            <div class="action-btns">
+                <button class="btn-clue" id="btn-clue" onclick="nextClue()">💡 Next Clue (−pts)</button>
+                <button class="btn-submit" onclick="checkAnswer()">✓ Submit!</button>
             </div>
+            <button class="btn-menu" onclick="backToSetup()">⚙️ Menu</button>
         </div>
-        <button class="btn btn-secondary" onclick="showSetup()" style="width: auto; margin: 20px auto; display: block;">⚙️ Main Menu</button>
     </div>
 </div>
-</div>
-<footer class="footer">
-    <p class="footer-text">© 2026 English For Cool Dudes - 😎</p>
-    <div style="margin-top: 10px;">
-        <a href="/impressum/" style="color: #667EEA; margin-right: 15px; text-decoration: none;">Impressum</a>
-        <a href="/datenschutz/" style="color: #667EEA; text-decoration: none;">Datenschutzerklärung</a>
-    </div>
-</footer>
-
-<div class="modal" id="modal">
-    <div class="modal-content">
-        <div id="icon" style="font-size: 80px;">🎉</div>
-        <h2 id="title">Correct!</h2>
-        <p id="message"></p>
-        <div id="answerText" style="background: #F0F9FF; padding: 15px; border-radius: 8px; font-size: 20px; font-weight: 700; color: var(--secondary); margin: 20px 0;"></div>
-        <div id="scores" style="display: none; background: #F8FAFC; border-radius: 8px; padding: 15px; margin-bottom: 20px; text-align: left;"></div>
-        <button class="btn" onclick="nextRound()">Next Round</button>
-    </div>
-</div>
-    <script>
-    window.onerror = function(msg, url, line) {
-        if (msg.includes("SyntaxError") || msg.includes("Unexpected token")) {
-            alert("⚠️ This device is too old to run this game. Please try a newer phone or computer.");
-        }
-    };
-</script>
 
 <script>
-    const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-    const sb = (window.supabase && window.supabase.createClient) 
-    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) 
-    : null;
-    
-    const POINTS = { 1: 40, 2: 30, 3: 20, 4: 10 };
-    
-    const game = {
-        players: [],
-        playerIdx: 0,
-        round: 1,
-        target: 100,
-        clue: 1,
-        riddle: null,
-        isMulti: false,
-        deck: [],     
-        deckIndex: 0
-    };
+'use strict';
 
-    function setMode(isMulti) {
-        document.getElementById('mode').value = isMulti ? 'multi' : 'single';
-        toggleMultiplayer();
-    }
+/* ══════ SUPABASE ══════ */
+const SB_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+const sb = (window.supabase?.createClient) ? window.supabase.createClient(SB_URL, SB_KEY) : null;
 
-    function toggleMultiplayer() {
-        const isMulti = document.getElementById('mode').value === 'multi';
-        document.getElementById('multiplayerSetup').style.display = isMulti ? 'block' : 'none';
-        game.isMulti = isMulti;
-        if (!isMulti) game.players = [];
-    }
+/* ══════ LOCAL RIDDLES (fallback + extras) ══════ */
+const LOCAL_RIDDLES = [
+  // EVERYDAY
+  {category:'everyday',level:'beginner',answer:'a clock',clue1:'I have a face but no eyes.',clue2:'I have hands but no fingers.',clue3:'I tick but I am not alive.',clue4:'I tell you what time it is.'},
+  {category:'everyday',level:'beginner',answer:'a toothbrush',clue1:'I am long and thin with a handle.',clue2:'I have hundreds of tiny bristles.',clue3:'You use me twice a day in the bathroom.',clue4:'I keep your teeth clean and fresh.'},
+  {category:'everyday',level:'beginner',answer:'an umbrella',clue1:'I am collapsible and have a long handle.',clue2:'I can be many colours and patterns.',clue3:'You carry me when the sky looks dark.',clue4:'I keep you dry when it rains.'},
+  {category:'everyday',level:'beginner',answer:'scissors',clue1:'I have two blades joined together.',clue2:'I have two holes for your fingers.',clue3:'You find me in every kitchen and office.',clue4:'I cut paper, fabric and hair.'},
+  {category:'everyday',level:'beginner',answer:'a candle',clue1:'I am made of wax and have a wick.',clue2:'I come in many shapes and scents.',clue3:'You light me in the dark.',clue4:'I give off light and warmth as I burn.'},
+  {category:'everyday',level:'intermediate',answer:'a thermometer',clue1:'I am long, thin and fragile.',clue2:'I contain a liquid that rises and falls.',clue3:'Doctors and nurses use me often.',clue4:'I measure your body temperature.'},
+  {category:'everyday',level:'intermediate',answer:'a compass',clue1:'I am a small circular instrument.',clue2:'I have a needle that always points the same way.',clue3:'I work because of the Earth\'s magnetic field.',clue4:'I tell you which direction is North.'},
+  {category:'everyday',level:'advanced',answer:'a barometer',clue1:'I am a scientific instrument found in homes and laboratories.',clue2:'I measure something invisible that surrounds you.',clue3:'Meteorologists consult me frequently.',clue4:'I measure atmospheric pressure to predict weather.'},
+  // ANIMALS
+  {category:'animals',level:'beginner',answer:'an elephant',clue1:'I am the largest land animal on Earth.',clue2:'I have a long nose called a trunk.',clue3:'I live in Africa and Asia.',clue4:'I have big ears and ivory tusks.'},
+  {category:'animals',level:'beginner',answer:'a penguin',clue1:'I am a bird but I cannot fly.',clue2:'I am black and white.',clue3:'I live in cold places near ice and snow.',clue4:'I waddle when I walk and swim very fast.'},
+  {category:'animals',level:'beginner',answer:'a giraffe',clue1:'I am the tallest animal in the world.',clue2:'I have a very long neck.',clue3:'I eat leaves from the tops of tall trees.',clue4:'I have brown spots on yellow fur.'},
+  {category:'animals',level:'beginner',answer:'a dolphin',clue1:'I live in the ocean but I am not a fish.',clue2:'I breathe air and am very intelligent.',clue3:'I travel in groups called pods.',clue4:'I am known for jumping and playing near boats.'},
+  {category:'animals',level:'intermediate',answer:'a chameleon',clue1:'I am a reptile with eyes that move independently.',clue2:'I have a very long sticky tongue.',clue3:'I move very slowly and deliberately.',clue4:'I can change the colour of my skin.'},
+  {category:'animals',level:'intermediate',answer:'a narwhal',clue1:'I am a whale that lives in Arctic waters.',clue2:'I am sometimes called the unicorn of the sea.',clue3:'I have a long spiral tusk that is actually a tooth.',clue4:'My tusk can grow up to three metres long.'},
+  {category:'animals',level:'intermediate',answer:'a platypus',clue1:'I am a mammal but I lay eggs.',clue2:'I live in Australia.',clue3:'I have a bill like a duck and a tail like a beaver.',clue4:'I am one of the most unusual animals on Earth.'},
+  {category:'animals',level:'advanced',answer:'a mantis shrimp',clue1:'I am a marine crustacean of extraordinary capability.',clue2:'I can see 16 types of colour — humans have only 3.',clue3:'My punch is so fast it creates a shockwave in water.',clue4:'I am considered one of the most dangerous animals per size.'},
+  {category:'animals',level:'advanced',answer:'an axolotl',clue1:'I am an amphibian native to Mexico.',clue2:'I can regenerate my limbs, heart and parts of my brain.',clue3:'I am sometimes called the walking fish but I am not a fish.',clue4:'I retain my juvenile features my whole life — a process called neoteny.'},
+  // FOOD
+  {category:'food',level:'beginner',answer:'a banana',clue1:'I am yellow and curved.',clue2:'I grow in tropical countries.',clue3:'Monkeys love me.',clue4:'You peel me before eating me.'},
+  {category:'food',level:'beginner',answer:'an egg',clue1:'I have a shell and a yolk.',clue2:'I can be boiled, fried or scrambled.',clue3:'I come from a chicken.',clue4:'I am used in cakes, omelettes and many other dishes.'},
+  {category:'food',level:'beginner',answer:'chocolate',clue1:'I am brown and sweet.',clue2:'I come from cacao beans.',clue3:'I can be dark, milk or white.',clue4:'I am the most popular sweet treat in the world.'},
+  {category:'food',level:'beginner',answer:'pizza',clue1:'I am round and flat.',clue2:'I come from Italy.',clue3:'I have a dough base, tomato sauce and cheese.',clue4:'I can be topped with almost anything.'},
+  {category:'food',level:'intermediate',answer:'kimchi',clue1:'I am a fermented dish from East Asia.',clue2:'I am made primarily from cabbage.',clue3:'I am spicy, sour and very healthy.',clue4:'I am the national dish of South Korea.'},
+  {category:'food',level:'intermediate',answer:'saffron',clue1:'I am the world\'s most expensive spice by weight.',clue2:'I am hand-picked from a flower.',clue3:'I turn food a vivid golden yellow.',clue4:'I come from the crocus flower and have a subtle floral taste.'},
+  {category:'food',level:'intermediate',answer:'sourdough',clue1:'I am a type of bread with a tangy flavour.',clue2:'I am leavened with a live bacterial culture.',clue3:'I take much longer to make than normal bread.',clue4:'My starter culture can be kept alive for hundreds of years.'},
+  {category:'food',level:'advanced',answer:'umami',clue1:'I am considered the fifth basic taste.',clue2:'I was identified by a Japanese scientist in 1908.',clue3:'My name comes from Japanese and means pleasant savoury taste.',clue4:'Foods rich in me include mushrooms, parmesan, soy sauce and tomatoes.'},
+  // PLACES
+  {category:'places',level:'beginner',answer:'a library',clue1:'I am a large, quiet building.',clue2:'I have thousands of items arranged in rows.',clue3:'You borrow things from me for free.',clue4:'I am full of books and you must be silent inside.'},
+  {category:'places',level:'beginner',answer:'a hospital',clue1:'I am a large building in every city.',clue2:'Doctors and nurses work inside me.',clue3:'People come to me when they are unwell.',clue4:'I have an emergency department open 24 hours.'},
+  {category:'places',level:'beginner',answer:'a museum',clue1:'I am a large public building.',clue2:'I contain artefacts, artworks and historical objects.',clue3:'You can look but not touch most things inside me.',clue4:'I preserve history and culture for future generations.'},
+  {category:'places',level:'intermediate',answer:'a stock exchange',clue1:'I am a place where financial instruments are traded.',clue2:'Famous examples include NYSE and the London Stock Exchange.',clue3:'Traders in me react instantly to world news.',clue4:'I am where companies are listed and shares are bought and sold.'},
+  {category:'places',level:'intermediate',answer:'a data centre',clue1:'I am a large building filled with servers and computers.',clue2:'I require massive amounts of electricity to keep cool.',clue3:'I store and process information for companies worldwide.',clue4:'The cloud lives inside me.'},
+  {category:'places',level:'advanced',answer:'a tax haven',clue1:'I am a jurisdiction rather than a physical building.',clue2:'Wealthy individuals and corporations are very fond of me.',clue3:'Low or zero tax rates are my defining feature.',clue4:'The Cayman Islands and Luxembourg are famous examples of me.'},
+  // JOBS
+  {category:'jobs',level:'beginner',answer:'a teacher',clue1:'I work in a school.',clue2:'I stand at the front of a classroom.',clue3:'I give homework and tests.',clue4:'I educate children and help them learn.'},
+  {category:'jobs',level:'beginner',answer:'a chef',clue1:'I wear a white uniform and a tall hat.',clue2:'I work long hours in a hot kitchen.',clue3:'I use knives, pans and a cooker every day.',clue4:'I create the dishes on a restaurant menu.'},
+  {category:'jobs',level:'beginner',answer:'a pilot',clue1:'I wear a uniform with stripes on the shoulder.',clue2:'I sit at the front of an aircraft.',clue3:'I trained for thousands of hours before working.',clue4:'I fly passengers and cargo around the world.'},
+  {category:'jobs',level:'intermediate',answer:'an actuary',clue1:'I work with mathematics and statistics professionally.',clue2:'I work primarily for insurance companies and pension funds.',clue3:'I calculate the probability and financial cost of future events.',clue4:'I am one of the highest paid professions requiring a university degree.'},
+  {category:'jobs',level:'intermediate',answer:'a sommelier',clue1:'I work in an upmarket restaurant.',clue2:'I have passed many examinations to earn my title.',clue3:'I advise diners on which bottle to choose.',clue4:'I am an expert in wine, its regions, grapes and vintages.'},
+  {category:'jobs',level:'intermediate',answer:'an urban planner',clue1:'I design how cities and towns are organised.',clue2:'I work with governments and developers.',clue3:'I consider transport, housing, green space and infrastructure.',clue4:'I decide where roads, parks and buildings should go.'},
+  {category:'jobs',level:'advanced',answer:'a forensic accountant',clue1:'I am a specialist who sits at the intersection of two professions.',clue2:'I am often instructed by lawyers and courts.',clue3:'I trace hidden assets and follow money trails.',clue4:'I investigate financial fraud and prepare expert witness reports.'},
+  {category:'jobs',level:'advanced',answer:'a compliance officer',clue1:'I am employed by financial institutions and corporations.',clue2:'My role grew significantly after the 2008 financial crisis.',clue3:'I ensure my organisation follows laws, regulations and internal policies.',clue4:'I am the person who says no when something is technically legal but risky.'},
+  // BUSINESS
+  {category:'business',level:'beginner',answer:'a receipt',clue1:'I am a small piece of paper.',clue2:'You receive me after buying something.',clue3:'I list the items you purchased and their prices.',clue4:'You need me if you want to return something.'},
+  {category:'business',level:'beginner',answer:'a salary',clue1:'I am paid by an employer.',clue2:'I am received monthly or weekly.',clue3:'I reward your work and time.',clue4:'I am the fixed amount of money you earn from your job.'},
+  {category:'business',level:'beginner',answer:'a budget',clue1:'I am a financial plan.',clue2:'I am prepared before a period begins.',clue3:'I set out expected income and spending.',clue4:'Companies and governments prepare me every year.'},
+  {category:'business',level:'intermediate',answer:'equity',clue1:'I represent ownership.',clue2:'I can be found on a balance sheet under shareholders.',clue3:'I am the residual interest after liabilities are subtracted from assets.',clue4:'When a company issues shares, it is selling me.'},
+  {category:'business',level:'intermediate',answer:'a merger',clue1:'I happen between two companies.',clue2:'I am different from an acquisition.',clue3:'After me, two companies combine to form one.',clue4:'Competition authorities must often approve me.'},
+  {category:'business',level:'intermediate',answer:'due diligence',clue1:'I am a process carried out before a major transaction.',clue2:'I involve detailed investigation and research.',clue3:'Lawyers and accountants typically carry me out.',clue4:'I assess risks and verify information before a deal is signed.'},
+  {category:'business',level:'advanced',answer:'a poison pill',clue1:'I am a defensive strategy used by companies.',clue2:'I am activated when a hostile takeover is attempted.',clue3:'I make the acquiring company\'s purchase extremely expensive.',clue4:'I am also known as a shareholder rights plan.'},
+  {category:'business',level:'advanced',answer:'amortisation',clue1:'I am an accounting concept applied to intangible assets.',clue2:'I spread the cost of something over its useful life.',clue3:'I am the intangible equivalent of depreciation.',clue4:'I apply to things like patents, trademarks and goodwill.'},
+  // TAX
+  {category:'tax',level:'beginner',answer:'a tax return',clue1:'I am a document you submit once a year.',clue2:'I detail your income, expenses and deductions.',clue3:'HMRC or the IRS receives me.',clue4:'I calculate how much tax you owe or are owed back.'},
+  {category:'tax',level:'beginner',answer:'VAT',clue1:'I am a tax added to the price of goods and services.',clue2:'My initials stand for Value Added Tax.',clue3:'Businesses collect me on behalf of the government.',clue4:'In the UK I am currently 20% on most goods.'},
+  {category:'tax',level:'beginner',answer:'a tax refund',clue1:'I am money coming back to you.',clue2:'I happen when you have paid more tax than you owed.',clue3:'HMRC or the IRS sends me to you.',clue4:'Many people look forward to receiving me in spring.'},
+  {category:'tax',level:'intermediate',answer:'capital gains tax',clue1:'I am a tax on profit, not income.',clue2:'You pay me when you sell an asset for more than you paid.',clue3:'Selling shares, property or a business can trigger me.',clue4:'I am calculated on the gain, not the full sale price.'},
+  {category:'tax',level:'intermediate',answer:'a tax treaty',clue1:'I am an agreement between two countries.',clue2:'I prevent the same income being taxed twice.',clue3:'I determine which country has the right to tax which income.',clue4:'I am also called a double taxation agreement.'},
+  {category:'tax',level:'intermediate',answer:'a tax deduction',clue1:'I reduce your taxable income.',clue2:'Business expenses are a common example of me.',clue3:'I am different from a tax credit.',clue4:'I lower the amount of income on which you are taxed.'},
+  {category:'tax',level:'advanced',answer:'transfer pricing',clue1:'I am a concept in international tax law.',clue2:'I govern transactions between companies in the same group.',clue3:'The OECD arm\'s length principle applies to me.',clue4:'Multinationals manipulate me to shift profits to low-tax jurisdictions.'},
+  {category:'tax',level:'advanced',answer:'beneficial ownership',clue1:'I am a concept central to anti-money laundering law.',clue2:'I identify the real person behind a company or asset.',clue3:'Shell companies are often used to obscure me.',clue4:'I am the natural person who ultimately owns or controls an entity.'},
+  // LEGAL
+  {category:'legal',level:'beginner',answer:'a contract',clue1:'I am a legally binding agreement.',clue2:'I require an offer, acceptance and consideration.',clue3:'Breaking me can have serious consequences.',clue4:'I can be written or verbal, but written is safer.'},
+  {category:'legal',level:'beginner',answer:'a judge',clue1:'I wear a black robe in court.',clue2:'I listen to both sides of an argument.',clue3:'I make rulings on points of law.',clue4:'I pass sentence on convicted defendants.'},
+  {category:'legal',level:'beginner',answer:'a solicitor',clue1:'I am a type of lawyer in the UK.',clue2:'I advise clients on legal matters.',clue3:'I can represent clients in lower courts.',clue4:'I prepare documents, wills and contracts.'},
+  {category:'legal',level:'intermediate',answer:'negligence',clue1:'I am a concept in civil law.',clue2:'I require a duty of care, a breach, and resulting damage.',clue3:'I am the basis of most personal injury claims.',clue4:'I occur when someone fails to take reasonable care and causes harm.'},
+  {category:'legal',level:'intermediate',answer:'an injunction',clue1:'I am a court order.',clue2:'I can be granted very quickly in urgent situations.',clue3:'I tell someone to stop doing something — or sometimes to do something.',clue4:'Breaching me is contempt of court.'},
+  {category:'legal',level:'intermediate',answer:'habeas corpus',clue1:'I am a Latin legal term.',clue2:'I am considered a fundamental protection of individual liberty.',clue3:'I require a court to examine the lawfulness of a detention.',clue4:'I literally means "you should have the body" in Latin.'},
+  {category:'legal',level:'advanced',answer:'force majeure',clue1:'I am a clause found in commercial contracts.',clue2:'My name comes from French and means superior force.',clue3:'I excuse a party from their obligations in extraordinary circumstances.',clue4:'Events like natural disasters, wars and pandemics can trigger me.'},
+  {category:'legal',level:'advanced',answer:'res judicata',clue1:'I am a Latin legal doctrine.',clue2:'I prevent the same case being litigated twice.',clue3:'I apply once a matter has been finally decided by a court.',clue4:'I literally means "a matter already judged".'},
+  // SPORTS
+  {category:'sports',level:'beginner',answer:'a referee',clue1:'I wear a black uniform on a sports pitch.',clue2:'I carry a whistle and sometimes cards.',clue3:'Players sometimes argue with my decisions.',clue4:'I enforce the rules of the game.'},
+  {category:'sports',level:'beginner',answer:'a trophy',clue1:'I am given to the winner.',clue2:'I am often made of metal or glass.',clue3:'I sit in a cabinet and am polished proudly.',clue4:'I am a prize awarded for winning a competition.'},
+  {category:'sports',level:'intermediate',answer:'a hat-trick',clue1:'I am a sporting achievement.',clue2:'I most commonly occur in football and cricket.',clue3:'The term originally comes from cricket.',clue4:'I am when one player scores three times in a single match.'},
+  {category:'sports',level:'intermediate',answer:'a penalty shootout',clue1:'I happen at the end of a tied knockout match.',clue2:'I involve five attempts per team.',clue3:'I am considered the most nerve-wracking way to decide a game.',clue4:'Each player faces the goalkeeper one-on-one from 11 metres.'},
+  {category:'sports',level:'advanced',answer:'the offside rule',clue1:'I am one of the most debated rules in football.',clue2:'I require a player to have two opponents between them and the goal.',clue3:'VAR technology now reviews me in fractions of a centimetre.',clue4:'I exist to prevent goal-hanging and ensure fair play.'},
+];
 
-    function addPlayer() {
-        const name = document.getElementById('playerName').value.trim();
-        if (name && game.players.length < 6) {
-            game.players.push({ name, score: 0 });
-            document.getElementById('playerName').value = '';
-            updatePlayerListUI();
-        }
-    }
+/* ══════ CONFIG ══════ */
+const CATEGORIES = [
+    {id:'random',  label:'🎲 Random'},
+    {id:'everyday',label:'🏠 Everyday'},
+    {id:'animals', label:'🦁 Animals'},
+    {id:'food',    label:'🍕 Food'},
+    {id:'places',  label:'🌍 Places'},
+    {id:'jobs',    label:'💼 Jobs'},
+    {id:'business',label:'📈 Business'},
+    {id:'tax',     label:'📊 Tax'},
+    {id:'legal',   label:'⚖️ Legal'},
+    {id:'sports',  label:'⚽ Sports'},
+];
+const PTS = {1:40, 2:30, 3:20, 4:10};
+const CLUE_LABELS = {
+    1:'🔥 Very Hard — +40 pts',
+    2:'🟠 Hard — +30 pts',
+    3:'🟡 Medium — +20 pts',
+    4:'🟢 Easy — +10 pts'
+};
 
-    function updatePlayerListUI() {
-        document.getElementById('playerList').innerHTML = game.players.map(p => 
-            `<span class="player-tag">${p.name}</span>`
-        ).join('');
-    }
+/* ══════ STATE ══════ */
+const G = {
+    cat:'random', level:'beginner', target:100, mode:'single',
+    players:[], pidx:0, round:1,
+    deck:[], didx:0, riddle:null, clue:1,
+};
 
-    function showSetup() {
-        game.players = []; 
-        game.usedIds = []; 
-        document.getElementById('setup').style.display = 'block';
-        document.getElementById('game-area').style.display = 'none';
-        document.getElementById('modal').style.display = 'none';
-        document.getElementById('playerList').innerHTML = '';
-        setMode(false);
-    }
+/* ══════ SETUP UI ══════ */
+(function buildCatGrid(){
+    const grid = document.getElementById('cat-grid');
+    CATEGORIES.forEach(c => {
+        const btn = document.createElement('button');
+        btn.className = 'cat-btn' + (c.id==='random'?' selected':'');
+        btn.dataset.cat = c.id;
+        btn.textContent = c.label;
+        btn.onclick = () => selectCat(btn);
+        grid.appendChild(btn);
+    });
+})();
 
-    async function startGame() {
-        if (game.isMulti && game.players.length < 2) {
-            alert('Add at least 2 players!');
-            return;
-        }
-        
-        // Reset Game State
-        game.target = parseInt(document.getElementById('points').value);
-        game.playerIdx = 0;
-        game.round = 1;
-        game.deck = [];      // Clear the deck
-        game.deckIndex = 0;  // Reset position
-        
-        if (!game.isMulti) game.players = [{ name: 'You', score: 0 }];
-        else game.players.forEach(p => p.score = 0);
-        
-        document.getElementById('loading').style.display = 'flex';
-
-        // --- NEW: BUILD THE DECK ---
-        const cat = document.getElementById('category').value;
-        const lvl = document.getElementById('level').value;
-        
-        let query = sb.from('riddles').select('*').eq('level', lvl);
-        if (cat !== 'random') query = query.eq('category', cat);
-        
-        const { data, error } = await query;
-        
-        if (error || !data || data.length === 0) {
-            document.getElementById('loading').style.display = 'none';
-            alert("No riddles found for these settings!");
-            return;
-        }
-
-        // Shuffle the data and save it
-        game.deck = shuffleArray(data);
-        // ---------------------------
-
-        // Load the first riddle from our new deck
-        loadRiddleFromDeck();
-        
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('setup').style.display = 'none';
-        document.getElementById('game-area').style.display = 'block';
-        updateUI();
-    }
-// Standard Fisher-Yates shuffle algorithm
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
+function selectCat(btn){
+    document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    G.cat = btn.dataset.cat;
 }
-    function loadRiddleFromDeck() {
-        // Check if we ran out of cards
-        if (game.deckIndex >= game.deck.length) {
-            alert("Wow! You've played every single riddle in this category! Game Over.");
-            showSetup();
-            return;
-        }
+function selectLevel(btn){
+    document.querySelectorAll('.level-btn[data-level]').forEach(b=>{ b.classList.remove('selected','sel-beginner','sel-intermediate','sel-advanced'); });
+    btn.classList.add('selected', 'sel-'+btn.dataset.level);
+    G.level = btn.dataset.level;
+}
+function selectPts(btn){
+    document.querySelectorAll('.level-btn[data-pts]').forEach(b=>{ b.classList.remove('selected','sel-beginner','sel-intermediate','sel-advanced'); });
+    btn.classList.add('selected','sel-intermediate');
+    G.target = parseInt(btn.dataset.pts);
+}
+function selectMode(btn){
+    document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    G.mode = btn.dataset.mode;
+    document.getElementById('player-setup').classList.toggle('show', G.mode==='multi');
+}
+function addPlayer(){
+    const inp = document.getElementById('player-name-input');
+    const name = inp.value.trim();
+    if(!name || G.players.length>=6) return;
+    G.players.push({name, score:0});
+    inp.value='';
+    renderChips();
+}
+function removePlayer(i){
+    G.players.splice(i,1);
+    renderChips();
+}
+function renderChips(){
+    document.getElementById('player-chips').innerHTML = G.players.map((p,i)=>
+        `<span class="player-chip">${p.name}<span class="player-chip-remove" onclick="removePlayer(${i})">×</span></span>`
+    ).join('');
+}
 
-        // Pick the next card from the top of the deck
-        game.riddle = game.deck[game.deckIndex];
-        game.deckIndex++; // Move to next card for next round
-        
-        // Reset Clues UI
-        game.clue = 1;
-        for (let i = 1; i <= 4; i++) {
-            const box = document.getElementById(`clue${i}`);
-            const txt = document.getElementById(`clue${i}Text`);
-            if (i === 1) {
-                box.className = 'clue-box revealed';
-                txt.textContent = game.riddle.clue1;
-                txt.classList.remove('clue-text-locked');
-            } else {
-                box.className = 'clue-box locked';
-                txt.textContent = "Locked";
-                txt.classList.add('clue-text-locked');
-            }
-        }
-        document.getElementById('answer').value = '';
-        updateClueBtn();
+/* ══════ GAME START ══════ */
+async function startGame(){
+    if(G.mode==='multi' && G.players.length<2){ toast('⚠️','Add at least 2 players!'); return; }
+    if(G.mode==='single') G.players=[{name:'You',score:0}];
+    else G.players.forEach(p=>p.score=0);
+    G.pidx=0; G.round=1; G.didx=0; G.deck=[];
+
+    document.getElementById('loading').classList.add('show');
+
+    let data = [];
+    if(sb){
+        try{
+            let q = sb.from('riddles').select('*').eq('level',G.level);
+            if(G.cat!=='random') q = q.eq('category',G.cat);
+            const {data:d, error} = await q;
+            if(!error && d?.length) data = d;
+        } catch(e){}
     }
 
-    function nextClue() {
-        if (game.clue < 4) {
-            game.clue++;
-            const box = document.getElementById(`clue${game.clue}`);
-            const txt = document.getElementById(`clue${game.clue}Text`);
-            box.classList.remove('locked');
-            txt.classList.remove('clue-text-locked');
-            txt.textContent = game.riddle[`clue${game.clue}`];
-            updateClueBtn();
-        }
+    // Merge with local riddles
+    let local = LOCAL_RIDDLES.filter(r => r.level===G.level && (G.cat==='random' || r.category===G.cat));
+    // Combine, deduplicate by answer
+    const seen = new Set(data.map(r=>r.answer?.toLowerCase()));
+    local.forEach(r=>{ if(!seen.has(r.answer?.toLowerCase())) data.push(r); });
+
+    if(!data.length){ document.getElementById('loading').classList.remove('show'); toast('⚠️','No riddles found! Try different settings.'); return; }
+
+    // Fisher-Yates shuffle
+    for(let i=data.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [data[i],data[j]]=[data[j],data[i]]; }
+    G.deck = data;
+
+    document.getElementById('loading').classList.remove('show');
+    document.getElementById('setup-card').style.display='none';
+    document.getElementById('game-area').classList.add('active');
+
+    loadRiddle();
+    updateScoreBar();
+}
+
+function loadRiddle(){
+    if(G.didx>=G.deck.length){
+        showResult('gameover');
+        return;
+    }
+    G.riddle = G.deck[G.didx++];
+    G.clue = 1;
+    document.getElementById('answer-input').value='';
+    document.getElementById('answer-input').classList.remove('shake','wrong-flash');
+    renderClues();
+    updateClueBtn();
+    updateScoreBar();
+    const tb = document.getElementById('turn-banner');
+    if(G.mode==='multi'){
+        tb.textContent=`🎯 ${G.players[G.pidx].name}'s turn!`;
+        tb.classList.add('show');
+    } else { tb.classList.remove('show'); }
+}
+
+/* ══════ CLUES ══════ */
+function renderClues(){
+    const body = document.getElementById('clues-body');
+    body.innerHTML = '';
+    for(let i=1;i<=4;i++){
+        const div = document.createElement('div');
+        div.className = 'clue-item ' + (i===1?'revealed':'locked');
+        div.id = 'clue-item-'+i;
+        const hdr = document.createElement('div');
+        hdr.className='clue-header';
+        const lbl=document.createElement('div');
+        lbl.className='clue-pts '+(i===1?'pts-40':i===2?'pts-30':i===3?'pts-20':'pts-10');
+        lbl.textContent=CLUE_LABELS[i];
+        hdr.appendChild(lbl);
+        if(i>1){ const lock=document.createElement('span'); lock.className='clue-lock-icon'; lock.id='lock-'+i; lock.textContent='🔒'; hdr.appendChild(lock); }
+        const txt=document.createElement('div');
+        txt.className='clue-text';
+        txt.id='clue-txt-'+i;
+        txt.textContent = i===1 ? G.riddle.clue1 : '';
+        div.appendChild(hdr); div.appendChild(txt);
+        body.appendChild(div);
+    }
+    document.getElementById('clues-counter').textContent='Clue 1 of 4';
+}
+
+function nextClue(){
+    if(G.clue>=4) return;
+    G.clue++;
+    const item=document.getElementById('clue-item-'+G.clue);
+    const txt=document.getElementById('clue-txt-'+G.clue);
+    const lock=document.getElementById('lock-'+G.clue);
+    item.classList.remove('locked'); item.classList.add('revealed');
+    txt.textContent=G.riddle['clue'+G.clue];
+    if(lock) lock.style.display='none';
+    document.getElementById('clues-counter').textContent=`Clue ${G.clue} of 4`;
+    updateClueBtn();
+}
+
+function updateClueBtn(){
+    const btn=document.getElementById('btn-clue');
+    if(G.clue>=4){ btn.textContent='👁️ Reveal Answer'; btn.onclick=revealAnswer; btn.disabled=false; }
+    else { btn.textContent=`💡 Next Clue (−pts)`; btn.onclick=nextClue; btn.disabled=false; }
+}
+
+function revealAnswer(){
+    showResult('reveal');
+}
+
+/* ══════ ANSWER CHECKING ══════ */
+function levenshtein(a,b){
+    const m=[];
+    for(let i=0;i<=b.length;i++) m[i]=[i];
+    for(let j=0;j<=a.length;j++) m[0][j]=j;
+    for(let i=1;i<=b.length;i++) for(let j=1;j<=a.length;j++){
+        m[i][j]=b[i-1]===a[j-1]?m[i-1][j-1]:1+Math.min(m[i-1][j-1],m[i][j-1],m[i-1][j]);
+    }
+    return m[b.length][a.length];
+}
+
+function checkAnswer(){
+    const raw=document.getElementById('answer-input').value.trim().toLowerCase();
+    if(!raw) return;
+    const correct=G.riddle.answer.toLowerCase().replace(/^(a|an|the) /,'');
+    if(raw.length < correct.length*0.5){ wrongBuzz(); return; }
+    const isSub = correct.includes(raw);
+    const dist = levenshtein(raw,correct);
+    const allowed = correct.length>8?3:correct.length>4?2:0;
+    if(isSub||dist<=allowed){
+        const pts=PTS[G.clue];
+        G.players[G.pidx].score+=pts;
+        confettiBurst();
+        showResult('correct', pts);
+    } else { wrongBuzz(); }
+}
+
+function wrongBuzz(){
+    const inp=document.getElementById('answer-input');
+    inp.classList.remove('shake');
+    void inp.offsetWidth;
+    inp.classList.add('shake');
+    toast('❌','Not quite — keep thinking!');
+}
+
+/* ══════ RESULTS ══════ */
+function showResult(type, pts=0){
+    const overlay=document.getElementById('result-overlay');
+    const icon=document.getElementById('result-icon');
+    const title=document.getElementById('result-title');
+    const msg=document.getElementById('result-msg');
+    const ptsBox=document.getElementById('result-pts');
+    const ptsNum=document.getElementById('result-pts-num');
+    const ansBox=document.getElementById('result-answer');
+    const scores=document.getElementById('result-scores');
+    const nextBtn=document.getElementById('result-next-btn');
+    const tryBtn=document.getElementById('result-try-btn');
+
+    ptsBox.style.display='none'; ansBox.style.display='none';
+    scores.style.display='none'; tryBtn.style.display='none';
+    nextBtn.style.display='block';
+
+    if(type==='correct'){
+        icon.textContent='🎉'; title.textContent='Correct!'; title.style.color='var(--green-shadow)';
+        msg.textContent=`Nice one — well done!`;
+        ptsNum.textContent='+'+pts; ptsBox.style.display='block';
+        ansBox.textContent='✅ I am '+G.riddle.answer; ansBox.style.display='block';
+    } else if(type==='reveal'){
+        icon.textContent='🔍'; title.textContent='The answer was…'; title.style.color='var(--orange-shadow)';
+        msg.textContent='No points this round.';
+        ansBox.textContent='💡 I am '+G.riddle.answer; ansBox.style.display='block';
+    } else if(type==='gameover'){
+        icon.textContent='🏆'; title.textContent='All done!'; title.style.color='var(--yellow-shadow)';
+        msg.textContent="You've played every riddle in this category!";
+        nextBtn.textContent='🎮 New Game'; nextBtn.onclick=backToSetup;
+        overlay.classList.add('show'); return;
     }
 
-    function updateClueBtn() {
-        const btn = document.getElementById('clueBtn');
-        if (game.clue >= 4) {
-            btn.textContent = '🔓 Reveal Answer';
-            btn.onclick = revealAnswer;
-        } else {
-            btn.textContent = '💡 Next Clue';
-            btn.onclick = nextClue;
-        }
+    // Check winner
+    const winner = G.players.find(p=>p.score>=G.target);
+    if(winner && (type==='correct')){
+        icon.textContent='🏆'; title.textContent='Winner!'; title.style.color='var(--yellow-shadow)';
+        msg.textContent=`${winner.name} wins with ${winner.score} points! 🎉`;
+        nextBtn.textContent='🎮 New Game'; nextBtn.onclick=backToSetup;
+        megaConfettiBurst();
     }
 
-    function revealAnswer() { showModal(true, 0, true); }
-
-    // Calculates how many letters are different between two words
-    function getLevenshteinDistance(a, b) {
-        const matrix = [];
-        for (let i = 0; i <= b.length; i++) matrix[i] = [i];
-        for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
-
-        for (let i = 1; i <= b.length; i++) {
-            for (let j = 1; j <= a.length; j++) {
-                if (b.charAt(i - 1) == a.charAt(j - 1)) {
-                    matrix[i][j] = matrix[i - 1][j - 1];
-                } else {
-                    matrix[i][j] = Math.min(
-                        matrix[i - 1][j - 1] + 1, // substitution
-                        Math.min(
-                            matrix[i][j - 1] + 1, // insertion
-                            matrix[i - 1][j] + 1  // deletion
-                        )
-                    );
-                }
-            }
-        }
-        return matrix[b.length][a.length];
+    // Multiplayer scores
+    if(G.mode==='multi' && G.players.length>1){
+        scores.style.display='block';
+        scores.innerHTML=G.players.map(p=>`<div class="result-score-row"><span class="result-score-name">${p.name}</span><span class="result-score-pts">${p.score} pts</span></div>`).join('');
     }
 
-   function checkAnswer() {
-        const rawInput = document.getElementById('answer').value.trim().toLowerCase();
-        if (!rawInput) return;
+    overlay.classList.add('show');
+}
 
-        // 1. Get the "clean" version of the correct answer (remove a/an/the)
-        const correctOriginal = game.riddle.answer.toLowerCase();
-        const correctClean = correctOriginal.replace(/^(a|an|the) /,'');
-        
-        // 2. SAFETY CHECK: Is the input too short?
-        // The user's guess must be at least 50% of the length of the real answer.
-        // This stops "e" (length 1) matching "elephant" (length 8).
-        if (rawInput.length < (correctClean.length * 0.5)) {
-            showModal(false, 0);
-            return;
-        }
+function nextRound(){
+    document.getElementById('result-overlay').classList.remove('show');
+    document.getElementById('result-next-btn').textContent='Next Riddle →';
+    document.getElementById('result-next-btn').onclick=nextRound;
+    const winner=G.players.find(p=>p.score>=G.target);
+    if(winner) return;
+    if(G.mode==='multi'){
+        G.pidx=(G.pidx+1)%G.players.length;
+        if(G.pidx===0) G.round++;
+    } else { G.round++; }
+    loadRiddle();
+}
 
-        // 3. EXACT or SUBSTRING MATCH (For "Tige" -> "Tiger")
-        // We still allow substrings, but only if they passed the length check above.
-        const isSubstring = correctClean.includes(rawInput);
+function closeWrongResult(){
+    document.getElementById('result-overlay').classList.remove('show');
+}
 
-        // 4. FUZZY MATCH (For "Elefent" -> "Elephant")
-        const distance = getLevenshteinDistance(rawInput, correctClean);
-        
-        // Allow more mistakes for longer words:
-        // Length 1-4: 0 mistakes allowed (strict)
-        // Length 5-8: 2 mistakes allowed
-        // Length 9+:  3 mistakes allowed
-        let allowedErrors = 0;
-        if (correctClean.length > 8) allowedErrors = 3;
-        else if (correctClean.length > 4) allowedErrors = 2;
-        
-        const isFuzzyMatch = distance <= allowedErrors;
+/* ══════ SCORE BAR ══════ */
+function updateScoreBar(){
+    const p=G.players[G.pidx]||{name:'You',score:0};
+    document.getElementById('sb-player').textContent=p.name;
+    document.getElementById('sb-round').textContent=G.round;
+    document.getElementById('sb-score').textContent=p.score;
+    document.getElementById('sb-target').textContent=G.target;
+}
 
-        // 5. Final Decision
-        if (isSubstring || isFuzzyMatch) {
-            const pts = POINTS[game.clue];
-            game.players[game.playerIdx].score += pts;
-            showModal(true, pts);
-        } else {
-            showModal(false, 0);
-        }
+/* ══════ BACK TO SETUP ══════ */
+function backToSetup(){
+    document.getElementById('result-overlay').classList.remove('show');
+    document.getElementById('game-area').classList.remove('active');
+    document.getElementById('setup-card').style.display='block';
+    G.players=[];
+    renderChips();
+    document.getElementById('player-setup').classList.remove('show');
+    document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('selected'));
+    document.querySelector('.mode-btn[data-mode="single"]').classList.add('selected');
+    G.mode='single';
+}
+
+/* ══════ CONFETTI ══════ */
+function confettiBurst(){
+    const colors=['#FF9600','#FFC800','#58CC02','#1CB0F6','#CE82FF','#FF4B4B'];
+    for(let i=0;i<24;i++){
+        const d=document.createElement('div'); d.className='confetti-dot';
+        d.style.cssText=`left:${20+Math.random()*60}%;top:${20+Math.random()*30}%;background:${colors[i%colors.length]};animation-delay:${Math.random()*.3}s;animation-duration:${.7+Math.random()*.5}s;transform:rotate(${Math.random()*360}deg);z-index:9999;position:fixed;width:10px;height:10px;border-radius:3px;pointer-events:none;animation-name:confetti;`;
+        document.body.appendChild(d); setTimeout(()=>d.remove(),1200);
     }
-
-    function showModal(correct, pts, isReveal = false) {
-        const modal = document.getElementById('modal');
-        const btn = modal.querySelector('.btn');
-        const answerText = document.getElementById('answerText');
-        modal.style.display = 'flex';
-        
-        btn.style.display = (correct || isReveal) ? 'block' : 'none';
-        btn.textContent = 'Next Round';
-        btn.onclick = nextRound;
-
-        if (isReveal) {
-            document.getElementById('icon').textContent = '🔍';
-            document.getElementById('title').textContent = 'The answer was...';
-            document.getElementById('message').textContent = 'No points this round.';
-        } else {
-            document.getElementById('icon').textContent = correct ? '🎉' : '❌';
-            document.getElementById('title').textContent = correct ? 'Correct!' : 'Not Quite!';
-            document.getElementById('message').textContent = correct ? `You earned ${pts} points!` : 'Keep thinking!';
-        }
-
-        answerText.textContent = (correct || isReveal) ? `Answer: ${game.riddle.answer}` : '';
-        answerText.style.display = (correct || isReveal) ? 'block' : 'none';
-        
-        if (!correct && !isReveal) {
-            setTimeout(() => { modal.style.display = 'none'; }, 1500);
-            return;
-        }
-
-        if (game.isMulti) {
-            const div = document.getElementById('scores');
-            div.style.display = 'block';
-            div.innerHTML = '<div style="font-weight:700;margin-bottom:10px;color:#64748B">SCORES</div>' +
-                game.players.map(p => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #E2E8F0"><span>${p.name}</span><span style="font-weight:700;color:var(--secondary)">${p.score}</span></div>`).join('');
-        }
+}
+function megaConfettiBurst(){
+    const colors=['#FF9600','#FFC800','#58CC02','#1CB0F6','#CE82FF','#FF4B4B'];
+    for(let i=0;i<60;i++){
+        const d=document.createElement('div'); d.className='mega-conf-dot';
+        const sz=8+Math.random()*12;
+        d.style.cssText=`left:${Math.random()*100}vw;top:${-10+Math.random()*20}px;width:${sz}px;height:${sz}px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-delay:${Math.random()*.8}s;animation-duration:${1+Math.random()*.8}s;border-radius:${Math.random()>.5?'50%':'3px'};transform:rotate(${Math.random()*360}deg)`;
+        document.body.appendChild(d); setTimeout(()=>d.remove(),2200);
     }
+}
 
-    async function nextRound() {
-        document.getElementById('modal').style.display = 'none';
-        const winner = game.players.find(p => p.score >= game.target);
-        if (winner) {
-            showWinner(winner);
-            return;
-        }
-        if (game.isMulti) {
-            game.playerIdx = (game.playerIdx + 1) % game.players.length;
-            if (game.playerIdx === 0) game.round++;
-        } else {
-            game.round++;
-        }
-        document.getElementById('loading').style.display = 'flex';
-        loadRiddleFromDeck();
-        document.getElementById('loading').style.display = 'none';
-        updateUI();
-    }
-
-    function showWinner(winner) {
-        const modal = document.getElementById('modal');
-        document.getElementById('icon').textContent = '🏆';
-        document.getElementById('title').textContent = 'Game Over!';
-        const isFirstPerson = winner.name.toLowerCase() === 'you';
-        document.getElementById('message').textContent = `${winner.name} ${isFirstPerson ? 'win' : 'wins'} with ${winner.score} points!`;
-        document.getElementById('answerText').style.display = 'none';
-        
-        const btn = modal.querySelector('.btn');
-        btn.textContent = '🎮 New Game';
-        btn.onclick = showSetup;
-        modal.style.display = 'flex';
-    }
-
-    function updateUI() {
-        const p = game.players[game.playerIdx] || { name: 'You', score: 0 };
-        document.getElementById('currentPlayer').textContent = p.name;
-        document.getElementById('round').textContent = game.round;
-        document.getElementById('score').textContent = p.score;
-        document.getElementById('target').textContent = game.target;
-    }
+/* ══════ TOAST ══════ */
+function toast(icon,text){
+    const wrap=document.getElementById('badge-wrap');
+    const b=document.createElement('div'); b.className='badge';
+    b.innerHTML=`<span class="badge-icon">${icon}</span><span class="badge-text">${text}</span>`;
+    wrap.appendChild(b);
+    setTimeout(()=>b.classList.add('show'),50);
+    setTimeout(()=>{ b.classList.remove('show'); setTimeout(()=>b.remove(),500); },3500);
+}
 </script>
 </body>
 </html>
