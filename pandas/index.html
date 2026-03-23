@@ -175,14 +175,16 @@
     .wb-pip { flex:1; height:6px; border-radius:99px; background:var(--border-heavy); transition:background .3s; }
     .wb-pip.done   { background:var(--yellow); }
     .wb-pip.active { background:var(--green); }
-    .wb-actions { display:flex; gap:10px; }
-.wb-clear  { flex:1; padding:12px 8px; background:var(--white); color:var(--ink-bold); border:2px solid var(--border-heavy); border-bottom:4px solid var(--border-heavy); border-radius:var(--rsm); font-size:13px; font-weight:900; transition:all .1s; text-align:center; }
-.wb-clear:active  { border-bottom-width:2px; transform:translateY(2px); }
-.wb-check  { flex:1; padding:12px 8px; background:var(--green); color:var(--white); border:2px solid var(--green-shadow); border-bottom:4px solid var(--green-shadow); border-radius:var(--rsm); font-size:13px; font-weight:900; transition:all .1s; text-align:center; }
-.wb-check:active  { border-bottom-width:2px; transform:translateY(2px); }
-.wb-reveal { flex:1; padding:12px 8px; background:rgba(255,200,0,.12); color:var(--yellow-shadow); border:2px solid var(--yellow-shadow); border-bottom:4px solid var(--yellow-shadow); border-radius:var(--rsm); font-size:13px; font-weight:900; transition:all .15s; text-align:center; display:none; }
-.wb-reveal:active { border-bottom-width:2px; transform:translateY(2px); }
-.wb-reveal.show   { display:flex; align-items:center; justify-content:center; gap:5px; animation:up .3s ease both; }
+    .wb-actions { display:flex; gap:8px; flex-wrap:wrap; }
+    .wb-clear  { flex:1; min-width:60px; padding:12px 8px; background:var(--white); color:var(--ink-bold); border:2px solid var(--border-heavy); border-bottom:4px solid var(--border-heavy); border-radius:var(--rsm); font-size:13px; font-weight:900; transition:all .1s; text-align:center; }
+    .wb-clear:active  { border-bottom-width:2px; transform:translateY(2px); }
+    .wb-check  { flex:1; min-width:60px; padding:12px 8px; background:var(--green); color:var(--white); border:2px solid var(--green-shadow); border-bottom:4px solid var(--green-shadow); border-radius:var(--rsm); font-size:13px; font-weight:900; transition:all .1s; text-align:center; }
+    .wb-check:active  { border-bottom-width:2px; transform:translateY(2px); }
+    .wb-hint   { flex:1; min-width:60px; padding:12px 8px; background:rgba(28,176,246,.1); color:var(--blue-shadow); border:2px solid var(--blue-shadow); border-bottom:4px solid var(--blue-shadow); border-radius:var(--rsm); font-size:13px; font-weight:900; transition:all .15s; text-align:center; }
+    .wb-hint:active   { border-bottom-width:2px; transform:translateY(2px); }
+    .wb-hint:disabled { opacity:.35; cursor:default; }
+    .wb-reveal { flex:1; min-width:60px; padding:12px 8px; background:rgba(255,200,0,.12); color:var(--yellow-shadow); border:2px solid var(--yellow-shadow); border-bottom:4px solid var(--yellow-shadow); border-radius:var(--rsm); font-size:13px; font-weight:900; transition:all .15s; text-align:center; }
+    .wb-reveal:active { border-bottom-width:2px; transform:translateY(2px); }
     .wb-feedback { margin-top:12px; padding:12px 14px; border-radius:var(--rsm); font-size:14px; font-weight:800; border:2px solid; display:none; line-height:1.6; }
     .wb-feedback.show.right { display:block; background:rgba(88,204,2,.1); color:var(--green-shadow); border-color:rgba(88,167,0,.3); animation:up .2s ease both; }
     .wb-feedback.show.wrong { display:block; background:rgba(255,75,75,.1); color:var(--punch-shadow); border-color:rgba(255,75,75,.3); animation:up .2s ease both; }
@@ -821,13 +823,14 @@ function buildWordBuilderInner(){ renderWordBuilder(); }
 
 let wbBuilt=[];
 let wbWrongAttempts = 0;
+let wbHintsUsed = 0;
 
 function renderWordBuilder(){
     const prog=$('wb-prog');
     if(prog) prog.innerHTML=WORDS.map((_,i)=>`<div class="wb-pip ${i<S.wbIdx?'done':i===S.wbIdx?'active':''}"></div>`).join('');
     if(S.wbDone){ renderWBDone(); return; }
     const w=WORDS[S.wbIdx];
-    wbBuilt=[]; wbWrongAttempts=0;
+    wbBuilt=[]; wbWrongAttempts=0; wbHintsUsed=0;
     // Shuffle letters but keep extra decoy if short
     const shuffled=[...w.letters].sort(()=>Math.random()-.5);
     $('wb-slot').innerHTML=`
@@ -838,10 +841,11 @@ function renderWordBuilder(){
         </div>
         <div class="wb-feedback" id="wb-fb"></div>
         <div class="wb-actions">
-            <button class="wb-clear" onclick="clearBuilt()">🗑️ Clear</button>
-            <button class="wb-check" onclick="checkBuilt()">✓ Check!</button>
-            <button class="wb-reveal" id="wb-reveal" onclick="revealBuilt()">🐼 Reveal</button>
-        </div>`;
+    <button class="wb-clear"  onclick="clearBuilt()">🗑️ Clear</button>
+    <button class="wb-check"  onclick="checkBuilt()">✓ Check!</button>
+    <button class="wb-hint"   id="wb-hint"   onclick="hintBuilt()">💡 Hint</button>
+    <button class="wb-reveal" id="wb-reveal" onclick="revealBuilt()">🐼 Reveal</button>
+</div>`;
     renderAnswer();
 }
 
@@ -887,6 +891,30 @@ function clearBuilt(){
     renderAnswer();
     const fb=$('wb-fb'); if(fb){ fb.className='wb-feedback'; fb.textContent=''; }
 }
+    function hintBuilt(){
+    const w = WORDS[S.wbIdx];
+    const nextPos = wbBuilt.length;
+    if(nextPos >= w.letters.length) return;
+    const correctLetter = w.letters[nextPos];
+    const tiles = document.querySelectorAll('.wb-tile:not(.used)');
+    for(const t of tiles){
+        if(t.textContent.toLowerCase() === correctLetter.toLowerCase()){
+            t.classList.add('used'); break;
+        }
+    }
+    wbBuilt.push(correctLetter);
+    wbHintsUsed++;
+    renderAnswer();
+    const hintBtn=$('wb-hint');
+    if(hintBtn && wbBuilt.length >= w.letters.length) hintBtn.disabled=true;
+    const fb=$('wb-fb');
+    if(fb){
+        fb.className='wb-feedback show wrong';
+        fb.textContent = nextPos+1 < w.letters.length
+            ? `💡 Letter ${nextPos+1} revealed — can you get the rest?`
+            : `💡 All letters revealed! Press Check to confirm.`;
+    }
+}
 function revealBuilt(){
     const w=WORDS[S.wbIdx];
     wbBuilt=[...w.letters];
@@ -895,8 +923,8 @@ function revealBuilt(){
     const fb=$('wb-fb');
     fb.className='wb-feedback show wrong';
     fb.innerHTML=`👁️ The answer is <strong>${w.word.toUpperCase()}</strong> — ${w.def}`;
-    const revBtn=$('wb-reveal'); if(revBtn) revBtn.style.display='none';
-    document.querySelectorAll('.wb-check,.wb-clear').forEach(b=>{b.disabled=true;b.style.opacity='.4';});
+    const hintBtn=$('wb-hint'); if(hintBtn) hintBtn.disabled=true;
+    document.querySelectorAll('.wb-check,.wb-clear,.wb-hint,.wb-reveal').forEach(...);
     S.totalAnswered++;
     setTimeout(()=>{
         S.wbIdx++;
