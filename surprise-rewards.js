@@ -1,15 +1,12 @@
 // ═══════════════════════════════════════════════════════════
-// SURPRISE REWARDS — surprise-rewards.js  v2
-// Auto-detects lesson section → fires the right character
+// SURPRISE REWARDS — surprise-rewards.js  v3
+// Auto-detects section → fires the right character
 // Tone: dry British wit, understated, a bit sarcastic
-// Fires: combo 5+, section complete — not constantly
+// Fires: combo 5+, section complete — rare, never repetitive
 // ═══════════════════════════════════════════════════════════
 'use strict';
 
 // ── AUTO-DETECT SECTION ──────────────────────────────────
-// Checks LESSON_ID global + URL pathname + page title
-// Returns one of: beginner | intermediate | advanced | kids |
-//                 tax | business | legal | weekly-drop | breakroom
 function detectSection() {
     const id   = (window.LESSON_ID || '').toLowerCase();
     const path = window.location.pathname.toLowerCase();
@@ -18,43 +15,47 @@ function detectSection() {
 
     if (/chatattack|vibecheck|wordthief|whatami|matching|phrasescramble|definitionary|fixit|forbidden|breakroom/.test(all)) return 'breakroom';
     if (/weekly.drop|newsletter|issue-\d/.test(all)) return 'weekly-drop';
-    if (/\btax\b/.test(all))      return 'tax';
-    if (/\blegal\b/.test(all))    return 'legal';
-    if (/\bbusiness\b/.test(all)) return 'business';
-    if (/\bkids\b/.test(all))     return 'kids';
-    if (/\badvanced\b/.test(all)) return 'advanced';
+    if (/\btax\b/.test(all))          return 'tax';
+    if (/\blegal\b/.test(all))        return 'legal';
+    if (/\bbusiness\b/.test(all))     return 'business';
+    if (/\bkids\b/.test(all))         return 'kids';
+    if (/\badvanced\b/.test(all))     return 'advanced';
     if (/\bintermediate\b/.test(all)) return 'intermediate';
-    if (/\bbeginner\b/.test(all)) return 'beginner';
+    if (/\bbeginner\b/.test(all))     return 'beginner';
     return 'general';
 }
 
-// ── CHARACTER CAST ───────────────────────────────────────
-// avatar: CSS-rendered character portrait (emoji layer + bg)
-// sections: array of sections this character appears in, or null for all
+// ── CHARACTER PORTRAITS ───────────────────────────────────
+// Each character is rendered as a proper portrait:
+// outer ring colour, inner bg, emoji face, optional accessories
+// The CSS draws them as layered divs — not just a floating emoji
+
 const CHARACTERS = {
 
-    carl: {
-        name: 'Cool Dude Carl',
-        // Sunglasses dude — the mascot
-        avatar: { emoji: '😎', bg: '#1CB0F6', ring: '#1899D6' },
-        sections: null, // everywhere
+    // The Mascot — no name, just "😎" — appears rarely as a treat
+    mascot: {
+        name: '😎',
+        portrait: {
+            bg: '#1CB0F6', ring: '#1899D6',
+            face: '😎',
+            // Sunglasses, slick hair — rendered via CSS layers
+            style: 'cool',
+        },
+        sections: null, // everywhere — but LOW weight, rare guest
         lines: [
             "Correct. I'll try not to look too surprised.",
-            "Three in a row. I'd be impressed if I weren't already.",
             "Right answer. Try not to make it a habit of showing everyone up.",
             "I've been cool my whole life and even I had to look that one up.",
             "At this rate you'll be correcting my English. Slightly annoying.",
             "Nailed it. I'd say well done but you clearly already know.",
-            "That was suspiciously good. Are you absolutely sure you're a beginner?",
+            "That was suspiciously good.",
             "I've seen a lot of students. You're comfortably one of the better ones.",
-            "Correct. Don't let it go to your head. (Let it go to your head.)",
-            "Right. Very much on brand for you at this point.",
         ]
     },
 
     doug: {
-        name: 'Doug the Pup',
-        avatar: { emoji: '🐶', bg: '#FFC800', ring: '#E5B400' },
+        name: 'Doug the Pup 🐶',
+        portrait: { bg: '#FFC800', ring: '#E5B400', face: '🐶', style: 'bouncy' },
         sections: ['beginner'],
         lines: [
             "CORRECT!! Sorry. I get excited. Still correct though.",
@@ -63,14 +64,16 @@ const CHARACTERS = {
             "Right answer! I'm going to tell everyone about this. Everyone.",
             "Brilliant! I don't fully understand the question but your energy is perfect.",
             "Correct! This is the best day! (Every day is the best day.)",
-            "You're doing so well! I'm so proud! I don't even know you!",
             "RIGHT ANSWER!! *knocks over everything* sorry sorry still though — brilliant.",
+            // Guest appearances on other lessons:
+            "I wandered over from the Beginner section. Just wanted to say: correct.",
+            "They said I couldn't do Intermediate level. They were right. But YOU can.",
         ]
     },
 
     larry: {
-        name: 'Legal Larry',
-        avatar: { emoji: '🧑‍⚖️', bg: '#CE82FF', ring: '#A559D9' },
+        name: 'Legal Larry 🧑‍⚖️',
+        portrait: { bg: '#CE82FF', ring: '#A559D9', face: '🧑‍⚖️', style: 'formal' },
         sections: ['legal'],
         lines: [
             "Objection — that answer was far too good. Sustained.",
@@ -80,67 +83,71 @@ const CHARACTERS = {
             "Without prejudice: that was excellent.",
             "My client — that's you — did nothing wrong. Clearly.",
             "I'm going to need that in writing. Remarkable.",
-            "I've reviewed the evidence. The evidence says you should be charging for this.",
-            "Correct. I'll allow it.",
             "The record will show: correct. As usual.",
+            // Guest appearances:
+            "I usually handle legal matters but I popped over to say: right answer.",
+            "I could draft a contract to confirm that was correct. I won't. But I could.",
         ]
     },
 
     brenda: {
-        name: 'Tax Brenda',
-        avatar: { emoji: '🧾', bg: '#FF9600', ring: '#E07800' },
+        name: 'Tax Brenda 🧾',
+        portrait: { bg: '#FF9600', ring: '#E07800', face: '🧾', style: 'weary' },
         sections: ['tax'],
         lines: [
             "Correct. And unlike most things I deal with, that's not taxable.",
             "Right answer. I've seen grown adults get that wrong on their returns.",
             "Technically accurate. I've built a career on technically accurate.",
-            "That's correct. I'd say I'm surprised but honestly I've seen worse.",
-            "Perfect. Much better than the self-assessments I deal with. Much better.",
+            "Perfect. Much better than the self-assessments I deal with.",
             "Right. If only everyone I worked with understood this as well as you do.",
             "Correct. I have feelings about this. Mostly relief.",
             "Right answer. No penalty. No late filing fee. Enjoy it.",
+            // Guest appearances:
+            "I deal with tax returns all day. Popping over to confirm: that was right.",
+            "Not taxable. Not my department. But still correct.",
         ]
     },
 
     derek: {
-        name: 'Business Derek',
-        avatar: { emoji: '💼', bg: '#1CB0F6', ring: '#1899D6' },
+        name: 'Business Derek 💼',
+        portrait: { bg: '#1CB0F6', ring: '#1899D6', face: '💼', style: 'corporate' },
         sections: ['business'],
         lines: [
             "Correct. I'll circle back to congratulate you properly.",
-            "That answer is very much on-brand. Well done.",
             "Right. Let's take that offline and celebrate appropriately.",
             "Solid. Very much in line with our core competencies.",
-            "Correct. I'd say let's touch base but this speaks for itself.",
             "That's the kind of answer that gets you to the next round of interviews.",
             "Right answer. Synergy achieved. I'll show myself out.",
             "Nailed it. I've sat in meetings for years waiting for someone to say that.",
             "Correct. Going forward, this is the benchmark.",
-            "Right. I'm going to need you to action that level of quality consistently.",
+            // Guest appearances:
+            "I'm between meetings so I thought I'd pop over. Correct answer. As expected.",
+            "Not on my agenda today but I wanted to touch base — great answer.",
         ]
     },
 
-    professor: {
-        name: 'Dr. Victoria Sharp',
-        avatar: { emoji: '👩‍🏫', bg: '#FF4B4B', ring: '#EA2B2B' },
+    victoria: {
+        name: 'Dr. Victoria Sharp 👩‍🏫',
+        portrait: { bg: '#FF4B4B', ring: '#EA2B2B', face: '👩‍🏫', style: 'stern' },
         sections: ['advanced'],
         lines: [
             "Correct. I'd say impressive but I set the bar deliberately high.",
             "Right. The C1-C2 learner emerges. Finally.",
             "That's accurate. I was beginning to think I'd have to explain it again.",
-            "Correct. This is what consistent study gets you. Don't stop now.",
             "Right answer. Technically. Pedantically. Perfectly.",
             "I've published four papers on this. You got it in seconds. Fine.",
             "Correct. Do carry on. I have marking to finish.",
-            "That's the right answer. I may use this as an example in my next lecture.",
             "Right. Now if everyone else in the room could manage that, we'd be somewhere.",
             "Correct. Sharp. Rather like my name.",
+            // Guest appearances:
+            "I don't usually visit Intermediate lessons. I'm making an exception. Correct.",
+            "Your answer meets the C1 standard. You're welcome.",
         ]
     },
 
     ian: {
-        name: 'Intermediate Ian',
-        avatar: { emoji: '☕', bg: '#58CC02', ring: '#58A700' },
+        name: 'Intermediate Ian ☕',
+        portrait: { bg: '#58CC02', ring: '#58A700', face: '☕', style: 'distracted' },
         sections: ['intermediate'],
         lines: [
             "That's correct! Hang on — sorry, I was making a cup of tea. Well done.",
@@ -155,28 +162,10 @@ const CHARACTERS = {
         ]
     },
 
-    nancy: {
-        name: 'News Anchor Nancy',
-        avatar: { emoji: '📺', bg: '#FF4B4B', ring: '#EA2B2B' },
-        sections: ['weekly-drop'],
-        lines: [
-            "Breaking: local learner absolutely nails it. More at eleven.",
-            "Sources confirm that answer was correct. We're getting more details.",
-            "The headline writes itself. Brilliant student stuns everyone.",
-            "We go live to the scene — and the scene looks excellent.",
-            "In a world of misinformation, your correct answer is genuinely refreshing.",
-            "That's the kind of answer that gets above the fold. Front page.",
-            "This just in: you're very good at this.",
-            "We're hearing unconfirmed reports of a perfect score. We can now confirm.",
-            "Live coverage of you getting everything right continues.",
-            "Our correspondent on the ground reports: flawless.",
-        ]
-    },
-
     kitty: {
-        name: 'Kitty',
-        avatar: { emoji: '📻', bg: '#FF9600', ring: '#E07800' },
-        sections: ['intermediate'], // also fires on lifestyle/culture lessons
+        name: 'Kitty 📻',
+        portrait: { bg: '#FF9600', ring: '#E07800', face: '📻', style: 'retro' },
+        sections: ['intermediate'],
         lines: [
             "Groovy! And I mean that — it was a compliment in 1965.",
             "Smashing. We said that in the Sixties. It still works.",
@@ -185,30 +174,53 @@ const CHARACTERS = {
             "Right answer. In my house everything is from the Sixties. Your English is timeless.",
             "Correct. The Sixties were full of people learning new things. You fit right in.",
             "Fab! That was the word. Fab. Still is, in my house.",
-            "Right answer. Groovy, smashing, fab — pick one. You've earned all three.",
+            // Guest appearances:
+            "I popped over from my 1964 sitting room to say: correct.",
+            "I don't usually leave the house — it's a whole era in there — but well done.",
+        ]
+    },
+
+    nancy: {
+        name: 'News Anchor Nancy 📺',
+        portrait: { bg: '#FF4B4B', ring: '#EA2B2B', face: '📺', style: 'broadcast' },
+        sections: ['weekly-drop'],
+        lines: [
+            "Breaking: local learner absolutely nails it. More at eleven.",
+            "Sources confirm that answer was correct. We're getting more details.",
+            "The headline writes itself. Brilliant student stuns everyone.",
+            "We go live to the scene — and the scene looks excellent.",
+            "In a world of misinformation, your correct answer is genuinely refreshing.",
+            "That's the kind of answer that gets above the fold.",
+            "This just in: you're very good at this.",
+            "Live coverage of you getting everything right continues.",
+            // Guest appearances:
+            "Interrupting this lesson with breaking news: correct answer confirmed.",
+            "We cross live to the learning zone — and it's going very well indeed.",
         ]
     },
 
     bubbles: {
-        name: 'Bubbles',
-        avatar: { emoji: '💅', bg: '#FF6EB4', ring: '#D4408A' },
+        name: 'Bubbles 💅',
+        portrait: { bg: '#FF6EB4', ring: '#D4408A', face: '💅', style: 'pop' },
         sections: ['kids'],
         lines: [
             "*blows bubble* ...correct! *pops it*",
             "That's right! Omg! Slay! Whatever! You got it!",
             "Correct!! I'd do a victory dance but I'm already doing one.",
-            "Right answer! I literally cannot believe how good you are at this!",
             "*blows enormous bubble* That one was for you. You earned it.",
             "Correct! I wrote a song about this once. It went number one. Anyway — well done.",
             "Right! Main character energy. Right now. Keep it.",
             "*pops bubblegum* yeah that's correct babes",
             "OMG you got it!! That was so good!! I'm screaming!!",
+            // Guest appearances:
+            "I wandered over from the Kids section. *blows bubble* Correct.",
+            "They said bubblegum pop stars don't do Intermediate English. Well.",
         ]
     },
 
     xl: {
-        name: 'XL_Gamer99',
-        avatar: { emoji: '🎮', bg: '#58CC02', ring: '#58A700' },
+        name: 'XL_Gamer99 🎮',
+        portrait: { bg: '#58CC02', ring: '#58A700', face: '🎮', style: 'gamer' },
         sections: ['breakroom'],
         lines: [
             "CORRECT!! pog pog pog let's GOOO",
@@ -220,44 +232,46 @@ const CHARACTERS = {
             "correct!! touching grass later to celebrate. right after this though.",
             "right answer. my teammates could NEVER. you though? you could.",
             "chat is going CRAZY right now. and by chat I mean just me. CRAZY.",
-            "new meta just dropped and it's called you being really good at this.",
+            // Guest appearances:
+            "I spawned into this lesson by accident and honestly? still going to say GG.",
+            "wrong map, wrong lobby, right answer. let's go.",
         ]
     },
 
 };
 
-// ── SECTION → CHARACTER MAPPING ──────────────────────────
-// Primary character for each section (shown most often)
-// Secondary characters (shown less often, for variety)
+// ── SECTION CAST ─────────────────────────────────────────
+// primary: shown most (60%)
+// secondary: shown sometimes (25%)
+// guests: cross-section characters for variety (15%)
+// mascot always possible but low weight — treat not constant
 const SECTION_CAST = {
-    beginner:     { primary: 'doug',      secondary: ['carl'] },
-    intermediate: { primary: 'ian',       secondary: ['carl', 'kitty'] },
-    advanced:     { primary: 'professor', secondary: ['carl'] },
-    kids:         { primary: 'bubbles',   secondary: [] },
-    tax:          { primary: 'brenda',    secondary: ['carl'] },
-    business:     { primary: 'derek',     secondary: ['carl'] },
-    legal:        { primary: 'larry',     secondary: ['carl'] },
-    'weekly-drop':{ primary: 'nancy',     secondary: ['carl'] },
-    breakroom:    { primary: 'xl',        secondary: ['carl'] },
-    general:      { primary: 'carl',      secondary: [] },
+    beginner:     { primary:'doug',     secondary:['kitty'],    guests:['bubbles','xl'] },
+    intermediate: { primary:'ian',      secondary:['kitty'],    guests:['larry','brenda','nancy'] },
+    advanced:     { primary:'victoria', secondary:['ian'],      guests:['larry','derek'] },
+    kids:         { primary:'bubbles',  secondary:[],           guests:['doug'] },
+    tax:          { primary:'brenda',   secondary:['larry'],    guests:['derek','victoria'] },
+    business:     { primary:'derek',    secondary:['brenda'],   guests:['larry','victoria'] },
+    legal:        { primary:'larry',    secondary:['victoria'], guests:['brenda','derek'] },
+    'weekly-drop':{ primary:'nancy',    secondary:['ian'],      guests:['mascot','kitty'] },
+    breakroom:    { primary:'xl',       secondary:[],           guests:['doug','bubbles','mascot'] },
+    general:      { primary:'mascot',   secondary:[],           guests:[] },
 };
 
-// ── STREAK MILESTONES ─────────────────────────────────────
+// ── STREAK / XP MILESTONES ────────────────────────────────
 const STREAK_MILESTONES = [
-    { days:3,  emoji:'🔥',   title:'3-Day Streak',    msg:'Three days in a row. The habit is forming. Don\'t ruin it now.',   color:'#FF9600', shadow:'#E07800' },
-    { days:7,  emoji:'🔥🔥', title:'Week Warrior!',   msg:'Seven days. An actual streak. Genuinely well done.',              color:'#FF4B4B', shadow:'#EA2B2B' },
-    { days:14, emoji:'💪',   title:'Two Week Legend', msg:'Fourteen days. You\'re not stopping for anything, are you.',      color:'#CE82FF', shadow:'#A559D9' },
-    { days:30, emoji:'💎',   title:'Diamond Streak!', msg:'Thirty days. This is just who you are now.',                     color:'#FFC800', shadow:'#E5B400' },
+    { days:3,  emoji:'🔥',   title:'3-Day Streak',    msg:'Three days in a row. The habit is forming. Don\'t ruin it now.',  color:'#FF9600', shadow:'#E07800' },
+    { days:7,  emoji:'🔥🔥', title:'Week Warrior!',   msg:'Seven days. An actual streak. Genuinely well done.',             color:'#FF4B4B', shadow:'#EA2B2B' },
+    { days:14, emoji:'💪',   title:'Two Week Legend', msg:'Fourteen days. You\'re not stopping for anything, are you.',     color:'#CE82FF', shadow:'#A559D9' },
+    { days:30, emoji:'💎',   title:'Diamond Streak!', msg:'Thirty days. This is just who you are now.',                    color:'#FFC800', shadow:'#E5B400' },
 ];
-
-// ── XP MILESTONES ─────────────────────────────────────────
 const XP_MILESTONES = [
-    { xp:100,  emoji:'⚡', title:'100 XP',   msg:'First hundred. The journey has officially begun.',                      color:'#1CB0F6', shadow:'#1899D6' },
-    { xp:250,  emoji:'⚡', title:'250 XP',   msg:'Quarter of a thousand. Feels good, doesn\'t it.',                      color:'#58CC02', shadow:'#58A700' },
-    { xp:500,  emoji:'🌟', title:'500 XP',   msg:'Five hundred. You\'re properly into this now.',                        color:'#FFC800', shadow:'#E5B400' },
-    { xp:1000, emoji:'🏆', title:'1,000 XP', msg:'One thousand XP. A real Cool Dude.',                                   color:'#FF9600', shadow:'#E07800' },
-    { xp:2000, emoji:'💎', title:'2,000 XP', msg:'Two thousand. Whatever the opposite of a beginner is — that\'s you.',  color:'#CE82FF', shadow:'#A559D9' },
-    { xp:5000, emoji:'👑', title:'5,000 XP', msg:'Five thousand XP. Royalty.',                                           color:'#FF4B4B', shadow:'#EA2B2B' },
+    { xp:100,  emoji:'⚡', title:'100 XP',   msg:'First hundred. The journey has officially begun.',                     color:'#1CB0F6', shadow:'#1899D6' },
+    { xp:250,  emoji:'⚡', title:'250 XP',   msg:'Quarter of a thousand. Feels good, doesn\'t it.',                     color:'#58CC02', shadow:'#58A700' },
+    { xp:500,  emoji:'🌟', title:'500 XP',   msg:'Five hundred. You\'re properly into this now.',                       color:'#FFC800', shadow:'#E5B400' },
+    { xp:1000, emoji:'🏆', title:'1,000 XP', msg:'One thousand XP. A real Cool Dude.',                                  color:'#FF9600', shadow:'#E07800' },
+    { xp:2000, emoji:'💎', title:'2,000 XP', msg:'Two thousand. Whatever the opposite of a beginner is — that\'s you.', color:'#CE82FF', shadow:'#A559D9' },
+    { xp:5000, emoji:'👑', title:'5,000 XP', msg:'Five thousand XP. Royalty.',                                          color:'#FF4B4B', shadow:'#EA2B2B' },
 ];
 
 // ── CSS ───────────────────────────────────────────────────
@@ -273,96 +287,113 @@ function injectSRStyles() {
     background:#fff;
     border:2px solid #CECECE; border-bottom:5px solid #CECECE;
     border-radius:20px; overflow:hidden; z-index:8000;
-    box-shadow:0 8px 32px rgba(0,0,0,.15);
+    box-shadow:0 8px 32px rgba(0,0,0,.18);
     transform:translateX(calc(100% + 32px)); opacity:0;
     transition:transform .45s cubic-bezier(.175,.885,.32,1.275), opacity .35s ease;
     font-family:'Nunito',system-ui,sans-serif;
-    pointer-events:all;
 }
 .sr-cameo.show { transform:translateX(0); opacity:1; }
 
-/* Character header strip */
-.sr-cameo-head {
+/* Character header */
+.sr-ch {
     display:flex; align-items:center; gap:12px;
     padding:12px 14px 11px;
 }
 
-/* The actual character portrait */
-.sr-char-portrait {
-    width:48px; height:48px; border-radius:14px;
+/* Portrait — layered character look */
+.sr-portrait {
+    width:52px; height:52px; border-radius:16px;
     display:flex; align-items:center; justify-content:center;
-    flex-shrink:0; font-size:28px; position:relative;
-    border:3px solid rgba(255,255,255,.35);
-    box-shadow:0 3px 0 rgba(0,0,0,.15);
+    flex-shrink:0; font-size:30px; position:relative;
+    border:3px solid rgba(255,255,255,.4);
+    box-shadow:0 3px 8px rgba(0,0,0,.2);
+    overflow:hidden;
 }
-/* Shine effect on portrait */
-.sr-char-portrait::after {
+/* Shine layer */
+.sr-portrait::after {
     content:'';
-    position:absolute; top:2px; left:3px; right:8px; height:40%;
-    background:rgba(255,255,255,.25); border-radius:6px;
+    position:absolute; top:0; left:0; right:0; height:50%;
+    background:linear-gradient(180deg,rgba(255,255,255,.3),transparent);
+    border-radius:13px 13px 0 0;
     pointer-events:none;
 }
+/* Accessory strip at bottom of portrait */
+.sr-portrait-strip {
+    position:absolute; bottom:0; left:0; right:0;
+    height:14px;
+    background:rgba(0,0,0,.15);
+    display:flex; align-items:center; justify-content:center;
+    font-size:8px; letter-spacing:1px; font-weight:900;
+    color:rgba(255,255,255,.7);
+}
 
-.sr-cameo-name {
+.sr-ch-info { flex:1; min-width:0; }
+.sr-ch-name {
     font-size:11px; font-weight:900;
-    text-transform:uppercase; letter-spacing:1.5px;
-    color:rgba(255,255,255,.9); line-height:1.2;
-    flex:1;
+    text-transform:uppercase; letter-spacing:1.2px;
+    color:rgba(255,255,255,.95); line-height:1.2;
 }
-.sr-cameo-role {
-    font-size:10px; font-weight:700;
-    color:rgba(255,255,255,.65);
-    margin-top:2px;
+.sr-ch-tag {
+    font-size:9px; font-weight:700;
+    color:rgba(255,255,255,.6); margin-top:2px;
+    text-transform:uppercase; letter-spacing:.8px;
 }
-.sr-cameo-close {
+.sr-close {
     width:28px; height:28px; border-radius:8px; flex-shrink:0;
     background:rgba(255,255,255,.15); border:none;
     color:rgba(255,255,255,.7); font-size:16px; font-weight:900;
     cursor:pointer; display:flex; align-items:center; justify-content:center;
-    font-family:inherit; line-height:1;
-    transition:background .1s;
+    font-family:inherit; transition:background .1s;
 }
-.sr-cameo-close:hover { background:rgba(255,255,255,.3); }
+.sr-close:hover { background:rgba(255,255,255,.3); }
 
-/* Speech bubble area */
-.sr-cameo-body {
-    background:#fff;
-    padding:13px 16px 15px;
+/* Speech bubble */
+.sr-bubble {
+    background:#fff; padding:14px 16px 16px;
     font-size:14px; font-weight:800; color:#111827;
-    line-height:1.6; border-top:2px solid #F0F0F0;
-    position:relative;
+    line-height:1.6; position:relative;
+    border-top:2px solid rgba(0,0,0,.06);
 }
-/* Little triangle pointer toward the character */
-.sr-cameo-body::before {
-    content:'';
-    position:absolute; top:-10px; left:28px;
-    border:5px solid transparent;
-    border-bottom-color:#F0F0F0;
+/* Triangle pointer */
+.sr-bubble::before {
+    content:''; position:absolute; top:-10px; left:22px;
+    border:5px solid transparent; border-bottom-color:rgba(0,0,0,.06);
 }
-.sr-cameo-body::after {
-    content:'';
-    position:absolute; top:-8px; left:29px;
-    border:4px solid transparent;
-    border-bottom-color:#fff;
+.sr-bubble::after {
+    content:''; position:absolute; top:-8px; left:23px;
+    border:4px solid transparent; border-bottom-color:#fff;
 }
 
-/* Entrance animation for emoji */
-@keyframes srPortraitPop {
-    0%   { transform:scale(0) rotate(-15deg); }
-    60%  { transform:scale(1.15) rotate(3deg); }
-    80%  { transform:scale(.95); }
-    100% { transform:scale(1) rotate(0); }
+/* Portrait entrance */
+@keyframes srPortPop {
+    0%   { transform:scale(0) rotate(-12deg); opacity:0; }
+    60%  { transform:scale(1.12) rotate(2deg); }
+    80%  { transform:scale(.96); }
+    100% { transform:scale(1) rotate(0); opacity:1; }
 }
-.sr-cameo.show .sr-char-portrait { animation:srPortraitPop .5s cubic-bezier(.175,.885,.32,1.275) .1s both; }
+.sr-cameo.show .sr-portrait { animation:srPortPop .5s cubic-bezier(.175,.885,.32,1.275) .08s both; }
+
+/* Style variants — affects strip label */
+.sr-style-cool    .sr-portrait-strip::before { content:'😎'; font-size:10px; }
+.sr-style-formal  .sr-portrait-strip::before { content:'⚖️'; font-size:9px; }
+.sr-style-weary   .sr-portrait-strip::before { content:'📋'; font-size:9px; }
+.sr-style-stern   .sr-portrait-strip::before { content:'📐'; font-size:9px; }
+.sr-style-pop     .sr-portrait-strip::before { content:'🎵'; font-size:9px; }
+.sr-style-gamer   .sr-portrait-strip::before { content:'🕹'; font-size:9px; }
+.sr-style-retro   .sr-portrait-strip::before { content:'🎵'; font-size:9px; }
+.sr-style-bouncy  .sr-portrait-strip::before { content:'🦴'; font-size:9px; }
+.sr-style-broadcast .sr-portrait-strip::before { content:'📡'; font-size:9px; }
+.sr-style-corporate .sr-portrait-strip::before { content:'📊'; font-size:9px; }
+.sr-style-distracted .sr-portrait-strip::before { content:'☕'; font-size:9px; }
 
 /* ── MILESTONE TOAST ── */
 .sr-milestone {
     position:fixed; top:72px; left:50%;
     transform:translateX(-50%) translateY(-90px); opacity:0;
     background:#fff; border:2px solid #CECECE; border-bottom:5px solid #CECECE;
-    border-radius:99px; padding:10px 22px;
-    display:flex; align-items:center; gap:10px;
-    z-index:8001; font-family:'Nunito',system-ui,sans-serif;
+    border-radius:99px; padding:11px 22px;
+    display:flex; align-items:center; gap:10px; z-index:8001;
+    font-family:'Nunito',system-ui,sans-serif;
     box-shadow:0 6px 24px rgba(0,0,0,.12);
     transition:transform .4s cubic-bezier(.175,.885,.32,1.275), opacity .3s ease;
     white-space:nowrap; max-width:calc(100vw - 32px);
@@ -407,25 +438,26 @@ function _processQueue() {
 // ── SHOW CAMEO ────────────────────────────────────────────
 function _showCameo(charId, done) {
     injectSRStyles();
-    const char = CHARACTERS[charId] || CHARACTERS.carl;
+    const char = CHARACTERS[charId] || CHARACTERS.mascot;
     const line = char.lines[Math.floor(Math.random() * char.lines.length)];
-    const av   = char.avatar;
+    const p    = char.portrait;
 
     document.querySelector('.sr-cameo')?.remove();
 
     const el = document.createElement('div');
-    el.className = 'sr-cameo';
+    el.className = `sr-cameo sr-style-${p.style||'cool'}`;
     el.innerHTML = `
-        <div class="sr-cameo-head" style="background:${av.bg};border-bottom:2px solid ${av.ring}">
-            <div class="sr-char-portrait" style="background:${av.ring}">
-                ${av.emoji}
+        <div class="sr-ch" style="background:${p.bg};border-bottom:2px solid ${p.ring}">
+            <div class="sr-portrait" style="background:${p.ring}">
+                ${p.face}
+                <div class="sr-portrait-strip"></div>
             </div>
-            <div style="flex:1;min-width:0;">
-                <div class="sr-cameo-name">${char.name}</div>
+            <div class="sr-ch-info">
+                <div class="sr-ch-name">${char.name}</div>
             </div>
-            <button class="sr-cameo-close" aria-label="Close">×</button>
+            <button class="sr-close" aria-label="Close">×</button>
         </div>
-        <div class="sr-cameo-body">${line}</div>`;
+        <div class="sr-bubble">${line}</div>`;
 
     document.body.appendChild(el);
     requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
@@ -435,7 +467,7 @@ function _showCameo(charId, done) {
         setTimeout(() => { el.remove(); done?.(); }, 450);
     }, 5500);
 
-    el.querySelector('.sr-cameo-close').addEventListener('click', () => {
+    el.querySelector('.sr-close').addEventListener('click', () => {
         clearTimeout(timer);
         el.classList.remove('show');
         setTimeout(() => { el.remove(); done?.(); }, 350);
@@ -446,7 +478,6 @@ function _showCameo(charId, done) {
 function _showMilestone(emoji, title, msg, color, shadow, done) {
     injectSRStyles();
     document.querySelector('.sr-milestone')?.remove();
-
     const el = document.createElement('div');
     el.className = 'sr-milestone';
     el.style.borderColor = color;
@@ -469,7 +500,6 @@ function _showMilestone(emoji, title, msg, color, shadow, done) {
 function _showAchievement(ach, done) {
     injectSRStyles();
     document.querySelector('.sr-achievement')?.remove();
-
     const el = document.createElement('div');
     el.className = 'sr-achievement';
     el.innerHTML = `
@@ -489,27 +519,33 @@ function _showAchievement(ach, done) {
     }, 4500);
 }
 
-// ── PICK CHARACTER FOR SECTION ────────────────────────────
+// ── PICK CHARACTER ────────────────────────────────────────
+// Uses weighted random:
+//   60% → primary character for this section
+//   25% → secondary character
+//   12% → guest from another section (adds variety + cross-promotion)
+//    3% → the mascot (rare treat)
+// If forced ID, use that directly
 function _pickCharacter(forcedId) {
     if (forcedId && CHARACTERS[forcedId]) return forcedId;
     const section = detectSection();
     const cast    = SECTION_CAST[section] || SECTION_CAST.general;
-    // 75% chance primary, 25% chance secondary (if any)
-    if (cast.secondary.length && Math.random() < 0.25) {
+    const roll    = Math.random();
+
+    if (roll < 0.03) return 'mascot'; // rare treat
+
+    if (roll < 0.15 && cast.guests.length) {
+        return cast.guests[Math.floor(Math.random() * cast.guests.length)];
+    }
+
+    if (roll < 0.40 && cast.secondary.length) {
         return cast.secondary[Math.floor(Math.random() * cast.secondary.length)];
     }
+
     return cast.primary;
 }
 
-// ── PUBLIC API ────────────────────────────────────────────
-
-// Call after any major moment (combo 5+, section complete)
-// characterId: optional override — otherwise auto-detected from section
-function cameo(characterId) {
-    enqueue(done => _showCameo(_pickCharacter(characterId), done));
-}
-
-// Call after completeLesson() to celebrate streaks / XP / achievements
+// ── CELEBRATE (post-lesson) ───────────────────────────────
 function celebrate(result) {
     if (!result?.success) return;
     const { newStreak=0, newAchievements=[], xpEarned=0 } = result;
@@ -530,11 +566,14 @@ function celebrate(result) {
     }
 }
 
-// Manual milestone (for custom moments)
+// ── PUBLIC API ────────────────────────────────────────────
+function cameo(characterId) {
+    enqueue(done => _showCameo(_pickCharacter(characterId), done));
+}
 function milestone(emoji, title, msg, color, shadow) {
-    enqueue(done => _showMilestone(emoji, title, msg, color || '#1CB0F6', shadow || '#1899D6', done));
+    enqueue(done => _showMilestone(emoji, title, msg, color||'#1CB0F6', shadow||'#1899D6', done));
 }
 
 window.SurpriseRewards = { cameo, celebrate, milestone, detectSection, CHARACTERS };
 
-console.log('🎭 Surprise Rewards v2 — ' + Object.keys(CHARACTERS).length + ' characters, auto-detection ready');
+console.log('🎭 Surprise Rewards v3 — ' + Object.keys(CHARACTERS).length + ' characters, weighted rotation active');
