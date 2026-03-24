@@ -1,4 +1,4 @@
-// v3.1 — fixed triple emoji, simplified portrait
+// v3.2 — debug logging — fixed triple emoji, simplified portrait
 // ═══════════════════════════════════════════════════════════
 // SURPRISE REWARDS — surprise-rewards.js  v3
 // Auto-detects section → fires the right character
@@ -9,20 +9,33 @@
 
 // ── AUTO-DETECT SECTION ──────────────────────────────────
 function detectSection() {
+    // Check body data-section first — set explicitly per lesson, 100% reliable
+    const dataSection = document.body?.dataset?.section;
+    console.log('[SurpriseRewards] detectSection: dataSection=', dataSection, 'LESSON_ID=', window.LESSON_ID, 'path=', window.location.pathname);
+    if (dataSection && dataSection !== 'general') return dataSection;
+
     const id   = (window.LESSON_ID || '').toLowerCase();
     const path = window.location.pathname.toLowerCase();
     const title= document.title.toLowerCase();
     const all  = id + ' ' + path + ' ' + title;
 
+    // Break room games — check first (most specific)
     if (/chatattack|vibecheck|wordthief|whatami|matching|phrasescramble|definitionary|fixit|forbidden|breakroom/.test(all)) return 'breakroom';
+    // Weekly Drop
     if (/weekly.drop|newsletter|issue-\d/.test(all)) return 'weekly-drop';
-    if (/\btax\b/.test(all))          return 'tax';
-    if (/\blegal\b/.test(all))        return 'legal';
-    if (/\bbusiness\b/.test(all))     return 'business';
-    if (/\bkids\b/.test(all))         return 'kids';
-    if (/\badvanced\b/.test(all))     return 'advanced';
-    if (/\bintermediate\b/.test(all)) return 'intermediate';
-    if (/\bbeginner\b/.test(all))     return 'beginner';
+    // Subject sections — check both keyword AND common URL slug patterns
+    if (/\btax\b|taxenglish|tax-english/.test(all))           return 'tax';
+    if (/\blegal\b|legalenglish|legal-english/.test(all))     return 'legal';
+    if (/\bbusiness\b|bizeng/.test(all))                      return 'business';
+    if (/\bkids\b/.test(all))                                 return 'kids';
+    // Level sections — also match common URL slugs and title patterns
+    if (/\badvanced\b|c1|c2/.test(all))                       return 'advanced';
+    if (/\bintermediate\b|b1|b2/.test(all))                   return 'intermediate';
+    if (/\bbeginner\b|a1|a2/.test(all))                       return 'beginner';
+    // Last resort: check if the LESSON_ID contains a level hint
+    if (/-(beginner|a1|a2)/.test(id))                          return 'beginner';
+    if (/-(intermediate|b1|b2)/.test(id))                      return 'intermediate';
+    if (/-(advanced|c1|c2)/.test(id))                          return 'advanced';
     return 'general';
 }
 
@@ -511,6 +524,7 @@ function _pickCharacter(forcedId) {
     const section = detectSection();
     const cast    = SECTION_CAST[section] || SECTION_CAST.general;
     const roll    = Math.random();
+    console.log('[SurpriseRewards] _pickCharacter: section=', section, 'roll=', roll.toFixed(2), 'cast.primary=', cast.primary);
 
     if (roll < 0.03) return 'mascot'; // rare treat
 
