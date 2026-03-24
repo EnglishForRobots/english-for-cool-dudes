@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+    <link rel="manifest" href="/manifest.json">
+    <title>🧳 Quitting Normal Life — English For Cool Dudes</title>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/init-auth.js"></script>
+    <style>
+    :root {
+        --blue:#1CB0F6;   --blue-shadow:#1899D6;  --blue-light:rgba(28,176,246,.1);
+        --green:#58CC02;  --green-shadow:#58A700;
+        --yellow:#FFC800; --yellow-shadow:#E5B400;
+        --punch:#FF4B4B;  --punch-shadow:#EA2B2B;
+        --purple:#CE82FF; --purple-shadow:#A559D9;
+        --teal:#2BDECC;   --teal-shadow:#1FBFAF;
+        --orange:#FF9600; --orange-shadow:#E07800;
+        --bg:#F7F9FA;     --white:#FFFFFF;
+        --ink:#4B4B4B;    --ink-bold:#111827; --ink-3:#AFAFAF;
+        --border:#E5E5E5; --border-heavy:#CECECE;
+        --r:24px; --rsm:16px; --rxs:10px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--ink);font-family:'Nunito',system-ui,sans-serif;line-height:1.5;overflow-x:hidden;padding-bottom:60px;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;}
+    a{color:inherit;text-decoration:none;}
+    button{font-family:inherit;cursor:pointer;border:none;background:none;}
+
+    /* ── ANIMATIONS ── */
+    @keyframes up       {from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes popin    {0%{opacity:0;transform:scale(.7) rotate(-4deg)}60%{transform:scale(1.08) rotate(1deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+    @keyframes nudge    {0%,100%{transform:translateX(0)}30%{transform:translateX(6px)}}
+    @keyframes float    {0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+    @keyframes shake    {0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+    @keyframes heartbeat{0%,100%{transform:scale(1)}14%{transform:scale(1.18)}28%{transform:scale(1)}42%{transform:scale(1.1)}}
+    @keyframes confetti {0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(130px) rotate(400deg)}}
+    @keyframes xpPop    {0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(1.5)}}
+    @keyframes fadeIn   {from{opacity:0}to{opacity:1}}
+    @keyframes slideLeft{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-32px)}}
+    @keyframes tileIn   {0%{opacity:0;transform:scale(.5) rotate(-10deg)}60%{transform:scale(1.1) rotate(2deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+    @keyframes correctPop{0%{transform:scale(1)}30%{transform:scale(1.25)}60%{transform:scale(.95)}100%{transform:scale(1)}}
+    @keyframes wiggle   {0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+    @keyframes shimmer2 {0%{left:-80%}100%{left:130%}}
+    @keyframes glowGold {0%,100%{box-shadow:0 0 24px rgba(255,200,0,.5),0 8px 32px rgba(0,0,0,.15)}50%{box-shadow:0 0 55px rgba(255,200,0,.9),0 8px 32px rgba(0,0,0,.2)}}
+    @keyframes badgeDrop{0%{opacity:0;transform:translateY(-40px) scale(.7)}60%{transform:translateY(6px) scale(1.06)}80%{transform:translateY(-2px) scale(.98)}100%{opacity:1;transform:translateY(0) scale(1)}}
+    @keyframes megaConf {0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(200px) rotate(540deg)}}
+    @keyframes cardFlip {0%{transform:rotateY(0deg)}50%{transform:rotateY(90deg)}100%{transform:rotateY(0deg)}}
+    @keyframes barGrow  {from{width:0%}to{width:var(--target-width)}}
+    @keyframes pulse    {0%,100%{opacity:1}50%{opacity:.5}}
+    @keyframes bounce   {0%,100%{transform:translateY(0)}40%{transform:translateY(-14px)}60%{transform:translateY(-6px)}}
+
+    .u1{animation:up .44s ease both .04s}
+    .u2{animation:up .44s ease both .14s}
+
+    /* ── HEADER ── */
+    .header{background:var(--white);border-bottom:3px solid var(--blue);padding:0 20px;height:60px;position:sticky;top:0;z-index:300;display:flex;align-items:center;box-shadow:0 4px 12px rgba(28,176,246,.15);}
+    .header-inner{max-width:860px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
+    .logo-link{display:flex;align-items:center;gap:10px;}
+    .logo-box{width:38px;height:38px;background:var(--yellow);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid var(--yellow-shadow);box-shadow:0 3px 0 var(--yellow-shadow);}
+    .site-name{font-size:15px;font-weight:900;color:var(--ink-bold);letter-spacing:-.3px;}
+    @media(max-width:420px){.site-name{display:none}}
+    .header-xp{display:flex;align-items:center;gap:8px;}
+    .streak-mini{display:flex;align-items:center;gap:4px;font-size:14px;font-weight:900;color:var(--punch);}
+    .streak-mini span:first-child{animation:wiggle 2s ease-in-out infinite;display:inline-block;}
+    .xp-pill{background:rgba(28,176,246,.1);border:2px solid rgba(28,176,246,.25);border-radius:99px;padding:5px 12px;font-size:14px;font-weight:900;color:var(--blue-shadow);display:flex;align-items:center;gap:5px;}
+    .btn-dash{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:rgba(28,176,246,.1);border:2px solid rgba(28,176,246,.22);border-bottom:4px solid rgba(28,176,246,.28);border-radius:10px;font-size:18px;transition:all .15s;flex-shrink:0;}
+    .btn-dash:active{border-bottom-width:2px;transform:translateY(2px);}
+    .btn-signout{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:rgba(255,75,75,.08);border:2px solid rgba(255,75,75,.25);border-bottom:4px solid rgba(255,75,75,.3);border-radius:10px;font-size:18px;cursor:pointer;font-family:inherit;transition:all .15s;flex-shrink:0;}
+    .btn-signout.hidden{display:none;}
+
+    /* ── PAGE ── */
+    .page{max-width:860px;margin:0 auto;padding:20px 14px 40px;display:flex;flex-direction:column;gap:14px;}
+
+    /* ── LESSON BANNER ── */
+    .lesson-banner{background:linear-gradient(135deg,var(--blue),#0077b6);border:2px solid var(--blue-shadow);border-bottom:6px solid var(--blue-shadow);border-radius:var(--r);padding:24px 20px 20px;position:relative;overflow:hidden;}
+    .lesson-banner::after{content:'🧳';position:absolute;bottom:-16px;right:8px;font-size:130px;opacity:.1;pointer-events:none;transform:rotate(-8deg);animation:wiggle 4s ease-in-out infinite;}
+    .lesson-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.4);border-radius:8px;padding:4px 12px;margin-bottom:12px;font-size:11px;font-weight:900;color:var(--white);text-transform:uppercase;letter-spacing:1.5px;position:relative;z-index:1;}
+    .lesson-title{font-size:clamp(20px,5vw,34px);font-weight:900;color:var(--white);letter-spacing:-1px;line-height:1.15;margin-bottom:5px;position:relative;z-index:1;text-shadow:0 2px 0 var(--blue-shadow);}
+    .lesson-title .yellow{color:var(--yellow);text-shadow:0 2px 0 var(--yellow-shadow);}
+    .lesson-sub{font-size:14px;font-weight:700;color:rgba(255,255,255,.9);position:relative;z-index:1;margin-bottom:16px;line-height:1.55;}
+    .lesson-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;position:relative;z-index:1;}
+    .ls-stat{background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.25);border-radius:var(--rsm);padding:10px 8px;text-align:center;}
+    .ls-stat-n{font-size:clamp(17px,4vw,22px);font-weight:900;color:var(--white);line-height:1;display:block;}
+    .ls-stat-l{font-size:9px;font-weight:900;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:1px;margin-top:3px;display:block;}
+    .prog-wrap{position:relative;z-index:1;background:rgba(0,0,0,.12);padding:11px 13px;border-radius:var(--rsm);}
+    .prog-row{display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:var(--white);margin-bottom:7px;}
+    .prog-track{height:14px;background:rgba(0,0,0,.15);border-radius:99px;overflow:hidden;border:2px solid rgba(0,0,0,.1);}
+    .prog-fill{height:100%;width:0%;border-radius:99px;background:var(--yellow);border-top:3px solid rgba(255,255,255,.35);transition:width .7s cubic-bezier(.4,0,.2,1);}
+
+    /* ── SEC CARDS ── */
+    .sec-card{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);overflow:hidden;opacity:0;transform:translateY(16px);transition:opacity .4s ease,transform .4s ease;scroll-margin-top:72px;}
+    .sec-card.visible{opacity:1;transform:translateY(0);}
+    .sec-card::before{content:'';display:block;height:8px;border-radius:var(--r) var(--r) 0 0;margin:-2px -2px 0;}
+    .strip-blue::before  {background:var(--blue);}
+    .strip-yellow::before{background:var(--yellow);}
+    .strip-green::before {background:var(--green);}
+    .strip-purple::before{background:var(--purple);}
+    .strip-teal::before  {background:var(--teal);}
+    .strip-punch::before {background:var(--punch);}
+    .strip-orange::before{background:var(--orange);}
+    .sec-head{padding:13px 18px 11px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:12px;}
+    .sec-head-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;background:var(--bg);border:2px solid var(--border-heavy);border-bottom:3px solid var(--border-heavy);}
+    .sec-head-title{font-size:16px;font-weight:900;color:var(--ink-bold);letter-spacing:-.3px;}
+    .sec-head-sub{font-size:12px;font-weight:700;color:var(--ink-3);margin-top:2px;}
+    .sec-body{padding:18px;}
+
+    /* ── VIDEO ── */
+    .video-wrap{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:var(--rsm);background:#000;border:2px solid var(--border-heavy);box-shadow:0 4px 0 var(--border-heavy);margin-bottom:14px;}
+    .video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;}
+    .fact-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+    .fact-chip{background:rgba(28,176,246,.1);border:2px solid rgba(28,176,246,.25);border-bottom:3px solid rgba(28,176,246,.25);border-radius:99px;padding:6px 14px;font-size:12px;font-weight:900;color:var(--blue-shadow);}
+
+    /* ── PERSON PORTRAITS (for Who Said It) ── */
+    .person-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px;}
+    @media(max-width:500px){.person-grid{grid-template-columns:repeat(5,1fr);gap:5px;}}
+    .person-card{background:var(--bg);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);padding:10px 6px 8px;text-align:center;cursor:pointer;transition:all .12s;display:flex;flex-direction:column;align-items:center;gap:4px;}
+    .person-card:active{border-bottom-width:2px;transform:translateY(2px);}
+    .person-card.selected{background:rgba(28,176,246,.1);border-color:var(--blue);border-bottom-color:var(--blue-shadow);}
+    .person-card.correct{background:var(--green);border-color:var(--green-shadow);animation:heartbeat .5s ease;}
+    .person-card.wrong  {background:var(--punch);border-color:var(--punch-shadow);animation:shake .4s;}
+    .person-card.reveal-correct{background:rgba(88,204,2,.12);border-color:var(--green-shadow);}
+    .person-emoji{font-size:clamp(24px,6vw,34px);}
+    .person-name{font-size:clamp(9px,2.5vw,11px);font-weight:900;color:var(--ink-bold);text-align:center;line-height:1.2;}
+    .person-card.correct .person-name,.person-card.wrong .person-name{color:var(--white);}
+
+    /* Quote card */
+    .quote-card{background:linear-gradient(135deg,rgba(28,176,246,.07),rgba(28,176,246,.03));border:2px solid rgba(28,176,246,.25);border-left:5px solid var(--blue);border-radius:0 var(--rsm) var(--rsm) 0;padding:16px 18px;margin-bottom:16px;animation:up .3s ease both;}
+    .quote-num{font-size:11px;font-weight:900;color:var(--blue-shadow);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;}
+    .quote-text{font-size:clamp(15px,4vw,18px);font-weight:800;color:var(--ink-bold);line-height:1.6;font-style:italic;}
+    .quote-hint{font-size:12px;font-weight:700;color:var(--ink-3);margin-top:8px;}
+    .wsi-feedback{padding:12px 14px;border-radius:var(--rsm);font-size:14px;font-weight:800;border:2px solid;display:none;line-height:1.6;margin-bottom:12px;}
+    .wsi-feedback.show.right{display:block;background:rgba(88,204,2,.1);color:var(--green-shadow);border-color:rgba(88,167,0,.3);animation:up .2s ease both;}
+    .wsi-feedback.show.wrong{display:block;background:rgba(255,75,75,.1);color:var(--punch-shadow);border-color:rgba(255,75,75,.3);animation:up .2s ease both;}
+    .wsi-score{display:flex;align-items:center;justify-content:space-between;background:rgba(28,176,246,.08);border:2px solid rgba(28,176,246,.2);border-radius:var(--rsm);padding:10px 14px;margin-bottom:14px;}
+    .wsi-score-lbl{font-size:12px;font-weight:900;color:var(--blue-shadow);text-transform:uppercase;letter-spacing:1px;}
+    .wsi-score-num{font-size:22px;font-weight:900;color:var(--blue-shadow);}
+
+    /* ── WORD IN THE WILD ── */
+    .witw-card{background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:2px solid rgba(28,176,246,.3);border-radius:var(--r);padding:20px;margin-bottom:16px;animation:up .3s ease both;}
+    .witw-source{font-size:11px;font-weight:900;color:var(--blue-shadow);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;}
+    .witw-sentence{font-size:clamp(15px,4vw,19px);font-weight:700;color:var(--ink-bold);line-height:1.7;}
+    .witw-word{background:var(--blue);color:var(--white);padding:2px 8px;border-radius:6px;font-weight:900;display:inline-block;cursor:help;position:relative;animation:heartbeat 3s ease-in-out infinite;}
+    .witw-progress{display:flex;gap:5px;margin-bottom:14px;}
+    .witw-pip{flex:1;height:6px;border-radius:99px;background:var(--border-heavy);transition:background .3s;}
+    .witw-pip.done{background:var(--yellow);}
+    .witw-pip.active{background:var(--blue);}
+    .witw-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+    .witw-opt{padding:15px 12px;font-size:clamp(13px,3.5vw,15px);font-weight:900;background:var(--white);color:var(--ink-bold);border:2px solid var(--border-heavy);border-bottom:5px solid var(--border-heavy);border-radius:var(--rsm);cursor:pointer;transition:all .12s;font-family:inherit;text-align:center;line-height:1.3;min-height:56px;display:flex;align-items:center;justify-content:center;}
+    .witw-opt:active{border-bottom-width:2px;transform:translateY(3px);}
+    .witw-opt:hover:not(:disabled){border-color:var(--blue);color:var(--blue-shadow);}
+    .witw-opt.correct{background:var(--green);color:var(--white);border-color:var(--green-shadow);animation:heartbeat .5s ease;cursor:default;}
+    .witw-opt.wrong  {background:var(--punch);color:var(--white);border-color:var(--punch-shadow);animation:shake .4s;cursor:default;}
+    .witw-opt.show-correct{background:rgba(88,204,2,.12);border-color:var(--green-shadow);color:var(--green-shadow);}
+    .witw-opt:disabled{cursor:default;}
+    .witw-feedback{padding:12px 14px;border-radius:var(--rsm);font-size:14px;font-weight:800;border:2px solid;display:none;line-height:1.6;}
+    .witw-feedback.show.right{display:block;background:rgba(88,204,2,.1);color:var(--green-shadow);border-color:rgba(88,167,0,.3);animation:up .2s ease both;}
+    .witw-feedback.show.wrong{display:block;background:rgba(255,75,75,.1);color:var(--punch-shadow);border-color:rgba(255,75,75,.3);animation:up .2s ease both;}
+    .witw-next{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:12px;padding:14px;background:var(--blue);color:var(--white);font-size:15px;font-weight:900;border:2px solid var(--blue-shadow);border-bottom:5px solid var(--blue-shadow);border-radius:var(--rsm);transition:all .1s;}
+    .witw-next:active{border-bottom-width:2px;transform:translateY(3px);}
+
+    /* ── DIALOGUE GAP FILL ── */
+    .dialogue-wrap{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+    .bubble-row{display:flex;gap:10px;align-items:flex-end;}
+    .bubble-row.right{flex-direction:row-reverse;}
+    .bubble-avatar{width:36px;height:36px;border-radius:50%;background:var(--bg);border:2px solid var(--border-heavy);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+    .bubble{background:var(--bg);border:2px solid var(--border-heavy);border-radius:18px 18px 18px 4px;padding:12px 16px;font-size:14px;font-weight:700;color:var(--ink-bold);line-height:1.65;max-width:85%;position:relative;}
+    .bubble-row.right .bubble{background:rgba(28,176,246,.1);border-color:rgba(28,176,246,.3);border-radius:18px 18px 4px 18px;}
+    .bubble-name{font-size:10px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;}
+    .dial-gap{display:inline-block;border-bottom:2.5px solid var(--blue);min-width:80px;height:22px;vertical-align:bottom;margin:0 3px;cursor:pointer;transition:all .2s;background:rgba(28,176,246,.06);border-radius:3px 3px 0 0;text-align:center;font-weight:900;color:var(--blue-shadow);font-size:14px;line-height:22px;padding:0 5px;}
+    .dial-gap:hover{background:rgba(28,176,246,.14);}
+    .dial-gap.filled{border-bottom-color:var(--green);color:var(--green-shadow);background:rgba(88,204,2,.08);}
+    .dial-gap.wrong{border-bottom-color:var(--punch);color:var(--punch-shadow);animation:shake .4s;background:rgba(255,75,75,.08);}
+    .dial-wordbank{margin-bottom:14px;}
+    .dial-bank-label{font-size:11px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;}
+    .dial-chips{display:flex;flex-wrap:wrap;gap:8px;}
+    .dial-chip{padding:8px 14px;background:var(--white);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:99px;font-size:13px;font-weight:900;color:var(--ink-bold);cursor:pointer;transition:all .1s;font-family:inherit;}
+    .dial-chip:active{border-bottom-width:2px;transform:translateY(2px);}
+    .dial-chip.used{opacity:.25;pointer-events:none;}
+    .dial-chip.selected{background:var(--blue);color:var(--white);border-color:var(--blue-shadow);}
+    .dial-submit{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;background:var(--blue);color:var(--white);font-size:16px;font-weight:900;border:2px solid var(--blue-shadow);border-bottom:5px solid var(--blue-shadow);border-radius:var(--rsm);transition:all .1s;}
+    .dial-submit:active{border-bottom-width:2px;transform:translateY(3px);}
+    .dial-result{padding:14px;border-radius:var(--rsm);display:none;font-size:14px;font-weight:800;line-height:1.6;border:2px solid;}
+    .dial-result.show.right{display:block;background:rgba(88,204,2,.1);color:var(--green-shadow);border-color:rgba(88,167,0,.3);animation:up .2s ease both;}
+    .dial-result.show.wrong{display:block;background:rgba(255,75,75,.1);color:var(--punch-shadow);border-color:rgba(255,75,75,.3);animation:up .2s ease both;}
+
+    /* ── SENTENCE COMPLETION (Dream Builder) ── */
+    .db-starter{background:linear-gradient(135deg,rgba(206,130,255,.1),rgba(28,176,246,.06));border:2px solid rgba(206,130,255,.3);border-left:5px solid var(--purple);border-radius:0 var(--rsm) var(--rsm) 0;padding:14px 16px;margin-bottom:16px;font-size:clamp(16px,4vw,20px);font-weight:900;color:var(--ink-bold);line-height:1.5;}
+    .db-starter em{color:var(--purple-shadow);}
+    .db-opts{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
+    .db-opt{padding:15px 16px;font-size:clamp(13px,3.5vw,15px);font-weight:800;background:var(--white);color:var(--ink-bold);border:2px solid var(--border-heavy);border-bottom:5px solid var(--border-heavy);border-radius:var(--rsm);cursor:pointer;transition:all .12s;font-family:inherit;text-align:left;line-height:1.5;}
+    .db-opt:active{border-bottom-width:2px;transform:translateY(3px);}
+    .db-opt:hover:not(:disabled){border-color:var(--purple);color:var(--purple-shadow);}
+    .db-opt.correct{background:var(--green);color:var(--white);border-color:var(--green-shadow);animation:heartbeat .5s ease;cursor:default;}
+    .db-opt.wrong  {background:var(--punch);color:var(--white);border-color:var(--punch-shadow);animation:shake .4s;cursor:default;}
+    .db-opt.show-correct{background:rgba(88,204,2,.12);border-color:var(--green-shadow);color:var(--green-shadow);}
+    .db-opt:disabled{cursor:default;}
+    .db-feedback{padding:12px 14px;border-radius:var(--rsm);font-size:14px;font-weight:800;border:2px solid;display:none;line-height:1.65;margin-bottom:10px;}
+    .db-feedback.show.right{display:block;background:rgba(88,204,2,.1);color:var(--green-shadow);border-color:rgba(88,167,0,.3);animation:up .2s ease both;}
+    .db-feedback.show.wrong{display:block;background:rgba(255,75,75,.1);color:var(--punch-shadow);border-color:rgba(255,75,75,.3);animation:up .2s ease both;}
+    .db-progress{display:flex;gap:5px;margin-bottom:12px;}
+    .db-pip{flex:1;height:6px;border-radius:99px;background:var(--border-heavy);transition:background .3s;}
+    .db-pip.done{background:var(--yellow);}
+    .db-pip.active{background:var(--purple);}
+    .db-next{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:12px;padding:14px;background:var(--purple);color:var(--white);font-size:15px;font-weight:900;border:2px solid var(--purple-shadow);border-bottom:5px solid var(--purple-shadow);border-radius:var(--rsm);transition:all .1s;display:none;font-family:inherit;}
+    .db-next:active{border-bottom-width:2px;transform:translateY(3px);}
+
+/* ── LIFE SWAP (card flip game) ── */
+    .ls-deck{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+    .ls-card{border-radius:var(--r);overflow:hidden;border:2px solid var(--border-heavy);border-bottom:5px solid var(--border-heavy);cursor:pointer;transition:all .15s;user-select:none;}
+    .ls-card:active{transform:scale(.98);}
+    .ls-card.flipped{cursor:default;}
+    .ls-front{background:linear-gradient(135deg,var(--blue),#0077b6);padding:22px 20px;display:flex;align-items:center;gap:16px;}
+    .ls-front-icon{font-size:36px;flex-shrink:0;animation:float 3s ease-in-out infinite;}
+    .ls-front-text{font-size:clamp(15px,4vw,18px);font-weight:900;color:var(--white);line-height:1.35;flex:1;}
+    .ls-front-cta{font-size:12px;font-weight:900;color:rgba(255,255,255,.7);flex-shrink:0;animation:nudge 2.5s ease-in-out infinite;}
+    .ls-back{display:none;padding:0;}
+    .ls-card.flipped .ls-front{display:none;}
+    .ls-card.flipped .ls-back{display:block;}
+    .ls-verdict-row{display:grid;grid-template-columns:1fr 1fr;}
+    .ls-verdict-btn{padding:16px 10px;font-size:clamp(14px,4vw,16px);font-weight:900;cursor:pointer;font-family:inherit;transition:all .1s;border:none;text-align:center;}
+    .ls-verdict-btn.true-btn {background:rgba(88,204,2,.1); color:var(--green-shadow);border-right:1px solid var(--border);}
+    .ls-verdict-btn.false-btn{background:rgba(255,75,75,.1); color:var(--punch-shadow);}
+    .ls-verdict-btn.correct  {background:var(--green);color:var(--white);animation:heartbeat .5s ease;}
+    .ls-verdict-btn.wrong    {background:var(--punch);color:var(--white);animation:shake .4s;}
+    .ls-verdict-btn:disabled {cursor:default;}
+    .ls-reveal{padding:14px 18px;background:rgba(28,176,246,.05);border-top:2px solid var(--border);font-size:14px;font-weight:700;color:var(--ink-bold);line-height:1.65;display:none;}
+    .ls-reveal.show{display:block;animation:up .2s ease both;}
+    .ls-score-row{display:flex;align-items:center;justify-content:space-between;background:rgba(28,176,246,.08);border:2px solid rgba(28,176,246,.2);border-radius:var(--rsm);padding:10px 14px;margin-bottom:14px;}
+    .ls-score-lbl{font-size:12px;font-weight:900;color:var(--blue-shadow);text-transform:uppercase;letter-spacing:1px;}
+    .ls-score-num{font-size:22px;font-weight:900;color:var(--blue-shadow);}
+
+    /* ── SHARED SECTION DONE + CONTINUE ── */
+    .sec-done{text-align:center;padding:28px 18px;animation:popin .4s cubic-bezier(.175,.885,.32,1.275) both;}
+    .sec-done-icon{font-size:64px;display:block;margin-bottom:10px;}
+    .sec-done-title{font-size:22px;font-weight:900;color:var(--ink-bold);margin-bottom:6px;}
+    .sec-done-sub{font-size:14px;font-weight:700;color:var(--ink-3);margin-bottom:18px;line-height:1.5;}
+    .btn-continue{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;margin-top:14px;background:var(--blue);color:var(--white);font-size:16px;font-weight:900;border:2px solid var(--blue-shadow);border-bottom:5px solid var(--blue-shadow);border-radius:var(--rsm);transition:all .1s;font-family:inherit;}
+    .btn-continue:active{border-bottom-width:2px;transform:translateY(3px);}
+
+    /* ── BADGE TOASTS ── */
+    .badge-wrap{position:fixed;top:68px;right:12px;display:flex;flex-direction:column;gap:8px;z-index:999;pointer-events:none;}
+    .badge{background:var(--white);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-left:4px solid var(--blue);padding:10px 14px;border-radius:var(--rsm);display:flex;align-items:center;gap:8px;transform:translateX(240px);opacity:0;transition:transform .4s,opacity .4s;box-shadow:0 4px 14px rgba(0,0,0,.08);}
+    .badge.show{transform:translateX(0);opacity:1;}
+    .badge-icon{font-size:22px;}
+    .badge-text{font-size:13px;font-weight:900;color:var(--ink-bold);}
+
+    /* ── CONFETTI + XP ── */
+    .confetti-dot{position:fixed;width:10px;height:10px;border-radius:3px;pointer-events:none;z-index:9999;animation:confetti .9s ease-out both;}
+    .xp-float{position:fixed;font-size:20px;font-weight:900;color:var(--yellow-shadow);text-shadow:0 2px 0 rgba(0,0,0,.12);pointer-events:none;z-index:9998;animation:xpPop .85s ease-out forwards;}
+    .combo-flash{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:clamp(36px,8vw,56px);font-weight:900;color:var(--blue);text-shadow:0 4px 0 var(--blue-shadow);pointer-events:none;z-index:9997;animation:popin .5s ease both;}
+    .mega-conf-dot{position:fixed;pointer-events:none;z-index:9999;border-radius:4px;animation:megaConf 1.4s ease-out both;}
+
+    /* ── COMPLETION SCREEN ── */
+    #completion-screen{position:fixed;inset:0;background:var(--bg);z-index:10000;display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;}
+    #completion-screen.open{display:flex;animation:fadeIn .4s ease both;}
+    .completion-card{background:var(--white);border:3px solid var(--blue);border-bottom:8px solid var(--blue-shadow);border-radius:24px;padding:32px 24px;max-width:480px;width:100%;text-align:center;margin:auto;box-shadow:0 0 40px rgba(28,176,246,.2);}
+    .cc-badge-face{width:150px;height:150px;border-radius:50%;background:linear-gradient(145deg,#fffde7,#fff8c5,#fffde7);border:5px solid var(--yellow-shadow);display:flex;align-items:center;justify-content:center;font-size:84px;margin:0 auto 8px;animation:badgeDrop .8s cubic-bezier(.175,.885,.32,1.275) both,glowGold 2.5s ease-in-out infinite .9s;box-shadow:0 0 30px rgba(255,200,0,.5),0 8px 32px rgba(0,0,0,.15);position:relative;overflow:hidden;}
+    .cc-badge-face::before{content:'';position:absolute;top:-10%;left:-80%;width:50%;height:120%;background:linear-gradient(to right,transparent,rgba(255,255,255,.75),transparent);transform:skewX(-20deg);animation:shimmer2 2s ease-in-out infinite;animation-delay:.8s;}
+    .cc-badge-label{font-size:14px;font-weight:900;color:var(--blue-shadow);margin-top:6px;}
+    .cc-badge-sub{font-size:11px;font-weight:700;color:var(--ink-3);margin-top:3px;margin-bottom:16px;}
+    .cc-title{font-size:24px;font-weight:900;color:var(--blue-shadow);letter-spacing:-1px;margin-bottom:4px;}
+    .cc-sub{font-size:14px;font-weight:700;color:var(--ink-3);margin-bottom:16px;}
+    .cc-xp-box{background:var(--blue);border:2px solid var(--blue-shadow);border-bottom:6px solid var(--blue-shadow);border-radius:var(--r);padding:18px;margin-bottom:14px;}
+    .cc-xp-num{font-size:52px;font-weight:900;color:var(--white);line-height:1;}
+    .cc-xp-label{font-size:12px;font-weight:900;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+    .cc-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;}
+    .cc-stat{background:rgba(28,176,246,.08);border:2px solid rgba(28,176,246,.2);border-radius:var(--rsm);padding:12px 8px;}
+    .cc-stat-n{font-size:22px;font-weight:900;color:var(--blue-shadow);}
+    .cc-stat-l{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);margin-top:2px;}
+    .cc-badge-pill{position:relative;overflow:hidden;display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(255,200,0,.14),rgba(255,200,0,.05));border:2px solid rgba(255,200,0,.4);border-radius:var(--rsm);padding:12px 14px;margin-bottom:14px;}
+    .cc-badge-shimmer{position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(to right,transparent,rgba(255,255,255,.6),transparent);animation:shimmer2 2s ease-in-out 3;animation-delay:.6s;pointer-events:none;}
+    .cc-badge-icon{font-size:28px;flex-shrink:0;animation:wiggle 3s ease-in-out infinite;}
+    .cc-badge-info-name{font-size:15px;font-weight:900;color:var(--ink-bold);}
+    .cc-badge-info-sub{font-size:11px;font-weight:700;color:var(--ink-3);margin-top:1px;}
+    .cc-badge-tick{margin-left:auto;flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--green);color:var(--white);font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;}
+    .cc-btns{display:flex;flex-direction:column;gap:10px;}
+    .cc-btn{width:100%;padding:14px;border-radius:var(--r);font-size:15px;font-weight:900;font-family:inherit;cursor:pointer;border:2px solid;border-bottom:5px solid;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s;}
+    .cc-btn:active{border-bottom-width:2px;transform:translateY(3px);}
+    .cc-btn.primary  {background:var(--blue);color:var(--white);border-color:var(--blue-shadow);}
+    .cc-btn.secondary{background:var(--white);color:var(--blue-shadow);border-color:var(--blue);}
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="header-inner">
+        <a href="/intermediate/" class="logo-link">
+            <div class="logo-box">😎</div>
+            <span class="site-name">English For Cool Dudes</span>
+        </a>
+        <div class="header-xp">
+            <div class="streak-mini"><span>🔥</span><span id="hdr-streak">0</span></div>
+            <div class="xp-pill">⚡ <span id="hdr-xp">0</span> XP</div>
+            <a href="/dashboard-gamified/" class="btn-dash" title="Dashboard">📊</a>
+            <button class="btn-signout hidden" id="hdr-signout" onclick="handleSignOut()">👋</button>
+        </div>
+    </div>
+</header>
+
+<div class="badge-wrap" id="badge-wrap"></div>
+
+<div class="page">
+    <div class="lesson-banner u1">
+        <div class="lesson-eyebrow">📘 Intermediate (B1-B2) · 🎬 Video Lesson</div>
+        <div class="lesson-title">Quitting Normal Life —<br><span class="yellow">5 Ways to Live Your Dreams!</span></div>
+        <div class="lesson-sub">A sailor family, a nun, a 1960s obsessive, an island caretaker and a shepherdess. What do they have in common? They all said no to ordinary life. 🧳</div>
+        <div class="lesson-stats">
+            <div class="ls-stat"><span class="ls-stat-n">5</span><span class="ls-stat-l">Life stories</span></div>
+            <div class="ls-stat"><span class="ls-stat-n">B1–B2</span><span class="ls-stat-l">Level</span></div>
+            <div class="ls-stat"><span class="ls-stat-n">~9 min</span><span class="ls-stat-l">To complete</span></div>
+        </div>
+        <div class="prog-wrap">
+            <div class="prog-row"><span id="prog-label">0 / 5 sections</span><span id="prog-pct">0%</span></div>
+            <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+        </div>
+    </div>
+    <div id="sections"></div>
+</div>
+
+<!-- COMPLETION SCREEN -->
+<div id="completion-screen">
+    <div class="completion-card">
+        <div class="cc-badge-face">🧳</div>
+        <div class="cc-badge-label">🧳 Dream Chaser Badge</div>
+        <div class="cc-badge-sub">Added to your collection!</div>
+        <div class="cc-title">🌍 You nailed it!</div>
+        <div class="cc-sub">Five lives. Five dreams. All in English. 🎉</div>
+        <div class="cc-xp-box">
+            <div class="cc-xp-num" id="cc-xp">+0</div>
+            <div class="cc-xp-label" id="cc-xp-label">⚡ XP Earned</div>
+        </div>
+        <div class="cc-stats">
+            <div class="cc-stat"><div class="cc-stat-n" id="cc-correct">0</div><div class="cc-stat-l">Correct!</div></div>
+            <div class="cc-stat"><div class="cc-stat-n" id="cc-combo">0</div><div class="cc-stat-l">Best Combo</div></div>
+            <div class="cc-stat"><div class="cc-stat-n" id="cc-words">10</div><div class="cc-stat-l">New Words</div></div>
+        </div>
+        <div class="cc-badge-pill">
+            <div class="cc-badge-shimmer"></div>
+            <span class="cc-badge-icon">🧳</span>
+            <div>
+                <div class="cc-badge-info-name">Dream Chaser</div>
+                <div class="cc-badge-info-sub">📘 Intermediate B1-B2 — video lesson complete!</div>
+            </div>
+            <span class="cc-badge-tick">✓</span>
+        </div>
+        <div class="cc-btns">
+            <a href="/intermediate/" class="cc-btn primary">📘 More Intermediate Lessons →</a>
+            <a href="/dashboard-gamified/" class="cc-btn secondary">📊 View Dashboard</a>
+        </div>
+    </div>
+</div>
+
+<script src="/supabase-auth-gamified.js"></script>
+<script src="/daily-challenges-system.js"></script>
+<script>
+'use strict';
+
+const LESSON_ID    = 'quitting-normal-life-intermediate';
+const LESSON_TITLE = 'Quitting Normal Life — 5 Unusual Ways People Live Their Dreams';
+const LESSON_LINK  = '/quittingnormallife/';
+
+/* ══════ THE 5 PEOPLE ══════ */
+const PEOPLE = [
+    { id:'sailor',    emoji:'⛵', name:'The Sailors',   full:'The Schwörer Family' },
+    { id:'nun',       emoji:'🙏', name:'The Nun',       full:'Sister Helena'       },
+    { id:'sixties',   emoji:'📺', name:'The 60s Fan',   full:'Kitty Steiner'       },
+    { id:'island',    emoji:'🏝️', name:'The Islanders', full:'The Blasket Couple'  },
+    { id:'shepherd',  emoji:'🐑', name:'The Shepherdess',full:'Pauline Accard'     },
+];
+
+/* ══════ ACT 2: WHO SAID IT / WHO IS IT? ══════ */
+const WHO_ROUNDS = [
+    {
+        text: '"We want to inspire people to protect the environment — from plastic waste."',
+        hint: 'Think: environmental mission on the water...',
+        answer: 'sailor',
+        fb: '⛵ Correct! The Schwörer family has sailed 260,000 km and campaigns against plastic pollution in our oceans.'
+    },
+    {
+        text: 'She has solemnly devoted herself to a life of scarcity, obedience and chastity.',
+        hint: 'Think: someone who chose a very strict, spiritual life...',
+        answer: 'nun',
+        fb: '🙏 Yes! Sister Helena heard a priest\'s sermon and chose convent life — vowing to live simply until the end of her days.'
+    },
+    {
+        text: 'From her water boiler to her telephone — everything is from back then. And still works.',
+        hint: 'Think: someone whose house is like a museum of one specific decade...',
+        answer: 'sixties',
+        fb: '📺 Spot on! Kitty Steiner in Gelsenkirchen has adapted everything about her life to the Swinging Sixties.'
+    },
+    {
+        text: '"When we first got here, I was looking for light switches on the walls. That\'s completely out of my habit now."',
+        hint: 'Think: somewhere with no electricity at night, very remote...',
+        answer: 'island',
+        fb: '🏝️ Perfect! The caretakers of Great Blasket Island — abandoned since the 1950s — now live without modern conveniences.'
+    },
+    {
+        text: 'This lifestyle has changed the former restaurateur.',
+        hint: 'Think: someone who completely changed career — from food to animals...',
+        answer: 'shepherd',
+        fb: '🐑 Yes! Pauline Accard left the restaurant business and now lives 1,500m up in the French Pyrenees with 800 sheep.'
+    },
+    {
+        text: '"Hundreds of would-be adventurers apply as caretakers every year."',
+        hint: 'Think: a job that many people dream of applying for...',
+        answer: 'island',
+        fb: '🏝️ Right! Great Blasket Island caretakers get hundreds of applicants — it\'s a dream job for many adventurers.'
+    },
+    {
+        text: 'The family has covered about 260,000 kilometres of sea.',
+        hint: 'Think: an enormous distance travelled by boat...',
+        answer: 'sailor',
+        fb: '⛵ Correct! The Schwörer family has sailed over 260,000 km — that\'s more than six times around the Earth!'
+    },
+];
+
+/* ══════ ACT 3: WORD IN THE WILD ══════ */
+const WITW_ROUNDS = [
+    {
+        source: '🎙️ From the documentary',
+        sentence: 'The Schwörer family is on a <span class="witw-word">mission</span> to inspire people to protect the environment.',
+        word: 'mission',
+        opts: ['A free holiday trip','An important goal or task you feel committed to','A type of sailing boat','A television programme'],
+        correct: 1,
+        fb: '✅ A <strong>mission</strong> is an important task or goal — often with a sense of purpose. "She\'s on a mission to learn French." Very useful at B1-B2!'
+    },
+    {
+        source: '🎙️ From the documentary',
+        sentence: 'Great Blasket is a <span class="witw-word">secluded</span> island off Ireland\'s western coast.',
+        word: 'secluded',
+        opts: ['Very popular and busy','Protected by the government','Private and away from other people','Extremely dangerous'],
+        correct: 2,
+        fb: '✅ <strong>Secluded</strong> means quiet, private and far from other people. "They found a secluded beach." Great C1-level adjective for describing places!'
+    },
+    {
+        source: '🎙️ From the documentary',
+        sentence: 'Kitty has <span class="witw-word">adapted</span> everything about her life to the 1960s.',
+        word: 'adapted',
+        opts: ['Refused to change','Changed something to fit a new situation','Destroyed something old','Bought something new'],
+        correct: 1,
+        fb: '✅ <strong>Adapted</strong> means changed or adjusted to fit. "She adapted well to life abroad." You can also adapt a book into a film!'
+    },
+    {
+        source: '🎙️ From the documentary',
+        sentence: 'Pauline <span class="witw-word">radically</span> transformed her life.',
+        word: 'radically',
+        opts: ['Slightly and slowly','Completely and dramatically','Carefully and safely','Temporarily and briefly'],
+        correct: 1,
+        fb: '✅ <strong>Radically</strong> means in a very big, complete way. "The city has radically changed." The adjective is <em>radical</em> — meaning extreme or fundamental.'
+    },
+    {
+        source: '🎙️ From the documentary',
+        sentence: 'The island\'s last remaining <span class="witw-word">inhabitants</span> moved away in the 1950s.',
+        word: 'inhabitants',
+        opts: ['Tourists visiting for a day','Animals living in the area','People who permanently live in a place','Buildings left abandoned'],
+        correct: 2,
+        fb: '✅ <strong>Inhabitants</strong> are the people (or animals) who permanently live somewhere. "The inhabitants of the city protested." The verb is <em>inhabit</em>.'
+    },
+    {
+        source: '🎙️ From the documentary',
+        sentence: 'At night, the lack of modern <span class="witw-word">conveniences</span> becomes more noticeable.',
+        word: 'conveniences',
+        opts: ['Laws and regulations','Things that make life easier and more comfortable','Expensive luxury items','Social events and parties'],
+        correct: 1,
+        fb: '✅ <strong>Conveniences</strong> are things that make life easier — electricity, running water, the internet. "Modern conveniences" is a very common phrase.'
+    },
+];
+
+/* ══════ ACT 4: DIALOGUE GAP FILL ══════ */
+const DIALOGUE = {
+    context: 'Two friends are talking after watching the documentary...',
+    gaps: {a:'devoted', b:'scarcity', c:'habitat', d:'radically', e:'committed'},
+    text: [
+        {speaker:'A', avatar:'😊', side:'left',  parts:[
+            {t:'text', v:'Did you see that documentary? The nun who is completely '},
+            {t:'gap',  k:'a', ans:'devoted'},
+            {t:'text', v:' to her faith — she gave up everything!'},
+        ]},
+        {speaker:'B', avatar:'🤔', side:'right', parts:[
+            {t:'text', v:'I know! And she chose a life of '},
+            {t:'gap',  k:'b', ans:'scarcity'},
+            {t:'text', v:' — so little comfort. I\'m not sure I could do that.'},
+        ]},
+        {speaker:'A', avatar:'😊', side:'left',  parts:[
+            {t:'text', v:'And the shepherdess! She '},
+            {t:'gap',  k:'d', ans:'radically'},
+            {t:'text', v:' changed her life. From running a restaurant to living in an alpine '},
+            {t:'gap',  k:'c', ans:'habitat'},
+            {t:'text', v:' with 800 sheep!'},
+        ]},
+        {speaker:'B', avatar:'🤔', side:'right', parts:[
+            {t:'text', v:'You have to be really '},
+            {t:'gap',  k:'e', ans:'committed'},
+            {t:'text', v:' to do something like that. Which life would you choose?'},
+        ]},
+    ],
+    wordbank: ['devoted','scarcity','habitat','radically','committed'],
+};
+
+/* ══════ ACT 5: DREAM BUILDER ══════ */
+// Redesigned: sentence completion with 4 options — no free-form word scramble
+const DREAM_ROUNDS = [
+    {
+        starter: '🧳 If I could change my life, I would...',
+        opts: [
+            'live on a sailboat and sail around the world.',
+            'lived on a sailboat and sailing the world.',
+            'living on a sailboat and sail around world.',
+            'live on sailboat and would sailing the world.',
+        ],
+        correct: 0,
+        fb: '✅ "I would + infinitive" is the correct conditional structure. "If I could... I would LIVE" — not "lived" or "living". This is the second conditional!'
+    },
+    {
+        starter: '🌍 The lifestyle that requires the most commitment is...',
+        opts: [
+            'living as a nun, because you give up almost everything.',
+            'live as a nun, because you gives up almost everything.',
+            'to living as a nun, because you given up everything.',
+            'lived as a nun, because you gave up almost everythings.',
+        ],
+        correct: 0,
+        fb: '✅ After "is", we use a gerund (verb + -ing): "the lifestyle IS... LIVING as a nun." The sentence also needs "you give up" — no -s because "you" takes the base form.'
+    },
+    {
+        starter: '🏝️ Great Blasket Island is the perfect place for people who...',
+        opts: [
+            'want to escape modern life and enjoy nature.',
+            'wants to escape modern life and enjoys nature.',
+            'wanting to escape modern life and to enjoying nature.',
+            'to want escape from modern life and enjoy of nature.',
+        ],
+        correct: 0,
+        fb: '✅ After "people who", use the base verb: "people who WANT" (not "wants" — the subject is "people", which is plural). This is a defining relative clause.'
+    },
+    {
+        starter: '🐑 Pauline Accard\u2019s life changed radically when she...',
+        opts: [
+            'decided to leave her restaurant and move to the mountains.',
+            'decide to leave her restaurant and move to the mountains.',
+            'was decided to leave her restaurant and moving to mountains.',
+            'decided leaving her restaurant and to moved the mountains.',
+        ],
+        correct: 0,
+        fb: '✅ Past simple "DECIDED" is correct here — a completed action in the past. "Decided TO LEAVE" uses the infinitive. "Decided + gerund (leaving)" is also possible, but "decided + to + infinitive" is more natural here.'
+    },
+    {
+        starter: '⛵ The Schwörer family believes that microplastics are dangerous because...',
+        opts: [
+            'they enter the food chain through fish and birds.',
+            'they enters the food chain through fish and birds.',
+            'it enter the food chain through fish and birds.',
+            'they are entering in the food chain through fish and bird.',
+        ],
+        correct: 0,
+        fb: '✅ "Microplastics" is plural — so we use "THEY enter" (not "it", not "they enters"). This is a general truth so we use simple present tense. "Through fish and birds" is a great B1-B2 phrase!'
+    },
+    {
+        starter: '💭 The person in the video who inspires me most is...',
+        opts: [
+            'the shepherdess, because she completely transformed her life.',
+            'the shepherdess, because she completely transform her life.',
+            'the shepherdess, because her completely transformed their life.',
+            'the shepherdess, because she complete transforms her life.',
+        ],
+        correct: 0,
+        fb: '✅ "She TRANSFORMED" — past simple, subject + verb, no extra words needed. "Completely" is an adverb placed before the main verb. Great B2 sentence structure for expressing opinions!'
+    },
+];
+
+/* ══════ ACT 6: LIFE SWAP — TRUE / FALSE CARDS ══════ */
+const LIFE_SWAP = [
+    {
+        icon:'⛵',
+        claim: 'The Schwörer family has been living on a sailboat for over 25 years.',
+        correct: true,
+        reveal: '✅ TRUE! The Swiss Schwörer family has been living on the sea for more than 25 years — covering 260,000 km. That\'s a long voyage!'
+    },
+    {
+        icon:'🙏',
+        claim: 'Sister Helena became a nun because she wanted to travel the world.',
+        correct: false,
+        reveal: '❌ FALSE! She became a nun after hearing a priest\'s sermon — she was called to a life of prayer, not travel. She vowed to live with scarcity and obedience.'
+    },
+    {
+        icon:'📺',
+        claim: 'Kitty Steiner\'s house in Gelsenkirchen contains furniture and objects only from the 1960s.',
+        correct: true,
+        reveal: '✅ TRUE! From the water boiler to the telephone to the record player — everything in Kitty\'s home is from the Swinging Sixties. And it all still works!'
+    },
+    {
+        icon:'🏝️',
+        claim: 'Great Blasket Island still has a permanent population of local residents.',
+        correct: false,
+        reveal: '❌ FALSE! The last inhabitants left in the 1950s. Today, the island is managed by rotating caretaker couples — hundreds of people apply each year.'
+    },
+    {
+        icon:'🐑',
+        claim: 'Pauline Accard is a former restaurateur who now looks after 800 sheep in the French Pyrenees.',
+        correct: true,
+        reveal: '✅ TRUE! Pauline was in the restaurant business before she transformed her life. She now lives 1,500m up in the mountains with her sheep and her boyfriend.'
+    },
+    {
+        icon:'🏝️',
+        claim: 'The island caretaker job requires previous experience with sailing and fishing.',
+        correct: false,
+        reveal: '❌ FALSE! The job requirements are really just commitment and a good attitude. "You just have to be prepared to get stuck into everything." Brilliant phrase!'
+    },
+    {
+        icon:'⛵',
+        claim: 'Microplastics can enter the human food chain through fish and birds.',
+        correct: true,
+        reveal: '✅ TRUE — and alarming! The sailing family warns us: microplastics enter through fish and birds into our food chain, and may cause cancer. It all comes back.'
+    },
+    {
+        icon:'🐑',
+        claim: 'Pauline and her boyfriend live on the mountain pasture from January to December.',
+        correct: false,
+        reveal: '❌ FALSE! They live up there from May to the end of October — about six months. Winter on a 1,500m alpine pasture would be extremely tough!'
+    },
+];
+
+/* ══════ STATE ══════ */
+let S = {
+    xp:0, streak:0, combo:0, bestCombo:0,
+    totalRight:0, totalAnswered:0,
+    videoDone:false,
+    wsiIdx:0, wsiScore:0, wsiDone:false,
+    witwIdx:0, witwScore:0, witwDone:false,
+    dialDone:false,
+    dbIdx:0, dbScore:0, dbDone:false,
+    lsScore:0, lsDone:false,
+};
+
+/* ══════ UTILS ══════ */
+function $(id){ return document.getElementById(id); }
+
+function confettiBurst(x,y){
+    const colors=['#1CB0F6','#FFC800','#58CC02','#FF4B4B','#CE82FF','#2BDECC'];
+    for(let i=0;i<20;i++){
+        const d=document.createElement('div'); d.className='confetti-dot';
+        d.style.cssText=`left:${x+Math.random()*60-30}px;top:${y+Math.random()*30-15}px;background:${colors[i%colors.length]};animation-delay:${Math.random()*.3}s;animation-duration:${.7+Math.random()*.5}s;transform:rotate(${Math.random()*360}deg)`;
+        document.body.appendChild(d); setTimeout(()=>d.remove(),1200);
+    }
+}
+function megaConfettiBurst(){
+    const colors=['#1CB0F6','#FFC800','#58CC02','#CE82FF','#2BDECC','#FF4B4B'];
+    for(let i=0;i<60;i++){
+        const d=document.createElement('div'); d.className='mega-conf-dot';
+        const sz=8+Math.random()*12;
+        d.style.cssText=`left:${Math.random()*100}vw;top:${-10+Math.random()*30}px;width:${sz}px;height:${sz}px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-delay:${Math.random()*.8}s;animation-duration:${1+Math.random()*.8}s;border-radius:${Math.random()>.5?'50%':'3px'};transform:rotate(${Math.random()*360}deg)`;
+        document.body.appendChild(d); setTimeout(()=>d.remove(),2200);
+    }
+}
+function xpFloat(x,y,amount){
+    const el=document.createElement('div'); el.className='xp-float';
+    el.textContent=`+${amount} XP`; el.style.cssText=`left:${x}px;top:${y}px`;
+    document.body.appendChild(el); setTimeout(()=>el.remove(),1000);
+}
+function addXP(amount,el){
+    S.xp+=amount;
+    if(el){ const r=el.getBoundingClientRect(); xpFloat(r.left+r.width/2-24,r.top-10,amount); }
+    const hx=$('hdr-xp'); if(hx) hx.textContent=S.xp;
+}
+function toast(icon,text){
+    const wrap=$('badge-wrap');
+    const b=document.createElement('div'); b.className='badge';
+    b.innerHTML=`<span class="badge-icon">${icon}</span><span class="badge-text">${text}</span>`;
+    wrap.appendChild(b);
+    setTimeout(()=>b.classList.add('show'),50);
+    setTimeout(()=>{ b.classList.remove('show'); setTimeout(()=>b.remove(),500); },4500);
+}
+function comboFlash(msg){
+    const el=document.createElement('div'); el.className='combo-flash'; el.textContent=msg;
+    document.body.appendChild(el); setTimeout(()=>el.remove(),800);
+}
+function updateProgress(){
+    const sections=[S.videoDone,S.wsiDone,S.witwDone,S.dialDone,S.dbDone||S.lsDone];
+    const done=sections.filter(Boolean).length;
+    const pct=Math.round((done/sections.length)*100);
+    const fill=$('prog-fill'); if(fill) fill.style.width=pct+'%';
+    $('prog-label').textContent=`${done} / ${sections.length} sections`;
+    $('prog-pct').textContent=pct+'%';
+    if(done===sections.length) setTimeout(showCompletion,700);
+}
+function revealSection(id,initFn){
+    const sec=document.getElementById(id);
+    if(!sec||sec.classList.contains('visible')) return;
+    if(initFn) initFn();
+    sec.classList.add('visible');
+    setTimeout(()=>sec.scrollIntoView({behavior:'smooth',block:'start'}),80);
+}
+
+/* ══════ BUILD ALL SECTIONS ══════ */
+function buildAll(){
+    const c=$('sections');
+    c.appendChild(buildVideoSec());
+    c.appendChild(buildWSISec());
+    c.appendChild(buildWITWSec());
+    c.appendChild(buildDialogueSec());
+    c.appendChild(buildDreamBuilderSec());
+    c.appendChild(buildLifeSwapSec());
+    document.getElementById('sec-video').classList.add('visible');
+}
+
+/* ══════════════════════════════════════
+   SECTION 1 — VIDEO
+══════════════════════════════════════ */
+function buildVideoSec(){
+    const sec=document.createElement('div');
+    sec.className='sec-card strip-blue u2'; sec.id='sec-video';
+    sec.innerHTML=`
+        <div class="sec-head">
+            <div class="sec-head-icon">🎬</div>
+            <div>
+                <div class="sec-head-title">Watch the Documentary</div>
+                <div class="sec-head-sub">~5 min · DW Euromaxx · real English · B1-B2</div>
+            </div>
+        </div>
+        <div class="sec-body">
+            <div class="video-wrap">
+                <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/JYOfnH5zv_4?si=e8G2ptECKfaFivIA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+            <div class="fact-chips">
+                <span class="fact-chip">⛵ Swiss sailing family</span>
+                <span class="fact-chip">🙏 Life as a nun</span>
+                <span class="fact-chip">📺 Living in the 1960s</span>
+                <span class="fact-chip">🏝️ Remote Irish island</span>
+                <span class="fact-chip">🐑 Alpine shepherdess</span>
+            </div>
+            <p style="font-size:14px;font-weight:700;color:var(--ink);line-height:1.7;margin-bottom:8px;">Five people. Five extraordinary choices. Watch and listen — don't panic about every word, just follow the stories. Then do the activities to really learn the language! 🧳</p>
+            <p style="font-size:13px;font-weight:700;color:var(--ink-3);line-height:1.6;margin-bottom:16px;">💡 <em>Watch once for the big picture, then do the activities — you can always rewatch!</em></p>
+            <button class="btn-continue" onclick="markVideoDone()">Done Watching → Let's Begin! 🚀</button>
+        </div>`;
+    return sec;
+}
+function markVideoDone(){
+    addXP(10,$('sec-video'));
+    toast('🎬','Video watched! +10 XP — five lives explored!');
+    S.videoDone=true; updateProgress();
+    revealSection('sec-wsi', buildWSIInner);
+}
+
+/* ══════════════════════════════════════
+   SECTION 2 — WHO SAID IT / WHO IS IT?
+   Quote → tap the matching person portrait
+══════════════════════════════════════ */
+function buildWSISec(){
+    const sec=document.createElement('div');
+    sec.className='sec-card strip-blue'; sec.id='sec-wsi';
+    sec.innerHTML=`
+        <div class="sec-head">
+            <div class="sec-head-icon">🗺️</div>
+            <div>
+                <div class="sec-head-title">Who Said It?</div>
+                <div class="sec-head-sub">Read the quote or fact — tap the right person!</div>
+            </div>
+        </div>
+        <div class="sec-body"><div id="wsi-inner"></div></div>`;
+    return sec;
+}
+
+function buildWSIInner(){
+    // Shuffle rounds
+    const rounds=[...WHO_ROUNDS].sort(()=>Math.random()-.5).slice(0,5);
+    let answered=0;
+
+    const slot=$('wsi-inner');
+    slot.innerHTML=`
+        <div class="wsi-score">
+            <span class="wsi-score-lbl">🗺️ Score</span>
+            <span class="wsi-score-num" id="wsi-score-num">0 / 5</span>
+        </div>
+        <div id="wsi-rounds"></div>
+        <button class="btn-continue" id="wsi-continue" style="display:none" onclick="finishWSI()">
+            Word in the Wild! → 🎭
+        </button>`;
+
+    const roundsDiv=$('wsi-rounds');
+    rounds.forEach((round,idx)=>{
+        const div=document.createElement('div');
+        div.id=`wsi-r-${idx}`;
+        div.innerHTML=`
+            <div class="quote-card" style="animation-delay:${idx*.06}s">
+                <div class="quote-num">Quote / Fact ${idx+1} of 5</div>
+                <div class="quote-text">${round.text}</div>
+                <div class="quote-hint">💭 ${round.hint}</div>
+            </div>
+            <div class="person-grid" id="wsi-people-${idx}">
+                ${PEOPLE.map(p=>`
+                    <div class="person-card" id="wsi-pc-${idx}-${p.id}" onclick="answerWSI(${idx},'${p.id}','${round.answer}')">
+                        <span class="person-emoji">${p.emoji}</span>
+                        <span class="person-name">${p.name}</span>
+                    </div>`).join('')}
+            </div>
+            <div class="wsi-feedback" id="wsi-fb-${idx}"></div>`;
+        roundsDiv.appendChild(div);
+    });
+
+    window.answerWSI=function(idx,chosen,correct){
+        PEOPLE.forEach(p=>{
+            const card=$(`wsi-pc-${idx}-${p.id}`);
+            if(card){ card.onclick=null; card.style.cursor='default'; }
+        });
+        const chosenCard=$(`wsi-pc-${idx}-${chosen}`);
+        const correctCard=$(`wsi-pc-${idx}-${correct}`);
+        const fb=$(`wsi-fb-${idx}`);
+        const isCorrect=chosen===correct;
+        if(isCorrect){
+            chosenCard.classList.add('correct');
+            S.wsiScore++; S.totalRight++; S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo);
+            addXP(8,chosenCard);
+            const r=chosenCard.getBoundingClientRect(); confettiBurst(r.left+r.width/2,r.top);
+            fb.className='wsi-feedback show right';
+            if(S.combo>=3) comboFlash('🧳 '+S.combo+'!!');
+        } else {
+            chosenCard.classList.add('wrong');
+            correctCard.classList.add('reveal-correct');
+            S.combo=0;
+            fb.className='wsi-feedback show wrong';
+        }
+        fb.innerHTML=isCorrect ? ('✅ '+rounds[idx].fb) : ('❌ Not quite! The answer was <strong>'+PEOPLE.find(p=>p.id===correct).full+'</strong>. 💡 '+rounds[idx].fb);
+        S.totalAnswered++;
+        const sn=$('wsi-score-num'); if(sn) sn.textContent=`${S.wsiScore} / 5`;
+        answered++;
+        if(answered===rounds.length){
+            const cont=$('wsi-continue'); if(cont) cont.style.display='flex';
+        }
+    };
+}
+
+function finishWSI(){
+    S.wsiDone=true; addXP(15);
+    toast('🗺️',`${S.wsiScore}/5 correct! You know your dreamers! +15 XP`);
+    updateProgress();
+    revealSection('sec-witw', buildWITWInner);
+}
+
+/* ══════════════════════════════════════
+   SECTION 3 — WORD IN THE WILD
+   Highlighted word in transcript sentence → pick meaning
+══════════════════════════════════════ */
+function buildWITWSec(){
+    const sec=document.createElement('div');
+    sec.className='sec-card strip-yellow'; sec.id='sec-witw';
+    sec.innerHTML=`
+        <div class="sec-head">
+            <div class="sec-head-icon">🎭</div>
+            <div>
+                <div class="sec-head-title">Word in the Wild!</div>
+                <div class="sec-head-sub">Real sentences from the video · tap what the blue word means!</div>
+            </div>
+        </div>
+        <div class="sec-body">
+            <div class="witw-progress" id="witw-prog"></div>
+            <div id="witw-slot"></div>
+        </div>`;
+    return sec;
+}
+
+function buildWITWInner(){ renderWITW(); }
+
+function renderWITW(){
+    const prog=$('witw-prog');
+    if(prog) prog.innerHTML=WITW_ROUNDS.map((_,i)=>`<div class="witw-pip ${i<S.witwIdx?'done':i===S.witwIdx?'active':''}"></div>`).join('');
+    if(S.witwDone){ renderWITWDone(); return; }
+    const q=WITW_ROUNDS[S.witwIdx];
+    const shuffled=q.opts.map((o,i)=>({text:o,idx:i})).sort(()=>Math.random()-.5);
+    const shuffledCorrect=shuffled.findIndex(o=>o.idx===q.correct);
+
+    $('witw-slot').innerHTML=`
+        <div class="witw-card">
+            <div class="witw-source">${q.source}</div>
+            <div class="witw-sentence">${q.sentence}</div>
+        </div>
+        <div class="witw-opts" id="witw-opts">
+            ${shuffled.map((o,i)=>`
+                <button class="witw-opt" onclick="answerWITW(this,${i},${shuffledCorrect})">${o.text}</button>
+            `).join('')}
+        </div>
+        <div class="witw-feedback" id="witw-fb"></div>
+        <button class="witw-next" id="witw-nxt" style="display:none" onclick="nextWITW()">
+            ${S.witwIdx+1<WITW_ROUNDS.length ? 'Next Word →' : 'All done! →'}
+        </button>`;
+}
+
+window.answerWITW=function(btn,chosen,correct){
+    document.querySelectorAll('.witw-opt').forEach(b=>b.disabled=true);
+    const fb=$('witw-fb');
+    const q=WITW_ROUNDS[S.witwIdx];
+    if(chosen===correct){
+        btn.classList.add('correct');
+        S.witwScore++; S.totalRight++; S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo);
+        addXP(10,btn);
+        const r=btn.getBoundingClientRect(); confettiBurst(r.left+r.width/2,r.top);
+        fb.className='witw-feedback show right'; fb.innerHTML=q.fb;
+        if(S.combo>=3) comboFlash('🎭 '+S.combo+'!!');
+    } else {
+        btn.classList.add('wrong');
+        document.querySelectorAll('.witw-opt')[correct].classList.add('show-correct');
+        S.combo=0;
+        fb.className='witw-feedback show wrong';
+        fb.innerHTML='❌ Not quite! '+q.fb;
+    }
+    S.totalAnswered++;
+    const nxt=$('witw-nxt'); if(nxt) nxt.style.display='flex';
+};
+
+function nextWITW(){
+    S.witwIdx++;
+    if(S.witwIdx>=WITW_ROUNDS.length){
+        S.witwDone=true; addXP(15);
+        toast('🎭',`${S.witwScore}/${WITW_ROUNDS.length} words spotted! +15 XP`);
+        updateProgress(); renderWITWDone();
+    } else { renderWITW(); }
+}
+
+function renderWITWDone(){
+    $('witw-slot').innerHTML=`
+        <div class="sec-done">
+            <span class="sec-done-icon" style="animation:float 2s ease-in-out infinite">🎭</span>
+            <div class="sec-done-title">${S.witwScore}/${WITW_ROUNDS.length} words! 🎉</div>
+            <div class="sec-done-sub">mission · secluded · adapted · radically · inhabitants · conveniences</div>
+            <button class="btn-continue" style="background:var(--teal);border-color:var(--teal-shadow)" onclick="revealSection('sec-dialogue', buildDialogueInner)">Fill the Dialogue! 💬 →</button>
+        </div>`;
+}
+
+/* ══════════════════════════════════════
+   SECTION 4 — DIALOGUE GAP FILL
+   Tap word from bank, tap gap in conversation bubbles
+══════════════════════════════════════ */
+function buildDialogueSec(){
+    const sec=document.createElement('div');
+    sec.className='sec-card strip-teal'; sec.id='sec-dialogue';
+    sec.innerHTML=`
+        <div class="sec-head">
+            <div class="sec-head-icon">💬</div>
+            <div>
+                <div class="sec-head-title">Fill the Dialogue!</div>
+                <div class="sec-head-sub">Tap a word · tap a gap · complete the conversation!</div>
+            </div>
+        </div>
+        <div class="sec-body"><div id="dial-inner"></div></div>`;
+    return sec;
+}
+
+function buildDialogueInner(){
+    const slot=$('dial-inner');
+    let selectedWord=null;
+    let filledGaps={};
+
+    function buildDialPage(){
+        const placedWords=new Set(Object.values(filledGaps));
+
+        // Build dialogue HTML
+        let bubbleHTML='<div class="dialogue-wrap">';
+        DIALOGUE.text.forEach(line=>{
+            bubbleHTML+=`<div class="bubble-row ${line.side==='right'?'right':''}">
+                <div class="bubble-avatar">${line.avatar}</div>
+                <div>
+                    <div class="bubble-name">${line.speaker}</div>
+                    <div class="bubble">`;
+            line.parts.forEach(part=>{
+                if(part.t==='text'){
+                    bubbleHTML+=part.v;
+                } else {
+                    const filled=filledGaps[part.k];
+                    bubbleHTML+=`<span class="dial-gap ${filled?'filled':''}" id="dg-${part.k}">${filled||'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</span>`;
+                }
+            });
+            bubbleHTML+=`</div></div></div>`;
+        });
+        bubbleHTML+='</div>';
+
+        slot.innerHTML=`
+            ${bubbleHTML}
+            <p style="font-size:12px;font-weight:700;color:var(--ink-3);margin-bottom:10px;font-style:italic">🗣️ ${DIALOGUE.context}</p>
+            <div class="dial-wordbank">
+                <div class="dial-bank-label">📦 Word Bank</div>
+                <div class="dial-chips">
+                    ${DIALOGUE.wordbank.map(w=>`
+                        <button class="dial-chip ${placedWords.has(w)?'used':''} ${selectedWord===w?'selected':''}" id="dchip-${w}" onclick="selDialWord('${w}')">${w}</button>
+                    `).join('')}
+                </div>
+            </div>
+            <div class="dial-result" id="dial-result"></div>
+            <button class="dial-submit" onclick="submitDialogue()">💬 Check My Dialogue!</button>`;
+
+        // Bind gap clicks
+        Object.keys(DIALOGUE.gaps).forEach(k=>{
+            const el=$(`dg-${k}`); if(el) el.onclick=()=>tapDialGap(k);
+        });
+    }
+
+    window.selDialWord=function(word){
+        const placedWords=new Set(Object.values(filledGaps));
+        if(placedWords.has(word)) return;
+        selectedWord=(selectedWord===word)?null:word;
+        buildDialPage();
+    };
+
+    window.tapDialGap=function(gapKey){
+        if(!selectedWord){
+            if(filledGaps[gapKey]){ delete filledGaps[gapKey]; buildDialPage(); }
+            return;
+        }
+        filledGaps[gapKey]=selectedWord;
+        selectedWord=null;
+        buildDialPage();
+    };
+
+    window.submitDialogue=function(){
+        const allFilled=Object.keys(DIALOGUE.gaps).every(k=>filledGaps[k]);
+        if(!allFilled){
+            const res=$('dial-result');
+            res.className='dial-result show wrong';
+            res.textContent='⚠️ Fill all the gaps first!'; return;
+        }
+        let correct=0;
+        Object.keys(DIALOGUE.gaps).forEach(k=>{ if(filledGaps[k]===DIALOGUE.gaps[k]) correct++; });
+        const allCorrect=correct===Object.keys(DIALOGUE.gaps).length;
+        // Flash gaps
+        Object.keys(DIALOGUE.gaps).forEach(k=>{
+            const el=$(`dg-${k}`);
+            if(el){
+                if(filledGaps[k]===DIALOGUE.gaps[k]) el.classList.add('filled');
+                else{ el.classList.add('wrong'); el.textContent=filledGaps[k]||'???'; }
+            }
+        });
+        const res=$('dial-result');
+        if(allCorrect){
+            res.className='dial-result show right';
+            res.innerHTML=`✅ <strong>Perfect!</strong> All 5 words correct! The dialogue flows naturally now! 🎉`;
+            S.totalRight+=5; S.combo+=3; S.bestCombo=Math.max(S.bestCombo,S.combo);
+            addXP(25); confettiBurst(window.innerWidth/2, window.innerHeight*.4);
+        } else {
+            res.className='dial-result show wrong';
+            res.innerHTML=`📖 <strong>${correct}/5 correct!</strong> Words in red need fixing — try removing them and trying again.`;
+            addXP(correct*4); S.totalRight+=correct; S.combo=0;
+        }
+        S.totalAnswered+=5;
+
+        const sub=slot.querySelector('.dial-submit');
+        if(sub){
+            sub.textContent='🌍 Dream Builder! →';
+            sub.onclick=finishDialogue;
+            sub.style.background='var(--green)';
+            sub.style.borderColor='var(--green-shadow)';
+        }
+    };
+
+    buildDialPage();
+}
+
+function finishDialogue(){
+    S.dialDone=true; addXP(10);
+    toast('💬','Dialogue complete! The words are yours now! +10 XP');
+    updateProgress();
+    revealSection('sec-dreambuilder', buildDreamBuilderInner);
+}
+
+/* ══════════════════════════════════════
+   SECTION 5 — DREAM BUILDER (sentence completion)
+   Starter phrase shown → 4 complete endings → pick the grammatically correct one
+══════════════════════════════════════ */
+function buildDreamBuilderSec(){
+    const sec=document.createElement('div');
+    sec.className='sec-card strip-purple'; sec.id='sec-dreambuilder';
+    sec.innerHTML=`
+        <div class="sec-head">
+            <div class="sec-head-icon">✍️</div>
+            <div>
+                <div class="sec-head-title">Dream Builder!</div>
+                <div class="sec-head-sub">Complete the sentence — tap the grammatically correct ending!</div>
+            </div>
+        </div>
+        <div class="sec-body">
+            <div class="db-progress" id="db-prog"></div>
+            <div id="db-slot"></div>
+        </div>`;
+    return sec;
+}
+
+function buildDreamBuilderInner(){ renderDreamBuilder(); }
+
+function renderDreamBuilder(){
+    const prog=$('db-prog');
+    if(prog) prog.innerHTML=DREAM_ROUNDS.map((_,i)=>`<div class="db-pip ${i<S.dbIdx?'done':i===S.dbIdx?'active':''}"></div>`).join('');
+    if(S.dbDone){ renderDreamBuilderDone(); return; }
+    const q=DREAM_ROUNDS[S.dbIdx];
+    // Shuffle the 4 options, tracking which shuffled index is correct
+    const indexed=q.opts.map((o,i)=>({text:o,origIdx:i})).sort(()=>Math.random()-.5);
+    const shuffledCorrect=indexed.findIndex(o=>o.origIdx===q.correct);
+
+    $('db-slot').innerHTML=`
+        <div class="db-starter">${q.starter} <em>...</em></div>
+        <div class="db-opts" id="db-opts">
+            ${indexed.map((o,i)=>`
+                <button class="db-opt" onclick="answerDreamBuilder(this,${i},${shuffledCorrect})">${o.text}</button>
+            `).join('')}
+        </div>
+        <div class="db-feedback" id="db-fb"></div>
+        <button class="db-next" id="db-nxt" onclick="nextDreamBuilder()">
+            ${S.dbIdx+1<DREAM_ROUNDS.length?'Next Sentence →':'All done! →'}
+        </button>`;
+}
+
+window.answerDreamBuilder=function(btn,chosen,correct){
+    document.querySelectorAll('.db-opt').forEach(b=>b.disabled=true);
+    const fb=$('db-fb');
+    const q=DREAM_ROUNDS[S.dbIdx];
+    if(chosen===correct){
+        btn.classList.add('correct');
+        S.dbScore++; S.totalRight++; S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo);
+        addXP(12,btn);
+        const r=btn.getBoundingClientRect(); confettiBurst(r.left+r.width/2,r.top);
+        fb.className='db-feedback show right'; fb.innerHTML=q.fb;
+        if(S.combo>=3) comboFlash('✍️ '+S.combo+'!!');
+    } else {
+        btn.classList.add('wrong');
+        document.querySelectorAll('.db-opt')[correct].classList.add('show-correct');
+        S.combo=0;
+        fb.className='db-feedback show wrong';
+        fb.innerHTML='❌ Not quite! '+q.fb;
+    }
+    S.totalAnswered++;
+    const nxt=$('db-nxt'); if(nxt) nxt.style.display='flex';
+};
+
+function nextDreamBuilder(){
+    S.dbIdx++;
+    if(S.dbIdx>=DREAM_ROUNDS.length){
+        S.dbDone=true; addXP(15);
+        toast('✍️',`${S.dbScore}/${DREAM_ROUNDS.length} correct! Grammar nailed! +15 XP`);
+        updateProgress(); renderDreamBuilderDone();
+    } else { renderDreamBuilder(); }
+}
+
+function renderDreamBuilderDone(){
+    $('db-slot').innerHTML=`
+        <div class="sec-done">
+            <span class="sec-done-icon" style="animation:bounce 1.5s ease-in-out infinite">✍️</span>
+            <div class="sec-done-title">${S.dbScore}/${DREAM_ROUNDS.length} correct! 🎉</div>
+            <div class="sec-done-sub">Second conditionals, gerunds, relative clauses — you've got them!</div>
+            <button class="btn-continue" style="background:var(--orange);border-color:var(--orange-shadow)" onclick="revealSection('sec-lifeswap', buildLifeSwapInner)">Life Swap! 🃏 →</button>
+        </div>`;
+}
+
+/* ══════════════════════════════════════
+   SECTION 6 — LIFE SWAP
+   Tap a card to reveal a claim → TRUE or FALSE?
+══════════════════════════════════════ */
+function buildLifeSwapSec(){
+    const sec=document.createElement('div');
+    sec.className='sec-card strip-orange'; sec.id='sec-lifeswap';
+    sec.innerHTML=`
+        <div class="sec-head">
+            <div class="sec-head-icon">🃏</div>
+            <div>
+                <div class="sec-head-title">Life Swap!</div>
+                <div class="sec-head-sub">Tap a card · read the claim · is it TRUE or FALSE?</div>
+            </div>
+        </div>
+        <div class="sec-body"><div id="ls-inner"></div></div>`;
+    return sec;
+}
+
+function buildLifeSwapInner(){
+    const slot=$('ls-inner');
+    let answered=0;
+    // Shuffle 6 cards
+    const cards=[...LIFE_SWAP].sort(()=>Math.random()-.5).slice(0,6);
+
+    slot.innerHTML=`
+        <div class="ls-score-row">
+            <span class="ls-score-lbl">🃏 Cards collected</span>
+            <span class="ls-score-num" id="ls-score-num">0 / 6</span>
+        </div>
+        <div class="ls-deck" id="ls-deck"></div>
+        <button class="btn-continue" id="ls-continue" style="display:none" onclick="finishLesson()">🏆 Finish the Lesson!</button>`;
+
+    const deck=$('ls-deck');
+    cards.forEach((card,idx)=>{
+        const div=document.createElement('div');
+        div.className='ls-card'; div.id=`lsc-${idx}`;
+        div.innerHTML=`
+            <div class="ls-front" onclick="flipCard(${idx})">
+                <span class="ls-front-icon">${card.icon}</span>
+                <span class="ls-front-text">Tap to reveal a claim about this person!</span>
+                <span class="ls-front-cta">Tap →</span>
+            </div>
+            <div class="ls-back">
+                <div class="ls-verdict-row">
+                    <button class="ls-verdict-btn true-btn"  onclick="answerLS(${idx},true,${card.correct})"  disabled>✅ TRUE</button>
+                    <button class="ls-verdict-btn false-btn" onclick="answerLS(${idx},false,${card.correct})" disabled>❌ FALSE</button>
+                </div>
+                <div class="ls-reveal" id="lsr-${idx}"></div>
+            </div>`;
+        deck.appendChild(div);
+    });
+
+    window.flipCard=function(idx){
+        const card=cards[idx];
+        const lsc=$(`lsc-${idx}`);
+        if(lsc.classList.contains('flipped')) return;
+        lsc.classList.add('flipped');
+        // Update back with actual claim
+        const backRow=lsc.querySelector('.ls-verdict-row');
+        backRow.insertAdjacentHTML('beforebegin',`<div style="padding:16px 18px;font-size:clamp(15px,4vw,17px);font-weight:800;color:var(--ink-bold);line-height:1.5;border-bottom:2px solid var(--border);background:rgba(28,176,246,.04);">
+            <span style="font-size:20px;margin-right:8px">${card.icon}</span>${card.claim}
+        </div>`);
+        // Enable buttons
+        backRow.querySelectorAll('button').forEach(b=>b.disabled=false);
+    };
+
+    window.answerLS=function(idx,userSaysTrue,correct){
+        const card=cards[idx];
+        const lsc=$(`lsc-${idx}`);
+        const row=lsc.querySelector('.ls-verdict-row');
+        row.querySelectorAll('button').forEach(b=>b.disabled=true);
+        const tBtn=row.querySelector('.true-btn');
+        const fBtn=row.querySelector('.false-btn');
+        const isCorrect=userSaysTrue===correct;
+        if(isCorrect){
+            (userSaysTrue?tBtn:fBtn).classList.add('correct');
+            S.lsScore++; S.totalRight++; S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo);
+            addXP(8,userSaysTrue?tBtn:fBtn);
+            const r=(userSaysTrue?tBtn:fBtn).getBoundingClientRect(); confettiBurst(r.left+r.width/2,r.top);
+            if(S.combo>=3) comboFlash('🃏 '+S.combo+'!!');
+        } else {
+            (userSaysTrue?tBtn:fBtn).classList.add('wrong');
+            (!userSaysTrue?tBtn:fBtn).classList.add('correct');
+            S.combo=0;
+        }
+        S.totalAnswered++;
+        const rev=$(`lsr-${idx}`);
+        rev.textContent=card.reveal; rev.classList.add('show');
+        const sn=$('ls-score-num'); if(sn) sn.textContent=`${S.lsScore} / 6`;
+        answered++;
+        if(answered===cards.length){
+            const cont=$('ls-continue'); if(cont) cont.style.display='flex';
+        }
+    };
+}
+
+function finishLesson(){
+    S.lsDone=true; addXP(20);
+    toast('🃏',`${S.lsScore}/6 cards! Lesson complete! +20 XP 🏆`);
+    updateProgress();
+}
+
+/* ══════════════════════════════════════
+   COMPLETION
+══════════════════════════════════════ */
+async function showCompletion(){
+    const acc=S.totalAnswered>0?Math.round((S.totalRight/S.totalAnswered)*100):100;
+    const xpMult=window.EFCD_Shop?.getXPMultiplier?.() || 1;
+    if(xpMult>1){ S.xp=Math.round(S.xp*xpMult); const hx=$('hdr-xp'); if(hx) hx.textContent=S.xp; }
+    $('cc-xp').textContent='+'+S.xp;
+    if(xpMult>1){ const lbl=$('cc-xp-label'); if(lbl) lbl.textContent='⚡ XP Earned · 2× DOUBLE XP! 🚀'; }
+    $('cc-correct').textContent=S.totalRight;
+    $('cc-combo').textContent=S.bestCombo;
+    $('completion-screen').classList.add('open');
+    megaConfettiBurst(); setTimeout(megaConfettiBurst,600);
+    try{
+        if(window.EFCD_Auth?.getCurrentUser()){
+            await window.EFCD_Auth.completeLesson({
+                lessonId:    LESSON_ID,
+                lessonTitle: LESSON_TITLE,
+                lessonLevel: 'Intermediate',
+                lessonLink:  LESSON_LINK,
+                badgeIcon:   '🧳',
+                badgeName:   'Dream Chaser',
+                vocabulary: [
+                    {word:'mission',     definition:'An important goal or task you feel committed to'},
+                    {word:'secluded',    definition:'Private and far away from other people'},
+                    {word:'adapted',     definition:'Changed to fit a new situation'},
+                    {word:'radically',   definition:'In a complete and dramatic way'},
+                    {word:'inhabitants', definition:'People who permanently live in a place'},
+                    {word:'conveniences',definition:'Things that make life easier and more comfortable'},
+                    {word:'devoted',     definition:'Very loyal and committed to something or someone'},
+                    {word:'scarcity',    definition:'A situation where there is not enough of something'},
+                    {word:'habitat',     definition:'The natural home of an animal or person'},
+                    {word:'committed',   definition:'Dedicated to something; willing to work hard for it'},
+                ],
+                perfectScore: acc>=90,
+            });
+        }
+    } catch(e){}
+    try{
+        if(window.DailyChallenges){
+            const dcResult = await window.DailyChallenges.updateChallengeProgress({ perfectScore: acc>=90 });
+            if(dcResult?.justCompleted) setTimeout(()=>window.DailyChallenges.showChallengeCompletionCelebration(dcResult.challenge), 1800);
+            localStorage.setItem('dc_last_lesson_date', new Date().toDateString());
+            localStorage.setItem('dc_last_lesson_section', 'intermediate');
+        }
+    } catch(e){}
+}
+
+/* ══════ AUTH + INIT ══════ */
+async function handleSignOut(){
+    if(window.EFCD_Auth?.signOut) await window.EFCD_Auth.signOut();
+    else if(window.efcdSupabaseClient){ await window.efcdSupabaseClient.auth.signOut(); window.location.href='/'; }
+}
+
+document.addEventListener('DOMContentLoaded', async ()=>{
+    try{
+        if(window.efcdReady) await window.efcdReady;
+        if(window.EFCD_Auth){
+            await window.EFCD_Auth.initAuth();
+            window.EFCD_Shop?.applyActive?.();
+            const user=window.EFCD_Auth.getCurrentUser();
+            if(user){
+                const st=window.EFCD_Auth.getUserStats();
+                if(st){ S.xp=st.xp||0; S.streak=st.streak||0; }
+                const hx=$('hdr-xp'); if(hx) hx.textContent=S.xp;
+                const hs=$('hdr-streak'); if(hs) hs.textContent=S.streak;
+                const sb=$('hdr-signout'); if(sb) sb.classList.remove('hidden');
+            }
+        }
+    } catch(e){}
+    buildAll();
+    updateProgress();
+});
+</script>
+</body>
+</html>
