@@ -1,3 +1,4 @@
+// v3.1 — fixed triple emoji, simplified portrait
 // ═══════════════════════════════════════════════════════════
 // SURPRISE REWARDS — surprise-rewards.js  v3
 // Auto-detects section → fires the right character
@@ -34,7 +35,8 @@ const CHARACTERS = {
 
     // The Mascot — no name, just "😎" — appears rarely as a treat
     mascot: {
-        name: '😎',
+        name: 'The Cool Dude',
+        shortname: '😎',
         portrait: {
             bg: '#1CB0F6', ring: '#1899D6',
             face: '😎',
@@ -317,15 +319,7 @@ function injectSRStyles() {
     border-radius:13px 13px 0 0;
     pointer-events:none;
 }
-/* Accessory strip at bottom of portrait */
-.sr-portrait-strip {
-    position:absolute; bottom:0; left:0; right:0;
-    height:14px;
-    background:rgba(0,0,0,.15);
-    display:flex; align-items:center; justify-content:center;
-    font-size:8px; letter-spacing:1px; font-weight:900;
-    color:rgba(255,255,255,.7);
-}
+
 
 .sr-ch-info { flex:1; min-width:0; }
 .sr-ch-name {
@@ -372,19 +366,6 @@ function injectSRStyles() {
     100% { transform:scale(1) rotate(0); opacity:1; }
 }
 .sr-cameo.show .sr-portrait { animation:srPortPop .5s cubic-bezier(.175,.885,.32,1.275) .08s both; }
-
-/* Style variants — affects strip label */
-.sr-style-cool    .sr-portrait-strip::before { content:'😎'; font-size:10px; }
-.sr-style-formal  .sr-portrait-strip::before { content:'⚖️'; font-size:9px; }
-.sr-style-weary   .sr-portrait-strip::before { content:'📋'; font-size:9px; }
-.sr-style-stern   .sr-portrait-strip::before { content:'📐'; font-size:9px; }
-.sr-style-pop     .sr-portrait-strip::before { content:'🎵'; font-size:9px; }
-.sr-style-gamer   .sr-portrait-strip::before { content:'🕹'; font-size:9px; }
-.sr-style-retro   .sr-portrait-strip::before { content:'🎵'; font-size:9px; }
-.sr-style-bouncy  .sr-portrait-strip::before { content:'🦴'; font-size:9px; }
-.sr-style-broadcast .sr-portrait-strip::before { content:'📡'; font-size:9px; }
-.sr-style-corporate .sr-portrait-strip::before { content:'📊'; font-size:9px; }
-.sr-style-distracted .sr-portrait-strip::before { content:'☕'; font-size:9px; }
 
 /* ── MILESTONE TOAST ── */
 .sr-milestone {
@@ -450,7 +431,6 @@ function _showCameo(charId, done) {
         <div class="sr-ch" style="background:${p.bg};border-bottom:2px solid ${p.ring}">
             <div class="sr-portrait" style="background:${p.ring}">
                 ${p.face}
-                <div class="sr-portrait-strip"></div>
             </div>
             <div class="sr-ch-info">
                 <div class="sr-ch-name">${char.name}</div>
