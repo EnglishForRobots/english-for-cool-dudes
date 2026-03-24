@@ -313,7 +313,7 @@
         <div class="lesson-stats">
             <div class="ls-stat"><span class="ls-stat-n">5</span><span class="ls-stat-l">Life stories</span></div>
             <div class="ls-stat"><span class="ls-stat-n">B1–B2</span><span class="ls-stat-l">Level</span></div>
-            <div class="ls-stat"><span class="ls-stat-n">~9 min</span><span class="ls-stat-l">To complete</span></div>
+            <div class="ls-stat"><span class="ls-stat-n">~25 min</span><span class="ls-stat-l">To complete</span></div>
         </div>
         <div class="prog-wrap">
             <div class="prog-row"><span id="prog-label">0 / 5 sections</span><span id="prog-pct">0%</span></div>
@@ -677,7 +677,7 @@ function updateProgress(){
     const fill=$('prog-fill'); if(fill) fill.style.width=pct+'%';
     $('prog-label').textContent=`${done} / ${sections.length} sections`;
     $('prog-pct').textContent=pct+'%';
-    if(done===sections.length) setTimeout(showCompletion,700);
+    // completion triggered manually via finishLesson button
 }
 function revealSection(id,initFn){
     const sec=document.getElementById(id);
@@ -1243,6 +1243,36 @@ function finishLesson(){
     S.lsDone=true; addXP(20);
     toast('🃏',`${S.lsScore}/6 cards! Lesson complete! +20 XP 🏆`);
     updateProgress();
+    // Show claim-badge button in the Life Swap section
+    const lsInner = document.getElementById('ls-inner');
+    if(lsInner){
+        const existing = document.getElementById('claim-badge-btn');
+        if(existing) return;
+        const claimWrap = document.createElement('div');
+        claimWrap.style.cssText = 'margin-top:20px;animation:up .5s ease both .3s;opacity:0;';
+        claimWrap.innerHTML = `
+            <div style="background:linear-gradient(135deg,rgba(255,200,0,.15),rgba(255,200,0,.05));border:2px solid rgba(255,200,0,.5);border-radius:var(--r);padding:20px 18px;text-align:center;margin-bottom:12px;">
+                <div style="font-size:52px;margin-bottom:8px;animation:wiggle 2s ease-in-out infinite">🧳</div>
+                <div style="font-size:18px;font-weight:900;color:var(--ink-bold);margin-bottom:4px;">Dream Chaser Badge Unlocked!</div>
+                <div style="font-size:13px;font-weight:700;color:var(--ink-3);line-height:1.5;">You completed all 5 activities. Tap below to claim your badge and see your results! 🎉</div>
+            </div>
+            <button id="claim-badge-btn" class="btn-continue" style="background:var(--yellow);border-color:var(--yellow-shadow);color:var(--ink-bold);font-size:17px;gap:10px;" onclick="claimBadge()">
+                🧳 Claim My Badge!
+            </button>`;
+        lsInner.appendChild(claimWrap);
+        setTimeout(()=>{ claimWrap.style.opacity='1'; }, 50);
+        setTimeout(()=>claimWrap.scrollIntoView({behavior:'smooth',block:'nearest'}), 200);
+    }
+}
+
+function claimBadge(){
+    const btn = document.getElementById('claim-badge-btn');
+    if(btn){
+        btn.textContent = '🎉 Opening...';
+        btn.disabled = true;
+        btn.style.opacity = '.7';
+    }
+    setTimeout(showCompletion, 400);
 }
 
 /* ══════════════════════════════════════
