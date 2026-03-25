@@ -25,42 +25,62 @@ function detectSection() {
 }
 
 const CHARACTERS = {
-    mascot:   { name:'The Cool Dude',      emoji:'😎', color:'#1CB0F6', shadow:'#1899D6', linesSeen:[],
+
+    mascot: { name:'The Cool Dude', emoji:'😎', color:'#1CB0F6', shadow:'#1899D6', linesSeen:[],
         lines:["Correct. I'll try not to look too surprised.","Right answer. Try not to make it a habit of showing everyone up.","Nailed it. I'd say well done but you clearly already know.","That was suspiciously good.","I've seen a lot of students. You're comfortably one of the better ones.","Correct. Don't let it go to your head. (Let it go to your head.)","Right. Very much on brand for you at this point.","I've been cool my whole life and even I had to look that one up."]},
-    doug:     { name:'Doug the Pup',        emoji:'🐶', color:'#FFC800', shadow:'#E5B400', linesSeen:[],
+
+    doug: { name:'Doug the Pup', emoji:'🐶', color:'#FFC800', shadow:'#E5B400', linesSeen:[],
         lines:["CORRECT!! Sorry. I get excited. Still correct though.","You got it right! I also got it right! We're both brilliant!","I tried to do homework once. I ate it. This is going better.","Right answer! I'm going to tell everyone. Everyone.","Brilliant! I don't fully understand the question but your energy is perfect.","Correct! This is the best day! (Every day is the best day.)","RIGHT ANSWER!! Sorry — still though. Brilliant.","They said I couldn't do Intermediate level. They were right. But YOU can."]},
-    larry:    { name:'Legal Larry',         emoji:'👨‍⚖️', color:'#CE82FF', shadow:'#A559D9', linesSeen:[],
-        lines:["Objection — that answer was far too good. Sustained.","Technically correct. Which is, as they say, the best kind of correct.","I've argued cases for 20 years. You just made it look easy. Irritating.","The jury finds you... suspiciously competent.","Without prejudice: that was excellent.","My client — that's you — did nothing wrong. Clearly.","The record will show: correct. As usual.","I could draft a contract to confirm that was correct. I won't. But I could."]},
-    brenda:   { name:'Tax Brenda',          emoji:'👩‍💼', color:'#FF9600', shadow:'#E07800', linesSeen:[],
+
+    farmer: { name:'The Farmer', emoji:'👩🏻‍🌾', color:'#92400E', shadow:'#78350F', linesSeen:[],
+        lines:["Correct. I've been up since four. You've been up how long? Doesn't matter. Right answer.","Right. Straight answer, no fuss. I respect that enormously.","Correct. I don't say this often but that was genuinely impressive.","Right answer. Soil, seeds, English. It all takes patience. You've got it.","Correct. I've seen crops fail and I've seen crops flourish. You're flourishing.","Right. No shortcuts on the farm and no shortcuts with language. You understand that.","Correct. Good, clean answer. Like a good, clean harvest.","Right answer. Early start, honest work, proper results. That's you right now."]},
+
+    detective: { name:'The Detective', emoji:'🕵️', color:'#1e3a5f', shadow:'#1e3a5f', linesSeen:[],
+        lines:["Correct. Exactly as I suspected. I suspected it immediately.","Right answer. The evidence was always pointing here. I saw it at once.","Correct. Elementary, really. Though not everyone would have seen it.","Right. I've been watching you. The pattern was clear from question one.","Correct. A lesser mind might have hesitated. You did not hesitate.","Right answer. I deduce — and I am never wrong — that you are excellent at this.","Correct. The case is closed. Another triumph for the method.","Right. I had my suspicions about you. They were all extremely positive."]},
+
+    brenda: { name:'Tax Brenda', emoji:'👩‍💼', color:'#FF9600', shadow:'#E07800', linesSeen:[],
         lines:["Correct. And unlike most things I deal with, that's not taxable.","Right answer. I've seen grown adults get that wrong on their returns.","Technically accurate. I've built a career on technically accurate.","Perfect. Much better than the self-assessments I deal with.","Right. If only everyone I worked with understood this as well as you do.","Correct. I have feelings about this. Mostly relief.","Right answer. No penalty. No late filing fee. Enjoy it.","Not my department. But still correct."]},
-    derek:    { name:'Business Derek',      emoji:'👨‍💼', color:'#1CB0F6', shadow:'#1899D6', linesSeen:[],
-        lines:["Correct. I'll circle back to congratulate you properly.","Right. Let's take that offline and celebrate appropriately.","Solid. Very much in line with our core competencies.","That's the kind of answer that gets you to the next round.","Right answer. Synergy achieved. I'll show myself out.","Nailed it. I've sat in meetings for years waiting for someone to say that.","Correct. Going forward, this is the benchmark.","I'm between meetings so I thought I'd pop over. Correct. As expected."]},
-    victoria: { name:'Dr. Victoria Sharp',  emoji:'👩‍🏫', color:'#FF4B4B', shadow:'#EA2B2B', linesSeen:[],
-        lines:["Correct. I'd say impressive but I set the bar deliberately high.","Right. The C1-C2 learner emerges. Finally.","That's accurate. I was beginning to think I'd have to explain it again.","Right answer. Technically. Pedantically. Perfectly.","I've published four papers on this. You got it in seconds. Fine.","Correct. Do carry on. I have marking to finish.","Right. Now if everyone else could manage that, we'd be somewhere.","Correct. Sharp. Rather like my name."]},
-    ian:      { name:'Intermediate Ian',    emoji:'☕', color:'#58CC02', shadow:'#58A700', linesSeen:[],
-        lines:["That's correct! Sorry, I was making a cup of tea. Well done.","Right answer. Right. Yes. Good. Sorry, I was miles away.","Correct! I learned something new today too. Accidentally.","Nailed it. Between everything going on, you're doing brilliantly.","Right. I read about that somewhere. Didn't quite stick. It has for you though.","Correct. I'm going to remember that one. Probably.","That's right. See, this is why I signed up. Very satisfying.","Right answer. I'd have got there eventually. You got there faster. Fair enough."]},
-    kitty:    { name:'Kitty',               emoji:'📻', color:'#FF9600', shadow:'#E07800', linesSeen:[],
-        lines:["Groovy! And I mean that — it was a compliment in 1965.","Smashing. We said that in the Sixties. It still works.","Correct. I'd ring to congratulate you but my phone is from 1964.","I haven't been this excited since my record player started working again.","Your English is timeless. Just like my décor.","Fab! That was the word. Fab. Still is, in my house.","Correct. The Sixties were full of people learning new things. You fit right in.","I popped over from my 1964 sitting room to say: correct."]},
-    nancy:    { name:'News Anchor Nancy',   emoji:'👩‍💼', color:'#FF4B4B', shadow:'#EA2B2B', linesSeen:[],
-        lines:["Breaking: local learner absolutely nails it. More at eleven.","Sources confirm that answer was correct. We're getting more details.","The headline writes itself. Brilliant student stuns everyone.","We go live to the scene — and the scene looks excellent.","In a world of misinformation, your correct answer is genuinely refreshing.","This just in: you're very good at this.","Live coverage of you getting everything right continues.","Interrupting this lesson with breaking news: correct answer confirmed."]},
-    bubbles:  { name:'Bubbles',             emoji:'💅', color:'#FF6EB4', shadow:'#D4408A', linesSeen:[],
-        lines:["Oh. My. Gosh. That was correct! I'm literally shaking!","That's right! Omg! Slay! Whatever! You got it!","Correct!! I'd do a victory dance but I'm already doing one.","Right answer! I literally cannot believe how good you are at this!","Correct! I wrote a song about this once. Anyway — well done.","Right! Main character energy. Right now. Keep it.","OMG you got it!! That was so good!! I'm screaming!!","They said bubblegum pop stars don't do Intermediate English. Well."]},
-    xl:       { name:'XL_Gamer99',          emoji:'🎮', color:'#58CC02', shadow:'#58A700', linesSeen:[],
-        lines:["CORRECT!! pog pog pog let's GOOO","W answer. Absolute W. No notes. Pure W.","no way you just got that right first try. no way. LET'S GO.","bro just casually nailed it. bro.","clutch answer. actual clutch. I'm not calm.","correct!! touching grass later to celebrate. right after this though.","right answer. my teammates could NEVER. you though? you could.","chat is going CRAZY right now. and by chat I mean just me. CRAZY."]},
+
+    astronaut: { name:'The Astronaut', emoji:'👩🏻‍🚀', color:'#0f172a', shadow:'#0f172a', linesSeen:[],
+        lines:["Correct. Houston, we have a correct answer. Over.","Right answer. That's one small step for vocabulary, one giant leap for you personally.","Correct. Up here you get a lot of perspective. Your English is looking great from orbit.","Right. I've floated in zero gravity for six months. That answer still impressed me.","Correct. Mission control is very pleased. I am very pleased. We are all very pleased.","Right answer. In space no one can hear you get things wrong. You're not getting things wrong.","Correct. I've travelled 250 miles above Earth to confirm: that was right.","Right. Circling back — literally, I orbit every 90 minutes — to say: excellent work."]},
+
+    wizard: { name:'The Wizard', emoji:'🧙', color:'#4c1d95', shadow:'#3b0764', linesSeen:[],
+        lines:["Correct. I have foreseen it. Well — I foresaw it approximately three seconds ago.","Right answer. The ancient texts spoke of this moment. Loosely.","Correct. You have passed the trial. There are more trials. There are always more trials.","Right. I have studied language for nine hundred years. You are catching up alarmingly fast.","Correct. The stars aligned for this answer. I checked. They did.","Right answer. I could tell you what happens next but that would spoil it.","Correct. Some are born with the gift. Some earn it. You are earning it.","Right. The spell is cast. The knowledge is yours. Do not waste it."]},
+
+    ian: { name:'Intermediate Ian', emoji:'🧔', color:'#58CC02', shadow:'#58A700', linesSeen:[],
+        lines:["Correct! I'm going to be absolutely fluent by spring. This is the year.","Right answer. I'm taking this very seriously now. Very. Seriously.","That's exactly what I would have said. Slightly faster, but same idea.","Correct! I've told everyone I'm basically B2 now. This confirms it.","Right. I have a five-year English plan. You've just inspired phase two.","Nailed it. One day I'm going to be so good at this. One day.","Correct! I feel like my English turned a corner today. A real corner.","Right answer. I'm not stopping until I'm C2. Or at least a confident B1."]},
+
+    olivia: { name:'Overworked Olivia', emoji:'🐰', color:'#8B5CF6', shadow:'#7C3AED', linesSeen:[],
+        lines:["Correct! I can't even — do you know how many emails I have right now?","Right answer. I haven't slept properly since March but somehow you just gave me hope.","That's right. I keep meaning to learn English properly. Maybe next month. Or the one after.","Correct. My to-do list has 47 items on it and yet here you are, thriving. Respect.","Right! I've watched this video three times and still haven't done the quiz. You have. Amazing.","Nailed it. I had five minutes free so I came here. You make it look so easy.","Correct. I'm absolutely going to do a full lesson this weekend. Definitely. Probably.","Right answer. I genuinely admire your focus. I can't even finish a cup of tea while it's hot."]},
+
+    raccoon: { name:'The Raccoon', emoji:'🦝', color:'#374151', shadow:'#1f2937', linesSeen:[],
+        lines:["Correct!! I found that in a bin once. The knowledge, I mean. It was just there.","Right answer. I have been watching. From the shadows. Very impressed.","Correct. I've been through every newsletter this week. You're getting the good stuff.","Right! I collect things. Facts, mostly. You're collecting them too. We're the same.","Correct. Someone left this knowledge out and I grabbed it first. Now you've grabbed it. Good.","Right answer. I only come out at night but I made an exception. Worth it.","Correct. My methods are unconventional. Your answers are not. Perfect combination.","Right! Scrappy, resourceful, always finding the good bits. That's you. That's also me."]},
+
+    fairy: { name:'Fairy', emoji:'🧚', color:'#EC4899', shadow:'#BE185D', linesSeen:[],
+        lines:["Correct!! I'm sprinkling extra stars on you right now!!","Right answer! You're doing SO well! I knew you could do it!","That's right! Every correct answer makes my wings go faster — look!!","Correct! I've been flying around this lesson and you are the BEST one here!","Right! I grant you one wish — but honestly your English is already magical!","Correct! My wand is going absolutely crazy right now. In a good way!","Right answer! I've visited a lot of lessons today. This one is my favourite!","Correct!! You're basically magic. I would know."]},
+
+    grandma: { name:'Grandma', emoji:'👵', color:'#BE185D', shadow:'#9D174D', linesSeen:[],
+        lines:["Correct, dear. I knew you could do it. I always knew.","Right answer! Oh that's wonderful. Just wonderful. I'm telling everyone.","That's right, love. You remind me of myself at your age. Very bright.","Correct! I don't understand half of what's going on but I know that was good.","Right answer. Have you eaten? You should eat. But also — very well done.","Correct, sweetheart. I've been watching and I am so proud I could cry.","Right! I tried to do this lesson myself. Got a bit confused. You're doing beautifully.","Correct, darling. Whatever you're doing, keep doing it. You're an absolute star."]},
+
+    xl: { name:'XL_Gamer99', emoji:'👾', color:'#16a34a', shadow:'#15803d', linesSeen:[],
+        lines:["CORRECT!! I haven't left my room in four days and this is still the highlight.","W answer. my mum just knocked to ask if I want dinner. told her after this round.","no way you got that. I paused my game for this and it was 100% worth it.","bro. BRO. I need you to understand how good that was. from my room. to your screen. respect.","clutch answer. actual clutch. the blinds are closed. the snacks are ready. you are thriving.","correct!! I should go outside at some point. but not until you finish this lesson.","right answer. my chair has not moved in six hours. your score has only gone up. we're different.","CORRECT!! I'm going absolutely feral in here. the neighbours can probably hear me. worth it."]},
+
 };
 
+
 const SECTION_CAST = {
-    beginner:     { primary:'doug',     secondary:['kitty'],    guests:['bubbles','xl'] },
-    intermediate: { primary:'ian',      secondary:['kitty'],    guests:['larry','brenda','nancy'] },
-    advanced:     { primary:'victoria', secondary:['ian'],      guests:['larry','derek'] },
-    kids:         { primary:'bubbles',  secondary:[],           guests:['doug'] },
-    tax:          { primary:'brenda',   secondary:['larry'],    guests:['derek','victoria'] },
-    business:     { primary:'derek',    secondary:['brenda'],   guests:['larry','victoria'] },
-    legal:        { primary:'larry',    secondary:['victoria'], guests:['brenda','derek'] },
-    'weekly-drop':{ primary:'nancy',    secondary:['ian'],      guests:['kitty'] },
-    breakroom:    { primary:'xl',       secondary:[],           guests:['doug','bubbles'] },
-    general:      { primary:'mascot',   secondary:[],           guests:[] },
+    beginner:     { primary:'doug',      secondary:['farmer'],   guests:['grandma','xl'] },
+    intermediate: { primary:'ian',       secondary:['olivia'],   guests:['grandma','farmer','raccoon'] },
+    advanced:     { primary:'wizard',    secondary:['detective'],guests:['grandma','olivia'] },
+    kids:         { primary:'fairy',     secondary:[],           guests:['doug','grandma'] },
+    tax:          { primary:'brenda',    secondary:['detective'],guests:['olivia','grandma'] },
+    business:     { primary:'astronaut', secondary:['detective'],guests:['olivia','grandma'] },
+    legal:        { primary:'detective', secondary:['wizard'],   guests:['brenda','grandma'] },
+    'weekly-drop':{ primary:'raccoon',   secondary:['ian'],      guests:['grandma','olivia'] },
+    breakroom:    { primary:'xl',        secondary:['farmer'],   guests:['raccoon','grandma'] },
+    general:      { primary:'mascot',    secondary:[],           guests:['grandma'] },
 };
+
 
 const STREAK_MILESTONES = [
     { days:3,  emoji:'🔥',   title:'3-Day Streak',    msg:"Three days in a row. The habit is forming.",         color:'#FF9600', shadow:'#E07800' },
