@@ -571,6 +571,22 @@ async function renderUser(stats, user) {
     firstName       = firstName.charAt(0).toUpperCase() + firstName.slice(1);
     const finalName = `Cool ${firstName}`;
     const streak=stats?.streak||0, xp=stats?.xp||0, level=stats?.level||1, lessons=stats?.lessonsCompleted||0, badges=stats?.achievementCount||0;
+    // ── DAILY STREAK POPUP ──
+const _today = new Date().toDateString();
+const _lastShown = localStorage.getItem('efcd_streak_shown');
+if (_lastShown !== _today && streak > 0) {
+    localStorage.setItem('efcd_streak_shown', _today);
+    setTimeout(() => {
+        const _e = streak >= 30 ? '💎' : streak >= 14 ? '💪' : streak >= 7 ? '🔥🔥' : '🔥';
+        const _m = streak === 1 ? "Day one. The journey starts here."
+                 : streak < 3  ? "Two days in. Keep going."
+                 : streak < 7  ? "Keep showing up. That's all it takes."
+                 : streak < 14 ? "One week! You're building something real."
+                 : streak < 30 ? "Two weeks strong. You're not stopping."
+                 : "Thirty days. This is just who you are now.";
+        window.SurpriseRewards?.milestone(_e, `${streak} Day Streak!`, _m, '#FF4B4B', '#EA2B2B');
+    }, 1500);
+}
     const xpIn=xp%500, xpPct=Math.min(100,Math.round((xpIn/500)*100)), xpLeft=500-xpIn;
     const lastUrl=getLastLessonUrl(), lastNm=getLastLessonName(), lastDone=isLastLessonDone();
     const showContinue=!!(lastUrl&&lastNm&&!lastDone);
@@ -652,5 +668,6 @@ function boot() {
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', boot); }
 else { boot(); }
 </script>
+<script src="/surprise-rewards.js"></script>
 </body>
 </html>
