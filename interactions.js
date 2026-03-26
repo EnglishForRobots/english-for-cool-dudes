@@ -93,7 +93,7 @@ function injectCSS(){
     z-index:9100;
     font-family:'Nunito',system-ui,sans-serif;
     font-weight:900;
-    font-size:clamp(20px,5vw,28px);
+    font-size:clamp(24px,4vw,36px);
     letter-spacing:-.5px;
     color:#fff;
     text-shadow:0 2px 8px rgba(0,0,0,.25);
@@ -242,7 +242,6 @@ function _edgeFlash(type){
 function correct(btnEl){
     _edgeFlash('green');
     if(!btnEl) return;
-    // pop + shimmer on button
     btnEl.classList.remove('efcd-pop');
     void btnEl.offsetWidth;
     btnEl.classList.add('efcd-pop', 'efcd-shimmer-host');
@@ -250,9 +249,11 @@ function correct(btnEl){
     sweep.className = 'efcd-shimmer-sweep';
     btnEl.appendChild(sweep);
     setTimeout(() => sweep.remove(), 550);
-    // word burst above button
+    // word burst — centred horizontally, vertically near the button
     const r = btnEl.getBoundingClientRect();
-    _wordBurst(_pickCorrect(), r.left + r.width / 2, r.top - 8, true);
+    const x = window.innerWidth / 2;
+    const y = Math.min(r.top - 8, window.innerHeight * 0.6);
+    _wordBurst(_pickCorrect(), x, y, true);
 }
 
 // ── PUBLIC: WRONG ─────────────────────────────────────────
@@ -262,8 +263,10 @@ function wrong(btnEl){
     btnEl.classList.remove('efcd-thud');
     void btnEl.offsetWidth;
     btnEl.classList.add('efcd-thud');
+    const x = window.innerWidth / 2;
     const r = btnEl.getBoundingClientRect();
-    _wordBurst(WRONG_WORDS[Math.floor(Math.random() * WRONG_WORDS.length)], r.left + r.width / 2, r.top - 4, false);
+    const y = Math.min(r.top - 4, window.innerHeight * 0.6);
+    _wordBurst(WRONG_WORDS[Math.floor(Math.random() * WRONG_WORDS.length)], x, y, false);
 }
 
 // ── COMBO COUNTER ─────────────────────────────────────────
