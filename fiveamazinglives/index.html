@@ -777,6 +777,7 @@ function buildWSIInner(){
             <div class="wsi-feedback" id="wsi-fb-${idx}"></div>`;
         roundsDiv.appendChild(div);
     });
+    EFCD_FX?.attachCombo(slot);
 
     window.answerWSI=function(idx,chosen,correct){
         PEOPLE.forEach(p=>{
@@ -792,12 +793,13 @@ function buildWSIInner(){
             S.wsiScore++; S.totalRight++; S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo);
             addXP(8,chosenCard);
             const r=chosenCard.getBoundingClientRect(); confettiBurst(r.left+r.width/2,r.top);
+            EFCD_FX?.correct(chosenCard); EFCD_FX?.combo(S.combo);
             fb.className='wsi-feedback show right';
-            if(S.combo>=3){ comboFlash('🌍 '+S.combo+'!!'); if(S.combo>=8 && (S.combo-8)%5===0) window.SurpriseRewards?.cameo(); else if(Math.random()<0.03) window.SurpriseRewards?.cameo(); }
+            if(S.combo>=3){ comboFlash('🌍 '+S.combo+'!!'); }
         } else {
             chosenCard.classList.add('wrong');
             correctCard.classList.add('reveal-correct');
-            S.combo=0;
+            S.combo=0; EFCD_FX?.wrong(chosenCard); EFCD_FX?.comboBreak();
             fb.className='wsi-feedback show wrong';
         }
         fb.innerHTML=isCorrect ? ('✅ '+rounds[idx].fb) : ('❌ Not this time! The answer was <strong>'+PEOPLE.find(p=>p.id===correct).full+'</strong>. 💡 '+rounds[idx].fb);
@@ -856,6 +858,8 @@ function renderWITW(){
             ${S.witwIdx+1<WITW_ROUNDS.length?'Next Word →':'All done! →'}
         </button>`;
 }
+    function buildWITWInner(){ renderWITW(); EFCD_FX?.attachCombo($('witw-slot')?.parentElement); }
+    
 window.answerWITW=function(btn,chosen,correct){
     document.querySelectorAll('.witw-opt').forEach(b=>b.disabled=true);
     const fb=$('witw-fb');
@@ -865,12 +869,13 @@ window.answerWITW=function(btn,chosen,correct){
         S.witwScore++; S.totalRight++; S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo);
         addXP(10,btn);
         const r=btn.getBoundingClientRect(); confettiBurst(r.left+r.width/2,r.top);
+        EFCD_FX?.correct(btn); EFCD_FX?.combo(S.combo);
         fb.className='witw-feedback show right'; fb.innerHTML=q.fb;
-        if(S.combo>=3){ comboFlash('🔍 '+S.combo+'!!'); if(S.combo>=8 && (S.combo-8)%5===0) window.SurpriseRewards?.cameo(); else if(Math.random()<0.03) window.SurpriseRewards?.cameo(); }
+        if(S.combo>=3){ comboFlash('🔍 '+S.combo+'!!'); }
     } else {
         btn.classList.add('wrong');
         document.querySelectorAll('.witw-opt')[correct].classList.add('show-correct');
-        S.combo=0;
+        S.combo=0; EFCD_FX?.wrong(btn); EFCD_FX?.comboBreak();
         fb.className='witw-feedback show wrong';
         fb.innerHTML='❌ Not quite! '+q.fb;
     }
@@ -995,7 +1000,10 @@ function buildDialogueInner(){
         if(sub){ sub.textContent='✍️ Sentence Activity! →'; sub.onclick=finishDialogue; sub.style.background='var(--green)'; sub.style.borderColor='var(--green-shadow)'; }
     };
     buildDialPage();
+    buildDialPage();
+    EFCD_FX?.attachCombo(slot);
 }
+    
 function finishDialogue(){
     S.dialDone=true; addXP(10);
     toast('💬','Gap fill done! +10 XP');
@@ -1040,6 +1048,8 @@ function renderSentencePick(){
             ${S.dbIdx+1<DREAM_ROUNDS.length?'Next sentence →':'All done! →'}
         </button>`;
 }
+    function buildSentencePickInner(){ renderSentencePick(); EFCD_FX?.attachCombo($('db-slot')?.parentElement); }
+    
 window.answerSentencePick=function(btn,chosen,correct){
     document.querySelectorAll('.db-opt').forEach(b=>b.disabled=true);
     const fb=$('db-fb');
@@ -1049,12 +1059,13 @@ window.answerSentencePick=function(btn,chosen,correct){
         S.dbScore++; S.totalRight++; S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo);
         addXP(12,btn);
         const r=btn.getBoundingClientRect(); confettiBurst(r.left+r.width/2,r.top);
+        EFCD_FX?.correct(btn); EFCD_FX?.combo(S.combo);
         fb.className='db-feedback show right'; fb.innerHTML=q.fb;
-        if(S.combo>=3){ comboFlash('✍️ '+S.combo+'!!'); if(S.combo>=8 && (S.combo-8)%5===0) window.SurpriseRewards?.cameo(); else if(Math.random()<0.03) window.SurpriseRewards?.cameo(); }
+        if(S.combo>=3){ comboFlash('✍️ '+S.combo+'!!'); }
     } else {
         btn.classList.add('wrong');
         document.querySelectorAll('.db-opt')[correct].classList.add('show-correct');
-        S.combo=0;
+        S.combo=0; EFCD_FX?.wrong(btn); EFCD_FX?.comboBreak();
         fb.className='db-feedback show wrong';
         fb.innerHTML='❌ Not quite! '+q.fb;
     }
@@ -1149,11 +1160,12 @@ function buildLifeSwapInner(){
             S.lsScore++; S.totalRight++; S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo);
             addXP(8,userSaysTrue?tBtn:fBtn);
             const r=(userSaysTrue?tBtn:fBtn).getBoundingClientRect(); confettiBurst(r.left+r.width/2,r.top);
-            if(S.combo>=3){ comboFlash('🃏 '+S.combo+'!!'); if(S.combo>=8 && (S.combo-8)%5===0) window.SurpriseRewards?.cameo(); else if(Math.random()<0.03) window.SurpriseRewards?.cameo(); }
+            EFCD_FX?.correct(userSaysTrue?tBtn:fBtn); EFCD_FX?.combo(S.combo);
+            if(S.combo>=3){ comboFlash('🃏 '+S.combo+'!!'); }
         } else {
             (userSaysTrue?tBtn:fBtn).classList.add('wrong');
             (!userSaysTrue?tBtn:fBtn).classList.add('correct');
-            S.combo=0;
+           S.combo=0; EFCD_FX?.wrong(userSaysTrue?tBtn:fBtn); EFCD_FX?.comboBreak();
         }
         S.totalAnswered++;
         const rev=$(`lsr-${idx}`);
@@ -1266,6 +1278,6 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     updateProgress();
 });
 </script>
-<script src="/surprise-rewards.js"></script>
+<script src="/interactions.js"></script>
 </body>
 </html>
