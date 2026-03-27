@@ -480,14 +480,14 @@ const REAL_OR_FAKE = [
     },
 ];
 
-// ACTIVITY 2 — Word Builder (6 wild vocab words from facts)
+// ACTIVITY 2 — Word Builder (6 mind-blowing words from space, science, language, the body)
 const WB_WORDS = [
-    { word:'extinct',      letters:['e','x','t','i','n','c','t'],        def:'When a species completely disappears from Earth — gone forever. Like dinosaurs.', hint:'What dinosaurs are now!' },
-    { word:'venom',        letters:['v','e','n','o','m'],                def:'A poisonous substance that some animals inject through a bite or sting.', hint:'Snakes and spiders have this.' },
-    { word:'nocturnal',    letters:['n','o','c','t','u','r','n','a','l'], def:'Active at night and sleeping during the day. Owls and bats are this.', hint:'Active when the sun goes down.' },
-    { word:'migration',    letters:['m','i','g','r','a','t','i','o','n'], def:'When animals travel long distances to find food or a warmer climate.', hint:'Birds fly south in winter.' },
-    { word:'camouflage',   letters:['c','a','m','o','u','f','l','a','g','e'], def:'The ability to blend into the background so you can\'t be seen easily.', hint:'Chameleons are masters of this.' },
-    { word:'predator',     letters:['p','r','e','d','a','t','o','r'],    def:'An animal that hunts and eats other animals for food.', hint:'Lions and sharks are these.' },
+    { word:'gravity',      letters:['g','r','a','v','i','t','y'],        def:'The invisible force that pulls objects towards each other — it keeps you on the ground and planets in orbit.', hint:'What stops you floating away!' },
+    { word:'expire',       letters:['e','x','p','i','r','e'],            def:'To reach the end of the time when something is usable or safe — like food going bad or a passport running out.', hint:'Honey NEVER does this.' },
+    { word:'detect',       letters:['d','e','t','e','c','t'],            def:'To notice or discover something that is hard to see or find — like a smell, a signal, or a clue.', hint:'Your nose can do this 50,000 different ways.' },
+    { word:'trillion',     letters:['t','r','i','l','l','i','o','n'],    def:'One million million — 1,000,000,000,000. Used for enormous quantities like stars or cells in your body.', hint:'Way bigger than a billion.' },
+    { word:'fossil',       letters:['f','o','s','s','i','l'],            def:'The preserved remains of an ancient creature or plant, found in rock. Our window into life millions of years ago.', hint:'How we know dinosaurs existed.' },
+    { word:'illusion',     letters:['i','l','l','u','s','i','o','n'],    def:'Something that tricks your brain — it looks or feels real but is not actually what it seems.', hint:'Your eyes and brain can be fooled by these.' },
 ];
 
 // ACTIVITY 3 — Spot the Fake (4 rounds, each has 3 real + 1 fake)
@@ -544,32 +544,32 @@ const FILL_GAPS = [
         emoji:'🐌',
         text:'A snail can sleep for up to ___ years without waking up.',
         blank:'three',
-        opts:['one', 'three', 'ten', 'twenty'],
-        correct:1,
+        opts:['three', 'six', 'seven', 'twenty'],
+        correct:0,
         fb:'✅ THREE years! A snail can enter a deep sleep (called hibernation) to survive dry or cold conditions. They seal their shell with mucus and wait. Imagine waking up THREE years later! 😴',
     },
     {
         emoji:'🦩',
         text:'Flamingos are pink because of the ___ they eat.',
         blank:'shrimp',
-        opts:['flowers', 'shrimp', 'algae only', 'pink mud'],
-        correct:1,
+        opts:['flowers', 'algae only', 'shrimp', 'pink mud'],
+        correct:2,
         fb:'✅ SHRIMP (and algae)! Flamingos are actually born grey-white. The pink comes from carotenoid pigments in their shrimp and algae diet. Flamingos in zoos that don\'t get enough of these foods turn white! 🍤',
     },
     {
         emoji:'🍯',
         text:'Honey is the only food that ___ — archaeologists found 3,000-year-old honey that was still edible!',
         blank:'never expires',
-        opts:['tastes sweet', 'never expires', 'comes from flowers', 'melts in heat'],
-        correct:1,
+        opts:['tastes sweet', 'comes from flowers', 'melts in heat', 'never expires'],
+        correct:3,
         fb:'✅ Honey NEVER EXPIRES! Its low water content and natural hydrogen peroxide make it impossible for bacteria to grow. The honey found in Egyptian pharaoh tombs was 3,000 years old — and scientists say it was still good. 👑',
     },
     {
         emoji:'🐘',
         text:'Elephants are the only mammals that ___, because their legs cannot generate enough spring.',
         blank:'cannot jump',
-        opts:['love water', 'cannot jump', 'have grey skin', 'eat grass'],
-        correct:1,
+        opts:['love water', 'have grey skin', 'eat grass', 'cannot jump'],
+        correct:3,
         fb:'✅ Elephants CANNOT JUMP! Every other mammal can jump — even hippos and rhinos can briefly get all four feet off the ground. Elephants\' enormous weight and straight-leg structure makes jumping physically impossible. 🐘',
     },
     {
@@ -608,8 +608,8 @@ const WHAT_NUMBER = [
     {
         emoji:'🌍',
         text:'How many languages are spoken in the world today?',
-        opts:['700','3,000','7,000','70,000'],
-        correct:2,
+        opts:['700','7,000','70,000','700,000'],
+        correct:1,
         fb:'✅ About 7,000 languages! That\'s incredible. And here\'s the sad part: linguists estimate that one language dies out every two weeks. More than half of the world\'s languages have fewer than 10,000 speakers. English has about 1.5 billion speakers. Some languages have just one. 🌍',
     },
     {
@@ -660,7 +660,7 @@ let S = {
     xp:0, streak:0, combo:0, bestCombo:0,
     totalRight:0, totalAnswered:0,
     started:false,
-    rfIdx:0, rfDone:false,
+    rfIdx:0, rfDone:false, rfScore:0,
     wbIdx:0, wbDone:false, wbScore:0,
     stfIdx:0, stfDone:false, stfScore:0,
     ftgIdx:0, ftgDone:false, ftgScore:0,
@@ -718,6 +718,14 @@ function updateProgress(){
 function revealSection(id){
     const sec=document.getElementById(id);
     if(!sec||sec.classList.contains('visible')) return;
+    const inits={
+        'sec-wb':   renderWB,
+        'sec-stf':  renderSTF,
+        'sec-ftg':  renderFTG,
+        'sec-num':  renderNum,
+        'sec-sort': renderSort,
+    };
+    if(inits[id]) inits[id]();
     sec.classList.add('visible');
     setTimeout(()=>sec.scrollIntoView({behavior:'smooth',block:'start'}),80);
 }
@@ -779,7 +787,7 @@ function renderRF(){
     const dots=$('rf-dots');
     if(dots) dots.innerHTML=REAL_OR_FAKE.map((_,i)=>`<div class="rf-dot ${i<S.rfIdx?'done':i===S.rfIdx?'active':''}"></div>`).join('');
     if(S.rfDone){
-        $('rf-slot').innerHTML=secDone('🕵️',`${S.totalRight > 0 ? Math.min(S.rfIdx,5) : 0}/5 correct! Sharp detective!`,'You know your facts from your fakes. Impressive.',
+        $('rf-slot').innerHTML=secDone('🕵️',`${S.rfScore}/${REAL_OR_FAKE.length} correct! Sharp detective!`,'You know your facts from your fakes. Impressive.',
             'Build some wild words! 🧱 →','revealSection(\'sec-wb\')','var(--yellow)','var(--yellow-shadow)');
         return;
     }
@@ -810,7 +818,7 @@ function answerRF(userSaysReal){
     $('rf-real').disabled=true; $('rf-fake').disabled=true;
     const btn=userSaysReal?$('rf-real'):$('rf-fake');
     if(correct){
-        S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo); S.totalRight++;
+        S.rfScore++; S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo); S.totalRight++;
         addXP(10,btn); btn.classList.add('sel-right');
         window.EFCD_FX?.correct(btn); window.EFCD_FX?.combo(S.combo);
     } else {
@@ -831,7 +839,7 @@ function nextRF(){
     S.rfIdx++;
     if(S.rfIdx>=REAL_OR_FAKE.length){
         S.rfDone=true; addXP(10);
-        window.EFCD_FX?.toast('🕵️','Real or Fake done! +10 XP');
+        window.EFCD_FX?.toast('🕵️',`${S.rfScore}/${REAL_OR_FAKE.length} correct! +10 XP`);
         updateProgress(); renderRF();
     } else { renderRF(); }
 }
@@ -861,7 +869,7 @@ function renderWB(){
     const prog=$('wb-prog');
     if(prog) prog.innerHTML=WB_WORDS.map((_,i)=>`<div class="wb-pip ${i<S.wbIdx?'done':i===S.wbIdx?'active':''}"></div>`).join('');
     if(S.wbDone){
-        $('wb-slot').innerHTML=secDone('🧱',`${S.wbScore}/${WB_WORDS.length} words built!`,'extinct · venom · nocturnal · migration · camouflage · predator',
+        $('wb-slot').innerHTML=secDone('🧱',`${S.wbScore}/${WB_WORDS.length} words built!`,'gravity · expire · detect · trillion · fossil · illusion',
             'Spot the Fake! 🕵️ →','revealSection(\'sec-stf\')','var(--punch)','var(--punch-shadow)');
         return;
     }
@@ -1109,7 +1117,7 @@ function renderFTG(){
     }
     const q=FILL_GAPS[S.ftgIdx];
     const parts=q.text.split('___');
-    const factHTML=parts[0]+'<span class="blank">'+q.blank+'?</span>'+(parts[1]||'');
+    const factHTML=parts[0]+'<span class="blank">_____</span>'+(parts[1]||'');
     $('ftg-slot').innerHTML=`
         <div class="ftg-card" id="ftg-card">
             <div class="fact-num">Fact ${S.ftgIdx+1} of ${FILL_GAPS.length}</div>
@@ -1260,8 +1268,8 @@ function buildSortSec(){
 
 function renderSort(){
     if(S.sortDone){
-        $('sort-slot').innerHTML=secDone('📊','Sorting done! 🏆','You sorted the facts like a pro.',
-            '🤯 Claim Your Badge!','showCompletion()','var(--blast)','var(--blast-shadow)');
+        // Go straight to completion — no button needed
+        setTimeout(showCompletion, 600);
         return;
     }
     const q=SORT_ROUNDS[S.sortIdx];
@@ -1373,6 +1381,7 @@ function checkSort(){
         addXP(15);
         window.EFCD_FX?.correct(document.querySelector('.sort-check'));
         window.EFCD_FX?.combo(S.combo);
+        window.EFCD_FX?.confetti();
         const fb=$('sort-fb');
         fb.className='sort-feedback show right';
         fb.innerHTML=q.fb+'<br><br>'+q.reveals.map((r,i)=>`<strong>${i+1}.</strong> ${r}`).join(' → ');
@@ -1392,14 +1401,25 @@ function checkSort(){
     S.totalAnswered++;
 
     if(correct){
-        setTimeout(()=>{
+        // Show a "Got it! Next" button so user can read the explanation before moving on
+        const isLast = S.sortIdx >= SORT_ROUNDS.length - 1;
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'sort-check';
+        nextBtn.style.cssText = 'margin-top:12px;background:var(--green);border-color:var(--green-shadow);width:100%;padding:14px;font-size:15px;font-weight:900;border-radius:var(--rsm);border:2px solid var(--green-shadow);border-bottom:4px solid var(--green-shadow);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;';
+        nextBtn.innerHTML = isLast ? '🤯 Finish — Mind Blown! →' : '✅ Got it! Next Round →';
+        nextBtn.onclick = () => {
             S.sortIdx++;
             if(S.sortIdx>=SORT_ROUNDS.length){
                 S.sortDone=true; addXP(10);
                 window.EFCD_FX?.toast('📊','Sorting done! +10 XP 🏆');
                 updateProgress(); renderSort();
             } else { renderSort(); }
-        },1800);
+        };
+        const fb=$('sort-fb');
+        if(fb) fb.after(nextBtn);
+        // Disable the check/reset buttons so only next is clickable
+        document.querySelector('.sort-check')?.setAttribute('disabled','true');
+        document.querySelector('.sort-reset')?.setAttribute('disabled','true');
     }
 }
 
