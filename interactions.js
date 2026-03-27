@@ -318,7 +318,7 @@ function _streakBreakCard(streakCount, bestCombo){
     const isPB  = streakCount >= bestCombo;
     const iconIdx = Math.min(Math.floor((streakCount - 3) / 2), STREAK_ICONS.length - 1);
     const icon    = isPB ? '🏆' : STREAK_ICONS[Math.max(0, iconIdx)];
-    const title   = isPB ? streakCount + ' in a row!' : streakCount + ' combo!';
+    const title   = isPB ? streakCount + ' Correct answers in a row!' : streakCount + ' combo!';
 
     let msg;
     if(isPB){
