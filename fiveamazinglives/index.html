@@ -185,7 +185,7 @@
     .dial-result.show.right{display:block;background:rgba(88,204,2,.1);color:var(--green-shadow);border-color:rgba(88,167,0,.3);animation:up .2s ease both;}
     .dial-result.show.wrong{display:block;background:rgba(255,75,75,.1);color:var(--punch-shadow);border-color:rgba(255,75,75,.3);animation:up .2s ease both;}
 
-    /* ── SENTENCE PICK (Dream Builder beginner) ── */
+    /* ── SENTENCE PICK ── */
     .db-starter{background:linear-gradient(135deg,rgba(88,204,2,.1),rgba(255,200,0,.06));border:2px solid rgba(88,204,2,.3);border-left:5px solid var(--green);border-radius:0 var(--rsm) var(--rsm) 0;padding:14px 16px;margin-bottom:16px;font-size:clamp(16px,4vw,20px);font-weight:900;color:var(--ink-bold);line-height:1.5;}
     .db-starter em{color:var(--green-shadow);}
     .db-opts{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
@@ -239,13 +239,7 @@
     .btn-continue{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;margin-top:14px;background:var(--green);color:var(--white);font-size:16px;font-weight:900;border:2px solid var(--green-shadow);border-bottom:5px solid var(--green-shadow);border-radius:var(--rsm);transition:all .1s;font-family:inherit;}
     .btn-continue:active{border-bottom-width:2px;transform:translateY(3px);}
 
-    .badge-wrap{position:fixed;top:68px;right:12px;display:flex;flex-direction:column;gap:8px;z-index:999;pointer-events:none;}
-    .badge{background:var(--white);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-left:4px solid var(--green);padding:10px 14px;border-radius:var(--rsm);display:flex;align-items:center;gap:8px;transform:translateX(240px);opacity:0;transition:transform .4s,opacity .4s;box-shadow:0 4px 14px rgba(0,0,0,.08);}
-    .badge.show{transform:translateX(0);opacity:1;}
-    .badge-icon{font-size:22px;} .badge-text{font-size:13px;font-weight:900;color:var(--ink-bold);}
-    .confetti-dot{position:fixed;width:10px;height:10px;border-radius:3px;pointer-events:none;z-index:9999;animation:confetti .9s ease-out both;}
     .xp-float{position:fixed;font-size:20px;font-weight:900;color:var(--yellow-shadow);text-shadow:0 2px 0 rgba(0,0,0,.12);pointer-events:none;z-index:9998;animation:xpPop .85s ease-out forwards;}
-    .combo-flash{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:clamp(36px,8vw,56px);font-weight:900;color:var(--green);text-shadow:0 4px 0 var(--green-shadow);pointer-events:none;z-index:9997;animation:popin .5s ease both;}
     .mega-conf-dot{position:fixed;pointer-events:none;z-index:9999;border-radius:4px;animation:megaConf 1.4s ease-out both;}
 
     /* ── COMPLETION ── */
@@ -294,8 +288,6 @@
         </div>
     </div>
 </header>
-
-<div class="badge-wrap" id="badge-wrap"></div>
 
 <div class="page">
     <div class="lesson-banner u1">
@@ -350,6 +342,7 @@
 
 <script src="/supabase-auth-gamified.js"></script>
 <script src="/daily-challenges-system.js"></script>
+<script src="/interactions.js"></script>
 <script>
 'use strict';
 
@@ -366,8 +359,7 @@ const PEOPLE = [
     { id:'shepherd', emoji:'🐑', name:'The Shepherdess',full:'Pauline Accard'      },
 ];
 
-/* ══════ ACT 2: WHO IS IT? — Beginner ══════ */
-// Short, simple descriptions — not complex quotes
+/* ══════ ACT 2: WHO IS IT? ══════ */
 const WHO_ROUNDS = [
     {
         text: 'This family lives on a boat. They sail around the world.',
@@ -401,8 +393,7 @@ const WHO_ROUNDS = [
     },
 ];
 
-/* ══════ ACT 3: WORD IN THE WILD — Beginner ══════ */
-// Target words are A1-A2 level with simple definitions
+/* ══════ ACT 3: WORD IN THE WILD ══════ */
 const WITW_ROUNDS = [
     {
         source: '🎬 From the video',
@@ -454,7 +445,7 @@ const WITW_ROUNDS = [
     },
 ];
 
-/* ══════ ACT 4: DIALOGUE GAP FILL — Beginner ══════ */
+/* ══════ ACT 4: DIALOGUE GAP FILL ══════ */
 const DIALOGUE = {
     context: 'Two friends talk about the video...',
     gaps: {a:'lives', b:'sheep', c:'loves', d:'island', e:'left'},
@@ -485,128 +476,64 @@ const DIALOGUE = {
     wordbank: ['lives', 'sheep', 'loves', 'island', 'left'],
 };
 
-/* ══════ ACT 5: SENTENCE PICK — Beginner ══════ */
-// Focus: present simple he/she/it, basic past simple, articles
+/* ══════ ACT 5: SENTENCE PICK ══════ */
 const DREAM_ROUNDS = [
     {
         starter: '⛵ The Schwörer family...',
-        opts: [
-            'lives on a boat.',
-            'live on boat.',
-            'living on a boat.',
-            'lived on the boats.',
-        ],
+        opts: ['lives on a boat.','live on boat.','living on a boat.','lived on the boats.'],
         correct: 0,
         fb: '✅ "The family LIVES" — with he/she/it/they we add -s in present simple. "A boat" needs the article "a" before it. Simple present = true right now!'
     },
     {
         starter: '🐑 Pauline has...',
-        opts: [
-            '800 sheep on her mountain.',
-            '800 sheeps on her mountain.',
-            '800 sheep in her mountain.',
-            'a 800 sheep on her mountain.',
-        ],
+        opts: ['800 sheep on her mountain.','800 sheeps on her mountain.','800 sheep in her mountain.','a 800 sheep on her mountain.'],
         correct: 0,
         fb: '✅ "SHEEP" is irregular — the plural is also "sheep", not "sheeps"! And we say "ON the mountain", not "in". Great A2 vocabulary!'
     },
     {
         starter: '🙏 Sister Helena...',
-        opts: [
-            'prays every day in the convent.',
-            'pray every day in the convent.',
-            'prays every days in the convent.',
-            'prays every day at the convent.',
-        ],
+        opts: ['prays every day in the convent.','pray every day in the convent.','prays every days in the convent.','prays every day at the convent.'],
         correct: 0,
         fb: '✅ "She PRAYS" — he/she/it + verb + s. "Every day" (no -s on day!). "In the convent" — we live IN a building. Perfect present simple!'
     },
     {
         starter: '🏝️ The island...',
-        opts: [
-            'is very beautiful and quiet.',
-            'is very beauty and quiet.',
-            'are very beautiful and quiet.',
-            'is very beautiful and quietly.',
-        ],
+        opts: ['is very beautiful and quiet.','is very beauty and quiet.','are very beautiful and quiet.','is very beautiful and quietly.'],
         correct: 0,
         fb: '✅ "The island IS" — singular noun + is. "Beautiful" is an adjective (describes a noun). "Quiet" is also an adjective. Not "quietly" — that\'s an adverb!'
     },
     {
         starter: '📺 Kitty loves the 1960s because...',
-        opts: [
-            'the music and clothes are amazing.',
-            'the music and clothes is amazing.',
-            'the music and clothes was amazing.',
-            'the music and clothes be amazing.',
-        ],
+        opts: ['the music and clothes are amazing.','the music and clothes is amazing.','the music and clothes was amazing.','the music and clothes be amazing.'],
         correct: 0,
         fb: '✅ "The music and clothes ARE" — two things (music + clothes) = plural = ARE. Not "is"! "Amazing" is a great adjective meaning very, very good.'
     },
     {
         starter: '🌍 All five people...',
-        opts: [
-            'live a different life.',
-            'lives a different life.',
-            'live a different lives.',
-            'living a different life.',
-        ],
+        opts: ['live a different life.','lives a different life.','live a different lives.','living a different life.'],
         correct: 0,
         fb: '✅ "All five people LIVE" — with they/we/you/I, no -s! "A different life" — one life (singular). You\'re getting it! 🌟'
     },
 ];
 
-/* ══════ ACT 6: LIFE SWAP — Beginner ══════ */
-// Simple, clear language — short sentences
+/* ══════ ACT 6: LIFE SWAP ══════ */
 const LIFE_SWAP = [
-    {
-        icon:'⛵',
-        claim: 'The Schwörer family lives on a boat.',
-        correct: true,
-        reveal: '✅ TRUE! They live on a boat and sail around the world. They have been on the sea for more than 25 years!'
-    },
-    {
-        icon:'🙏',
-        claim: 'Sister Helena lives in a big city.',
-        correct: false,
-        reveal: '❌ FALSE! Sister Helena lives in a convent — a quiet place for nuns. She chose a very simple life.'
-    },
-    {
-        icon:'📺',
-        claim: 'Kitty has a new iPhone and a modern TV.',
-        correct: false,
-        reveal: '❌ FALSE! Everything in Kitty\'s house is from the 1960s. Old phone. Old TV. Old record player. She loves it!'
-    },
-    {
-        icon:'🏝️',
-        claim: 'Great Blasket Island is empty — nobody lives there now.',
-        correct: false,
-        reveal: '❌ FALSE! A couple lives there now as caretakers. But very few people — it is very quiet!'
-    },
-    {
-        icon:'🐑',
-        claim: 'Pauline was a cook before she moved to the mountains.',
-        correct: true,
-        reveal: '✅ TRUE! Pauline had a restaurant before. Then she changed her life completely and moved to the mountains with 800 sheep!'
-    },
-    {
-        icon:'⛵',
-        claim: 'The sailing family is worried about plastic in the sea.',
-        correct: true,
-        reveal: '✅ TRUE! The Schwörer family talks about plastic pollution. They want to protect the ocean. A very important message!'
-    },
-    {
-        icon:'🐑',
-        claim: 'Pauline lives on the mountain all year — 12 months.',
-        correct: false,
-        reveal: '❌ FALSE! She lives there from May to October — about 6 months. Winter is too cold!'
-    },
-    {
-        icon:'🏝️',
-        claim: 'Many people want to live on Blasket Island.',
-        correct: true,
-        reveal: '✅ TRUE! Hundreds of people apply to be the island caretaker every year. It sounds like a dream!'
-    },
+    { icon:'⛵', claim:'The Schwörer family lives on a boat.', correct:true,
+      reveal:'✅ TRUE! They live on a boat and sail around the world. They have been on the sea for more than 25 years!' },
+    { icon:'🙏', claim:'Sister Helena lives in a big city.', correct:false,
+      reveal:'❌ FALSE! Sister Helena lives in a convent — a quiet place for nuns. She chose a very simple life.' },
+    { icon:'📺', claim:'Kitty has a new iPhone and a modern TV.', correct:false,
+      reveal:'❌ FALSE! Everything in Kitty\'s house is from the 1960s. Old phone. Old TV. Old record player. She loves it!' },
+    { icon:'🏝️', claim:'Great Blasket Island is empty — nobody lives there now.', correct:false,
+      reveal:'❌ FALSE! A couple lives there now as caretakers. But very few people — it is very quiet!' },
+    { icon:'🐑', claim:'Pauline was a cook before she moved to the mountains.', correct:true,
+      reveal:'✅ TRUE! Pauline had a restaurant before. Then she changed her life completely and moved to the mountains with 800 sheep!' },
+    { icon:'⛵', claim:'The sailing family is worried about plastic in the sea.', correct:true,
+      reveal:'✅ TRUE! The Schwörer family talks about plastic pollution. They want to protect the ocean. A very important message!' },
+    { icon:'🐑', claim:'Pauline lives on the mountain all year — 12 months.', correct:false,
+      reveal:'❌ FALSE! She lives there from May to October — about 6 months. Winter is too cold!' },
+    { icon:'🏝️', claim:'Many people want to live on Blasket Island.', correct:true,
+      reveal:'✅ TRUE! Hundreds of people apply to be the island caretaker every year. It sounds like a dream!' },
 ];
 
 /* ══════ STATE ══════ */
@@ -623,14 +550,6 @@ let S = {
 
 function $(id){ return document.getElementById(id); }
 
-function confettiBurst(x,y){
-    const colors=['#58CC02','#FFC800','#1CB0F6','#FF4B4B','#CE82FF','#2BDECC'];
-    for(let i=0;i<20;i++){
-        const d=document.createElement('div'); d.className='confetti-dot';
-        d.style.cssText=`left:${x+Math.random()*60-30}px;top:${y+Math.random()*30-15}px;background:${colors[i%colors.length]};animation-delay:${Math.random()*.3}s;animation-duration:${.7+Math.random()*.5}s;transform:rotate(${Math.random()*360}deg)`;
-        document.body.appendChild(d); setTimeout(()=>d.remove(),1200);
-    }
-}
 function megaConfettiBurst(){
     const colors=['#58CC02','#FFC800','#1CB0F6','#CE82FF','#2BDECC','#FF4B4B'];
     for(let i=0;i<60;i++){
@@ -649,18 +568,6 @@ function addXP(amount,el){
     S.xp+=amount;
     if(el){ const r=el.getBoundingClientRect(); xpFloat(r.left+r.width/2-24,r.top-10,amount); }
     const hx=$('hdr-xp'); if(hx) hx.textContent=S.xp;
-}
-function toast(icon,text){
-    const wrap=$('badge-wrap');
-    const b=document.createElement('div'); b.className='badge';
-    b.innerHTML=`<span class="badge-icon">${icon}</span><span class="badge-text">${text}</span>`;
-    wrap.appendChild(b);
-    setTimeout(()=>b.classList.add('show'),50);
-    setTimeout(()=>{ b.classList.remove('show'); setTimeout(()=>b.remove(),500); },4500);
-}
-function comboFlash(msg){
-    const el=document.createElement('div'); el.className='combo-flash'; el.textContent=msg;
-    document.body.appendChild(el); setTimeout(()=>el.remove(),800);
 }
 function updateProgress(){
     const sections=[S.videoDone,S.wsiDone,S.witwDone,S.dialDone,S.dbDone||S.lsDone];
@@ -721,7 +628,7 @@ function buildVideoSec(){
 }
 function markVideoDone(){
     addXP(10,$('sec-video'));
-    toast('🎬','Great! +10 XP — five amazing lives explored!');
+    EFCD_FX?.toast('🎬','Great! +10 XP — five amazing lives explored!');
     S.videoDone=true; updateProgress();
     revealSection('sec-wsi', buildWSIInner);
 }
@@ -792,14 +699,14 @@ function buildWSIInner(){
             chosenCard.classList.add('correct');
             S.wsiScore++; S.totalRight++; S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo);
             addXP(8,chosenCard);
-            const r=chosenCard.getBoundingClientRect(); confettiBurst(r.left+r.width/2,r.top);
             EFCD_FX?.correct(chosenCard); EFCD_FX?.combo(S.combo);
             fb.className='wsi-feedback show right';
-            if(S.combo>=3){ comboFlash('🌍 '+S.combo+'!!'); }
         } else {
             chosenCard.classList.add('wrong');
             correctCard.classList.add('reveal-correct');
-            S.combo=0; EFCD_FX?.wrong(chosenCard); EFCD_FX?.comboBreak();
+            EFCD_FX?.wrong(chosenCard);
+            EFCD_FX?.comboBreak(S.combo, S.bestCombo);
+            S.combo=0;
             fb.className='wsi-feedback show wrong';
         }
         fb.innerHTML=isCorrect ? ('✅ '+rounds[idx].fb) : ('❌ Not this time! The answer was <strong>'+PEOPLE.find(p=>p.id===correct).full+'</strong>. 💡 '+rounds[idx].fb);
@@ -813,7 +720,7 @@ function buildWSIInner(){
 }
 function finishWSI(){
     S.wsiDone=true; addXP(15);
-    toast('👥',`${S.wsiScore}/5 correct! Great work! +15 XP`);
+    EFCD_FX?.toast('👥',`${S.wsiScore}/5 correct! Great work! +15 XP`);
     updateProgress();
     revealSection('sec-witw', buildWITWInner);
 }
@@ -859,7 +766,6 @@ function renderWITW(){
         </button>`;
 }
 
-    
 window.answerWITW=function(btn,chosen,correct){
     document.querySelectorAll('.witw-opt').forEach(b=>b.disabled=true);
     const fb=$('witw-fb');
@@ -868,14 +774,14 @@ window.answerWITW=function(btn,chosen,correct){
         btn.classList.add('correct');
         S.witwScore++; S.totalRight++; S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo);
         addXP(10,btn);
-        const r=btn.getBoundingClientRect(); confettiBurst(r.left+r.width/2,r.top);
         EFCD_FX?.correct(btn); EFCD_FX?.combo(S.combo);
         fb.className='witw-feedback show right'; fb.innerHTML=q.fb;
-        if(S.combo>=3){ comboFlash('🔍 '+S.combo+'!!'); }
     } else {
         btn.classList.add('wrong');
         document.querySelectorAll('.witw-opt')[correct].classList.add('show-correct');
-        S.combo=0; EFCD_FX?.wrong(btn); EFCD_FX?.comboBreak();
+        EFCD_FX?.wrong(btn);
+        EFCD_FX?.comboBreak(S.combo, S.bestCombo);
+        S.combo=0;
         fb.className='witw-feedback show wrong';
         fb.innerHTML='❌ Not quite! '+q.fb;
     }
@@ -886,7 +792,7 @@ function nextWITW(){
     S.witwIdx++;
     if(S.witwIdx>=WITW_ROUNDS.length){
         S.witwDone=true; addXP(15);
-        toast('🔍',`${S.witwScore}/${WITW_ROUNDS.length} words! Well done! +15 XP`);
+        EFCD_FX?.toast('🔍',`${S.witwScore}/${WITW_ROUNDS.length} words! Well done! +15 XP`);
         updateProgress(); renderWITWDone();
     } else { renderWITW(); }
 }
@@ -935,7 +841,7 @@ function buildDialogueInner(){
             bubbleHTML+=`</div></div></div>`;
         });
         bubbleHTML+='</div>';
-       slot.innerHTML=`
+        slot.innerHTML=`
             <p style="font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:12px;font-style:italic">🗣️ ${DIALOGUE.context}</p>
             <div class="dial-wordbank">
                 <div class="dial-bank-label">📦 Word Bank — tap a word, then tap a gap!</div>
@@ -989,7 +895,7 @@ function buildDialogueInner(){
             res.className='dial-result show right';
             res.innerHTML=`✅ <strong>Amazing!</strong> All 5 words correct! 🎉`;
             S.totalRight+=5; S.combo+=3; S.bestCombo=Math.max(S.bestCombo,S.combo);
-            addXP(25); confettiBurst(window.innerWidth/2, window.innerHeight*.4);
+            addXP(25); EFCD_FX?.confetti();
         } else {
             res.className='dial-result show wrong';
             res.innerHTML=`📖 <strong>${correct}/5 correct!</strong> The red words are wrong — try again!`;
@@ -1002,10 +908,10 @@ function buildDialogueInner(){
     buildDialPage();
     EFCD_FX?.attachCombo(slot);
 }
-    
+
 function finishDialogue(){
     S.dialDone=true; addXP(10);
-    toast('💬','Gap fill done! +10 XP');
+    EFCD_FX?.toast('💬','Gap fill done! +10 XP');
     updateProgress();
     revealSection('sec-sentencepick', buildSentencePickInner);
 }
@@ -1048,7 +954,6 @@ function renderSentencePick(){
         </button>`;
 }
 
-    
 window.answerSentencePick=function(btn,chosen,correct){
     document.querySelectorAll('.db-opt').forEach(b=>b.disabled=true);
     const fb=$('db-fb');
@@ -1057,14 +962,14 @@ window.answerSentencePick=function(btn,chosen,correct){
         btn.classList.add('correct');
         S.dbScore++; S.totalRight++; S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo);
         addXP(12,btn);
-        const r=btn.getBoundingClientRect(); confettiBurst(r.left+r.width/2,r.top);
         EFCD_FX?.correct(btn); EFCD_FX?.combo(S.combo);
         fb.className='db-feedback show right'; fb.innerHTML=q.fb;
-        if(S.combo>=3){ comboFlash('✍️ '+S.combo+'!!'); }
     } else {
         btn.classList.add('wrong');
         document.querySelectorAll('.db-opt')[correct].classList.add('show-correct');
-        S.combo=0; EFCD_FX?.wrong(btn); EFCD_FX?.comboBreak();
+        EFCD_FX?.wrong(btn);
+        EFCD_FX?.comboBreak(S.combo, S.bestCombo);
+        S.combo=0;
         fb.className='db-feedback show wrong';
         fb.innerHTML='❌ Not quite! '+q.fb;
     }
@@ -1075,7 +980,7 @@ function nextSentencePick(){
     S.dbIdx++;
     if(S.dbIdx>=DREAM_ROUNDS.length){
         S.dbDone=true; addXP(15);
-        toast('✍️',`${S.dbScore}/${DREAM_ROUNDS.length} correct! Grammar nailed! +15 XP`);
+        EFCD_FX?.toast('✍️',`${S.dbScore}/${DREAM_ROUNDS.length} correct! Grammar nailed! +15 XP`);
         updateProgress(); renderSentencePickDone();
     } else { renderSentencePick(); }
 }
@@ -1154,17 +1059,19 @@ function buildLifeSwapInner(){
         const tBtn=row.querySelector('.true-btn');
         const fBtn=row.querySelector('.false-btn');
         const isCorrect=userSaysTrue===correct;
+        const chosenBtn=userSaysTrue?tBtn:fBtn;
+        const otherBtn=userSaysTrue?fBtn:tBtn;
         if(isCorrect){
-            (userSaysTrue?tBtn:fBtn).classList.add('correct');
+            chosenBtn.classList.add('correct');
             S.lsScore++; S.totalRight++; S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo);
-            addXP(8,userSaysTrue?tBtn:fBtn);
-            const r=(userSaysTrue?tBtn:fBtn).getBoundingClientRect(); confettiBurst(r.left+r.width/2,r.top);
-            EFCD_FX?.correct(userSaysTrue?tBtn:fBtn); EFCD_FX?.combo(S.combo);
-            if(S.combo>=3){ comboFlash('🃏 '+S.combo+'!!'); }
+            addXP(8,chosenBtn);
+            EFCD_FX?.correct(chosenBtn); EFCD_FX?.combo(S.combo);
         } else {
-            (userSaysTrue?tBtn:fBtn).classList.add('wrong');
-            (!userSaysTrue?tBtn:fBtn).classList.add('correct');
-           S.combo=0; EFCD_FX?.wrong(userSaysTrue?tBtn:fBtn); EFCD_FX?.comboBreak();
+            chosenBtn.classList.add('wrong');
+            otherBtn.classList.add('correct');
+            EFCD_FX?.wrong(chosenBtn);
+            EFCD_FX?.comboBreak(S.combo, S.bestCombo);
+            S.combo=0;
         }
         S.totalAnswered++;
         const rev=$(`lsr-${idx}`);
@@ -1175,11 +1082,12 @@ function buildLifeSwapInner(){
             const cont=$('ls-continue'); if(cont) cont.style.display='flex';
         }
     };
+    EFCD_FX?.attachCombo(slot);
 }
 
 function finishLesson(){
     S.lsDone=true; addXP(20);
-    toast('🃏',`${S.lsScore}/6 correct! Lesson complete! +20 XP 🏆`);
+    EFCD_FX?.toast('🃏',`${S.lsScore}/6 correct! Lesson complete! +20 XP 🏆`);
     updateProgress();
     const lsInner=document.getElementById('ls-inner');
     if(lsInner){
@@ -1250,6 +1158,7 @@ async function showCompletion(){
         }
     } catch(e){}
 }
+
 async function handleSignOut(){
     if(window.EFCD_Auth?.signOut) await window.EFCD_Auth.signOut();
     else if(window.efcdSupabaseClient){ await window.efcdSupabaseClient.auth.signOut(); window.location.href='/'; }
@@ -1275,6 +1184,5 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     updateProgress();
 });
 </script>
-<script src="/interactions.js"></script>
 </body>
 </html>
