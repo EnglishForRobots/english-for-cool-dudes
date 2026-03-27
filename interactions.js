@@ -1,5 +1,5 @@
 /**
- * interactions.js — EFCD micro-interactions v2.1
+ * interactions.js — EFCD micro-interactions v2.2
  * Pure kinetic typography. No emoji figures. No sticky popups.
  * Everything animates in, delivers, and disappears cleanly.
  *
@@ -7,12 +7,18 @@
  *  EFCD_FX.correct(buttonEl)
  *  EFCD_FX.wrong(buttonEl)
  *  EFCD_FX.combo(n)
- *  EFCD_FX.comboBreak(currentStreak, bestCombo)  ← updated: celebrates streaks of 3+
+ *  EFCD_FX.comboBreak(currentStreak, bestCombo)
  *  EFCD_FX.attachCombo(parentEl)
  *  EFCD_FX.reset()
  *  EFCD_FX.toast(icon, text)
  *  EFCD_FX.milestone(icon, title, msg, color, shadow)
- *  EFCD_FX.confetti()  ← now public, bigger and more celebratory
+ *  EFCD_FX.confetti()
+ *
+ * v2.2 changes:
+ *  - confetti: radial explosive burst (chess.com style) — particles fire outward
+ *    in all directions from screen centre, gravity pulls them down
+ *  - streak break card: no dark overlay, floats over lesson content,
+ *    lesson stays fully visible and readable behind it
  */
 
 'use strict';
@@ -62,14 +68,6 @@ function injectCSS(){
 '}',
 '.efcd-word-burst.wrong { color:#FF4B4B; text-shadow:0 2px 8px rgba(255,75,75,.4); animation:efcd-word-wrong .7s ease-out forwards; }',
 
-/* CONFETTI */
-'@keyframes efcd-confetti-fall {',
-'  0%   { opacity:1; transform:translateY(0) rotate(0deg) scale(1); }',
-'  80%  { opacity:1; }',
-'  100% { opacity:0; transform:translateY(140px) rotate(var(--efcd-rot,400deg)) scale(.7); }',
-'}',
-'.efcd-confetti-dot { position:fixed; pointer-events:none; z-index:9099; animation:efcd-confetti-fall var(--efcd-dur,1.1s) ease-out var(--efcd-delay,0s) both; }',
-
 /* TOAST — top-centre pill */
 '@keyframes efcd-toast-in  { from{opacity:0;transform:translateX(-50%) translateY(-20px) scale(.88)} to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)} }',
 '@keyframes efcd-toast-out { from{opacity:1;transform:translateX(-50%) translateY(0) scale(1)} to{opacity:0;transform:translateX(-50%) translateY(-16px) scale(.9)} }',
@@ -78,22 +76,20 @@ function injectCSS(){
 '.efcd-toast-icon { font-size:22px; flex-shrink:0; }',
 '.efcd-toast-text { font-size:14px; font-weight:900; color:#111827; }',
 
-/* MILESTONE — centre-screen card */
-'@keyframes efcd-ms-overlay-in  { from{opacity:0} to{opacity:1} }',
-'@keyframes efcd-ms-overlay-out { from{opacity:1} to{opacity:0} }',
-'@keyframes efcd-ms-card-in  { from{opacity:0;transform:translateX(-50%) translateY(-50%) scale(.78)} to{opacity:1;transform:translateX(-50%) translateY(-50%) scale(1)} }',
-'@keyframes efcd-ms-card-out { from{opacity:1;transform:translateX(-50%) translateY(-50%) scale(1)} to{opacity:0;transform:translateX(-50%) translateY(-50%) scale(.84)} }',
-'.efcd-ms-overlay { position:fixed; inset:0; z-index:9300; background:rgba(0,0,0,.72); cursor:pointer; animation:efcd-ms-overlay-in .25s ease both; }',
-'.efcd-ms-overlay.out { animation:efcd-ms-overlay-out .25s ease both; }',
-'.efcd-ms-card { position:fixed; top:50%; left:50%; transform:translateX(-50%) translateY(-50%); z-index:9301; background:#fff; border-radius:28px; padding:44px 40px 36px; text-align:center; max-width:420px; width:calc(100vw - 48px); animation:efcd-ms-card-in .38s cubic-bezier(.175,.885,.32,1.275) both; }',
-'.efcd-ms-card.out { animation:efcd-ms-card-out .25s ease both; }',
-'.efcd-ms-emoji { font-size:64px; line-height:1; display:block; margin-bottom:16px; }',
-'.efcd-ms-title { font-size:clamp(28px,6vw,48px); font-weight:900; line-height:1.1; letter-spacing:-1.5px; margin-bottom:12px; }',
-'.efcd-ms-msg   { font-size:clamp(14px,2.5vw,17px); font-weight:700; color:#4B4B4B; line-height:1.55; }',
-'.efcd-ms-tap   { font-size:12px; font-weight:900; color:#AFAFAF; text-transform:uppercase; letter-spacing:1.5px; margin-top:20px; display:block; }',
+/* MILESTONE — centre-screen card, NO overlay */
+'@keyframes efcd-ms-card-in  { from{opacity:0;transform:translateX(-50%) translateY(calc(-50% - 12px)) scale(.82)} to{opacity:1;transform:translateX(-50%) translateY(-50%) scale(1)} }',
+'@keyframes efcd-ms-card-out { from{opacity:1;transform:translateX(-50%) translateY(-50%) scale(1)} to{opacity:0;transform:translateX(-50%) translateY(calc(-50% - 8px)) scale(.88)} }',
+'.efcd-ms-card { position:fixed; top:50%; left:50%; transform:translateX(-50%) translateY(-50%); z-index:9301; background:#fff; border-radius:28px; padding:36px 32px 28px; text-align:center; max-width:380px; width:calc(100vw - 48px); animation:efcd-ms-card-in .4s cubic-bezier(.175,.885,.32,1.275) both; pointer-events:all; }',
+'.efcd-ms-card.out { animation:efcd-ms-card-out .22s ease both; }',
+'.efcd-ms-emoji { font-size:56px; line-height:1; display:block; margin-bottom:12px; }',
+'.efcd-ms-title { font-size:clamp(24px,5vw,40px); font-weight:900; line-height:1.1; letter-spacing:-1.5px; margin-bottom:10px; }',
+'.efcd-ms-msg   { font-size:clamp(13px,2.2vw,15px); font-weight:700; color:#4B4B4B; line-height:1.55; }',
+'.efcd-ms-tap   { font-size:11px; font-weight:900; color:#AFAFAF; text-transform:uppercase; letter-spacing:1.5px; margin-top:16px; display:block; }',
+'.efcd-ms-target { font-size:clamp(12px,2vw,14px); font-weight:900; color:#1CB0F6; margin-top:8px; letter-spacing:-.2px; }',
 
-/* STREAK BREAK milestone — uses same card but with motivator sub-line */
-'.efcd-ms-target { font-size:clamp(13px,2.2vw,15px); font-weight:900; color:#1CB0F6; margin-top:10px; letter-spacing:-.2px; }',
+/* STREAK CARD — same card styles, no overlay, shadow does the lifting */
+'.efcd-streak-card { position:fixed; top:50%; left:50%; transform:translateX(-50%) translateY(-50%); z-index:9301; background:#fff; border-radius:24px; padding:28px 28px 22px; text-align:center; max-width:340px; width:calc(100vw - 48px); pointer-events:all; }',
+'.efcd-streak-card.out { animation:efcd-ms-card-out .22s ease both; }',
 
 /* COMBO */
 '@keyframes efcd-combo-in    { from{opacity:0;transform:scale(.65) translateY(8px)} to{opacity:1;transform:scale(1) translateY(0)} }',
@@ -148,66 +144,107 @@ function _edgeFlash(type){
     setTimeout(() => el.remove(), 450);
 }
 
-/* ── CONFETTI ────────────────────────────────────────────── */
-const CONFETTI_COLOURS = ['#FFC800','#58CC02','#1CB0F6','#FF4B4B','#CE82FF','#2BDECC','#FF9600','#fff'];
+/* ── CONFETTI — radial explosive burst ───────────────────── */
+/*
+ * Chess.com style: particles fire outward from a single point
+ * in all directions simultaneously. Each gets a random angle,
+ * speed, and spin. Gravity is simulated by reducing the
+ * vertical component over time — implemented by giving each
+ * particle a steeper downward travel target than its initial
+ * angle suggests.
+ */
+const CONFETTI_COLOURS = [
+    '#FFC800','#58CC02','#1CB0F6','#FF4B4B',
+    '#CE82FF','#2BDECC','#FF9600','#FFFFFF',
+    '#FF6B9D','#00D4FF'
+];
 
-function confetti(){
-    const cx = window.innerWidth  / 2;
-    const cy = window.innerHeight * 0.44;
-    const COUNT = 52;
+function confetti(originX, originY){
+    /* Default origin: centre of viewport */
+    const cx = (typeof originX === 'number') ? originX : window.innerWidth  * 0.5;
+    const cy = (typeof originY === 'number') ? originY : window.innerHeight * 0.42;
+
+    const COUNT = 72;    /* particle count — dense burst */
+    const DURATION_BASE = 900;  /* ms */
 
     for(let i = 0; i < COUNT; i++){
-        const el = document.createElement('div');
-        el.className = 'efcd-confetti-dot';
+        const el = document.createElement('canvas');
 
-        /* random size — mix of small squares and larger rectangles */
-        const size  = 7 + Math.random() * 13;               // 7–20px
-        const tall  = Math.random() > 0.5;                   // some are tall rectangles
+        /* Shape: mix of squares, rectangles, and circles */
+        const shape = Math.random();
+        const size  = 6 + Math.random() * 10;  /* 6–16px */
         const w     = Math.round(size);
-        const h     = tall ? Math.round(size * (1.4 + Math.random())) : Math.round(size);
-        const color = CONFETTI_COLOURS[Math.floor(Math.random() * CONFETTI_COLOURS.length)];
-        const rot   = Math.round(-360 + Math.random() * 720) + 'deg';
-        const delay = (Math.random() * 0.28).toFixed(3) + 's';
-        const dur   = (0.85 + Math.random() * 0.65).toFixed(3) + 's';
+        const h     = shape > 0.6 ? Math.round(size * (1.5 + Math.random())) : Math.round(size);
+        el.width  = w;
+        el.height = h;
 
-        /* spread angle: full 360° but weighted toward upward arc */
-        const angle  = Math.random() * Math.PI * 2;
-        const radius = 80 + Math.random() * 260;             // wider spread
-        const startX = cx + Math.cos(angle) * (Math.random() * 30);
-        const startY = cy + Math.sin(angle) * (Math.random() * 30);
+        const color = CONFETTI_COLOURS[Math.floor(Math.random() * CONFETTI_COLOURS.length)];
+        const ctx   = el.getContext('2d');
+        if(shape > 0.85){
+            /* circle */
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(w/2, h/2, w/2, 0, Math.PI * 2);
+            ctx.fill();
+        } else {
+            ctx.fillStyle = color;
+            ctx.fillRect(0, 0, w, h);
+        }
 
         el.style.cssText = [
-            'width:'  + w + 'px',
-            'height:' + h + 'px',
-            'border-radius:' + (tall ? '3px' : Math.round(w * 0.3) + 'px'),
-            'background:' + color,
-            'left:' + startX + 'px',
-            'top:'  + startY + 'px',
-            '--efcd-rot:'   + rot,
-            '--efcd-dur:'   + dur,
-            '--efcd-delay:' + delay,
-            /* actual travel via transform offset baked in at start */
-            'transform:translate(' +
-                Math.round(Math.cos(angle) * radius) + 'px,' +
-                Math.round(Math.sin(angle) * radius - 60) + 'px' +
-            ') rotate(0deg)',
+            'position:fixed',
+            'pointer-events:none',
+            'z-index:9099',
+            'left:' + cx + 'px',
+            'top:'  + cy + 'px',
+            'border-radius:' + (shape > 0.85 ? '50%' : '2px'),
         ].join(';');
-
-        /* override: use keyframe from spawn point so it looks explosive */
-        el.style.transform = 'translate(0,0) rotate(0deg)';
 
         document.body.appendChild(el);
 
-        /* translate outward during the animation using JS after paint */
-        requestAnimationFrame(() => {
-            el.style.transition = 'transform ' + dur + ' cubic-bezier(.2,.8,.4,1) ' + delay;
-            el.style.transform  = 'translate(' +
-                Math.round(Math.cos(angle) * radius) + 'px,' +
-                Math.round((Math.sin(angle) * radius) - 80) + 'px' +
-            ') rotate(' + rot + ')';
-        });
+        /* Physics parameters per particle */
+        const angle    = Math.random() * Math.PI * 2;  /* any direction */
+        const speed    = 180 + Math.random() * 320;    /* px travel distance */
+        const gravity  = 140 + Math.random() * 120;    /* extra downward pull */
+        const duration = DURATION_BASE + Math.random() * 500;
+        const delay    = Math.random() * 120;           /* stagger up to 120ms */
+        const spin     = (Math.random() > 0.5 ? 1 : -1) * (180 + Math.random() * 540);
 
-        setTimeout(() => el.remove(), (parseFloat(dur) + parseFloat(delay) + 0.1) * 1000);
+        /* Target position: angle + gravity bias downward */
+        const tx = Math.cos(angle) * speed;
+        const ty = Math.sin(angle) * speed + gravity;  /* gravity adds downward travel */
+
+        const start = performance.now() + delay;
+        let raf;
+
+        function animate(now){
+            if(now < start){ raf = requestAnimationFrame(animate); return; }
+            const elapsed = now - start;
+            const t       = Math.min(elapsed / duration, 1);
+
+            /* Ease out — fast burst then decelerate */
+            const ease = 1 - Math.pow(1 - t, 3);
+
+            /* Fade out in final 30% */
+            const opacity = t > 0.7 ? 1 - (t - 0.7) / 0.3 : 1;
+
+            const x = cx + tx * ease;
+            const y = cy + ty * ease;
+            const r = spin * ease;
+
+            el.style.left      = x + 'px';
+            el.style.top       = y + 'px';
+            el.style.transform = 'rotate(' + r + 'deg)';
+            el.style.opacity   = opacity;
+
+            if(t < 1){
+                raf = requestAnimationFrame(animate);
+            } else {
+                el.remove();
+            }
+        }
+
+        raf = requestAnimationFrame(animate);
     }
 }
 
@@ -248,102 +285,93 @@ function toast(icon, text){
     el.addEventListener('click', dismiss);
 }
 
-/* ── MILESTONE ───────────────────────────────────────────── */
+/* ── MILESTONE — no overlay, card only ───────────────────── */
 function milestone(icon, title, msg, color, shadow){
     color  = color  || '#58CC02';
     shadow = shadow || '#58A700';
-    document.querySelector('.efcd-ms-overlay')?.remove();
     document.querySelector('.efcd-ms-card')?.remove();
-    const overlay = document.createElement('div');
-    overlay.className = 'efcd-ms-overlay';
     const card = document.createElement('div');
     card.className = 'efcd-ms-card';
-    card.style.cssText = 'border:3px solid ' + color + '; border-bottom:8px solid ' + shadow + '; box-shadow:0 24px 80px rgba(0,0,0,.3);';
+    card.style.cssText = [
+        'border:3px solid ' + color,
+        'border-bottom:8px solid ' + shadow,
+        'box-shadow:0 8px 48px rgba(0,0,0,.22), 0 2px 12px rgba(0,0,0,.12)',
+    ].join(';');
     card.innerHTML =
         '<span class="efcd-ms-emoji">' + icon + '</span>' +
         '<div class="efcd-ms-title" style="color:' + shadow + '">' + title + '</div>' +
         '<div class="efcd-ms-msg">' + msg + '</div>' +
         '<span class="efcd-ms-tap">Tap to continue</span>';
-    document.body.appendChild(overlay);
     document.body.appendChild(card);
     const dismiss = () => {
-        overlay.classList.add('out'); card.classList.add('out');
-        setTimeout(() => { overlay.remove(); card.remove(); }, 280);
+        card.classList.add('out');
+        setTimeout(() => card.remove(), 240);
     };
     setTimeout(dismiss, 3200);
-    overlay.addEventListener('click', dismiss);
     card.addEventListener('click', dismiss);
 }
 
-/* ── STREAK BREAK MILESTONE ──────────────────────────────── */
-
+/* ── STREAK BREAK CARD — no overlay ─────────────────────── */
 const STREAK_ICONS = ['🔥','⚡','💥','🎯','🏆'];
 
-function _streakBreakMilestone(streakCount, bestCombo){
-    const isPB = streakCount >= bestCombo;  /* this streak equals or beats the best passed in */
-
-    /* pick icon — hotter the streak, more dramatic */
+function _streakBreakCard(streakCount, bestCombo){
+    const isPB  = streakCount >= bestCombo;
     const iconIdx = Math.min(Math.floor((streakCount - 3) / 2), STREAK_ICONS.length - 1);
     const icon    = isPB ? '🏆' : STREAK_ICONS[Math.max(0, iconIdx)];
+    const title   = isPB ? streakCount + ' in a row!' : streakCount + ' combo!';
 
-    /* title */
-    const title = isPB
-        ? streakCount + ' in a row!'
-        : streakCount + ' combo!';
-
-    /* body message */
     let msg;
     if(isPB){
-        msg = "That's a new personal best! You're on fire. Can you beat " + streakCount + " next time?";
+        msg = "New personal best! Can you beat " + streakCount + " next time?";
     } else if(streakCount >= 7){
-        msg = "Incredible run! Now go for " + (streakCount + 1) + " — you've got this.";
+        msg = "Incredible run! Go for " + (streakCount + 1) + " — you've got this.";
     } else if(streakCount >= 5){
-        msg = "Great streak! Try to beat " + bestCombo + " next time — your personal best is waiting.";
+        msg = "Great streak! Your best is " + bestCombo + ". Can you beat it?";
     } else {
-        msg = "Nice combo! Your best is " + bestCombo + ". Can you beat it?";
+        msg = "Nice combo! Your best is " + bestCombo + ". Go again!";
     }
 
-    /* colour theme — escalates with streak length */
     let color, shadow;
     if(streakCount >= 7){
-        color = '#FF4B4B'; shadow = '#EA2B2B';   /* punch red — on fire */
+        color = '#FF4B4B'; shadow = '#EA2B2B';
     } else if(streakCount >= 5){
-        color = '#FF9600'; shadow = '#E07800';   /* orange — hot streak */
+        color = '#FF9600'; shadow = '#E07800';
     } else {
-        color = '#FFC800'; shadow = '#E5B400';   /* yellow — good combo */
+        color = '#FFC800'; shadow = '#E5B400';
     }
 
-    document.querySelector('.efcd-ms-overlay')?.remove();
-    document.querySelector('.efcd-ms-card')?.remove();
-
-    const overlay = document.createElement('div');
-    overlay.className = 'efcd-ms-overlay';
+    /* Remove any existing streak card */
+    document.querySelector('.efcd-streak-card')?.remove();
 
     const card = document.createElement('div');
-    card.className = 'efcd-ms-card';
-    card.style.cssText = 'border:3px solid ' + color + '; border-bottom:8px solid ' + shadow + '; box-shadow:0 24px 80px rgba(0,0,0,.3);';
-    card.innerHTML =
-        '<span class="efcd-ms-emoji">' + icon + '</span>' +
-        '<div class="efcd-ms-title" style="color:' + shadow + '">' + title + '</div>' +
-        '<div class="efcd-ms-msg">' + msg + '</div>' +
-        (isPB ? '<div class="efcd-ms-target">🏆 New personal best!</div>' : '') +
-        '<span class="efcd-ms-tap">Tap to keep going</span>';
+    card.className = 'efcd-streak-card';
+    card.style.cssText = [
+        'border:3px solid ' + color,
+        'border-bottom:7px solid ' + shadow,
+        /* Shadow lifts card without overlay — feels floating, not blocking */
+        'box-shadow:0 12px 60px rgba(0,0,0,.18), 0 3px 16px rgba(0,0,0,.10)',
+    ].join(';');
 
-    document.body.appendChild(overlay);
+    card.innerHTML =
+        '<div style="font-size:44px;line-height:1;margin-bottom:10px">' + icon + '</div>' +
+        '<div style="font-size:clamp(22px,5vw,34px);font-weight:900;line-height:1.1;letter-spacing:-1px;color:' + shadow + ';margin-bottom:8px">' + title + '</div>' +
+        '<div style="font-size:clamp(12px,2.2vw,14px);font-weight:700;color:#4B4B4B;line-height:1.5;margin-bottom:' + (isPB ? '6px' : '12px') + '">' + msg + '</div>' +
+        (isPB ? '<div style="font-size:13px;font-weight:900;color:#1CB0F6;margin-bottom:12px">🏆 New personal best!</div>' : '') +
+        '<div style="font-size:11px;font-weight:900;color:#AFAFAF;text-transform:uppercase;letter-spacing:1.5px">Tap to keep going</div>';
+
     document.body.appendChild(card);
 
-    /* fire confetti for personal bests and big streaks */
+    /* Confetti for PBs and big streaks — fires from card position */
     if(isPB || streakCount >= 5){
-        confetti();
-        if(isPB) setTimeout(confetti, 320);   /* double burst for PB */
+        confetti(window.innerWidth * 0.5, window.innerHeight * 0.4);
+        if(isPB) setTimeout(() => confetti(window.innerWidth * 0.5, window.innerHeight * 0.4), 280);
     }
 
     const dismiss = () => {
-        overlay.classList.add('out'); card.classList.add('out');
-        setTimeout(() => { overlay.remove(); card.remove(); }, 280);
+        card.classList.add('out');
+        setTimeout(() => card.remove(), 240);
     };
-    setTimeout(dismiss, 3800);   /* slightly longer than regular milestone — let it land */
-    overlay.addEventListener('click', dismiss);
+    setTimeout(dismiss, 3600);
     card.addEventListener('click', dismiss);
 }
 
@@ -397,16 +425,16 @@ function combo(n){
 /**
  * comboBreak(currentStreak, bestCombo)
  *
- * currentStreak — the streak that just ended (passed in from lesson state)
- * bestCombo     — the user's personal best for this lesson session (passed in from lesson state)
+ * currentStreak — the streak that just ended (pass BEFORE resetting S.combo)
+ * bestCombo     — personal best for this session
  *
- * Both args are optional for backward compatibility.
- * Fires streak celebration milestone if streak >= 3.
+ * Both args optional — backward compatible with zero-arg calls.
+ * Fires non-blocking streak card if streak >= 3.
  */
 function comboBreak(currentStreak, bestCombo){
     _comboCount = 0;
 
-    /* crack and dissolve the badge */
+    /* Crack and dissolve the badge */
     if(_comboBadge){
         _comboBadge.classList.remove('tick','state-1','state-2','state-3','state-4');
         void _comboBadge.offsetWidth;
@@ -418,13 +446,12 @@ function comboBreak(currentStreak, bestCombo){
         }, 370);
     }
 
-    /* celebrate if streak was meaningful */
     const streak = (typeof currentStreak === 'number') ? currentStreak : 0;
     const best   = (typeof bestCombo     === 'number') ? bestCombo     : streak;
 
     if(streak >= 3){
-        /* slight delay so badge crack plays first */
-        setTimeout(() => _streakBreakMilestone(streak, best), 420);
+        /* Slight delay so badge crack plays first */
+        setTimeout(() => _streakBreakCard(streak, best), 420);
     }
 }
 
@@ -432,6 +459,6 @@ function reset(){ _comboCount=0; _comboBadge=null; _comboWrap=null; }
 
 injectCSS();
 window.EFCD_FX = { correct, wrong, combo, comboBreak, attachCombo, reset, toast, milestone, confetti };
-console.log('⚡ EFCD_FX v2.1 — kinetic typography, streak celebrations, big confetti');
+console.log('⚡ EFCD_FX v2.2 — explosive radial confetti, non-blocking streak card');
 
 })();
