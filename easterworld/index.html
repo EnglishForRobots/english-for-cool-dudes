@@ -622,6 +622,12 @@ function speak(text){
     const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';u.rate=0.88;
     speechSynthesis.cancel();speechSynthesis.speak(u);
 }
+function speakNative(text,lang){
+    if(!window.speechSynthesis)return;
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang=lang||'en-GB';u.rate=0.78;
+    speechSynthesis.cancel();speechSynthesis.speak(u);
+}
 function xpFloat(x,y,amount){
     const el=document.createElement('div');el.className='xp-float';
     el.textContent=`+${amount} XP`;el.style.cssText=`left:${x}px;top:${y}px`;
@@ -773,7 +779,7 @@ function buildExplorerInner(){
                         </button>`).join('')}
                 </div>
                 <div class="cf-term-def" id="ctd-${c.id}"></div>
-                <button class="cf-hear-btn" id="cfh-${c.id}" style="display:none" onclick="speakTerm('${c.id}')">🔊 Hear it</button>
+                '<button class="sill-hear-btn" onclick="speakNative(\''+q.pronunciation+'\',\''+q.lang+'\')" >🔊 Hear it in '+q.nativeName+': <em>'+q.pronunciation+'</em></button>' +
                 <button class="cf-done-btn" id="cfdb-${c.id}" onclick="markCountryDone('${c.id}')">✓ Got it — Next country! 🌍</button>
             </div>`;
         container.appendChild(div);
@@ -1083,6 +1089,11 @@ function buildFTSInner(){
     window.EFCD_FX?.attachCombo(slot);
 
     window.selectFTSWord=function(word){
+        if(ftsSelected===word){
+            ftsSelected=null;
+            document.querySelectorAll('.fts-word').forEach(b=>b.classList.remove('selected'));
+            return;
+        }
         ftsSelected=word;
         document.querySelectorAll('.fts-word').forEach(b=>b.classList.remove('selected'));
         const btn=$(`ftsw-${word}`);if(btn&&!btn.classList.contains('used'))btn.classList.add('selected');
@@ -1166,7 +1177,7 @@ function buildFTSInner(){
 ══════════════════════════════════════════════ */
 const SILL_QUESTIONS = [
     {
-        word:'Påskekrim', from:'Norwegian',
+        word:'Påskekrim', from:'Norwegian', lang:'nb-NO', nativeName:'Norwegian',
         pronunciation:'Påskekrim',
         q:'What does Påskekrim mean in English?',
         opts:['Easter decoration and house cleaning','Easter crime — Norway\'s national tradition of reading crime novels','Easter carnival — a street festival with music','Easter fasting — no meat before Easter'],
@@ -1174,7 +1185,7 @@ const SILL_QUESTIONS = [
         reveal:'"Påske" = Easter, "krim" = crime (short for kriminalroman — crime novel). The tradition started in 1923 and is now a national institution. Publishers plan their biggest releases around it. It is the only holiday tradition in the world built entirely around murder. 🔪',
     },
     {
-        word:'Tsougrisma', from:'Greek',
+        word:'Tsougrisma', from:'Greek', lang:'el-GR', nativeName:'Greek',
         pronunciation:'Tsougrisma',
         q:'Tsougrisma is the Greek Easter egg game. What happens?',
         opts:['Eggs are rolled down a hill — furthest wins','Eggs are hidden in a church and raced to find','Two players crack red eggs against each other — last uncracked egg wins','Decorated eggs are thrown into the sea as an offering'],
@@ -1182,7 +1193,7 @@ const SILL_QUESTIONS = [
         reveal:'"Tsougrisma" means "to clink together" or "to clash". One player says "Christos Anesti!" (Christ is risen!) and cracks their red egg against the opponent\'s. The owner of the last unbroken egg has good luck for the year. All eggs are red — multi-coloured eggs are a northern European invention. 🥚',
     },
     {
-        word:'Trulli', from:'Finnish (via Swedish)',
+        word:'Trulli', from:'Finnish (via Swedish)', lang:'fi-FI', nativeName:'Finnish',
         pronunciation:'Trulli',
         q:'In Finland, what is a trulli?',
         opts:['A traditional Easter bread baked in a rabbit shape','A decorated willow twig given as a spring blessing','An Easter witch — a child dressed up to go door-to-door','A bonfire lit to drive away evil spirits'],
@@ -1190,7 +1201,7 @@ const SILL_QUESTIONS = [
         reveal:'"Trulli" comes from the Swedish word for witch or troll. Finnish children dress as trulli on Palm Sunday — colourful old clothes, painted freckles, a broomstick — and go from house to house reciting spells in exchange for sweets. Essentially Halloween, but four months early and without the horror movies. 🧙',
     },
     {
-        word:'Scoppio del Carro', from:'Italian',
+        word:'Scoppio del Carro', from:'Italian', lang:'it-IT', nativeName:'Italian',
         pronunciation:'Scoppio del Carro',
         q:'Scoppio del Carro literally translates as:',
         opts:['"Blessing of the Easter Cart"','Explosion of the Cart — a fireworks display ignited during Easter Mass','"Procession of the Archbishop"','"Festival of the Cathedral"'],
@@ -1198,7 +1209,7 @@ const SILL_QUESTIONS = [
         reveal:'"Scoppio" = explosion, "del" = of the, "carro" = cart. Every Easter Sunday in Florence since the 1400s, a 30-foot cart packed with fireworks is ignited by a mechanical dove flying 100 metres along a wire during Easter Mass. A good explosion predicts a good harvest. A failed ignition is a bad omen. 💥',
     },
     {
-        word:'Osterfeuer', from:'German',
+        word:'Osterfeuer', from:'German', lang:'de-DE', nativeName:'German',
         pronunciation:'Osterfeuer',
         q:'What is an Osterfeuer?',
         opts:['The German word for Easter Sunday church service','An Easter bonfire — traditionally lit on Holy Saturday to drive away winter and evil spirits','A decorated Easter tree hung with painted eggs','The German name for the Easter Bunny tradition'],
@@ -1206,7 +1217,7 @@ const SILL_QUESTIONS = [
         reveal:'"Oster" = Easter, "Feuer" = fire. Easter bonfires are a major tradition across Germany, Norway, and other northern European countries. Huge fires are lit on Holy Saturday evening to symbolise the return of light and warmth after winter. The tradition predates Christianity and connects directly to ancient spring festivals. 🔥',
     },
     {
-        word:'Botides', from:'Greek',
+        word:'Botides', from:'Greek', lang:'el-GR', nativeName:'Greek',
         pronunciation:'Botides',
         q:'In Corfu, botides are thrown from balconies on Holy Saturday. What are they?',
         opts:['Decorated chocolate eggs dropped as gifts for children below','Large red candles thrown to symbolise the resurrection','Large clay pots filled with water, hurled onto the street to welcome spring','Bundles of willow twigs tied with ribbons and tossed to the crowd'],
@@ -1269,7 +1280,7 @@ function buildShockInner(){
             '<div class="sill-card">' +
                 '<div class="sill-pip-row">'+progHTML+'</div>' +
                 '<div class="sill-word"><span class="from">'+q.from+'</span>'+q.word+'</div>' +
-                '<button class="sill-hear-btn" onclick="speak(\''+q.pronunciation.replace(/'/g,"\\'")+'\')" >🔊 Hear it: <em>'+q.pronunciation+'</em></button>' +
+                '<button class="sill-hear-btn" onclick="speakNative(\''+q.pronunciation+'\',\''+q.lang+'\')" >🔊 Hear it in '+q.nativeName+': <em>'+q.pronunciation+'</em></button>' +
                 '<div class="sill-q">'+q.q+'</div>' +
                 '<div class="sill-opts">'+optsHTML+'</div>' +
                 '<div class="sill-reveal" id="sill-rev"></div>' +
