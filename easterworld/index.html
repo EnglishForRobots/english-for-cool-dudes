@@ -1093,18 +1093,28 @@ function buildFTSInner(){
         const btn=$(`ftsw-${word}`);if(btn&&!btn.classList.contains('used'))btn.classList.add('selected');
     };
     window.tapBlank=function(idx){
-        if(!ftsSelected)return;
+        if(!ftsSelected){
+            if(ftsPlaced[idx]!==undefined){
+                const oldWord=ftsPlaced[idx];
+                const oldBtn=document.getElementById('ftsw-'+oldWord);
+                if(oldBtn){oldBtn.classList.remove('used','selected');oldBtn.style.pointerEvents='';}
+                delete ftsPlaced[idx];
+                const blank=document.getElementById('fts-blank-'+idx);
+                if(blank){blank.textContent='_______';blank.classList.remove('filled','correct-filled','wrong-filled');}
+            }
+            return;
+        }
         // If blank already has a word, return it to bank
         if(ftsPlaced[idx]!==undefined){
             const oldWord=ftsPlaced[idx];
-            const oldBtn=$(`ftsw-${oldWord}`);
-            if(oldBtn){oldBtn.classList.remove('used','selected');oldBtn.disabled=false;}
+            const oldBtn=document.getElementById('ftsw-'+oldWord);
+            if(oldBtn){oldBtn.classList.remove('used','selected');oldBtn.style.pointerEvents='';oldBtn.disabled=false;}
         }
         ftsPlaced[idx]=ftsSelected;
         const blank=$(`fts-blank-${idx}`);
         if(blank){blank.textContent=ftsSelected;blank.classList.add('filled');}
-        const wordBtn=$(`ftsw-${ftsSelected}`);
-        if(wordBtn){wordBtn.classList.add('used');wordBtn.classList.remove('selected');}
+        const wordBtn=document.getElementById('ftsw-'+ftsSelected);
+        if(wordBtn){wordBtn.classList.add('used');wordBtn.classList.remove('selected');wordBtn.style.pointerEvents='none';}
         ftsSelected=null;
     };
     window.checkFTS=function(){
