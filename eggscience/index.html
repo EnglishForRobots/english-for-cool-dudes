@@ -672,7 +672,9 @@ function revealSection(id){
     };
     if(inits[id])inits[id]();
     sec.classList.add('visible');
-    setTimeout(function(){sec.scrollIntoView({behavior:'smooth',block:'start'});},80);
+    if(!noScroll) {
+        setTimeout(function(){sec.scrollIntoView({behavior:'smooth',block:'start'});},80);
+    }
 }
 function secDone(icon,title,sub,btnText,btnAction,c,cs){
     c=c||'var(--spring)';cs=cs||'var(--spring-shadow)';
@@ -720,8 +722,8 @@ function buildAll(){
     c.appendChild(buildWheelSec());
     c.appendChild(buildWBSec());
     c.appendChild(buildQuizSec());
-    // FIX: only reveal section 1 after building, not during DOMContentLoaded
-    revealSection('sec-cof');
+    // Prevent auto-scroll on the first section so the intro isn't skipped
+    revealSection('sec-cof', true);
 }
 
 /* ══════════════════════
@@ -788,12 +790,15 @@ function buildCOFInner(){
             window.EFCD_FX?.comboBreak(S.combo,S.bestCombo);S.combo=0;
             S.totalAnswered++;
             const sn2=$('cof-score-num');if(sn2)sn2.textContent=cofScore+' / '+COF_ITEMS.length;
-            setTimeout(function(){
-                otherBtn.classList.add('correct');
-                const rev=$('cof-rev-'+idx);rev.textContent=item.reveal;rev.classList.add('show');
-                answered++;
-                if(answered===COF_ITEMS.length){const db=$('cof-done-btn');if(db)db.style.display='flex';}
-            },700);
+            // Scroll smoothly but keep the banner/intro in view below the sticky header
+    setTimeout(function(){
+        const banner=$('lesson-banner');
+        if(banner){
+            // -70px offsets the sticky header so it doesn't cover the text
+            const pos = banner.getBoundingClientRect().top + window.scrollY - 70;
+            window.scrollTo({top: pos, behavior: 'smooth'});
+        }
+    }, 100);
         }
     };
 }
