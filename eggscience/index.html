@@ -697,13 +697,13 @@ function startLesson(){
     // FIX 3: show the sections container
     const sections=$('sections');
     if(sections)sections.classList.add('started');
-    // Build and reveal first experiment
+    // Build sections (professor bubble + all experiments)
     buildAll();
-    // Scroll down to first experiment
+    // Scroll to just below the banner so professor's welcome bubble is visible first
     setTimeout(function(){
-        const sec=$('sec-cof');
-        if(sec){
-            const pos=sec.getBoundingClientRect().top+window.scrollY-120;
+        const secs=$('sections');
+        if(secs){
+            const pos=secs.getBoundingClientRect().top+window.scrollY-16;
             window.scrollTo({top:pos,behavior:'smooth'});
         }
     },100);
@@ -777,19 +777,23 @@ function buildCOFInner(){
             window.EFCD_FX?.correct(chosenBtn);window.EFCD_FX?.combo(S.combo);
             if(S.combo===3)comboFlash('🥚 3!!');
             if(S.combo>=5)comboFlash('🔥 '+S.combo+'!!');
+            S.totalAnswered++;
+            const sn=$('cof-score-num');if(sn)sn.textContent=cofScore+' / '+COF_ITEMS.length;
+            const rev=$('cof-rev-'+idx);rev.textContent=item.reveal;rev.classList.add('show');
+            answered++;
+            if(answered===COF_ITEMS.length){const db=$('cof-done-btn');if(db)db.style.display='flex';}
         } else {
             chosenBtn.classList.add('wrong');
-            otherBtn.classList.add('correct');
             window.EFCD_FX?.wrong(chosenBtn);
             window.EFCD_FX?.comboBreak(S.combo,S.bestCombo);S.combo=0;
-        }
-        S.totalAnswered++;
-        const sn=$('cof-score-num');if(sn)sn.textContent=cofScore+' / '+COF_ITEMS.length;
-        const rev=$('cof-rev-'+idx);
-        rev.textContent=item.reveal;rev.classList.add('show');
-        answered++;
-        if(answered===COF_ITEMS.length){
-            const db=$('cof-done-btn');if(db)db.style.display='flex';
+            S.totalAnswered++;
+            const sn2=$('cof-score-num');if(sn2)sn2.textContent=cofScore+' / '+COF_ITEMS.length;
+            setTimeout(function(){
+                otherBtn.classList.add('correct');
+                const rev=$('cof-rev-'+idx);rev.textContent=item.reveal;rev.classList.add('show');
+                answered++;
+                if(answered===COF_ITEMS.length){const db=$('cof-done-btn');if(db)db.style.display='flex';}
+            },700);
         }
     };
 }
@@ -866,16 +870,24 @@ function buildAnatInner(){
             score++;S.anatScore++;S.totalRight++;S.combo++;S.bestCombo=Math.max(S.bestCombo,S.combo);
             addXP(8,chosenBtn);
             window.EFCD_FX?.correct(chosenBtn);window.EFCD_FX?.combo(S.combo);
+            S.totalAnswered++;
+            const sn=$('anat-score-num');if(sn)sn.textContent=score+' / '+items.length;
+            const rev=$('atf-rev-'+idx);rev.textContent=item.reveal;rev.classList.add('show');
+            answered++;
+            if(answered===items.length){const db=$('anat-done-btn');if(db)db.style.display='flex';}
         } else {
-            chosenBtn.classList.add('wrong');otherBtn.classList.add('correct');
+            chosenBtn.classList.add('wrong');
             window.EFCD_FX?.wrong(chosenBtn);
             window.EFCD_FX?.comboBreak(S.combo,S.bestCombo);S.combo=0;
+            S.totalAnswered++;
+            const sn2=$('anat-score-num');if(sn2)sn2.textContent=score+' / '+items.length;
+            setTimeout(function(){
+                otherBtn.classList.add('correct');
+                const rev=$('atf-rev-'+idx);rev.textContent=item.reveal;rev.classList.add('show');
+                answered++;
+                if(answered===items.length){const db=$('anat-done-btn');if(db)db.style.display='flex';}
+            },700);
         }
-        S.totalAnswered++;
-        const sn=$('anat-score-num');if(sn)sn.textContent=score+' / '+items.length;
-        const rev=$('atf-rev-'+idx);rev.textContent=item.reveal;rev.classList.add('show');
-        answered++;
-        if(answered===items.length){const db=$('anat-done-btn');if(db)db.style.display='flex';}
     };
 }
 function finishAnat(){
