@@ -702,15 +702,29 @@ function startLesson(){
     // Build sections (professor bubble + all experiments)
     buildAll();
     
-    // Gently scroll down towards the new content, but leave a 500px buffer 
-    // at the top so the header and introduction text stay fully visible.
+   
     setTimeout(function(){
-        const secs = $('sections');
+        const secs = document.getElementById('sections'); // Using native ID selector for speed
         if(secs){
-            const pos = secs.getBoundingClientRect().top + window.scrollY - 500;
-            window.scrollTo({top: pos, behavior: 'auto'});
+            // 1. Get the position
+            const offset = 140; 
+            const bodyRect = document.body.getBoundingClientRect().top;
+            const elementRect = secs.getBoundingClientRect().top;
+            const elementPosition = elementRect - bodyRect;
+            const offsetPosition = elementPosition - offset;
+
+            // 2. Kill any current scrolling behavior
+            window.scrollTo({top: window.scrollY, behavior: 'auto'});
+
+            // 3. Force the new scroll after a tiny frame gap
+            requestAnimationFrame(() => {
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            });
         }
-    }, 100);
+    }, 150); // Increased delay slightly to 150ms
 }
 
 function buildAll(){
