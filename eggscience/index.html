@@ -128,8 +128,12 @@
     .prog-row{display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:var(--white);margin-bottom:7px;}
     .prog-track{height:14px;background:rgba(0,0,0,.2);border-radius:99px;overflow:hidden;border:2px solid rgba(255,255,255,.1);}
     .prog-fill{height:100%;width:0%;border-radius:99px;background:linear-gradient(to right,var(--egg2),#fff);border-top:3px solid rgba(255,255,255,.3);transition:width .7s cubic-bezier(.4,0,.2,1);}
-    .btn-start{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;margin-top:18px;background:var(--white);color:var(--spring-shadow);font-size:18px;font-weight:900;border:2px solid rgba(255,255,255,.9);border-bottom:5px solid rgba(255,255,255,.9);border-radius:var(--rsm);transition:all .15s;font-family:inherit;cursor:pointer;opacity:0;animation:slideUp .5s cubic-bezier(.175,.885,.32,1.275) forwards 1.4s;position:relative;z-index:1;}
+    /* FIX: btn-start starts visible (no opacity:0 animation until lesson begins) */
+    .btn-start{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;margin-top:18px;background:var(--white);color:var(--spring-shadow);font-size:18px;font-weight:900;border:2px solid rgba(255,255,255,.9);border-bottom:5px solid rgba(255,255,255,.9);border-radius:var(--rsm);transition:all .15s;font-family:inherit;cursor:pointer;position:relative;z-index:1;}
     .btn-start:active{border-bottom-width:2px;transform:translateY(3px);}
+    /* FIX: hiding the button cleanly — no flash */
+    .btn-start.hiding{opacity:0;pointer-events:none;transition:opacity .2s ease;}
+    .btn-start.hidden{display:none;}
 
     /* ── PROFESSOR EGG ── */
     .prof-wrap{display:flex;align-items:flex-end;gap:12px;margin-bottom:16px;}
@@ -327,6 +331,10 @@
     .cc-btn:active{border-bottom-width:2px;transform:translateY(3px);}
     .cc-btn.primary{background:var(--spring);color:var(--white);border-color:var(--spring-shadow);}
     .cc-btn.secondary{background:var(--white);color:var(--spring-shadow);border-color:var(--spring);}
+
+    /* ── FIX: sections hidden by default until lesson starts ── */
+    #sections{display:none;}
+    #sections.started{display:flex;flex-direction:column;gap:14px;}
     </style>
 </head>
 <body>
@@ -368,7 +376,7 @@
 </div>
 
 <div class="page">
-    <div class="lesson-banner u1">
+    <div class="lesson-banner u1" id="lesson-banner">
         <span class="banner-deco d1">🥚</span>
         <span class="banner-deco d2">🔬</span>
         <span class="banner-deco d3">🐣</span>
@@ -386,6 +394,7 @@
         </div>
         <button class="btn-start" id="btn-start" onclick="startLesson()">🥼 Enter the Lab! →</button>
     </div>
+    <!-- FIX: sections hidden until lesson starts, then revealed as a flex column -->
     <div id="sections"></div>
 </div>
 
@@ -439,7 +448,6 @@ const LESSON_LINK   = '/eggsscience/';
    DATA
 ══════════════════════ */
 
-// Journal: word => definition (auto-populated as lesson progresses)
 const JOURNAL = [];
 
 function addToJournal(word, def) {
@@ -458,7 +466,6 @@ const PROF_MSGS = {
     finish: "YOU DID IT!! 🎉🎉🎉 I KNEW you could do it! You are now an officially certified Egg Scientist. I am SO proud of you! Now go home and impress everyone with your incredible egg knowledge! 🥚",
 };
 
-// Exp 1: Crack or Fact — correct answer always shows green
 const COF_ITEMS = [
     {
         statement: 'A chicken egg takes about 21 days to hatch.',
@@ -492,7 +499,6 @@ const COF_ITEMS = [
     },
 ];
 
-// Exp 2: Anatomy — numbered matching (6 numbered dots, tap dot then tap label)
 const ANAT_PARTS = [
     {num:1, label:'Shell',     def:'The hard outer layer. Made of calcium carbonate — the same material as chalk! It protects everything inside.'},
     {num:2, label:'Egg White', def:'Also called albumen. Mostly water and protein. It protects the yolk and feeds the growing baby chick.'},
@@ -502,19 +508,15 @@ const ANAT_PARTS = [
     {num:6, label:'Chalaza',   def:'Two twisted white strands that hold the yolk in the centre. Pronounced "ka-LAY-za". Real scientists use this word!'},
 ];
 
-// Positions of number dots on the egg SVG (cx,cy relative to 220x280 viewBox)
-// Spread clearly around different areas
 const ANAT_DOT_POSITIONS = [
-    {num:1, cx:110, cy:14},   // Shell — top
-    {num:2, cx:38,  cy:100},  // Egg white — left
-    {num:3, cx:110, cy:148},  // Yolk — centre
-    {num:4, cx:178, cy:62},   // Membrane — top right
-    {num:5, cx:110, cy:248},  // Air cell — bottom
-    {num:6, cx:42,  cy:186},  // Chalaza — bottom left
+    {num:1, cx:110, cy:14},
+    {num:2, cx:38,  cy:100},
+    {num:3, cx:110, cy:148},
+    {num:4, cx:178, cy:62},
+    {num:5, cx:110, cy:248},
+    {num:6, cx:42,  cy:186},
 ];
 
-// Exp 3: Wheel — 4 fixed segments, pre-defined questions per spin
-// No random matching — each spin is hardcoded to its segment
 const WHEEL_SEGMENTS = [
     {label:'🐊 Reptiles', color:'#27ae60'},
     {label:'🐦 Birds',    color:'#e74c3c'},
@@ -522,10 +524,9 @@ const WHEEL_SEGMENTS = [
     {label:'🦕 Dinosaurs',color:'#8e44ad'},
 ];
 
-// 3 spins, each with a FIXED segment index and FIXED question — no wheel-to-question mismatch
 const SPIN_ROUNDS = [
     {
-        segIdx: 0, // 🐊 Reptiles
+        segIdx: 0,
         fact: 'Crocodiles lay eggs in nests of rotting plants. The heat from rotting keeps the eggs warm — like a natural oven! And here\'s the wildest part: the temperature of the nest decides whether babies will be MALE or FEMALE! 🌡️',
         q: 'What decides if a baby crocodile is male or female?',
         opts: ['The size of the egg', 'The temperature of the nest', 'The colour of the egg', 'How long the mother waits'],
@@ -533,7 +534,7 @@ const SPIN_ROUNDS = [
         fb: '✅ Temperature! Warmer nests produce more males. Cooler nests produce more females. Scientists call this Temperature-Dependent Sex Determination. Climate change could affect crocodile populations because of this! 🌍',
     },
     {
-        segIdx: 1, // 🐦 Birds
+        segIdx: 1,
         fact: 'The kiwi bird of New Zealand lays an egg that is 20% of its own body weight! Imagine if YOU weighed 30kg and had to carry a 6kg egg. The poor kiwi can barely walk by the end! 😅',
         q: 'How big is a kiwi bird\'s egg compared to its body?',
         opts: ['5% of its body weight', '10% of its body weight', '20% of its body weight', 'Same weight as its body'],
@@ -541,7 +542,7 @@ const SPIN_ROUNDS = [
         fb: '✅ 20% of its body weight — the biggest egg relative to body size of any bird in the world! The egg is so enormous it nearly fills the mother\'s entire body. Ouch! 🥚',
     },
     {
-        segIdx: 2, // 🐟 Fish
+        segIdx: 2,
         fact: 'The ocean sunfish (Mola mola) lays 300 MILLION eggs at once — more than any other creature with a backbone! But almost NONE survive. Out of 300 million eggs, only about 2 babies make it to adulthood. Nature is brutal but the maths works out! 😮',
         q: 'How many eggs can an ocean sunfish lay at one time?',
         opts: ['10,000 eggs', '1 million eggs', '300 million eggs', '5 billion eggs'],
@@ -550,7 +551,6 @@ const SPIN_ROUNDS = [
     },
 ];
 
-// Exp 4: Word Builder — 6 words, all added to journal when shown
 const WB_WORDS = [
     {word:'hatch',    letters:['h','a','t','c','h'],             def:'When a baby animal breaks out of its egg and comes into the world.', hint:'🐣 What a chick does after 21 days!'},
     {word:'shell',    letters:['s','h','e','l','l'],             def:'The hard outer layer of an egg. Made of calcium carbonate — the same as chalk!', hint:'🥚 The hard outside of an egg.'},
@@ -560,7 +560,6 @@ const WB_WORDS = [
     {word:'nest',     letters:['n','e','s','t'],                 def:'The home a bird builds to lay eggs in and keep babies safe. Made from twigs, grass, and mud.', hint:'🪹 Where birds lay their eggs!'},
 ];
 
-// Exp 5: Quiz — 8 questions, each adds entry to journal
 const QUIZ_QS = [
     {q:'How long does a chicken egg take to hatch?',               opts:['7 days','21 days','42 days','3 days'], correct:1, fb:'21 days! The hen keeps it at 37°C. Ostriches take 42 days. 🐔', journalWord:'Hatch time', journalDef:'A chicken egg hatches in 21 days. An ostrich egg takes 42 days.'},
     {q:'What is the yellow part of an egg called?',                opts:['Albumen','Membrane','Yolk','Chalaza'], correct:2, fb:'The yolk! It\'s one giant single cell — the largest cell in nature. 🟡', journalWord:'Yolk', journalDef:'The yellow part of an egg. One giant single cell — the largest cell in nature!'},
@@ -684,20 +683,32 @@ function secDone(icon,title,sub,btnText,btnAction,c,cs){
         '<button class="btn-continue" style="background:'+c+';border-color:'+cs+'" onclick="'+btnAction+'">'+btnText+'</button>'+
         '</div>';
 }
+
 function startLesson(){
+    // FIX 1: cleanly hide the button without white-flash
     const btn=$('btn-start');
-    if(btn){btn.style.opacity='0';btn.style.pointerEvents='none';setTimeout(function(){btn.style.display='none';},300);}
-    // Unpin the banner
-    const banner=document.querySelector('.lesson-banner');
+    if(btn){
+        btn.classList.add('hiding');
+        setTimeout(function(){btn.classList.add('hidden');},220);
+    }
+    // FIX 2: un-pin the banner
+    const banner=$('lesson-banner');
     if(banner)banner.classList.remove('pinned');
-    const sec=$('sec-cof');
-    if(sec){
-        setTimeout(function(){
+    // FIX 3: show the sections container
+    const sections=$('sections');
+    if(sections)sections.classList.add('started');
+    // Build and reveal first experiment
+    buildAll();
+    // Scroll down to first experiment
+    setTimeout(function(){
+        const sec=$('sec-cof');
+        if(sec){
             const pos=sec.getBoundingClientRect().top+window.scrollY-120;
             window.scrollTo({top:pos,behavior:'smooth'});
-        },50);
-    }
+        }
+    },100);
 }
+
 function buildAll(){
     const c=$('sections');
     // Professor intro
@@ -709,6 +720,7 @@ function buildAll(){
     c.appendChild(buildWheelSec());
     c.appendChild(buildWBSec());
     c.appendChild(buildQuizSec());
+    // FIX: only reveal section 1 after building, not during DOMContentLoaded
     revealSection('sec-cof');
 }
 
@@ -747,7 +759,6 @@ function buildCOFInner(){
             '<span class="cof-icon">✅</span>FACT! (True)</button></div>'+
             '<div class="cof-reveal" id="cof-rev-'+i+'"></div>';
         cardsDiv.appendChild(card);
-
     });
     window.EFCD_FX?.attachCombo(slot);
 
@@ -757,7 +768,6 @@ function buildCOFInner(){
         if(crackBtn.disabled)return;
         crackBtn.disabled=true;factBtn.disabled=true;
         const correct=choice===item.answer;
-        // Always show green for correct, grey for wrong
         const chosenBtn=choice==='crack'?crackBtn:factBtn;
         const otherBtn=choice==='crack'?factBtn:crackBtn;
         if(correct){
@@ -791,7 +801,7 @@ function finishCOF(){
 }
 
 /* ══════════════════════
-   EXP 2: EGG ANATOMY (numbered dot matching)
+   EXP 2: EGG ANATOMY
 ══════════════════════ */
 function buildAnatSec(){
     const sec=document.createElement('div');
@@ -876,7 +886,7 @@ function finishAnat(){
 }
 
 /* ══════════════════════
-   EXP 3: SPIN THE WHEEL (3 fixed spins, correct data each time)
+   EXP 3: SPIN THE WHEEL
 ══════════════════════ */
 function buildWheelSec(){
     const sec=document.createElement('div');
@@ -894,7 +904,6 @@ function buildWheelInner(){
 function renderWheelSpin(){
     const slot=$('wheel-inner');
     const round=S.wheelRound;
-    const spinsLeft=3-round;
     if(round>=3){finishWheel();return;}
 
     const spinData=SPIN_ROUNDS[round];
@@ -944,16 +953,12 @@ function doSpin(){
     const segIdx=spinData.segIdx;
     const segCount=WHEEL_SEGMENTS.length;
     const segAngle=360/segCount;
-    // Spin so the target segment lands at the top (pointer at 0°)
-    // Each segment starts at segIdx * segAngle
-    // We want segIdx * segAngle to be at the top after spin
-    const targetAngle=360-(segIdx*segAngle+segAngle/2); // offset to centre segment under pointer
-    const totalSpin=5*360+targetAngle; // 5 full rotations + land on target
+    const targetAngle=360-(segIdx*segAngle+segAngle/2);
+    const totalSpin=5*360+targetAngle;
     canvas.style.transition='transform 3s cubic-bezier(.17,.67,.12,.99)';
     canvas.style.transform='rotate('+totalSpin+'deg)';
 
     setTimeout(function(){
-        // Show the question for the landed segment
         const qa=$('wheel-question-area');if(!qa)return;
         qa.style.display='block';
         const shuffled=spinData.opts.map(function(o,i){return {text:o,origIdx:i};}).sort(function(){return Math.random()-.5;});
@@ -1042,7 +1047,6 @@ function renderWB(){
     }
     const w=WB_WORDS[S.wbIdx];
     wbBuilt=[];
-    // Add fun journal entry with word + definition + memory tip
     const FUN_JOURNAL_ENTRIES = {
         'hatch':    {word:'HATCH 🐣', def:'To break out of an egg! A chicken egg takes 21 days to hatch. The chick pecks at the shell with a special "egg tooth" on its beak.'},
         'shell':    {word:'SHELL 🥚', def:'The hard outer layer of an egg. Made of CALCIUM CARBONATE — the same material as chalk! Tap a shell and it sounds hollow because of the air cell inside.'},
@@ -1222,7 +1226,6 @@ function renderQuiz(){
     }).join('');
     if(S.quizDone){renderQuizDone();return;}
     const q=QUIZ_QS[S.quizIdx];
-    // Add fun journal entry before each question so it's available for help
     if(q.journalWord && q.journalDef) addToJournal(q.journalWord, q.journalDef);
     const shuffled=q.opts.map(function(o,i){return {text:o,origIdx:i};}).sort(function(){return Math.random()-.5;});
     const sc=shuffled.findIndex(function(o){return o.origIdx===q.correct;});
@@ -1291,7 +1294,6 @@ function renderQuizDone(){
         'All 5 experiments complete! Time to hatch your golden egg!',
         '🐣 HATCH THE EGG! →','showCompletion()','var(--egg2)','var(--egg2-shadow)');
     megaConfettiBurst();
-    // Scroll to the professor message and done button so user sees it
     setTimeout(function(){
         const quizSec=$('sec-quiz');
         if(quizSec)quizSec.scrollIntoView({behavior:'smooth',block:'start'});
@@ -1355,10 +1357,11 @@ document.addEventListener('DOMContentLoaded',async function(){
             }
         }
     } catch(e){}
-    buildAll();
+    // FIX: do NOT call buildAll() or revealSection() here.
+    // Everything happens inside startLesson() when button is clicked.
     updateProgress();
     // Pin the banner until user starts
-    const banner=document.querySelector('.lesson-banner');
+    const banner=$('lesson-banner');
     if(banner)banner.classList.add('pinned');
 });
 </script>
