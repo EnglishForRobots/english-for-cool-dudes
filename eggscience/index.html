@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -616,7 +617,7 @@ function megaConfettiBurst(){
         const d=document.createElement('div');d.className='mega-conf-dot';
         const sz=8+Math.random()*12;
         d.style.cssText='left:'+Math.random()*100+'vw;top:'+(Math.random()*30-10)+'px;width:'+sz+'px;height:'+sz+'px;background:'+colors[Math.floor(Math.random()*colors.length)]+';animation-delay:'+Math.random()*.8+'s;animation-duration:'+(1+Math.random()*.8)+'s;border-radius:'+(Math.random()>.5?'50%':'3px')+';transform:rotate('+Math.random()*360+'deg)';
-        document.body.appendChild(d);setTimeout(function(){d.remove();},2);
+        document.body.appendChild(d);setTimeout(function(){d.remove();},2200);
     }
 }
 function earnSticker(idx){
@@ -672,9 +673,7 @@ function revealSection(id){
     };
     if(inits[id])inits[id]();
     sec.classList.add('visible');
-    if(!noScroll) {
-        setTimeout(function(){sec.scrollIntoView({behavior:'smooth',block:'start'});},80);
-    }
+    setTimeout(function(){sec.scrollIntoView({behavior:'smooth',block:'start'});},80);
 }
 function secDone(icon,title,sub,btnText,btnAction,c,cs){
     c=c||'var(--spring)';cs=cs||'var(--spring-shadow)';
@@ -701,30 +700,14 @@ function startLesson(){
     if(sections)sections.classList.add('started');
     // Build sections (professor bubble + all experiments)
     buildAll();
-    
-   
+    // Scroll to just below the banner so professor's welcome bubble is visible first
     setTimeout(function(){
-        const secs = document.getElementById('sections'); // Using native ID selector for speed
+        const secs=$('sections');
         if(secs){
-            // 1. Get the position
-            const offset = 140; 
-            const bodyRect = document.body.getBoundingClientRect().top;
-            const elementRect = secs.getBoundingClientRect().top;
-            const elementPosition = elementRect - bodyRect;
-            const offsetPosition = elementPosition - offset;
-
-            // 2. Kill any current scrolling behavior
-            window.scrollTo({top: window.scrollY, behavior: 'auto'});
-
-            // 3. Force the new scroll after a tiny frame gap
-            requestAnimationFrame(() => {
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: 'smooth'
-                });
-            });
+            const pos=secs.getBoundingClientRect().top+window.scrollY-16;
+            window.scrollTo({top:pos,behavior:'smooth'});
         }
-    }, 150); // Increased delay slightly to 150ms
+    },100);
 }
 
 function buildAll(){
@@ -738,8 +721,8 @@ function buildAll(){
     c.appendChild(buildWheelSec());
     c.appendChild(buildWBSec());
     c.appendChild(buildQuizSec());
-    // Prevent auto-scroll on the first section so the intro isn't skipped
-    revealSection('sec-cof', true);
+    // FIX: only reveal section 1 after building, not during DOMContentLoaded
+    revealSection('sec-cof');
 }
 
 /* ══════════════════════
@@ -806,15 +789,12 @@ function buildCOFInner(){
             window.EFCD_FX?.comboBreak(S.combo,S.bestCombo);S.combo=0;
             S.totalAnswered++;
             const sn2=$('cof-score-num');if(sn2)sn2.textContent=cofScore+' / '+COF_ITEMS.length;
-            // Scroll smoothly but keep the banner/intro in view below the sticky header
-    setTimeout(function(){
-        const banner=$('lesson-banner');
-        if(banner){
-            // -70px offsets the sticky header so it doesn't cover the text
-            const pos = banner.getBoundingClientRect().top + window.scrollY - 70;
-            window.scrollTo({top: pos, behavior: 'smooth'});
-        }
-    }, 100);
+            setTimeout(function(){
+                otherBtn.classList.add('correct');
+                const rev=$('cof-rev-'+idx);rev.textContent=item.reveal;rev.classList.add('show');
+                answered++;
+                if(answered===COF_ITEMS.length){const db=$('cof-done-btn');if(db)db.style.display='flex';}
+            },700);
         }
     };
 }
