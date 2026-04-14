@@ -736,7 +736,10 @@
         <div class="chunky-card">
             <div class="lb-head">
                 <span class="lb-head-t">This Week's Best</span>
-                <span class="lb-live"><span class="lb-live-dot"></span>Live</span>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <span class="lb-live"><span class="lb-live-dot"></span>Live</span>
+                    <a href="/leaderboard/" class="lb-head-a">Full Board →</a>
+                </div>
             </div>
             <div id="lb-rows" style="position:relative">
                 <div class="scan-line"></div>
@@ -1042,14 +1045,27 @@ async function renderUser(stats,user){
     var ctaText=showContinue?'🚀 Continue: '+lastNm:lastUrl?'🎉 Find Your Next Lesson':'🚀 Start a Lesson';
     var vibe=getVibe();
 
+    /* ── Single query — fetches everything track mastery + badge system both need ── */
     var trackBadgeHTML='';
+    var badgeCount=badges; /* fallback to old count if anything fails */
     try{
-        if(window.EFCD_TrackMastery&&profile&&profile.id){
-            var res=await window.efcdSupabaseClient.from('lessons').select('lesson_link').eq('user_id',profile.id);
-            if(res.data&&res.data.length){
+        if(profile&&profile.id){
+            var res=await window.efcdSupabaseClient
+                .from('lessons')
+                .select('lesson_link,vocabulary,lesson_level,badge_icon,badge_name,lesson_title')
+                .eq('user_id',profile.id);
+
+            /* track mastery badge in hero */
+            if(window.EFCD_TrackMastery&&res.data&&res.data.length){
                 var counts=window.EFCD_TrackMastery.countByTrack(res.data);
                 var topTrack=window.EFCD_TrackMastery.TRACKS.filter(function(t){return counts[t.id]>0;}).sort(function(a,b){return counts[b.id]-counts[a.id];})[0];
                 if(topTrack){var count=counts[topTrack.id];var idx=0;topTrack.thresholds.forEach(function(thresh,i){if(count>=thresh)idx=i;});trackBadgeHTML='<div class="track-badge"><span>'+topTrack.icon+'</span><span>'+topTrack.titles[idx]+'</span></div>';}
+            }
+
+            /* real badge count from badge-system.js — this is the source of truth */
+            if(window.EFCD_Badges&&res.data){
+                var allBadges=window.EFCD_Badges.evaluate(profile,res.data);
+                badgeCount=allBadges.filter(function(b){return b.earned;}).length;
             }
         }
     }catch(_){}
@@ -1068,7 +1084,7 @@ async function renderUser(stats,user){
         '<div class="stat-row">'+
             '<div class="stat-pill"><span class="sn">'+lessons+'</span><span class="sl">Lessons</span></div>'+
             '<div class="stat-pill"><span class="sn">'+xp.toLocaleString()+'</span><span class="sl">Total XP</span></div>'+
-            '<div class="stat-pill"><span class="sn">'+badges+'</span><span class="sl">Badges</span></div>'+
+            '<div class="stat-pill"><span class="sn">'+badgeCount+'</span><span class="sl">Badges</span></div>'+
         '</div>';
 
     /* xp bar fill animation */
