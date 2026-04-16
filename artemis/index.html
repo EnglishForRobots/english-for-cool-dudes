@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+    <link rel="manifest" href="/manifest.json">
+    <title>🚀 Artemis II — To the Moon! — English For Cool Dudes</title>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/init-auth.js"></script>
+    <style>
+    :root {
+        --blue:#1CB0F6;   --blue-shadow:#1899D6;
+        --green:#58CC02;  --green-shadow:#58A700;
+        --yellow:#FFC800; --yellow-shadow:#E5B400;
+        --punch:#FF4B4B;  --punch-shadow:#EA2B2B;
+        --purple:#CE82FF; --purple-shadow:#A559D9;
+        --teal:#2BDECC;   --teal-shadow:#1FBFAF;
+        --orange:#FF9600; --orange-shadow:#E07800;
+        --bg:#F7F9FA;     --white:#FFFFFF;
+        --ink:#4B4B4B;    --ink-bold:#111827; --ink-3:#AFAFAF;
+        --border:#E5E5E5; --border-heavy:#CECECE;
+        --r:24px; --rsm:16px; --rxs:10px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--ink);font-family:'Nunito',system-ui,sans-serif;line-height:1.5;overflow-x:hidden;padding-bottom:60px;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;}
+    a{color:inherit;text-decoration:none;}
+    button{font-family:inherit;cursor:pointer;border:none;background:none;}
+
+    @keyframes up       {from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes popin    {0%{opacity:0;transform:scale(.7) rotate(-4deg)}60%{transform:scale(1.08) rotate(1deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+    @keyframes float    {0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+    @keyframes shake    {0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+    @keyframes heartbeat{0%,100%{transform:scale(1)}14%{transform:scale(1.18)}28%{transform:scale(1)}42%{transform:scale(1.1)}}
+    @keyframes xpPop    {0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(1.5)}}
+    @keyframes fadeIn   {from{opacity:0}to{opacity:1}}
+    @keyframes wiggle   {0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+    @keyframes shimmer2 {0%{left:-80%}100%{left:130%}}
+    @keyframes glowGold {0%,100%{box-shadow:0 0 24px rgba(255,200,0,.5),0 8px 32px rgba(0,0,0,.15)}50%{box-shadow:0 0 55px rgba(255,200,0,.9),0 8px 32px rgba(0,0,0,.2)}}
+    @keyframes badgeDrop{0%{opacity:0;transform:translateY(-40px) scale(.7)}60%{transform:translateY(6px) scale(1.06)}80%{transform:translateY(-2px) scale(.98)}100%{opacity:1;transform:translateY(0) scale(1)}}
+    @keyframes megaConf {0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(200px) rotate(540deg)}}
+    @keyframes bounce   {0%,100%{transform:translateY(0)}40%{transform:translateY(-14px)}60%{transform:translateY(-6px)}}
+    @keyframes rocketUp {0%{transform:translateY(0) rotate(-10deg)}50%{transform:translateY(-8px) rotate(-10deg)}100%{transform:translateY(0) rotate(-10deg)}}
+    @keyframes tileIn   {0%{opacity:0;transform:scale(.5) rotate(-8deg)}60%{transform:scale(1.1) rotate(2deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+    @keyframes correctPop{0%{transform:scale(1)}30%{transform:scale(1.25)}60%{transform:scale(.95)}100%{transform:scale(1)}}
+
+    .u1{animation:up .44s ease both .04s}
+    .u2{animation:up .44s ease both .14s}
+
+    .header{background:var(--white);border-bottom:3px solid var(--green);padding:0 20px;height:60px;position:sticky;top:0;z-index:300;display:flex;align-items:center;box-shadow:0 4px 12px rgba(88,204,2,.12);}
+    .header-inner{max-width:860px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
+    .logo-link{display:flex;align-items:center;gap:10px;}
+    .logo-box{width:38px;height:38px;background:var(--yellow);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid var(--yellow-shadow);box-shadow:0 3px 0 var(--yellow-shadow);}
+    .site-name{font-size:15px;font-weight:900;color:var(--ink-bold);letter-spacing:-.3px;}
+    @media(max-width:420px){.site-name{display:none}}
+    .header-xp{display:flex;align-items:center;gap:8px;}
+    .streak-mini{display:flex;align-items:center;gap:4px;font-size:14px;font-weight:900;color:var(--punch);}
+    .streak-mini span:first-child{animation:wiggle 2s ease-in-out infinite;display:inline-block;}
+    .xp-pill{background:rgba(88,204,2,.1);border:2px solid rgba(88,204,2,.25);border-radius:99px;padding:5px 12px;font-size:14px;font-weight:900;color:var(--green-shadow);display:flex;align-items:center;gap:5px;}
+    .btn-dash{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:rgba(88,204,2,.1);border:2px solid rgba(88,204,2,.22);border-bottom:4px solid rgba(88,204,2,.28);border-radius:10px;font-size:18px;transition:all .15s;flex-shrink:0;}
+    .btn-dash:active{border-bottom-width:2px;transform:translateY(2px);}
+    .btn-signout{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:rgba(255,75,75,.08);border:2px solid rgba(255,75,75,.25);border-bottom:4px solid rgba(255,75,75,.3);border-radius:10px;font-size:18px;cursor:pointer;font-family:inherit;transition:all .15s;flex-shrink:0;}
+    .btn-signout.hidden{display:none;}
+
+    .page{max-width:860px;margin:0 auto;padding:20px 14px 40px;display:flex;flex-direction:column;gap:14px;}
+
+    .lesson-banner{background:linear-gradient(135deg,var(--green),#2d8a00);border:2px solid var(--green-shadow);border-bottom:6px solid var(--green-shadow);border-radius:var(--r);padding:24px 20px 20px;position:relative;overflow:hidden;}
+    .lesson-banner::after{content:'🚀';position:absolute;bottom:-20px;right:4px;font-size:130px;opacity:.1;pointer-events:none;transform:rotate(-10deg);animation:rocketUp 3s ease-in-out infinite;}
+    .lesson-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.4);border-radius:8px;padding:4px 12px;margin-bottom:12px;font-size:11px;font-weight:900;color:var(--white);text-transform:uppercase;letter-spacing:1.5px;position:relative;z-index:1;}
+    .lesson-title{font-size:clamp(20px,5vw,34px);font-weight:900;color:var(--white);letter-spacing:-1px;line-height:1.15;margin-bottom:5px;position:relative;z-index:1;text-shadow:0 2px 0 var(--green-shadow);}
+    .lesson-title .yellow{color:var(--yellow);text-shadow:0 2px 0 var(--yellow-shadow);}
+    .lesson-sub{font-size:14px;font-weight:700;color:rgba(255,255,255,.9);position:relative;z-index:1;margin-bottom:16px;line-height:1.55;}
+    .lesson-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;position:relative;z-index:1;}
+    .ls-stat{background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.25);border-radius:var(--rsm);padding:10px 8px;text-align:center;}
+    .ls-stat-n{font-size:clamp(17px,4vw,22px);font-weight:900;color:var(--white);line-height:1;display:block;}
+    .ls-stat-l{font-size:9px;font-weight:900;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:1px;margin-top:3px;display:block;}
+    .prog-wrap{position:relative;z-index:1;background:rgba(0,0,0,.12);padding:11px 13px;border-radius:var(--rsm);}
+    .prog-row{display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:var(--white);margin-bottom:7px;}
+    .prog-track{height:14px;background:rgba(0,0,0,.15);border-radius:99px;overflow:hidden;border:2px solid rgba(0,0,0,.1);}
+    .prog-fill{height:100%;width:0%;border-radius:99px;background:var(--yellow);border-top:3px solid rgba(255,255,255,.35);transition:width .7s cubic-bezier(.4,0,.2,1);}
+
+    .sec-card{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);overflow:hidden;opacity:0;transform:translateY(16px);transition:opacity .4s ease,transform .4s ease;scroll-margin-top:72px;}
+    .sec-card.visible{opacity:1;transform:translateY(0);}
+    .sec-card::before{content:'';display:block;height:8px;border-radius:var(--r) var(--r) 0 0;margin:-2px -2px 0;}
+    .strip-green::before {background:var(--green);}
+    .strip-yellow::before{background:var(--yellow);}
+    .strip-blue::before  {background:var(--blue);}
+    .strip-purple::before{background:var(--purple);}
+    .strip-teal::before  {background:var(--teal);}
+    .strip-punch::before {background:var(--punch);}
+    .strip-orange::before{background:var(--orange);}
+    .sec-head{padding:13px 18px 11px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:12px;}
+    .sec-head-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;background:var(--bg);border:2px solid var(--border-heavy);border-bottom:3px solid var(--border-heavy);}
+    .sec-head-title{font-size:16px;font-weight:900;color:var(--ink-bold);letter-spacing:-.3px;}
+    .sec-head-sub{font-size:12px;font-weight:700;color:var(--ink-3);margin-top:2px;}
+    .sec-body{padding:18px;}
+
+    .video-wrap{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:var(--rsm);background:#000;border:2px solid var(--border-heavy);box-shadow:0 4px 0 var(--border-heavy);margin-bottom:14px;}
+    .video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;}
+    .fact-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+    .fact-chip{background:rgba(88,204,2,.1);border:2px solid rgba(88,204,2,.25);border-bottom:3px solid rgba(88,204,2,.25);border-radius:99px;padding:6px 14px;font-size:12px;font-weight:900;color:var(--green-shadow);}
+    .tip-box{background:rgba(255,200,0,.1);border:2px solid rgba(255,200,0,.35);border-left:5px solid var(--yellow);border-radius:0 var(--rsm) var(--rsm) 0;padding:14px 16px;margin-bottom:14px;font-size:14px;font-weight:700;color:var(--ink-bold);line-height:1.6;}
+    .tip-box strong{font-weight:900;color:var(--yellow-shadow);}
+
+    /* CREW PICK */
+    .crew-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+    @media(max-width:480px){.crew-grid{grid-template-columns:repeat(2,1fr);}}
+    .crew-card{background:var(--bg);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);padding:12px 8px 10px;text-align:center;cursor:pointer;transition:all .12s;display:flex;flex-direction:column;align-items:center;gap:4px;}
+    .crew-card:active{border-bottom-width:2px;transform:translateY(2px);}
+    .crew-card.correct{background:var(--green);border-color:var(--green-shadow);animation:heartbeat .5s ease;}
+    .crew-card.wrong  {background:var(--punch);border-color:var(--punch-shadow);animation:shake .4s;}
+    .crew-card.reveal-correct{background:rgba(88,204,2,.12);border-color:var(--green-shadow);}
+    .crew-emoji{font-size:clamp(26px,6vw,36px);}
+    .crew-name{font-size:clamp(9px,2.3vw,11px);font-weight:900;color:var(--ink-bold);line-height:1.2;}
+    .crew-role{font-size:9px;font-weight:700;color:var(--ink-3);}
+    .crew-card.correct .crew-name,.crew-card.wrong .crew-name{color:var(--white);}
+    .crew-card.correct .crew-role,.crew-card.wrong .crew-role{color:rgba(255,255,255,.8);}
+    .quote-card{background:linear-gradient(135deg,rgba(88,204,2,.07),rgba(88,204,2,.03));border:2px solid rgba(88,204,2,.25);border-left:5px solid var(--green);border-radius:0 var(--rsm) var(--rsm) 0;padding:16px 18px;margin-bottom:14px;animation:up .3s ease both;}
+    .quote-num{font-size:11px;font-weight:900;color:var(--green-shadow);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;}
+    .quote-text{font-size:clamp(14px,3.8vw,17px);font-weight:800;color:var(--ink-bold);line-height:1.6;font-style:italic;}
+    .quote-hint{font-size:13px;font-weight:700;color:var(--ink-3);margin-top:8px;}
+    .crew-fb{padding:12px 14px;border-radius:var(--rsm);font-size:14px;font-weight:800;border:2px solid;display:none;line-height:1.6;margin-bottom:12px;}
+    .crew-fb.show.right{display:block;background:rgba(88,204,2,.1);color:var(--green-shadow);border-color:rgba(88,167,0,.3);animation:up .2s ease both;}
+    .crew-fb.show.wrong{display:block;background:rgba(255,75,75,.1);color:var(--punch-shadow);border-color:rgba(255,75,75,.3);animation:up .2s ease both;}
+    .score-row{display:flex;align-items:center;justify-content:space-between;background:rgba(88,204,2,.08);border:2px solid rgba(88,204,2,.2);border-radius:var(--rsm);padding:10px 14px;margin-bottom:14px;}
+    .score-lbl{font-size:12px;font-weight:900;color:var(--green-shadow);text-transform:uppercase;letter-spacing:1px;}
+    .score-num{font-size:22px;font-weight:900;color:var(--green-shadow);}
+
+    /* SPIN THE WHEEL */
+    .wheel-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:16px;}
+    .wheel-canvas-wrap{position:relative;width:240px;height:240px;margin:0 auto 14px;}
+    canvas#wheel-canvas{border-radius:50%;border:5px solid var(--green-shadow);box-shadow:0 4px 0 var(--green-shadow),0 8px 24px rgba(88,204,2,.25);}
+    .wheel-pointer{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:26px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25));z-index:5;}
+    .wheel-spin-btn{padding:14px 36px;background:var(--green);color:var(--white);font-size:16px;font-weight:900;border:2px solid var(--green-shadow);border-bottom:5px solid var(--green-shadow);border-radius:var(--rsm);transition:all .1s;font-family:inherit;}
+    .wheel-spin-btn:active{border-bottom-width:2px;transform:translateY(3px);}
+    .wheel-spin-btn:disabled{opacity:.5;cursor:default;border-bottom-width:5px;transform:none;}
+    .wheel-score-row{display:flex;align-items:center;justify-content:space-between;background:rgba(255,200,0,.1);border:2px solid rgba(255,200,0,.25);border-radius:var(--rsm);padding:10px 14px;margin-bottom:14px;}
+    .wheel-score-lbl{font-size:12px;font-weight:900;color:var(--yellow-shadow);text-transform:uppercase;letter-spacing:1px;}
+    .wheel-score-num{font-size:22px;font-weight:900;color:var(--yellow-shadow);}
+    .wheel-result-card{background:linear-gradient(135deg,rgba(88,204,2,.08),rgba(255,200,0,.04));border:2px solid rgba(88,204,2,.25);border-radius:var(--rsm);padding:18px;width:100%;}
+    .wheel-result-word{font-size:26px;font-weight:900;color:var(--green-shadow);margin-bottom:6px;}
+    .wheel-result-def{font-size:14px;font-weight:700;color:var(--ink-bold);line-height:1.6;margin-bottom:8px;}
+    .wheel-result-eg{font-size:13px;font-weight:700;color:var(--ink-3);font-style:italic;line-height:1.5;margin-bottom:12px;border-left:4px solid var(--green);padding-left:10px;}
+    .wheel-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+    .wheel-opt{padding:12px 10px;font-size:13px;font-weight:900;background:var(--white);color:var(--ink-bold);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);cursor:pointer;transition:all .12s;font-family:inherit;text-align:center;line-height:1.3;}
+    .wheel-opt:active{border-bottom-width:2px;transform:translateY(2px);}
+    .wheel-opt.correct{background:var(--green);color:var(--white);border-color:var(--green-shadow);animation:heartbeat .5s ease;}
+    .wheel-opt.wrong  {background:var(--punch);color:var(--white);border-color:var(--punch-shadow);animation:shake .4s;}
+    .wheel-opt.show-correct{background:rgba(88,204,2,.12);border-color:var(--green-shadow);color:var(--green-shadow);}
+    .wheel-opt:disabled{cursor:default;}
+    .wheel-fb{padding:10px 14px;border-radius:var(--rsm);font-size:13px;font-weight:800;border:2px solid;display:none;line-height:1.5;margin-bottom:10px;}
+    .wheel-fb.show.right{display:block;background:rgba(88,204,2,.1);color:var(--green-shadow);border-color:rgba(88,167,0,.3);animation:up .2s ease both;}
+    .wheel-fb.show.wrong{display:block;background:rgba(255,75,75,.1);color:var(--punch-shadow);border-color:rgba(255,75,75,.3);animation:up .2s ease both;}
+    .wheel-next{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:13px;background:var(--yellow);color:var(--ink-bold);font-size:14px;font-weight:900;border:2px solid var(--yellow-shadow);border-bottom:4px solid var(--yellow-shadow);border-radius:var(--rsm);transition:all .1s;font-family:inherit;margin-top:10px;}
+    .wheel-next:active{border-bottom-width:2px;transform:translateY(2px);}
+
+    /* WORD BUILDER */
+    .wb-progress{display:flex;gap:5px;margin-bottom:14px;}
+    .wb-pip{flex:1;height:6px;border-radius:99px;background:var(--border-heavy);transition:background .3s;}
+    .wb-pip.done{background:var(--yellow);}
+    .wb-pip.active{background:var(--blue);}
+    .wb-def{background:rgba(28,176,246,.08);border:2px solid rgba(28,176,246,.25);border-left:5px solid var(--blue);border-radius:0 var(--rsm) var(--rsm) 0;padding:14px 16px;margin-bottom:16px;font-size:15px;font-weight:800;color:var(--ink-bold);line-height:1.6;}
+    .wb-def .hint{font-size:12px;font-weight:700;color:var(--ink-3);display:block;margin-top:4px;font-style:italic;}
+    .wb-answer-row{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:16px;min-height:52px;}
+    .wb-slot{width:40px;height:48px;border-bottom:3px solid var(--blue);border-radius:4px;background:rgba(28,176,246,.06);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:var(--blue-shadow);cursor:pointer;transition:all .15s;}
+    .wb-slot.filled{background:rgba(28,176,246,.1);animation:tileIn .25s cubic-bezier(.175,.885,.32,1.275) both;}
+    .wb-slot.correct-final{background:var(--green);color:var(--white);border-color:var(--green-shadow);animation:correctPop .4s ease;}
+    .wb-slot.wrong-shake{animation:shake .4s;border-color:var(--punch);}
+    .wb-tiles{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+    .wb-tile{width:44px;height:48px;background:var(--white);border:2px solid var(--border-heavy);border-bottom:5px solid var(--border-heavy);border-radius:var(--rsm);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:var(--ink-bold);cursor:pointer;transition:all .12s;animation:tileIn .3s cubic-bezier(.175,.885,.32,1.275) both;}
+    .wb-tile:active{border-bottom-width:2px;transform:translateY(3px);}
+    .wb-tile.used{opacity:.25;pointer-events:none;}
+    .wb-actions{display:flex;gap:8px;flex-wrap:wrap;}
+    .wb-btn{flex:1;min-width:60px;padding:12px 8px;border-radius:var(--rsm);font-size:13px;font-weight:900;transition:all .1s;text-align:center;border:2px solid;}
+    .wb-btn:active{border-bottom-width:2px;transform:translateY(2px);}
+    .wb-clear{background:var(--white);color:var(--ink-bold);border-color:var(--border-heavy);border-bottom:4px solid var(--border-heavy);}
+    .wb-check{background:var(--blue);color:var(--white);border-color:var(--blue-shadow);border-bottom:4px solid var(--blue-shadow);}
+    .wb-hint-btn{background:rgba(255,200,0,.15);color:var(--yellow-shadow);border-color:var(--yellow-shadow);border-bottom:4px solid var(--yellow-shadow);}
+    .wb-hint-btn:disabled{opacity:.35;cursor:default;}
+    .wb-reveal-btn{background:rgba(206,130,255,.12);color:var(--purple-shadow);border-color:var(--purple-shadow);border-bottom:4px solid var(--purple-shadow);}
+    .wb-feedback{margin-top:12px;padding:12px 14px;border-radius:var(--rsm);font-size:14px;font-weight:800;border:2px solid;display:none;line-height:1.6;}
+    .wb-feedback.show.right{display:block;background:rgba(88,204,2,.1);color:var(--green-shadow);border-color:rgba(88,167,0,.3);animation:up .2s ease both;}
+    .wb-feedback.show.wrong{display:block;background:rgba(255,75,75,.1);color:var(--punch-shadow);border-color:rgba(255,75,75,.3);animation:up .2s ease both;}
+
+    /* DIALOGUE GAP FILL */
+    .dialogue-wrap{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+    .bubble-row{display:flex;gap:10px;align-items:flex-end;}
+    .bubble-row.right{flex-direction:row-reverse;}
+    .bubble-avatar{width:36px;height:36px;border-radius:50%;background:var(--bg);border:2px solid var(--border-heavy);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+    .bubble{background:var(--bg);border:2px solid var(--border-heavy);border-radius:18px 18px 18px 4px;padding:12px 16px;font-size:14px;font-weight:700;color:var(--ink-bold);line-height:1.65;max-width:85%;}
+    .bubble-row.right .bubble{background:rgba(88,204,2,.1);border-color:rgba(88,204,2,.3);border-radius:18px 18px 4px 18px;}
+    .bubble-name{font-size:10px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;}
+    .dial-gap{display:inline-block;border-bottom:2.5px solid var(--teal);min-width:80px;height:22px;vertical-align:bottom;margin:0 3px;cursor:pointer;background:rgba(43,222,204,.06);border-radius:3px 3px 0 0;text-align:center;font-weight:900;color:var(--teal-shadow);font-size:14px;line-height:22px;padding:0 5px;transition:all .2s;}
+    .dial-gap:hover{background:rgba(43,222,204,.14);}
+    .dial-gap.filled{border-bottom-color:var(--teal);color:var(--teal-shadow);}
+    .dial-gap.wrong{border-bottom-color:var(--punch);color:var(--punch-shadow);animation:shake .4s;}
+    .dial-wordbank{margin-bottom:14px;}
+    .dial-bank-label{font-size:11px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;}
+    .dial-chips{display:flex;flex-wrap:wrap;gap:8px;}
+    .dial-chip{padding:8px 14px;background:var(--white);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:99px;font-size:13px;font-weight:900;color:var(--ink-bold);cursor:pointer;transition:all .1s;font-family:inherit;}
+    .dial-chip:active{border-bottom-width:2px;transform:translateY(2px);}
+    .dial-chip.used{opacity:.25;pointer-events:none;}
+    .dial-chip.selected{background:var(--teal);color:var(--white);border-color:var(--teal-shadow);}
+    .dial-submit{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;background:var(--teal);color:var(--white);font-size:16px;font-weight:900;border:2px solid var(--teal-shadow);border-bottom:5px solid var(--teal-shadow);border-radius:var(--rsm);transition:all .1s;}
+    .dial-submit:active{border-bottom-width:2px;transform:translateY(3px);}
+    .dial-result{padding:14px;border-radius:var(--rsm);display:none;font-size:14px;font-weight:800;line-height:1.6;border:2px solid;}
+    .dial-result.show.right{display:block;background:rgba(88,204,2,.1);color:var(--green-shadow);border-color:rgba(88,167,0,.3);animation:up .2s ease both;}
+    .dial-result.show.wrong{display:block;background:rgba(255,75,75,.1);color:var(--punch-shadow);border-color:rgba(255,75,75,.3);animation:up .2s ease both;}
+
+    /* TRUE OR FALSE */
+    .tf-card{background:var(--bg);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);overflow:hidden;margin-bottom:12px;animation:up .3s ease both;}
+    .tf-front{display:flex;align-items:flex-start;gap:14px;padding:16px 18px;}
+    .tf-emoji{font-size:34px;flex-shrink:0;animation:float 3s ease-in-out infinite;}
+    .tf-text{font-size:clamp(14px,3.8vw,17px);font-weight:900;color:var(--ink-bold);line-height:1.35;flex:1;}
+    .tf-votes{display:grid;grid-template-columns:1fr 1fr;border-top:2px solid var(--border);}
+    .tf-btn{padding:14px 10px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;transition:all .1s;text-align:center;}
+    .tf-btn:first-child{border-right:1px solid var(--border);}
+    .tf-true-btn{background:rgba(88,204,2,.08);color:var(--green-shadow);}
+    .tf-false-btn{background:rgba(255,75,75,.08);color:var(--punch-shadow);}
+    .tf-btn.correct{background:var(--green)!important;color:var(--white)!important;animation:heartbeat .5s ease;}
+    .tf-btn.wrong  {background:var(--punch)!important;color:var(--white)!important;animation:shake .4s;}
+    .tf-btn:disabled{cursor:default;}
+    .tf-reveal{padding:13px 18px;background:rgba(88,204,2,.04);border-top:2px solid var(--border);font-size:14px;font-weight:700;color:var(--ink-bold);line-height:1.65;display:none;}
+    .tf-reveal.show{display:block;animation:up .2s ease both;}
+
+    /* SENTENCE PICK */
+    .db-starter{background:linear-gradient(135deg,rgba(206,130,255,.1),rgba(255,200,0,.06));border:2px solid rgba(206,130,255,.3);border-left:5px solid var(--purple);border-radius:0 var(--rsm) var(--rsm) 0;padding:14px 16px;margin-bottom:16px;font-size:clamp(16px,4vw,20px);font-weight:900;color:var(--ink-bold);line-height:1.5;}
+    .db-starter em{color:var(--purple-shadow);}
+    .db-opts{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
+    .db-opt{padding:15px 16px;font-size:clamp(13px,3.5vw,15px);font-weight:800;background:var(--white);color:var(--ink-bold);border:2px solid var(--border-heavy);border-bottom:5px solid var(--border-heavy);border-radius:var(--rsm);cursor:pointer;transition:all .12s;font-family:inherit;text-align:left;line-height:1.5;}
+    .db-opt:active{border-bottom-width:2px;transform:translateY(3px);}
+    .db-opt:hover:not(:disabled){border-color:var(--purple);color:var(--purple-shadow);}
+    .db-opt.correct{background:var(--green);color:var(--white);border-color:var(--green-shadow);animation:heartbeat .5s ease;cursor:default;}
+    .db-opt.wrong  {background:var(--punch);color:var(--white);border-color:var(--punch-shadow);animation:shake .4s;cursor:default;}
+    .db-opt.show-correct{background:rgba(88,204,2,.12);border-color:var(--green-shadow);color:var(--green-shadow);}
+    .db-opt:disabled{cursor:default;}
+    .db-feedback{padding:12px 14px;border-radius:var(--rsm);font-size:14px;font-weight:800;border:2px solid;display:none;line-height:1.65;margin-bottom:10px;}
+    .db-feedback.show.right{display:block;background:rgba(88,204,2,.1);color:var(--green-shadow);border-color:rgba(88,167,0,.3);animation:up .2s ease both;}
+    .db-feedback.show.wrong{display:block;background:rgba(255,75,75,.1);color:var(--punch-shadow);border-color:rgba(255,75,75,.3);animation:up .2s ease both;}
+    .db-progress{display:flex;gap:5px;margin-bottom:12px;}
+    .db-pip{flex:1;height:6px;border-radius:99px;background:var(--border-heavy);transition:background .3s;}
+    .db-pip.done{background:var(--yellow);}
+    .db-pip.active{background:var(--purple);}
+    .db-next{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:12px;padding:14px;background:var(--purple);color:var(--white);font-size:15px;font-weight:900;border:2px solid var(--purple-shadow);border-bottom:5px solid var(--purple-shadow);border-radius:var(--rsm);transition:all .1s;font-family:inherit;}
+    .db-next:active{border-bottom-width:2px;transform:translateY(3px);}
+
+    /* SHARED */
+    .sec-done{text-align:center;padding:28px 18px;animation:popin .4s cubic-bezier(.175,.885,.32,1.275) both;}
+    .sec-done-icon{font-size:64px;display:block;margin-bottom:10px;}
+    .sec-done-title{font-size:22px;font-weight:900;color:var(--ink-bold);margin-bottom:6px;}
+    .sec-done-sub{font-size:14px;font-weight:700;color:var(--ink-3);margin-bottom:18px;line-height:1.5;}
+    .btn-continue{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;margin-top:14px;background:var(--green);color:var(--white);font-size:16px;font-weight:900;border:2px solid var(--green-shadow);border-bottom:5px solid var(--green-shadow);border-radius:var(--rsm);transition:all .1s;font-family:inherit;cursor:pointer;}
+    .btn-continue:active{border-bottom-width:2px;transform:translateY(3px);}
+
+    .xp-float{position:fixed;font-size:20px;font-weight:900;color:var(--yellow-shadow);text-shadow:0 2px 0 rgba(0,0,0,.12);pointer-events:none;z-index:9998;animation:xpPop .85s ease-out forwards;}
+    .mega-conf-dot{position:fixed;pointer-events:none;z-index:9999;border-radius:4px;animation:megaConf 1.4s ease-out both;}
+
+    #completion-screen{position:fixed;inset:0;background:var(--bg);z-index:10000;display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;}
+    #completion-screen.open{display:flex;animation:fadeIn .4s ease both;}
+    .completion-card{background:var(--white);border:3px solid var(--green);border-bottom:8px solid var(--green-shadow);border-radius:24px;padding:32px 24px;max-width:480px;width:100%;text-align:center;margin:auto;box-shadow:0 0 40px rgba(88,204,2,.2);}
+    .cc-badge-face{width:150px;height:150px;border-radius:50%;background:linear-gradient(145deg,#fffde7,#fff8c5,#fffde7);border:5px solid var(--yellow-shadow);display:flex;align-items:center;justify-content:center;font-size:84px;margin:0 auto 8px;animation:badgeDrop .8s cubic-bezier(.175,.885,.32,1.275) both,glowGold 2.5s ease-in-out infinite .9s;box-shadow:0 0 30px rgba(255,200,0,.5),0 8px 32px rgba(0,0,0,.15);position:relative;overflow:hidden;}
+    .cc-badge-face::before{content:'';position:absolute;top:-10%;left:-80%;width:50%;height:120%;background:linear-gradient(to right,transparent,rgba(255,255,255,.75),transparent);transform:skewX(-20deg);animation:shimmer2 2s ease-in-out infinite;animation-delay:.8s;}
+    .cc-badge-label{font-size:14px;font-weight:900;color:var(--green-shadow);margin-top:6px;}
+    .cc-badge-sub{font-size:11px;font-weight:700;color:var(--ink-3);margin-top:3px;margin-bottom:16px;}
+    .cc-title{font-size:24px;font-weight:900;color:var(--green-shadow);letter-spacing:-1px;margin-bottom:4px;}
+    .cc-sub{font-size:14px;font-weight:700;color:var(--ink-3);margin-bottom:16px;}
+    .cc-xp-box{background:var(--green);border:2px solid var(--green-shadow);border-bottom:6px solid var(--green-shadow);border-radius:var(--r);padding:18px;margin-bottom:14px;}
+    .cc-xp-num{font-size:52px;font-weight:900;color:var(--white);line-height:1;}
+    .cc-xp-label{font-size:12px;font-weight:900;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+    .cc-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;}
+    .cc-stat{background:rgba(88,204,2,.08);border:2px solid rgba(88,204,2,.2);border-radius:var(--rsm);padding:12px 8px;}
+    .cc-stat-n{font-size:22px;font-weight:900;color:var(--green-shadow);}
+    .cc-stat-l{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);margin-top:2px;}
+    .cc-badge-pill{position:relative;overflow:hidden;display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(255,200,0,.14),rgba(255,200,0,.05));border:2px solid rgba(255,200,0,.4);border-radius:var(--rsm);padding:12px 14px;margin-bottom:14px;}
+    .cc-badge-shimmer{position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(to right,transparent,rgba(255,255,255,.6),transparent);animation:shimmer2 2s ease-in-out 3;animation-delay:.6s;pointer-events:none;}
+    .cc-badge-icon{font-size:28px;flex-shrink:0;animation:wiggle 3s ease-in-out infinite;}
+    .cc-badge-info-name{font-size:15px;font-weight:900;color:var(--ink-bold);}
+    .cc-badge-info-sub{font-size:11px;font-weight:700;color:var(--ink-3);margin-top:1px;}
+    .cc-badge-tick{margin-left:auto;flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--green);color:var(--white);font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;}
+    .cc-btns{display:flex;flex-direction:column;gap:10px;}
+    .cc-btn{width:100%;padding:14px;border-radius:var(--r);font-size:15px;font-weight:900;font-family:inherit;cursor:pointer;border:2px solid;border-bottom:5px solid;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s;}
+    .cc-btn:active{border-bottom-width:2px;transform:translateY(3px);}
+    .cc-btn.primary  {background:var(--green);color:var(--white);border-color:var(--green-shadow);}
+    .cc-btn.secondary{background:var(--white);color:var(--green-shadow);border-color:var(--green);}
+    </style>
+</head>
+<body data-section="beginner">
+
+<header class="header">
+    <div class="header-inner">
+        <a href="/beginner/" class="logo-link">
+            <div class="logo-box">😎</div>
+            <span class="site-name">English For Cool Dudes</span>
+        </a>
+        <div class="header-xp">
+            <div class="streak-mini"><span>🔥</span><span id="hdr-streak">0</span></div>
+            <div class="xp-pill">⚡ <span id="hdr-xp">0</span> XP</div>
+            <a href="/dashboard-gamified/" class="btn-dash" title="Dashboard">📊</a>
+            <button class="btn-signout hidden" id="hdr-signout" onclick="handleSignOut()">👋</button>
+        </div>
+    </div>
+</header>
+
+<div class="page">
+    <div class="lesson-banner u1">
+        <div class="lesson-eyebrow">🌱 Beginner (A1-A2) · 🎬 Video Lesson</div>
+        <div class="lesson-title">Artemis II —<br><span class="yellow">To the Moon! 🚀🌕</span></div>
+        <div class="lesson-sub">Four brave astronauts. The most powerful rocket ever built. A journey around the Moon and back. NASA's incredible Artemis II mission — all in simple English! 🌍</div>
+        <div class="lesson-stats">
+            <div class="ls-stat"><span class="ls-stat-n">4</span><span class="ls-stat-l">Astronauts</span></div>
+            <div class="ls-stat"><span class="ls-stat-n">A1–A2</span><span class="ls-stat-l">Level</span></div>
+            <div class="ls-stat"><span class="ls-stat-n">~20 min</span><span class="ls-stat-l">To complete</span></div>
+        </div>
+        <div class="prog-wrap">
+            <div class="prog-row"><span id="prog-label">0 / 6 sections</span><span id="prog-pct">0%</span></div>
+            <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+        </div>
+    </div>
+    <div id="sections"></div>
+</div>
+
+<div id="completion-screen">
+    <div class="completion-card">
+        <div class="cc-badge-face">🚀</div>
+        <div class="cc-badge-label">🚀 Artemis Astronaut Badge</div>
+        <div class="cc-badge-sub">Added to your collection! Ad astra! 🌕</div>
+        <div class="cc-title">To the Moon and back! 🌕</div>
+        <div class="cc-sub">You learned about NASA's Artemis II mission — all in English. Amazing! ⭐</div>
+        <div class="cc-xp-box">
+            <div class="cc-xp-num" id="cc-xp">+0</div>
+            <div class="cc-xp-label" id="cc-xp-label">⚡ XP Earned</div>
+        </div>
+        <div class="cc-stats">
+            <div class="cc-stat"><div class="cc-stat-n" id="cc-correct">0</div><div class="cc-stat-l">Correct!</div></div>
+            <div class="cc-stat"><div class="cc-stat-n" id="cc-combo">0</div><div class="cc-stat-l">Best Combo</div></div>
+            <div class="cc-stat"><div class="cc-stat-n" id="cc-words">8</div><div class="cc-stat-l">New Words</div></div>
+        </div>
+        <div class="cc-badge-pill">
+            <div class="cc-badge-shimmer"></div>
+            <span class="cc-badge-icon">🚀</span>
+            <div>
+                <div class="cc-badge-info-name">Artemis Astronaut</div>
+                <div class="cc-badge-info-sub">🌱 Beginner A1-A2 — video lesson complete!</div>
+            </div>
+            <span class="cc-badge-tick">✓</span>
+        </div>
+        <div class="cc-btns">
+            <a href="/beginner/" class="cc-btn primary">🌱 More Beginner Lessons →</a>
+            <a href="/dashboard-gamified/" class="cc-btn secondary">📊 View Dashboard</a>
+        </div>
+    </div>
+</div>
+
+<script src="/supabase-auth-gamified.js"></script>
+<script src="/daily-challenges-system.js"></script>
+<script src="/interactions.js"></script>
+<script>
+'use strict';
+window.LESSON_ID    = 'artemis-ii-moon-beginner';
+window.LESSON_TITLE = 'Artemis II — To the Moon!';
+const LESSON_LINK   = '/artemis2/';
+
+const CREW = [
+    { id:'reid',     emoji:'👨‍🚀', name:'Reid Wiseman',   role:'Commander' },
+    { id:'victor',   emoji:'🧑‍🚀', name:'Victor Glover',  role:'Pilot' },
+    { id:'christina',emoji:'👩‍🚀', name:'Christina Koch', role:'Specialist' },
+    { id:'jeremy',   emoji:'🧑‍🚀', name:'Jeremy Hansen',  role:'Specialist' },
+];
+
+const WHO_SAID_IT = [
+    { quote:'"We are going for our families. We are going for our teammates. We are going for all humanity."',
+      hint:'💡 These powerful words were spoken before launch — together as one crew!', answer:'reid',
+      fb:'✅ Commander Reid Wiseman spoke these words! He dedicated the mission to everyone on Earth. Space is for ALL of us! 🌍' },
+    { quote:'"Houston. Integrity. Great view."',
+      hint:'💡 "Integrity" was the name of the Orion spacecraft — its call sign!', answer:'victor',
+      fb:'✅ Victor Glover, the pilot! He called Houston (mission control) from space. Very calm and professional! "Integrity" = the name of the Orion capsule. 🎙️' },
+    { quote:'"It\'s just like we\'re a bunch of little kids up here — we just cannot get enough of this."',
+      hint:'💡 This person was amazed — like a child seeing something magical! 🧒', answer:'christina',
+      fb:'✅ Christina Koch said this! She described the crew\'s pure joy looking out the window at Earth and the Moon. Even trained astronauts feel like amazed children in space! 🌍' },
+    { quote:'"You can see Copernicus, Reiner Gamma. It\'s everything from the training — but in three dimensions."',
+      hint:'💡 This person was describing craters on the Moon\'s surface in detail! 🌕', answer:'jeremy',
+      fb:'✅ Jeremy Hansen! Copernicus and Reiner Gamma are real craters on the Moon. He could see them from the Orion window — absolutely incredible! 🌕' },
+];
+
+const WHEEL_WORDS = [
+    { word:'launch', color:'#FF9600',
+      def:'To send a rocket into space — the start of a big journey!',
+      eg:'"The rocket launched at dawn. The crew watched the ground disappear below them."',
+      question:'What does "launch" mean?',
+      opts:['To land somewhere new','To send a rocket into space','To drive a car very fast','To open a door'],
+      correct:1, fb:'✅ LAUNCH = to send a rocket into space! "We have liftoff!" is the famous phrase. You can also launch a boat, a product, or a website. Always the start of something big!' },
+    { word:'orbit', color:'#1CB0F6',
+      def:'To travel in a circle around something in space.',
+      eg:'"The Moon orbits the Earth. The Earth orbits the Sun. Satellites orbit the Earth."',
+      question:'Which sentence uses "orbit" correctly?',
+      opts:['The rocket orbited down slowly.','The spacecraft orbited the Moon.','The astronaut orbited his lunch.','Houston orbited a message.'],
+      correct:1, fb:'✅ "The spacecraft ORBITED the Moon" — perfect! To orbit = go around something in a circle in space. The Moon orbits Earth once every 27 days!' },
+    { word:'mission', color:'#CE82FF',
+      def:'An important journey or job — with a specific goal to achieve.',
+      eg:'"Artemis II is a mission to fly humans around the Moon for the first time."',
+      question:'What is a "mission"?',
+      opts:['A holiday with no plan','A short walk in the park','An important journey with a specific goal','A type of space food'],
+      correct:2, fb:'✅ A MISSION = an important journey with a specific goal! "The mission was a success." Space missions, military missions — always a clear purpose! 🎯' },
+    { word:'crew', color:'#2BDECC',
+      def:'A group of people who work together on a ship, plane, or spacecraft.',
+      eg:'"The crew of Artemis II: Reid, Victor, Christina, and Jeremy — four brave astronauts."',
+      question:'What does "crew" mean?',
+      opts:['One very important person','A type of rocket engine','A group working together on a vehicle','The name of a spacecraft'],
+      correct:2, fb:'✅ CREW = a group working together! "The film crew", "the ship\'s crew", "the flight crew". Always a team on the same vehicle or project. Artemis II crew = 4 people! 👨‍🚀👩‍🚀' },
+    { word:'splashdown', color:'#58CC02',
+      def:'When a spacecraft lands in the ocean — the big splash when it hits the water!',
+      eg:'"After the mission, the Orion capsule had a splashdown in the Pacific Ocean."',
+      question:'When does a "splashdown" happen?',
+      opts:['When the rocket launches','When a spacecraft lands in water','When an astronaut walks in space','When Houston sends a radio message'],
+      correct:1, fb:'✅ SPLASHDOWN = landing in the sea! The capsule fell through the atmosphere and SPLASH — into the Pacific Ocean. "Good chutes coming down — splashdown!" A dramatic and exciting moment! 🌊' },
+    { word:'humanity', color:'#FFC800',
+      def:'All people on Earth — the whole human race, together as one.',
+      eg:'"We are going for all humanity!" — The crew dedicated the mission to every person on Earth.',
+      question:'What does "humanity" mean?',
+      opts:['Only the Artemis crew','Being kind to one person','All people on Earth together','The planet Earth itself'],
+      correct:2, fb:'✅ HUMANITY = all people on Earth, together! "For all humanity" is a powerful phrase. Neil Armstrong said "one giant leap for mankind" — same idea. Space exploration belongs to everyone! 🌍' },
+    { word:'liftoff', color:'#FF4B4B',
+      def:'The moment a rocket leaves the ground and rises into the sky!',
+      eg:'"4, 3, 2, 1 — booster ignition... and LIFTOFF! The crew of Artemis II, now bound for the Moon."',
+      question:'When does "liftoff" happen?',
+      opts:['When the crew eat breakfast','When the rocket leaves the ground','When the capsule lands in the ocean','When astronauts sleep'],
+      correct:1, fb:'✅ LIFTOFF = the moment the rocket leaves the ground! "We have liftoff!" is one of the most exciting phrases in history. Engines fire, the rocket shakes — and suddenly, it\'s flying! 🚀' },
+    { word:'parachute', color:'#58A700',
+      def:'A large piece of cloth that opens to slow something down as it falls through the air.',
+      eg:'"First the drogue chutes open, then the main parachutes — the capsule falls slowly to the ocean."',
+      question:'What do parachutes DO for the Orion capsule?',
+      opts:['They push the rocket up','They slow the capsule as it falls','They connect to the Moon','They send radio signals'],
+      correct:1, fb:'✅ PARACHUTES slow the capsule down! Without them, it would hit the ocean too fast. First small "drogue" chutes, then big "main" chutes. The crew said "Two drogues out the window!" — they could see them! 🪂' },
+];
+
+const WB_WORDS = [
+    { word:'rocket',    letters:['r','o','c','k','e','t'],           def:'A very powerful machine that flies into space using engines and fire.', hint:'Goes 🚀 up, up, up!' },
+    { word:'astronaut', letters:['a','s','t','r','o','n','a','u','t'],def:'A person who travels and works in space.', hint:'Reid, Victor, Christina and Jeremy are all ___s!' },
+    { word:'capsule',   letters:['c','a','p','s','u','l','e'],       def:'The small pod of a spacecraft where astronauts sit — like a little room in space.', hint:'They splashed down in the Orion ___.' },
+    { word:'moon',      letters:['m','o','o','n'],                   def:'The large round object that orbits the Earth — we can see it at night!', hint:'Artemis II flew around the ___.' },
+    { word:'orbit',     letters:['o','r','b','i','t'],               def:'To travel in a circle around something in space.', hint:'The Earth ___s the Sun every year.' },
+    { word:'earth',     letters:['e','a','r','t','h'],               def:'Our planet — the beautiful blue and green world we all live on!', hint:'From space, our beautiful ___ looks tiny.' },
+];
+
+const DIALOGUE = {
+    context:'Two friends talk after watching the Artemis II video...',
+    gaps:{a:'launched',b:'Moon',c:'crew',d:'splashdown',e:'humanity'},
+    text:[
+        {speaker:'A',avatar:'🧑',side:'left',parts:[
+            {t:'text',v:'Did you watch it? The rocket '},
+            {t:'gap',k:'a',ans:'launched'},
+            {t:'text',v:' perfectly!'},
+        ]},
+        {speaker:'B',avatar:'👩',side:'right',parts:[
+            {t:'text',v:'Yes! They flew all the way around the '},
+            {t:'gap',k:'b',ans:'Moon'},
+            {t:'text',v:'!'},
+        ]},
+        {speaker:'A',avatar:'🧑',side:'left',parts:[
+            {t:'text',v:'The '},
+            {t:'gap',k:'c',ans:'crew'},
+            {t:'text',v:' said they went for all '},
+            {t:'gap',k:'e',ans:'humanity'},
+            {t:'text',v:'. That means us! 😮'},
+        ]},
+        {speaker:'B',avatar:'👩',side:'right',parts:[
+            {t:'text',v:'The '},
+            {t:'gap',k:'d',ans:'splashdown'},
+            {t:'text',v:' looked so exciting — big parachutes and then SPLASH!'},
+        ]},
+    ],
+    wordbank:['launched','Moon','crew','splashdown','humanity'],
+};
+
+const MISSION_FACTS = [
+    {emoji:'🚀',text:'Artemis II is the most powerful rocket NASA has ever launched.',correct:true,
+     reveal:'✅ TRUE! The SLS (Space Launch System) is the most powerful rocket NASA has ever built — even more powerful than the famous Saturn V from the Apollo missions in the 1960s!'},
+    {emoji:'👥',text:'The Artemis II crew has five astronauts.',correct:false,
+     reveal:'❌ FALSE! The crew has FOUR astronauts: Reid Wiseman, Victor Glover, Christina Koch, and Jeremy Hansen. "Four brave explorers ready to ride the most powerful rocket." 4, not 5!'},
+    {emoji:'🛸',text:'Artemis II is a test flight — it is the first time humans fly on the Orion spacecraft.',correct:true,
+     reveal:'✅ TRUE! "This is a test flight and every single system aboard Orion is getting tested by humans for the first time." Artemis I had no crew. Artemis II = first crewed Orion mission!'},
+    {emoji:'📻',text:'The crew had radio communication with Houston the entire time — no silence.',correct:false,
+     reveal:'❌ FALSE! When they flew behind the Moon, they went OUT of radio contact. The Moon blocked the signal! "As we prepare to go out of radio communication..." A tense moment for mission control!'},
+    {emoji:'🌊',text:'The Orion capsule landed in the ocean at the end of the mission.',correct:true,
+     reveal:'✅ TRUE! "Good chutes coming down off the West Coast — splashdown!" The capsule used parachutes and splashed into the Pacific Ocean. Rescue ships were waiting nearby! 🌊'},
+    {emoji:'🌍',text:'"We do not leave Earth — we choose it." This means going to space makes us love Earth more.',correct:true,
+     reveal:'✅ TRUE! "With this burn to the Moon, we do not leave Earth — we choose it." Going to space makes you appreciate our beautiful planet even more. Christina Koch said seeing Earth from space "bends your mind"! 💚'},
+    {emoji:'🏔️',text:'From space, the astronauts could see craters on the Moon\'s surface.',correct:true,
+     reveal:'✅ TRUE! Jeremy Hansen said: "You can see Copernicus, Reiner Gamma — everything from training, but in three dimensions." He could clearly see mountains and craters on the Moon! 🌕'},
+    {emoji:'🏁',text:'The mission is like a "relay race" — one team passes work to the next.',correct:true,
+     reveal:'✅ TRUE! "This is a relay race. It takes an army — across all ten NASA centers, all commercial and international partners." Artemis II builds towards future Moon landings. The baton keeps moving! 🏆'},
+];
+
+const SENTENCE_ROUNDS = [
+    {starter:'🚀 The astronauts...',
+     opts:['flew around the Moon.','flied around the Moon.','fly around the Moon yesterday.','flying around the Moon.'],
+     correct:0,fb:'✅ "FLEW" is the past of "fly" — an irregular verb! fly → flew → flown. "They flew around the Moon" = past simple, finished action. "Flied" does NOT exist! ✈️'},
+    {starter:'🌕 The Moon is...',
+     opts:['very far from Earth.','very far of Earth.','very far to Earth.','very far at Earth.'],
+     correct:0,fb:'✅ "Far FROM" — always "far from somewhere"! "The Moon is far from Earth." "My house is far from school." FROM shows distance. Of, to, and at are wrong here!'},
+    {starter:'👨‍🚀 Reid Wiseman is the...',
+     opts:['commander of the mission.','commander for the mission.','commander at the mission.','commander in the mission.'],
+     correct:0,fb:'✅ "Commander OF the mission" — we say commander OF. "The captain of the ship." "The president of the country." OF shows the role or what someone is in charge of! 👨‍🚀'},
+    {starter:'🛸 The Orion spacecraft...',
+     opts:['has four crew members.','have four crew members.','is having four crew members.','are four crew members.'],
+     correct:0,fb:'✅ "The spacecraft HAS" — it\'s a singular thing (one spacecraft), so we use HAS not HAVE. "The car has four wheels." "The team has ten players." He/she/it + HAS!'},
+    {starter:'🌍 When you look at Earth from space, it looks...',
+     opts:['very small and beautiful.','very small and beautifullly.','very small and beauty.','very small and beautyful.'],
+     correct:0,fb:'✅ "Small and BEAUTIFUL" — both are adjectives! They describe Earth. Beautiful = B-E-A-U-T-I-F-U-L. "Beauty" is a noun (not an adjective!). "Beautifully" is an adverb — only describes verbs!'},
+    {starter:'🌊 After the mission, the capsule...',
+     opts:['splashed down in the ocean.','splashed down in ocean.','splashed down to the ocean.','splashed down on the ocean.'],
+     correct:0,fb:'✅ "In THE ocean" — we use THE because there\'s one specific Pacific Ocean! And "in" the ocean, not "to" or "on". We live IN a place, swim IN water. In = inside something! 🌊'},
+];
+
+let S={xp:0,streak:0,combo:0,bestCombo:0,totalRight:0,totalAnswered:0,videoDone:false,wsiDone:false,wsiScore:0,wheelDone:false,wheelScore:0,wbIdx:0,wbDone:false,wbScore:0,dialDone:false,tfDone:false,tfScore:0,dbIdx:0,dbDone:false,dbScore:0};
+let wbBuilt=[],wbWrongAttempts=0;
+function $(id){return document.getElementById(id);}
+function megaConfettiBurst(){const colors=['#58CC02','#FFC800','#1CB0F6','#CE82FF','#2BDECC','#FF4B4B','#FF9600'];for(let i=0;i<60;i++){const d=document.createElement('div');d.className='mega-conf-dot';const sz=8+Math.random()*12;d.style.cssText=`left:${Math.random()*100}vw;top:${-10+Math.random()*30}px;width:${sz}px;height:${sz}px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-delay:${Math.random()*.8}s;animation-duration:${1+Math.random()*.8}s;border-radius:${Math.random()>.5?'50%':'3px'};transform:rotate(${Math.random()*360}deg)`;document.body.appendChild(d);setTimeout(()=>d.remove(),2200);}}
+function xpFloat(x,y,a){const el=document.createElement('div');el.className='xp-float';el.textContent=`+${a} XP`;el.style.cssText=`left:${x}px;top:${y}px`;document.body.appendChild(el);setTimeout(()=>el.remove(),1000);}
+function addXP(a,el){S.xp+=a;if(el){const r=el.getBoundingClientRect();xpFloat(r.left+r.width/2-24,r.top-10,a);}const hx=$('hdr-xp');if(hx)hx.textContent=S.xp;}
+function updateProgress(){const secs=[S.videoDone,S.wsiDone,S.wheelDone,S.wbDone,S.dialDone||S.tfDone,S.dbDone];const done=secs.filter(Boolean).length;const pct=Math.round((done/secs.length)*100);const fill=$('prog-fill');if(fill)fill.style.width=pct+'%';$('prog-label').textContent=`${done} / ${secs.length} sections`;$('prog-pct').textContent=pct+'%';}
+function revealSection(id,initFn){const sec=document.getElementById(id);if(!sec||sec.classList.contains('visible'))return;if(initFn)initFn();sec.classList.add('visible');setTimeout(()=>sec.scrollIntoView({behavior:'smooth',block:'start'}),80);}
+function buildAll(){const c=$('sections');c.appendChild(buildVideoSec());c.appendChild(buildWhoSec());c.appendChild(buildWheelSec());c.appendChild(buildWBSec());c.appendChild(buildDialSec());c.appendChild(buildTFSec());c.appendChild(buildSentenceSec());document.getElementById('sec-video').classList.add('visible');}
+
+/* VIDEO */
+function buildVideoSec(){const sec=document.createElement('div');sec.className='sec-card strip-green u2';sec.id='sec-video';sec.innerHTML=`<div class="sec-head"><div class="sec-head-icon">🎬</div><div><div class="sec-head-title">Watch the Video!</div><div class="sec-head-sub">~3 min · Real NASA footage · So exciting! 🚀</div></div></div><div class="sec-body"><div class="tip-box">💡 <strong>Beginner tip:</strong> Don't worry about every word! Just watch and enjoy. Where are these astronauts going? What can you see?</div><div class="video-wrap"><iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/IfRqrrBbT-Y?si=xNQ68uwhq_jkOEbM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div><div class="fact-chips"><span class="fact-chip">🚀 Most powerful rocket ever</span><span class="fact-chip">🌕 Around the Moon!</span><span class="fact-chip">👨‍🚀 4 astronauts</span><span class="fact-chip">🌊 Ocean splashdown</span><span class="fact-chip">🌍 "For all humanity"</span></div><p style="font-size:15px;font-weight:700;color:var(--ink);line-height:1.7;margin-bottom:8px;">Four brave people. One incredible journey. All the way to the Moon and back! 🚀🌕</p><p style="font-size:13px;font-weight:700;color:var(--ink-3);line-height:1.6;margin-bottom:16px;">💡 <em>You can watch again any time! The activities will help you understand everything.</em></p><button class="btn-continue" onclick="markVideoDone()">I watched it! Let's go! 🚀</button></div>`;return sec;}
+function markVideoDone(){addXP(10,$('sec-video'));EFCD_FX?.toast('🎬','Great! +10 XP — Artemis II explored!');S.videoDone=true;updateProgress();revealSection('sec-wsi',buildWhoInner);}
+
+/* WHO SAID IT */
+function buildWhoSec(){const sec=document.createElement('div');sec.className='sec-card strip-green';sec.id='sec-wsi';sec.innerHTML=`<div class="sec-head"><div class="sec-head-icon">🎙️</div><div><div class="sec-head-title">Who Said It?</div><div class="sec-head-sub">Read the quote — tap the right astronaut! 👨‍🚀</div></div></div><div class="sec-body"><div id="wsi-inner"></div></div>`;return sec;}
+function buildWhoInner(){
+    const slot=$('wsi-inner');let answered=0;
+    slot.innerHTML=`<div class="tip-box">💡 <strong>Meet the crew!</strong> Four amazing astronauts flew on Artemis II. Read each quote — who said it? Tap the right person! 😊</div><div class="score-row"><span class="score-lbl">🎙️ Score</span><span class="score-num" id="wsi-score">0 / ${WHO_SAID_IT.length}</span></div><div id="wsi-rounds"></div><button class="btn-continue" id="wsi-cont" style="display:none" onclick="finishWSI()">Spin the Vocabulary Wheel! 🎡 →</button>`;
+    const rd=$('wsi-rounds');
+    WHO_SAID_IT.forEach((round,idx)=>{
+        const div=document.createElement('div');div.id=`wsi-r-${idx}`;
+        div.innerHTML=`<div class="quote-card" style="animation-delay:${idx*.06}s"><div class="quote-num">Quote ${idx+1} of ${WHO_SAID_IT.length}</div><div class="quote-text">${round.quote}</div><div class="quote-hint">${round.hint}</div></div><div class="crew-grid" id="wsi-cg-${idx}">${CREW.map(c=>`<div class="crew-card" id="wsi-cc-${idx}-${c.id}" onclick="answerWho(${idx},'${c.id}','${round.answer}')"><span class="crew-emoji">${c.emoji}</span><span class="crew-name">${c.name}</span><span class="crew-role">${c.role}</span></div>`).join('')}</div><div class="crew-fb" id="wsi-fb-${idx}"></div>`;
+        rd.appendChild(div);
+    });
+    EFCD_FX?.attachCombo(slot);
+    window.answerWho=function(idx,chosen,correct){
+        CREW.forEach(c=>{const card=$(`wsi-cc-${idx}-${c.id}`);if(card){card.onclick=null;card.style.cursor='default';}});
+        const cc=$(`wsi-cc-${idx}-${chosen}`);const rc=$(`wsi-cc-${idx}-${correct}`);const fb=$(`wsi-fb-${idx}`);const isRight=chosen===correct;
+        if(isRight){cc.classList.add('correct');S.wsiScore++;S.totalRight++;S.combo++;S.bestCombo=Math.max(S.bestCombo,S.combo);addXP(8,cc);EFCD_FX?.correct(cc);EFCD_FX?.combo(S.combo);fb.className='crew-fb show right';}
+        else{cc.classList.add('wrong');rc.classList.add('reveal-correct');EFCD_FX?.wrong(cc);EFCD_FX?.comboBreak(S.combo,S.bestCombo);S.combo=0;fb.className='crew-fb show wrong';}
+        fb.innerHTML=isRight?('✅ '+WHO_SAID_IT[idx].fb):('❌ Not this time! The answer was <strong>'+CREW.find(c=>c.id===correct).name+'</strong>. 💡 '+WHO_SAID_IT[idx].fb);
+        S.totalAnswered++;const sn=$('wsi-score');if(sn)sn.textContent=`${S.wsiScore} / ${WHO_SAID_IT.length}`;
+        answered++;if(answered===WHO_SAID_IT.length){const cont=$('wsi-cont');if(cont)cont.style.display='flex';}
+    };
+}
+function finishWSI(){S.wsiDone=true;addXP(15);EFCD_FX?.toast('🎙️',`${S.wsiScore}/${WHO_SAID_IT.length} correct! +15 XP`);updateProgress();revealSection('sec-wheel',buildWheelInner);}
+
+/* SPIN THE WHEEL */
+function buildWheelSec(){const sec=document.createElement('div');sec.className='sec-card strip-yellow';sec.id='sec-wheel';sec.innerHTML=`<div class="sec-head"><div class="sec-head-icon">🎡</div><div><div class="sec-head-title">Spin the Vocabulary Wheel!</div><div class="sec-head-sub">Spin · land on a word · answer the question! 🎡</div></div></div><div class="sec-body"><div id="wheel-inner"></div></div>`;return sec;}
+function buildWheelInner(){
+    const slot=$('wheel-inner');let usedIndices=new Set(),spinning=false,currentWordIdx=null,answered=0;
+    const shuffled=[...WHEEL_WORDS].map((w,i)=>({...w,origIdx:i})).sort(()=>Math.random()-.5);
+    const totalRounds=WHEEL_WORDS.length;
+    slot.innerHTML=`<div class="tip-box">💡 <strong>How to play:</strong> Press Spin! — land on a space word — answer the question! Spin all ${totalRounds} words to finish! 🚀</div><div class="wheel-score-row"><span class="wheel-score-lbl">🎡 Words done</span><span class="wheel-score-num" id="wscore">0 / ${totalRounds}</span></div><div class="wheel-wrap"><div class="wheel-canvas-wrap"><div class="wheel-pointer">▼</div><canvas id="wheel-canvas" width="220" height="220"></canvas></div><button class="wheel-spin-btn" id="wspin" onclick="doSpin()">🎡 Spin!</button></div><div id="wresult"></div><button class="btn-continue" id="wheel-cont" style="display:none" onclick="finishWheel()">Word Builder! 🧱 →</button>`;
+    const canvas=$('wheel-canvas');const ctx=canvas.getContext('2d');const CX=110,CY=110,R=103,N=shuffled.length;
+    let currentAngle=0;
+    function drawWheel(angle){ctx.clearRect(0,0,220,220);shuffled.forEach((w,i)=>{const start=angle+i*(2*Math.PI/N);const end=start+(2*Math.PI/N);ctx.beginPath();ctx.moveTo(CX,CY);ctx.arc(CX,CY,R,start,end);ctx.closePath();ctx.fillStyle=usedIndices.has(i)?'#ddd':w.color;ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();ctx.save();ctx.translate(CX,CY);ctx.rotate(start+(2*Math.PI/N)/2);ctx.textAlign='right';ctx.fillStyle='#fff';ctx.font='bold 11px Nunito,sans-serif';ctx.fillText(w.word.toUpperCase(),R-8,4);ctx.restore();});ctx.beginPath();ctx.arc(CX,CY,22,0,2*Math.PI);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle='#ccc';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#333';ctx.font='bold 18px Nunito,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🚀',CX,CY);}
+    drawWheel(currentAngle);
+    window.doSpin=function(){if(spinning)return;$('wresult').innerHTML='';const spinBtn=$('wspin');if(spinBtn)spinBtn.disabled=true;const remaining=shuffled.map((_,i)=>i).filter(i=>!usedIndices.has(i));if(!remaining.length){finishWheel();return;}const targetSlot=remaining[Math.floor(Math.random()*remaining.length)];const sliceAngle=2*Math.PI/N;const targetCenter=targetSlot*sliceAngle+sliceAngle/2;const extraSpins=(4+Math.floor(Math.random()*3))*2*Math.PI;const totalRotation=extraSpins+((-targetCenter-Math.PI/2)-(currentAngle%(2*Math.PI))+2*Math.PI)%(2*Math.PI);const startAngle=currentAngle;const dur=2800+Math.random()*600;const startTime=performance.now();spinning=true;function anim(now){const t=Math.min((now-startTime)/dur,1);const ease=1-Math.pow(1-t,4);currentAngle=startAngle+totalRotation*ease;drawWheel(currentAngle);if(t<1){requestAnimationFrame(anim);return;}spinning=false;currentAngle=startAngle+totalRotation;usedIndices.add(targetSlot);currentWordIdx=targetSlot;showWQ(shuffled[targetSlot]);}requestAnimationFrame(anim);};
+    function showWQ(w){const so=w.opts.map((o,i)=>({text:o,origIdx:i})).sort(()=>Math.random()-.5);const sc=so.findIndex(o=>o.origIdx===w.correct);const area=$('wresult');area.innerHTML=`<div class="wheel-result-card"><div class="wheel-result-word">${w.word.toUpperCase()}</div><div class="wheel-result-def">📖 ${w.def}</div><div class="wheel-result-eg">${w.eg}</div><p style="font-size:14px;font-weight:900;color:var(--ink-bold);margin-bottom:10px;">❓ ${w.question}</p><div class="wheel-opts" id="wopts">${so.map((o,i)=>`<button class="wheel-opt" onclick="answerWheel(this,${i},${sc})">${o.text}</button>`).join('')}</div><div class="wheel-fb" id="wfb"></div></div>`;EFCD_FX?.attachCombo(area);}
+    window.answerWheel=function(btn,chosen,correct){document.querySelectorAll('.wheel-opt').forEach(b=>b.disabled=true);const fb=$('wfb');const w=shuffled[currentWordIdx];const isRight=chosen===correct;if(isRight){btn.classList.add('correct');S.wheelScore++;S.totalRight++;S.combo++;S.bestCombo=Math.max(S.bestCombo,S.combo);addXP(10,btn);EFCD_FX?.correct(btn);EFCD_FX?.combo(S.combo);fb.className='wheel-fb show right';fb.innerHTML=w.fb;}else{btn.classList.add('wrong');document.querySelectorAll('.wheel-opt')[correct].classList.add('show-correct');EFCD_FX?.wrong(btn);EFCD_FX?.comboBreak(S.combo,S.bestCombo);S.combo=0;fb.className='wheel-fb show wrong';fb.innerHTML='❌ Not quite! '+w.fb;}S.totalAnswered++;answered++;const sn=$('wscore');if(sn)sn.textContent=`${answered} / ${totalRounds}`;drawWheel(currentAngle);const nxt=document.createElement('button');nxt.className='wheel-next';if(answered>=totalRounds){nxt.textContent='All words done! →';nxt.onclick=finishWheel;}else{nxt.textContent=`🎡 Spin again! (${totalRounds-answered} left)`;nxt.onclick=()=>{$('wresult').innerHTML='';const sb=$('wspin');if(sb)sb.disabled=false;doSpin();};}fb.after(nxt);const sb=$('wspin');if(sb)sb.disabled=true;};
+}
+function finishWheel(){S.wheelDone=true;addXP(20);EFCD_FX?.toast('🎡',`${S.wheelScore}/${WHEEL_WORDS.length} words! Rocket vocab! +20 XP`);updateProgress();revealSection('sec-wb',buildWBInner);}
+
+/* WORD BUILDER */
+function buildWBSec(){const sec=document.createElement('div');sec.className='sec-card strip-blue';sec.id='sec-wb';sec.innerHTML=`<div class="sec-head"><div class="sec-head-icon">🧱</div><div><div class="sec-head-title">Word Builder!</div><div class="sec-head-sub">Read the clue · tap the letters · build the space word!</div></div></div><div class="sec-body"><div class="wb-progress" id="wb-prog"></div><div id="wb-slot"></div></div>`;return sec;}
+function buildWBInner(){renderWB();EFCD_FX?.attachCombo(document.querySelector('#sec-wb .sec-body'));}
+function renderWB(){
+    const prog=$('wb-prog');if(prog)prog.innerHTML=WB_WORDS.map((_,i)=>`<div class="wb-pip ${i<S.wbIdx?'done':i===S.wbIdx?'active':''}"></div>`).join('');
+    if(S.wbDone){$('wb-slot').innerHTML=`<div class="sec-done"><span class="sec-done-icon" style="animation:bounce 1.5s ease-in-out infinite">🧱</span><div class="sec-done-title">${S.wbScore}/${WB_WORDS.length} words built! 🎉</div><div class="sec-done-sub">rocket · astronaut · capsule · moon · orbit · earth</div><button class="btn-continue" style="background:var(--teal);border-color:var(--teal-shadow)" onclick="revealSection('sec-dial',buildDialInner)">Fill the Gaps! 💬 →</button></div>`;return;}
+    const w=WB_WORDS[S.wbIdx];wbBuilt=[];wbWrongAttempts=0;
+    const shuffled=[...w.letters].sort(()=>Math.random()-.5);
+    $('wb-slot').innerHTML=`<div class="wb-def">${w.def}<span class="hint">💡 ${w.hint}</span></div><div class="wb-answer-row" id="wb-answer"></div><div class="wb-tiles" id="wb-tiles">${shuffled.map((l,i)=>`<button class="wb-tile" id="wbt-${i}" onclick="tapWBTile('${l}',${i})">${l.toUpperCase()}</button>`).join('')}</div><div class="wb-feedback" id="wb-fb"></div><div class="wb-actions"><button class="wb-btn wb-clear" onclick="clearWB()">🗑️ Clear</button><button class="wb-btn wb-check" onclick="checkWB()">✓ Check!</button><button class="wb-btn wb-hint-btn" id="wb-hint-btn" onclick="hintWB()">💡 Hint</button><button class="wb-btn wb-reveal-btn" id="wb-reveal" onclick="revealWB()">🚀 Reveal</button></div>`;
+    renderWBAnswer();
+}
+function renderWBAnswer(){const w=WB_WORDS[S.wbIdx];const row=$('wb-answer');if(!row)return;row.innerHTML='';for(let i=0;i<w.letters.length;i++){const s=document.createElement('div');s.className='wb-slot'+(wbBuilt[i]?' filled':'');s.textContent=wbBuilt[i]?wbBuilt[i].toUpperCase():'';if(wbBuilt[i])s.onclick=()=>removeWBLetter(i);row.appendChild(s);}}
+window.tapWBTile=function(letter,tileIdx){const w=WB_WORDS[S.wbIdx];if(wbBuilt.filter(Boolean).length>=w.letters.length)return;wbBuilt.push(letter);const t=$(`wbt-${tileIdx}`);if(t)t.classList.add('used');renderWBAnswer();const fb=$('wb-fb');if(fb){fb.className='wb-feedback';fb.textContent='';}};
+function removeWBLetter(pos){const letter=wbBuilt[pos];wbBuilt.splice(pos,1);const tiles=document.querySelectorAll('.wb-tile.used');for(const t of tiles){if(t.textContent.toLowerCase()===letter.toLowerCase()){t.classList.remove('used');break;}}renderWBAnswer();}
+function clearWB(){wbBuilt=[];document.querySelectorAll('.wb-tile').forEach(t=>t.classList.remove('used'));renderWBAnswer();const fb=$('wb-fb');if(fb){fb.className='wb-feedback';fb.textContent='';}}
+function hintWB(){const w=WB_WORDS[S.wbIdx];const np=wbBuilt.length;if(np>=w.letters.length)return;const cl=w.letters[np];const tiles=document.querySelectorAll('.wb-tile:not(.used)');for(const t of tiles){if(t.textContent.toLowerCase()===cl.toLowerCase()){t.classList.add('used');break;}}wbBuilt.push(cl);renderWBAnswer();const fb=$('wb-fb');if(fb){fb.className='wb-feedback show wrong';fb.textContent=`💡 Letter ${np+1} revealed!`;}}
+function revealWB(){const w=WB_WORDS[S.wbIdx];wbBuilt=[...w.letters];document.querySelectorAll('.wb-tile').forEach(t=>t.classList.add('used'));renderWBAnswer();const fb=$('wb-fb');fb.className='wb-feedback show wrong';fb.innerHTML=`👁️ The word is <strong>${w.word.toUpperCase()}</strong> — ${w.def}`;document.querySelectorAll('.wb-check,.wb-clear,.wb-hint-btn,.wb-reveal-btn').forEach(b=>{b.disabled=true;b.style.opacity='.4';});S.totalAnswered++;setTimeout(()=>{S.wbIdx++;if(S.wbIdx>=WB_WORDS.length){S.wbDone=true;addXP(15);EFCD_FX?.toast('🧱','All words! +15 XP');updateProgress();renderWB();}else renderWB();},2200);}
+function checkWB(){const w=WB_WORDS[S.wbIdx];const built=wbBuilt.join('').toLowerCase();if(built.length<w.letters.length){const fb=$('wb-fb');fb.className='wb-feedback show wrong';fb.textContent='⚠️ Fill all the letters first!';return;}const correct=built===w.word;const slots=document.querySelectorAll('.wb-slot');const fb=$('wb-fb');if(correct){slots.forEach(s=>s.classList.add('correct-final'));S.wbScore++;S.totalRight++;S.combo++;S.bestCombo=Math.max(S.bestCombo,S.combo);addXP(10);EFCD_FX?.correct(slots[0]);EFCD_FX?.combo(S.combo);document.querySelectorAll('.wb-check,.wb-clear,.wb-hint-btn,.wb-reveal-btn').forEach(b=>{b.disabled=true;b.style.opacity='.4';});fb.className='wb-feedback show right';fb.innerHTML=`✅ <strong>${w.word.toUpperCase()}</strong>! 🎉 ${w.def}`;setTimeout(()=>{S.wbIdx++;if(S.wbIdx>=WB_WORDS.length){S.wbDone=true;addXP(15);EFCD_FX?.toast('🧱','All words! +15 XP');updateProgress();renderWB();}else renderWB();},1600);}else{slots.forEach(s=>s.classList.add('wrong-shake'));setTimeout(()=>slots.forEach(s=>s.classList.remove('wrong-shake')),450);EFCD_FX?.wrong(slots[0]);EFCD_FX?.comboBreak(S.combo,S.bestCombo);S.combo=0;wbWrongAttempts++;fb.className='wb-feedback show wrong';fb.textContent=`Not quite! Hint: ${w.hint}`;if(wbWrongAttempts>=2){const rev=$('wb-reveal');if(rev)rev.style.opacity='1';}}S.totalAnswered++;}
+
+/* DIALOGUE */
+function buildDialSec(){const sec=document.createElement('div');sec.className='sec-card strip-teal';sec.id='sec-dial';sec.innerHTML=`<div class="sec-head"><div class="sec-head-icon">💬</div><div><div class="sec-head-title">Fill the Gaps!</div><div class="sec-head-sub">Tap a word · tap a gap · complete the conversation!</div></div></div><div class="sec-body"><div id="dial-inner"></div></div>`;return sec;}
+function buildDialInner(){
+    const slot=$('dial-inner');let selectedWord=null,filledGaps={};
+    function buildPage(){const pw=new Set(Object.values(filledGaps));let bHTML='<div class="dialogue-wrap">';DIALOGUE.text.forEach(line=>{bHTML+=`<div class="bubble-row ${line.side==='right'?'right':''}"><div class="bubble-avatar">${line.avatar}</div><div><div class="bubble-name">${line.speaker}</div><div class="bubble">`;line.parts.forEach(p=>{if(p.t==='text')bHTML+=p.v;else{const f=filledGaps[p.k];bHTML+=`<span class="dial-gap ${f?'filled':''}" id="dg-${p.k}">${f||'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</span>`;}});bHTML+=`</div></div></div>`;});bHTML+='</div>';slot.innerHTML=`<p style="font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:12px;font-style:italic">🗣️ ${DIALOGUE.context}</p><div class="dial-wordbank"><div class="dial-bank-label">📦 Word Bank — tap a word, then tap a gap!</div><div class="dial-chips">${DIALOGUE.wordbank.map(w=>`<button class="dial-chip ${pw.has(w)?'used':''} ${selectedWord===w?'selected':''}" onclick="selDW('${w}')">${w}</button>`).join('')}</div></div>${bHTML}<div class="dial-result" id="dial-result"></div><button class="dial-submit" onclick="submitDial()">💬 Check My Answers!</button>`;Object.keys(DIALOGUE.gaps).forEach(k=>{const el=$(`dg-${k}`);if(el)el.onclick=()=>tapDG(k);});}
+    window.selDW=function(w){const pw=new Set(Object.values(filledGaps));if(pw.has(w))return;selectedWord=(selectedWord===w)?null:w;buildPage();};
+    window.tapDG=function(k){if(!selectedWord){if(filledGaps[k]){delete filledGaps[k];buildPage();}return;}filledGaps[k]=selectedWord;selectedWord=null;buildPage();};
+    window.submitDial=function(){const af=Object.keys(DIALOGUE.gaps).every(k=>filledGaps[k]);if(!af){const r=$('dial-result');r.className='dial-result show wrong';r.textContent='⚠️ Fill all the gaps first!';return;}let correct=0;Object.keys(DIALOGUE.gaps).forEach(k=>{if(filledGaps[k]===DIALOGUE.gaps[k])correct++;});const allRight=correct===Object.keys(DIALOGUE.gaps).length;Object.keys(DIALOGUE.gaps).forEach(k=>{const el=$(`dg-${k}`);if(el){if(filledGaps[k]===DIALOGUE.gaps[k])el.classList.add('filled');else{el.classList.add('wrong');el.textContent=filledGaps[k]||'???';}}});const r=$('dial-result');if(allRight){r.className='dial-result show right';r.innerHTML='✅ <strong>Amazing!</strong> All 5 words correct! 🚀🌕';S.totalRight+=5;S.combo+=3;S.bestCombo=Math.max(S.bestCombo,S.combo);addXP(25);EFCD_FX?.confetti();}else{r.className='dial-result show wrong';r.innerHTML=`📖 <strong>${correct}/5 correct!</strong> Red words are wrong — try again!`;addXP(correct*4);S.totalRight+=correct;S.combo=0;}S.totalAnswered+=5;const sub=slot.querySelector('.dial-submit');if(sub){sub.textContent='🛸 Mission Facts! →';sub.onclick=finishDial;sub.style.background='var(--green)';sub.style.borderColor='var(--green-shadow)';}};
+    buildPage();EFCD_FX?.attachCombo(slot);
+}
+function finishDial(){S.dialDone=true;addXP(10);EFCD_FX?.toast('💬','Gap fill done! +10 XP');updateProgress();revealSection('sec-tf',buildTFInner);}
+
+/* TRUE OR FALSE */
+function buildTFSec(){const sec=document.createElement('div');sec.className='sec-card strip-orange';sec.id='sec-tf';sec.innerHTML=`<div class="sec-head"><div class="sec-head-icon">🛸</div><div><div class="sec-head-title">Mission Facts: True or False?</div><div class="sec-head-sub">Test your knowledge of the Artemis II mission!</div></div></div><div class="sec-body"><div id="tf-inner"></div></div>`;return sec;}
+function buildTFInner(){
+    const slot=$('tf-inner');let answered=0;
+    const facts=[...MISSION_FACTS].sort(()=>Math.random()-.5).slice(0,6);
+    slot.innerHTML=`<div class="tip-box">💡 Read each fact about Artemis II. TRUE ✅ or FALSE ❌? Tap your answer — then read the explanation! Some are tricky! 🚀</div><div class="score-row"><span class="score-lbl">🛸 Score</span><span class="score-num" id="tf-score">0 / 6</span></div><div id="tf-cards"></div><button class="btn-continue" id="tf-cont" style="display:none" onclick="finishTF()">Sentence Practice! ✍️ →</button>`;
+    const cd=$('tf-cards');
+    facts.forEach((fact,i)=>{const div=document.createElement('div');div.className='tf-card';div.style.animationDelay=`${i*.06}s`;div.innerHTML=`<div class="tf-front"><span class="tf-emoji">${fact.emoji}</span><span class="tf-text">${fact.text}</span></div><div class="tf-votes"><button class="tf-btn tf-true-btn" id="tft-${i}" onclick="answerTF(${i},true)">✅ TRUE</button><button class="tf-btn tf-false-btn" id="tff-${i}" onclick="answerTF(${i},false)">❌ FALSE</button></div><div class="tf-reveal" id="tfr-${i}"></div>`;cd.appendChild(div);});
+    EFCD_FX?.attachCombo(slot);
+    window.answerTF=function(idx,userSaysTrue){const fact=facts[idx];const tB=$(`tft-${idx}`);const fB=$(`tff-${idx}`);if(tB.disabled)return;tB.disabled=true;fB.disabled=true;const correct=userSaysTrue===fact.correct;const btn=userSaysTrue?tB:fB;if(correct){btn.classList.add('correct');S.tfScore++;S.totalRight++;S.combo++;S.bestCombo=Math.max(S.bestCombo,S.combo);addXP(8,btn);EFCD_FX?.correct(btn);EFCD_FX?.combo(S.combo);}else{btn.classList.add('wrong');(userSaysTrue?fB:tB).classList.add('correct');EFCD_FX?.wrong(btn);EFCD_FX?.comboBreak(S.combo,S.bestCombo);S.combo=0;}S.totalAnswered++;const sn=$('tf-score');if(sn)sn.textContent=`${S.tfScore} / 6`;const rev=$(`tfr-${idx}`);rev.textContent=fact.reveal;rev.classList.add('show');answered++;if(answered===facts.length){const cont=$('tf-cont');if(cont)cont.style.display='flex';}};
+}
+function finishTF(){S.tfDone=true;addXP(15);EFCD_FX?.toast('🛸',`${S.tfScore}/6 correct! +15 XP`);updateProgress();revealSection('sec-sentence',buildSentenceInner);}
+
+/* SENTENCE PICK */
+function buildSentenceSec(){const sec=document.createElement('div');sec.className='sec-card strip-purple';sec.id='sec-sentence';sec.innerHTML=`<div class="sec-head"><div class="sec-head-icon">✍️</div><div><div class="sec-head-title">Pick the Right Sentence!</div><div class="sec-head-sub">One sentence is correct — can you find it?</div></div></div><div class="sec-body"><div class="db-progress" id="db-prog"></div><div id="db-slot"></div></div>`;return sec;}
+function buildSentenceInner(){renderSentence();EFCD_FX?.attachCombo($('db-slot')?.parentElement);}
+function renderSentence(){
+    const prog=$('db-prog');if(prog)prog.innerHTML=SENTENCE_ROUNDS.map((_,i)=>`<div class="db-pip ${i<S.dbIdx?'done':i===S.dbIdx?'active':''}"></div>`).join('');
+    if(S.dbDone){$('db-slot').innerHTML=`<div class="sec-done"><span class="sec-done-icon" style="animation:bounce 1.5s ease-in-out infinite">🏆</span><div class="sec-done-title">${S.dbScore}/${SENTENCE_ROUNDS.length} correct! 🎉</div><div class="sec-done-sub">Past simple, prepositions, articles — grammar hero! 🚀</div><button class="btn-continue" style="background:var(--yellow);border-color:var(--yellow-shadow);color:var(--ink-bold)" onclick="claimBadge()">🚀 Claim My Astronaut Badge!</button></div>`;return;}
+    const q=SENTENCE_ROUNDS[S.dbIdx];const indexed=q.opts.map((o,i)=>({text:o,origIdx:i})).sort(()=>Math.random()-.5);const sc=indexed.findIndex(o=>o.origIdx===q.correct);
+    $('db-slot').innerHTML=`<div class="tip-box" style="margin-bottom:14px;">💡 One sentence is <strong>correct</strong>. Three have grammar mistakes. Tap the right one!</div><div class="db-starter">${q.starter} <em>...</em></div><div class="db-opts" id="db-opts">${indexed.map((o,i)=>`<button class="db-opt" onclick="answerSentence(this,${i},${sc})">${o.text}</button>`).join('')}</div><div class="db-feedback" id="db-fb"></div><button class="db-next" id="db-nxt" onclick="nextSentence()" style="display:none">${S.dbIdx+1<SENTENCE_ROUNDS.length?'Next sentence →':'Finish! 🚀'}</button>`;
+}
+window.answerSentence=function(btn,chosen,correct){document.querySelectorAll('.db-opt').forEach(b=>b.disabled=true);const fb=$('db-fb');const q=SENTENCE_ROUNDS[S.dbIdx];if(chosen===correct){btn.classList.add('correct');S.dbScore++;S.totalRight++;S.combo++;S.bestCombo=Math.max(S.bestCombo,S.combo);addXP(12,btn);EFCD_FX?.correct(btn);EFCD_FX?.combo(S.combo);fb.className='db-feedback show right';fb.innerHTML=q.fb;}else{btn.classList.add('wrong');document.querySelectorAll('.db-opt')[correct].classList.add('show-correct');EFCD_FX?.wrong(btn);EFCD_FX?.comboBreak(S.combo,S.bestCombo);S.combo=0;fb.className='db-feedback show wrong';fb.innerHTML='❌ Not quite! '+q.fb;}S.totalAnswered++;const nxt=$('db-nxt');if(nxt)nxt.style.display='flex';};
+function nextSentence(){S.dbIdx++;if(S.dbIdx>=SENTENCE_ROUNDS.length){S.dbDone=true;addXP(15);EFCD_FX?.toast('✍️',`${S.dbScore}/${SENTENCE_ROUNDS.length} correct! Grammar hero! +15 XP`);updateProgress();renderSentence();}else renderSentence();}
+
+function claimBadge(){const btn=document.querySelector('#sec-sentence .btn-continue');if(btn){btn.textContent='🎉 Opening...';btn.disabled=true;btn.style.opacity='.7';}setTimeout(showCompletion,400);}
+
+async function showCompletion(){const acc=S.totalAnswered>0?Math.round((S.totalRight/S.totalAnswered)*100):100;const xpMult=window.EFCD_Shop?.getXPMultiplier?.()||1;if(xpMult>1){S.xp=Math.round(S.xp*xpMult);const hx=$('hdr-xp');if(hx)hx.textContent=S.xp;}$('cc-xp').textContent='+'+S.xp;if(xpMult>1){const lbl=$('cc-xp-label');if(lbl)lbl.textContent='⚡ XP Earned · 2× DOUBLE XP! 🚀';}$('cc-correct').textContent=S.totalRight;$('cc-combo').textContent=S.bestCombo;$('completion-screen').classList.add('open');megaConfettiBurst();setTimeout(megaConfettiBurst,600);try{if(window.EFCD_Auth?.getCurrentUser()){await window.EFCD_Auth.completeLesson({lessonId:window.LESSON_ID,lessonTitle:window.LESSON_TITLE,lessonLevel:'Beginner',lessonLink:LESSON_LINK,badgeIcon:'🚀',badgeName:'Artemis Astronaut',vocabulary:[{word:'launch',definition:'To send a rocket into space'},{word:'orbit',definition:'To travel in a circle around something in space'},{word:'mission',definition:'An important journey with a specific goal'},{word:'crew',definition:'A group of people working together on a vehicle'},{word:'splashdown',definition:'When a spacecraft lands in the ocean'},{word:'parachute',definition:'A large cloth that slows something falling'},{word:'humanity',definition:'All people on Earth together'},{word:'liftoff',definition:'The moment a rocket leaves the ground'}],perfectScore:acc>=90});}}catch(e){}try{if(window.DailyChallenges){const dcResult=await window.DailyChallenges.updateChallengeProgress({perfectScore:acc>=90});if(dcResult?.justCompleted)setTimeout(()=>window.DailyChallenges.showChallengeCompletionCelebration(dcResult.challenge),1800);localStorage.setItem('dc_last_lesson_date',new Date().toDateString());localStorage.setItem('dc_last_lesson_section','beginner');}}catch(e){}}
+
+async function handleSignOut(){if(window.EFCD_Auth?.signOut)await window.EFCD_Auth.signOut();else if(window.efcdSupabaseClient){await window.efcdSupabaseClient.auth.signOut();window.location.href='/';}}
+
+document.addEventListener('DOMContentLoaded',async()=>{try{if(window.efcdReady)await window.efcdReady;if(window.EFCD_Auth){await window.EFCD_Auth.initAuth();window.EFCD_Shop?.applyActive?.();const user=window.EFCD_Auth.getCurrentUser();if(user){const st=window.EFCD_Auth.getUserStats();if(st){S.xp=st.xp||0;S.streak=st.streak||0;}const hx=$('hdr-xp');if(hx)hx.textContent=S.xp;const hs=$('hdr-streak');if(hs)hs.textContent=S.streak;const sb=$('hdr-signout');if(sb)sb.classList.remove('hidden');}}}catch(e){}buildAll();updateProgress();});
+</script>
+</body>
+</html>
