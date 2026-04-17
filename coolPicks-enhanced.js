@@ -9,7 +9,7 @@ const coolPicksWidget = {
     actualLessons: [
         // Add your lesson folders here with their actual durations, names, and categories:
         { url:'/blockbuster/',           time:'6 mins',  name:'Intermediate: The Last Blockbuster',     category:'intermediate',        icon:'🎞️' },
-        { url:'/weeklydropoil/',           time:'5 mins',  name:'Weekly Drop: Iran, Oil and Predictions',     category:'intermediate',        icon:'🛢️' },
+        { url:'/weeklydrop003/',           time:'5 mins',  name:'Weekly Drop: Shrinkflation',     category:'intermediate',        icon:'✂️' },
         { url:'/pandas/',           time:'7 mins',  name:'Beginner: Giant Pandas: Saved from Extinction!',     category:'beginner',        icon:'🐼' },
         { url:'/petrodollar/',           time:'8 mins',  name:'Business: The Petrodollar: Who Controls the World?',     category:'business',        icon:'⛽' },
     { url:'/ariana/',           time:'5 mins',  name:'Kids: Ariana Grande!',     category:'kids',        icon:'🎤' },
