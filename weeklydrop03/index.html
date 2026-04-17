@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+    <title>🍫 Issue 003 — The Great Chocolate Meltdown · The Weekly Drop</title>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/init-auth.js"></script>
+    <style>
+    :root {
+        --blue:#1CB0F6;   --blue-shadow:#1899D6;
+        --yellow:#FFC800; --yellow-shadow:#E5B400;
+        --green:#58CC02;  --green-shadow:#58A700;
+        --punch:#FF4B4B;  --punch-shadow:#EA2B2B;
+        --purple:#CE82FF; --purple-shadow:#A559D9;
+        --teal:#2BDECC;   --teal-shadow:#1FBFAF;
+        --choc:#5C2D0E;   --choc-shadow:#3d1e0a;
+        --choc-mid:#8B4513; --choc-light:#C4774A;
+        --gold:#D4A017;   --gold-shadow:#A87C0E;
+        --cream:#FFF8F0;
+        --bg:#F7F9FA; --white:#FFFFFF;
+        --ink:#4B4B4B; --ink-bold:#111827; --ink-3:#AFAFAF;
+        --border:#E5E5E5; --border-heavy:#CECECE;
+        --r:24px; --rsm:16px; --rxs:10px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--ink);font-family:'Nunito',system-ui,sans-serif;line-height:1.5;overflow-x:hidden;padding-bottom:20px;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;}
+    a{color:inherit;text-decoration:none;}
+    button{font-family:inherit;cursor:pointer;border:none;background:none;}
+
+    @keyframes up      {from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes popin   {0%{opacity:0;transform:scale(.82)}70%{transform:scale(1.04)}100%{opacity:1;transform:scale(1)}}
+    @keyframes nudge   {0%,100%{transform:translateX(0)}30%{transform:translateX(6px)}}
+    @keyframes float   {0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+    @keyframes shake   {0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+    @keyframes confetti{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(130px) rotate(400deg)}}
+    @keyframes slideLeft{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-32px)}}
+    @keyframes heartbeat{0%,100%{transform:scale(1)}14%{transform:scale(1.15)}28%{transform:scale(1)}42%{transform:scale(1.1)}}
+    @keyframes xpPop   {0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(1.5)}}
+    @keyframes flick   {0%,100%{transform:rotate(-4deg) scale(1)}50%{transform:rotate(4deg) scale(1.12)}}
+    @keyframes fadeIn  {from{opacity:0}to{opacity:1}}
+    @keyframes ticker  {0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+    @keyframes shimmer2{0%{left:-80%}100%{left:130%}}
+    @keyframes glowGold{0%,100%{box-shadow:0 0 24px rgba(212,160,23,.5),0 0 48px rgba(212,160,23,.25),0 8px 32px rgba(0,0,0,.2)}50%{box-shadow:0 0 48px rgba(212,160,23,.9),0 0 90px rgba(212,160,23,.4),0 8px 32px rgba(0,0,0,.2)}}
+    @keyframes badgepop{0%{opacity:0;transform:scale(.5) rotate(-10deg)}60%{transform:scale(1.15) rotate(3deg)}80%{transform:scale(.95) rotate(-1deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+    @keyframes spin    {from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    @keyframes melt    {0%,100%{transform:translateY(0) scaleY(1)}50%{transform:translateY(3px) scaleY(0.96)}}
+    @keyframes barShrink{0%{transform:scaleX(1)}100%{transform:scaleX(0.72)}}
+
+    .u1{animation:up .44s ease both .04s}
+    .u2{animation:up .44s ease both .14s}
+
+    /* ── HEADER ── */
+    .header{background:var(--choc);border-bottom:3px solid var(--choc-shadow);padding:0 20px;height:60px;position:sticky;top:0;z-index:300;display:flex;align-items:center;box-shadow:0 4px 12px rgba(92,45,14,.35);}
+    .header-inner{max-width:860px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
+    .logo-link{display:flex;align-items:center;gap:10px;text-decoration:none;}
+    .logo-box{width:38px;height:38px;background:var(--yellow);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid var(--yellow-shadow);box-shadow:0 3px 0 var(--yellow-shadow);}
+    .site-name{font-size:15px;font-weight:900;color:var(--white);letter-spacing:-.3px;}
+    @media(max-width:420px){.site-name{display:none}}
+    .header-xp{display:flex;align-items:center;gap:8px;}
+    .streak-mini{display:flex;align-items:center;gap:4px;font-size:14px;font-weight:900;color:var(--yellow);}
+    .streak-mini span:first-child{animation:flick 2s ease-in-out infinite;display:inline-block;}
+    .xp-pill{background:rgba(212,160,23,.2);border:2px solid rgba(212,160,23,.4);border-radius:99px;padding:5px 12px;font-size:14px;font-weight:900;color:var(--yellow);display:flex;align-items:center;gap:5px;}
+    .btn-dash{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);border-bottom:4px solid rgba(255,255,255,.15);border-radius:10px;font-size:18px;text-decoration:none;transition:all .15s;flex-shrink:0;}
+    .btn-dash:active{border-bottom-width:2px;transform:translateY(2px);}
+    .btn-dash.hidden{display:none;}
+    .btn-signout{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:rgba(255,75,75,.15);border:2px solid rgba(255,75,75,.3);border-bottom:4px solid rgba(255,75,75,.3);border-radius:10px;font-size:18px;cursor:pointer;font-family:inherit;transition:all .15s;flex-shrink:0;}
+    .btn-signout.hidden{display:none;}
+
+    .page{max-width:860px;margin:0 auto;padding:20px 14px 40px;display:flex;flex-direction:column;gap:14px;}
+
+    /* ── HERO BANNER ── */
+    .hero-banner{background:linear-gradient(135deg,#3d1a08 0%,#5C2D0E 50%,#7a3c18 100%);border:2px solid var(--choc-shadow);border-bottom:6px solid var(--choc-shadow);border-radius:var(--r);padding:24px 20px;position:relative;overflow:hidden;}
+    .hero-banner::after{content:'🍫';position:absolute;bottom:-20px;right:4px;font-size:140px;opacity:.12;pointer-events:none;transform:rotate(-12deg);animation:melt 3s ease-in-out infinite;}
+    .hero-issue{display:inline-flex;align-items:center;gap:6px;background:rgba(212,160,23,.2);border:2px solid rgba(212,160,23,.4);border-radius:8px;padding:4px 12px;margin-bottom:12px;font-size:11px;font-weight:900;color:var(--yellow);text-transform:uppercase;letter-spacing:1.5px;}
+    .hero-title{font-size:clamp(22px,6vw,38px);font-weight:900;color:var(--white);letter-spacing:-1px;line-height:1.1;margin-bottom:8px;position:relative;z-index:1;text-shadow:0 2px 0 rgba(0,0,0,.5);}
+    .hero-title .yellow{color:var(--yellow);text-shadow:0 2px 0 var(--gold-shadow);}
+    .hero-title .cream{color:#ffe8cc;}
+    .hero-sub{font-size:14px;font-weight:700;color:rgba(255,232,200,.9);margin-bottom:16px;position:relative;z-index:1;line-height:1.6;max-width:480px;}
+
+    /* shrink bar visual */
+    .shrink-demo{background:rgba(0,0,0,.25);border-radius:var(--rsm);padding:14px 16px;margin-bottom:14px;position:relative;z-index:1;}
+    .shrink-label{font-size:11px;font-weight:900;color:rgba(255,232,200,.7);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;}
+    .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+    .bar-year{font-size:11px;font-weight:900;color:rgba(255,232,200,.6);width:34px;flex-shrink:0;}
+    .bar-track{flex:1;height:22px;background:rgba(0,0,0,.3);border-radius:6px;overflow:hidden;border:1px solid rgba(255,232,200,.1);}
+    .bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:10px;font-weight:900;color:white;}
+    .bar-fill.b2020{width:100%;background:linear-gradient(90deg,#8B4513,#C4774A);}
+    .bar-fill.b2025{width:72%;background:linear-gradient(90deg,#5C2D0E,#8B4513);animation:barShrink 1.8s ease-out 1.2s both;}
+    .bar-fill.b2020{animation:none;}
+    .bar-weight{font-size:11px;font-weight:900;color:var(--yellow);width:34px;text-align:right;flex-shrink:0;}
+    .shrink-caption{font-size:12px;font-weight:700;color:rgba(255,232,200,.6);font-style:italic;}
+
+    .ticker-wrap{overflow:hidden;background:rgba(0,0,0,.25);border-radius:8px;padding:8px 0;margin-bottom:16px;position:relative;z-index:1;mask-image:linear-gradient(to right,transparent,black 8%,black 92%,transparent);-webkit-mask-image:linear-gradient(to right,transparent,black 8%,black 92%,transparent);}
+    .ticker-inner{display:inline-flex;gap:0;white-space:nowrap;animation:ticker 20s linear infinite;font-size:11px;font-weight:900;color:var(--yellow);letter-spacing:1.5px;text-transform:uppercase;}
+    .ticker-sep{margin:0 20px;opacity:.4;color:rgba(255,232,200,.5);}
+    .hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;position:relative;z-index:1;}
+    .hs-pill{background:rgba(212,160,23,.12);border:2px solid rgba(212,160,23,.25);border-radius:var(--rsm);padding:10px 6px;text-align:center;}
+    .hs-num{display:block;font-size:clamp(18px,4vw,24px);font-weight:900;color:var(--yellow);line-height:1;}
+    .hs-lbl{font-size:9px;font-weight:900;color:rgba(255,232,200,.7);text-transform:uppercase;letter-spacing:1px;margin-top:3px;display:block;}
+    .expert-quote{background:rgba(0,0,0,.25);border-left:4px solid var(--gold);border-radius:0 var(--rsm) var(--rsm) 0;padding:12px 16px;margin-bottom:16px;position:relative;z-index:1;}
+    .expert-quote-text{font-size:14px;font-weight:800;color:var(--white);line-height:1.6;font-style:italic;margin-bottom:6px;}
+    .expert-quote-attr{font-size:11px;font-weight:900;color:rgba(255,232,200,.6);text-transform:uppercase;letter-spacing:1px;}
+    .btn-start{display:flex;align-items:center;justify-content:space-between;width:100%;padding:16px 20px;background:var(--gold);color:var(--choc-shadow);font-size:17px;font-weight:900;border-radius:var(--rsm);border:2px solid var(--gold-shadow);border-bottom:5px solid var(--gold-shadow);cursor:pointer;transition:transform .1s,border-bottom-width .1s;position:relative;z-index:1;letter-spacing:-.3px;}
+    .btn-start:active{border-bottom-width:2px;transform:translateY(3px);}
+    .btn-arrow{font-size:22px;animation:nudge 2s ease-in-out infinite;}
+
+    /* ── PROGRESS ── */
+    .prog-wrap{background:var(--white);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--r);padding:14px 18px;}
+    .prog-row{display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:var(--ink-bold);margin-bottom:8px;}
+    .prog-track{height:14px;background:var(--border);border-radius:99px;overflow:hidden;border:2px solid var(--border-heavy);}
+    .prog-fill{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,var(--choc),var(--choc-light));border-top:3px solid rgba(255,255,255,.25);transition:width .7s cubic-bezier(.4,0,.2,1);}
+    .prog-dots{display:flex;gap:6px;margin-top:10px;}
+    .prog-dot{flex:1;height:8px;border-radius:99px;background:var(--border-heavy);transition:background .3s;}
+    .prog-dot.done{background:var(--yellow);}
+    .prog-dot.active{background:var(--choc);}
+
+    /* ── SECTION CARDS ── */
+    .sec-card{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);overflow:hidden;opacity:0;transform:translateY(16px);transition:opacity .4s ease,transform .4s ease;scroll-margin-top:72px;}
+    .sec-card.visible{opacity:1;transform:translateY(0);}
+    .sec-card::before{content:'';display:block;height:8px;border-radius:var(--r) var(--r) 0 0;margin:-2px -2px 0;}
+    .strip-choc::before{background:linear-gradient(90deg,var(--choc),var(--choc-light));}
+    .strip-blue::before{background:var(--blue);}
+    .strip-purple::before{background:var(--purple);}
+    .strip-yellow::before{background:var(--yellow);}
+    .strip-teal::before{background:var(--teal);}
+    .strip-green::before{background:var(--green);}
+    .sec-head{padding:13px 18px 11px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:12px;}
+    .sec-head-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;background:var(--bg);border:2px solid var(--border-heavy);border-bottom:3px solid var(--border-heavy);}
+    .sec-head-title{font-size:15px;font-weight:900;color:var(--ink-bold);letter-spacing:-.3px;}
+    .sec-head-sub{font-size:12px;font-weight:700;color:var(--ink-3);margin-top:1px;}
+    .level-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1px;padding:3px 8px;border-radius:6px;border:2px solid;margin-left:8px;}
+    .lb-beg{background:rgba(88,204,2,.1);color:#3a7a00;border-color:rgba(88,204,2,.3);}
+    .lb-int{background:rgba(28,176,246,.1);color:#0a6fa8;border-color:rgba(28,176,246,.3);}
+    .lb-adv{background:rgba(255,75,75,.1);color:#c0392b;border-color:rgba(255,75,75,.3);}
+    .lb-all{background:rgba(255,200,0,.15);color:#7a5800;border-color:rgba(255,200,0,.4);}
+    .lb-native{background:linear-gradient(135deg,rgba(212,160,23,.2),rgba(139,69,19,.15));color:#5C2D0E;border-color:rgba(212,160,23,.5);}
+    .sec-body{padding:18px;}
+    @media(min-width:640px){.sec-body{padding:22px;}}
+
+    /* ── TRUE / FALSE ── */
+    .ht-dots{display:flex;justify-content:center;gap:7px;margin-bottom:16px;}
+    .ht-dot{width:10px;height:10px;border-radius:50%;background:var(--border-heavy);border:2px solid var(--border-heavy);transition:all .3s;}
+    .ht-dot.active{width:28px;border-radius:6px;background:var(--choc);border-color:var(--choc-shadow);}
+    .ht-dot.done{background:var(--yellow);border-color:var(--yellow-shadow);}
+    .ht-card{background:var(--bg);border:2px solid var(--border);border-radius:var(--rsm);padding:20px;animation:up .3s ease both;}
+    .ht-card.exit{animation:slideLeft .2s ease both;}
+    .ht-num{font-size:11px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;}
+    .ht-heat{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;padding:4px 12px;border-radius:8px;margin-bottom:14px;border:2px solid;}
+    .h1{background:rgba(88,204,2,.1);border-color:var(--green-shadow);color:var(--green-shadow);}
+    .h2{background:rgba(255,200,0,.15);border-color:var(--yellow-shadow);color:#7A5800;}
+    .h3{background:rgba(255,75,75,.1);border-color:var(--punch-shadow);color:var(--punch-shadow);}
+    .ht-statement{font-size:clamp(16px,4.5vw,21px);font-weight:900;color:var(--ink-bold);line-height:1.3;letter-spacing:-.3px;margin-bottom:18px;}
+    .ht-votes{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .ht-btn{display:flex;align-items:center;justify-content:center;gap:7px;padding:15px 10px;min-height:56px;font-size:15px;font-weight:900;border-radius:var(--rsm);border:2px solid;border-bottom-width:5px;transition:transform .1s,border-bottom-width .1s;}
+    .ht-btn:active{border-bottom-width:2px;transform:translateY(3px);}
+    .ht-btn.agree{background:rgba(88,204,2,.08);border-color:var(--green-shadow);color:var(--green-shadow);}
+    .ht-btn.disagree{background:rgba(255,75,75,.08);border-color:var(--punch-shadow);color:var(--punch-shadow);}
+    .ht-btn.sel-right{background:var(--green)!important;color:var(--white)!important;border-color:var(--green-shadow)!important;animation:heartbeat .6s ease;}
+    .ht-btn.sel-wrong{background:var(--punch)!important;color:var(--white)!important;border-color:var(--punch-shadow)!important;animation:shake .4s;}
+    .ht-btn:disabled{cursor:default;opacity:.85;}
+    .ht-reveal{margin-top:14px;border:2px solid var(--border-heavy);border-radius:var(--rsm);display:none;overflow:hidden;}
+    .ht-reveal.show{display:block;animation:up .22s ease both;}
+    .ht-verdict{padding:12px 16px;font-size:16px;font-weight:900;}
+    .ht-verdict.right{background:var(--green);color:var(--white);}
+    .ht-verdict.wrong{background:var(--punch);color:var(--white);}
+    .ht-explanation{padding:14px 16px;font-size:14px;font-weight:700;line-height:1.65;color:var(--ink-bold);background:var(--white);border-top:2px solid var(--border);}
+    .ht-voc{color:var(--choc-mid);font-weight:900;border-bottom:2.5px solid rgba(139,69,19,.4);cursor:pointer;}
+    .ht-next-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:14px;padding:14px;background:var(--green);color:var(--white);font-size:16px;font-weight:900;border:2px solid var(--green-shadow);border-bottom:5px solid var(--green-shadow);border-radius:var(--rsm);transition:transform .1s,border-bottom-width .1s;}
+    .ht-next-btn:active{border-bottom-width:2px;transform:translateY(3px);}
+
+    /* ── FIX THE MISTAKE ── */
+    .ftm-progress{display:flex;gap:5px;margin-bottom:14px;}
+    .ftm-pip{flex:1;height:6px;border-radius:99px;background:var(--border-heavy);transition:background .3s;}
+    .ftm-pip.done{background:var(--yellow);}
+    .ftm-pip.active{background:var(--blue);}
+    .ftm-card{background:var(--bg);border:2px solid var(--border);border-radius:var(--rsm);padding:20px;animation:up .28s ease both;}
+    .ftm-card.exit{animation:slideLeft .2s ease both;}
+    .ftm-num{font-size:11px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;}
+    .ftm-sentence{font-size:clamp(15px,4vw,19px);font-weight:800;color:var(--ink-bold);line-height:1.5;margin-bottom:6px;letter-spacing:-.2px;}
+    .ftm-hint{font-size:12px;font-weight:700;color:var(--ink-3);font-style:italic;margin-bottom:16px;}
+    .ftm-options{display:flex;flex-direction:column;gap:8px;}
+    .ftm-opt{padding:13px 18px;font-size:15px;font-weight:900;background:var(--white);color:var(--ink-bold);text-align:left;border:2px solid var(--border-heavy);border-bottom:5px solid var(--border-heavy);border-radius:var(--rsm);transition:transform .1s,border-bottom-width .1s;display:flex;align-items:center;gap:10px;}
+    .ftm-opt:active:not(:disabled){border-bottom-width:2px;transform:translateY(3px);}
+    .ftm-opt.right{background:var(--green)!important;color:var(--white)!important;border-color:var(--green-shadow)!important;animation:heartbeat .55s ease;}
+    .ftm-opt.wrong{background:var(--punch)!important;color:var(--white)!important;border-color:var(--punch-shadow)!important;animation:shake .4s;}
+    .ftm-opt:disabled{cursor:default;}
+    .ftm-feedback{margin-top:12px;padding:12px 14px;border-radius:var(--rsm);font-size:14px;font-weight:800;border:2px solid;display:none;line-height:1.6;}
+    .ftm-feedback.show{display:block;animation:up .2s ease both;}
+    .ftm-feedback.right{background:rgba(88,204,2,.1);color:var(--green-shadow);border-color:rgba(88,204,2,.3);}
+    .ftm-feedback.wrong{background:rgba(255,75,75,.1);color:var(--punch-shadow);border-color:rgba(255,75,75,.3);}
+    .ftm-next{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:12px;padding:14px;background:var(--blue);color:var(--white);font-size:15px;font-weight:900;border:2px solid var(--blue-shadow);border-bottom:5px solid var(--blue-shadow);border-radius:var(--rsm);transition:transform .1s,border-bottom-width .1s;}
+    .ftm-next:active{border-bottom-width:2px;transform:translateY(3px);}
+
+    /* ── WORD MATCH ── */
+    .match-btn{padding:11px 8px;font-size:13px;font-weight:900;background:var(--white);color:var(--ink-bold);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);cursor:pointer;transition:all .15s;font-family:inherit;width:100%;}
+    .match-btn.selected{background:var(--yellow);border-color:var(--yellow-shadow);color:var(--ink-bold);}
+    .match-btn.matched-right{background:var(--green);border-color:var(--green-shadow);color:var(--white);}
+    .match-btn.matched-wrong{background:var(--punch);border-color:var(--punch-shadow);color:var(--white);animation:shake .4s;}
+
+    /* ── IDIOM IN THE WILD ── */
+    .iw-progress{display:flex;gap:5px;margin-bottom:16px;}
+    .iw-pip{flex:1;height:6px;border-radius:99px;background:var(--border-heavy);transition:background .3s;}
+    .iw-pip.done{background:var(--yellow);}
+    .iw-pip.active{background:var(--teal);}
+    .iw-card{background:var(--bg);border:2px solid var(--border);border-radius:var(--rsm);padding:20px;animation:up .3s ease both;}
+    .iw-step-label{font-size:11px;font-weight:900;color:var(--teal-shadow);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;}
+    .iw-headline{background:var(--white);border:2px solid var(--border-heavy);border-left:4px solid var(--choc-mid);border-radius:0 var(--rsm) var(--rsm) 0;padding:14px 16px;font-size:15px;font-weight:800;color:var(--ink-bold);line-height:1.6;margin-bottom:16px;font-style:italic;}
+    .iw-question{font-size:clamp(15px,4vw,18px);font-weight:900;color:var(--ink-bold);line-height:1.4;margin-bottom:14px;letter-spacing:-.2px;}
+    .iw-options{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+    .iw-opt{padding:13px 18px;font-size:14px;font-weight:800;background:var(--white);color:var(--ink-bold);text-align:left;border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);transition:all .1s;line-height:1.4;}
+    .iw-opt:active:not(:disabled){border-bottom-width:2px;transform:translateY(2px);}
+    .iw-opt-phrase{font-style:italic;color:var(--teal-shadow);border-color:rgba(43,222,204,.4);background:rgba(43,222,204,.06);}
+    .iw-opt-right{background:var(--green)!important;color:var(--white)!important;border-color:var(--green-shadow)!important;animation:heartbeat .55s ease;}
+    .iw-opt-wrong{background:var(--punch)!important;color:var(--white)!important;border-color:var(--punch-shadow)!important;animation:shake .4s;}
+    .iw-opt:disabled{cursor:default;}
+    .iw-feedback{padding:12px 14px;border-radius:var(--rsm);font-size:14px;font-weight:800;border:2px solid;display:none;line-height:1.6;margin-bottom:12px;}
+    .iw-feedback.show{display:block;animation:up .2s ease both;}
+    .iw-feedback.right{background:rgba(88,204,2,.1);color:var(--green-shadow);border-color:rgba(88,204,2,.3);}
+    .iw-feedback.wrong{background:rgba(255,75,75,.1);color:var(--punch-shadow);border-color:rgba(255,75,75,.3);}
+    .iw-gap-sentence{font-size:clamp(15px,4vw,18px);font-weight:800;color:var(--ink-bold);line-height:1.7;margin-bottom:12px;padding:14px 16px;background:var(--white);border:2px solid var(--border-heavy);border-radius:var(--rsm);}
+    .iw-blank{display:inline-block;border-bottom:3px dashed var(--teal);padding:0 8px;color:var(--teal-shadow);min-width:60px;text-align:center;transition:all .3s;}
+    .iw-gap-label{font-size:13px;font-weight:800;color:var(--ink-3);margin-bottom:10px;font-style:italic;}
+    .iw-hear-wrap{margin-top:4px;margin-bottom:12px;}
+    .iw-hear-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px 16px;background:var(--teal);color:var(--white);border:2px solid var(--teal-shadow);border-bottom:4px solid var(--teal-shadow);border-radius:var(--rsm);font-size:14px;font-weight:900;transition:all .1s;}
+    .iw-hear-btn:active{border-bottom-width:2px;transform:translateY(2px);}
+    .iw-next{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:14px;background:var(--teal);color:var(--white);font-size:15px;font-weight:900;border:2px solid var(--teal-shadow);border-bottom:5px solid var(--teal-shadow);border-radius:var(--rsm);transition:all .1s;}
+    .iw-next:active{border-bottom-width:2px;transform:translateY(3px);}
+
+    /* ── SECTION DONE ── */
+    .sec-done{text-align:center;padding:28px 18px;animation:popin .4s cubic-bezier(.175,.885,.32,1.275) both;}
+    .sec-done-icon{font-size:54px;display:block;margin-bottom:10px;animation:float 2.5s ease-in-out infinite;}
+    .sec-done-title{font-size:22px;font-weight:900;color:var(--ink-bold);margin-bottom:6px;}
+    .sec-done-sub{font-size:14px;font-weight:700;color:var(--ink-3);margin-bottom:18px;}
+    .btn-continue{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;margin-top:14px;background:var(--green);color:var(--white);font-size:16px;font-weight:900;border:2px solid var(--green-shadow);border-bottom:5px solid var(--green-shadow);border-radius:var(--rsm);transition:transform .1s,border-bottom-width .1s;}
+    .btn-continue:active{border-bottom-width:2px;transform:translateY(3px);}
+
+    /* ── VOCAB POPUP ── */
+    #voc-popup{position:fixed;bottom:20px;left:12px;right:12px;background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-top:4px solid var(--choc);padding:18px 18px 20px;border-radius:var(--r) var(--r) var(--rsm) var(--rsm);z-index:500;display:none;box-shadow:0 -6px 28px rgba(0,0,0,.1);animation:up .25s cubic-bezier(.175,.885,.32,1.275) both;max-height:44vh;overflow-y:auto;}
+    @media(min-width:768px){#voc-popup{position:fixed;bottom:24px;right:24px;left:auto;max-width:300px;border-radius:var(--r);}}
+    .vp-close{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:var(--rxs);background:var(--bg);border:2px solid var(--border-heavy);font-size:18px;font-weight:900;color:var(--ink-3);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+    .voc-word{font-size:22px;font-weight:900;color:var(--choc-mid);margin-bottom:2px;}
+    .voc-type{font-size:11px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+    .voc-def{font-size:14px;font-weight:700;color:var(--ink);line-height:1.65;margin-bottom:14px;}
+    .voc-hear-btn{width:100%;padding:12px;background:var(--choc);color:var(--white);border:2px solid var(--choc-shadow);border-bottom:5px solid var(--choc-shadow);border-radius:var(--rsm);font-size:15px;font-weight:900;transition:transform .1s,border-bottom-width .1s;}
+    .voc-hear-btn:active{border-bottom-width:2px;transform:translateY(3px);}
+
+    /* ── XP FLOAT ── */
+    .xp-float{position:fixed;font-size:20px;font-weight:900;color:var(--gold-shadow);text-shadow:0 2px 0 rgba(0,0,0,.12);pointer-events:none;z-index:9998;animation:xpPop .85s ease-out forwards;}
+
+    /* ── COMPLETION SCREEN ── */
+    #completion-screen{position:fixed;inset:0;background:linear-gradient(135deg,#3d1a08,#5C2D0E);z-index:10000;display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
+    #completion-screen.open{display:flex;animation:fadeIn .4s ease both;}
+    .completion-card{background:var(--white);border:2px solid rgba(212,160,23,.35);border-bottom:8px solid var(--choc-shadow);border-radius:24px;padding:36px 28px;max-width:480px;width:100%;text-align:center;}
+    .badge-shine-wrap{position:relative;margin:0 auto 16px;width:170px;height:170px;display:flex;align-items:center;justify-content:center;}
+    .badge-ring{position:absolute;inset:0;border-radius:50%;background:conic-gradient(#D4A017 0deg,#8B4513 60deg,#D4A017 120deg,#5C2D0E 180deg,#D4A017 240deg,#8B4513 360deg);animation:spin 4s linear infinite;}
+    .badge-ring-inner{position:absolute;inset:5px;border-radius:50%;background:var(--white);}
+    .badge-circle{position:relative;width:132px;height:132px;border-radius:50%;background:linear-gradient(145deg,#8B4513,#5C2D0E,#3d1a08);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:glowGold 2.5s ease-in-out infinite,badgepop .9s cubic-bezier(.175,.885,.32,1.275) both;border:3px solid rgba(212,160,23,.6);overflow:hidden;z-index:1;}
+    .badge-circle::before{content:'';position:absolute;top:-10%;left:-80%;width:50%;height:120%;background:linear-gradient(to right,transparent,rgba(255,255,255,.3),transparent);transform:skewX(-20deg);animation:shimmer2 2.2s ease-in-out infinite;}
+    .badge-emoji{font-size:44px;line-height:1;position:relative;z-index:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));}
+    .badge-003{font-size:12px;font-weight:900;color:rgba(255,232,200,.95);letter-spacing:3px;text-transform:uppercase;position:relative;z-index:1;margin-top:4px;text-shadow:0 1px 3px rgba(0,0,0,.4);}
+    .badge-name-big{font-size:22px;font-weight:900;color:var(--choc-mid);margin-bottom:4px;letter-spacing:-.4px;}
+    .badge-sub-big{font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:20px;}
+    .cc-xp-box{background:var(--choc);border:2px solid var(--choc-shadow);border-bottom:6px solid var(--choc-shadow);border-radius:var(--r);padding:20px;margin-bottom:16px;}
+    .cc-xp-num{font-weight:900;font-size:52px;color:var(--yellow);line-height:1;}
+    .cc-xp-label{font-size:13px;font-weight:900;color:rgba(255,232,200,.85);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+    .cc-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;}
+    .cc-stat{background:rgba(92,45,14,.08);border:2px solid rgba(92,45,14,.15);border-radius:var(--rsm);padding:12px 8px;}
+    .cc-stat-n{font-size:22px;font-weight:900;color:var(--choc-mid);}
+    .cc-stat-l{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);margin-top:2px;}
+    .next-week-card{background:linear-gradient(135deg,rgba(28,176,246,.08),rgba(88,204,2,.06));border:2px solid rgba(28,176,246,.25);border-radius:var(--rsm);padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+    .nw-icon{font-size:28px;flex-shrink:0;animation:float 2s ease-in-out infinite;}
+    .nw-title{font-size:14px;font-weight:900;color:var(--ink-bold);}
+    .nw-sub{font-size:12px;font-weight:700;color:var(--ink-3);margin-top:2px;}
+    .cc-btns{display:flex;flex-direction:column;gap:10px;}
+    .cc-btn{width:100%;padding:14px;border-radius:var(--r);font-size:15px;font-weight:900;font-family:inherit;cursor:pointer;border:2px solid;border-bottom:5px solid;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s;}
+    .cc-btn:active{border-bottom-width:2px;transform:translateY(3px);}
+    .cc-btn.primary{background:var(--choc);color:var(--yellow);border-color:var(--choc-shadow);}
+    .cc-btn.secondary{background:var(--white);color:var(--choc-mid);border-color:var(--choc-light);}
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="header-inner">
+        <a href="/weeklydrop/" class="logo-link">
+            <div class="logo-box">😎</div>
+            <span class="site-name">The Weekly Drop</span>
+        </a>
+        <div class="header-xp">
+            <div class="streak-mini"><span>🔥</span><span id="hdr-streak">0</span></div>
+            <div class="xp-pill">⚡ <span id="hdr-xp">0</span> XP</div>
+            <a href="/dashboard-gamified/" class="btn-dash hidden" id="hdr-dash" title="Dashboard">📊</a>
+            <button class="btn-signout hidden" id="hdr-signout" title="Sign out" onclick="handleSignOut()">👋</button>
+        </div>
+    </div>
+</header>
+
+<div id="voc-popup">
+    <button class="vp-close" onclick="closeVoc()">×</button>
+    <div id="vp-body"></div>
+</div>
+
+<div class="page">
+    <div class="hero-banner u1">
+        <div class="hero-issue">🍫 The Weekly Drop · Issue 003 · 17 Apr 2026</div>
+        <div class="hero-title">The Great<br><span class="yellow">Chocolate</span><br><span class="cream">Meltdown.</span></div>
+        <div class="hero-sub">Cocoa hit a record $12,000 per tonne. Your Easter egg shrank — but the price didn't. Welcome to shrinkflation. The chocolate industry will never be the same.</div>
+
+        <div class="shrink-demo">
+            <div class="shrink-label">🍫 The incredible shrinking chocolate bar</div>
+            <div class="bar-row">
+                <span class="bar-year">2020</span>
+                <div class="bar-track"><div class="bar-fill b2020">200g</div></div>
+                <span class="bar-weight">200g</span>
+            </div>
+            <div class="bar-row">
+                <span class="bar-year">2026</span>
+                <div class="bar-track"><div class="bar-fill b2025">135g</div></div>
+                <span class="bar-weight">135g</span>
+            </div>
+            <div class="shrink-caption">Same price. Same wrapper. 33% less chocolate. 🤫</div>
+        </div>
+
+        <div class="ticker-wrap">
+            <div class="ticker-inner">
+                <span>🍫 COCOA HITS $12,000/TONNE</span><span class="ticker-sep">·</span>
+                <span>BARS 33% SMALLER SINCE 2020</span><span class="ticker-sep">·</span>
+                <span>LINDT PROFITS DOWN 18%</span><span class="ticker-sep">·</span>
+                <span>GHANA HARVEST -14%</span><span class="ticker-sep">·</span>
+                <span>CADBURY UNDER FIRE</span><span class="ticker-sep">·</span>
+                <span>🍫 COCOA HITS $12,000/TONNE</span><span class="ticker-sep">·</span>
+                <span>BARS 33% SMALLER SINCE 2020</span><span class="ticker-sep">·</span>
+                <span>LINDT PROFITS DOWN 18%</span><span class="ticker-sep">·</span>
+                <span>GHANA HARVEST -14%</span><span class="ticker-sep">·</span>
+                <span>CADBURY UNDER FIRE</span><span class="ticker-sep">·</span>
+            </div>
+        </div>
+        <div class="hero-stats">
+            <div class="hs-pill"><span class="hs-num">$12k</span><span class="hs-lbl">Per tonne cocoa</span></div>
+            <div class="hs-pill"><span class="hs-num">–33%</span><span class="hs-lbl">Bar size since 2020</span></div>
+            <div class="hs-pill"><span class="hs-num">+22%</span><span class="hs-lbl">Choc price in shops</span></div>
+        </div>
+        <div class="expert-quote">
+            <div class="expert-quote-text">"Shrinkflation is a form of hidden inflation. Consumers pay the same and feel nothing — until they count the squares."</div>
+            <div class="expert-quote-attr">— Which? Consumer Research, UK, 2025</div>
+        </div>
+        <button class="btn-start" onclick="startLesson()">
+            <span>🍫 &nbsp;Read it. Play it. Learn it. Let's go!</span>
+            <span class="btn-arrow">→</span>
+        </button>
+    </div>
+
+    <div class="prog-wrap u2" id="prog-wrap" style="display:none;">
+        <div class="prog-row"><span id="prog-label">0 / 4 sections</span><span id="prog-pct">0%</span></div>
+        <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+        <div class="prog-dots" id="prog-dots"></div>
+    </div>
+
+    <div id="sections"></div>
+</div>
+
+<!-- COMPLETION SCREEN -->
+<div id="completion-screen">
+    <div class="completion-card">
+        <div class="badge-shine-wrap">
+            <div class="badge-ring"></div>
+            <div class="badge-ring-inner"></div>
+            <div class="badge-circle">
+                <span class="badge-emoji">🍫</span>
+                <span class="badge-003">ISSUE 003</span>
+            </div>
+        </div>
+        <div class="badge-name-big">Choc Market Analyst</div>
+        <div class="badge-sub-big">You completed The Weekly Drop — Issue 003</div>
+        <div class="cc-xp-box">
+            <div class="cc-xp-num" id="cc-xp">+0</div>
+            <div class="cc-xp-label">XP Earned This Issue</div>
+        </div>
+        <div class="cc-stats">
+            <div class="cc-stat"><div class="cc-stat-n" id="cc-correct">0</div><div class="cc-stat-l">Correct</div></div>
+            <div class="cc-stat"><div class="cc-stat-n" id="cc-combo">0</div><div class="cc-stat-l">Best Combo</div></div>
+            <div class="cc-stat"><div class="cc-stat-n" id="cc-accuracy">0%</div><div class="cc-stat-l">Accuracy</div></div>
+        </div>
+        <div class="next-week-card">
+            <span class="nw-icon">📬</span>
+            <div>
+                <div class="nw-title">Issue 004 drops next week.</div>
+                <div class="nw-sub">New crisis. New English. New badge. See you then! 😎</div>
+            </div>
+        </div>
+        <div class="cc-btns">
+            <a href="/weeklydrop/" class="cc-btn primary">🍫 See All Issues →</a>
+            <a href="/" class="cc-btn secondary">🏠 Back to All Courses</a>
+        </div>
+    </div>
+</div>
+
+<script src="/supabase-auth-gamified.js"></script>
+<script src="/daily-challenges-system.js"></script>
+<script src="/interactions.js"></script>
+<script>
+'use strict';
+
+window.LESSON_ID    = 'weekly-drop-issue-003';
+window.LESSON_TITLE = 'The Weekly Drop — Issue 003 · The Great Chocolate Meltdown';
+var LESSON_LINK     = '/weeklydrop003/';
+
+/* ═══════════ GLOSSARY ═══════════ */
+var GLOSSARY = {
+    'shrinkflation':    {type:'noun',def:'When a product gets smaller or lighter but the price stays the same — a sneaky form of inflation. Cadbury and Toblerone are famous examples. (🇩🇪 Mengenreduzierung bei gleichem Preis)'},
+    'commodity':        {type:'noun',def:'A raw material or basic product that is bought and sold — like cocoa, oil, or wheat. Commodity prices affect everything downstream. (🇩🇪 Rohstoff / Handelsgut)'},
+    'pass on costs':    {type:'verb phrase',def:'When a company transfers rising costs to the customer through higher prices. "We had to pass on our cocoa costs to the consumer." (🇩🇪 Kosten weitergeben)'},
+    'margin squeeze':   {type:'noun',def:'When the gap between what something costs to make and what you can sell it for shrinks. Companies hate this. (🇩🇪 Margenquetschung)'},
+    'hedge':            {type:'verb',def:'To protect yourself against future price changes — e.g. buying cocoa in advance at a fixed price to avoid paying more later. (🇩🇪 absichern / hedgen)'},
+    'futures contract': {type:'noun',def:'An agreement to buy or sell something at a fixed price at a future date. Chocolate companies use these to lock in cocoa prices. (🇩🇪 Terminkontrakt)'},
+    'supply chain':     {type:'noun',def:'The entire process from raw material to finished product — farmers, shippers, processors, factories, retailers. A weak link anywhere causes problems. (🇩🇪 Lieferkette)'},
+    'price elasticity': {type:'noun',def:'How much demand changes when the price changes. Chocolate has LOW elasticity — people keep buying it even when it costs more. Addictive, isn\'t it?'},
+};
+
+/* ═══════════ TRUE / FALSE ═══════════ */
+var TRUE_FALSE = [
+    {
+        heat:'h1', heatLabel:'🟢 Beginner',
+        statement:'Cocoa is the main ingredient in chocolate.',
+        agree:true,
+        explain:'True! Cocoa beans grow on trees in hot countries like Ghana and Ivory Coast. We use them to make chocolate. No cocoa = no chocolate. Simple!'
+    },
+    {
+        heat:'h1', heatLabel:'🟢 Beginner',
+        statement:'In 2025, chocolate bars got bigger but stayed the same price.',
+        agree:false,
+        explain:'False! Chocolate bars got SMALLER — but the price stayed the same. Companies did not want to raise the price. So they made the bar smaller instead. This is called <span class="ht-voc" onclick="openVoc(\'shrinkflation\')">shrinkflation</span>. You pay the same. You get less. Sneaky!'
+    },
+    {
+        heat:'h1', heatLabel:'🟢 A2',
+        statement:'Cocoa prices went up a lot in 2025. This made chocolate more expensive to buy.',
+        agree:true,
+        explain:'True! When cocoa costs more, chocolate companies spend more money to make their products. So the price in the shop goes up too. In 2025, cocoa hit a record price — the highest ever. This is why your Easter egg cost more this year!'
+    },
+    {
+        heat:'h1', heatLabel:'🟢 A2',
+        statement:'Shrinkflation is easy to see. Shoppers always notice when a product gets smaller.',
+        agree:false,
+        explain:'False! Most people do NOT notice. The packet looks the same. The price looks the same. But inside there is less product. Companies know this. That is why they do it — it is a hidden price rise. Check the weight on the back of the packet next time you shop!'
+    },
+    {
+        heat:'h2', heatLabel:'🔵 Intermediate',
+        statement:'Only cheap chocolate brands use shrinkflation. Premium brands like Lindt always keep the same size.',
+        agree:false,
+        explain:'False! Even premium brands have been affected. When your main <span class="ht-voc" onclick="openVoc(\'commodity\')">commodity</span> costs four times more than before, every company feels the pressure — luxury or not. Lindt reported an 18% drop in profits in 2025. No brand is immune when the <span class="ht-voc" onclick="openVoc(\'supply chain\')">supply chain</span> breaks down.'
+    },
+];
+
+/* ═══════════ FIX THE MISTAKE ═══════════ */
+var FIX_MISTAKES = [
+      {
+        sentence:'"The chocolate company was forced to <u>increase</u> the size of its bars after cocoa prices surged."',
+        hint:'When costs go up and companies want to hide it from customers, which direction does the bar go?',
+        opts:['increase → REDUCE','increase → DOUBLE','increase → MAINTAIN'],
+        correct:0,
+        fb:'✅ REDUCE — this is the essence of shrinkflation. Companies REDUCE the size of the product rather than raising the price visibly. Same price, smaller bar. (🇩🇪 Mengenreduzierung)'
+    },
+    {
+        sentence:'"Cocoa is a <u>manufactured product</u> whose price is set by governments."',
+        hint:'Cocoa grows on trees in tropical countries. What do we call raw materials that are traded on world markets?',
+        opts:['manufactured product → SYNTHETIC COMPOUND','manufactured product → COMMODITY','manufactured product → PATENTED INGREDIENT'],
+        correct:1,
+        fb:'✅ COMMODITY — cocoa is a commodity: a raw material traded on global markets. Prices are set by supply and demand, not governments. Other commodities include coffee, wheat, oil, and copper. (🇩🇪 Rohstoff)'
+    },
+    {
+        sentence:'"The CEO said the company had no choice but to <u>absorb</u> the rising cocoa costs internally."',
+        hint:'The CEO announced price rises for customers. What do we call it when companies push costs onto buyers?',
+        opts:['absorb → IGNORE','absorb → INSURE AGAINST','absorb → PASS ON'],
+        correct:2,
+        fb:'✅ PASS ON — to pass on costs means to transfer them to the customer through higher prices. "Absorb" costs means swallowing them yourself and accepting lower profit. The CEO chose NOT to absorb them. (🇩🇪 Kosten weitergeben)'
+    },
+    {
+        sentence:'"The company had hedged its cocoa supply using <u>insurance policies</u> locked in two years ago."',
+        hint:'Locking in a price for a commodity you will buy in the future has a specific financial name...',
+        opts:['insurance policies → GIFT VOUCHERS','insurance policies → SPONSORSHIP DEALS','insurance policies → FUTURES CONTRACTS'],
+        correct:2,
+        fb:'✅ FUTURES CONTRACTS — a futures contract is an agreement to buy a commodity at a fixed price on a future date. Companies use these to hedge (protect themselves) against price rises. Not the same as insurance, though the goal — reducing risk — is similar. (🇩🇪 Terminkontrakt)'
+    },
+];
+/* ═══════════ WORD MATCH ═══════════ */
+var MATCH_PAIRS = [
+    {term:'SHRINKFLATION',   def:'Same price, smaller product — hidden inflation'},
+    {term:'COMMODITY',       def:'A raw material traded on global markets'},
+    {term:'HEDGE',           def:'To protect against future price changes'},
+    {term:'MARGIN SQUEEZE',  def:'The gap between cost and selling price gets smaller'},
+    {term:'SUPPLY CHAIN',    def:'From raw material to finished product in your hand'},
+    {term:'PASS ON COSTS',   def:'Transfer rising prices to the customer'},
+];
+
+/* ═══════════ IDIOMS IN THE WILD ═══════════ */
+var IDIOMS_WILD = [
+    {
+        phrase:'A bitter pill to swallow',
+        headline:'📰 "The 22% price rise for consumers is a bitter pill to swallow, but analysts say it was inevitable given cocoa costs."',
+        meaning:'Something unpleasant that you have to accept even though you don\'t want to.',
+        options:['A chocolate-flavoured medicine for stomach problems','Something unpleasant you have no choice but to accept','A legal fine imposed by a regulator'],
+        correct:1,
+        gap:'Losing the Müller contract was ______, but it freed us to focus on better-margin clients.',
+        gapOptions:['a bitter pill to swallow','the icing on the cake','a recipe for disaster'],
+        gapCorrect:0,
+        speak:'a bitter pill to swallow',
+    },
+    {
+        phrase:'The icing on the cake',
+        headline:'📰 "And the icing on the cake? The EU announced new deforestation regulations for cocoa imports — just as supply was already at a record low."',
+        meaning:'An extra good (or bad) thing added to an already good (or bad) situation — making it even more extreme.',
+        options:['A delicious finishing touch to a dessert','An extra element that makes an already positive or negative situation even more extreme','The most important part of a business deal'],
+        correct:1,
+        gap:'The audit was painful enough. Then they found the unpaid VAT from 2022 — that was really ______.',
+        gapOptions:['a bitter pill to swallow','a recipe for disaster','the icing on the cake'],
+        gapCorrect:2,
+        speak:'the icing on the cake',
+    },
+    {
+        phrase:'A recipe for disaster',
+        headline:'📰 "High debt, shrinking volumes, and a CEO who just quit — analysts say the confectionery group is a recipe for disaster."',
+        meaning:'A combination of factors that is very likely to lead to a very bad outcome.',
+        options:['A set of instructions for making food','A combination of factors almost certain to cause a very bad outcome','A legal document listing business risks'],
+        correct:1,
+        gap:'Signing a fixed-price contract and sourcing 100% from one supplier was ______ — and so it proved.',
+        gapOptions:['the icing on the cake','a recipe for disaster','a bitter pill to swallow'],
+        gapCorrect:1,
+        speak:'a recipe for disaster',
+    },
+];
+
+/* ═══════════ STATE ═══════════ */
+var S = {
+    started:false,
+    xp:0, streak:0, combo:0, bestCombo:0,
+    totalRight:0, totalAnswered:0,
+    htIdx:0, htDone:false,
+    ftmIdx:0, ftmAnswered:false, ftmScore:0, ftmDone:false,
+    matchDone:false,
+    idiomsDone:false,
+};
+var iwIdx=0, iwStep=0, iwDone=false;
+
+/* ═══════════ UTILS ═══════════ */
+function $(id){return document.getElementById(id);}
+
+function speak(text){
+    if(!window.speechSynthesis) return;
+    var u=new SpeechSynthesisUtterance(text);
+    u.lang='en-GB'; u.rate=0.88;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+
+function confettiBurst(x,y){
+    var colors=['#D4A017','#8B4513','#58CC02','#1CB0F6','#CE82FF','#2BDECC','#FFC800'];
+    for(var i=0;i<20;i++){
+        var d=document.createElement('div');
+        d.style.cssText='position:fixed;width:10px;height:10px;border-radius:3px;pointer-events:none;z-index:9099;left:' + (x+Math.random()*60-30) + 'px;top:' + (y+Math.random()*30-15) + 'px;background:' + colors[i%colors.length] + ';animation:confetti ' + (.7+Math.random()*.5) + 's ' + (Math.random()*.3) + 's ease-out both;transform:rotate(' + (Math.random()*360) + 'deg)';
+        document.body.appendChild(d); setTimeout(function(){d.remove();},1200);
+    }
+}
+
+function xpFloat(x,y,amount){
+    var el=document.createElement('div'); el.className='xp-float';
+    el.textContent='+'+amount+' XP'; el.style.cssText='left:'+x+'px;top:'+y+'px';
+    document.body.appendChild(el); setTimeout(function(){el.remove();},1000);
+}
+
+function addXP(amount,el){
+    S.xp+=amount;
+    if(el){var r=el.getBoundingClientRect(); xpFloat(r.left+r.width/2-24,r.top-10,amount);}
+    var hx=$('hdr-xp'); if(hx) hx.textContent=S.xp;
+}
+
+function updateProgress(){
+    var sections=[S.htDone,S.ftmDone,S.matchDone,S.idiomsDone];
+    var done=sections.filter(Boolean).length;
+    var pct=Math.round((done/4)*100);
+    var fill=$('prog-fill'); if(fill) fill.style.width=pct+'%';
+    var lbl=$('prog-label'); if(lbl) lbl.textContent=done+' / 4 sections';
+    var ppct=$('prog-pct'); if(ppct) ppct.textContent=pct+'%';
+    var dots=$('prog-dots');
+    if(dots) dots.innerHTML=sections.map(function(_,i){return '<div class="prog-dot ' + (i<done?'done':i===done&&done<4?'active':'') + '"></div>';}).join('');
+}
+
+function revealSection(id){
+    var sec=document.getElementById(id);
+    if(!sec||sec.classList.contains('visible')) return;
+    var inits={'sec-hottakes':renderHotTakes,'sec-ftm':renderFTM,'sec-match':initMatch,'sec-idioms':renderIdioms};
+    if(inits[id]) inits[id]();
+    sec.classList.add('visible');
+    setTimeout(function(){sec.scrollIntoView({behavior:'smooth',block:'start'});},80);
+}
+
+/* ═══════════ START ═══════════ */
+function startLesson(){
+    if(S.started) return;
+    S.started=true;
+    $('prog-wrap').style.display='block';
+    buildAll(); updateProgress();
+    setTimeout(function(){revealSection('sec-hottakes');},300);
+    addXP(5);
+    window.EFCD_FX?.toast('🍫','Issue 003 — The Chocolate Meltdown! +5 XP');
+}
+
+function buildAll(){
+    var c=$('sections');
+    c.appendChild(buildHTSection());
+    c.appendChild(buildFTMSection());
+    c.appendChild(buildMatchSection());
+    c.appendChild(buildIdiomsSection());
+}
+
+/* ═══════════ SECTION 1 — TRUE / FALSE ═══════════ */
+function buildHTSection(){
+    var sec=document.createElement('div');
+    sec.className='sec-card strip-choc'; sec.id='sec-hottakes';
+    sec.innerHTML='<div class="sec-head"><div class="sec-head-icon">✅</div><div><div class="sec-head-title">True or False? <span class="level-badge lb-beg">🟢 Beginner → A2</span></div><div class="sec-head-sub">'+TRUE_FALSE.length+' statements — starts easy, builds steadily</div></div></div><div class="sec-body"><div class="ht-dots" id="ht-dots"></div><div id="ht-slot"></div></div>';
+    return sec;
+}
+
+function renderHotTakes(){
+    var dots=$('ht-dots');
+    if(dots) dots.innerHTML=TRUE_FALSE.map(function(_,i){return '<div class="ht-dot ' + (i<S.htIdx?'done':i===S.htIdx?'active':'') + '"></div>';}).join('');
+    if(S.htDone){renderHTDone();return;}
+    var ht=TRUE_FALSE[S.htIdx];
+    var slot=$('ht-slot');
+    slot.innerHTML='<div class="ht-card" id="ht-card"><div class="ht-num">Statement '+(S.htIdx+1)+' of '+TRUE_FALSE.length+'</div><div class="ht-heat '+ht.heat+'">'+ht.heatLabel+'</div><div class="ht-statement">&ldquo;'+ht.statement+'&rdquo;</div><div class="ht-votes"><button class="ht-btn agree" onclick="answerHT(true)" id="ht-agree">👍 True</button><button class="ht-btn disagree" onclick="answerHT(false)" id="ht-dis">👎 False</button></div><div class="ht-reveal" id="ht-reveal"><div class="ht-verdict" id="ht-verdict"></div><div class="ht-explanation" id="ht-explain"></div></div><button class="ht-next-btn" id="ht-nxt" style="display:none" onclick="nextHT()">'+(S.htIdx<TRUE_FALSE.length-1?'Next Statement &rarr;':'Section Complete! &rarr;')+'</button></div>';
+    window.EFCD_FX?.attachCombo(slot);
+}
+
+function answerHT(userAgreed){
+    if($('ht-agree').disabled) return;
+    var ht=TRUE_FALSE[S.htIdx];
+    var correct=userAgreed===ht.agree;
+    $('ht-agree').disabled=true; $('ht-dis').disabled=true;
+    var btn=userAgreed?$('ht-agree'):$('ht-dis');
+    if(correct){
+        S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo); S.totalRight++;
+        addXP(10,btn);
+        btn.classList.add('sel-right');
+        window.EFCD_FX?.correct(btn); window.EFCD_FX?.combo(S.combo);
+        if(S.combo===5) window.EFCD_FX?.milestone('🍫','5 Combo!','You\'re on a hot streak!','#8B4513','#5C2D0E');
+    } else {
+        window.EFCD_FX?.wrong(btn); window.EFCD_FX?.comboBreak(S.combo,S.bestCombo);
+        S.combo=0;
+        btn.classList.add('sel-wrong');
+    }
+    S.totalAnswered++;
+    $('ht-verdict').className='ht-verdict '+(correct?'right':'wrong');
+    $('ht-verdict').textContent=correct?'✅ Correct!':'❌ Not quite!';
+    $('ht-explain').innerHTML=ht.explain;
+    $('ht-reveal').classList.add('show');
+    $('ht-nxt').style.display='flex';
+}
+
+function nextHT(){
+    var card=$('ht-card');
+    if(card){card.classList.add('exit');setTimeout(advanceHT,220);}else advanceHT();
+}
+function advanceHT(){
+    S.htIdx++;
+    if(S.htIdx>=TRUE_FALSE.length){S.htDone=true;addXP(15);window.EFCD_FX?.toast('✅','True/False done! +15 XP');updateProgress();renderHTDone();}
+    else renderHotTakes();
+}
+function renderHTDone(){
+    $('ht-slot').innerHTML='<div class="sec-done"><span class="sec-done-icon">✅</span><div class="sec-done-title">True/False: done!</div><div class="sec-done-sub">Now let\'s fix some mistakes in the news headlines.</div><button class="btn-continue" onclick="revealSection(\'sec-ftm\')">Fix the Mistakes &rarr;</button></div>';
+}
+
+/* ═══════════ SECTION 2 — FIX THE MISTAKE ═══════════ */
+function buildFTMSection(){
+    var sec=document.createElement('div');
+    sec.className='sec-card strip-blue'; sec.id='sec-ftm';
+    sec.innerHTML='<div class="sec-head"><div class="sec-head-icon">🔍</div><div><div class="sec-head-title">Fix the Mistake <span class="level-badge lb-int">🔵 Intermediate → Upper Int</span></div><div class="sec-head-sub">'+FIX_MISTAKES.length+' headlines — one wrong word each</div></div></div><div class="sec-body"><div class="ftm-progress" id="ftm-progress"></div><div id="ftm-slot"></div></div>';
+    return sec;
+}
+
+function renderFTM(){
+    var prog=$('ftm-progress');
+    if(prog) prog.innerHTML=FIX_MISTAKES.map(function(_,i){return '<div class="ftm-pip ' + (i<S.ftmIdx?'done':i===S.ftmIdx?'active':'') + '"></div>';}).join('');
+    if(S.ftmDone){renderFTMDone();return;}
+    var q=FIX_MISTAKES[S.ftmIdx];
+    var slot=$('ftm-slot');
+    slot.innerHTML='<div class="ftm-card" id="ftm-card"><div class="ftm-num">Headline '+(S.ftmIdx+1)+' of '+FIX_MISTAKES.length+'</div><div class="ftm-sentence">'+q.sentence+'</div><div class="ftm-hint">💡 '+q.hint+'</div><div class="ftm-options">'+q.opts.map(function(o,i){return '<button class="ftm-opt" onclick="answerFTM('+i+')">'+o+'</button>';}).join('')+'</div><div class="ftm-feedback" id="ftm-fb"></div><button class="ftm-next" id="ftm-nxt" style="display:none" onclick="nextFTM()">'+(S.ftmIdx<FIX_MISTAKES.length-1?'Next Headline &rarr;':'Section Complete! &rarr;')+'</button></div>';
+    S.ftmAnswered=false;
+    window.EFCD_FX?.attachCombo(slot);
+}
+
+function answerFTM(idx){
+    if(S.ftmAnswered) return; S.ftmAnswered=true;
+    var q=FIX_MISTAKES[S.ftmIdx];
+    var correct=idx===q.correct;
+    document.querySelectorAll('.ftm-opt').forEach(function(b){b.disabled=true;});
+    document.querySelectorAll('.ftm-opt')[q.correct].classList.add('right');
+    if(!correct) document.querySelectorAll('.ftm-opt')[idx].classList.add('wrong');
+    var correctBtn=document.querySelectorAll('.ftm-opt')[q.correct];
+    var chosenBtn=document.querySelectorAll('.ftm-opt')[idx];
+    if(correct){
+        S.ftmScore++; S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo); S.totalRight++;
+        addXP(10,correctBtn);
+        window.EFCD_FX?.correct(correctBtn); window.EFCD_FX?.combo(S.combo);
+    } else {
+        window.EFCD_FX?.wrong(chosenBtn); window.EFCD_FX?.comboBreak(S.combo,S.bestCombo);
+        S.combo=0;
+    }
+    S.totalAnswered++;
+    var fb=$('ftm-fb');
+    fb.className='ftm-feedback show '+(correct?'right':'wrong');
+    fb.innerHTML=correct?q.fb:'❌ Not quite — '+q.fb.slice(2);
+    $('ftm-nxt').style.display='flex';
+}
+
+function nextFTM(){
+    var card=$('ftm-card');
+    if(card){card.classList.add('exit');setTimeout(advanceFTM,220);}else advanceFTM();
+}
+function advanceFTM(){
+    S.ftmIdx++;
+    if(S.ftmIdx>=FIX_MISTAKES.length){S.ftmDone=true;addXP(15);window.EFCD_FX?.toast('🔍','Headlines fixed! '+S.ftmScore+'/'+FIX_MISTAKES.length+' correct');updateProgress();renderFTMDone();}
+    else renderFTM();
+}
+function renderFTMDone(){
+    $('ftm-slot').innerHTML='<div class="sec-done"><span class="sec-done-icon">'+(S.ftmScore===FIX_MISTAKES.length?'🏆':S.ftmScore>=3?'👍':'📖')+'</span><div class="sec-done-title">'+S.ftmScore+'/'+FIX_MISTAKES.length+' Headlines Fixed</div><div class="sec-done-sub">Now for the vocab challenge — match the terms!</div><button class="btn-continue" style="background:var(--purple);border-color:var(--purple-shadow)" onclick="revealSection(\'sec-match\')">Vocab Match &rarr;</button></div>';
+}
+
+/* ═══════════ SECTION 3 — WORD MATCH ═══════════ */
+function buildMatchSection(){
+    var sec=document.createElement('div');
+    sec.className='sec-card strip-purple'; sec.id='sec-match';
+    sec.innerHTML='<div class="sec-head"><div class="sec-head-icon">🧩</div><div><div class="sec-head-title">Vocab Match <span class="level-badge lb-adv">🔴 Upper Int → Advanced</span></div><div class="sec-head-sub">Tap a word · tap its meaning · clear the board!</div></div></div><div class="sec-body"><div id="match-container"></div></div>';
+    return sec;
+}
+
+function initMatch(){
+    var container=$('match-container');
+    if(!container) return;
+    var pairs=MATCH_PAIRS.map(function(p,i){return {term:p.term,def:p.def,id:i};});
+    var termOrder=pairs.slice().sort(function(){return Math.random()-.5;});
+    var defOrder=pairs.slice().sort(function(){return Math.random()-.5;});
+    var remaining=new Set(pairs.map(function(p){return p.id;}));
+    var selTerm=null,selDef=null,locked=false;
+    var matchCount=0,mistakes=0;
+
+    function render(){
+        container.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><div style="font-size:12px;font-weight:900;color:var(--ink-3);"><span id="mg-left">'+remaining.size+'</span> pairs left</div><div style="font-size:13px;font-weight:900;color:var(--purple-shadow);">✓ '+matchCount+'/'+pairs.length+'</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><div id="mg-terms" style="display:flex;flex-direction:column;gap:7px;"></div><div id="mg-defs" style="display:flex;flex-direction:column;gap:7px;"></div></div>';
+        var termsCol=$('mg-terms'),defsCol=$('mg-defs');
+        termOrder.filter(function(p){return remaining.has(p.id);}).forEach(function(p){
+            var btn=document.createElement('button');
+            btn.id='mgt-'+p.id; btn.className='match-btn'; btn.textContent=p.term;
+            btn.onclick=function(){selectTerm(p.id,btn);}; termsCol.appendChild(btn);
+        });
+        defOrder.filter(function(p){return remaining.has(p.id);}).forEach(function(p){
+            var btn=document.createElement('button');
+            btn.id='mgd-'+p.id; btn.className='match-btn';
+            btn.style.cssText='padding:10px 8px;font-size:11px;font-weight:700;text-align:left;line-height:1.4;';
+            btn.textContent=p.def; btn.onclick=function(){selectDef(p.id,btn);}; defsCol.appendChild(btn);
+        });
+    }
+    function selectTerm(id,btn){if(locked)return;if(selTerm)selTerm.el.classList.remove('selected');selTerm={id:id,el:btn};btn.classList.add('selected');if(selDef)tryMatch();}
+    function selectDef(id,btn){if(locked)return;if(selDef)selDef.el.classList.remove('selected');selDef={id:id,el:btn};btn.classList.add('selected');if(selTerm)tryMatch();}
+    function tryMatch(){
+        locked=true;
+        var correct=selTerm.id===selDef.id;
+        if(correct){
+            [selTerm.el,selDef.el].forEach(function(el){el.classList.remove('selected');el.classList.add('matched-right');});
+            addXP(8); matchCount++; S.totalRight++; S.totalAnswered++; S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo);
+            window.EFCD_FX?.correct(selTerm.el); window.EFCD_FX?.combo(S.combo);
+            var st=selTerm, sd=selDef;
+            setTimeout(function(){
+                if(!container.isConnected){selTerm=null;selDef=null;locked=false;return;}
+                [st.el,sd.el].forEach(function(el){
+                    el.style.transition='all .3s ease'; el.style.opacity='0'; el.style.transform='scale(0.7)';
+                    el.style.maxHeight=el.offsetHeight+'px';
+                    requestAnimationFrame(function(){requestAnimationFrame(function(){el.style.maxHeight='0';el.style.padding='0';el.style.marginBottom='0';el.style.border='none';});});
+                });
+                remaining.delete(st.id);
+                var leftEl=$('mg-left'); if(leftEl) leftEl.textContent=remaining.size;
+                selTerm=null; selDef=null; locked=false;
+                if(remaining.size===0) setTimeout(showMatchDone,400);
+            },420);
+        } else {
+            mistakes++; S.totalAnswered++;
+            window.EFCD_FX?.wrong(selTerm.el); window.EFCD_FX?.comboBreak(S.combo,S.bestCombo);
+            S.combo=0;
+            [selTerm.el,selDef.el].forEach(function(el){el.classList.remove('selected');el.classList.add('matched-wrong');});
+            setTimeout(function(){[selTerm.el,selDef.el].forEach(function(el){el.classList.remove('matched-wrong');});selTerm=null;selDef=null;locked=false;},500);
+        }
+    }
+    function showMatchDone(){
+        S.matchDone=true; addXP(20); window.EFCD_FX?.toast('🧩','Board cleared! +20 XP'); updateProgress();
+        var acc=Math.round((pairs.length/(pairs.length+mistakes))*100);
+        container.innerHTML='<div class="sec-done"><span class="sec-done-icon">🎉</span><div class="sec-done-title">Board cleared!</div><div class="sec-done-sub">'+acc+'% accuracy · '+mistakes+' mistake'+(mistakes===1?'':'s')+'</div><button class="btn-continue" style="background:var(--teal);border-color:var(--teal-shadow)" onclick="revealSection(\'sec-idioms\')">Idiom in the Wild! 💡 &rarr;</button></div>';
+        for(var i=0;i<3;i++){
+            (function(j){setTimeout(function(){confettiBurst(Math.random()*window.innerWidth,Math.random()*window.innerHeight*.4);},j*200);})(i);
+        }
+    }
+    render();
+}
+
+/* ═══════════ SECTION 4 — IDIOM IN THE WILD ═══════════ */
+function buildIdiomsSection(){
+    var sec=document.createElement('div');
+    sec.className='sec-card strip-teal'; sec.id='sec-idioms';
+    sec.innerHTML='<div class="sec-head"><div class="sec-head-icon">💡</div><div><div class="sec-head-title">Idiom in the Wild! <span class="level-badge lb-native">🏆 Advanced → Native</span></div><div class="sec-head-sub">Spot it in a real headline · use it yourself · hear it spoken</div></div></div><div class="sec-body"><div class="iw-progress" id="iw-progress"></div><div id="iw-slot"></div></div>';
+    return sec;
+}
+
+function renderIdioms(){iwIdx=0;iwStep=0;iwDone=false;renderIW();}
+
+function renderIWProgress(){
+    var prog=$('iw-progress');
+    if(!prog) return;
+    prog.innerHTML=IDIOMS_WILD.map(function(_,i){return '<div class="iw-pip ' + (i<iwIdx?'done':i===iwIdx?'active':'') + '"></div>';}).join('');
+}
+
+function renderIW(){
+    renderIWProgress();
+    if(iwDone){renderIWDone();return;}
+    if(iwStep===0) renderIWSpot(); else renderIWUse();
+}
+
+function renderIWSpot(){
+    var id=IDIOMS_WILD[iwIdx];
+    var slot=$('iw-slot');
+    slot.innerHTML='<div class="iw-card" id="iw-card"><div class="iw-step-label">Step 1 of 2 · Spot it in the wild 🔍</div><div class="iw-headline">'+id.headline+'</div><div class="iw-question">What does &ldquo;<strong>'+id.phrase+'</strong>&rdquo; mean in this headline?</div><div class="iw-options" id="iw-opts">'+id.options.map(function(o,i){return '<button class="iw-opt" onclick="answerIWSpot('+i+')">'+o+'</button>';}).join('')+'</div><div class="iw-feedback" id="iw-fb"></div><button class="iw-next" id="iw-nxt" style="display:none" onclick="advanceIWToUse()">Now use it yourself ✏️ &rarr;</button></div>';
+    window.EFCD_FX?.attachCombo(slot);
+}
+
+function answerIWSpot(idx){
+    var id=IDIOMS_WILD[iwIdx];
+    var opts=document.querySelectorAll('#iw-opts .iw-opt');
+    opts.forEach(function(b){b.disabled=true;});
+    var correct=idx===id.correct;
+    opts[id.correct].classList.add('iw-opt-right');
+    if(!correct) opts[idx].classList.add('iw-opt-wrong');
+    if(correct){
+        S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo); S.totalRight++;
+        addXP(10,opts[id.correct]);
+        window.EFCD_FX?.correct(opts[id.correct]); window.EFCD_FX?.combo(S.combo);
+    } else {
+        window.EFCD_FX?.wrong(opts[idx]); window.EFCD_FX?.comboBreak(S.combo,S.bestCombo);
+        S.combo=0;
+    }
+    S.totalAnswered++;
+    var fb=$('iw-fb');
+    fb.className='iw-feedback show '+(correct?'right':'wrong');
+    fb.innerHTML=(correct?'✅ ':'❌ ')+'<strong>'+id.phrase+'</strong> — '+id.meaning;
+    $('iw-nxt').style.display='flex';
+}
+
+function advanceIWToUse(){
+    iwStep=1;
+    var card=$('iw-card');
+    if(card){card.style.transition='opacity .2s,transform .2s';card.style.opacity='0';card.style.transform='translateX(-20px)';setTimeout(renderIW,220);}
+    else renderIW();
+}
+
+function renderIWUse(){
+    var id=IDIOMS_WILD[iwIdx];
+    var gapHTML=id.gap.replace('______','<span class="iw-blank" id="iw-blank-span">______</span>');
+    var slot=$('iw-slot');
+    slot.innerHTML='<div class="iw-card" id="iw-card" style="animation:up .3s ease both"><div class="iw-step-label">Step 2 of 2 · Use it yourself ✏️</div><div class="iw-gap-sentence">'+gapHTML+'</div><div class="iw-gap-label">Choose the correct idiom to complete the sentence:</div><div class="iw-options" id="iw-gap-opts">'+id.gapOptions.map(function(o,i){return '<button class="iw-opt iw-opt-phrase" onclick="answerIWUse('+i+')">'+o+'</button>';}).join('')+'</div><div class="iw-feedback" id="iw-gap-fb"></div><div class="iw-hear-wrap" id="iw-hear-wrap" style="display:none"><button class="iw-hear-btn" onclick="speak(\''+id.speak.replace(/'/g,"\\'")+'\')")>🔊 Hear it: <em>&ldquo;'+id.speak+'&rdquo;</em></button></div><button class="iw-next" id="iw-gap-nxt" style="display:none" onclick="advanceIWNext()">'+(iwIdx<IDIOMS_WILD.length-1?'Next Idiom &rarr;':'🏆 Finish!')+'</button></div>';
+    window.EFCD_FX?.attachCombo(slot);
+}
+
+function answerIWUse(idx){
+    var id=IDIOMS_WILD[iwIdx];
+    var opts=document.querySelectorAll('#iw-gap-opts .iw-opt');
+    opts.forEach(function(b){b.disabled=true;});
+    var correct=idx===id.gapCorrect;
+    opts[id.gapCorrect].classList.add('iw-opt-right');
+    if(!correct) opts[idx].classList.add('iw-opt-wrong');
+    var blank=$('iw-blank-span');
+    if(blank){
+        blank.textContent=id.gapOptions[id.gapCorrect];
+        blank.style.cssText='border-bottom:3px solid var(--green);color:var(--green-shadow);font-weight:900;padding:0 4px;background:rgba(88,204,2,.08);border-radius:3px;';
+    }
+    if(correct){
+        S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo); S.totalRight++;
+        addXP(10,opts[id.gapCorrect]);
+        window.EFCD_FX?.correct(opts[id.gapCorrect]); window.EFCD_FX?.combo(S.combo);
+    } else {
+        window.EFCD_FX?.wrong(opts[idx]); window.EFCD_FX?.comboBreak(S.combo,S.bestCombo);
+        S.combo=0;
+    }
+    S.totalAnswered++;
+    var fb=$('iw-gap-fb');
+    fb.className='iw-feedback show '+(correct?'right':'wrong');
+    fb.textContent=correct?'✅ Perfect! You used it correctly.':'❌ The answer is "'+id.gapOptions[id.gapCorrect]+'" — read the completed sentence above.';
+    $('iw-hear-wrap').style.display='block';
+    $('iw-gap-nxt').style.display='flex';
+    setTimeout(function(){speak(id.speak);},700);
+}
+
+function advanceIWNext(){
+    var card=$('iw-card');
+    function advance(){
+        iwIdx++; iwStep=0;
+        if(iwIdx>=IDIOMS_WILD.length){iwDone=true;finishIdioms();}
+        else renderIW();
+    }
+    if(card){card.style.transition='opacity .2s,transform .2s';card.style.opacity='0';card.style.transform='translateX(-20px)';setTimeout(advance,220);}
+    else advance();
+}
+
+function renderIWDone(){finishIdioms();}
+
+function finishIdioms(){
+    S.idiomsDone=true; addXP(15);
+    window.EFCD_FX?.toast('💡','Idioms mastered! +15 XP 🔥');
+    updateProgress();
+    var slot=$('iw-slot');
+    if(slot) slot.innerHTML='<div class="sec-done"><span class="sec-done-icon" style="animation:float 2s ease-in-out infinite">🏆</span><div class="sec-done-title">Idioms owned! 🔥</div><div class="sec-done-sub">A bitter pill. Icing on the cake. A recipe for disaster. Deliciously yours now.</div><button class="btn-continue" style="background:var(--choc);border-color:var(--choc-shadow);color:var(--yellow)" onclick="showCompletion()">🍫 Claim your badge &rarr;</button></div>';
+}
+
+/* ═══════════ VOCAB POPUP ═══════════ */
+function openVoc(word){
+    var v=GLOSSARY[word.toLowerCase()];
+    if(!v) return;
+    $('vp-body').innerHTML='<div class="voc-word">'+word+'</div><div class="voc-type">'+v.type+'</div><div class="voc-def">'+v.def+'</div><button class="voc-hear-btn" onclick="speak(\''+word+'\')">🔊 Hear it pronounced</button>';
+    $('voc-popup').style.display='block';
+}
+function closeVoc(){$('voc-popup').style.display='none';}
+
+/* ═══════════ COMPLETION ═══════════ */
+async function showCompletion(){
+    var acc=S.totalAnswered>0?Math.round((S.totalRight/S.totalAnswered)*100):0;
+    $('cc-xp').textContent='+'+S.xp;
+    $('cc-correct').textContent=S.totalRight;
+    $('cc-combo').textContent=S.bestCombo;
+    $('cc-accuracy').textContent=acc+'%';
+    $('completion-screen').classList.add('open');
+    for(var i=0;i<5;i++){
+        (function(j){setTimeout(function(){confettiBurst(Math.random()*window.innerWidth,Math.random()*window.innerHeight*.5);},j*250);})(i);
+    }
+    try{
+        if(window.EFCD_Auth?.getCurrentUser()){
+            await window.EFCD_Auth.completeLesson({
+                lessonId:    window.LESSON_ID,
+                lessonTitle: window.LESSON_TITLE,
+                lessonLevel: 'All Levels',
+                lessonLink:  LESSON_LINK,
+                badgeIcon:   '🍫',
+                badgeName:   'Choc Market Analyst · Issue 003',
+                vocabulary:[
+                    {word:'shrinkflation',    definition:'Same price, smaller product — a hidden form of inflation.'},
+                    {word:'commodity',        definition:'A raw material traded on global markets, like cocoa or oil.'},
+                    {word:'pass on costs',    definition:'Transfer rising production costs to the customer.'},
+                    {word:'margin squeeze',   definition:'The gap between cost and selling price narrows dangerously.'},
+                    {word:'hedge',            definition:'To protect against future price changes using financial instruments.'},
+                    {word:'futures contract', definition:'An agreement to buy something at a fixed price on a future date.'},
+                    {word:'supply chain',     definition:'The full process from raw material to finished product.'},
+                    {word:'price elasticity', definition:'How much demand changes when the price changes.'},
+                ],
+                perfectScore: acc>=90,
+            });
+        }
+    } catch(e){}
+    try{
+        if(window.DailyChallenges){
+            var dcResult=await window.DailyChallenges.updateChallengeProgress({perfectScore:acc>=90});
+            if(dcResult?.justCompleted) setTimeout(function(){window.DailyChallenges.showChallengeCompletionCelebration(dcResult.challenge);},1800);
+            localStorage.setItem('dc_last_lesson_date',new Date().toDateString());
+            localStorage.setItem('dc_last_lesson_section','weekly-drop');
+        }
+    } catch(e){}
+}
+
+/* ═══════════ INIT ═══════════ */
+document.addEventListener('DOMContentLoaded',async function(){
+    try{
+        if(window.efcdReady) await window.efcdReady;
+        if(window.EFCD_Auth){
+            await window.EFCD_Auth.initAuth();
+            var user=window.EFCD_Auth.getCurrentUser();
+            if(user){
+                var st=window.EFCD_Auth.getUserStats();
+                if(st){S.xp=st.xp||0;S.streak=st.streak||0;}
+                $('hdr-xp').textContent=S.xp;
+                $('hdr-streak').textContent=S.streak;
+                var sb=$('hdr-signout'); if(sb) sb.classList.remove('hidden');
+                var db=$('hdr-dash'); if(db) db.classList.remove('hidden');
+            }
+        }
+    } catch(e){}
+});
+
+async function handleSignOut(){
+    if(window.EFCD_Auth?.signOut) await window.EFCD_Auth.signOut();
+    else if(window.efcdSupabaseClient){await window.efcdSupabaseClient.auth.signOut();window.location.href='/';}
+}
+</script>
+</body>
+</html>
