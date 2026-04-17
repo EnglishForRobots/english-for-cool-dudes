@@ -223,21 +223,44 @@
 
 .ph-icon{font-size:28px;}}
 
-    /* ══ STREAK BANNER ══ */
-    .streak-banner{
+    /* ══ CONTINUE CARD (replaces streak banner) ══ */
+    .continue-card{
         display:flex;align-items:center;gap:14px;
-        background:var(--yellow);
         border:3px solid var(--ink-bold);
-        border-radius:var(--r);padding:14px 18px;
+        border-bottom:5px solid var(--ink-bold);
+        border-radius:var(--r);padding:16px 18px;
         cursor:pointer;transition:transform .1s;
-        text-decoration:none;
+        text-decoration:none;position:relative;overflow:hidden;
     }
-    .streak-banner:active{transform:translateY(3px);}
-    .sb-icon{font-size:30px;flex-shrink:0;animation:streakFire 1.8s ease-in-out infinite;}
-    .sb-body{flex:1;}
-    .sb-title{font-size:15px;font-weight:900;color:var(--ink-bold);letter-spacing:-.3px;}
-    .sb-sub{font-size:12px;font-weight:700;color:rgba(0,0,0,.55);margin-top:1px;}
-    .sb-arrow{font-size:22px;font-weight:900;color:var(--ink-bold);opacity:.5;animation:nudge 2s ease-in-out infinite;}
+    .continue-card:active{transform:translateY(3px);}
+    .continue-card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;}
+    .cc-green::before{background:var(--green);}
+    .cc-blue::before{background:var(--blue);}
+    .cc-red::before{background:var(--punch);}
+    .cc-purple::before{background:var(--purple);}
+    .cc-orange::before{background:var(--yellow);}
+    .cc-teal::before{background:var(--teal);}
+    .continue-icon{font-size:26px;flex-shrink:0;}
+    .continue-body{flex:1;}
+    .continue-eyebrow{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-3);margin-bottom:3px;}
+    .continue-title{font-size:15px;font-weight:900;color:var(--ink-bold);letter-spacing:-.3px;line-height:1.3;}
+    .continue-sub{font-size:12px;font-weight:700;color:var(--ink-3);margin-top:2px;}
+    .continue-btn{
+        display:flex;align-items:center;gap:6px;
+        padding:9px 14px;
+        background:var(--green);color:#fff;
+        font-size:13px;font-weight:900;
+        border-radius:var(--rsm);
+        border:2px solid var(--green-shadow);
+        border-bottom:4px solid var(--green-shadow);
+        flex-shrink:0;white-space:nowrap;
+        font-family:inherit;cursor:pointer;
+        transition:transform .1s;
+    }
+    .continue-btn:active{transform:translateY(2px);}
+    /* legacy classes kept for any existing references */
+    .streak-banner{display:none;}
+    .sb-icon,.sb-body,.sb-title,.sb-sub,.sb-arrow{display:none;}
 
     /* ══════════════════════════════════
        THE GAME PANEL
@@ -913,7 +936,7 @@
     .micro-opt::before{
         content:'';position:absolute;inset:0;
         background:linear-gradient(to bottom,rgba(255,255,255,.28),transparent);
-        border-radius:99px;pointer-events:none;
+        border-radius:var(--rsm);pointer-events:none;
     }
     .micro-opt:hover:not(:disabled){
         transform:translateY(-2px);
@@ -1101,7 +1124,6 @@
     <!-- ══════════════════════════════════
          1.  VIBE HERO (time-of-day)
     ══════════════════════════════════ -->
-    <div class="page">
     <div class="u1">
         <div class="vibe-hero" id="hero-card">
             <div class="sk" style="height:13px;width:36%;margin-bottom:9px;"></div>
@@ -1144,15 +1166,16 @@
         </div>
     </div>
 
-    <!-- streak banner (logged-in only) -->
+    <!-- continue card (logged-in only) -->
     <div class="u3" id="sb-wrap" style="display:none;">
-        <a href="#" class="streak-banner" id="sb-link">
-            <span class="sb-icon">🔥</span>
-            <div class="sb-body">
-                <div class="sb-title" id="sb-title">Don't break your streak!</div>
-                <div class="sb-sub"   id="sb-sub">Complete a lesson today to keep it alive →</div>
+        <a href="#" class="continue-card cc-green" id="sb-link">
+            <span class="continue-icon">🚀</span>
+            <div class="continue-body">
+                <div class="continue-eyebrow">Pick up where you left off</div>
+                <div class="continue-title" id="sb-title">Find your next lesson</div>
+                <div class="continue-sub" id="sb-sub">Keep the momentum going →</div>
             </div>
-            <span class="sb-arrow">→</span>
+            <button class="continue-btn" id="sb-btn">Go →</button>
         </a>
     </div>
 
@@ -1712,19 +1735,70 @@ async function renderUser(stats,user){
 
     loadAndRenderShelf();
 
-    /* streak banner */
-    if(streak>0){
-        var wrap=document.getElementById('sb-wrap'),stitle=document.getElementById('sb-title'),ssub=document.getElementById('sb-sub'),slink=document.getElementById('sb-link');
-        if(wrap)wrap.style.display='block';
-        if(stitle)stitle.textContent='🔥 '+streak+'-day streak — keep it going!';
-        if(ssub)ssub.textContent=showContinue?'Tap to continue: '+lastNm+' →':'Pick a lesson to keep your streak alive →';
-        if(slink){if(showContinue){slink.href=lastUrl;slink.onclick=null;}else{slink.href='#';slink.onclick=function(e){e.preventDefault();openPicker();};}}
-    }
+    /* continue card — always show for logged-in users */
+    (function(){
+        var wrap=document.getElementById('sb-wrap');
+        var stitle=document.getElementById('sb-title');
+        var ssub=document.getElementById('sb-sub');
+        var slink=document.getElementById('sb-link');
+        var sbtn=document.getElementById('sb-btn');
+        if(!wrap)return;
+        wrap.style.display='block';
+        /* pick track colour from last lesson URL */
+        var trackCls='cc-green';
+        if(lastUrl){
+            if(lastUrl.indexOf('/intermediate/')>-1||lastUrl.indexOf('/blockbuster/')>-1||lastUrl.indexOf('/sleepscience/')>-1||lastUrl.indexOf('/pancakeday/')>-1)trackCls='cc-blue';
+            else if(lastUrl.indexOf('/advanced/')>-1||lastUrl.indexOf('/fuggerei/')>-1||lastUrl.indexOf('/easterworld/')>-1)trackCls='cc-red';
+            else if(lastUrl.indexOf('/business/')>-1||lastUrl.indexOf('/cadbury/')>-1)trackCls='cc-purple';
+            else if(lastUrl.indexOf('/tax/')>-1)trackCls='cc-orange';
+            else if(lastUrl.indexOf('/legal/')>-1||lastUrl.indexOf('/databreach/')>-1||lastUrl.indexOf('/redline/')>-1)trackCls='cc-teal';
+        }
+        if(slink)slink.className='continue-card '+trackCls;
+        if(showContinue){
+            if(slink){slink.href=lastUrl;slink.onclick=null;}
+            if(stitle)stitle.textContent=lastNm;
+            if(ssub)ssub.textContent='Continue where you left off';
+            if(sbtn){sbtn.textContent='Continue →';sbtn.style.background='var(--blue)';sbtn.style.borderColor='var(--blue-shadow)';}
+        } else if(lastUrl){
+            if(slink){slink.href=lastUrl;slink.onclick=null;}
+            if(stitle)stitle.textContent='Back to: '+( lastNm||'your last lesson');
+            if(ssub)ssub.textContent='Or choose something new below';
+            if(sbtn)sbtn.textContent='Go back →';
+        } else {
+            if(slink){slink.href='#';slink.onclick=function(e){e.preventDefault();openPicker();};}
+            if(stitle)stitle.textContent='Ready for your next lesson?';
+            if(ssub)ssub.textContent='Pick a track and keep that streak alive';
+            if(sbtn)sbtn.textContent='Choose lesson →';
+        }
+    })();
 
     /* show momentum row for logged-in users */
     var momRow=document.getElementById('momentum-row');
     if(momRow)momRow.style.display='grid';
-    renderWeekCard(null); /* null = placeholder; hook in real data from your lesson history if available */
+    /* ── fetch real this-week lesson counts ── */
+    (async function(){
+        try{
+            var weekStart=new Date();
+            weekStart.setDate(weekStart.getDate()-((weekStart.getDay()+6)%7)); /* Monday */
+            weekStart.setHours(0,0,0,0);
+            var weekEnd=new Date(weekStart);weekEnd.setDate(weekStart.getDate()+7);
+            var wRes=await window.efcdSupabaseClient
+                .from('lessons')
+                .select('created_at')
+                .eq('user_id',profile.id)
+                .gte('created_at',weekStart.toISOString())
+                .lt('created_at',weekEnd.toISOString());
+            var counts=[0,0,0,0,0,0,0];
+            if(wRes.data){
+                wRes.data.forEach(function(r){
+                    var d=new Date(r.created_at);
+                    var idx=(d.getDay()+6)%7; /* 0=Mon...6=Sun */
+                    counts[idx]++;
+                });
+            }
+            renderWeekCard(counts);
+        }catch(_){renderWeekCard(null);}
+    })();
     renderStoryCard(streak);
 
     /* leaderboard */
@@ -2247,8 +2321,11 @@ function microAnswer(chosen,correct,exp){
 function microReveal(){
     var r=document.getElementById('mrev');
     var btn=document.getElementById('micro-reveal-btn');
+    var nextBtn=document.getElementById('micro-btn-next');
     if(r){r.classList.add('show');}
     if(btn){btn.style.display='none';}
+    /* hide Next until user reacts */
+    if(nextBtn)nextBtn.style.display='none';
     if(!_answered){
         _answered=true;
         var c=CARDS[_order[_cardIdx%_order.length]];
@@ -2259,9 +2336,42 @@ function microReveal(){
                 _speak(word);
             },400);
         }
+        /* show reaction buttons — gives the user a "hit" moment */
+        setTimeout(function(){
+            var foot=document.querySelector('.micro-foot');
+            if(!foot)return;
+            var react=document.createElement('div');
+            react.id='micro-react';
+            react.style.cssText='display:flex;gap:8px;width:100%;';
+            react.innerHTML=
+                '<button onclick="microReact(true)" style="flex:1;padding:9px 8px;background:var(--green);color:#fff;font-size:13px;font-weight:900;border-radius:var(--rsm);border:2px solid var(--green-shadow);border-bottom:4px solid var(--green-shadow);cursor:pointer;font-family:inherit;">✅ Got it!</button>'+
+                '<button onclick="microReact(false)" style="flex:1;padding:9px 8px;background:rgba(255,255,255,.18);color:#fff;font-size:13px;font-weight:900;border-radius:var(--rsm);border:2px solid rgba(255,255,255,.3);border-bottom:4px solid rgba(255,255,255,.2);cursor:pointer;font-family:inherit;">🤔 Fuzzy</button>';
+            foot.appendChild(react);
+        },350);
         _registerHit(c.xp||10);
     }
 }
+
+function microReact(understood){
+    var react=document.getElementById('micro-react');
+    if(react)react.remove();
+    var nextBtn=document.getElementById('micro-btn-next');
+    var xpEl=document.getElementById('micro-xp');
+    if(understood){
+        if(xpEl){xpEl.classList.add('earned');xpEl.textContent='🧠 Nailed it!';}
+    } else {
+        if(xpEl){xpEl.textContent='💪 Keep going — you got this';}
+    }
+    /* re-show next button */
+    if(nextBtn)nextBtn.style.display='flex';
+    setTimeout(function(){
+        var xp=document.getElementById('micro-xp');
+        if(xp){xp.classList.remove('earned');
+        var c=CARDS[_order[_cardIdx%_order.length]];
+        xp.textContent='⚡ +'+(c?c.xp||10:10)+' XP';}
+    },1600);
+}
+window.microReact=microReact;
 
 /* ── REGISTER A HIT ── */
 function _registerHit(xp){
