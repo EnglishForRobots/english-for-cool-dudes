@@ -239,9 +239,16 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .mc-feedback{display:none;padding:11px 14px;border-radius:var(--rsm);font-size:13px;font-weight:700;border:2px solid;line-height:1.6;margin-top:6px}
 .mc-feedback.show.ok {display:block;background:rgba(88,204,2,.07);color:var(--green-shadow);border-color:rgba(88,204,2,.28);animation:up .2s ease both}
 .mc-feedback.show.bad{display:block;background:rgba(255,75,75,.07);color:var(--punch-shadow);border-color:rgba(255,75,75,.28);animation:up .2s ease both}
+
+/* ── BUG FIX 1: .q-text uses var(--ink-bold) = #111827 which is near-black.
+   On .scene-dark (dark navy background) this is completely invisible.
+   Override to light colours for all dark-background scene contexts. ── */
 .q-card{background:rgba(255,200,0,.06);border:2px solid rgba(255,200,0,.2);border-left:5px solid var(--yellow);border-radius:0 var(--rsm) var(--rsm) 0;padding:13px 15px;margin-bottom:11px}
 .q-label{font-size:10px;font-weight:900;color:var(--yellow-shadow);text-transform:uppercase;letter-spacing:2px;margin-bottom:5px}
 .q-text{font-size:clamp(13px,3.8vw,15px);font-weight:800;color:var(--ink-bold);line-height:1.5}
+/* Dark scene overrides — without these, .q-text (#111827) is invisible on dark backgrounds */
+.scene-dark .q-text{color:rgba(255,255,255,.92)!important}
+.scene-dark .q-label{color:var(--yellow)!important}
 
 /* ── MEETING ROOM (scene 6) ── */
 .client-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
@@ -793,9 +800,23 @@ function renderCallQ(){
   var area = document.createElement('div');
   area.id = 'call-q-area';
 
+  // FIX: Add Ingrid's follow-up dialogue bubble for Q2+ so the conversation feels continuous
+  if(G.callIdx > 0){
+    var followDial = document.createElement('div');
+    followDial.className = 'dialogue';
+    var followRow = document.createElement('div');
+    followRow.className = 'bubble-row';
+    followRow.style.animation = 'typeLine .3s ease both';
+    // Strip the "Ingrid asks: " prefix and quotes for the bubble text
+    var bubbleText = q.q.replace(/^Ingrid asks:\s*"?/, '').replace(/"$/, '');
+    followRow.innerHTML = '<div class="bubble-avatar">📞</div><div><div class="bubble-name">Ingrid Müller</div><div class="bubble">' + bubbleText + '</div></div>';
+    followDial.appendChild(followRow);
+    area.appendChild(followDial);
+  }
+
   var qcard = document.createElement('div');
   qcard.className = 'q-card';
-  qcard.innerHTML = '<div class="q-label">Your response</div><div class="q-text">'+q.q+'</div>';
+  qcard.innerHTML = '<div class="q-label">Your response</div><div class="q-text">' + q.q + '</div>';
   area.appendChild(qcard);
 
   var choices = document.createElement('div');
@@ -818,6 +839,9 @@ function renderCallQ(){
 
   body.appendChild(area);
   console.log('Appended new call-q-area with question:', q.q.substring(0,40));
+
+  // Scroll smoothly to the new question
+  setTimeout(function(){ area.scrollIntoView({behavior:'smooth', block:'nearest'}); }, 100);
 }
 
 function answerCallQ(chosen, choicesEl, area, q){
@@ -965,7 +989,8 @@ function buildScene2(){
 
 function updateCatBtns(correctCat){
   var cl=$('cat-label'); if(cl) cl.style.display='block';
-  document.querySelectorAll('.cat-btn').forEach(function(b){ b.style.display='inline-flex'; b.classList.remove('selected'); });
+  // BUG FIX: Re-enable buttons (they may have been disabled after a previous answer)
+  document.querySelectorAll('.cat-btn').forEach(function(b){ b.disabled=false; b.style.display='inline-flex'; b.classList.remove('selected'); });
 }
 
 function classifyAsset(chosenCat, body){
@@ -977,6 +1002,10 @@ function classifyAsset(chosenCat, body){
   G.totalAnswered++;
   var ok=(chosenCat===asset.correctCat);
   var assetBtn=$('asset-'+assetId);
+
+  // BUG FIX: Disable cat buttons immediately to prevent double-tap race condition
+  document.querySelectorAll('.cat-btn').forEach(function(b){ b.disabled=true; b.style.display='none'; });
+  var cl=$('cat-label'); if(cl) cl.style.display='none';
 
   if(ok){
     G.assetScore++;
@@ -997,9 +1026,6 @@ function classifyAsset(chosenCat, body){
 
   var sn=$('asset-score'); if(sn) sn.textContent=G.assetDone.size+' / '+ASSETS.length;
 
-  // Hide cat buttons, deselect
-  document.querySelectorAll('.cat-btn').forEach(function(b){ b.style.display='none'; });
-  var cl=$('cat-label'); if(cl) cl.style.display='none';
   G.assetSelected=null;
 
   // All done?
