@@ -752,10 +752,10 @@ function buildScene1(){
 
   var body=document.createElement('div');
   body.className='scene-body';
+  body.id='scene1-body';
 
-  // Dialogue
   var dial=document.createElement('div'); dial.className='dialogue';
-  CALL_DIALOGUE.forEach(function(line, i){
+  CALL_DIALOGUE.forEach(function(line,i){
     var row=document.createElement('div');
     row.className='bubble-row '+(line.who==='you'?'right':'');
     row.style.animationDelay=(i*.18)+'s';
@@ -767,16 +767,16 @@ function buildScene1(){
   });
   body.appendChild(dial);
 
-  // First question
-  renderCallQ(body);
   scene.appendChild(body);
   c.appendChild(scene);
+  renderCallQ();
 }
 
-function renderCallQ(body){
-  // Remove old q-area if present
+function renderCallQ(){
+  var body=$('scene1-body');
   var old=$('call-q-area'); if(old) old.remove();
-  if(G.callIdx>=CALL_QS.length){ finishScene1(body); return; }
+
+  if(G.callIdx>=CALL_QS.length){ finishScene1(); return; }
 
   var q=CALL_QS[G.callIdx];
   var area=document.createElement('div'); area.id='call-q-area';
@@ -790,8 +790,8 @@ function renderCallQ(body){
     var btn=document.createElement('button'); btn.className='choice-btn';
     btn.textContent=opt;
     btn.addEventListener('click',(function(idx){ return function(){
-  answerCallQ(idx, choices, area, q, body);
-};})(i));
+      answerCallQ(idx, choices, area, q);
+    };})(i));
     choices.appendChild(btn);
   });
   area.appendChild(choices);
@@ -801,7 +801,7 @@ function renderCallQ(body){
   body.appendChild(area);
 }
 
-function answerCallQ(chosen, choicesEl, area, q, body){
+function answerCallQ(chosen, choicesEl, area, q){
   var btns=choicesEl.querySelectorAll('.choice-btn');
   btns.forEach(function(b){ b.disabled=true; });
   var ok=(chosen===q.correct);
@@ -815,20 +815,41 @@ function answerCallQ(chosen, choicesEl, area, q, body){
   fb.className='choice-feedback show '+(ok?'ok':'bad');
   fb.innerHTML=ok?q.ok:q.bad;
 
-  // Unlock term silently
   if(q.term) addXP(2);
 
-  var nb=nextBtn(G.callIdx+1<CALL_QS.length?'She asks another question →':'The file arrives! 📁 →','yellow',(function(b){return function(){
-    G.callIdx++;
-    var old=$('call-q-area'); if(old) old.remove();
-    renderCallQ(b);
-  };})(body));
+  var nb=nextBtn(
+    G.callIdx+1<CALL_QS.length?'She asks another question →':'The file arrives! 📁 →',
+    'yellow',
+    function(){
+      G.callIdx++;
+      renderCallQ();
+    }
+  );
   area.appendChild(nb);
 }
 
-function finishScene1(body){
+function finishScene1(){
+  var body=$('scene1-body');
   var old=$('call-q-area'); if(old) old.remove();
   var wrap=document.createElement('div'); wrap.id='call-q-area';
+
+  var dial=document.createElement('div'); dial.className='dialogue';
+  var row=document.createElement('div'); row.className='bubble-row'; row.style.animationDelay='.1s';
+  row.innerHTML='<div class="bubble-avatar">📞</div><div><div class="bubble-name">Ingrid</div><div class="bubble">Thank you. I\'ll see you tomorrow morning. I\'ll bring the documents.</div></div>';
+  dial.appendChild(row);
+  wrap.appendChild(dial);
+
+  var reward=document.createElement('div');
+  reward.style.cssText='background:rgba(255,200,0,.08);border:2px solid rgba(255,200,0,.2);border-radius:var(--rsm);padding:12px 14px;margin-bottom:12px;font-size:13px;font-weight:700;color:rgba(255,255,255,.8);line-height:1.6';
+  reward.innerHTML='📖 <strong style="color:var(--yellow)">Terms unlocked:</strong> <em style="color:var(--teal);font-style:normal">Estate</em> · <em style="color:var(--teal);font-style:normal">Inheritance tax</em>';
+  wrap.appendChild(reward);
+
+  var nb=nextBtn('📁 Review the file →','green',function(){
+    advanceScene(buildScene2,'📁','Scene 2: The File','Six assets. You need to understand each one.');
+  });
+  wrap.appendChild(nb);
+  body.appendChild(wrap);
+}
 
   // Ingrid's final line
   var dial=document.createElement('div'); dial.className='dialogue';
