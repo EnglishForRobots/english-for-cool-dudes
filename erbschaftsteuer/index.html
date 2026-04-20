@@ -740,8 +740,10 @@ function advanceScene(nextFn, icon, label, sub){
    SCENE 1 — THE PHONE CALL
 ════════════════════════════════════ */
 function buildScene1(){
+  G.callIdx = 0;
   var c=$('scene-container');
   c.innerHTML='';
+
   var scene=document.createElement('div');
   scene.className='scene scene-dark';
 
@@ -754,7 +756,9 @@ function buildScene1(){
   body.className='scene-body';
   body.id='scene1-body';
 
-  var dial=document.createElement('div'); dial.className='dialogue';
+  // Dialogue — rendered ONCE, never again
+  var dial=document.createElement('div');
+  dial.className='dialogue';
   CALL_DIALOGUE.forEach(function(line,i){
     var row=document.createElement('div');
     row.className='bubble-row '+(line.who==='you'?'right':'');
@@ -769,56 +773,78 @@ function buildScene1(){
 
   scene.appendChild(body);
   c.appendChild(scene);
+
+  // Render first question into body
   renderCallQ();
 }
 
 function renderCallQ(){
   var body=$('scene1-body');
-  var old=$('call-q-area'); if(old) old.remove();
+  if(!body) return;
 
-  if(G.callIdx>=CALL_QS.length){ finishScene1(); return; }
+  // Remove previous question area only
+  var old=$('call-q-area');
+  if(old) old.remove();
 
-  var q=CALL_QS[G.callIdx];
-  var area=document.createElement('div'); area.id='call-q-area';
+  // All questions done?
+  if(G.callIdx >= CALL_QS.length){
+    finishScene1();
+    return;
+  }
 
-  var qcard=document.createElement('div'); qcard.className='q-card';
-  qcard.innerHTML='<div class="q-label">Your response</div><div class="q-text">'+q.q+'</div>';
+  var q = CALL_QS[G.callIdx];
+  var area = document.createElement('div');
+  area.id = 'call-q-area';
+
+  var qcard = document.createElement('div');
+  qcard.className = 'q-card';
+  qcard.innerHTML = '<div class="q-label">Your response</div><div class="q-text">'+q.q+'</div>';
   area.appendChild(qcard);
 
-  var choices=document.createElement('div'); choices.className='choices';
-  q.opts.forEach(function(opt,i){
-    var btn=document.createElement('button'); btn.className='choice-btn';
-    btn.textContent=opt;
-    btn.addEventListener('click',(function(idx){ return function(){
-      answerCallQ(idx, choices, area, q);
-    };})(i));
+  var choices = document.createElement('div');
+  choices.className = 'choices';
+  q.opts.forEach(function(opt, i){
+    var btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = opt;
+    btn.addEventListener('click', (function(idx){
+      return function(){ answerCallQ(idx, choices, area, q); };
+    })(i));
     choices.appendChild(btn);
   });
   area.appendChild(choices);
 
-  var fb=document.createElement('div'); fb.className='choice-feedback'; fb.id='call-fb';
+  var fb = document.createElement('div');
+  fb.className = 'choice-feedback';
+  fb.id = 'call-fb';
   area.appendChild(fb);
+
   body.appendChild(area);
 }
 
 function answerCallQ(chosen, choicesEl, area, q){
-  var btns=choicesEl.querySelectorAll('.choice-btn');
-  btns.forEach(function(b){ b.disabled=true; });
-  var ok=(chosen===q.correct);
-  btns[chosen].classList.add(ok?'correct':'wrong');
+  // Disable all buttons immediately
+  var btns = choicesEl.querySelectorAll('.choice-btn');
+  btns.forEach(function(b){ b.disabled = true; });
+
+  var ok = (chosen === q.correct);
+  btns[chosen].classList.add(ok ? 'correct' : 'wrong');
   if(!ok) btns[q.correct].classList.add('show-correct');
+
   G.totalAnswered++;
   if(ok){ G.callScore++; markCorrect(btns[chosen]); }
-  else   { markWrong(btns[chosen]); }
+  else  { markWrong(btns[chosen]); }
 
-  var fb=$('call-fb');
-  fb.className='choice-feedback show '+(ok?'ok':'bad');
-  fb.innerHTML=ok?q.ok:q.bad;
+  var fb = $('call-fb');
+  fb.className = 'choice-feedback show ' + (ok ? 'ok' : 'bad');
+  fb.innerHTML = ok ? q.ok : q.bad;
 
   if(q.term) addXP(2);
 
-  var nb=nextBtn(
-    G.callIdx+1<CALL_QS.length?'She asks another question →':'The file arrives! 📁 →',
+  // Next button — advances index and re-renders question area only
+  var isLast = (G.callIdx + 1 >= CALL_QS.length);
+  var nb = nextBtn(
+    isLast ? 'The file arrives! 📁 →' : 'She asks another question →',
     'yellow',
     function(){
       G.callIdx++;
@@ -829,28 +855,32 @@ function answerCallQ(chosen, choicesEl, area, q){
 }
 
 function finishScene1(){
-  var body=$('scene1-body');
-  var old=$('call-q-area'); if(old) old.remove();
-  var wrap=document.createElement('div'); wrap.id='call-q-area';
+  var body = $('scene1-body');
+  var old = $('call-q-area');
+  if(old) old.remove();
 
-  var dial=document.createElement('div'); dial.className='dialogue';
-  var row=document.createElement('div'); row.className='bubble-row'; row.style.animationDelay='.1s';
-  row.innerHTML='<div class="bubble-avatar">📞</div><div><div class="bubble-name">Ingrid</div><div class="bubble">Thank you. I\'ll see you tomorrow morning. I\'ll bring the documents.</div></div>';
+  var wrap = document.createElement('div');
+  wrap.id = 'call-q-area';
+
+  var dial = document.createElement('div');
+  dial.className = 'dialogue';
+  var row = document.createElement('div');
+  row.className = 'bubble-row';
+  row.innerHTML = '<div class="bubble-avatar">📞</div><div><div class="bubble-name">Ingrid</div><div class="bubble">Thank you. I\'ll see you tomorrow morning. I\'ll bring the documents.</div></div>';
   dial.appendChild(row);
   wrap.appendChild(dial);
 
-  var reward=document.createElement('div');
-  reward.style.cssText='background:rgba(255,200,0,.08);border:2px solid rgba(255,200,0,.2);border-radius:var(--rsm);padding:12px 14px;margin-bottom:12px;font-size:13px;font-weight:700;color:rgba(255,255,255,.8);line-height:1.6';
-  reward.innerHTML='📖 <strong style="color:var(--yellow)">Terms unlocked:</strong> <em style="color:var(--teal);font-style:normal">Estate</em> · <em style="color:var(--teal);font-style:normal">Inheritance tax</em>';
+  var reward = document.createElement('div');
+  reward.style.cssText = 'background:rgba(255,200,0,.08);border:2px solid rgba(255,200,0,.2);border-radius:var(--rsm);padding:12px 14px;margin-bottom:12px;font-size:13px;font-weight:700;color:rgba(255,255,255,.8);line-height:1.6';
+  reward.innerHTML = '📖 <strong style="color:var(--yellow)">Terms unlocked:</strong> <em style="color:var(--teal);font-style:normal">Estate</em> · <em style="color:var(--teal);font-style:normal">Inheritance tax</em>';
   wrap.appendChild(reward);
 
-  var nb=nextBtn('📁 Review the file →','green',function(){
-    advanceScene(buildScene2,'📁','Scene 2: The File','Six assets. You need to understand each one.');
+  var nb = nextBtn('📁 Review the file →', 'green', function(){
+    advanceScene(buildScene2, '📁', 'Scene 2: The File', 'Six assets. You need to understand each one.');
   });
   wrap.appendChild(nb);
   body.appendChild(wrap);
 }
-
  
 
 /* ════════════════════════════════════
