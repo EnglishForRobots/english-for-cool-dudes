@@ -2,352 +2,744 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Glitch Hunt - English For Cool Dudes</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+    <title>🕵️ Fixit — The Glitch Hunt! — English For Cool Dudes</title>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --color-correct: #10B981;
-            --color-incorrect: #EF4444;
-        }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #F0F9FF; color: #0F172A; margin: 0; }
-        .header { background: #FFF; border-bottom: 1px solid #E2E8F0; padding: 20px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
-        .header-content { max-width: 1000px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; gap: 15px; }
-        .logo { width: 36px; height: 36px; background: linear-gradient(135deg, #EF4444, #B91C1C); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; }
-        .site-title { font-size: 20px; font-weight: 600; color: #0F172A; text-decoration: none; }
-        .container { max-width: 800px; margin: 0 auto; padding: 20px; text-align: center; min-height: 80vh; }
-        .controls { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 30px; display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; align-items: center; }
-        .control-group { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
-        label { font-size: 12px; font-weight: 700; color: #718096; text-transform: uppercase; }
-        select { padding: 12px 16px; border-radius: 8px; border: 2px solid #E2E8F0; font-size: 15px; background: #FFF; cursor: pointer; min-width: 200px; }
-        select:hover { border-color: #EF4444; }
-        .btn { background: linear-gradient(135deg, #EF4444, #DC2626); color: white; padding: 12px 30px; border-radius: 8px; border: none; cursor: pointer; font-size: 16px; font-weight: 700; transition: transform 0.2s; height: 46px; margin-top: 19px; }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .definition-card { background: #FFF; padding: 40px; border-radius: 20px; border: 2px solid #E2E8F0; border-left: 6px solid #EF4444; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 30px; display: none; flex-direction: column; align-items: center; min-height: 200px; }
-        .definition-text { font-size: 24px; font-weight: 600; color: #2C3E50; line-height: 1.5; }
-        .hint-text { margin-top: 15px; font-size: 14px; color: #A0AEC0; font-weight: 700; text-transform: uppercase; }
-        .hint-button { margin-top: 15px; background: #F7FAFC; border: 2px solid #E2E8F0; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; color: #4A5568; transition: all 0.2s; }
-        .hint-button:hover { background: #EDF2F7; }
-        .explanation-box { margin-top: 20px; background: #F0F9FF; border: 2px solid #0EA5E9; border-radius: 12px; padding: 20px; text-align: left; display: none; }
-        .explanation-box.shown { display: block; animation: slideDown 0.3s; }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .explanation-title { font-size: 14px; font-weight: 700; color: #0EA5E9; text-transform: uppercase; margin-bottom: 8px; }
-        .explanation-text { font-size: 15px; color: #2C3E50; line-height: 1.6; }
-        .options-grid { display: none; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .option-btn { background: white; border: 2px solid #E2E8F0; border-bottom: 4px solid #E2E8F0; padding: 20px; border-radius: 12px; font-size: 18px; font-weight: 700; color: #4A5568; cursor: pointer; transition: all 0.2s; }
-        .option-btn:hover { transform: translateY(-2px); border-color: #EF4444; color: #EF4444; }
-        .option-btn.correct { background: #C6F6D5 !important; border-color: var(--color-correct) !important; color: #065F46 !important; pointer-events: none; }
-        .option-btn.incorrect { background: #FEE2E2 !important; border-color: var(--color-incorrect) !important; color: #991B1B !important; animation: shake 0.4s; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25%, 75% { transform: translateX(-5px); } 50% { transform: translateX(5px); } }
-        .progress-container { width: 100%; height: 8px; background: #E2E8F0; border-radius: 10px; margin-bottom: 20px; overflow: hidden; display: none; }
-        .progress-fill { height: 100%; background: #EF4444; width: 0%; transition: width 0.3s; }
-        #loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.9); display: none; justify-content: center; align-items: center; z-index: 50; font-weight: bold; color: #EF4444; font-size: 18px; }
-        .error-message { background: #FEE2E2; border: 2px solid #EF4444; padding: 20px; border-radius: 12px; color: #991B1B; margin: 20px 0; display: none; }
-        .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5000; overflow: hidden; display: none; }
-        .confetti-piece { position: absolute; top: -50px; font-size: 2rem; animation: fall linear forwards; }
-        @keyframes fall { 0% { transform: translateY(-50px) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
-        #win-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 6000; }
-        .win-content { background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 500px; width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: pop 0.4s; }
-        @keyframes pop { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-        .win-title { font-size: 32px; font-weight: 800; color: #EF4444; margin-bottom: 10px; }
-        .win-text { font-size: 18px; color: #4A5568; margin-bottom: 30px; }
-        .win-buttons { display: flex; flex-direction: column; gap: 10px; }
-        .win-btn { padding: 12px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; font-size: 16px; transition: transform 0.2s; }
-        .btn-primary { background: #10B981; color: white; }
-        .btn-secondary { background: #EDF2F7; color: #4A5568; }
-        .win-btn:hover { transform: scale(1.02); }
-        footer { background: #FFF; border-top: 1px solid #E5E9F2; padding: 32px 20px; margin-top: 60px; text-align: center; }
-        footer p { font-size: 14px; color: #718096; }
-        footer a { color: #8B5CF6; margin: 0 10px; text-decoration: none; }
+    :root {
+        --punch:#FF4B4B;  --punch-shadow:#EA2B2B;  --punch-light:rgba(255,75,75,.1);
+        --orange:#FF9600; --orange-shadow:#E07800;
+        --blue:#1CB0F6;   --blue-shadow:#1899D6;
+        --green:#58CC02;  --green-shadow:#58A700;
+        --yellow:#FFC800; --yellow-shadow:#E5B400;
+        --purple:#CE82FF; --purple-shadow:#A559D9;
+        --teal:#2BDECC;   --teal-shadow:#1FBFAF;
+        --bg:#F7F9FA;     --white:#FFFFFF;
+        --ink:#4B4B4B;    --ink-bold:#111827; --ink-3:#AFAFAF;
+        --border:#E5E5E5; --border-heavy:#CECECE;
+        --r:24px; --rsm:16px; --rxs:10px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--ink);font-family:'Nunito',system-ui,sans-serif;line-height:1.5;overflow-x:hidden;padding-bottom:40px;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;}
+    a{color:inherit;text-decoration:none;}
+    button{font-family:inherit;cursor:pointer;border:none;background:none;}
+
+    @keyframes up       {from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes popin    {0%{opacity:0;transform:scale(.7) rotate(-4deg)}60%{transform:scale(1.08) rotate(1deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+    @keyframes shake    {0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+    @keyframes heartbeat{0%,100%{transform:scale(1)}14%{transform:scale(1.18)}28%{transform:scale(1)}42%{transform:scale(1.1)}}
+    @keyframes confetti {0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(140px) rotate(420deg)}}
+    @keyframes xpPop    {0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(1.5)}}
+    @keyframes fadeIn   {from{opacity:0}to{opacity:1}}
+    @keyframes megaConf {0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(200px) rotate(540deg)}}
+    @keyframes float    {0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    @keyframes wiggle   {0%,100%{transform:rotate(0)}25%{transform:rotate(-6deg)}75%{transform:rotate(6deg)}}
+    @keyframes shimmer2 {0%{left:-80%}100%{left:130%}}
+    @keyframes glowRed  {0%,100%{box-shadow:0 0 24px rgba(255,75,75,.5),0 8px 32px rgba(0,0,0,.15)}50%{box-shadow:0 0 55px rgba(255,75,75,.9),0 8px 32px rgba(0,0,0,.2)}}
+    @keyframes badgeDrop{0%{opacity:0;transform:translateY(-40px) scale(.7)}60%{transform:translateY(6px) scale(1.06)}80%{transform:translateY(-2px) scale(.98)}100%{opacity:1;transform:translateY(0) scale(1)}}
+    @keyframes sentenceReveal{0%{opacity:0;transform:scale(.97)}100%{opacity:1;transform:scale(1)}}
+    @keyframes glitchFlash{0%,100%{background:var(--punch-light)}30%{background:rgba(255,75,75,.25)}70%{background:rgba(255,75,75,.08)}}
+
+    .header{background:var(--white);border-bottom:3px solid var(--punch);padding:0 20px;height:60px;position:sticky;top:0;z-index:300;display:flex;align-items:center;box-shadow:0 4px 12px rgba(255,75,75,.12);}
+    .header-inner{max-width:860px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
+    .logo-link{display:flex;align-items:center;gap:10px;}
+    .logo-box{width:38px;height:38px;background:var(--yellow);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid var(--yellow-shadow);box-shadow:0 3px 0 var(--yellow-shadow);}
+    .site-name{font-size:15px;font-weight:900;color:var(--ink-bold);letter-spacing:-.3px;}
+    @media(max-width:420px){.site-name{display:none}}
+
+    .page{max-width:680px;margin:0 auto;padding:20px 14px 40px;display:flex;flex-direction:column;gap:14px;}
+
+    .hero{background:var(--punch);border:2px solid var(--punch-shadow);border-bottom:6px solid var(--punch-shadow);border-radius:var(--r);padding:28px 22px 24px;position:relative;overflow:hidden;text-align:center;}
+    .hero::after{content:'🕵️';position:absolute;bottom:-20px;right:6px;font-size:140px;opacity:.1;pointer-events:none;animation:wiggle 4s ease-in-out infinite;}
+    .hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.4);border-radius:8px;padding:4px 12px;margin-bottom:10px;font-size:11px;font-weight:900;color:var(--white);text-transform:uppercase;letter-spacing:1.5px;}
+    .hero-title{font-size:clamp(28px,8vw,48px);font-weight:900;color:var(--white);letter-spacing:-1.5px;line-height:1;margin-bottom:6px;text-shadow:0 3px 0 var(--punch-shadow);position:relative;z-index:1;}
+    .hero-sub{font-size:14px;font-weight:700;color:rgba(255,255,255,.95);line-height:1.5;position:relative;z-index:1;}
+
+    .setup-card{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);padding:22px;animation:up .4s ease both;}
+    .setup-label{font-size:11px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;display:block;}
+    .chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+    .chip{padding:9px 14px;background:var(--white);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:99px;font-size:13px;font-weight:900;color:var(--ink-bold);cursor:pointer;transition:all .1s;font-family:inherit;}
+    .chip:active{border-bottom-width:2px;transform:translateY(2px);}
+    .chip.sel-punch {background:var(--punch);color:var(--white);border-color:var(--punch-shadow);}
+    .chip.sel-blue  {background:var(--blue);color:var(--white);border-color:var(--blue-shadow);}
+    .chip.sel-purple{background:var(--purple);color:var(--white);border-color:var(--purple-shadow);}
+    .start-btn{width:100%;padding:16px;background:var(--punch);color:var(--white);border:2px solid var(--punch-shadow);border-bottom:6px solid var(--punch-shadow);border-radius:var(--rsm);font-size:17px;font-weight:900;cursor:pointer;transition:all .1s;font-family:inherit;}
+    .start-btn:active{border-bottom-width:2px;transform:translateY(3px);}
+
+    .game-area{display:none;flex-direction:column;gap:12px;}
+    .game-area.active{display:flex;}
+
+    .score-bar{background:var(--white);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--r);padding:12px 18px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;text-align:center;gap:8px;}
+    .sb-label{font-size:10px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;}
+    .sb-val{font-size:22px;font-weight:900;color:var(--punch-shadow);line-height:1.1;margin-top:2px;}
+
+    .pip-row{display:flex;gap:6px;background:var(--white);border:2px solid var(--border-heavy);border-radius:var(--rsm);padding:12px 18px;align-items:center;}
+    .pip-label{font-size:12px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;margin-right:4px;}
+    .pip{flex:1;height:8px;border-radius:99px;background:var(--border-heavy);transition:background .3s;}
+    .pip.done  {background:var(--yellow);}
+    .pip.active{background:var(--punch);}
+
+    .glitch-card{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);overflow:hidden;}
+    .glitch-card-head{background:linear-gradient(135deg,var(--punch),#FF1A1A);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;}
+    .glitch-card-label{font-size:12px;font-weight:900;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:1.5px;}
+    .glitch-round-badge{background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.4);border-radius:99px;padding:3px 14px;font-size:12px;font-weight:900;color:var(--white);}
+
+    .topic-badge{display:inline-flex;align-items:center;gap:5px;background:var(--punch-light);border:2px solid rgba(255,75,75,.3);border-radius:8px;padding:4px 12px;font-size:11px;font-weight:900;color:var(--punch-shadow);text-transform:uppercase;letter-spacing:1px;margin:14px 18px 0;}
+
+    .attempts-row{display:flex;align-items:center;justify-content:center;gap:6px;padding:0 20px 10px;}
+    .attempt-dot{width:12px;height:12px;border-radius:50%;background:var(--border-heavy);transition:background .2s;}
+    .attempt-dot.used{background:var(--punch);}
+
+    .sentence-wrap{padding:16px 20px 4px;text-align:center;}
+    .broken-sentence{font-size:clamp(17px,4.5vw,22px);font-weight:800;color:var(--ink-bold);line-height:1.7;animation:sentenceReveal .3s ease both;}
+    .broken-sentence .glitch-word{background:var(--punch-light);border:2px dashed rgba(255,75,75,.5);border-radius:6px;padding:2px 8px;color:var(--punch-shadow);font-weight:900;display:inline-block;animation:glitchFlash 2s ease-in-out infinite;}
+
+    .options-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 18px 0;}
+    .opt-btn{padding:16px 12px;font-size:clamp(13px,3.5vw,16px);font-weight:900;background:var(--white);color:var(--ink-bold);border:2px solid var(--border-heavy);border-bottom:5px solid var(--border-heavy);border-radius:var(--rsm);cursor:pointer;transition:all .12s;font-family:inherit;text-align:center;line-height:1.3;min-height:58px;display:flex;align-items:center;justify-content:center;}
+    .opt-btn:active{border-bottom-width:2px;transform:translateY(3px);}
+    .opt-btn:hover:not(:disabled){border-color:var(--punch);color:var(--punch-shadow);}
+    .opt-btn.correct{background:var(--green);color:var(--white);border-color:var(--green-shadow);animation:heartbeat .5s ease;cursor:default;}
+    .opt-btn.wrong  {background:var(--punch);color:var(--white);border-color:var(--punch-shadow);animation:shake .4s;cursor:default;}
+    .opt-btn.show-correct{background:rgba(88,204,2,.1);border-color:var(--green-shadow);color:var(--green-shadow);}
+    .opt-btn:disabled{cursor:default;opacity:.6;}
+
+    .hint-section{padding:10px 18px 0;display:flex;gap:8px;flex-wrap:wrap;}
+    .hint-btn{padding:8px 14px;background:rgba(255,200,0,.1);color:var(--yellow-shadow);border:2px solid var(--yellow-shadow);border-bottom:3px solid var(--yellow-shadow);border-radius:var(--rxs);font-size:12px;font-weight:900;cursor:pointer;transition:all .1s;font-family:inherit;}
+    .hint-btn:active{border-bottom-width:2px;transform:translateY(1px);}
+    .hint-btn:disabled{opacity:.35;cursor:default;}
+
+    .hint-strip{background:rgba(255,200,0,.1);border:2px solid rgba(255,200,0,.3);border-radius:var(--rsm);padding:10px 14px;font-size:13px;font-weight:800;color:var(--yellow-shadow);display:none;margin:10px 18px 0;animation:up .2s ease both;line-height:1.6;}
+    .hint-strip.show{display:block;}
+
+    .feedback-strip{margin:10px 18px 0;padding:12px 14px;border-radius:var(--rsm);font-size:14px;font-weight:800;border:2px solid;display:none;line-height:1.6;}
+    .feedback-strip.show.right{display:block;background:rgba(88,204,2,.1);color:var(--green-shadow);border-color:rgba(88,167,0,.3);animation:up .2s ease both;}
+    .feedback-strip.show.wrong{display:block;background:rgba(255,75,75,.1);color:var(--punch-shadow);border-color:rgba(255,75,75,.3);animation:up .2s ease both;}
+    .feedback-strip.show.info {display:block;background:rgba(255,150,0,.08);color:var(--orange-shadow);border-color:rgba(255,150,0,.3);animation:up .2s ease both;}
+
+    .explanation-strip{margin:8px 18px 0;padding:12px 14px;border-radius:var(--rsm);font-size:13px;font-weight:700;border:2px solid rgba(28,176,246,.25);background:rgba(28,176,246,.06);color:var(--blue-shadow);line-height:1.6;display:none;}
+    .explanation-strip.show{display:block;animation:up .25s ease both;}
+
+    .btn-next{display:none;width:calc(100% - 36px);margin:12px 18px 18px;padding:14px;background:var(--punch);color:var(--white);border:2px solid var(--punch-shadow);border-bottom:5px solid var(--punch-shadow);border-radius:var(--rsm);font-size:15px;font-weight:900;cursor:pointer;transition:all .1s;font-family:inherit;text-align:center;}
+    .btn-next:active{border-bottom-width:2px;transform:translateY(3px);}
+    .card-bottom-pad{height:18px;}
+
+    .btn-menu-link{display:block;text-align:center;padding:6px;font-size:13px;font-weight:900;color:var(--ink-3);cursor:pointer;font-family:inherit;}
+
+    .combo-flash{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:clamp(36px,8vw,56px);font-weight:900;color:var(--punch);text-shadow:0 4px 0 var(--punch-shadow);pointer-events:none;z-index:9997;animation:popin .5s ease both;}
+
+    .result-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;justify-content:center;align-items:center;z-index:500;padding:20px;overflow-y:auto;}
+    .result-overlay.show{display:flex;animation:fadeIn .25s ease both;}
+    .result-card{background:var(--white);border:3px solid var(--punch);border-bottom:8px solid var(--punch-shadow);border-radius:var(--r);padding:32px 24px;max-width:440px;width:100%;text-align:center;margin:auto;box-shadow:0 0 40px rgba(255,75,75,.2);}
+    .rc-badge{width:130px;height:130px;border-radius:50%;background:linear-gradient(145deg,#fff5f5,#ffd0d0,#fff5f5);border:5px solid var(--punch-shadow);display:flex;align-items:center;justify-content:center;font-size:72px;margin:0 auto 16px;animation:badgeDrop .8s cubic-bezier(.175,.885,.32,1.275) both,glowRed 2.5s ease-in-out infinite .9s;box-shadow:0 0 30px rgba(255,75,75,.5),0 8px 32px rgba(0,0,0,.15);position:relative;overflow:hidden;}
+    .rc-badge::before{content:'';position:absolute;top:-10%;left:-80%;width:50%;height:120%;background:linear-gradient(to right,transparent,rgba(255,255,255,.75),transparent);transform:skewX(-20deg);animation:shimmer2 2s ease-in-out infinite;animation-delay:.8s;}
+    .rc-title{font-size:26px;font-weight:900;color:var(--punch-shadow);letter-spacing:-1px;margin-bottom:4px;}
+    .rc-sub{font-size:14px;font-weight:700;color:var(--ink-3);margin-bottom:16px;}
+    .rc-xp{background:var(--punch);border:2px solid var(--punch-shadow);border-bottom:6px solid var(--punch-shadow);border-radius:var(--r);padding:16px;margin-bottom:14px;}
+    .rc-xp-num{font-size:48px;font-weight:900;color:var(--white);line-height:1;}
+    .rc-xp-label{font-size:11px;font-weight:900;color:rgba(255,255,255,.9);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+    .rc-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;}
+    .rc-stat{background:var(--punch-light);border:2px solid rgba(255,75,75,.2);border-radius:var(--rsm);padding:12px 8px;}
+    .rc-stat-n{font-size:22px;font-weight:900;color:var(--punch-shadow);}
+    .rc-stat-l{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);margin-top:2px;}
+    .rc-btns{display:flex;flex-direction:column;gap:10px;}
+    .rc-btn{width:100%;padding:14px;border-radius:var(--rsm);font-size:15px;font-weight:900;font-family:inherit;cursor:pointer;border:2px solid;border-bottom:5px solid;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s;}
+    .rc-btn:active{border-bottom-width:2px;transform:translateY(3px);}
+    .rc-btn.primary  {background:var(--punch);color:var(--white);border-color:var(--punch-shadow);}
+    .rc-btn.secondary{background:var(--white);color:var(--punch-shadow);border-color:var(--punch);}
+
+    .badge-wrap{position:fixed;top:68px;right:12px;display:flex;flex-direction:column;gap:8px;z-index:999;pointer-events:none;}
+    .badge{background:var(--white);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-left:4px solid var(--punch);padding:10px 14px;border-radius:var(--rsm);display:flex;align-items:center;gap:8px;transform:translateX(240px);opacity:0;transition:transform .4s,opacity .4s;box-shadow:0 4px 14px rgba(0,0,0,.08);}
+    .badge.show{transform:translateX(0);opacity:1;}
+    .badge-icon{font-size:22px;}
+    .badge-text{font-size:13px;font-weight:900;color:var(--ink-bold);}
+    .confetti-dot{position:fixed;width:10px;height:10px;border-radius:3px;pointer-events:none;z-index:9999;animation:confetti .9s ease-out both;}
+    .xp-float{position:fixed;font-size:20px;font-weight:900;color:var(--yellow-shadow);text-shadow:0 2px 0 rgba(0,0,0,.12);pointer-events:none;z-index:9998;animation:xpPop .85s ease-out forwards;}
+    .mega-conf-dot{position:fixed;pointer-events:none;z-index:9999;border-radius:4px;animation:megaConf 1.4s ease-out both;}
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-content">
-            <span class="logo">🛠️</span>
-            <a href="/games/" class="site-title">English For Cool Dudes</a>
-        </div>
-    </header>
 
-    <div id="loading-overlay">Loading questions...</div>
-    <div id="confettiContainer" class="confetti-container"></div>
-    <div id="win-modal">
-        <div class="win-content">
-            <div class="win-title">🔧 Glitch Fixed!</div>
-            <div class="win-text" id="win-message"></div>
-            <div class="win-buttons">
-                <button class="win-btn btn-primary" onclick="closeModalAndRestart()">🔄 Play Again</button>
-                <button class="win-btn btn-secondary" onclick="closeModalAndNewLevel()">📈 Change Level</button>
-                <button class="win-btn btn-secondary" onclick="closeModalAndNewTheme()">🎨 Change Topic</button>
-                <button class="win-btn btn-secondary" onclick="window.location.href='/games/'" style="border: 2px solid #E2E8F0; color: #2C3E50;">☕ Back to The Break Room</button>
-            </div>
+<header class="header">
+    <div class="header-inner">
+        <a href="/breakroom/" class="logo-link">
+            <div class="logo-box">😎</div>
+            <span class="site-name">English For Cool Dudes</span>
+        </a>
+    </div>
+</header>
+
+<div class="badge-wrap" id="badge-wrap"></div>
+
+<div class="result-overlay" id="result-overlay">
+    <div class="result-card">
+        <div class="rc-badge">🕵️</div>
+        <div class="rc-title" id="rc-title">Case Closed!</div>
+        <div class="rc-sub" id="rc-sub">The glitches have been found!</div>
+        <div class="rc-xp">
+            <div class="rc-xp-num" id="rc-xp">+0</div>
+            <div class="rc-xp-label">⚡ XP Earned</div>
+        </div>
+        <div class="rc-stats">
+            <div class="rc-stat"><div class="rc-stat-n" id="rc-score">0</div><div class="rc-stat-l">Fixed</div></div>
+            <div class="rc-stat"><div class="rc-stat-n" id="rc-first">0</div><div class="rc-stat-l">First Try</div></div>
+            <div class="rc-stat"><div class="rc-stat-n" id="rc-combo">0</div><div class="rc-stat-l">Best Combo</div></div>
+        </div>
+        <div class="rc-btns">
+            <button class="rc-btn primary" onclick="playAgainSame()">🔄 Play Again</button>
+            <button class="rc-btn secondary" onclick="backToSetup()">⚙️ Change Settings</button>
+            <button class="rc-btn secondary" onclick="window.location.href='/breakroom/'" style="margin-top:4px;">☕ Back to Break Room</button>
         </div>
     </div>
+</div>
 
-    <div class="container">
-        <h1 style="color:#1A202C; margin-bottom:10px;">🕵️‍♂️ The Glitch Hunt</h1>
-        <p style="color:#718096; margin-bottom:20px; font-size: 1.1rem; max-width: 600px; margin-left: auto; margin-right: auto;">
-            The sentence is broken. <strong>Choose the correct fix.</strong><br>Don't let the bad grammar win!
-        </p>
-
-        <div class="error-message" id="errorMessage"></div>
-        
-        <div class="controls" id="controls-area">
-            <div class="control-group">
-                <label for="themeSelect">Choose Topic</label>
-                <select id="themeSelect">
-                    <option value="business">Business English</option>
-                    <option value="tax">Tax & Finance</option>
-                    <option value="legal">Legal English</option>
-                    <option value="holidays">Holidays & Travel</option>
-                    <option value="work">Office Life</option>
-                    <option value="geography">Geography & Culture</option>
-                </select>
-            </div>
-            <div class="control-group">
-                <label for="levelSelect">Choose Level</label>
-                <select id="levelSelect">
-                    <option value="beginner">Beginner (A1-A2)</option>
-                    <option value="intermediate">Intermediate (B1-B2)</option>
-                    <option value="advanced">Advanced (C1-C2)</option>
-                </select>
-            </div>
-            <button class="btn" id="startBtn" onclick="initGame()">Start Hunt</button>
-        </div>
-
-        <div class="progress-container" id="progressBar">
-            <div class="progress-fill" id="progressFill"></div>
-        </div>
-
-        <div id="gameArea">
-            <div class="definition-card" id="defCard">
-                <div class="hint-text">Broken Sentence:</div>
-                <div class="definition-text" id="defText">...</div>
-                <button class="hint-button" id="hintBtn" onclick="useHint()">💡 Get a Hint (50/50)</button>
-                <button class="hint-button" id="secondHintBtn" onclick="showSecondHint()" style="display: none;">🔍 Get Final Clue</button>
-                <div class="explanation-box" id="secondHintBox" style="display: none;">
-                    <div class="explanation-title">🔍 Grammar Clue</div>
-                    <div class="explanation-text" id="secondHintText"></div>
-                </div>
-                <div class="explanation-box" id="explanationBox">
-                    <div class="explanation-title">📚 Grammar Explanation</div>
-                    <div class="explanation-text" id="explanationText"></div>
-                </div>
-                <button class="hint-button" id="nextBtn" onclick="skipToNext()" style="display: none; background: #10B981; color: white; border-color: #10B981;">➡️ Next Sentence</button>
-            </div>
-            <div class="options-grid" id="optionsGrid"></div>
-        </div>
-
-        <a href="/games/" style="display:inline-block; margin-top:30px; color: #8B5CF6; text-decoration: none; font-weight:600;">&larr; Back to Break Room ☕</a>
+<div class="page">
+    <div class="hero u1">
+        <div class="hero-badge">🕵️ Break Room Game</div>
+        <div class="hero-title">Fixit — The Glitch Hunt!</div>
+        <div class="hero-sub">Something is broken in the sentence. Spot it. Fix it. Feel like a genius.</div>
     </div>
 
-    <footer>
-        <p>© 2026 English For Cool Dudes - 😎</p>
-        <div style="margin-top: 10px;">
-            <a href="/impressum/">Impressum</a>
-            <a href="/datenschutz/">Datenschutzerklärung</a>
+    <div class="setup-card" id="setup-card">
+        <span class="setup-label">Topic</span>
+        <div class="chip-row" id="topic-chips"></div>
+        <span class="setup-label">Level</span>
+        <div class="chip-row" id="level-chips"></div>
+        <span class="setup-label">Rounds</span>
+        <div class="chip-row" id="rounds-chips"></div>
+        <button class="start-btn" onclick="startGame()">🕵️ Start the Hunt!</button>
+    </div>
+
+    <div class="game-area" id="game-area">
+        <div class="score-bar">
+            <div><div class="sb-label">Round</div><div class="sb-val" id="sb-round">1</div></div>
+            <div><div class="sb-label">Score</div><div class="sb-val" id="sb-score">0</div></div>
+            <div><div class="sb-label">Combo</div><div class="sb-val" id="sb-combo">0</div></div>
+            <div><div class="sb-label">XP</div><div class="sb-val" id="sb-xp">0</div></div>
         </div>
-    </footer>
 
-    <script>
-        const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
-        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        <div class="pip-row">
+            <span class="pip-label">Progress</span>
+            <div id="pip-track" style="display:flex;flex:1;gap:5px;"></div>
+        </div>
 
-        let currentRound = 0, totalRounds = 10, gameData = [], currentItem = null, score = 0, isProcessing = false, hintUsed = false, secondHintUsed = false, availableOptions = [];
+        <div class="glitch-card">
+            <div class="glitch-card-head">
+                <div class="glitch-card-label" id="glitch-card-label">🔍 Find the glitch &amp; fix it</div>
+                <div class="glitch-round-badge" id="round-badge">1 / 10</div>
+            </div>
+            <div class="topic-badge" id="topic-badge">📈 Business</div>
+            <div class="sentence-wrap">
+                <div class="broken-sentence" id="sentence-text">—</div>
+            </div>
+            <div class="attempts-row" id="attempts-row"></div>
+            <div class="options-grid" id="options-grid"></div>
+            <div class="hint-section">
+                <button class="hint-btn" id="hint-5050" onclick="useHint5050()">💡 50/50 Hint</button>
+                <button class="hint-btn" id="hint-grammar" onclick="useHintGrammar()">📖 Grammar Clue</button>
+            </div>
+            <div class="hint-strip" id="hint-strip"></div>
+            <div class="feedback-strip" id="feedback-strip"></div>
+            <div class="explanation-strip" id="explanation-strip"></div>
+            <button class="btn-next" id="btn-next" onclick="nextRound()">Next →</button>
+            <div class="card-bottom-pad"></div>
+        </div>
 
-        async function initGame() {
-            const theme = document.getElementById('themeSelect').value;
-            const level = document.getElementById('levelSelect').value;
-            document.getElementById('loading-overlay').style.display = 'flex';
-            document.getElementById('errorMessage').style.display = 'none';
-            document.getElementById('startBtn').disabled = true;
+        <button class="btn-menu-link" onclick="backToSetup()">⚙️ Menu</button>
+    </div>
+</div>
 
-            try {
-                const { data, error } = await sb.from('glitch_hunt_questions').select('*').eq('theme', theme).eq('level', level);
-                if (error) throw error;
-                if (!data || data.length === 0) throw new Error('No questions found for this topic and level.');
+<script>
+'use strict';
 
-                gameData = data.sort(() => 0.5 - Math.random()).slice(0, Math.min(10, data.length));
-                totalRounds = gameData.length;
-                currentRound = 0;
-                score = 0;
+const QUESTIONS = {
+    business: {
+        beginner: [
+            {sentence:"She don't know the answer to the question.",glitch:"don't",correct:"doesn't",wrong:["didn't","hasn't","won't"],explanation:"With 'she/he/it' we use 'doesn't' (not 'don't') in the present simple.",hint:"Think about subject-verb agreement with third-person singular."},
+            {sentence:"We are very interested on your proposal.",glitch:"on",correct:"in",wrong:["by","with","at"],explanation:"We are 'interested in' something. 'Interested on' is not correct English.",hint:"'Interested' always takes a specific preposition — which one?"},
+            {sentence:"He has been working here since three years.",glitch:"since",correct:"for",wrong:["during","from","over"],explanation:"Use 'for' with a period of time (three years). Use 'since' with a point in time (2021, Monday).",hint:"Is 'three years' a period or a point in time?"},
+            {sentence:"Please send the report until Friday.",glitch:"until",correct:"by",wrong:["for","before","at"],explanation:"'By Friday' means no later than Friday. 'Until Friday' means continuously up to that point.",hint:"Are you saying the deadline, or a continuous action?"},
+            {sentence:"I look forward to meet you next week.",glitch:"meet",correct:"meeting",wrong:["met","be meeting","have met"],explanation:"'Look forward to' is followed by a gerund (-ing form), not the infinitive.",hint:"What verb form follows 'look forward to'?"},
+            {sentence:"The company was founded on 1998.",glitch:"on",correct:"in",wrong:["at","by","during"],explanation:"We use 'in' with years. 'On' is used with specific dates (on 15th March).",hint:"Which preposition goes before a year?"},
+            {sentence:"Can you give me an information about this?",glitch:"an information",correct:"some information",wrong:["an informations","the informations","a information"],explanation:"'Information' is uncountable — it has no plural and cannot take 'a/an'. Use 'some information'.",hint:"Is 'information' countable or uncountable?"},
+            {sentence:"We need to discuss about the budget.",glitch:"discuss about",correct:"discuss",wrong:["discuss for","discuss on","discuss over"],explanation:"'Discuss' is a transitive verb that does not need a preposition. Say 'discuss the budget'.",hint:"Some verbs take a direct object without any preposition."},
+            {sentence:"I'm boring in this meeting.",glitch:"boring",correct:"bored",wrong:["bore","boringly","bores"],explanation:"'Bored' describes how a person feels. 'Boring' describes the thing causing the feeling.",hint:"Does the adjective describe you, or the meeting?"},
+            {sentence:"She suggested to take a break.",glitch:"to take",correct:"taking",wrong:["take","took","we take"],explanation:"'Suggest' is followed by a gerund (-ing form), not the infinitive. 'Suggest doing something'.",hint:"What comes after the verb 'suggest'?"},
+        ],
+        intermediate: [
+            {sentence:"Despite of the delay, we met the deadline.",glitch:"Despite of",correct:"Despite",wrong:["In spite","Although","Nevertheless"],explanation:"'Despite' does not take 'of'. You say 'despite the delay'. 'In spite of' is the two-word version.",hint:"One of these options uses 'of', and one doesn't — only one is correct here."},
+            {sentence:"The results were disappointing, specially for sales.",glitch:"specially",correct:"especially",wrong:["specifically","particularly in","mostly"],explanation:"'Especially' means 'above all'. 'Specially' means 'for a specific purpose'. The intended meaning here needs 'especially'.",hint:"Are you saying 'above all / in particular', or 'for a specific reason'?"},
+            {sentence:"We should make a decision until tomorrow.",glitch:"until",correct:"by",wrong:["before to","for","up to"],explanation:"'By tomorrow' sets a deadline. 'Until tomorrow' implies a continuous action lasting until that point.",hint:"Are you setting a deadline, or saying something continues up to a point?"},
+            {sentence:"I didn't knew about the meeting change.",glitch:"knew",correct:"know",wrong:["had knew","have known about","been knowing"],explanation:"After the auxiliary 'didn't', we use the base form of the verb, not the past tense.",hint:"What form of the verb follows a negative auxiliary like 'didn't'?"},
+            {sentence:"The project is on schedule, isn't it so?",glitch:"isn't it so",correct:"isn't it",wrong:["is it not so","doesn't it","right it?"],explanation:"The correct English question tag for 'is' is simply 'isn't it'. 'Isn't it so?' is not standard.",hint:"English question tags mirror the auxiliary verb of the main clause."},
+            {sentence:"We are looking to expand our business over Europe.",glitch:"over",correct:"across",wrong:["throughout of","into all","on top of"],explanation:"'Across Europe' means throughout or in many parts of Europe. 'Over Europe' is geographical and not idiomatic here.",hint:"Which preposition means 'in many parts of' a region?"},
+            {sentence:"She is responsible of training the new staff.",glitch:"of",correct:"for",wrong:["about","at","with"],explanation:"'Responsible for' is the correct collocation. You are responsible for something.",hint:"'Responsible' always pairs with a specific preposition."},
+            {sentence:"The meeting has been postponed of two weeks.",glitch:"of",correct:"by",wrong:["for two","at","during"],explanation:"When a time period shows how much something was moved, we use 'by'. 'Postponed by two weeks'.",hint:"Are you identifying the new date, or the amount of change?"},
+            {sentence:"He made a complaint about his colleague to the manager. It was raised by him.",glitch:"by him",correct:"by him",wrong:["himself","by his own"],explanation:"Actually the correct pronoun for self-reference is 'himself' here for reflexive emphasis, but 'by him' is grammatically valid depending on context. This is a tricky one!",hint:"Who made the complaint?"},
+            {sentence:"Please revert back to me with your decision.",glitch:"revert back",correct:"revert",wrong:["revert to back","get back reverting","get reverting"],explanation:"'Revert' already means 'go back', so 'revert back' is redundant. Say 'please revert to me'.",hint:"Does 'revert' already contain the idea of going back?"},
+        ],
+        advanced: [
+            {sentence:"The board is comprised of twelve independent members.",glitch:"comprised of",correct:"composed of",wrong:["consisting in","comprising from","made from"],explanation:"'Comprise' means 'to include' — the whole comprises the parts. 'The board comprises twelve members.' To use 'of', say 'composed of'.",hint:"'Comprise' and 'composed of' carry the same meaning, but only one takes 'of'."},
+            {sentence:"Between you and I, the merger is unlikely.",glitch:"you and I",correct:"you and me",wrong:["you and myself","yourself and me","you and one"],explanation:"After a preposition like 'between', use object pronouns. 'Between you and me', not 'between you and I'.",hint:"Prepositions take object pronouns (me, him, her), not subject pronouns (I, he, she)."},
+            {sentence:"The proposal was well-received, being that it was comprehensive.",glitch:"being that",correct:"given that",wrong:["due it being","on account of being","considering of"],explanation:"'Being that' is non-standard in formal English. Use 'given that', 'since', or 'because' instead.",hint:"Which phrase is standard in formal business English to introduce a reason?"},
+            {sentence:"We need to ensure the quality of our product are maintained.",glitch:"are",correct:"is",wrong:["were","have been","get"],explanation:"'Quality' is the subject — it's singular. The verb must agree: 'the quality… is maintained'.",hint:"What is the subject of the verb — 'quality' or 'products'?"},
+            {sentence:"The CEO, along with her directors, were present at the meeting.",glitch:"were",correct:"was",wrong:["have been","are","has been"],explanation:"When 'along with' joins a subject to extra information, the verb agrees with the main subject (the CEO), which is singular.",hint:"Is the main subject singular or plural? Ignore 'along with her directors'."},
+            {sentence:"He was adverse to the idea of restructuring.",glitch:"adverse",correct:"averse",wrong:["averted","averred","adversed"],explanation:"'Averse to' means reluctant or opposed. 'Adverse' means unfavourable or harmful (used for conditions, not people).",hint:"Which word means 'opposed to' when describing a person's attitude?"},
+            {sentence:"The data clearly shows that revenues have fell.",glitch:"fell",correct:"fallen",wrong:["felled","been falling down","fall"],explanation:"After 'have/has', we use the past participle. 'Fall' → 'fallen'. Not the simple past 'fell'.",hint:"'Have' requires the past participle, not the simple past tense."},
+            {sentence:"The chairman inferred that cuts would be necessary.",glitch:"inferred",correct:"implied",wrong:["suggested at","insinuated to","implicated"],explanation:"The speaker 'implies'; the listener 'infers'. The chairman (speaker) implied cuts were needed.",hint:"Who 'implies' — the speaker or the listener?"},
+            {sentence:"This is a mute point given the new legislation.",glitch:"mute",correct:"moot",wrong:["mooted","muted","null"],explanation:"'Moot point' means a debatable or irrelevant point. 'Mute' means silent. These are commonly confused.",hint:"Which word means 'debatable' or 'irrelevant'?"},
+            {sentence:"The new policy will effect significant changes.",glitch:"effect",correct:"affect",wrong:["have effect on","be effecting","effect upon"],explanation:"'Affect' is the verb meaning to influence. 'Effect' as a verb means to bring about (very formal). Here 'affect' — to influence changes — is correct.",hint:"In most sentences, is 'affect' or 'effect' the verb meaning 'to influence'?"},
+        ],
+    },
+    tax: {
+        beginner: [
+            {sentence:"You must to submit your tax return by January.",glitch:"must to",correct:"must",wrong:["must be submitting","have must to","should to"],explanation:"Modal verbs like 'must' are followed directly by the base verb, never 'to'.",hint:"What form of the verb follows a modal verb like 'must' or 'should'?"},
+            {sentence:"She earns enough money for pay tax.",glitch:"for pay",correct:"to pay",wrong:["for paying for","so that pay","in order pay"],explanation:"To express purpose, we use 'to + infinitive'. 'For + verb' is not used in this structure.",hint:"How do we express purpose in English — 'to do' or 'for do'?"},
+            {sentence:"They didn't payed their taxes on time.",glitch:"payed",correct:"pay",wrong:["paid them","been paying","to paid"],explanation:"After 'didn't', we always use the base form of the verb. Not the past tense.",hint:"What follows a negative auxiliary like 'didn't'?"},
+            {sentence:"VAT stands for Value Added Taxing.",glitch:"Taxing",correct:"Tax",wrong:["Taxation rate","Taxes added","Taxable"],explanation:"VAT stands for 'Value Added Tax' — this is a fixed abbreviation.",hint:"What does the 'T' in VAT stand for?"},
+            {sentence:"Please fill in the form on ink.",glitch:"on",correct:"in",wrong:["with a","using on","by"],explanation:"We 'fill in a form in ink' — using 'in' for the medium of writing.",hint:"Think about the idiom: 'sign/write in ink'."},
+            {sentence:"The deadline is the 31th of January.",glitch:"31th",correct:"31st",wrong:["31rd","31nd","thirty-oneth"],explanation:"The ordinal form of 31 is '31st' (thirty-first), following the same pattern as 1st.",hint:"How do you write the ordinal number for 21, 31, 41?"},
+            {sentence:"We are owed a refund by the government for tax overpaid.",glitch:"for tax overpaid",correct:"for overpaid tax",wrong:["for the tax we overpaying","for overpaying of tax","for the tax overpayment of"],explanation:"Adjectives come before nouns in English. 'Overpaid tax' — not 'tax overpaid'.",hint:"Where does an adjective go in relation to its noun in English?"},
+            {sentence:"He is working self-employed.",glitch:"working self-employed",correct:"self-employed",wrong:["working on self-employment","in a self-employed","as a self-employed person"],explanation:"'Self-employed' is an adjective. We say 'he is self-employed'. Adding 'working' is redundant here.",hint:"Is 'self-employed' used as a verb or an adjective?"},
+        ],
+        intermediate: [
+            {sentence:"The company needs to reduce it's tax liability.",glitch:"it's",correct:"its",wrong:["its'","it is","their"],explanation:"'Its' (no apostrophe) is the possessive pronoun. 'It's' is a contraction of 'it is'.",hint:"Is this showing possession, or is it short for 'it is'?"},
+            {sentence:"Employees who earn more than £50,000 must paid higher-rate tax.",glitch:"must paid",correct:"must pay",wrong:["must be paid","are must to pay","must to pay"],explanation:"Modal verbs (must) are followed by the base form of the verb. Not the past participle.",hint:"What verb form follows a modal like 'must'?"},
+            {sentence:"The reliefs are available for both companies and individuals alike.",glitch:"No error — this sentence is correct.",correct:"No error — this sentence is correct.",wrong:["available to","available on","available by"],explanation:"This sentence is grammatically correct. 'Available for' and 'both … alike' are both standard.",hint:"Read the sentence carefully before deciding."},
+            {sentence:"Capital gains tax is calculated on the profit you make of selling an asset.",glitch:"of",correct:"from",wrong:["by","at","on selling of"],explanation:"We say 'profit from selling' — using 'from' to show the source of the profit.",hint:"What preposition follows 'profit' to show its source?"},
+            {sentence:"HMRC has the right to enquiry into your accounts.",glitch:"enquiry",correct:"enquire",wrong:["make enquiry","enquired of","be enquiring of"],explanation:"'Enquiry' is a noun. After 'the right to' we need a verb (infinitive): 'the right to enquire'.",hint:"After 'the right to', do we use a noun or a verb?"},
+            {sentence:"She has been evading taxes since the past five years.",glitch:"since the past",correct:"for the past",wrong:["since the last five","for five years past","during the past"],explanation:"'For' is used with a duration. 'Since' is used with a point in time. 'For the past five years' is correct.",hint:"Are you talking about a duration or a starting point?"},
+            {sentence:"The allowance is withdrew when income exceeds the threshold.",glitch:"withdrew",correct:"withdrawn",wrong:["withdrawed","being withdrew","withdrown"],explanation:"'Withdrawn' is the past participle of 'withdraw'. The passive voice requires the past participle.",hint:"Passive voice = 'to be' + past participle. What is the past participle of 'withdraw'?"},
+            {sentence:"Filing your return lately will incur a fine.",glitch:"lately",correct:"late",wrong:["in a late manner","too late on","latedly"],explanation:"'Late' is an adverb meaning after the due time. 'Lately' means recently, which changes the meaning entirely.",hint:"'Late' and 'lately' are both adverbs, but with completely different meanings."},
+        ],
+        advanced: [
+            {sentence:"The legislation, which was enacted last year, effected sweeping changes to the tax code.",glitch:"effected",correct:"effected",wrong:["affected","was effecting","had affected"],explanation:"Here 'effected' is actually correct! 'To effect change' (formal) means to bring about or cause change. This is one of the rare cases where 'effect' is the right verb.",hint:"'Effect' as a verb means to bring about or cause. Is that the meaning here?"},
+            {sentence:"The transfer pricing rules apply on transactions between connected parties.",glitch:"on",correct:"to",wrong:["for","with","upon"],explanation:"Rules, laws and regulations 'apply to' something — not 'apply on'. 'Apply to' is the standard collocation.",hint:"What preposition follows 'apply' when talking about rules or regulations?"},
+            {sentence:"The taxpayer beared the full burden of the surcharge.",glitch:"beared",correct:"bore",wrong:["had been bearing","has bore","was beared"],explanation:"'Bear' is an irregular verb: bear → bore → borne. The simple past is 'bore', not 'beared'.",hint:"What is the simple past tense of the irregular verb 'bear'?"},
+            {sentence:"Both parties must be comply with the terms of the agreement.",glitch:"be comply",correct:"comply",wrong:["be complied","be in compliance to","are complying to"],explanation:"'Must' is a modal verb and takes the base form directly: 'must comply'. 'Be comply' is incorrect.",hint:"Modal verbs are not combined with 'be' before the base verb."},
+            {sentence:"The court ruled that the arrangement lacked commercial substance, thereby constituting tax evasion.",glitch:"No error",correct:"No error",wrong:["thereby constituted","which thereby constitutes","and thereby constituting of"],explanation:"This sentence is grammatically correct. 'Thereby constituting' (a participle phrase) is proper formal English.",hint:"Read carefully — is this actually an error, or is the grammar correct?"},
+        ],
+    },
+    legal: {
+        beginner: [
+            {sentence:"The contract must be sign by both parties.",glitch:"sign",correct:"signed",wrong:["signing","to sign","have signed"],explanation:"In passive voice, we use 'be + past participle'. 'Must be signed' is correct.",hint:"What form of the verb follows 'be' in a passive structure?"},
+            {sentence:"He was found guilty from fraud.",glitch:"from",correct:"of",wrong:["for","by","with"],explanation:"In legal English, someone is 'guilty of' a crime — not 'guilty from'.",hint:"What preposition follows 'guilty' in English?"},
+            {sentence:"The witness gave a very credible testimony in the court.",glitch:"in the court",correct:"in court",wrong:["at the court","in a court of law","inside the court"],explanation:"We say 'in court' without 'the' when referring to the legal process or institution.",hint:"Compare: 'at school', 'in hospital', 'in court' — do these take 'the'?"},
+            {sentence:"She has the right for a fair trial.",glitch:"for",correct:"to",wrong:["of","at","towards"],explanation:"We have 'the right to' do something — it takes the preposition 'to' + infinitive.",hint:"'The right ___ a fair trial' — which preposition fits?"},
+            {sentence:"The judge sended him to prison for five years.",glitch:"sended",correct:"sent",wrong:["had sended","has send","did send"],explanation:"'Send' is an irregular verb. The past tense is 'sent', not 'sended'.",hint:"What is the irregular past tense of 'send'?"},
+        ],
+        intermediate: [
+            {sentence:"The defendant pleaded not guilty to all charges bring against him.",glitch:"bring",correct:"brought",wrong:["being brought","that are brought","bringed"],explanation:"'Charges brought against him' uses the past participle in a reduced relative clause (charges [that were] brought).",hint:"In a reduced relative clause (charges ___ against him), what form is needed?"},
+            {sentence:"Due the complexity of the case, a jury was selected.",glitch:"Due the",correct:"Due to the",wrong:["Owing the","Because the","Due of the"],explanation:"'Due to' is the correct preposition phrase. 'Due' alone cannot introduce a noun phrase.",hint:"'Due' needs another word to form a prepositional phrase."},
+            {sentence:"The evidence was inadmissable and the case was dismissed.",glitch:"inadmissable",correct:"inadmissible",wrong:["non-admissable","unadmissible"],explanation:"The correct spelling is 'inadmissible' with '-ible', not '-able'.",hint:"Is the suffix '-ible' or '-able' correct here? Think: 'admissible'."},
+            {sentence:"He was acquited of all charges after the retrial.",glitch:"acquited",correct:"acquitted",wrong:["acuitted","acquited of","aquitttted"],explanation:"'Acquitted' has a double 't'. The verb 'acquit' doubles the 't' before '-ed'.",hint:"When adding '-ed' to a short verb ending in a single vowel + consonant, do you double the consonant?"},
+            {sentence:"The barrister raised several points of law during closing arguments.",glitch:"No error",correct:"No error",wrong:["during the closing","in closing argument","at the closing arguments"],explanation:"This sentence is entirely correct. 'During closing arguments' is standard legal English.",hint:"Read the whole sentence carefully before choosing."},
+            {sentence:"The terms of the contract is open to interpretation.",glitch:"is",correct:"are",wrong:["was","has been"],explanation:"The subject is 'the terms' (plural), so the verb must be 'are', not 'is'.",hint:"What is the subject of the sentence — 'terms' or 'contract'?"},
+            {sentence:"The solicitor adviced her client to settle out of court.",glitch:"adviced",correct:"advised",wrong:["did advice","had adviced"],explanation:"'Advise' is a regular verb. The past tense is 'advised', not 'adviced'.",hint:"'Advise' ends in '-ise'. How do you form the past tense?"},
+        ],
+        advanced: [
+            {sentence:"The clause is, in all intensive purposes, unenforceable.",glitch:"intensive purposes",correct:"intents and purposes",wrong:["all intents","all intensive intent"],explanation:"The correct idiom is 'for all intents and purposes'. 'Intensive purposes' is a very common eggcorn (misheard phrase).",hint:"This is a fixed idiom — which version is standard?"},
+            {sentence:"The court held that the defendant was liable in negligence.",glitch:"No error",correct:"No error",wrong:["liable for negligence","liable of negligence","liable with negligence"],explanation:"'Liable in negligence' is correct legal English. The tort is 'negligence' and liability arises 'in' that tort.",hint:"In legal English, 'liable in [tort name]' is standard — is there really an error here?"},
+            {sentence:"Without prejudice correspondence cannot be relied on as evidence in proceedings.",glitch:"No error",correct:"No error",wrong:["relied upon","been relied on","be relied by"],explanation:"'Relied on' is perfectly correct here. 'Relied upon' is also acceptable. No error exists.",hint:"Is 'relied on' grammatically wrong, or is this correct as written?"},
+            {sentence:"The parties entered to a binding arbitration agreement.",glitch:"entered to",correct:"entered into",wrong:["were entering","entered for"],explanation:"The correct phrasal verb is 'enter into' (an agreement). 'Entered to' is non-standard.",hint:"What is the correct phrasal verb — 'enter to' or 'enter into' an agreement?"},
+            {sentence:"The injunction was granted ex-parte, with no notice been given.",glitch:"been",correct:"being",wrong:["having been","to be"],explanation:"In this absolute clause construction, we need 'no notice being given' — the present participle 'being'.",hint:"In an absolute participial clause, is it 'been given' or 'being given'?"},
+        ],
+    },
+    workplace: {
+        beginner: [
+            {sentence:"Can you send me that report what you finished yesterday?",glitch:"what",correct:"that",wrong:["which one","who"],explanation:"For things, we use 'that' or 'which' as relative pronouns. 'What' is not used to introduce relative clauses.",hint:"Which relative pronoun is used for things — 'what' or 'that'?"},
+            {sentence:"I apologise for the inconvenient.",glitch:"inconvenient",correct:"inconvenience",wrong:["inconveniencing","inconveniency"],explanation:"'Inconvenience' is the noun. 'Inconvenient' is the adjective. We apologise for the noun.",hint:"Do you need a noun or an adjective here?"},
+            {sentence:"She works very hardly.",glitch:"hardly",correct:"hard",wrong:["hardily","very hard on"],explanation:"'Hard' is both an adjective and an adverb. 'Hardly' means 'almost not at all' — completely different meaning!",hint:"'Hardly' and 'hard' are both adverbs, but they mean very different things."},
+            {sentence:"Please advice me on the best course of action.",glitch:"advice",correct:"advise",wrong:["adviced","advisement"],explanation:"'Advice' (noun) vs 'advise' (verb). We need the verb here: 'please advise me'.",hint:"Is a noun or a verb needed here?"},
+            {sentence:"I am agree with your suggestion.",glitch:"am agree",correct:"agree",wrong:["am agreeing of","being agreed"],explanation:"'Agree' is a verb, not an adjective. We say 'I agree', not 'I am agree'.",hint:"Is 'agree' used as a verb or adjective? Compare to 'I am happy'."},
+            {sentence:"We need more informations about the client.",glitch:"informations",correct:"information",wrong:["more informations about","some informations"],explanation:"'Information' is uncountable — it has no plural form. You cannot say 'informations'.",hint:"Is 'information' a countable or uncountable noun?"},
+            {sentence:"He didn't came to the meeting yesterday.",glitch:"came",correct:"come",wrong:["has came","had came"],explanation:"After 'didn't', use the base form (infinitive). Not the past tense.",hint:"What form of the verb follows 'didn't'?"},
+            {sentence:"I have been working here since six months.",glitch:"since",correct:"for",wrong:["during","from"],explanation:"'For' is used with a period/duration of time. 'Since' is used with a point in time.",hint:"'Six months' is a duration or a starting point?"},
+        ],
+        intermediate: [
+            {sentence:"The team has been working very hardly to meet the deadline.",glitch:"hardly",correct:"hard",wrong:["hardworking","with hardness"],explanation:"'Hardly' means 'almost not at all'. 'Hard' means with great effort. They are completely different.",hint:"'The team worked ___ ' — do you mean with effort, or barely?"},
+            {sentence:"The new employee is very motivated and has a great set of skills.",glitch:"No error",correct:"No error",wrong:["very motivating","quite motivated","highly motivate"],explanation:"'Motivated' correctly describes the employee. The sentence has no error.",hint:"Is there actually an error here, or is this one correct?"},
+            {sentence:"She gave me a very useful feedback on my presentation.",glitch:"a very useful feedback",correct:"very useful feedback",wrong:["some useful feedback","useful a feedback"],explanation:"'Feedback' is uncountable. It cannot take the indefinite article 'a'. Say 'very useful feedback'.",hint:"Is 'feedback' countable or uncountable?"},
+            {sentence:"I suggest you to speak to HR about this issue.",glitch:"suggest you to",correct:"suggest you",wrong:["suggest to you","suggest for you to"],explanation:"'Suggest' is not followed by a to-infinitive. Use 'suggest + that clause' ('that' can be hidden) or 'suggest + gerund'.",hint:"What structure follows 'suggest'? Not 'suggest someone to do'."},
+            {sentence:"We were able to resolve the issue, but it costed us a lot of time.",glitch:"costed",correct:"cost",wrong:["had costed","has costed"],explanation:"'Cost' is an irregular verb where the base form, past, and past participle are all 'cost'.",hint:"What is the past tense of the irregular verb 'cost'?"},
+            {sentence:"The manager complemented the team on their performance.",glitch:"complemented",correct:"complimented",wrong:["completed","complied with"],explanation:"'Compliment' means to praise. 'Complement' means to go well with something. The manager was praising the team.",hint:"Is the manager praising the team, or does the manager 'go with' the team?"},
+            {sentence:"Due to the restructure, several roles have been made superfluous.",glitch:"superfluous",correct:"redundant",wrong:["unnecessary","surplus","obsolete"],explanation:"In British employment English, 'made redundant' is the specific technical term for job eliminations. 'Superfluous' is not used in HR contexts.",hint:"What is the specific HR/employment term used when a role is eliminated?"},
+            {sentence:"I'm very exited about the new project.",glitch:"exited",correct:"excited",wrong:["exhilarated","exhaulted"],explanation:"'Excited' (with a 'c') means enthusiastic. 'Exited' means left/departed. Classic spelling confusion.",hint:"Is this about leaving somewhere, or feeling enthusiastic?"},
+        ],
+        advanced: [
+            {sentence:"The proposal was tabled, meaning it would be discussed latter.",glitch:"latter",correct:"later",wrong:["after","hereafter"],explanation:"'Later' means at a future time. 'Latter' means the second of two previously mentioned things.",hint:"'Later' vs 'latter' — which means 'at a future time'?"},
+            {sentence:"The new system is less user-friendly then the old one.",glitch:"then",correct:"than",wrong:["as","compared that"],explanation:"Comparisons use 'than', not 'then'. 'Then' is used for time sequences.",hint:"In a comparison, do you use 'then' or 'than'?"},
+            {sentence:"He is one of the most capable manager in the department.",glitch:"manager",correct:"managers",wrong:["management","managing"],explanation:"'One of the most capable' refers to multiple people — the noun must be plural.",hint:"'One of the + superlative + ___' — should the noun be singular or plural?"},
+            {sentence:"The restructuring will effect every employee in the company.",glitch:"effect",correct:"affect",wrong:["have an effect","impact upon"],explanation:"'Affect' (verb) means to have an impact on. 'Effect' (noun) means the result. Here we need the verb.",hint:"In this sentence, is a verb or a noun needed?"},
+            {sentence:"Having reviewed all applications, the shortlisted candidates have been selected.",glitch:"No error",correct:"No error",wrong:["Having been reviewed","After reviewing","Having reviewing"],explanation:"This sentence is correct. 'Having reviewed' (perfect participle) is grammatical here — the subject 'we' reviewed applications.",hint:"Is this a dangling participle, or does it have a clear implied subject?"},
+        ],
+    },
+    travel: {
+        beginner: [
+            {sentence:"I would like to book a room for two nights from Monday until Wednesday.",glitch:"until",correct:"to",wrong:["through to","and"],explanation:"When giving a date range for accommodation, we say 'from Monday to Wednesday', not 'until'.",hint:"Which preposition pairs with 'from' in a date range?"},
+            {sentence:"The flight departs to 09:45.",glitch:"to",correct:"at",wrong:["by","in"],explanation:"Departure times use 'at' — 'the flight departs at 09:45'.",hint:"Which preposition do we use with a specific time?"},
+            {sentence:"I need to change my reservation. Can you help me to do it?",glitch:"to do it",correct:"with that",wrong:["for doing it","on this"],explanation:"'Help me with that' is natural spoken English. 'Help me to do it' can sound awkward, though it is not wrong — 'help with' is cleaner here.",hint:"After 'help', both 'to do' and 'with' are possible — but which sounds more natural in this context?"},
+            {sentence:"We arrived to Madrid after a long flight.",glitch:"to",correct:"in",wrong:["at","into"],explanation:"We 'arrive in' a city or country. We 'arrive at' a specific location (airport, hotel).",hint:"Do you 'arrive in' or 'arrive at' a city?"},
+            {sentence:"Can I have the bill, please? We like to pay by card.",glitch:"like",correct:"would like",wrong:["want","desire"],explanation:"'Would like' is the polite form for requests. 'Like' simply expresses a general preference.",hint:"For polite requests in English, which form is used?"},
+            {sentence:"The hotel room was so small that we could hardly to move.",glitch:"to move",correct:"move",wrong:["moving","be moving"],explanation:"After modal verbs like 'could', we use the bare infinitive (without 'to').",hint:"What follows a modal verb — 'to + verb' or just the verb?"},
+        ],
+        intermediate: [
+            {sentence:"The flight was delayed of two hours due to bad weather.",glitch:"delayed of",correct:"delayed by",wrong:["delayed for","delayed with"],explanation:"When something is delayed by a period, use 'by'. 'Delayed of' is not idiomatic English.",hint:"By how much was the flight delayed? Which preposition shows the amount?"},
+            {sentence:"We are looking forward to arrive in the Maldives.",glitch:"arrive",correct:"arriving",wrong:["have arrived","be arriving"],explanation:"'Look forward to' is followed by a gerund (-ing). Not the bare infinitive.",hint:"What comes after 'look forward to'?"},
+            {sentence:"Travelling aboard is a great way to improve your language skills.",glitch:"aboard",correct:"abroad",wrong:["overseas on","to overseas"],explanation:"'Abroad' means in or to a foreign country. 'Aboard' means on a vehicle (ship/plane).",hint:"'Aboard' and 'abroad' look similar but mean very different things."},
+            {sentence:"The tour guide insisted that we would leave by six AM.",glitch:"would leave",correct:"leave",wrong:["should leave","had to leave"],explanation:"After 'insist that', we use the subjunctive or base form in formal English: 'insisted we leave'.",hint:"After 'insist that', what verb form is used in formal English?"},
+            {sentence:"Our itinerary included a two-hours boat trip along the coast.",glitch:"two-hours",correct:"two-hour",wrong:["two hours'","a two hours"],explanation:"When used as a compound adjective before a noun, time expressions are singular: 'a two-hour trip', not 'two-hours'.",hint:"When a number + time word is used as an adjective before a noun, is it singular or plural?"},
+            {sentence:"Despite I was tired, I explored the old town on arrival.",glitch:"Despite I was",correct:"Despite being",wrong:["Although being","Though I being"],explanation:"'Despite' is a preposition and must be followed by a noun or gerund phrase, not a subject + verb.",hint:"'Despite' is a preposition — what must follow it?"},
+        ],
+        advanced: [
+            {sentence:"The airline is liable to compensate passengers effected by the cancellation.",glitch:"effected",correct:"affected",wrong:["who effected","whom effecting"],explanation:"'Affected' (past participle of affect) means impacted. 'Effected' would mean 'brought about'. Passengers are impacted, not causing anything.",hint:"Are the passengers impacted by the cancellation, or are they causing it?"},
+            {sentence:"Having been checked in, the hotel was found to be far below expectations.",glitch:"Having been checked in",correct:"After checking in",wrong:["Having checked","Upon check-in of"],explanation:"The participial phrase 'Having been checked in' has no logical subject — the hotel didn't check in. This is a dangling modifier. 'After checking in, we found the hotel…' fixes it.",hint:"Who 'checked in' — the hotel or the traveller? Check for a dangling modifier."},
+            {sentence:"No sooner had we boarded the plane when the announcement was made.",glitch:"when",correct:"than",wrong:["that","as"],explanation:"'No sooner … than' is a fixed correlative conjunction. 'No sooner … when' is incorrect.",hint:"'No sooner … ___' — which word completes this fixed expression?"},
+            {sentence:"The package tour, inclusive of all meals and excursions, costed £1,200 per person.",glitch:"costed",correct:"cost",wrong:["has costed","was costing"],explanation:"'Cost' is an irregular verb — its simple past is 'cost', not 'costed'.",hint:"What is the past tense of the irregular verb 'cost'?"},
+            {sentence:"The customs officer asked whether I had anything to declare.",glitch:"No error",correct:"No error",wrong:["if I had","that I declared","whether did I have"],explanation:"Reported speech using 'whether I had' is grammatically perfect here. No error.",hint:"Is the reported question structure correct here?"},
+        ],
+    },
+    geography: {
+        beginner: [
+            {sentence:"The capital of Australia is Sidney.",glitch:"Sidney",correct:"Sydney",wrong:["Syndey","Sydny"],explanation:"The capital of Australia is Sydney (not Sidney). And in fact, Canberra is the capital — but Sydney is the common wrong answer!",hint:"Check the spelling of this famous Australian city."},
+            {sentence:"Mount Everest is the most highest mountain in the world.",glitch:"most highest",correct:"highest",wrong:["more high","most high"],explanation:"'High' has a one-word superlative: 'highest'. Adding 'most' is a double superlative — incorrect.",hint:"Do you say 'most tall' or 'tallest'? Apply the same rule here."},
+            {sentence:"The Amazon River flows through Brazil into the Atlantic Sea.",glitch:"Atlantic Sea",correct:"Atlantic Ocean",wrong:["Pacific Sea","Atlantic Seas"],explanation:"The correct term is 'the Atlantic Ocean'. Large bodies of saltwater are called oceans (or seas for smaller ones).",hint:"What is the full name of the ocean on Brazil's coast?"},
+            {sentence:"Spain and France are bordered by the Pyrenees Mountains.",glitch:"No error",correct:"No error",wrong:["separated by","dividing the","which borders"],explanation:"'Bordered by' is correct here — the two countries share a border formed by the mountains.",hint:"Is 'bordered by' grammatically correct in this context?"},
+            {sentence:"The Sahara is the larger desert in the world.",glitch:"larger",correct:"largest",wrong:["most large","the more large"],explanation:"When comparing something to all others in its group, use the superlative. 'Largest', not 'larger'.",hint:"Are we comparing two things, or one against all others?"},
+        ],
+        intermediate: [
+            {sentence:"The population of Tokyo is more bigger than London.",glitch:"more bigger",correct:"bigger",wrong:["much biggest","more big"],explanation:"'Big' has a one-word comparative: 'bigger'. 'More bigger' is a double comparative — always incorrect.",hint:"'Big → bigger' — do you add 'more' as well?"},
+            {sentence:"The river Rhine rises in the Swiss Alps and empties into the North Sea.",glitch:"No error",correct:"No error",wrong:["empties in","empty into","into North Sea"],explanation:"The sentence is correct. 'Rises in' and 'empties into' are both standard geographical prepositions.",hint:"Are the prepositions 'in' and 'into' used correctly here?"},
+            {sentence:"The island of Madagascar lays off the east coast of Africa.",glitch:"lays",correct:"lies",wrong:["is laying","is lied"],explanation:"'Lie' (to be situated) → lies. 'Lay' means to place an object. Madagascar doesn't place anything.",hint:"'Lie' (be in a position) vs 'lay' (put something down) — which is correct?"},
+            {sentence:"New Zealand consists of two main islands, the North Island and the South Island.",glitch:"No error",correct:"No error",wrong:["is consisted of","consists in two","is consisting of"],explanation:"'Consist of' is the correct form. It is never passive and never uses 'in'. No error here.",hint:"'Consist of' — is this the correct form, or is there a real error?"},
+            {sentence:"The fjords of Norway was formed by glacial erosion over millions of years.",glitch:"was",correct:"were",wrong:["has been","is"],explanation:"'Fjords' is plural, so the verb must be 'were formed', not 'was formed'.",hint:"What is the subject — 'fjords' (plural) or 'Norway' (singular)?"},
+            {sentence:"Deforestation in the Amazon has lead to significant biodiversity loss.",glitch:"lead",correct:"led",wrong:["leaded","has been lead"],explanation:"'Lead' is an irregular verb: lead → led → led. After 'has', the past participle is 'led'.",hint:"What is the past participle of 'lead'? (Think: 'read → read', 'lead → ?')"},
+        ],
+        advanced: [
+            {sentence:"The Maldives, which lie in the Indian Ocean, are particularly susceptible for the effects of sea-level rise.",glitch:"susceptible for",correct:"susceptible to",wrong:["susceptible of","susceptible with"],explanation:"The correct collocation is 'susceptible to'. 'Susceptible for' is not standard English.",hint:"What preposition follows 'susceptible'?"},
+            {sentence:"Neither the government nor the local authorities has addressed the problem adequately.",glitch:"has",correct:"have",wrong:["had","were"],explanation:"With 'neither … nor', the verb agrees with the subject closest to it — 'local authorities' (plural) → 'have'.",hint:"With 'neither X nor Y', which subject does the verb agree with?"},
+            {sentence:"The region, long characterised by political instability, is beginning to attracts foreign investment.",glitch:"attracts",correct:"attract",wrong:["attracting","be attracted"],explanation:"After 'to' in the infinitive 'to attract', the base form is used — not 'attracts'.",hint:"Is 'to attracts' ever correct? What form follows 'to' in an infinitive?"},
+            {sentence:"Urbanisation, together with population growth, are placing enormous strain on city infrastructure.",glitch:"are",correct:"is",wrong:["were","have been"],explanation:"'Together with' does not make a compound subject. The main subject is 'urbanisation' (singular), so the verb is 'is'.",hint:"Does 'together with' create a plural subject, or is 'urbanisation' still the single subject?"},
+            {sentence:"The data from multiple studies suggest that climate change is accelerating.",glitch:"No error",correct:"No error",wrong:["suggests","have suggested","are suggesting"],explanation:"'Data' can be treated as plural in formal/scientific English. Both 'data suggest' and 'data suggests' are acceptable. No definitive error here.",hint:"Is 'data' singular or plural? Can it take a plural verb?"},
+        ],
+    },
+};
 
-                setTimeout(() => {
-                    document.getElementById('loading-overlay').style.display = 'none';
-                    document.getElementById('controls-area').style.display = 'none';
-                    document.getElementById('progressBar').style.display = 'block';
-                    document.getElementById('optionsGrid').style.display = 'grid';
-                    document.getElementById('defCard').style.display = 'flex';
-                    loadRound();
-                }, 500);
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('loading-overlay').style.display = 'none';
-                document.getElementById('startBtn').disabled = false;
-                document.getElementById('errorMessage').textContent = error.message || 'Failed to load questions.';
-                document.getElementById('errorMessage').style.display = 'block';
-            }
+const TOPICS = [
+    {id:'business', label:'📈 Business'},
+    {id:'tax',      label:'📊 Tax & Finance'},
+    {id:'legal',    label:'⚖️ Legal'},
+    {id:'workplace',label:'💼 Workplace'},
+    {id:'travel',   label:'✈️ Travel'},
+    {id:'geography',label:'🌍 Geography'},
+];
+const LEVELS = [
+    {id:'beginner',    label:'🌱 Beginner'},
+    {id:'intermediate',label:'📘 Intermediate'},
+    {id:'advanced',    label:'🔴 Advanced'},
+];
+const ROUND_OPTS = [{id:6,label:'6 rounds'},{id:8,label:'8 rounds'},{id:10,label:'10 rounds'}];
+
+const G = {
+    topic:'business', level:'beginner', totalRounds:8,
+    round:0, score:0, xp:0, combo:0, bestCombo:0, firstTryCount:0,
+    deck:[], current:null, attempts:0, processing:false,
+    hint5050Used:false, hintGrammarUsed:false,
+};
+
+function buildSetup(){
+    buildChips('topic-chips', TOPICS, 'topic', 'sel-punch', G.topic);
+    buildChips('level-chips', LEVELS, 'level', 'sel-blue', G.level);
+    buildRoundChips();
+}
+function buildChips(cid, items, key, selClass, def){
+    const c=document.getElementById(cid); c.innerHTML='';
+    items.forEach(item=>{
+        const btn=document.createElement('button');
+        btn.className='chip'+(item.id===def?' '+selClass:'');
+        btn.textContent=item.label;
+        btn.onclick=()=>{ c.querySelectorAll('.chip').forEach(b=>b.className='chip'); btn.className='chip '+selClass; G[key]=item.id; };
+        c.appendChild(btn);
+    });
+}
+function buildRoundChips(){
+    const c=document.getElementById('rounds-chips'); c.innerHTML='';
+    ROUND_OPTS.forEach(item=>{
+        const btn=document.createElement('button');
+        btn.className='chip'+(item.id===G.totalRounds?' sel-purple':'');
+        btn.textContent=item.label;
+        btn.onclick=()=>{ c.querySelectorAll('.chip').forEach(b=>b.className='chip'); btn.className='chip sel-purple'; G.totalRounds=item.id; };
+        c.appendChild(btn);
+    });
+}
+
+function startGame(){
+    G.round=0; G.score=0; G.xp=0; G.combo=0; G.bestCombo=0; G.firstTryCount=0;
+    const pool=[...QUESTIONS[G.topic][G.level]];
+    for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+    G.deck=pool.slice(0, Math.min(G.totalRounds, pool.length));
+    G.totalRounds=G.deck.length;
+
+    document.getElementById('setup-card').style.display='none';
+    document.getElementById('game-area').classList.add('active');
+    const pt=document.getElementById('pip-track');
+    pt.innerHTML=G.deck.map((_,i)=>`<div class="pip active" id="pip-${i}"></div>`).join('');
+    loadRound();
+}
+
+function loadRound(){
+    if(G.round>=G.deck.length){ finishGame(); return; }
+    G.current=G.deck[G.round];
+    G.attempts=0; G.processing=false; G.hint5050Used=false; G.hintGrammarUsed=false;
+
+    document.getElementById('sb-round').textContent=G.round+1;
+    document.getElementById('round-badge').textContent=`${G.round+1} / ${G.totalRounds}`;
+    const topic=TOPICS.find(t=>t.id===G.topic);
+    document.getElementById('topic-badge').textContent=topic?topic.label:'📚';
+    const isNoError = G.current.glitch === 'No error';
+    document.getElementById('glitch-card-label').textContent = isNoError ? '🧐 Is this sentence correct?' : '🔍 Find the glitch & fix it';
+
+    const sentEl=document.getElementById('sentence-text');
+    sentEl.style.animation='none'; void sentEl.offsetWidth;
+    sentEl.style.animation='sentenceReveal .3s ease both';
+
+    const glitchWord=G.current.glitch;
+    const display=G.current.sentence.replace(
+        new RegExp('\\b'+escapeRE(glitchWord)+'\\b'),
+        `<span class="glitch-word">${glitchWord}</span>`
+    );
+    sentEl.innerHTML=display;
+
+    const ar=document.getElementById('attempts-row');
+    ar.innerHTML='<div class="attempt-dot" id="dot-0"></div><div class="attempt-dot" id="dot-1"></div>';
+
+    document.getElementById('hint-strip').className='hint-strip';
+    document.getElementById('hint-strip').textContent='';
+    document.getElementById('feedback-strip').className='feedback-strip';
+    document.getElementById('explanation-strip').className='explanation-strip';
+    document.getElementById('btn-next').style.display='none';
+    document.getElementById('hint-5050').disabled=false;
+    document.getElementById('hint-5050').textContent='💡 50/50 Hint';
+    document.getElementById('hint-grammar').disabled=false;
+    document.getElementById('hint-grammar').textContent='📖 Grammar Clue';
+
+    buildOptions([]);
+    updateScoreBar();
+}
+
+function escapeRE(s){
+    return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+}
+
+function buildOptions(removedIndices){
+    const allOpts=[
+        {text:G.current.correct, isCorrect:true},
+        ...G.current.wrong.map(w=>({text:w, isCorrect:false})),
+    ].sort(()=>Math.random()-.5);
+
+    const grid=document.getElementById('options-grid'); grid.innerHTML='';
+    allOpts.forEach((opt,idx)=>{
+        const btn=document.createElement('button');
+        btn.className='opt-btn';
+        btn.id=`opt-${idx}`;
+        btn.textContent=opt.text;
+        btn.dataset.isCorrect=opt.isCorrect;
+        if(removedIndices.includes(idx)){
+            btn.style.opacity='.2'; btn.style.textDecoration='line-through'; btn.disabled=true;
         }
+        btn.onclick=()=>checkAnswer(btn, opt.isCorrect, opt.text);
+        grid.appendChild(btn);
+    });
+}
 
-        function loadRound() {
-            if (currentRound >= totalRounds) { endGame(); return; }
-            isProcessing = false;
-            hintUsed = false;
-            secondHintUsed = false;
-            currentItem = gameData[currentRound];
-            
-            document.getElementById('defText').innerHTML = currentItem.question;
-            document.getElementById('explanationText').textContent = currentItem.explanation;
-            document.getElementById('explanationBox').classList.remove('shown');
-            document.getElementById('secondHintBox').style.display = 'none';
-            document.getElementById('secondHintBox').classList.remove('shown');
-            document.getElementById('hintBtn').style.display = 'inline-block';
-            document.getElementById('hintBtn').textContent = '💡 Get a Hint (50/50)';
-            document.getElementById('hintBtn').style.opacity = '1';
-            document.getElementById('hintBtn').style.cursor = 'pointer';
-            document.getElementById('secondHintBtn').style.display = 'none';
-            document.getElementById('secondHintBtn').style.opacity = '1';
-            document.getElementById('secondHintBtn').style.cursor = 'pointer';
-            document.getElementById('secondHintBtn').textContent = '🔍 Get Final Clue';
-            document.getElementById('nextBtn').style.display = 'none';
-            document.getElementById('progressFill').style.width = `${(currentRound / totalRounds) * 100}%`;
+function checkAnswer(btnEl, isCorrect, chosenText){
+    if(G.processing) return;
 
-            let options = [{ text: currentItem.correct_answer, isCorrect: true }];
-            currentItem.wrong_answers.forEach(w => options.push({ text: w, isCorrect: false }));
-            options.sort(() => 0.5 - Math.random());
-            availableOptions = options;
+    if(isCorrect){
+        G.processing=true;
+        btnEl.classList.add('correct');
+        document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+        document.getElementById('hint-5050').disabled=true;
+        document.getElementById('hint-grammar').disabled=true;
 
-            const grid = document.getElementById('optionsGrid');
-            grid.innerHTML = '';
-            options.forEach(opt => {
-                const btn = document.createElement('div');
-                btn.className = 'option-btn';
-                btn.textContent = opt.text;
-                btn.dataset.isCorrect = opt.isCorrect;
-                btn.style.opacity = '1';
-                btn.style.pointerEvents = 'auto';
-                btn.style.textDecoration = 'none';
-                btn.onclick = () => checkAnswer(btn, opt.isCorrect);
-                grid.appendChild(btn);
+        G.score++;
+        if(G.attempts===0) G.firstTryCount++;
+        const pts = G.hint5050Used||G.hintGrammarUsed ? 8 : G.attempts===0 ? 15 : 8;
+        G.xp+=pts;
+        G.combo++;
+        G.bestCombo=Math.max(G.bestCombo,G.combo);
+
+        const fixedSentence=G.current.sentence.replace(
+            new RegExp('\\b'+escapeRE(G.current.glitch)+'\\b'),
+            `<span style="color:var(--green-shadow);font-weight:900;background:rgba(88,204,2,.12);padding:2px 8px;border-radius:6px;border:2px solid rgba(88,204,2,.3);">${G.current.correct}</span>`
+        );
+        document.getElementById('sentence-text').innerHTML=fixedSentence;
+
+        confettiBurstAt(btnEl);
+        xpFloatFrom(btnEl, pts);
+
+        if(G.combo===3){toast('🔥','3 in a row!'); comboFlash('🕵️ 3!!');}
+        if(G.combo===5){toast('⚡','5 combo — genius!'); comboFlash('⚡ 5!!');}
+        if(G.combo>5){comboFlash('🕵️ '+G.combo+'!!');}
+
+        const fs=document.getElementById('feedback-strip');
+        fs.className='feedback-strip show right';
+        fs.innerHTML=`✅ Correct! <strong>"${G.current.correct}"</strong> is the fix.`;
+
+        const ex=document.getElementById('explanation-strip');
+        ex.textContent='📚 ' + G.current.explanation;
+        ex.className='explanation-strip show';
+
+        const pip=document.getElementById('pip-'+G.round);
+        if(pip){pip.classList.remove('active');pip.classList.add('done');}
+
+        updateScoreBar();
+        document.getElementById('btn-next').style.display='block';
+        window.autoAdv=setTimeout(()=>{ G.round++; loadRound(); }, 7000);
+
+    } else {
+        btnEl.classList.add('wrong');
+        btnEl.disabled=true;
+        G.combo=0;
+        G.attempts++;
+
+        const dot=document.getElementById('dot-'+(G.attempts-1));
+        if(dot) dot.classList.add('used');
+        updateScoreBar();
+        setTimeout(()=>btnEl.classList.remove('wrong'),450);
+
+        if(G.attempts>=2){
+            G.processing=true;
+            document.querySelectorAll('.opt-btn').forEach(b=>{
+                b.disabled=true;
+                if(b.dataset.isCorrect==='true') b.classList.add('show-correct');
             });
+            document.getElementById('hint-5050').disabled=true;
+            document.getElementById('hint-grammar').disabled=true;
+
+            const fs=document.getElementById('feedback-strip');
+            fs.className='feedback-strip show info';
+            fs.innerHTML=`💡 The answer was <strong>"${G.current.correct}"</strong>.`;
+
+            const ex=document.getElementById('explanation-strip');
+            ex.textContent='📚 ' + G.current.explanation;
+            ex.className='explanation-strip show';
+
+            const pip=document.getElementById('pip-'+G.round);
+            if(pip) pip.classList.remove('active');
+
+            document.getElementById('btn-next').style.display='block';
+        } else {
+            const fs=document.getElementById('feedback-strip');
+            fs.className='feedback-strip show wrong';
+            fs.textContent='❌ Not quite — try again!';
         }
+    }
+}
 
-        function useHint() {
-            if (hintUsed || isProcessing) return;
-            hintUsed = true;
-            
-            const allBtns = Array.from(document.querySelectorAll('.option-btn'));
-            const wrongBtns = allBtns.filter(btn => btn.dataset.isCorrect === 'false');
-            
-            // Remove 2 wrong answers randomly
-            const toRemove = wrongBtns.sort(() => 0.5 - Math.random()).slice(0, 2);
-            toRemove.forEach(btn => {
-                btn.style.opacity = '0.3';
-                btn.style.pointerEvents = 'none';
-                btn.style.textDecoration = 'line-through';
-            });
-            
-            document.getElementById('hintBtn').textContent = '✓ Hint Used';
-            document.getElementById('hintBtn').style.opacity = '0.5';
-            document.getElementById('hintBtn').style.cursor = 'default';
-            document.getElementById('secondHintBtn').style.display = 'inline-block';
-        }
+function nextRound(){
+    if(window.autoAdv) clearTimeout(window.autoAdv);
+    G.round++;
+    loadRound();
+}
 
-        function showSecondHint() {
-            if (secondHintUsed) return;
-            secondHintUsed = true;
-            
-            // Use the hint from the database
-            const hint = currentItem.hint || "Think carefully about the grammar rule here.";
-            
-            document.getElementById('secondHintText').textContent = hint;
-            document.getElementById('secondHintBox').style.display = 'block';
-            document.getElementById('secondHintBox').classList.add('shown');
-            document.getElementById('secondHintBtn').textContent = '✓ Clue Shown';
-            document.getElementById('secondHintBtn').style.opacity = '0.5';
-            document.getElementById('secondHintBtn').style.cursor = 'default';
-        }
+function useHint5050(){
+    if(G.hint5050Used||G.processing) return;
+    G.hint5050Used=true;
+    const wrongBtns=Array.from(document.querySelectorAll('.opt-btn')).filter(b=>b.dataset.isCorrect==='false'&&!b.disabled);
+    const toRemove=wrongBtns.sort(()=>Math.random()-.5).slice(0,2);
+    toRemove.forEach(b=>{ b.style.opacity='.2'; b.style.textDecoration='line-through'; b.disabled=true; });
+    document.getElementById('hint-5050').disabled=true;
+    document.getElementById('hint-5050').textContent='✓ 50/50 Used';
+    toast('💡','Two wrong answers removed!');
+}
 
-        function checkAnswer(btnElement, isCorrect) {
-            if (isProcessing) return;
-            isProcessing = true;
+function useHintGrammar(){
+    if(G.hintGrammarUsed||G.processing) return;
+    G.hintGrammarUsed=true;
+    const hs=document.getElementById('hint-strip');
+    hs.textContent='💡 ' + G.current.hint;
+    hs.classList.add('show');
+    document.getElementById('hint-grammar').disabled=true;
+    document.getElementById('hint-grammar').textContent='✓ Clue Used';
+    toast('📖','Grammar clue revealed!');
+}
 
-            if (isCorrect) {
-                btnElement.classList.add('correct');
-                score++;
-                const fullSentence = currentItem.question.replace("____", `<span style="color:#10B981; font-weight:800;">${currentItem.correct_answer}</span>`);
-                document.getElementById('defText').innerHTML = fullSentence;
-                
-                // Always show explanation after correct answer
-                document.getElementById('explanationBox').classList.add('shown');
-                
-                // Hide hint buttons when answer is revealed
-                document.getElementById('hintBtn').style.display = 'none';
-                document.getElementById('secondHintBtn').style.display = 'none';
-                
-                // Show Next button
-                document.getElementById('nextBtn').style.display = 'inline-block';
+function finishGame(){
+    megaConfettiBurst();
+    const perfect=G.score===G.totalRounds;
+    document.getElementById('rc-title').textContent = perfect ? '🏆 Case Closed!' : '🕵️ Hunt Complete!';
+    document.getElementById('rc-sub').textContent = perfect
+        ? `${G.totalRounds}/${G.totalRounds} glitches fixed — flawless detective work!`
+        : `${G.score}/${G.totalRounds} glitches fixed!`;
+    document.getElementById('rc-xp').textContent='+'+G.xp;
+    document.getElementById('rc-score').textContent=G.score;
+    document.getElementById('rc-first').textContent=G.firstTryCount;
+    document.getElementById('rc-combo').textContent=G.bestCombo;
+    document.getElementById('result-overlay').classList.add('show');
+}
 
-                // Auto-advance after 6 seconds (up from 5)
-                window.autoAdvanceTimeout = setTimeout(() => { 
-                    currentRound++; 
-                    loadRound(); 
-                }, 6000);
-            } else {
-                btnElement.classList.add('incorrect');
-                isProcessing = false;
-            }
-        }
+function playAgainSame(){
+    document.getElementById('result-overlay').classList.remove('show');
+    startGame();
+}
+function backToSetup(){
+    document.getElementById('result-overlay').classList.remove('show');
+    document.getElementById('game-area').classList.remove('active');
+    document.getElementById('setup-card').style.display='block';
+    if(window.autoAdv) clearTimeout(window.autoAdv);
+}
 
-        function skipToNext() {
-            // Clear the auto-advance timeout if user clicks Next
-            if (window.autoAdvanceTimeout) {
-                clearTimeout(window.autoAdvanceTimeout);
-            }
-            currentRound++;
-            loadRound();
-        }
+function updateScoreBar(){
+    document.getElementById('sb-round').textContent=G.round+1;
+    document.getElementById('sb-score').textContent=G.score;
+    document.getElementById('sb-combo').textContent=G.combo;
+    document.getElementById('sb-xp').textContent=G.xp;
+}
 
-        const emojis = ['🛠️', '✨', '🔥', '✅', '📈', '🚀', '🧠'];
-        let confettiInterval;
+function confettiBurstAt(el){
+    const r=el.getBoundingClientRect();
+    const x=r.left+r.width/2, y=r.top;
+    const colors=['#FF4B4B','#FFC800','#58CC02','#1CB0F6','#CE82FF','#FF9600'];
+    for(let i=0;i<16;i++){
+        const d=document.createElement('div'); d.className='confetti-dot';
+        d.style.cssText=`left:${x+Math.random()*60-30}px;top:${y+Math.random()*20}px;background:${colors[i%colors.length]};animation-delay:${Math.random()*.2}s;animation-duration:${.6+Math.random()*.4}s;transform:rotate(${Math.random()*360}deg)`;
+        document.body.appendChild(d); setTimeout(()=>d.remove(),1000);
+    }
+}
+function xpFloatFrom(el, pts){
+    const r=el.getBoundingClientRect();
+    const xpEl=document.createElement('div'); xpEl.className='xp-float';
+    xpEl.textContent=`+${pts} XP`;
+    xpEl.style.cssText=`left:${r.left+r.width/2-24}px;top:${r.top-10}px`;
+    document.body.appendChild(xpEl); setTimeout(()=>xpEl.remove(),900);
+}
+function megaConfettiBurst(){
+    const colors=['#FF4B4B','#FFC800','#58CC02','#1CB0F6','#CE82FF','#FF9600'];
+    for(let i=0;i<60;i++){
+        const d=document.createElement('div'); d.className='mega-conf-dot';
+        const sz=8+Math.random()*12;
+        d.style.cssText=`left:${Math.random()*100}vw;top:${-10+Math.random()*20}px;width:${sz}px;height:${sz}px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-delay:${Math.random()*.8}s;animation-duration:${1+Math.random()*.8}s;border-radius:${Math.random()>.5?'50%':'3px'};transform:rotate(${Math.random()*360}deg)`;
+        document.body.appendChild(d); setTimeout(()=>d.remove(),2200);
+    }
+}
+function comboFlash(msg){
+    const el=document.createElement('div'); el.className='combo-flash'; el.textContent=msg;
+    document.body.appendChild(el); setTimeout(()=>el.remove(),800);
+}
+function toast(icon,text){
+    const wrap=document.getElementById('badge-wrap');
+    const b=document.createElement('div'); b.className='badge';
+    b.innerHTML=`<span class="badge-icon">${icon}</span><span class="badge-text">${text}</span>`;
+    wrap.appendChild(b);
+    setTimeout(()=>b.classList.add('show'),50);
+    setTimeout(()=>{ b.classList.remove('show'); setTimeout(()=>b.remove(),500); },3500);
+}
 
-        function endGame() {
-            document.getElementById('win-message').textContent = `You fixed ${score}/${totalRounds} glitches!`;
-            document.getElementById('progressFill').style.width = '100%';
-            const container = document.getElementById('confettiContainer');
-            container.style.display = 'block';
-            confettiInterval = setInterval(() => {
-                const piece = document.createElement('div');
-                piece.classList.add('confetti-piece');
-                piece.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-                piece.style.left = Math.random() * 100 + 'vw';
-                piece.style.animationDuration = (Math.random() * 2 + 3) + 's';
-                container.appendChild(piece);
-                setTimeout(() => piece.remove(), 5000);
-            }, 150);
-            setTimeout(() => document.getElementById('win-modal').style.display = 'flex', 800);
-        }
-
-        function closeModal() {
-            document.getElementById('win-modal').style.display = 'none';
-            document.getElementById('confettiContainer').style.display = 'none';
-            document.getElementById('confettiContainer').innerHTML = '';
-            clearInterval(confettiInterval);
-        }
-
-        function closeModalAndRestart() {
-            closeModal();
-            document.getElementById('optionsGrid').style.display = 'none';
-            document.getElementById('defCard').style.display = 'none';
-            document.getElementById('progressBar').style.display = 'none';
-            document.getElementById('controls-area').style.display = 'flex';
-            document.getElementById('startBtn').disabled = false;
-        }
-
-        function closeModalAndNewTheme() { closeModalAndRestart(); document.getElementById('themeSelect').focus(); }
-        function closeModalAndNewLevel() { closeModalAndRestart(); document.getElementById('levelSelect').focus(); }
-    </script>
+buildSetup();
+</script>
 </body>
 </html>
