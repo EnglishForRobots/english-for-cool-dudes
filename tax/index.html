@@ -615,57 +615,67 @@
     <script src="/track-mastery.js"></script>
 
     <script>
-    'use strict';
-    function greet() {
-        const h = new Date().getHours();
-        return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
-    }
-    async function renderUserHero(stats, user) {
-        const profile   = window.EFCD_Auth.getCurrentUser();
-        const rawName   = profile?.name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Dude';
-        const firstName = rawName.split(' ')[0].replace(/^\w/, c => c.toUpperCase());
-        const streak = stats?.streak || 0;
-        const xp = stats?.xp || 0; const level = stats?.level || 1;
-        const xpIn = xp % 500; const xpPct = Math.min(100, Math.round((xpIn / 500) * 100)); const xpLeft = 500 - xpIn;
-
-        // PHASE 1: render immediately
-        document.getElementById('hero-card').innerHTML = `
-            <div class="hero-top">
-                <div>
-                    <div class="greet">${greet()}, ${firstName}! 👋</div>
-                    <div class="uname">Tax English</div>
-                    <div id="track-badge-slot"></div>
-                </div>
-                ${streak > 0 ? `<div class="streak-block"><span class="sfire">🔥</span><span class="snum">${streak}</span><span class="sword">Day Streak</span></div>` : ''}
-            </div>
-            <div class="xp-wrap">
-                <div class="xp-row"><span>Level ${level}</span><span>${xpLeft} XP to Level ${level + 1}</span></div>
-                <div class="xp-track"><div class="xp-fill" id="xp-fill"></div></div>
-            </div>
-            <a href="/dashboard-gamified/" class="hero-cta">
-                <span>📊 View My Dashboard</span><span class="cta-arrow">›</span>
-            </a>`;
-        requestAnimationFrame(() => setTimeout(() => { const f = document.getElementById('xp-fill'); if (f) f.style.width = xpPct + '%'; }, 80));
-
-        // PHASE 2: track badge in background
-        try {
-            if (window.EFCD_TrackMastery && profile?.id) {
-                const { data: userLessons } = await window.efcdSupabaseClient.from('lessons').select('lesson_link').eq('user_id', profile.id);
-                if (userLessons?.length) {
-                    const counts = window.EFCD_TrackMastery.countByTrack(userLessons);
-                    const topTrack = window.EFCD_TrackMastery.TRACKS.filter(t => counts[t.id] > 0).sort((a,b) => counts[b.id] - counts[a.id])[0];
-                    if (topTrack) {
-    const count = counts[topTrack.id];
-    const slot = document.getElementById('track-badge-slot');
-    if (slot) {
-        slot.innerHTML = `<div class="hero-track-badge" style="animation:up .3s ease both"><span>${topTrack.icon}</span><span>${count} Tax lesson${count !== 1 ? 's' : ''} done</span></div>`;
-    }
+   'use strict';
+function greet() {
+    const h = new Date().getHours();
+    return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
 }
+
+async function renderUserHero(stats, user) {
+    const profile   = window.EFCD_Auth.getCurrentUser();
+    const rawName   = profile?.name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Dude';
+    const firstName = rawName.split(' ')[0].replace(/^\w/, c => c.toUpperCase());
+    const streak = stats?.streak || 0;
+    const xp = stats?.xp || 0;
+    const level = stats?.level || 1;
+    const xpIn = xp % 500;
+    const xpPct = Math.min(100, Math.round((xpIn / 500) * 100));
+    const xpLeft = 500 - xpIn;
+
+    document.getElementById('hero-card').innerHTML = `
+        <div class="hero-top">
+            <div>
+                <div class="greet">${greet()}, ${firstName}! 👋</div>
+                <div class="uname">Tax English</div>
+                <div id="track-badge-slot"></div>
+            </div>
+            ${streak > 0 ? `<div class="streak-block"><span class="sfire">🔥</span><span class="snum">${streak}</span><span class="sword">Day Streak</span></div>` : ''}
+        </div>
+        <div class="xp-wrap">
+            <div class="xp-row"><span>Level ${level}</span><span>${xpLeft} XP to Level ${level + 1}</span></div>
+            <div class="xp-track"><div class="xp-fill" id="xp-fill"></div></div>
+        </div>
+        <a href="/dashboard-gamified/" class="hero-cta">
+            <span>📊 View My Dashboard</span><span class="cta-arrow">›</span>
+        </a>`;
+
+    requestAnimationFrame(() => setTimeout(() => {
+        const f = document.getElementById('xp-fill');
+        if (f) f.style.width = xpPct + '%';
+    }, 80));
+
+    try {
+        if (window.EFCD_TrackMastery && profile?.id) {
+            const { data: userLessons } = await window.efcdSupabaseClient
+                .from('lessons').select('lesson_link').eq('user_id', profile.id);
+            if (userLessons?.length) {
+                const counts   = window.EFCD_TrackMastery.countByTrack(userLessons);
+                const topTrack = window.EFCD_TrackMastery.TRACKS
+                    .filter(t => counts[t.id] > 0)
+                    .sort((a, b) => counts[b.id] - counts[a.id])[0];
+                if (topTrack) {
+                    const count = counts[topTrack.id];
+                    const slot = document.getElementById('track-badge-slot');
+                    if (slot) {
+                        slot.innerHTML = `<div class="hero-track-badge" style="animation:up .3s ease both"><span>${topTrack.icon}</span><span>${count} Tax lesson${count !== 1 ? 's' : ''} done</span></div>`;
+                    }
+                }
             }
-            }
-        } catch(_) {}
-    
-    function renderGuestHero() {
+        }
+    } catch(_) {}
+}
+
+function renderGuestHero() {
     document.getElementById('hero-card').innerHTML = `
         <div class="eyebrow">💰 Specialist · Free · No account needed</div>
         <div class="big-title">Tax<br><span class="yellow">English.</span></div>
@@ -681,19 +691,23 @@
             <a href="/signup/" class="btn-white">Create Free Account</a>
         </div>`;
 }
-    function boot() {
-        if (typeof window.efcdReady === 'undefined') { setTimeout(boot, 50); return; }
-        window.efcdReady.then(async () => {
-            try {
-                await window.EFCD_Auth.initAuth();
-                const user = window.EFCD_Auth.getCurrentUser();
-                if (user) { await renderUserHero(window.EFCD_Auth.getUserStats(), user); }
-                else { renderGuestHero(); }
-                if (window.EFCD_UI) window.EFCD_UI.updateHeaderUI();
-            } catch(e) { renderGuestHero(); }
-        }).catch(() => renderGuestHero());
-    }
-    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', boot); } else { boot(); }
+
+function boot() {
+    if (typeof window.efcdReady === 'undefined') { setTimeout(boot, 50); return; }
+    window.efcdReady.then(async () => {
+        try {
+            await window.EFCD_Auth.initAuth();
+            const user = window.EFCD_Auth.getCurrentUser();
+            if (user) { await renderUserHero(window.EFCD_Auth.getUserStats(), user); }
+            else { renderGuestHero(); }
+            if (window.EFCD_UI) window.EFCD_UI.updateHeaderUI();
+        } catch(e) { renderGuestHero(); }
+    }).catch(() => renderGuestHero());
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+} else { boot(); }
     </script>
     
 </body>
