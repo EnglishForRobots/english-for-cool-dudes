@@ -1,2467 +1,1235 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
-    <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
-    <title>English For Cool Dudes — Beat Duolingo. Actually Learn.</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css2?family=Nunito:ital,wght@0,400;0,700;0,800;0,900;1,900&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="/init-auth.js"></script>
-    <script src="/xp-shop.js"></script>
-    <style>
-    :root {
-        --blue:#1CB0F6;       --blue-shadow:#1899D6;  --blue-light:#E8F7FE;
-        --yellow:#FFC800;     --yellow-shadow:#E5B400;--yellow-light:#FFF8DC;
-        --green:#58CC02;      --green-shadow:#58A700; --green-light:#EDFBD8;
-        --punch:#FF4B4B;      --punch-shadow:#EA2B2B; --punch-light:#FFF0F0;
-        --purple:#CE82FF;     --purple-shadow:#A559D9;--purple-light:#F5EBFF;
-        --teal:#2BDECC;       --teal-shadow:#1FB8A8;  --teal-light:#E6FAFB;
-        --orange:#FF9600;     --orange-shadow:#D97800;--orange-light:#FFF3E0;
-        --coral:#FF6B35;      --coral-shadow:#D4501C;
-        --pink:#FF6EB4;       --pink-shadow:#D4508A;
-        --navy:#1a2e5a;
-        --bg:#FFFFFF;
-        --page-bg:#F7F9FA;
-        --ink:#4B4B4B;        --ink-bold:#111827;     --ink-3:#AFAFAF;
-        --border:#E5E5E5;     --border-heavy:#CECECE;
-        --r:20px;             --rsm:14px;             --rxs:8px;
-    }
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
-    body{
-        background:#F0F8FF;
-        color:var(--ink);
-        font-family:'Nunito',system-ui,sans-serif;
-        line-height:1.5;
-        overflow-x:hidden;
-    }
-    a{color:inherit;text-decoration:none;}
-    button{font-family:inherit;cursor:pointer;border:none;background:none;}
-
-    /* ══ ANIMATIONS ══ */
-    @keyframes up    {from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes flick {0%,100%{transform:rotate(-4deg) scale(1)}50%{transform:rotate(4deg) scale(1.12)}}
-    @keyframes shim  {0%{background-position:-400px 0}100%{background-position:400px 0}}
-    @keyframes nudge {0%,100%{transform:translateX(0)}30%{transform:translateX(6px)}}
-    @keyframes float {0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-    @keyframes popin {0%{opacity:0;transform:scale(.9)}70%{transform:scale(1.02)}100%{opacity:1;transform:scale(1)}}
-    @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-    @keyframes emojiroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-    @keyframes pulse-green{0%,100%{box-shadow:0 0 0 0 rgba(88,204,2,0)}60%{box-shadow:0 0 0 6px rgba(88,204,2,.2)}}
-    @keyframes pulse-yellow{0%,100%{box-shadow:0 0 0 0 rgba(255,200,0,0)}60%{box-shadow:0 0 0 6px rgba(255,200,0,.3)}}
-    @keyframes confetti{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(220px) rotate(540deg)}}
-    @keyframes tag-pop{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-    @keyframes xpShimmer{0%{transform:translateX(-100%)}100%{transform:translateX(400%)}  }
-    @keyframes scanline{0%{top:-4px}100%{top:100%}}
-    @keyframes streakFire{0%,100%{transform:scale(1) rotate(-3deg)}50%{transform:scale(1.15) rotate(3deg)}}
-    @keyframes waveChar{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-
-    .u1{animation:up .4s ease both .04s}
-    .u2{animation:up .4s ease both .12s}
-    .u3{animation:up .4s ease both .20s}
-    .u4{animation:up .4s ease both .28s}
-    .u5{animation:up .4s ease both .36s}
-    .u6{animation:up .4s ease both .44s}
-    .u7{animation:up .4s ease both .52s}
-    .u8{animation:up .4s ease both .60s}
-
-    /* ══ HEADER ══ */
-    .header{
-        background:var(--bg);
-        border-bottom:3px solid var(--border);
-        position:fixed;top:0;left:0;right:0;
-        z-index:200;height:60px;
-        display:flex;align-items:center;
-        padding:0 16px;
-    }
-    .hc{max-width:920px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;}
-    .hl{display:flex;align-items:center;gap:10px;flex-shrink:0;}
-    .logo{
-        width:40px;height:40px;border-radius:12px;
-        background:var(--yellow);border:2px solid var(--yellow-shadow);
-        border-bottom:2px solid var(--yellow-shadow);
-        display:flex;align-items:center;justify-content:center;
-        font-size:22px;flex-shrink:0;
-    }
-    .site-title{font-size:17px;font-weight:900;color:var(--ink-bold);letter-spacing:-.5px;}
-    @media(max-width:400px){.site-title{display:none}}
-    #header-auth-container{display:flex;align-items:center;gap:8px;flex-shrink:0;}
-
-    /* header ticker */
-    .header-ticker{
-        overflow:hidden;flex:1;margin:0 10px;
-        mask-image:linear-gradient(to right,transparent,black 10%,black 90%,transparent);
-        -webkit-mask-image:linear-gradient(to right,transparent,black 10%,black 90%,transparent);
-    }
-    .ticker-inner{
-        display:inline-flex;gap:0;white-space:nowrap;
-        animation:ticker 28s linear infinite;
-    }
-    .ticker-item{display:inline-flex;align-items:center;gap:0;font-size:11px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;}
-    .ticker-badge{padding:3px 8px;border-radius:5px;font-size:10px;font-weight:900;margin:0 6px;}
-    .tb-new{background:var(--blue);color:#fff;}
-    .tb-hot{background:var(--punch);color:#fff;}
-    .tb-live{background:var(--green);color:#fff;}
-    .ticker-text{color:var(--ink);padding:0 4px;}
-    .ticker-sep{color:var(--border-heavy);padding:0 8px;font-size:14px;}
-
-    /* ══ PAGE ══ */
-    .page{max-width:920px;margin:0 auto;padding:76px 14px 100px;display:flex;flex-direction:column;gap:16px;}
-
-    /* ══ SKELETON ══ */
-    .sk{background:linear-gradient(90deg,#EBEBEB 25%,#F5F5F5 50%,#EBEBEB 75%);background-size:400px 100%;animation:shim 1.4s infinite;border-radius:var(--rsm);}
-
-    /* ══════════════════════════════════
-       1. HERO — warm vibe background returns
-       Orange energy. White title. Green CTA.
-    ══════════════════════════════════ */
-    .vibe-hero{
-        border:3px solid var(--ink-bold);
-        border-bottom:5px solid var(--ink-bold);
-        border-radius:var(--r);
-        padding:22px 20px 18px;
-        position:relative;overflow:hidden;
-    }
-    .vibe-deco{position:absolute;bottom:-14px;right:6px;font-size:96px;opacity:.09;pointer-events:none;}
-
-    .vibe-eyebrow{
-        display:inline-flex;align-items:center;gap:7px;
-        background:rgba(255,255,255,.22);
-        border:2px solid rgba(255,255,255,.35);
-        border-radius:8px;padding:4px 12px;margin-bottom:12px;
-        font-size:11px;font-weight:900;color:#fff;
-        text-transform:uppercase;letter-spacing:1.5px;
-        position:relative;z-index:1;
-    }
-    /* coloured eyebrow classes for guest mode — unused on coloured bg but kept for fallback */
-    .vibe-eyebrow.morning{background:rgba(255,255,255,.22);color:#fff;border-color:rgba(255,255,255,.35);}
-    .vibe-eyebrow.midday{background:rgba(255,255,255,.22);color:#fff;border-color:rgba(255,255,255,.35);}
-    .vibe-eyebrow.evening{background:rgba(255,255,255,.22);color:#fff;border-color:rgba(255,255,255,.35);}
-    .vibe-eyebrow.night{background:rgba(255,255,255,.22);color:#fff;border-color:rgba(255,255,255,.35);}
-
-    .vibe-title{
-        font-size:clamp(26px,6vw,44px);font-weight:900;font-style:italic;
-        color:#fff;letter-spacing:-1.5px;line-height:1.05;
-        margin-bottom:6px;text-shadow:0 3px 0 rgba(0,0,0,.12);
-        position:relative;z-index:1;
-    }
-    .vibe-sub{font-size:13px;font-weight:700;color:rgba(255,255,255,.88);margin-bottom:20px;line-height:1.6;position:relative;z-index:1;}
-
-
-    /* ── HERO MOTIVATIONAL TICKER ── */
-    @keyframes tickFade{0%{opacity:0;transform:translateY(5px)}20%{opacity:1;transform:translateY(0)}80%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-5px)}}
-    .vibe-ticker{
-        margin-bottom:14px;
-        height:20px;overflow:hidden;
-        position:relative;z-index:1;
-    }
-    .vibe-ticker span{
-        display:block;font-size:11px;font-weight:900;
-        color:rgba(255,255,255,.7);
-        letter-spacing:.5px;text-transform:uppercase;
-        animation:tickFade 4s ease-in-out infinite;
-    }
-
-    /* ── CTA — yellow pill, works regardless of which class renders ──
-       !important beats any external JS that rewrites the hero        */
-    .hero-cta,.hero-cta-big{
-        display:flex !important;align-items:center;justify-content:space-between;
-        width:100%;padding:16px 22px;
-        background:var(--yellow) !important;
-        color:var(--ink-bold) !important;
-        font-size:18px;font-weight:900;
-        border-radius:99px;
-        border:3px solid var(--yellow-shadow) !important;
-        border-bottom:5px solid var(--yellow-shadow) !important;
-        cursor:pointer;letter-spacing:-.3px;
-        transition:transform .1s,opacity .1s;
-        position:relative;z-index:1;
-        text-decoration:none;
-        font-family:'Nunito',system-ui,sans-serif;
-    }
-    .hero-cta:hover,.hero-cta-big:hover{opacity:.9;transform:translateY(-1px);}
-    .hero-cta:active,.hero-cta-big:active{transform:translateY(2px);}
-    .hero-cta .cta-text,.hero-cta-big .cta-text{flex:1;}
-
-    /* ── Logged-in vibe hero layout ── */
-    .vibe-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;position:relative;z-index:1;}
-    .vibe-greet{font-size:11px;font-weight:800;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;}
-    .vibe-uname{font-size:clamp(20px,5vw,30px);font-weight:900;font-style:italic;color:#fff;letter-spacing:-1px;line-height:1.1;}
-    .streak-block{text-align:center;flex-shrink:0;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.3);border-bottom:2px solid rgba(0,0,0,.15);border-radius:var(--rsm);padding:10px 14px;min-width:76px;}
-    .sfire{font-size:28px;display:block;line-height:1;animation:streakFire 1.8s ease-in-out infinite;}
-    .snum{font-size:22px;font-weight:900;color:#fff;display:block;line-height:1.1;margin-top:3px;}
-    .sword{font-size:9px;font-weight:900;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:1px;}
-    .track-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.3);border-radius:99px;padding:3px 10px;font-size:11px;font-weight:900;color:#fff;margin-top:4px;width:fit-content;}
-
-    /* xp bar in hero — on coloured bg */
-    .xp-wrap{position:relative;z-index:1;margin-bottom:14px;background:rgba(0,0,0,.15);padding:10px 12px;border-radius:var(--rsm);}
-    .xp-row{display:flex;justify-content:space-between;font-size:11px;font-weight:800;margin-bottom:6px;color:rgba(255,255,255,.85);}
-    .xp-track{height:12px;background:rgba(0,0,0,.2);border-radius:99px;overflow:hidden;border:2px solid rgba(0,0,0,.1);}
-    .xp-fill{height:100%;width:0%;border-radius:99px;background:var(--yellow);border-top:3px solid rgba(255,255,255,.4);transition:width 1.3s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;}
-    .xp-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);animation:xpShimmer 2.4s ease-in-out infinite;}
-
-    /* stat row on coloured bg */
-    .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;margin-bottom:14px;position:relative;z-index:1;}
-    .stat-pill{background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.28);border-radius:var(--rsm);padding:10px 6px;text-align:center;}
-    .sn{display:block;font-size:20px;font-weight:900;color:#fff;line-height:1;}
-    .sl{font-size:9px;font-weight:900;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:1px;margin-top:3px;display:block;}
-
-    .cta-arrow{font-size:22px;font-weight:900;flex-shrink:0;color:var(--ink-bold);animation:nudge 2s ease-in-out infinite;}
-
-    /* guest buttons */
-    .btn-yellow{display:inline-flex;align-items:center;gap:6px;padding:13px 22px;background:var(--yellow);color:var(--ink-bold);font-size:15px;font-weight:900;border-radius:99px;border:2px solid var(--yellow-shadow);border-bottom:4px solid var(--yellow-shadow);cursor:pointer;letter-spacing:-.3px;transition:transform .1s;}
-    .btn-yellow:active{transform:translateY(3px);}
-    .btn-white{display:inline-flex;align-items:center;gap:6px;padding:13px 18px;background:rgba(255,255,255,.2);color:#fff;font-size:15px;font-weight:900;border-radius:99px;border:2px solid rgba(255,255,255,.35);border-bottom:2px solid rgba(255,255,255,.15);cursor:pointer;letter-spacing:-.3px;transition:transform .1s;}
-    .btn-white:active{transform:translateY(3px);}
-    .eyebrow{display:inline-block;background:var(--yellow);color:var(--ink-bold);font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;padding:4px 12px;border-radius:6px;margin-bottom:14px;border:2px solid var(--yellow-shadow);}
-    .big-title{font-size:clamp(28px,6vw,44px);font-weight:900;font-style:italic;color:#fff;line-height:1.1;letter-spacing:-1px;margin-bottom:8px;position:relative;z-index:1;}
-    .hero-sub{font-size:14px;font-weight:700;color:rgba(255,255,255,.88);margin-bottom:20px;line-height:1.6;position:relative;z-index:1;}
-    .guest-btns{display:flex;gap:10px;flex-wrap:wrap;position:relative;z-index:1;}
-
-.ph-icon{font-size:28px;}}
-
-    /* ══ CONTINUE CARD (replaces streak banner) ══ */
-    .continue-card{
-        display:flex;align-items:center;gap:14px;
-        border:3px solid var(--ink-bold);
-        border-bottom:5px solid var(--ink-bold);
-        border-radius:var(--r);padding:16px 18px;
-        cursor:pointer;transition:transform .1s;
-        text-decoration:none;position:relative;overflow:hidden;
-    }
-    .continue-card:active{transform:translateY(3px);}
-    .continue-card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;}
-    .cc-green::before{background:var(--green);}
-    .cc-blue::before{background:var(--blue);}
-    .cc-red::before{background:var(--punch);}
-    .cc-purple::before{background:var(--purple);}
-    .cc-orange::before{background:var(--yellow);}
-    .cc-teal::before{background:var(--teal);}
-    .continue-icon{font-size:26px;flex-shrink:0;}
-    .continue-body{flex:1;}
-    .continue-eyebrow{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-3);margin-bottom:3px;}
-    .continue-title{font-size:15px;font-weight:900;color:var(--ink-bold);letter-spacing:-.3px;line-height:1.3;}
-    .continue-sub{font-size:12px;font-weight:700;color:var(--ink-3);margin-top:2px;}
-    .continue-btn{
-        display:flex;align-items:center;gap:6px;
-        padding:9px 14px;
-        background:var(--green);color:#fff;
-        font-size:13px;font-weight:900;
-        border-radius:var(--rsm);
-        border:2px solid var(--green-shadow);
-        border-bottom:4px solid var(--green-shadow);
-        flex-shrink:0;white-space:nowrap;
-        font-family:inherit;cursor:pointer;
-        transition:transform .1s;
-    }
-    .continue-btn:active{transform:translateY(2px);}
-    /* legacy classes kept for any existing references */
-    .streak-banner{display:none;}
-    .sb-icon,.sb-body,.sb-title,.sb-sub,.sb-arrow{display:none;}
-
-    /* ══════════════════════════════════
-       THE GAME PANEL
-       One unified above-the-fold unit.
-       Hero on top, hit+picks side by side below.
-    ══════════════════════════════════ */
-    .game-panel{
-        border:3px solid var(--ink-bold);
-        border-radius:var(--r);overflow:hidden;
-        background:var(--bg);
-    }
-
-    /* hero strip at top of game panel */
-    .gp-hero{
-        padding:20px 18px 16px;
-        position:relative;overflow:hidden;
-    }
-
-    /* bottom row — hit left, picks right */
-    .gp-bottom{
-        display:grid;grid-template-columns:1fr 1fr;
-        border-top:3px solid var(--ink-bold);
-    }
-    @media(max-width:480px){
-        .gp-bottom{grid-template-columns:1fr;}
-    }
-
-    /* ── DAILY HIT panel ── */
-    .gp-hit{
-        border-right:3px solid var(--ink-bold);
-        display:flex;flex-direction:column;
-        background:var(--navy);
-        position:relative;overflow:hidden;
-    }
-    @media(max-width:480px){
-        .gp-hit{border-right:none;border-bottom:3px solid var(--ink-bold);}
-    }
-    .gp-hit-header{
-        display:flex;align-items:center;gap:8px;
-        padding:10px 14px 8px;
-        border-bottom:2px solid rgba(255,255,255,.1);
-    }
-    .gp-hit-icon{font-size:18px;flex-shrink:0;}
-    .gp-hit-title{font-size:12px;font-weight:900;color:rgba(255,255,255,.9);text-transform:uppercase;letter-spacing:1.5px;flex:1;}
-    .gp-hit-cat{
-        padding:6px 14px 4px;
-        font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1px;
-        color:var(--yellow);opacity:.9;
-        min-height:22px;
-    }
-    .gp-hit-body{
-        flex:1;padding:4px 14px 10px;
-        min-height:120px;
-    }
-    .gp-hit-body .micro-label{color:rgba(255,255,255,.5);margin-bottom:7px;margin-top:2px;}
-    .gp-hit-body .micro-q{font-size:14px;font-weight:900;color:#fff;line-height:1.5;margin-bottom:10px;}
-    .gp-hit-body .micro-quote{font-size:13px;font-weight:700;color:#fff;line-height:1.6;border-left:3px solid var(--yellow);padding-left:10px;margin-bottom:8px;}
-    .gp-hit-body .micro-opts{display:flex;flex-direction:column;gap:5px;margin-bottom:2px;}
-    .gp-hit-body .micro-opt{
-        padding:7px 10px;border-radius:var(--rxs);
-        border:2px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);
-        font-size:12px;font-weight:900;color:rgba(255,255,255,.9);
-        cursor:pointer;transition:all .12s;text-align:left;
-        font-family:'Nunito',system-ui,sans-serif;
-        display:flex;align-items:center;gap:7px;
-    }
-    .gp-hit-body .micro-opt:hover:not(:disabled){border-color:var(--yellow);background:rgba(255,200,0,.12);color:#fff;}
-    .gp-hit-body .micro-opt.correct{background:rgba(88,204,2,.2);border-color:var(--green-shadow);color:#b8ffb8;}
-    .gp-hit-body .micro-opt.wrong{background:rgba(255,75,75,.2);border-color:var(--punch-shadow);color:#ffb8b8;}
-    .gp-hit-body .micro-opt:disabled{cursor:default;}
-    .gp-hit-body .micro-opt-ltr{font-size:11px;flex-shrink:0;min-width:16px;}
-    .gp-hit-body .micro-feedback{
-        font-size:11px;font-weight:900;padding:6px 8px;border-radius:6px;
-        margin-top:6px;display:none;line-height:1.5;
-    }
-    .gp-hit-body .micro-feedback.show{display:block;}
-    .gp-hit-body .micro-fb-good{background:rgba(88,204,2,.2);color:#b8ffb8;border:1px solid rgba(88,204,2,.3);}
-    .gp-hit-body .micro-fb-bad{background:rgba(255,75,75,.2);color:#ffb8b8;border:1px solid rgba(255,75,75,.3);}
-    .gp-hit-body .micro-reveal-box{
-        background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
-        border-radius:var(--rxs);padding:8px 10px;
-        font-size:12px;font-weight:700;color:rgba(255,255,255,.9);
-        line-height:1.6;display:none;
-    }
-    .gp-hit-body .micro-reveal-box.show{display:block;}
-    .gp-hit-body .micro-reveal-box strong{color:var(--green);}
-    .gp-hit-foot{
-        display:flex;align-items:center;justify-content:space-between;
-        padding:8px 14px 10px;
-        border-top:2px solid rgba(255,255,255,.1);
-        gap:6px;
-    }
-    .gp-reveal-btn{
-        padding:6px 10px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);
-        font-size:11px;font-weight:900;border-radius:var(--rxs);
-        border:1px solid rgba(255,255,255,.2);cursor:pointer;
-        font-family:'Nunito',system-ui,sans-serif;transition:all .1s;
-    }
-    .gp-reveal-btn:hover{background:rgba(255,255,255,.18);}
-    .gp-next-btn{
-        padding:6px 12px;background:var(--yellow);color:var(--ink-bold);
-        font-size:12px;font-weight:900;border-radius:var(--rxs);
-        border:2px solid var(--yellow-shadow);border-bottom:2px solid var(--yellow-shadow);
-        cursor:pointer;font-family:'Nunito',system-ui,sans-serif;
-        display:flex;align-items:center;gap:4px;transition:all .1s;
-    }
-    .gp-next-btn:active{transform:translateY(2px);}
-
-    /* progress bar on hit panel */
-    .micro-progress{height:4px;background:rgba(255,255,255,.1);position:relative;overflow:hidden;}
-    .micro-progress-fill{height:100%;background:linear-gradient(90deg,var(--yellow),var(--blue));transition:width .4s cubic-bezier(.4,0,.2,1);}
-
-    /* hit dots */
-    .micro-hit-counter{display:flex;align-items:center;gap:4px;}
-    .micro-hit-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.3);transition:all .3s;}
-    .micro-hit-dot.hit{background:var(--yellow);border-color:var(--yellow-shadow);box-shadow:0 0 6px rgba(255,200,0,.5);}
-
-    /* XP pill in hit panel */
-    .micro-xp{
-        display:inline-flex;align-items:center;gap:4px;
-        background:rgba(255,200,0,.15);border:1px solid rgba(255,200,0,.3);
-        border-radius:99px;padding:3px 8px;
-        font-size:10px;font-weight:900;color:var(--yellow);
-        transition:all .3s;
-    }
-
-    /* ── COOL PICKS panel ── */
-    .gp-picks{
-        display:flex;flex-direction:column;
-        background:var(--bg);
-    }
-    .gp-picks-header{
-        display:flex;align-items:center;gap:8px;
-        padding:10px 14px 8px;
-        border-bottom:2px solid var(--border);
-    }
-    .gp-shuffle-btn{
-        width:26px;height:26px;
-        background:var(--page-bg);border:2px solid var(--border);border-radius:6px;
-        font-size:13px;cursor:pointer;
-        display:flex;align-items:center;justify-content:center;
-        transition:all .1s;flex-shrink:0;
-    }
-    .gp-shuffle-btn:hover{border-color:var(--border-heavy);}
-    .gp-shuffle-btn:active{transform:scale(.92);}
-    .gp-picks-body{
-        flex:1;padding:10px 14px 8px;min-height:120px;
-        display:flex;flex-direction:column;gap:5px;
-    }
-    .picks-fact-label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:var(--purple);margin-bottom:2px;}
-    .picks-name{font-size:13px;font-weight:900;color:var(--ink-bold);line-height:1.35;}
-    .picks-fact{font-size:11px;font-weight:700;color:var(--ink-3);line-height:1.55;flex:1;}
-    .picks-bottom-row{display:flex;align-items:center;justify-content:space-between;margin-top:2px;}
-    .picks-badge{font-size:9px;font-weight:900;background:var(--yellow-light);color:#786000;padding:2px 7px;border-radius:5px;border:2px solid var(--yellow-shadow);}
-    .gp-picks-go{
-        display:flex;align-items:center;justify-content:center;gap:6px;
-        padding:9px 14px;
-        background:var(--purple);color:#fff;
-        font-size:12px;font-weight:900;
-        border-top:2px solid var(--border);
-        border-radius:0 0 0 0;
-        text-decoration:none;
-        transition:background .15s;
-        letter-spacing:-.2px;
-    }
-    .gp-picks-go:hover{background:var(--purple-shadow);}
-    @media(max-width:480px){
-        .gp-picks-go{border-radius:0;}
-    }
-
-    /* ══════════════════════════════════
-       2. WEEK SPARKLINE + MOMENTUM ROW
-    ══════════════════════════════════ */
-    .momentum-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-    @media(max-width:520px){.momentum-row{grid-template-columns:1fr;}}
-
-    .week-card{background:var(--bg);border:3px solid var(--ink-bold);border-radius:var(--r);padding:18px 16px;}
-    .week-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;}
-    .week-title-text{font-size:14px;font-weight:900;color:var(--ink-bold);font-style:italic;}
-    .week-right{text-align:right;}
-    .week-count{font-size:22px;font-weight:900;color:var(--ink-bold);}
-    .week-delta{font-size:11px;font-weight:900;color:var(--green);}
-    .week-bars{display:flex;gap:5px;align-items:flex-end;height:50px;}
-    .wbar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
-    .wbar{width:100%;border-radius:5px 5px 0 0;background:var(--border);min-height:4px;position:relative;overflow:hidden;}
-    .wbar.active{background:var(--green);}
-    .wbar.today-bar{background:var(--yellow);animation:pulse-yellow 2s ease-in-out infinite;}
-    .wbar.best-bar{background:var(--blue);}
-    .wbar.zero{background:var(--border);}
-    .wbar.active::after,.wbar.today-bar::after,.wbar.best-bar::after{content:'';position:absolute;top:0;left:0;right:0;height:40%;background:rgba(255,255,255,.25);border-radius:5px 5px 0 0;}
-    .wday{font-size:9px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:.5px;}
-
-    /* story dots card */
-    .story-card{background:var(--bg);border:3px solid var(--ink-bold);border-radius:var(--r);padding:18px 16px;position:relative;overflow:hidden;}
-    .story-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(to bottom,var(--yellow),var(--orange));border-radius:var(--r) 0 0 var(--r);}
-    .story-inner{padding-left:13px;}
-    .story-eyebrow{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:var(--ink-3);margin-bottom:5px;}
-    .story-title{font-size:14px;font-weight:900;color:var(--ink-bold);letter-spacing:-.4px;margin-bottom:3px;line-height:1.4;}
-    .story-sub{font-size:11px;font-weight:700;color:var(--ink-3);line-height:1.5;margin-bottom:10px;}
-    .story-dots{display:flex;gap:5px;align-items:flex-start;margin-bottom:11px;}
-    .sdot-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;}
-    .sdot{width:10px;height:10px;border-radius:50%;background:var(--border);border:2px solid var(--border-heavy);}
-    .sdot.done{background:var(--green);border-color:var(--green-shadow);}
-    .sdot.today-dot{background:var(--yellow);border-color:var(--yellow-shadow);animation:pulse-yellow 2s ease-in-out infinite;}
-    .sdot-lbl{font-size:8px;font-weight:900;color:var(--ink-3);text-transform:uppercase;}
-    .story-cta{display:inline-flex;align-items:center;gap:5px;padding:8px 13px;background:var(--green);color:#fff;font-size:12px;font-weight:900;border-radius:var(--rsm);border:2px solid var(--green-shadow);border-bottom:2px solid var(--green-shadow);cursor:pointer;transition:all .1s;font-family:inherit;}
-    .story-cta:active{transform:translateY(2px);}
-
-    /* ══════════════════════════════════
-       3. FRESH DROPS
-    ══════════════════════════════════ */
-    .fresh-banner{
-        background:var(--bg);
-        border:3px solid var(--ink-bold);
-        border-bottom:5px solid var(--blue-shadow);
-        border-radius:var(--r);
-        padding:22px 18px 18px;
-        position:relative;
-    }
-    .fb-eyebrow{display:inline-flex;align-items:center;gap:8px;margin-bottom:14px;}
-    .fb-live-dot{width:10px;height:10px;border-radius:50%;background:var(--green);border:2px solid var(--green-shadow);animation:pulse-green 2s ease-in-out infinite;flex-shrink:0;}
-    .fb-eyebrow-text{font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--ink-3);}
-    .fb-headline{font-size:clamp(28px,5.5vw,48px);font-weight:900;font-style:italic;color:var(--ink-bold);letter-spacing:-1.5px;line-height:1.05;margin-bottom:5px;}
-    .hl-block{display:inline-block;padding:0 8px 2px;border-radius:8px;line-height:1.15;font-style:italic;}
-    .hl-blue{background:var(--blue);color:#fff;}
-    .hl-yellow{background:var(--yellow);color:var(--ink-bold);}
-    .hl-green{background:var(--green);color:#fff;}
-    .hl-punch{background:var(--punch);color:#fff;}
-    .fb-sub{font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:18px;line-height:1.5;}
-    .fb-section-label{font-size:10px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
-    .fb-section-label::after{content:'';flex:1;height:2px;background:var(--border);border-radius:2px;}
-
-    /* lesson tiles with difficulty dots */
-    .lesson-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px;}
-    @media(min-width:540px){.lesson-grid{grid-template-columns:repeat(4,1fr);}}
-    .lesson-tile{
-        display:block;text-decoration:none;
-        border:3px solid var(--ink-bold);
-        border-radius:var(--rsm);padding:14px 11px 11px;
-        text-align:center;background:var(--bg);
-        transition:transform .12s,border-bottom-width .12s,box-shadow .12s;
-        position:relative;overflow:hidden;
-    }
-    .lesson-tile:hover{transform:translateY(-3px);}
-    .lesson-tile:active{transform:translateY(3px);box-shadow:none;}
-    .lesson-tile::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;border-radius:var(--rsm) var(--rsm) 0 0;}
-    /* track colours */
-    .lt-green::before{background:var(--green);}
-    .lt-blue::before{background:var(--blue);}
-    .lt-punch::before{background:var(--punch);}
-    .lt-purple::before{background:var(--purple);}
-    .lt-yellow::before{background:var(--yellow);}
-    .lt-teal::before{background:var(--teal);}
-    .lt-coral::before{background:var(--coral);}
-    .tile-icon{font-size:30px;display:block;margin-bottom:5px;margin-top:4px;}
-    .tile-name{font-size:11px;font-weight:900;color:var(--ink-bold);line-height:1.3;margin-bottom:4px;}
-    .tile-track{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:5px;}
-    .diff-dots{display:flex;gap:3px;justify-content:center;margin-bottom:6px;}
-    .dd{width:6px;height:6px;border-radius:50%;background:var(--border);}
-    .dd.easy{background:var(--green);}
-    .dd.mid{background:var(--yellow);}
-    .dd.hard{background:var(--punch);}
-    .tile-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:900;border:2px solid transparent;}
-    .tt-new{background:var(--blue-light);color:var(--blue-shadow);border-color:var(--blue);}
-    .tt-hot{background:var(--punch-light);color:var(--punch-shadow);border-color:var(--punch);animation:tag-pop 2s ease-in-out infinite;}
-    .tt-live{background:var(--green-light);color:var(--green-shadow);border-color:var(--green);}
-
-    /* pro grid */
-    .pro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-    @media(max-width:500px){.pro-grid{grid-template-columns:1fr 1fr;}}
-    .pro-tile{display:flex;align-items:center;gap:10px;border:3px solid var(--ink-bold);border-radius:var(--rsm);padding:12px;background:var(--bg);text-decoration:none;transition:transform .12s,border-bottom-width .12s;position:relative;overflow:hidden;}
-    .pro-tile::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;}
-    .pt-purple::before{background:var(--purple);}
-    .pt-yellow::before{background:var(--yellow);}
-    .pt-teal::before{background:var(--teal);}
-    .pro-tile:hover{transform:translateY(-2px);}
-    .pro-tile:active{transform:translateY(3px);}
-    .pro-icon{font-size:22px;flex-shrink:0;}
-    .pro-body{flex:1;min-width:0;}
-    .pro-name{font-size:11px;font-weight:900;color:var(--ink-bold);line-height:1.3;margin-bottom:2px;}
-    .pro-track{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;}
-
-    /* ══════════════════════════════════
-       4. DAILY QUEST
-    ══════════════════════════════════ */
-    .quest-card{
-        background:var(--blue);
-        border:3px solid var(--ink-bold);
-        border-radius:var(--r);padding:20px;
-        display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;
-        position:relative;overflow:hidden;
-    }
-    .quest-card::after{content:'⚔️';position:absolute;right:-10px;bottom:-16px;font-size:80px;opacity:.1;pointer-events:none;}
-    .quest-eyebrow{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.7);margin-bottom:5px;}
-    .quest-title{font-size:19px;font-weight:900;color:#fff;font-style:italic;letter-spacing:-.5px;margin-bottom:4px;}
-    .quest-desc{font-size:12px;font-weight:700;color:rgba(255,255,255,.85);line-height:1.5;margin-bottom:12px;}
-    .quest-bar-wrap{background:rgba(255,255,255,.2);border-radius:99px;height:10px;overflow:hidden;margin-bottom:6px;}
-    .quest-bar{height:100%;background:var(--yellow);border-radius:99px;border-top:2px solid rgba(255,255,255,.4);transition:width 1s ease;}
-    .quest-meta{font-size:12px;font-weight:900;color:var(--yellow);}
-    .quest-right{display:flex;flex-direction:column;align-items:center;gap:10px;}
-    .arc-wrap{position:relative;width:72px;height:72px;flex-shrink:0;}
-    .arc-wrap svg{width:72px;height:72px;}
-    .arc-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0;}
-    .arc-num{font-size:20px;font-weight:900;color:#fff;line-height:1;}
-    .arc-sub{font-size:9px;font-weight:900;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.5px;}
-    .quest-btn{background:var(--yellow);color:var(--ink-bold);font-size:13px;font-weight:900;padding:10px 15px;border-radius:var(--rsm);border:2px solid var(--yellow-shadow);border-bottom:2px solid var(--yellow-shadow);cursor:pointer;transition:all .1s;font-family:'Nunito',sans-serif;letter-spacing:-.2px;white-space:nowrap;}
-    .quest-btn:active{transform:translateY(2px);}
-
-    /* ══════════════════════════════════
-       5. COOL PICKS
-    ══════════════════════════════════ */
-    .picks-card{background:var(--bg);border:3px solid var(--ink-bold);border-bottom:5px solid var(--purple-shadow);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:10px;}
-    .picks-top{display:flex;align-items:center;gap:10px;}
-    .picks-icon{font-size:28px;animation:float 3s ease-in-out infinite;}
-    .picks-heading{font-size:15px;font-weight:900;color:var(--ink-bold);font-style:italic;}
-    .picks-sub{font-size:12px;font-weight:700;color:var(--ink-3);margin-top:1px;}
-    #picks-desc{
-        flex:1;background:var(--page-bg);border:2px solid var(--border);
-        border-radius:var(--rsm);padding:13px;min-height:82px;
-        display:flex;flex-direction:column;gap:5px;
-        transition:opacity .3s,transform .3s;
-        position:relative;overflow:hidden;
-    }
-    #picks-desc::before{
-        content:'';position:absolute;top:0;left:0;right:0;height:3px;
-        background:linear-gradient(90deg,var(--purple),var(--blue),var(--teal));
-        background-size:200%;animation:xpShimmer 3s ease-in-out infinite;
-        border-radius:var(--rsm) var(--rsm) 0 0;
-    }
-    .picks-fact-label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:var(--purple);margin-top:3px;}
-    .picks-name{font-size:14px;font-weight:900;color:var(--ink-bold);line-height:1.3;}
-    .picks-fact{font-size:11px;color:var(--ink);font-weight:700;line-height:1.55;}
-    .picks-bottom-row{display:flex;align-items:center;justify-content:space-between;}
-    .picks-badge{display:inline-block;font-size:9px;font-weight:900;background:var(--yellow-light);color:#786000;padding:2px 7px;border-radius:5px;border:2px solid var(--yellow-shadow);width:max-content;}
-    .picks-go-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 18px;background:var(--purple);color:#fff;font-size:14px;font-weight:900;border-radius:var(--rsm);border:2px solid var(--purple-shadow);border-bottom:2px solid var(--purple-shadow);cursor:pointer;letter-spacing:-.2px;transition:transform .1s;font-family:'Nunito',sans-serif;}
-    .picks-go-btn:active{transform:translateY(3px);}
-    .picks-shuffle{display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;background:var(--page-bg);color:var(--ink-3);font-size:11px;font-weight:900;border-radius:var(--rsm);border:2px solid var(--border);cursor:pointer;transition:color .15s,border-color .15s;font-family:'Nunito',sans-serif;}
-    .picks-shuffle:hover{color:var(--ink-bold);border-color:var(--border-heavy);}
-
-    /* widget row (quest + picks) */
-    .widget-row{display:grid;grid-template-columns:1fr;gap:16px;align-items:stretch;}
-    @media(min-width:620px){.widget-row{grid-template-columns:1fr 1fr;}}
-
-    /* ══ SECTION LABELS ══ */
-    .sec-label{font-size:11px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;display:flex;align-items:center;gap:10px;}
-    .sec-label::after{content:'';flex:1;height:2px;background:var(--border);border-radius:2px;}
-
-    /* ══ COURSE CARDS ══ */
-    .strip{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:8px;scrollbar-width:none;-ms-overflow-style:none;align-items:stretch;}
-    .strip::-webkit-scrollbar{display:none;}
-    @media(min-width:600px){.strip{display:grid;grid-template-columns:repeat(3,1fr);overflow:visible;}}
-    .cc{
-        background:var(--bg);border:3px solid var(--ink-bold);border-bottom:5px solid var(--ink-bold);
-        border-radius:var(--r);padding:18px 16px;
-        display:flex;flex-direction:column;gap:8px;
-        min-width:220px;width:220px;flex-shrink:0;scroll-snap-align:start;
-        transition:transform .1s,box-shadow .15s;
-        position:relative;cursor:pointer;text-decoration:none;
-    }
-    @media(min-width:600px){.cc{width:auto;}}
-    .cc:hover{transform:translate(-2px,-2px);}
-    .cc:active{transform:translateY(4px);box-shadow:none;}
-    .cc::before{content:'';position:absolute;top:0;left:0;right:0;height:7px;border-radius:18px 18px 0 0;}
-    /* track colour tops */
-    .cc[data-c=green]::before{background:var(--green);}
-    .cc[data-c=blue]::before{background:var(--blue);}
-    .cc[data-c=red]::before{background:var(--punch);}
-    .cc[data-c=purple]::before{background:var(--purple);}
-    .cc[data-c=orange]::before{background:var(--yellow);}
-    .cc[data-c=teal]::before{background:var(--teal);}
-    .cc[data-c=coral]::before{background:var(--coral);}
-    .cc[data-c=pink]::before{background:var(--pink);}
-    .cc[data-c=gamesorange]::before{background:var(--orange);}
-    .cc[data-c=navy]::before{background:var(--navy);}
-
-    /* ── TRACK-COLOURED CARDS ── */
-    .cc[data-c=green]{border-bottom-color:var(--green-shadow);}
-    .cc[data-c=blue]{border-bottom-color:var(--blue-shadow);}
-    .cc[data-c=red]{border-bottom-color:var(--punch-shadow);}
-    .cc[data-c=purple]{border-bottom-color:var(--purple-shadow);}
-    .cc[data-c=orange]{border-bottom-color:var(--yellow-shadow);}
-    .cc[data-c=teal]{border-bottom-color:var(--teal-shadow);}
-    .cc[data-c=coral]{border-bottom-color:var(--coral-shadow);}
-    .cc[data-c=pink]{border-bottom-color:var(--pink-shadow);}
-    .cc[data-c=gamesorange]{border-bottom-color:var(--orange-shadow);}
-    .cc[data-c=navy]{border-bottom-color:var(--navy);}
-    /* very subtle tinted backgrounds on track cards */
-    .cc[data-c=green]{background:linear-gradient(160deg,#f5fff5 0%,#fff 60%);}
-    .cc[data-c=blue]{background:linear-gradient(160deg,#f0f9ff 0%,#fff 60%);}
-    .cc[data-c=red]{background:linear-gradient(160deg,#fff5f5 0%,#fff 60%);}
-    .cc[data-c=purple]{background:linear-gradient(160deg,#fdf5ff 0%,#fff 60%);}
-    .cc[data-c=orange]{background:linear-gradient(160deg,#fffdf0 0%,#fff 60%);}
-    .cc[data-c=teal]{background:linear-gradient(160deg,#f0fffe 0%,#fff 60%);}
-    .cc[data-c=coral]{background:linear-gradient(160deg,#fff8f5 0%,#fff 60%);}
-    .cc[data-c=pink]{background:linear-gradient(160deg,#fff5fb 0%,#fff 60%);}
-
-    .cc-top{display:flex;align-items:center;justify-content:space-between;margin-top:4px;}
-    .cc-icon{font-size:30px;line-height:1;}
-    .cc-badge{font-size:9px;font-weight:900;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:var(--page-bg);color:var(--ink-3);border:2px solid var(--border);}
-    .cc-title{font-size:17px;font-weight:900;color:var(--ink-bold);letter-spacing:-.3px;font-style:italic;}
-    .cc-desc{font-size:12px;font-weight:700;color:var(--ink-3);line-height:1.45;flex:1;}
-    .cc-foot{display:flex;align-items:center;justify-content:space-between;margin-top:4px;}
-    .cc-meta{font-size:11px;font-weight:800;color:var(--ink-3);}
-    .cc-go{width:28px;height:28px;border-radius:50%;background:var(--border);color:var(--ink-bold);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;}
-    .new-dot{font-size:14px;line-height:1;flex-shrink:0;animation:float 1.8s ease-in-out infinite;}
-    .swipe-hint{font-size:11px;font-weight:800;color:var(--ink-3);margin-bottom:6px;display:flex;align-items:center;gap:4px;}
-    .swipe-hint span{animation:nudge 2s ease-in-out infinite;display:inline-block;}
-    @media(min-width:600px){.swipe-hint{display:none;}}
-    .emoji-ticker-wrap{overflow:hidden;width:100%;mask-image:linear-gradient(to right,transparent,black 10%,black 90%,transparent);-webkit-mask-image:linear-gradient(to right,transparent,black 10%,black 90%,transparent);margin-bottom:2px;}
-    .emoji-ticker{display:inline-flex;gap:6px;white-space:nowrap;animation:emojiroll 8s linear infinite;font-size:20px;line-height:1;}
-
-    /* ══════════════════════════════════
-       6. LEADERBOARD — ghost + real
-    ══════════════════════════════════ */
-    .chunky-card{background:var(--bg);border:3px solid var(--ink-bold);border-bottom:5px solid var(--blue-shadow);border-radius:var(--r);}
-    .lb-head{padding:14px 18px;border-bottom:2px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
-    .lb-head-t{font-size:15px;font-weight:900;color:var(--ink-bold);font-style:italic;}
-    .lb-live{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:900;color:var(--ink-3);}
-    .lb-live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse-green 2s ease-in-out infinite;display:inline-block;}
-    .lb-head-a{font-size:12px;font-weight:900;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;}
-    .lb-row{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:2px solid var(--border);position:relative;}
-    .lb-row:last-child{border-bottom:none;}
-    .lb-row.you{background:var(--blue-light);}
-    .lb-row.ghost-row{opacity:.78;}
-    .lb-rank{font-size:16px;font-weight:900;width:28px;text-align:center;flex-shrink:0;color:var(--ink-3);}
-    .lb-av{width:36px;height:36px;border-radius:10px;border:2px solid var(--border-heavy);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;}
-    .lb-name-wrap{flex:1;}
-    .lb-name{font-size:14px;font-weight:800;color:var(--ink-bold);}
-    .lb-ghost-tag{display:inline-block;font-size:9px;font-weight:900;background:var(--border);color:var(--ink-3);padding:1px 6px;border-radius:4px;margin-left:5px;letter-spacing:.5px;}
-    .lb-xp-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:1px;}
-    .lb-xp{font-size:14px;font-weight:900;color:var(--blue);}
-    .lb-delta{font-size:10px;font-weight:900;color:var(--green);}
-    .scan-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(28,176,246,.3),transparent);pointer-events:none;animation:scanline 3.5s linear infinite;}
-
-    /* ══ MODAL ══ */
-    #course-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;align-items:center;justify-content:center;padding:20px;}
-    #course-modal.open{display:flex;}
-    .modal-inner{background:var(--bg);border-radius:var(--r);border:3px solid var(--ink-bold);max-width:400px;width:100%;overflow:hidden;animation:popin .28s ease both;}
-    .modal-head{background:var(--blue);padding:18px 20px;position:relative;}
-    .modal-head-label{font-size:11px;font-weight:900;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:3px;}
-    .modal-head-title{font-size:20px;font-weight:900;color:#fff;font-style:italic;}
-    .modal-close{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:20px;font-weight:900;width:30px;height:30px;border-radius:6px;cursor:pointer;line-height:1;font-family:'Nunito',sans-serif;}
-    .modal-list{padding:12px;display:flex;flex-direction:column;gap:8px;}
-    .modal-choice{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:var(--rsm);border:2px solid var(--border);background:var(--page-bg);cursor:pointer;transition:border-color .15s,background .15s;text-decoration:none;}
-    .modal-choice:hover{border-color:var(--border-heavy);background:var(--bg);}
-    .modal-choice span:first-child{font-size:22px;flex-shrink:0;}
-    .modal-choice div{flex:1;}
-    .modal-choice strong{display:block;font-size:14px;font-weight:900;color:var(--ink-bold);}
-    .modal-choice small{font-size:11px;font-weight:700;color:var(--ink-3);}
-    .modal-choice span:last-child{font-size:16px;font-weight:900;color:var(--ink-3);}
-    .modal-choice[data-c=green]:hover{border-color:var(--green);}
-    .modal-choice[data-c=blue]:hover{border-color:var(--blue);}
-    .modal-choice[data-c=red]:hover{border-color:var(--punch);}
-    .modal-choice[data-c=purple]:hover{border-color:var(--purple);}
-    .modal-choice[data-c=orange]:hover{border-color:var(--yellow);}
-    .modal-choice[data-c=teal]:hover{border-color:var(--teal);}
-
-    /* ══ CONFETTI ══ */
-    .conf-dot{position:fixed;pointer-events:none;z-index:9999;border-radius:4px;animation:confetti 1.4s ease-out both;}
-
-    /* ══ FOOTER ══ */
-    .footer{padding:28px 20px;text-align:center;border-top:2px solid var(--border);}
-    .footer-text{font-size:13px;font-weight:800;color:var(--ink-3);margin-bottom:10px;}
-    .footer a{color:var(--ink-3);font-size:12px;font-weight:800;margin:0 10px;text-decoration:underline;}
-
-    @media(max-width:480px){
-        .lesson-grid{grid-template-columns:repeat(2,1fr);}
-        .pro-grid{grid-template-columns:1fr 1fr;}
-        .quest-card{grid-template-columns:1fr;}
-        .quest-right{flex-direction:row;justify-content:flex-end;}
-    }
-
-    /* ══════════════════════════════════
-       DAILY ENGLISH HIT — micro widget
-       Blue card. Yellow game buttons.
-       Quiz show energy. Click me NOW.
-    ══════════════════════════════════ */
-    @keyframes microFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes microShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-    @keyframes microCorrect{0%{transform:scale(1)}40%{transform:scale(1.03)}100%{transform:scale(1)}}
-    @keyframes optBounce{0%{transform:translateY(0)}40%{transform:translateY(-4px)}100%{transform:translateY(0)}}
-    @keyframes pulseBlue{0%,100%{box-shadow:0 0 0 0 rgba(28,176,246,0)}60%{box-shadow:0 0 0 8px rgba(28,176,246,.2)}}
-
-    /* ── IDLE ATTENTION ANIMATIONS — subtle, lead the eye down ── */
-
-    /* 0. Permanent key-word highlight — yellow underline drawn on card render */
-    .micro-hl{
-        background-image:linear-gradient(var(--yellow),var(--yellow));
-        background-repeat:no-repeat;
-        background-position:0 100%;
-        background-size:100% 3px;
-        border-radius:2px;
-        padding-bottom:1px;
-    }
-    @keyframes hlPop{0%{background-size:0% 3px}60%{background-size:110% 4px}100%{background-size:100% 3px}}
-    .micro-hl.hl-pop{animation:hlPop .6s ease-out both;}
-
-    /* 1. Key word highlight in question text — yellow underline glow */
-    @keyframes wordGlow{
-        0%,100%{background-size:0% 3px;}
-        50%{background-size:100% 3px;}
-    }
-    .micro-hl-idle{
-        background-image:linear-gradient(var(--yellow),var(--yellow));
-        background-repeat:no-repeat;
-        background-position:0 100%;
-        background-size:0% 3px;
-        transition:none;
-        border-radius:2px;
-        padding-bottom:1px;
-    }
-    .micro-hl-idle.hl-glow{
-        animation:wordGlow 1.8s ease-in-out both;
-    }
-
-    /* 2. Category badge shimmer — soft light sweep */
-    @keyframes badgeShimmer{
-        0%{opacity:1;}
-        40%{opacity:.6;box-shadow:0 0 8px rgba(255,255,255,.6);}
-        100%{opacity:1;}
-    }
-    .micro-cat.cat-shimmer{animation:badgeShimmer .9s ease-in-out both;}
-
-    /* 3. Stimulus text glow — white light on blue bg */
-    @keyframes stimGlow{
-        0%,100%{opacity:1;}
-        50%{opacity:.7;text-shadow:0 0 16px rgba(255,255,255,.8);}
-    }
-    .micro-stimulus.stim-glow{animation:stimGlow 1.6s ease-in-out both;}
-
-    /* 4. New tag pulse — blue brightens */
-    @keyframes newPulse{
-        0%,100%{box-shadow:none;}
-        50%{box-shadow:0 0 0 3px rgba(28,176,246,.45);}
-    }
-    .tt-new.tag-live{animation:newPulse 1.2s ease-in-out both;}
-
-    /* 5. Hot tag pulse — red brightens */
-    @keyframes hotPulse{
-        0%,100%{box-shadow:none;}
-        50%{box-shadow:0 0 0 3px rgba(255,75,75,.45);}
-    }
-    .tt-hot.tag-live{animation:hotPulse 1s ease-in-out both;}
-
-    /* 6. Lesson tile gentle lift — no jump, just presence */
-    @keyframes tileFloat{
-        0%,100%{transform:translateY(0);box-shadow:none;}
-        50%{transform:translateY(-3px);box-shadow:0 4px 12px rgba(0,0,0,.1);}
-    }
-    .lesson-tile.tile-ping,.pro-tile.tile-ping{animation:tileFloat .9s ease-in-out both;}
-
-    /* 7. Course card gentle lift with track-colour glow */
-    @keyframes ccFloat{
-        0%,100%{transform:translateY(0);box-shadow:none;}
-        50%{transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,.08);}
-    }
-    .cc.cc-pulse{animation:ccFloat .8s ease-in-out both;}
-
-    /* 8. Leaderboard XP number brightens — like a live update */
-    @keyframes xpFlash{
-        0%,100%{color:var(--blue);}
-        50%{color:var(--blue-shadow);text-shadow:0 0 8px rgba(28,176,246,.5);}
-    }
-    .lb-xp.xp-flash{animation:xpFlash 1s ease-in-out both;}
-
-    /* 9. Picks shimmer intensifies */
-    @keyframes picksShimmer{
-        0%,100%{opacity:1;}
-        50%{opacity:.75;}
-    }
-    .picks-card.picks-ping #picks-desc::before{animation-duration:1s !important;}
-
-    .micro-card{
-        background:var(--blue);
-        border:3px solid var(--ink-bold);
-        border-bottom:5px solid var(--ink-bold);
-        border-radius:var(--r);overflow:hidden;
-        position:relative;
-    }
-    /* subtle wave pattern overlay */
-    .micro-card::after{
-        content:'😎';
-        position:absolute;bottom:-18px;right:-4px;
-        font-size:110px;opacity:.06;pointer-events:none;
-        transform:rotate(-12deg);
-    }
-
-    /* progress bar — yellow on blue */
-    .micro-progress{height:6px;background:rgba(255,255,255,.15);position:relative;overflow:hidden;}
-    .micro-progress-fill{
-        height:100%;
-        background:var(--yellow);
-        border-radius:0;
-        transition:width .5s cubic-bezier(.4,0,.2,1);
-        position:relative;overflow:hidden;
-    }
-    .micro-progress-fill::after{
-        content:'';position:absolute;inset:0;
-        background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);
-        animation:xpShimmer 2s ease-in-out infinite;
-    }
-
-    .micro-top{
-        padding:12px 16px 10px;
-        display:flex;align-items:center;justify-content:space-between;
-        border-bottom:2px solid rgba(255,255,255,.15);
-        position:relative;z-index:1;
-    }
-    .micro-cat{
-        display:inline-flex;align-items:center;gap:6px;
-        padding:4px 12px;border-radius:99px;
-        font-size:11px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;
-        background:rgba(255,255,255,.18);
-        border:2px solid rgba(255,255,255,.3);
-        color:#fff;
-    }
-    .micro-hit-counter{display:flex;align-items:center;gap:5px;}
-    .micro-hit-dot{
-        width:10px;height:10px;border-radius:50%;
-        background:rgba(255,255,255,.2);
-        border:2px solid rgba(255,255,255,.35);
-        transition:all .3s;
-    }
-    .micro-hit-dot.hit{
-        background:var(--yellow);
-        border-color:var(--yellow-shadow);
-        box-shadow:0 0 8px rgba(255,200,0,.5);
-    }
-    .micro-counter{font-size:11px;font-weight:900;color:rgba(255,255,255,.7);}
-
-    /* body — white question on blue */
-    .micro-body{
-        padding:20px 18px 14px;
-        min-height:60px;
-        position:relative;z-index:1;
-        animation:microFade .3s ease both;
-    }
-    .micro-label{
-        font-size:10px;font-weight:900;text-transform:uppercase;
-        letter-spacing:1.5px;color:rgba(255,255,255,.6);
-        margin-bottom:10px;margin-top:2px;
-    }
-    .micro-q{
-        font-size:17px;font-weight:900;color:#fff;
-        line-height:1.5;margin-bottom:16px;
-        text-shadow:0 1px 0 rgba(0,0,0,.1);
-    }
-    .micro-quote{
-        font-size:16px;font-weight:700;color:#fff;line-height:1.65;
-        border-left:4px solid var(--yellow);padding-left:14px;
-        margin-bottom:12px;
-    }
-
-    /* ── THE GAME BUTTONS ──
-       Big. Chunky. Yellow. Pill-shaped. Impossible to miss.
-       A B C D badges make it feel like a real quiz show. */
-    .micro-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:4px;}
-    .micro-opt{
-        padding:11px 16px;
-        border-radius:var(--rsm);
-        border:2px solid var(--yellow-shadow);
-        border-bottom:4px solid var(--yellow-shadow);
-        background:var(--yellow);
-        color:var(--ink-bold);
-        font-size:14px;font-weight:900;
-        cursor:pointer;
-        text-align:left;
-        font-family:'Nunito',system-ui,sans-serif;
-        display:flex;align-items:center;gap:12px;
-        transition:transform .1s,background .12s,box-shadow .1s;
-        position:relative;overflow:hidden;
-    }
-    .micro-opt::before{
-        content:'';position:absolute;inset:0;
-        background:linear-gradient(to bottom,rgba(255,255,255,.28),transparent);
-        border-radius:var(--rsm);pointer-events:none;
-    }
-    .micro-opt:hover:not(:disabled){
-        transform:translateY(-2px);
-        box-shadow:0 5px 0 var(--yellow-shadow);
-        background:#FFD320;
-    }
-    .micro-opt:active:not(:disabled){
-        transform:translateY(3px);
-        
-        box-shadow:none;
-    }
-    .micro-opt:disabled{cursor:default;opacity:.85;}
-    .micro-opt-ltr{
-        width:24px;height:24px;border-radius:6px;
-        background:var(--ink-bold);color:#fff;
-        font-size:13px;font-weight:900;
-        display:flex;align-items:center;justify-content:center;
-        flex-shrink:0;
-    }
-    .micro-opt.correct{
-        background:var(--green);
-        border-color:var(--green-shadow);
-        color:#fff;
-        animation:microCorrect .35s ease;
-    }
-    .micro-opt.correct .micro-opt-ltr{background:rgba(255,255,255,.3);color:#fff;}
-    .micro-opt.wrong{
-        background:var(--punch);
-        border-color:var(--punch-shadow);
-        color:#fff;
-        animation:microShake .3s ease;
-    }
-    .micro-opt.wrong .micro-opt-ltr{background:rgba(255,255,255,.3);color:#fff;}
-
-    /* ── AUDIO BUTTON for pronunciation cards ── */
-    @keyframes speakPulse{0%,100%{box-shadow:0 0 0 0 rgba(28,176,246,0)}50%{box-shadow:0 0 0 8px rgba(28,176,246,.3)}}
-    .micro-speak-btn{
-        display:inline-flex;align-items:center;gap:8px;
-        padding:11px 20px;
-        background:rgba(255,255,255,.2);color:#fff;
-        font-size:14px;font-weight:900;
-        border-radius:99px;
-        border:2px solid rgba(255,255,255,.4);
-        border-bottom:2px solid rgba(255,255,255,.2);
-        cursor:pointer;
-        font-family:'Nunito',system-ui,sans-serif;
-        transition:all .15s;
-        margin-bottom:12px;
-    }
-    .micro-speak-btn:hover{background:rgba(255,255,255,.3);border-color:rgba(255,255,255,.6);}
-    .micro-speak-btn:active{transform:translateY(2px);}
-    .micro-speak-btn.speaking{
-        background:var(--yellow);color:var(--ink-bold);
-        border-color:var(--yellow-shadow);
-        animation:speakPulse 1s ease-in-out infinite;
-    }
-    .micro-speak-icon{font-size:18px;}
-
-    /* tap-to-reveal stimulus */
-    .micro-stimulus{
-        font-size:20px;font-weight:900;font-style:italic;
-        color:#fff;line-height:1.3;
-        margin-bottom:14px;
-        text-shadow:0 2px 0 rgba(0,0,0,.1);
-    }
-
-    /* reveal box — white card on blue */
-    .micro-reveal-box{
-        background:rgba(255,255,255,.12);
-        border:2px solid rgba(255,255,255,.25);
-        border-radius:var(--rsm);
-        padding:12px 14px;
-        font-size:13px;font-weight:700;
-        color:#fff;
-        line-height:1.65;
-        display:none;animation:microFade .25s ease both;
-    }
-    .micro-reveal-box.show{display:block;}
-    .micro-reveal-box strong{color:var(--yellow);}
-
-    /* feedback strip */
-    .micro-feedback{
-        font-size:12px;font-weight:900;
-        padding:8px 12px;border-radius:var(--rsm);
-        margin-top:8px;display:none;
-        animation:microFade .2s ease both;line-height:1.5;
-    }
-    .micro-feedback.show{display:block;}
-    .micro-fb-good{background:rgba(88,204,2,.25);color:#d4ffb8;border:2px solid rgba(88,204,2,.4);}
-    .micro-fb-bad{background:rgba(255,75,75,.25);color:#ffd4d4;border:2px solid rgba(255,75,75,.4);}
-
-    /* footer */
-    .micro-foot{
-        padding:11px 16px;
-        border-top:2px solid rgba(255,255,255,.15);
-        display:flex;align-items:center;justify-content:space-between;gap:8px;
-        position:relative;z-index:1;
-    }
-    .micro-xp{
-        display:inline-flex;align-items:center;gap:5px;
-        background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.3);
-        border-radius:99px;padding:4px 10px;
-        font-size:11px;font-weight:900;color:#fff;
-        transition:all .3s;
-    }
-    .micro-xp.earned{
-        background:var(--green);border-color:var(--green-shadow);color:#fff;
-    }
-    .micro-btn-reveal{
-        padding:8px 14px;
-        background:rgba(255,255,255,.18);color:#fff;
-        font-size:12px;font-weight:900;border-radius:var(--rsm);
-        border:2px solid rgba(255,255,255,.3);
-        border-bottom:2px solid rgba(255,255,255,.2);
-        cursor:pointer;
-        font-family:'Nunito',system-ui,sans-serif;transition:all .1s;
-    }
-    .micro-btn-reveal:hover{background:rgba(255,255,255,.28);}
-    .micro-btn-reveal:active{transform:translateY(2px);}
-    .micro-btn-next{
-        padding:8px 16px;
-        background:var(--ink-bold);color:#fff;
-        font-size:12px;font-weight:900;border-radius:var(--rsm);
-        border:2px solid #000;border-bottom:2px solid #000;
-        cursor:pointer;font-family:'Nunito',system-ui,sans-serif;
-        display:flex;align-items:center;gap:5px;transition:all .1s;
-    }
-    .micro-btn-next:active{transform:translateY(2px);}
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+<link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+<title>English For Cool Dudes — Proper Lessons. Seriously Fun.</title>
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css2?family=Nunito:ital,wght@0,400;0,700;0,800;0,900;1,900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue:#1CB0F6;      --blue-shadow:#1899D6;   --blue-light:#E8F7FE;
+  --yellow:#FFC800;    --yellow-shadow:#E5B400; --yellow-light:#FFF8DC;
+  --green:#58CC02;     --green-shadow:#58A700;  --green-light:#EDFBD8;
+  --punch:#FF4B4B;     --punch-shadow:#EA2B2B;  --punch-light:#FFF0F0;
+  --purple:#CE82FF;    --purple-shadow:#A559D9; --purple-light:#F5EBFF;
+  --teal:#2BDECC;      --teal-shadow:#1FB8A8;   --teal-light:#E6FAFB;
+  --orange:#FF9600;    --orange-shadow:#D97800;
+  --coral:#FF6B35;     --coral-shadow:#D4501C;
+  --pink:#FF6EB4;      --pink-shadow:#D4508A;
+  --navy:#1a2e5a;      --navy-mid:#243f73;
+  --bg:#FFFFFF;        --page-bg:#F4F6F8;
+  --ink:#4B4B4B;       --ink-bold:#111827;      --ink-3:#AFAFAF;
+  --border:#E5E5E5;    --border-heavy:#CECECE;
+  --r:20px;            --rsm:14px;              --rxs:8px;
+
+  /* card category accent — overridden per card by JS */
+  --cat-color: var(--yellow);
+  --cat-shadow: var(--yellow-shadow);
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { -webkit-text-size-adjust:100%; scroll-behavior:smooth; }
+body {
+  background: var(--page-bg);
+  color: var(--ink);
+  font-family: 'Nunito', system-ui, sans-serif;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+a { color:inherit; text-decoration:none; }
+button { font-family:inherit; cursor:pointer; border:none; background:none; }
+
+/* ── ANIMATIONS ── */
+@keyframes up        { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes nudge     { 0%,100%{transform:translateX(0)} 35%{transform:translateX(5px)} }
+@keyframes floatDeco { 0%,100%{transform:translateY(0) rotate(-8deg)} 50%{transform:translateY(-6px) rotate(-6deg)} }
+@keyframes fadeSlide { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+@keyframes popIn     { 0%{transform:scale(.82)} 55%{transform:scale(1.06)} 100%{transform:scale(1)} }
+@keyframes shake     { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)} 60%{transform:translateX(7px)} 80%{transform:translateX(-4px)} }
+@keyframes xpFloat   { 0%{opacity:1;transform:translateY(0) scale(1)} 100%{opacity:0;transform:translateY(-70px) scale(1.6)} }
+@keyframes borderGlow{ 0%{box-shadow:0 0 0 0 rgba(88,204,2,0)} 40%{box-shadow:0 0 0 6px rgba(88,204,2,.35)} 100%{box-shadow:0 0 0 0 rgba(88,204,2,0)} }
+@keyframes dotFill   { from{transform:scale(0)} to{transform:scale(1)} }
+@keyframes pulse-green{ 0%,100%{box-shadow:0 0 0 0 rgba(88,204,2,0)} 55%{box-shadow:0 0 0 6px rgba(88,204,2,.25)} }
+@keyframes cardIn    { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+@keyframes cardOut   { from{opacity:1;transform:translateX(0)} to{opacity:0;transform:translateX(-28px)} }
+@keyframes revealIn  { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes float     { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+
+.u1 { animation:up .42s ease both .04s }
+.u2 { animation:up .42s ease both .16s }
+.u3 { animation:up .42s ease both .28s }
+.u4 { animation:up .42s ease both .40s }
+
+/* ── HEADER ── */
+.header {
+  background:var(--bg);
+  border-bottom:3px solid var(--border);
+  position:fixed; top:0; left:0; right:0;
+  z-index:200; height:60px;
+  display:flex; align-items:center;
+  padding:0 16px;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
+}
+.hc {
+  max-width:880px; width:100%; margin:0 auto;
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+}
+.hl { display:flex; align-items:center; gap:10px; }
+.logo {
+  width:40px; height:40px; border-radius:12px;
+  background:var(--yellow);
+  border:2px solid var(--yellow-shadow);
+  border-bottom:4px solid var(--yellow-shadow);
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; flex-shrink:0;
+  transition:transform .1s, border-bottom-width .1s;
+}
+.logo:active { transform:translateY(2px); border-bottom-width:2px; }
+.site-title {
+  font-size:17px; font-weight:900;
+  color:var(--ink-bold); letter-spacing:-.5px;
+}
+@media(max-width:400px){ .site-title { display:none } }
+.header-tagline {
+  font-size:11px; font-weight:900;
+  color:var(--ink-3); letter-spacing:.9px;
+  text-transform:uppercase;
+  flex:1; text-align:center;
+}
+@media(max-width:510px){ .header-tagline { display:none } }
+
+/* ── PAGE ── */
+.page {
+  max-width:880px; margin:0 auto;
+  padding:72px 14px 80px;
+  display:flex; flex-direction:column; gap:18px;
+}
+
+/* ══════════════════════════════
+   HERO
+══════════════════════════════ */
+.hero {
+  background:linear-gradient(135deg, #FF9600 0%, #FFC800 55%, #FFD740 100%);
+  border:3px solid var(--ink-bold);
+  border-bottom:6px solid var(--ink-bold);
+  border-radius:var(--r);
+  padding:26px 22px 22px;
+  position:relative; overflow:hidden;
+}
+.hero-deco {
+  position:absolute; bottom:-14px; right:6px;
+  font-size:108px; opacity:.1; pointer-events:none;
+  animation:floatDeco 5s ease-in-out infinite;
+}
+.hero-eyebrow {
+  display:inline-flex; align-items:center; gap:7px;
+  background:rgba(0,0,0,.1);
+  border:2px solid rgba(0,0,0,.12);
+  border-radius:8px; padding:4px 12px;
+  margin-bottom:12px;
+  font-size:11px; font-weight:900;
+  color:rgba(0,0,0,.6);
+  text-transform:uppercase; letter-spacing:1.5px;
+  position:relative; z-index:1;
+}
+.hero-title {
+  font-size:clamp(30px,7vw,52px);
+  font-weight:900; font-style:italic;
+  color:var(--ink-bold);
+  letter-spacing:-1.5px; line-height:1.02;
+  margin-bottom:8px;
+  position:relative; z-index:1;
+}
+.hero-title .pop {
+  color:#fff;
+  text-shadow:0 3px 0 rgba(0,0,0,.15);
+}
+.hero-sub {
+  font-size:14px; font-weight:700;
+  color:rgba(0,0,0,.6);
+  margin-bottom:20px; line-height:1.65;
+  position:relative; z-index:1;
+  max-width:440px;
+}
+.hero-cta {
+  display:flex; align-items:center; justify-content:space-between;
+  width:100%; padding:15px 22px;
+  background:var(--ink-bold); color:#fff;
+  font-size:17px; font-weight:900;
+  border-radius:99px;
+  border:3px solid var(--ink-bold);
+  border-bottom:5px solid #000;
+  cursor:pointer; letter-spacing:-.3px;
+  transition:transform .1s, border-bottom-width .1s;
+  position:relative; z-index:1;
+  text-decoration:none;
+  font-family:'Nunito', system-ui, sans-serif;
+}
+.hero-cta:active { transform:translateY(3px); border-bottom-width:2px; }
+.cta-arrow { font-size:20px; animation:nudge 2.2s ease-in-out infinite; }
+
+/* ══════════════════════════════
+   DAILY CARD SECTION
+══════════════════════════════ */
+.daily-header {
+  display:flex; align-items:center; gap:10px;
+  margin-bottom:10px;
+}
+.daily-label {
+  font-size:11px; font-weight:900;
+  color:var(--ink-3); text-transform:uppercase; letter-spacing:2px;
+  flex:1;
+}
+.live-dot {
+  width:8px; height:8px; border-radius:50%;
+  background:var(--green); border:2px solid var(--green-shadow);
+  animation:pulse-green 2s ease-in-out infinite;
+  flex-shrink:0;
+}
+
+/* ── CARD SHELL ── */
+.card-shell {
+  background:var(--navy);
+  border:3px solid var(--ink-bold);
+  border-bottom:6px solid var(--ink-bold);
+  border-radius:var(--r);
+  overflow:hidden;
+  transition:border-color .3s;
+}
+/* top accent — colour changes per category */
+.card-accent {
+  height:6px;
+  background:var(--cat-color);
+  transition:background .3s;
+}
+
+/* card header */
+.card-head {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:13px 16px 11px;
+  border-bottom:2px solid rgba(255,255,255,.08);
+}
+.card-cat-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  background:var(--cat-color);
+  border-radius:99px; padding:5px 13px;
+  font-size:11px; font-weight:900;
+  letter-spacing:.6px; text-transform:uppercase;
+  color:var(--ink-bold);
+  transition:background .3s;
+  box-shadow:0 2px 0 var(--cat-shadow);
+}
+.session-dots {
+  display:flex; align-items:center; gap:5px;
+}
+.sdot {
+  width:9px; height:9px; border-radius:50%;
+  background:rgba(255,255,255,.15);
+  border:2px solid rgba(255,255,255,.2);
+  transition:all .3s;
+  flex-shrink:0;
+}
+.sdot.lit {
+  background:var(--cat-color);
+  border-color:var(--cat-shadow);
+  transform:scale(1);
+  animation:dotFill .3s ease;
+  box-shadow:0 0 6px rgba(255,255,255,.2);
+}
+
+/* card body */
+.card-body {
+  padding:22px 18px 16px;
+  min-height:190px;
+  position:relative; z-index:1;
+}
+.card-body.entering { animation:cardIn .25s ease both; }
+.card-body.leaving  { animation:cardOut .18s ease both; }
+
+.card-eyebrow {
+  font-size:10px; font-weight:900;
+  text-transform:uppercase; letter-spacing:1.5px;
+  color:var(--cat-color);
+  margin-bottom:11px;
+  transition:color .3s;
+}
+.card-q {
+  font-size:clamp(15px,4.2vw,18px);
+  font-weight:900; color:#fff;
+  line-height:1.6; margin-bottom:18px;
+  white-space:pre-line;
+}
+.card-q .hl      { background:var(--yellow); color:var(--ink-bold); padding:1px 5px; border-radius:4px; }
+.card-q .hl-blue { background:var(--blue);   color:#fff;            padding:1px 5px; border-radius:4px; }
+
+/* ── A B C D OPTIONS ── */
+.card-opts { display:flex; flex-direction:column; gap:9px; margin-bottom:2px; }
+.card-opt {
+  padding:13px 15px;
+  border-radius:var(--rsm);
+  border:2px solid rgba(255,255,255,.16);
+  border-bottom:4px solid rgba(0,0,0,.25);
+  background:rgba(255,255,255,.07);
+  color:#fff;
+  font-size:14px; font-weight:800;
+  cursor:pointer; text-align:left;
+  font-family:'Nunito', system-ui, sans-serif;
+  display:flex; align-items:center; gap:11px;
+  transition:background .12s, border-color .12s, transform .1s;
+  min-height:44px; /* accessibility */
+}
+.card-opt:hover:not(:disabled) {
+  background:rgba(255,255,255,.15);
+  border-color:var(--cat-color);
+  transform:translateY(-1px);
+}
+.card-opt:active:not(:disabled) { transform:translateY(2px); border-bottom-width:2px; }
+.card-opt:disabled { cursor:default; }
+.opt-ltr {
+  width:26px; height:26px; border-radius:7px;
+  background:rgba(255,255,255,.14); color:rgba(255,255,255,.8);
+  font-size:12px; font-weight:900;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; transition:all .2s;
+}
+/* states */
+.card-opt.correct {
+  background:rgba(88,204,2,.22) !important;
+  border-color:var(--green-shadow) !important;
+  border-bottom-color:var(--green-shadow) !important;
+  color:#d4ffbb !important;
+  animation:popIn .32s ease, borderGlow .8s ease;
+}
+.card-opt.correct .opt-ltr { background:var(--green); color:#fff; }
+.card-opt.wrong {
+  background:rgba(255,75,75,.18) !important;
+  border-color:var(--punch-shadow) !important;
+  color:#ffc8c8 !important;
+  animation:shake .32s ease;
+}
+.card-opt.wrong .opt-ltr { background:var(--punch); color:#fff; }
+.card-opt.show-right {
+  border-color:rgba(88,204,2,.55) !important;
+  color:rgba(88,204,2,.85) !important;
+}
+.card-opt.show-right .opt-ltr { background:rgba(88,204,2,.3); color:var(--green); }
+
+/* ── BIG TWO-OPTION (yes/no, true/false, agree/disagree) ── */
+.card-opts-two {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:11px; margin-bottom:2px;
+}
+.card-opt-big {
+  padding:18px 12px;
+  border-radius:var(--rsm);
+  border:2px solid rgba(255,255,255,.18);
+  border-bottom:5px solid rgba(0,0,0,.28);
+  background:rgba(255,255,255,.09);
+  color:#fff;
+  font-size:clamp(14px,3.8vw,17px); font-weight:900;
+  cursor:pointer; text-align:center;
+  font-family:'Nunito', system-ui, sans-serif;
+  transition:all .12s;
+  display:flex; flex-direction:column;
+  align-items:center; gap:8px;
+  line-height:1.3;
+  min-height:80px; /* accessibility */
+}
+.card-opt-big:hover:not(:disabled) {
+  background:rgba(255,255,255,.17);
+  border-color:var(--cat-color);
+  transform:translateY(-2px);
+}
+.card-opt-big:active:not(:disabled) { transform:translateY(3px); border-bottom-width:2px; }
+.card-opt-big:disabled { cursor:default; }
+.big-emoji { font-size:32px; line-height:1; }
+.card-opt-big.correct {
+  background:rgba(88,204,2,.22) !important;
+  border-color:var(--green-shadow) !important;
+  color:#d4ffbb !important;
+  animation:popIn .32s ease, borderGlow .8s ease;
+}
+.card-opt-big.wrong {
+  background:rgba(255,75,75,.18) !important;
+  border-color:var(--punch-shadow) !important;
+  color:#ffc8c8 !important;
+  animation:shake .32s ease;
+}
+.card-opt-big.show-right {
+  border-color:rgba(88,204,2,.55) !important;
+  color:rgba(88,204,2,.85) !important;
+}
+
+/* ── FEEDBACK ── */
+.card-feedback {
+  font-size:13px; font-weight:800;
+  padding:12px 15px; border-radius:var(--rsm);
+  margin-top:12px; display:none;
+  animation:revealIn .22s ease both;
+  line-height:1.65;
+}
+.card-feedback.show { display:block; }
+.fb-good {
+  background:rgba(88,204,2,.16);
+  color:#c8ffb0;
+  border:2px solid rgba(88,204,2,.28);
+}
+.fb-bad {
+  background:rgba(255,75,75,.15);
+  color:#ffcece;
+  border:2px solid rgba(255,75,75,.28);
+}
+
+/* ── CARD FOOTER ── */
+.card-foot {
+  padding:12px 16px 14px;
+  border-top:2px solid rgba(255,255,255,.08);
+  display:flex; align-items:center;
+  justify-content:space-between; gap:10px;
+}
+.card-after-msg {
+  font-size:12px; font-weight:800;
+  color:rgba(255,255,255,.45);
+  display:none;
+  animation:revealIn .3s ease both;
+}
+.card-after-msg.show { display:block; }
+.btn-next {
+  padding:10px 20px;
+  background:var(--cat-color);
+  color:var(--ink-bold);
+  font-size:13px; font-weight:900;
+  border-radius:99px;
+  border:2px solid var(--cat-shadow);
+  border-bottom:4px solid var(--cat-shadow);
+  cursor:pointer;
+  font-family:'Nunito', system-ui, sans-serif;
+  display:none; /* hidden until answered */
+  align-items:center; gap:5px;
+  transition:transform .1s, border-bottom-width .1s, background .3s, border-color .3s;
+  min-height:44px;
+}
+.btn-next.visible { display:flex; animation:revealIn .25s ease both; }
+.btn-next:active { transform:translateY(2px); border-bottom-width:2px; }
+.btn-next-arrow { animation:nudge 2s ease-in-out infinite; display:inline-block; font-size:16px; }
+
+/* ── XP FLOAT ── */
+.xp-float {
+  position:fixed; pointer-events:none; z-index:9999;
+  font-size:26px; font-weight:900;
+  animation:xpFloat .9s ease-out forwards;
+}
+
+/* ══════════════════════════════
+   TRACKS
+══════════════════════════════ */
+.tracks-section { display:flex; flex-direction:column; gap:14px; }
+
+.sec-label {
+  font-size:11px; font-weight:900;
+  color:var(--ink-3); text-transform:uppercase; letter-spacing:2px;
+  display:flex; align-items:center; gap:10px;
+  margin-bottom:2px;
+}
+.sec-label::after { content:''; flex:1; height:2px; background:var(--border); border-radius:2px; }
+
+/* main path — slightly bigger cards */
+.main-path-grid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+@media(max-width:540px){ .main-path-grid { grid-template-columns:1fr 1fr; } }
+
+/* specialist + extra — smaller cards, same grid */
+.sub-grid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+@media(max-width:540px){ .sub-grid { grid-template-columns:1fr 1fr; } }
+
+/* shared card base */
+.track-card {
+  background:var(--bg);
+  border:3px solid var(--ink-bold);
+  border-bottom:5px solid var(--ink-bold);
+  border-radius:var(--r);
+  padding:16px 14px 14px;
+  display:flex; flex-direction:column; gap:6px;
+  text-decoration:none;
+  transition:transform .12s, box-shadow .12s;
+  position:relative; overflow:hidden;
+}
+.track-card:hover { transform:translateY(-2px); box-shadow:0 6px 22px rgba(0,0,0,.1); }
+.track-card:active { transform:translateY(3px); box-shadow:none; }
+
+/* coloured top bar */
+.track-card::before {
+  content:''; display:block;
+  height:6px; border-radius:var(--r) var(--r) 0 0;
+  position:absolute; top:0; left:0; right:0;
+}
+/* ghost deco emoji */
+.track-card::after {
+  content:attr(data-deco);
+  position:absolute; bottom:-8px; right:4px;
+  font-size:50px; opacity:.07; pointer-events:none;
+  animation:float 4s ease-in-out infinite;
+}
+
+/* track colours */
+.tc-green::before   { background:var(--green); }
+.tc-blue::before    { background:var(--blue); }
+.tc-red::before     { background:var(--punch); }
+.tc-purple::before  { background:var(--purple); }
+.tc-orange::before  { background:var(--orange); }
+.tc-teal::before    { background:var(--teal); }
+.tc-coral::before   { background:var(--coral); }
+.tc-pink::before    { background:var(--pink); }
+
+/* new badge */
+.tc-new {
+  position:absolute; top:13px; right:10px;
+  background:var(--blue); color:#fff;
+  font-size:9px; font-weight:900;
+  letter-spacing:1px; text-transform:uppercase;
+  padding:2px 7px; border-radius:5px;
+}
+
+.tc-icon  { font-size:26px; line-height:1; margin-top:4px; }
+.tc-title { font-size:15px; font-weight:900; color:var(--ink-bold); letter-spacing:-.3px; font-style:italic; }
+.tc-badge {
+  display:inline-flex; align-items:center;
+  font-size:9px; font-weight:900;
+  text-transform:uppercase; letter-spacing:1px;
+  padding:3px 8px; border-radius:6px;
+  background:var(--page-bg); color:var(--ink-3);
+  border:2px solid var(--border);
+  width:fit-content;
+}
+.tc-desc { font-size:12px; font-weight:700; color:var(--ink-3); line-height:1.45; flex:1; }
+
+/* go button — coloured per track */
+.tc-go {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-top:6px; padding:9px 12px;
+  border-radius:var(--rsm);
+  font-size:13px; font-weight:900; color:#fff;
+  border:2px solid transparent;
+  border-bottom:3px solid transparent;
+  transition:transform .1s;
+  min-height:38px;
+}
+.track-card:hover .tc-go { transform:translateY(1px); }
+
+.tc-green  .tc-go { background:var(--green);  border-color:var(--green-shadow); }
+.tc-blue   .tc-go { background:var(--blue);   border-color:var(--blue-shadow); }
+.tc-red    .tc-go { background:var(--punch);  border-color:var(--punch-shadow); }
+.tc-purple .tc-go { background:var(--purple); border-color:var(--purple-shadow); }
+.tc-orange .tc-go { background:var(--orange); border-color:var(--orange-shadow); }
+.tc-teal   .tc-go { background:var(--teal);   color:var(--ink-bold); border-color:var(--teal-shadow); }
+.tc-coral  .tc-go { background:var(--coral);  border-color:var(--coral-shadow); }
+.tc-pink   .tc-go { background:var(--pink);   border-color:var(--pink-shadow); }
+
+/* main path cards — slightly more prominent */
+.main-path-grid .track-card {
+  padding:18px 16px 16px;
+}
+.main-path-grid .tc-icon  { font-size:30px; }
+.main-path-grid .tc-title { font-size:16px; }
+
+/* ── FOOTER ── */
+.footer {
+  padding:28px 20px; text-align:center;
+  border-top:2px solid var(--border);
+  margin-top:4px;
+}
+.footer-text { font-size:13px; font-weight:800; color:var(--ink-3); margin-bottom:10px; }
+.footer a { color:var(--ink-3); font-size:12px; font-weight:800; margin:0 10px; text-decoration:underline; }
+</style>
 </head>
 <body>
 
-<!-- ══ HEADER ══ -->
+<!-- HEADER -->
 <header class="header">
-    <div class="hc">
-        <div class="hl">
-            <a href="/" class="logo">😎</a>
-            <a href="/" class="site-title">English For Cool Dudes</a>
-        </div>
-        <div class="header-ticker">
-            <div class="ticker-inner" id="ticker-inner"></div>
-        </div>
-        <div id="header-auth-container"></div>
+  <div class="hc">
+    <div class="hl">
+      <a href="/" class="logo">😎</a>
+      <a href="/" class="site-title">English For Cool Dudes</a>
     </div>
+    <div class="header-tagline">Cool Lessons · Real English · No Excuses</div>
+  </div>
 </header>
 
-<!-- ══ LEVEL PICKER MODAL ══ -->
-<div id="course-modal">
-    <div class="modal-inner">
-        <div class="modal-head">
-            <div class="modal-head-label">Where do you want to go?</div>
-            <div class="modal-head-title">Pick your level 🎯</div>
-            <button class="modal-close" onclick="closePicker()">×</button>
-        </div>
-        <div class="modal-list">
-            <a href="/beginner/"     class="modal-choice" data-c="green">  <span>🌱</span><div><strong>Beginner</strong><small>A1–A2 · Start from scratch</small></div><span>›</span></a>
-            <a href="/intermediate/" class="modal-choice" data-c="blue">   <span>🚀</span><div><strong>Intermediate</strong><small>B1–B2 · Build on the basics</small></div><span>›</span></a>
-            <a href="/advanced/"     class="modal-choice" data-c="red">    <span>🎯</span><div><strong>Advanced</strong><small>C1–C2 · Master the language</small></div><span>›</span></a>
-            <a href="/business/"     class="modal-choice" data-c="purple"> <span>💼</span><div><strong>Business English</strong><small>Pro · Meetings &amp; emails</small></div><span>›</span></a>
-            <a href="/tax/"          class="modal-choice" data-c="orange"> <span>💰</span><div><strong>Tax English</strong><small>Specialist · Tax &amp; accounting</small></div><span>›</span></a>
-            <a href="/legal/"        class="modal-choice" data-c="teal">   <span>⚖️</span><div><strong>Legal English</strong><small>Specialist · Contracts &amp; law</small></div><span>›</span></a>
-        </div>
+<div class="page">
+
+  <!-- HERO -->
+  <div class="u1">
+    <div class="hero">
+      <div class="hero-deco">😎</div>
+      <div class="hero-eyebrow">✨ Lessons worth getting excited about</div>
+      <div class="hero-title">Proper lessons.<br><span class="pop">Seriously fun.</span></div>
+      <div class="hero-sub">Real stories, real grammar, real laughs — tap a lesson and go.</div>
+      <a href="#lessons" class="hero-cta">
+        <span>😎 Let's do this</span>
+        <span class="cta-arrow">↓</span>
+      </a>
     </div>
-</div>
+  </div>
 
-<!-- ══ DAILY HIT CELEBRATION MODAL ══ -->
-<div id="hit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center;padding:20px;">
-    <div style="background:#fff;border-radius:var(--r);border:3px solid var(--ink-bold);max-width:380px;width:100%;overflow:hidden;animation:popin .3s ease both;">
-        <div style="background:var(--green);padding:22px 20px 18px;text-align:center;position:relative;">
-            <div id="hit-modal-deco" style="font-size:52px;margin-bottom:8px;line-height:1;">🎉</div>
-            <div style="font-size:22px;font-weight:900;color:#fff;font-style:italic;letter-spacing:-.5px;">Daily Hit Complete!</div>
-            <div style="font-size:13px;font-weight:700;color:rgba(255,255,255,.85);margin-top:4px;" id="hit-modal-sub">You smashed 3 in a row. Now go do a real lesson!</div>
-            <div style="position:absolute;top:12px;right:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:900;color:#fff;" id="hit-xp-earned">+45 XP</div>
-        </div>
-        <div style="padding:12px;">
-            <div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-3);margin-bottom:10px;text-align:center;">Pick your next lesson track</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="hit-modal-tracks"></div>
-        </div>
-        <div style="padding:0 12px 12px;">
-            <button onclick="closeHitModal()" style="width:100%;padding:11px;background:var(--page-bg);color:var(--ink-3);font-size:12px;font-weight:900;border-radius:var(--rsm);border:2px solid var(--border);cursor:pointer;font-family:'Nunito',sans-serif;">Maybe later</button>
-        </div>
+  <!-- DAILY CARD -->
+  <div class="u2">
+    <div class="daily-header">
+      <span class="live-dot"></span>
+      <span class="daily-label">Today's English Moment</span>
     </div>
-</div>
-
-    <!-- ══════════════════════════════════
-         1.  VIBE HERO (time-of-day)
-    ══════════════════════════════════ -->
-    <div class="page">
-    <div class="u1">
-        <div class="vibe-hero" id="hero-card">
-            <div class="sk" style="height:13px;width:36%;margin-bottom:9px;"></div>
-            <div class="sk" style="height:44px;width:70%;margin-bottom:22px;"></div>
-            <div class="sk" style="height:14px;margin-bottom:7px;border-radius:99px;"></div>
-            <div class="sk" style="height:58px;border-radius:14px;margin-top:18px;"></div>
+    <div class="card-shell" id="card-shell">
+      <div class="card-accent" id="card-accent"></div>
+      <div class="card-head">
+        <div class="card-cat-badge" id="card-cat-badge">Loading…</div>
+        <div class="session-dots" id="session-dots">
+          <div class="sdot" id="sd0"></div>
+          <div class="sdot" id="sd1"></div>
+          <div class="sdot" id="sd2"></div>
+          <div class="sdot" id="sd3"></div>
+          <div class="sdot" id="sd4"></div>
         </div>
+      </div>
+      <div class="card-body" id="card-body"></div>
+      <div class="card-foot">
+        <div class="card-after-msg" id="card-after-msg"></div>
+        <button class="btn-next" id="btn-next" onclick="nextCard()">
+          Next <span class="btn-next-arrow">›</span>
+        </button>
+      </div>
     </div>
+  </div>
 
+  <!-- LESSONS -->
+  <div class="u3 tracks-section" id="lessons">
 
+    <!-- MAIN PATH -->
+    <div class="sec-label">The Main Path</div>
+    <div class="main-path-grid">
 
-    <!-- ══════════════════════════════════
-         DAILY ENGLISH HIT
-    ══════════════════════════════════ -->
-    <div class="u3">
-        <div class="sec-label">⚡ Daily English Hit — tap something</div>
-        <div class="micro-card" id="micro-card">
-            <div class="micro-progress"><div class="micro-progress-fill" id="micro-progress" style="width:0%"></div></div>
-            <div class="micro-top">
-                <div class="micro-cat" id="micro-cat"></div>
-                <div style="display:flex;align-items:center;gap:10px;">
-                    <div class="micro-hit-counter" id="micro-dots">
-                        <div class="micro-hit-dot" id="hd0"></div>
-                        <div class="micro-hit-dot" id="hd1"></div>
-                        <div class="micro-hit-dot" id="hd2"></div>
-                    </div>
-                    <div class="micro-counter" id="micro-counter">1 / 3</div>
-                </div>
-            </div>
-            <div class="micro-body" id="micro-body">
-                <div class="micro-label">Loading your daily hit…</div>
-            </div>
-            <div class="micro-foot">
-                <div class="micro-xp" id="micro-xp">⚡ +15 XP</div>
-                <div style="display:flex;gap:8px;">
-                    <button class="micro-btn-reveal" id="micro-reveal-btn" onclick="microReveal()" style="display:none">👆 Show answer</button>
-                    <button class="micro-btn-next" id="micro-btn-next" onclick="microNext()">Next <span style="animation:nudge 2s ease-in-out infinite;display:inline-block">›</span></button>
-                </div>
-            </div>
-        </div>
+      <a href="/beginner/" class="track-card tc-green" data-deco="🌱">
+        <span class="tc-icon">🌱</span>
+        <div class="tc-title">Beginner</div>
+        <div class="tc-badge">A1 · A2</div>
+        <div class="tc-desc">Start from scratch. Real culture from day one.</div>
+        <div class="tc-go">Go <span>›</span></div>
+      </a>
+
+      <a href="/intermediate/" class="track-card tc-blue" data-deco="🚀">
+        <span class="tc-new">New</span>
+        <span class="tc-icon">🚀</span>
+        <div class="tc-title">Intermediate</div>
+        <div class="tc-badge">B1 · B2</div>
+        <div class="tc-desc">Real news, complex grammar, great stories.</div>
+        <div class="tc-go">Go <span>›</span></div>
+      </a>
+
+      <a href="/advanced/" class="track-card tc-red" data-deco="🎯">
+        <span class="tc-icon">🎯</span>
+        <div class="tc-title">Advanced</div>
+        <div class="tc-badge">C1 · C2</div>
+        <div class="tc-desc">Fluency. Idioms. Nuance. The full picture.</div>
+        <div class="tc-go">Go <span>›</span></div>
+      </a>
+
     </div>
 
-    <!-- continue card (logged-in only) -->
-    <div class="u3" id="sb-wrap" style="display:none;">
-        <a href="#" class="continue-card cc-green" id="sb-link">
-            <span class="continue-icon">🚀</span>
-            <div class="continue-body">
-                <div class="continue-eyebrow">Pick up where you left off</div>
-                <div class="continue-title" id="sb-title">Find your next lesson</div>
-                <div class="continue-sub" id="sb-sub">Keep the momentum going →</div>
-            </div>
-            <button class="continue-btn" id="sb-btn">Go →</button>
-        </a>
+    <!-- SPECIALIST -->
+    <div class="sec-label">Specialist Tracks</div>
+    <div class="sub-grid">
+
+      <a href="/business/" class="track-card tc-purple" data-deco="💼">
+        <span class="tc-icon">💼</span>
+        <div class="tc-title">Business English</div>
+        <div class="tc-badge">Pro</div>
+        <div class="tc-desc">Meetings, emails, negotiations.</div>
+        <div class="tc-go">Go <span>›</span></div>
+      </a>
+
+      <a href="/tax/" class="track-card tc-orange" data-deco="💰">
+        <span class="tc-new">New</span>
+        <span class="tc-icon">💰</span>
+        <div class="tc-title">Tax English</div>
+        <div class="tc-badge">Specialist</div>
+        <div class="tc-desc">Accounting terminology that actually sticks.</div>
+        <div class="tc-go">Go <span>›</span></div>
+      </a>
+
+      <a href="/legal/" class="track-card tc-teal" data-deco="⚖️">
+        <span class="tc-new">New</span>
+        <span class="tc-icon">⚖️</span>
+        <div class="tc-title">Legal English</div>
+        <div class="tc-badge">Specialist</div>
+        <div class="tc-desc">Contracts, legal terms, courtroom language.</div>
+        <div class="tc-go">Go <span>›</span></div>
+      </a>
+
     </div>
 
-    <!-- ══════════════════════════════════
-         3. WEEK SPARKLINE + STORY DOTS (logged-in only)
-    ══════════════════════════════════ -->
-    <div class="u4 momentum-row" id="momentum-row" style="display:none;">
-        <div class="week-card" id="week-card"></div>
-        <div class="story-card" id="story-card"></div>
+    <!-- EXTRA -->
+    <div class="sec-label">The Extra Mile</div>
+    <div class="sub-grid">
+
+      <a href="/weeklydrop/" class="track-card tc-coral" data-deco="📰">
+        <span class="tc-icon">📰</span>
+        <div class="tc-title">Weekly Drop</div>
+        <div class="tc-badge">Free · Weekly</div>
+        <div class="tc-desc">One real story. Three levels. Every Friday.</div>
+        <div class="tc-go">Go <span>›</span></div>
+      </a>
+
+      <a href="/kids/" class="track-card tc-pink" data-deco="🤪">
+        <span class="tc-icon">🤪</span>
+        <div class="tc-title">Cool Kids</div>
+        <div class="tc-badge">Ages 8–14</div>
+        <div class="tc-desc">Fun lessons, big stories, tiny grammar.</div>
+        <div class="tc-go">Go <span>›</span></div>
+      </a>
+
+      <a href="/breakroom/" class="track-card tc-orange" data-deco="🎮">
+        <span class="tc-icon">🎮</span>
+        <div class="tc-title">Break Room</div>
+        <div class="tc-badge">Play</div>
+        <div class="tc-desc">Games that teach without you noticing.</div>
+        <div class="tc-go">Go <span>›</span></div>
+      </a>
+
     </div>
 
-    <!-- ══════════════════════════════════
-         FRESH DROPS
-    ══════════════════════════════════ -->
-    <div class="u4">
-    <div class="fresh-banner">
-        <div class="fb-eyebrow">
-            <span class="fb-live-dot"></span>
-            <span class="fb-eyebrow-text">Fresh Drops — Updated Weekly</span>
-        </div>
-        <div class="fb-headline">
-            What's <span class="hl-block hl-blue">New</span> &amp; <span class="hl-block hl-yellow">Hot</span>
-        </div>
-        <div class="fb-sub">Latest lessons across every track. The owl doesn't have these.</div>
+  </div><!-- /tracks-section -->
 
-        <div class="fb-section-label">All Levels</div>
-        <div class="lesson-grid">
-            <a href="/whyeaster/" class="lesson-tile lt-green">
-                <span class="tile-icon">🥚</span>
-                <div class="tile-name">Why Easter?</div>
-                <div class="tile-track">Beginner · A1–A2</div>
-                <div class="diff-dots"><span class="dd easy"></span><span class="dd"></span><span class="dd"></span><span class="dd"></span><span class="dd"></span></div>
-                <span class="tile-tag tt-new">⭐ New</span>
-            </a>
-            <a href="/fiveamazinglives/" class="lesson-tile lt-green">
-                <span class="tile-icon">👨🏼‍🌾</span>
-                <div class="tile-name">Five Amazing Lives!</div>
-                <div class="tile-track">Pre-Int · A2–B1</div>
-                <div class="diff-dots"><span class="dd easy"></span><span class="dd easy"></span><span class="dd"></span><span class="dd"></span><span class="dd"></span></div>
-                <span class="tile-tag tt-new">⭐ New</span>
-            </a>
-            <a href="/cadbury/" class="lesson-tile lt-purple">
-                <span class="tile-icon">🍫</span>
-                <div class="tile-name">The Chocolate War</div>
-                <div class="tile-track">Business · B1–B2</div>
-                <div class="diff-dots"><span class="dd mid"></span><span class="dd mid"></span><span class="dd mid"></span><span class="dd"></span><span class="dd"></span></div>
-                <span class="tile-tag tt-hot">🔥 Hot</span>
-            </a>
-            <a href="/easterworld/" class="lesson-tile lt-punch">
-                <span class="tile-icon">🌍</span>
-                <div class="tile-name">Easter Around The World</div>
-                <div class="tile-track">Advanced · C1–C2</div>
-                <div class="diff-dots"><span class="dd hard"></span><span class="dd hard"></span><span class="dd hard"></span><span class="dd hard"></span><span class="dd"></span></div>
-                <span class="tile-tag tt-new">⭐ New</span>
-            </a>
-        </div>
-
-        <div class="fb-section-label">Pro &amp; Specialist Tracks</div>
-        <div class="pro-grid">
-            <a href="/blockbuster/" class="pro-tile" style="border-top:5px solid var(--blue)">
-                <span class="pro-icon">🎞️</span>
-                <div class="pro-body">
-                    <div class="pro-name">The Last Blockbuster</div>
-                    <div class="pro-track">Intermediate English</div>
-                    <span class="tile-tag tt-hot" style="font-size:9px;padding:2px 6px;">🔥 Hot</span>
-                </div>
-            </a>
-            <a href="/guv/" class="pro-tile" style="border-top:5px solid var(--yellow)">
-                <span class="pro-icon">📈</span>
-                <div class="pro-body">
-                    <div class="pro-name">Profit &amp; Loss</div>
-                    <div class="pro-track">Tax English</div>
-                    <span class="tile-tag tt-live" style="font-size:9px;padding:2px 6px;">🟢 Live</span>
-                </div>
-            </a>
-            <a href="/databreach/" class="pro-tile" style="border-top:5px solid var(--teal)">
-                <span class="pro-icon">💾</span>
-                <div class="pro-body">
-                    <div class="pro-name">The Data Breach</div>
-                    <div class="pro-track">Legal English</div>
-                    <span class="tile-tag tt-new" style="font-size:9px;padding:2px 6px;">⭐ New</span>
-                </div>
-            </a>
-        </div>
-    </div>
-    </div>
-
-    <!-- ══════════════════════════════════
-         4.  DAILY QUEST + COOL PICKS
-    ══════════════════════════════════ -->
-    <!-- ══════════════════════════════════
-         DAILY QUEST + COOL PICKS
-    ══════════════════════════════════ -->
-    <div class="u5 widget-row">
-        <div id="dc-card-slot"></div>
-        <div class="picks-card">
-            <div class="picks-top">
-                <div class="picks-icon">🎯</div>
-                <div>
-                    <div class="picks-heading">Cool Picks</div>
-                    <div class="picks-sub">Chosen by the algorithm (and vibes)</div>
-                </div>
-            </div>
-            <div id="picks-desc"><div class="picks-fact-label" style="margin-top:6px">Loading…</div></div>
-            <a id="picks-go-link" href="#" class="picks-go-btn">👀 Take Me There</a>
-            <button class="picks-shuffle" id="picks-shuffle-btn">🔀 Different pick</button>
-        </div>
-    </div>
-
-    <!-- ══════════════════════════════════
-         THE MAIN PATH
-    ══════════════════════════════════ -->
-    <div class="u5">
-        <div class="sec-label">The Main Path</div>
-        <p class="swipe-hint">Swipe <span>→</span></p>
-        <div class="strip">
-            <a href="beginner/" class="cc" data-c="green">
-                <div class="cc-top"><span class="cc-icon">🌱</span><span class="cc-badge">A1–A2</span><span class="new-dot">⭐🐑</span></div>
-                <div class="cc-title">Beginner</div>
-                <div class="cc-desc">Start your English journey from scratch.</div>
-                <div class="cc-foot"><span class="cc-meta">📚 Foundation</span><span class="cc-go">›</span></div>
-            </a>
-            <a href="intermediate/" class="cc" data-c="blue">
-                <div class="cc-top"><span class="cc-icon">🚀</span><span class="cc-badge">B1–B2</span><span class="new-dot">⭐⛵</span></div>
-                <div class="cc-title">Intermediate</div>
-                <div class="cc-desc">Complex grammar for real-world situations.</div>
-                <div class="cc-foot"><span class="cc-meta">📚 Expanding</span><span class="cc-go">›</span></div>
-            </a>
-            <a href="advanced/" class="cc" data-c="red">
-                <div class="cc-top"><span class="cc-icon">🎯</span><span class="cc-badge">C1–C2</span><span class="new-dot">⭐📜</span></div>
-                <div class="cc-title">Advanced</div>
-                <div class="cc-desc">Idioms and native-like British fluency.</div>
-                <div class="cc-foot"><span class="cc-meta">📚 Mastery</span><span class="cc-go">›</span></div>
-            </a>
-        </div>
-    </div>
-
-    <!-- ══════════════════════════════════
-         6.  SPECIALISED TRACKS
-    ══════════════════════════════════ -->
-    <div class="u6">
-        <div class="sec-label">Specialised Tracks</div>
-        <p class="swipe-hint">Swipe <span>→</span></p>
-        <div class="strip">
-            <a href="business/" class="cc" data-c="purple">
-                <div class="cc-top"><span class="cc-icon">💼</span><span class="cc-badge">Pro</span></div>
-                <div class="cc-title">Business English</div>
-                <div class="cc-desc">Meetings, emails, presentations and negotiations.</div>
-                <div class="cc-foot"><span class="cc-meta">📚 Multiple lessons</span><span class="cc-go">›</span></div>
-            </a>
-            <a href="tax/" class="cc" data-c="orange">
-                <div class="cc-top"><span class="cc-icon">💰</span><span class="cc-badge">Specialist</span><span class="new-dot">⭐🧮</span></div>
-                <div class="cc-title">Tax English</div>
-                <div class="cc-desc">Tax terminology for accounting professionals.</div>
-                <div class="cc-foot"><span class="cc-meta">📚 Multiple lessons</span><span class="cc-go">›</span></div>
-            </a>
-            <a href="legal/" class="cc" data-c="teal">
-                <div class="cc-top"><span class="cc-icon">⚖️</span><span class="cc-badge">Specialist</span><span class="new-dot">⭐💾</span></div>
-                <div class="cc-title">Legal English</div>
-                <div class="cc-desc">Legal terms and contracts with confidence.</div>
-                <div class="cc-foot"><span class="cc-meta">📚 Multiple lessons</span><span class="cc-go">›</span></div>
-            </a>
-        </div>
-    </div>
-
-    <!-- ══════════════════════════════════
-         7.  THE EXTRA MILE
-    ══════════════════════════════════ -->
-    <div class="u6">
-        <div class="sec-label">The Extra Mile</div>
-        <p class="swipe-hint">Swipe <span>→</span></p>
-        <div class="strip">
-            <a href="weeklydrop/" class="cc" data-c="coral">
-                <div class="cc-top"><span class="cc-icon">📰</span><span class="cc-badge" style="background:rgba(255,107,53,.1);color:#b8420a;border:2px solid rgba(255,107,53,.3);">Weekly · Free</span><span class="new-dot">⭐✂️</span></div>
-                <div class="cc-title">The Weekly Drop</div>
-                <div class="cc-desc">Real news. Real English. One crisis, three levels, every Friday.</div>
-                <div class="cc-foot"><span class="cc-meta">⚡ New every week</span><span class="cc-go">›</span></div>
-            </a>
-            <a href="kids/" class="cc" data-c="pink">
-                <div class="emoji-ticker-wrap"><div class="emoji-ticker">🤪🐸🦋🧸🍬🦕🎪🎠🦖🤪🐸🦋🧸🍬🦕🎪🎠🦖🤪🐸🦋🧸🍬🦕🎪🎠🦖🤪🐸🦋🧸🍬🦕🎪🎠🦖</div></div>
-                <div class="cc-top" style="margin-top:4px;"><span class="new-dot">⭐📱</span></div>
-                <div class="cc-title">Cool Kids</div>
-                <div class="cc-desc">Fun lessons, big stories, tiny grammar. For the next generation.</div>
-                <div class="cc-foot"><span class="cc-meta">🎧 Ariana's here!</span><span class="cc-go">›</span></div>
-            </a>
-            <a href="breakroom/" class="cc" data-c="gamesorange">
-                <div class="cc-top"><span class="cc-icon">🎮</span><span class="cc-badge" style="background:rgba(206,130,255,.15);color:#7b3fa8;border:2px solid rgba(206,130,255,.3);">Play</span></div>
-                <div class="cc-title">Break Room</div>
-                <div class="cc-desc">What Am I? · Chat Attack · Vibe Check — learn without noticing.</div>
-                <div class="cc-foot"><span class="cc-meta">🕹️ Always open</span><span class="cc-go">›</span></div>
-            </a>
-        </div>
-    </div>
-
-
-
-</div>
+</div><!-- /page -->
 
 <footer class="footer">
-    <p class="footer-text">© 2026 English For Cool Dudes 😎 — The owl is shaking.</p>
-    <div><a href="impressum/">Impressum</a><a href="datenschutz/">Privacy</a></div>
+  <p class="footer-text">© 2026 English For Cool Dudes 😎</p>
+  <div><a href="/impressum/">Impressum</a><a href="/datenschutz/">Privacy</a></div>
 </footer>
 
-<script src="/supabase-auth-gamified.js"></script>
-<script src="/badge-system.js"></script>
-<script src="/track-mastery.js"></script>
-<script src="/main-gamified.js"></script>
 <script>
 'use strict';
 
-/* ── TICKER ── */
-(function buildTicker(){
-    var items=[
-        {type:'new', text:'Artemis II — Beginner'},
-        {type:'new', text:'Quitting Normal Life — Int'},
-        {type:'new', text:'Who Owns The Moon? — Advanced'},
-        {type:'new', text:'The Redline Room — Legal'},
-        {type:'hot', text:'The Chocolate War — Business'},
-        {type:'hot', text:'Big Cadbury Purple — Business'},
-        {type:'live',text:'Beneficial Owner — Tax English'},
-    ];
-    function makeItems(){
-        return items.map(function(it){
-            var cls=it.type==='new'?'tb-new':it.type==='hot'?'tb-hot':'tb-live';
-            var label=it.type==='new'?'NEW':it.type==='hot'?'HOT':'LIVE';
-            return '<span class="ticker-item"><span class="ticker-badge '+cls+'">'+label+'</span><span class="ticker-text">'+it.text+'</span></span><span class="ticker-sep">·</span>';
-        }).join('');
-    }
-    var el=document.getElementById('ticker-inner');
-    if(el)el.innerHTML=makeItems()+makeItems();
-})();
-
-/* ── VIBE CONFIG (time of day) ── */
-var VIBES={
-    morning:{
-        bg:'linear-gradient(135deg,#FF9600 0%,#FFC800 100%)',
-        deco:'☀️',
-        eyebrow:'☀️ Good morning',
-        title:'Morning grind.<br>Fresh vocab,<br>fresh start. ☕',
-        sub:'The early learner gets the XP. Beat the algorithm before breakfast.'
-    },
-    midday:{
-        bg:'linear-gradient(135deg,#1CB0F6 0%,#2BDECC 100%)',
-        deco:'🚀',
-        eyebrow:'🌤️ Midday boost',
-        title:'One lesson.<br>Six minutes.<br>All day energy. 💪',
-        sub:'You\'ve got time. Use it better than doom-scrolling.'
-    },
-    evening:{
-        bg:'linear-gradient(135deg,#FF6B35 0%,#FF4B4B 100%)',
-        deco:'🌆',
-        eyebrow:'🌇 Evening session',
-        title:'Golden hour.<br>The best learners<br>stay late. 🌆',
-        sub:'Brain is still sharp. Don\'t waste that. One lesson before you switch off.'
-    },
-    night:{
-        bg:'linear-gradient(135deg,#1a2e5a 0%,#CE82FF 100%)',
-        deco:'🦉',
-        eyebrow:'🌙 Night owl mode',
-        title:'The world sleeps.<br>You level up.<br>Respect. 🦉',
-        sub:'Quiet hours = peak learning hours. No distractions, no excuses.'
-    }
-};
-function getVibe(){
-    var h=new Date().getHours();
-    return h<12?VIBES.morning:h<17?VIBES.midday:h<21?VIBES.evening:VIBES.night;
-}
-function greet(){var h=new Date().getHours();return h<12?'Good morning':h<18?'Good afternoon':'Good evening';}
-
-/* ── PLAYER LABEL — based on lesson count + XP, not external naming ── */
-function _playerLabel(lessons,xp){
-    if(lessons>=200||xp>=30000)return '🏆 You are an absolute legend';
-    if(lessons>=100||xp>=15000)return '💎 Elite level. Seriously impressive';
-    if(lessons>=50||xp>=8000) return '🚀 Fluency is happening. Keep going';
-    if(lessons>=20||xp>=3000) return '⚡ You are on a roll. Do not stop now';
-    if(lessons>=5||xp>=500)  return '🌱 Great start. The best is ahead';
-    return '😎 Welcome to the cool side of English';
-}
-
-/* ── HELPERS ── */
-function getLastLessonUrl(){var url=localStorage.getItem('efcd_last_lesson_url');if(!url)return null;var bad=['beginner/','/beginner/','beginner','/beginner'];return bad.indexOf(url.trim())>-1?null:url;}
-function getLastLessonName(){return localStorage.getItem('efcd_last_lesson_name')||null;}
-function isLastLessonDone(){return localStorage.getItem('efcd_last_lesson_done')==='true';}
-
-/* ── MODAL ── */
-function openPicker(){document.getElementById('course-modal').classList.add('open');decoratePickerForChallenge();}
-function closePicker(){
-    document.getElementById('course-modal').classList.remove('open');
-    var label=document.querySelector('.modal-head-label');var title=document.querySelector('.modal-head-title');
-    if(label)label.textContent='Where do you want to go?';if(title)title.textContent='Pick your level 🎯';
-}
-function decoratePickerForChallenge(){
-    document.querySelectorAll('.modal-choice').forEach(function(el){
-        el.style.removeProperty('border-color');el.style.removeProperty('background');el.style.removeProperty('box-shadow');
-        var old=el.querySelector('.dc-picker-nudge');if(old)old.remove();
-    });
-    if(!window.DailyChallenges)return;
-    var ch=window.DailyChallenges.getTodaysChallenge();
-    if(ch.id!=='level_up'&&ch.id!=='section_hopper')return;
-    var SL={beginner:1,intermediate:2,advanced:3,business:4,tax:4,legal:4};
-    var HS={'/beginner/':'beginner','/intermediate/':'intermediate','/advanced/':'advanced','/business/':'business','/tax/':'tax','/legal/':'legal'};
-    var lastSection=localStorage.getItem('dc_last_lesson_section');
-    var lastLevel=SL[lastSection]||0;
-    document.querySelectorAll('.modal-choice').forEach(function(el){
-        var section=HS[el.getAttribute('href')];if(!section)return;
-        var hi=false,nt='';
-        if(ch.id==='level_up'){if(!lastSection){hi=true;nt='✨ Any section!';}else if(SL[section]>lastLevel){hi=true;nt='📈 LEVEL UP!';}}
-        if(ch.id==='section_hopper'){if(!lastSection){hi=true;nt='🦘 Pick anything!';}else if(section!==lastSection){hi=true;nt='🦘 HOP HERE!';}}
-        if(hi){
-            el.style.borderColor='#58CC02';el.style.background='rgba(88,204,2,.07)';el.style.boxShadow='0 0 0 3px rgba(88,204,2,.25)';
-            var badge=document.createElement('span');badge.className='dc-picker-nudge';
-            badge.style.cssText='display:inline-block;margin-left:8px;font-size:10px;font-weight:900;background:#58CC02;color:#fff;padding:2px 8px;border-radius:6px;letter-spacing:.5px;vertical-align:middle;';
-            badge.textContent=nt;var strong=el.querySelector('strong');if(strong)strong.after(badge);
-        }
-    });
-    var label=document.querySelector('.modal-head-label'),title=document.querySelector('.modal-head-title');
-    if(ch.id==='level_up'&&lastSection){if(label)label.textContent='📈 Level Up Challenge Active!';if(title)title.textContent='Go harder than usual 💪';}
-    else if(ch.id==='section_hopper'&&lastSection){if(label)label.textContent='🦘 Section Hopper Active!';if(title)title.textContent='Try something different today!';}
-}
-document.getElementById('course-modal').addEventListener('click',function(e){
-    if(e.target===this){closePicker();return;}
-    var link=e.target.closest('.modal-choice');
-    if(link&&window.DailyChallenges){
-        var ch=window.DailyChallenges.getTodaysChallenge();
-        var progress=JSON.parse(localStorage.getItem('dailyChallenge')||'{}');
-        var isComplete=progress.challengeId===ch.id&&(progress.progress||0)>=ch.target;
-        if(!isComplete){e.preventDefault();window.DailyChallenges.acceptAndNavigate(ch,link.href);}
-    }
-});
-if(new URLSearchParams(window.location.search).get('picker')==='1'){window.history.replaceState({},'','/');setTimeout(openPicker,400);}
-
-/* ── COOL PICKS ── */
-var PICKS_LESSONS=[
-    {url:'/blockbuster/',           time:'6 mins', name:'🎞️ Intermediate: The Last Blockbuster',      fact:'Blockbuster Video once earned $800M a year from late fees alone.'},
-    {url:'/weeklydrop003/',         time:'5 mins', name:'✂️ Weekly Drop: Shrinkflation',              fact:'Bags of crisps have seen weight reductions of up to 17%.'},
-    {url:'/pandas/',                time:'7 mins', name:'🐼 Beginner: Giant Pandas',                   fact:'Pandas spend 12–14 hours a day eating bamboo. Goals, honestly.'},
-    {url:'/databreach/',            time:'8 mins', name:'💾 Legal: The Data Breach',                  fact:'Over 90% of cyberattacks begin with a phishing email. Know the words.'},
-    {url:'/euvatlaw/',              time:'9 mins', name:'📚 Tax: VAT Battleground',                   fact:'Stolen goods aren\'t subject to VAT, but stolen cash is. Genuinely.'},
-    {url:'/flyingtaxisbeginner/',   time:'8 mins', name:'✈️ Beginner: Flying Taxis',                  fact:'The first flying car was built in 1917. We\'ve been waiting 107 years.'},
-    {url:'/fuggerei/',              time:'10 mins',name:'🏡 Advanced: Inside the Fuggerei',            fact:'Jakob Fugger would be worth roughly $400 billion today. Meet the original 1%.'},
-    {url:'/redline/',               time:'7 mins', name:'📄 Legal: The Redline Room',                 fact:'"Acts of God" in contracts include earthquakes, floods, and hurricanes.'},
-    {url:'/mindblown/',             time:'8 mins', name:'🤯 Kids: Mind Blown Facts',                  fact:'Wombats produce cube-shaped poo. The only animal on earth that does.'},
-    {url:'/fiveamazinglives/',      time:'7 mins', name:'🌍 Beginner: Five Amazing Lives',             fact:'One couple looks after a tiny island off Ireland — completely alone.'},
-    {url:'/chineserobotsbeginner/', time:'5 mins', name:'🤖 Pre-Int: Chinese Robots on TV',           fact:'AI now stars in Chinese prime-time TV. The future is already weird.'},
-];
-var currentPickIdx=-1;
-function getRandomPickIdx(){if(PICKS_LESSONS.length<=1)return 0;var idx;do{idx=Math.floor(Math.random()*PICKS_LESSONS.length);}while(idx===currentPickIdx);return idx;}
-function renderPick(){
-    currentPickIdx=getRandomPickIdx();
-    var pick=PICKS_LESSONS[currentPickIdx];
-    var desc=document.getElementById('picks-desc');var goLink=document.getElementById('picks-go-link');
-    if(!desc||!goLink)return;
-    desc.style.opacity='0';desc.style.transform='translateY(-6px)';
-    setTimeout(function(){
-        desc.innerHTML='<div class="picks-fact-label">💡 Did you know?</div><div class="picks-fact">'+pick.fact+'</div><div class="picks-bottom-row"><div class="picks-name">'+pick.name+'</div><div class="picks-badge">⚡ '+pick.time+'</div></div>';
-        goLink.href=pick.url;
-        desc.style.transition='opacity .35s,transform .35s';desc.style.opacity='1';desc.style.transform='translateY(0)';
-    },260);
-}
-
-/* ── DAILY CHALLENGE ── */
-function renderDC(){
-    var slot=document.getElementById('dc-card-slot');if(!slot)return;
-    if(window.DailyChallenges){
-        slot.innerHTML=window.DailyChallenges.renderDailyChallengeWidget('homepage');
-    } else {
-        slot.innerHTML='<div class="quest-card"><div><div class="quest-eyebrow">⚔️ Daily Quest</div><div class="quest-title">Complete a lesson</div><div class="quest-desc">Any lesson earns bonus XP today. Every streak starts somewhere.</div><div class="quest-bar-wrap"><div class="quest-bar" style="width:0%"></div></div><div class="quest-meta">0 / 1 complete · +50 XP on finish</div></div><div class="quest-right"><button class="quest-btn" onclick="openPicker()">🚀 Go</button></div></div>';
-    }
-}
-
-/* ── WEEK SPARKLINE ── */
-function renderWeekCard(lessonsThisWeek){
-    var card=document.getElementById('week-card');if(!card)return;
-    var days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-    var todayIdx=(new Date().getDay()+6)%7;
-    /* pull real data or use graceful placeholder zeros */
-    var counts=lessonsThisWeek||[0,0,0,0,0,0,0];
-    var total=counts.reduce(function(a,b){return a+b;},0);
-    var maxVal=Math.max.apply(null,counts)||1;
-    var bars=days.map(function(d,i){
-        var h=Math.round((counts[i]/maxVal)*44)+4;
-        var cls=i===todayIdx?'today-bar':counts[i]===maxVal&&counts[i]>0?'best-bar':counts[i]>0?'active':'zero';
-        return '<div class="wbar-wrap"><div class="wbar '+cls+'" style="height:'+h+'px"></div><div class="wday">'+d+'</div></div>';
-    }).join('');
-    card.innerHTML='<div class="week-header"><div><div class="week-title-text">This Week</div></div><div class="week-right"><div class="week-count">'+total+'</div><div class="week-delta">lessons done</div></div></div><div class="week-bars">'+bars+'</div>';
-}
-
-/* ── STORY DOTS ── */
-function renderStoryCard(streak){
-    var card=document.getElementById('story-card');if(!card)return;
-    var days=['M','T','W','T','F','S','S'];
-    var todayIdx=(new Date().getDay()+6)%7;
-    var pct=Math.min(100,Math.round((streak/30)*100));
-    var topMsg=streak===0?'Start your streak today':'<strong>'+streak+'-day streak</strong> — you are in the top '+(streak>14?'5':streak>7?'12':'25')+'%';
-    var subMsg=streak===0?'One lesson a day. One year later: fluent.':streak<3?'Two days in. Keep going.':streak<7?'Keep showing up. That\'s all it takes.':streak<14?'One week! You\'re building something real.':'You\'re the kind of person who actually does it.';
-    var dots=days.map(function(d,i){
-        var done=streak>=(todayIdx>=i?todayIdx-i+1:999);
-        var isToday=i===todayIdx;
-        var cls=isToday?'today-dot':done?'done':'';
-        return '<div class="sdot-wrap"><div class="sdot '+cls+'"></div><div class="sdot-lbl">'+d+'</div></div>';
-    }).join('');
-    card.innerHTML='<div class="story-inner"><div class="story-eyebrow">🔥 Streak Story</div><div class="story-title">'+topMsg+'</div><div class="story-sub">'+subMsg+'</div><div class="story-dots">'+dots+'</div><button class="story-cta" onclick="openPicker()">✅ Keep it alive →</button></div>';
-}
-
-/* ── BADGE SHELF ── */
-async function loadAndRenderShelf(){
-    if(!window.EFCD_Badges||!window.EFCD_Auth)return;
-    var profile=window.EFCD_Auth.getCurrentUser();if(!profile)return;
-    try{
-        var res=await window.efcdSupabaseClient.from('lessons').select('vocabulary,lesson_level').eq('user_id',profile.id);
-        var shelfHTML=window.EFCD_Badges.renderShelf(profile,res.data||[]);
-        var sbWrap=document.getElementById('sb-wrap');
-        if(sbWrap){var d=document.createElement('div');d.className='u2';d.innerHTML=shelfHTML;sbWrap.parentNode.insertBefore(d,sbWrap);}
-        else{var page=document.querySelector('.page');if(page){var d2=document.createElement('div');d2.className='u2';d2.innerHTML=shelfHTML;page.insertBefore(d2,page.children[1]);}}
-    }catch(err){console.warn('Badge shelf error:',err);}
-}
-
-/* ── GHOST LEADERBOARD ── */
-/* Real users mixed in when available; ghosts fill the board otherwise.
-   Ghosts are named "Cool [Name]" and tagged so users can see they're placeholders.
-   As real users accumulate XP they naturally overtake the ghosts. */
-var GHOST_PLAYERS=[
-    {name:'Cool Marta',    xp:3840, delta:'+210', av:'M', avBg:'#FFD93D', ghost:true},
-    {name:'Cool Leon',     xp:3560, delta:'+185', av:'L', avBg:'#A8E6CF', ghost:true},
-    {name:'Cool Yuki',     xp:3210, delta:'+140', av:'Y', avBg:'#CE82FF', ghost:true},
-    {name:'Cool Ana',      xp:2980, delta:'+90',  av:'A', avBg:'#FF8B4C', ghost:true},
-    {name:'Cool Jan',      xp:2740, delta:'+65',  av:'J', avBg:'#74C2E1', ghost:true},
-    {name:'Cool Priya',    xp:2430, delta:'+50',  av:'P', avBg:'#FF6B9D', ghost:true},
-    {name:'Cool Tomasz',   xp:2210, delta:'+30',  av:'T', avBg:'#7BC67E', ghost:true},
-];
-/* XP drifts slightly each visit so it feels "live" */
-GHOST_PLAYERS=GHOST_PLAYERS.map(function(g){
-    var drift=Math.floor(Math.random()*80)-20;
-    return Object.assign({},g,{xp:Math.max(100,g.xp+drift)});
-});
-
-function buildLeaderboard(realData){
-    var medals=['🥇','🥈','🥉','4','5','6','7'];
-    var me=window.EFCD_Auth?window.EFCD_Auth.getCurrentUser():null;
-
-    /* merge real users with ghosts, sort, keep top 7 */
-    var rows=GHOST_PLAYERS.slice();
-    if(realData&&realData.length){
-        realData.forEach(function(e){
-            /* remove ghost if real user beats them (keeps board feeling achievable) */
-            rows=rows.filter(function(g){return g.xp>(e.xp||0)||!g.ghost;});
-            var metaName=(e.raw_user_meta_data&&(e.raw_user_meta_data.full_name||e.raw_user_meta_data.name))||e.display_name||'Cool Dude';
-            rows.push({name:metaName,xp:e.xp||0,delta:'+'+Math.floor(Math.random()*120+20),av:metaName[0].toUpperCase(),avBg:'#1CB0F6',ghost:false,uid:e.user_id});
-        });
-    }
-    rows.sort(function(a,b){return b.xp-a.xp;});
-    rows=rows.slice(0,7);
-
-    var html=rows.map(function(row,i){
-        var isYou=me&&row.uid&&row.uid===me.id;
-        var avStyle='background:'+row.avBg+';color:'+(row.avBg==='#1CB0F6'?'#fff':'#111827');
-        return '<div class="lb-row'+(isYou?' you':'')+(row.ghost?' ghost-row':'')+'">'+
-            '<span class="lb-rank">'+medals[i]+'</span>'+
-            '<div class="lb-av" style="'+avStyle+'">'+row.av+'</div>'+
-            '<div class="lb-name-wrap">'+
-                '<span class="lb-name">'+row.name+(isYou?' <small style="color:var(--blue)">(you)</small>':'')+(row.ghost?'<span class="lb-ghost-tag">ghost</span>':'')+'</span>'+
-            '</div>'+
-            '<div class="lb-xp-wrap">'+
-                '<span class="lb-xp">'+row.xp.toLocaleString()+' XP</span>'+
-                '<span class="lb-delta">▲ '+row.delta+' today</span>'+
-            '</div>'+
-        '</div>';
-    }).join('');
-
-    var container=document.getElementById('lb-rows');
-    if(container){container.innerHTML='<div class="scan-line"></div>'+html;}
-}
-
-/* ── LOGGED-IN USER ── */
-async function renderUser(stats,user){
-    var profile=window.EFCD_Auth.getCurrentUser();
-    var rawName=(profile&&profile.name)?profile.name:((user.user_metadata&&(user.user_metadata.full_name||user.user_metadata.name))||(user.email?user.email.split('@')[0]:'Dude'));
-    var firstName=rawName.split(' ')[0];
-    firstName=firstName.charAt(0).toUpperCase()+firstName.slice(1);
-    var finalName='Cool '+firstName;
-    var streak=(stats&&stats.streak)||0;
-    var xp=(stats&&stats.xp)||0;
-    var level=(stats&&stats.level)||1;
-    var levelName=(stats&&stats.levelName)||'';
-    var lessons=(stats&&stats.lessonsCompleted)||0;
-    var badges=(stats&&stats.achievementCount)||0;
-
-    /* streak popup (once per day) */
-    var _today=new Date().toDateString();var _lastShown=localStorage.getItem('efcd_streak_shown');
-    if(_lastShown!==_today&&streak>0){
-        localStorage.setItem('efcd_streak_shown',_today);
-        setTimeout(function(){
-            var _e=streak>=30?'💎':streak>=14?'💪':streak>=7?'🔥🔥':'🔥';
-            var _m=streak===1?'Day one. The journey starts here.':streak<3?'Two days in. Keep going.':streak<7?'Keep showing up. That\'s all it takes.':streak<14?'One week! You\'re building something real.':streak<30?'Two weeks strong. You\'re not stopping.':'Thirty days. This is just who you are now.';
-            if(window.SurpriseRewards)window.SurpriseRewards.milestone(_e,streak+' Day Streak!',_m,'#FF4B4B','#EA2B2B');
-        },1500);
-    }
-
-    var xpIn=xp%500,xpPct=Math.min(100,Math.round((xpIn/500)*100)),xpLeft=500-xpIn;
-    var lastUrl=getLastLessonUrl(),lastNm=getLastLessonName(),lastDone=isLastLessonDone();
-    var showContinue=!!(lastUrl&&lastNm&&!lastDone);
-    var ctaText=showContinue?'🚀 Continue: '+lastNm:lastUrl?'🎉 Find Your Next Lesson':'🚀 Start a Lesson';
-    var vibe=getVibe();
-
-    /* ── Single query — fetches everything track mastery + badge system both need ── */
-    var trackBadgeHTML='';
-    var badgeCount=badges; /* fallback to old count if anything fails */
-    try{
-        if(profile&&profile.id){
-            var res=await window.efcdSupabaseClient
-                .from('lessons')
-                .select('lesson_link,lesson_level,vocabulary,badge_icon,badge_name,lesson_title')
-                .eq('user_id',profile.id);
-
-            /* track mastery badge in hero */
-            if(window.EFCD_TrackMastery&&res.data&&res.data.length){
-                var counts=window.EFCD_TrackMastery.countByTrack(res.data);
-                var topTrack=window.EFCD_TrackMastery.TRACKS.filter(function(t){return counts[t.id]>0;}).sort(function(a,b){return counts[b.id]-counts[a.id];})[0];
-                if(topTrack){var count=counts[topTrack.id];trackBadgeHTML='<div class="track-badge"><span>'+topTrack.icon+'</span><span>'+count+' '+topTrack.id.charAt(0).toUpperCase()+topTrack.id.slice(1)+' lessons done</span></div>';}
-            }
-
-            /* real badge count from badge-system.js — this is the source of truth */
-            if(window.EFCD_Badges&&res.data){
-                var allBadges=window.EFCD_Badges.evaluate(profile,res.data);
-                badgeCount=allBadges.filter(function(b){return b.earned;}).length;
-            }
-        }
-    }catch(_){}
-
-    var heroCard=document.getElementById('hero-card');
-    heroCard.style.background=vibe.bg;
-    var eyebrowClass=vibe===VIBES.morning?'morning':vibe===VIBES.midday?'midday':vibe===VIBES.evening?'evening':'night';
-    heroCard.innerHTML=
-        '<div class="vibe-deco">'+vibe.deco+'</div>'+
-        '<div class="vibe-top">'+
-            '<div>'+
-                '<div class="vibe-greet">'+greet()+'</div>'+
-                '<div class="vibe-uname">'+finalName+'</div>'+
-                trackBadgeHTML+
-            '</div>'+
-            '<div class="streak-block">'+
-                '<span class="sfire">🔥</span>'+
-                '<span class="snum">'+streak+'</span>'+
-                '<span class="sword">streak</span>'+
-            '</div>'+
-        '</div>'+
-        '<div class="xp-wrap">'+
-            '<div class="xp-row"><span>'+_playerLabel(lessons,xp)+'</span><span>'+xpLeft+' XP to next level</span></div>'+
-            '<div class="xp-track"><div class="xp-fill" id="xf"></div></div>'+
-        '</div>'+
-        '<div class="stat-row">'+
-            '<div class="stat-pill"><span class="sn">'+lessons+'</span><span class="sl">Lessons</span></div>'+
-            '<div class="stat-pill"><span class="sn">'+xp.toLocaleString()+'</span><span class="sl">Total XP</span></div>'+
-            '<div class="stat-pill"><span class="sn">'+badgeCount+'</span><span class="sl">Badges</span></div>'+
-        '</div>'+
-        '<div class="vibe-ticker"><span id="vibe-tick">🎮 Play first · Learn second</span></div>'+
-        '<a id="hero-cta-link" href="'+(showContinue?lastUrl:'#')+'" class="hero-cta-big">'+
-            '<span class="cta-text">'+ctaText+'</span>'+
-            '<span class="cta-arrow">›</span>'+
-        '</a>';
-
-    /* xp bar fill animation */
-    requestAnimationFrame(function(){setTimeout(function(){var f=document.getElementById('xf');if(f)f.style.width=xpPct+'%';},80);});
-
-    /* cta click if no last lesson */
-    if(!showContinue){var ctaEl=document.getElementById('hero-cta-link');if(ctaEl)ctaEl.addEventListener('click',function(e){e.preventDefault();openPicker();});}
-
-    loadAndRenderShelf();
-
-    /* continue card — always show for logged-in users */
-    (function(){
-        var wrap=document.getElementById('sb-wrap');
-        var stitle=document.getElementById('sb-title');
-        var ssub=document.getElementById('sb-sub');
-        var slink=document.getElementById('sb-link');
-        var sbtn=document.getElementById('sb-btn');
-        if(!wrap)return;
-        wrap.style.display='block';
-        /* pick track colour from last lesson URL */
-        var trackCls='cc-green';
-        if(lastUrl){
-            if(lastUrl.indexOf('/intermediate/')>-1||lastUrl.indexOf('/blockbuster/')>-1||lastUrl.indexOf('/sleepscience/')>-1||lastUrl.indexOf('/pancakeday/')>-1)trackCls='cc-blue';
-            else if(lastUrl.indexOf('/advanced/')>-1||lastUrl.indexOf('/fuggerei/')>-1||lastUrl.indexOf('/easterworld/')>-1)trackCls='cc-red';
-            else if(lastUrl.indexOf('/business/')>-1||lastUrl.indexOf('/cadbury/')>-1)trackCls='cc-purple';
-            else if(lastUrl.indexOf('/tax/')>-1)trackCls='cc-orange';
-            else if(lastUrl.indexOf('/legal/')>-1||lastUrl.indexOf('/databreach/')>-1||lastUrl.indexOf('/redline/')>-1)trackCls='cc-teal';
-        }
-        if(slink)slink.className='continue-card '+trackCls;
-        if(showContinue){
-            if(slink){slink.href=lastUrl;slink.onclick=null;}
-            if(stitle)stitle.textContent=lastNm;
-            if(ssub)ssub.textContent='Continue where you left off';
-            if(sbtn){sbtn.textContent='Continue →';sbtn.style.background='var(--blue)';sbtn.style.borderColor='var(--blue-shadow)';}
-        } else if(lastUrl){
-            if(slink){slink.href=lastUrl;slink.onclick=null;}
-            if(stitle)stitle.textContent='Back to: '+( lastNm||'your last lesson');
-            if(ssub)ssub.textContent='Or choose something new below';
-            if(sbtn)sbtn.textContent='Go back →';
-        } else {
-            if(slink){slink.href='#';slink.onclick=function(e){e.preventDefault();openPicker();};}
-            if(stitle)stitle.textContent='Ready for your next lesson?';
-            if(ssub)ssub.textContent='Pick a track and keep that streak alive';
-            if(sbtn)sbtn.textContent='Choose lesson →';
-        }
-    })();
-
-    /* show momentum row for logged-in users */
-    var momRow=document.getElementById('momentum-row');
-    if(momRow)momRow.style.display='grid';
-    /* ── fetch real this-week lesson counts ── */
-    (async function(){
-        try{
-            var weekStart=new Date();
-            weekStart.setDate(weekStart.getDate()-((weekStart.getDay()+6)%7)); /* Monday */
-            weekStart.setHours(0,0,0,0);
-            var weekEnd=new Date(weekStart);weekEnd.setDate(weekStart.getDate()+7);
-            var wRes=await window.efcdSupabaseClient
-                .from('lessons')
-                .select('created_at')
-                .eq('user_id',profile.id)
-                .gte('created_at',weekStart.toISOString())
-                .lt('created_at',weekEnd.toISOString());
-            var counts=[0,0,0,0,0,0,0];
-            if(wRes.data){
-                wRes.data.forEach(function(r){
-                    var d=new Date(r.created_at);
-                    var idx=(d.getDay()+6)%7; /* 0=Mon...6=Sun */
-                    counts[idx]++;
-                });
-            }
-            renderWeekCard(counts);
-        }catch(_){renderWeekCard(null);}
-    })();
-    renderStoryCard(streak);
-
-    /* leaderboard */
-    tryLeaderboard();
-}
-
-/* ── GUEST ── */
-function renderGuest(){
-    var vibe=getVibe();
-    var heroCard=document.getElementById('hero-card');
-    heroCard.style.background=vibe.bg;
-    var eyebrowClass=vibe===VIBES.morning?'morning':vibe===VIBES.midday?'midday':vibe===VIBES.evening?'evening':'night';
-    heroCard.innerHTML=
-        '<div class="vibe-deco">'+vibe.deco+'</div>'+
-        '<div class="vibe-eyebrow '+eyebrowClass+'">'+vibe.eyebrow+'</div>'+
-        '<div class="vibe-title">'+vibe.title+'</div>'+
-        '<div class="vibe-sub">'+vibe.sub+'</div>'+
-        '<div class="vibe-ticker"><span id="vibe-tick">🎮 Play first · Learn second</span></div>'+
-        '<div class="guest-btns">'+
-            '<a href="/signup/" class="btn-yellow">🚀 Start Free</a>'+
-            '<a href="/login/" class="btn-white">Log In</a>'+
-        '</div>';
-    buildLeaderboard(null);
-}
-
-/* ── LEADERBOARD ── */
-async function tryLeaderboard(){
-    var realData=null;
-    try{
-        if(window.EFCD_Auth&&window.EFCD_Auth.getLeaderboard){
-            realData=await window.EFCD_Auth.getLeaderboard(10);
-        }
-    }catch(_){}
-    buildLeaderboard(realData);
-}
-
-/* ── HERO MOTIVATIONAL TICKER ── */
-var _TICKS=[
-    '🎮 Play first · Learn second',
-    '🔥 Build a streak · Beat the owl',
-    '🧠 Real English · Real situations',
-    '😎 Better than Duolingo · Fact',
-    '⚡ XP earned · Every lesson',
-    '🏆 The league table awaits',
-];
-var _tickIdx=0;
-setInterval(function(){
-    _tickIdx=(_tickIdx+1)%_TICKS.length;
-    var el=document.getElementById('vibe-tick');
-    if(!el)return;
-    el.style.animation='none';el.offsetHeight;
-    el.textContent=_TICKS[_tickIdx];
-    el.style.animation='tickFade 4s ease-in-out infinite';
-},4000);
-
-/* ── IDLE HEARTBEAT — subtle, lead the eye down ── */
-(function(){
-
-function flash(el,cls,dur){
-    if(!el)return;
-    el.classList.remove(cls);el.offsetHeight;
-    el.classList.add(cls);
-    setTimeout(function(){el.classList.remove(cls);},dur||900);
-}
-
-/* ── 1. Highlight a key word in the question (4s) ──
-   Wraps pedagogically important words with an underline glow.
-   Words like "politely", "correctly", the idiom, the false friend. ── */
-function step1(){
-    var q=document.querySelector('.micro-q,.micro-stimulus,.micro-label');
-    if(!q)return;
-    /* find a word worth highlighting — look for quoted text, or pick a content word */
-    var text=q.textContent;
-    var matchQuoted=text.match(/"([^"]{3,18})"/);
-    var matchSpecial=text.match(/\b(politely|correctly|mistake|lend|borrow|progress|salary|eventually|sympathetic|Wednesday|entrepreneur)\b/i);
-    var target=matchQuoted?matchQuoted[1]:matchSpecial?matchSpecial[1]:null;
-    if(target&&q.innerHTML.indexOf('micro-hl-idle')===-1){
-        q.innerHTML=q.innerHTML.replace(
-            new RegExp('('+target.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')(?![^<]*>)','i'),
-            '<span class="micro-hl-idle hl-glow">$1</span>'
-        );
-        setTimeout(function(){
-            /* clean up the span after animation */
-            if(q.innerHTML)q.innerHTML=q.innerHTML.replace(/<span class="micro-hl-idle[^"]*">(.*?)<\/span>/g,'$1');
-        },2000);
-    }
-    /* also shimmer the category badge */
-    var cat=document.getElementById('micro-cat');
-    if(cat)flash(cat,'cat-shimmer',950);
-}
-
-/* ── 2. Stimulus text glow on tap cards (6s) ── */
-function step2(){
-    var stim=document.querySelector('.micro-stimulus');
-    if(stim)flash(stim,'stim-glow',1700);
-}
-
-/* ── 3. Alternate New/Hot tag pulses in Fresh Drops (8s) ── */
-var _tagTurn=0;
-function step3(){
-    if(_tagTurn%2===0){
-        var newTags=document.querySelectorAll('.tt-new');
-        newTags.forEach(function(t){flash(t,'tag-live',1250);});
-    } else {
-        var hotTags=document.querySelectorAll('.tt-hot');
-        hotTags.forEach(function(t){flash(t,'tag-live',1050);});
-    }
-    _tagTurn++;
-}
-
-/* ── 4. Lesson tile gentle lift (10s) ── */
-function step4(){
-    var tiles=document.querySelectorAll('.lesson-tile,.pro-tile');
-    if(!tiles.length)return;
-    var tile=tiles[Math.floor(Math.random()*tiles.length)];
-    flash(tile,'tile-ping',950);
-}
-
-/* ── 5. Course card gentle lift (12.5s) ── */
-function step5(){
-    var cards=document.querySelectorAll('.cc');
-    if(!cards.length)return;
-    var card=cards[Math.floor(Math.random()*cards.length)];
-    flash(card,'cc-pulse',850);
-}
-
-/* ── 6. Leaderboard XP flash (14.5s) ── */
-function step6(){
-    var xps=document.querySelectorAll('.lb-xp');
-    if(!xps.length)return;
-    var xp=xps[Math.floor(Math.random()*xps.length)];
-    flash(xp,'xp-flash',1050);
-}
-
-/* ── 7. Picks card shimmer (16s) ── */
-function step7(){
-    flash(document.querySelector('.picks-card'),'picks-ping',800);
-}
-
-/* Staggered start, then each step repeats on its own relaxed interval */
-var WAVE=[
-    {fn:step1, start:4000,  repeat:9000},
-    {fn:step2, start:6500,  repeat:11000},
-    {fn:step3, start:8000,  repeat:8000},
-    {fn:step4, start:10500, repeat:13000},
-    {fn:step5, start:13000, repeat:15000},
-    {fn:step6, start:15000, repeat:18000},
-    {fn:step7, start:16500, repeat:20000},
-];
-WAVE.forEach(function(w){
-    setTimeout(function(){w.fn();setInterval(w.fn,w.repeat);},w.start);
-});
-
-})();
-
-/* ── BOOT ── */
-async function boot(){
-    try{
-        var attempts=0;
-        while(!window.efcdSupabaseClient&&attempts<40){
-            await new Promise(function(r){setTimeout(r,50);});
-            attempts++;
-        }
-        if(!window.EFCD_Auth){renderGuest();renderDC();renderPick();buildLeaderboard(null);return;}
-        await window.EFCD_Auth.initAuth();
-        var user=window.EFCD_Auth.getCurrentUser();
-        if(user){await renderUser(window.EFCD_Auth.getUserStats(),user);}
-        else{renderGuest();}
-        if(window.EFCD_UI){window.EFCD_UI.updateHeaderUI();}
-        setTimeout(function(){
-            if(!window.EFCD_Auth.getCurrentUser())return;
-            var container=document.getElementById('header-auth-container');
-            if(!container||!window.EFCD_Shop||document.querySelector('.btn-shop'))return;
-            var btn=document.createElement('button');btn.className='btn-shop';btn.innerHTML='🛍️ Shop';btn.onclick=function(){window.EFCD_Shop.open();};
-            var lastChild=container.lastElementChild;
-            if(lastChild)container.insertBefore(btn,lastChild);else container.appendChild(btn);
-        },300);
-    }catch(e){console.error('Boot error:',e);renderGuest();}
-    renderDC();renderPick();
-    var shuffleBtn=document.getElementById('picks-shuffle-btn');
-    if(shuffleBtn)shuffleBtn.addEventListener('click',renderPick);
-    setInterval(renderPick,20000);
-}
-
-if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',boot);}
-else{boot();}
-
-/* ══════════════════════════════════════════════════════
-   DAILY ENGLISH HIT v2
-   — Every card is interactive (no passive reading)
-   — 3 interactions = celebration popup + lesson picker
-   — Progress bar + hit dots
-   — Confetti on completion
-══════════════════════════════════════════════════════ */
-(function(){
-'use strict';
-
-/* ── TRACK DATA for celebration modal ── */
-var TRACKS=[
-    {label:'🌱 Beginner',    url:'/beginner/',     bg:'#58CC02',shadow:'#58A700'},
-    {label:'🚀 Intermediate',url:'/intermediate/', bg:'#1CB0F6',shadow:'#1899D6'},
-    {label:'🎯 Advanced',    url:'/advanced/',     bg:'#FF4B4B',shadow:'#EA2B2B'},
-    {label:'💼 Business',    url:'/business/',     bg:'#CE82FF',shadow:'#A559D9'},
-    {label:'💰 Tax English', url:'/tax/',          bg:'#FFC800',shadow:'#E5B400'},
-    {label:'⚖️ Legal English',url:'/legal/',       bg:'#2BDECC',shadow:'#1FB8A8'},
-];
-
-/* ── ALL-INTERACTIVE CARDS
-   Every card requires a tap/click — no passive reading.
-   Types:
-     choose  — multiple choice, one correct answer
-     tap     — "tap to reveal" the answer (idioms, facts, terms)
-              presented as a question first so there's a moment of thinking
-── */
-var CARDS=[
-    /* CHOOSE THE WORD */
-    {type:'choose',cat:'Choose the word',cc:'#1CB0F6',cb:'#E8F7FE',ct:'#0a4d70',xp:15,
-     q:'She _____ a mistake in the report.',
-     hl:'mistake',
-     opts:['did','made','has done','do'],ans:1,
-     explain:'Always "make a mistake" — never "do a mistake". Other make phrases: make a decision, make progress, make a suggestion.'},
-
-    {type:'choose',cat:'Choose the word',cc:'#1CB0F6',cb:'#E8F7FE',ct:'#0a4d70',xp:15,
-     q:'Can you _____ me your pen for a moment?',
-     hl:'lend',
-     opts:['borrow','lend','loan','take'],ans:1,
-     explain:'"Lend" = give temporarily. "Borrow" = receive temporarily. You LEND to someone, you BORROW from someone.'},
-
-    {type:'choose',cat:'Choose the word',cc:'#1CB0F6',cb:'#E8F7FE',ct:'#0a4d70',xp:15,
-     q:'The project is going well — we are making good _____.',
-     opts:['progress','progresses','a progress','the progress'],ans:0,
-     explain:'"Progress" is uncountable — no plural, never "a/an". Same rule: advice, information, news, knowledge.'},
-
-    {type:'choose',cat:'Choose the word',cc:'#1CB0F6',cb:'#E8F7FE',ct:'#0a4d70',xp:15,
-     q:'I am really looking forward _____ the conference.',
-     hl:'looking forward to',
-     opts:['to attend','to attending','for attending','at attending'],ans:1,
-     explain:'"Look forward to" + -ing form always. The "to" is a preposition here. So: looking forward to seeing you, to hearing from you.'},
-
-    {type:'choose',cat:'Choose the word',cc:'#1CB0F6',cb:'#E8F7FE',ct:'#0a4d70',xp:15,
-     q:'He said he _____ finish the report by Friday.',
-     hl:'said',
-     opts:['can','won\'t','would','will'],ans:2,
-     explain:'Reported speech shifts "will" to "would". He said: "I will finish" becomes: He said he would finish. This is called backshifting.'},
-
-    /* GRAMMAR ZAP */
-    {type:'choose',cat:'Grammar zap',cc:'#FF4B4B',cb:'#FFF0F0',ct:'#8b0000',xp:20,
-     q:'Find the mistake: I have been to Paris last year.',
-     hl:'last year',
-     opts:['No mistake','Should be: I went to Paris last year.','Should be: I was going to Paris.','Should be: I had been to Paris.'],ans:1,
-     explain:'Specific past times (last year, yesterday) ALWAYS need simple past — never present perfect. "I went to Paris last year." is correct.'},
-
-    {type:'choose',cat:'Grammar zap',cc:'#FF4B4B',cb:'#FFF0F0',ct:'#8b0000',xp:20,
-     q:'Second conditional — which is correct?',
-     opts:['If I would have more time, I will learn Japanese.','If I had more time, I would learn Japanese.','If I have more time, I would learn Japanese.','If I had more time, I will learn Japanese.'],ans:1,
-     explain:'Second conditional: If + past simple, then would + infinitive. NEVER "would" in the if-clause.'},
-
-    {type:'choose',cat:'Grammar zap',cc:'#FF4B4B',cb:'#FFF0F0',ct:'#8b0000',xp:20,
-     q:'Find the mistake: She suggested to go to the cinema.',
-     hl:'suggested',
-     opts:['No mistake','Should be: She suggested going to the cinema.','Should be: She suggested that go.','Should be: She suggested us go.'],ans:1,
-     explain:'"Suggest" is always followed by -ing or a that-clause. Never suggest + to-infinitive. Same rule: recommend, consider, avoid, mind.'},
-
-    /* BRITISH IDIOMS — now multiple choice */
-    {type:'choose',cat:'British idiom',cc:'#CE82FF',cb:'#F5EBFF',ct:'#5c2d91',xp:10,
-     q:'What does the phrase not my cup of tea mean?',
-     hl:'cup of tea',
-     opts:['I prefer coffee','It is not something I enjoy or like','It is too expensive for me','I do not have time for it'],ans:1,
-     explain:'"Not my cup of tea" = not my preference. Example: "Hiking? Not really my cup of tea — I prefer the city." Use it to politely decline.'},
-
-    {type:'choose',cat:'British idiom',cc:'#CE82FF',cb:'#F5EBFF',ct:'#5c2d91',xp:10,
-     q:'You follow the instructions and it works perfectly first time. Your British colleague says: Bobs your uncle! What do they mean?',
-     hl:'uncle',
-     opts:['You have a relative called Bob','Something went wrong','There you go — done! Simple as that!','You need more practice'],ans:2,
-     explain:'"Bob\'s your uncle" = and there you have it! Done! It means something worked out easily. Like the French "voila".'},
-
-    {type:'choose',cat:'British idiom',cc:'#CE82FF',cb:'#F5EBFF',ct:'#5c2d91',xp:10,
-     q:'Your British friend says he is a bit skint this week. What does skint mean?',
-     hl:'skint',
-     opts:['Very busy','Feeling unwell','Short of money','Really tired'],ans:2,
-     explain:'"Skint" means having very little money. Informal British English. Opposite: "loaded" = very rich. "Can\'t come out — I\'m skint until payday."'},
-
-    {type:'choose',cat:'British idiom',cc:'#CE82FF',cb:'#F5EBFF',ct:'#5c2d91',xp:10,
-     q:'Someone offers you a deal. Your British friend whispers: that seems a bit dodgy. What do they mean?',
-     hl:'dodgy',
-     opts:['Surprisingly generous','Suspicious or unreliable','Very difficult','Extremely popular'],ans:1,
-     explain:'"Dodgy" = suspicious, unreliable, possibly dishonest. "He offered to fix my car for 50 pounds cash — seemed a bit dodgy." Very British, very useful.'},
-
-    /* DID YOU KNOW — now multiple choice */
-    {type:'choose',cat:'Did you know?',cc:'#58CC02',cb:'#EDFBD8',ct:'#2a5c00',xp:10,
-     q:'Where does the English word SALARY come from?',
-     hl:'salary',
-     opts:['Latin for gold','Latin for salt','Old French for wages','Greek for payment'],ans:1,
-     explain:'From the Latin "salarium" — salt. Roman soldiers were sometimes paid in salt. "Earns their salt" still means someone is worth their pay.'},
-
-    {type:'choose',cat:'Did you know?',cc:'#58CC02',cb:'#EDFBD8',ct:'#2a5c00',xp:10,
-     q:'What is the shortest grammatically complete sentence in English?',
-     opts:['"Yes."','"I am."','"Go."','"Run now."'],ans:2,
-     explain:'"Go." — the subject is the implied "you". All imperatives work this way: Stop. Wait. Listen. All complete sentences with no words wasted.'},
-
-    {type:'choose',cat:'Did you know?',cc:'#58CC02',cb:'#EDFBD8',ct:'#2a5c00',xp:10,
-     q:'Roughly how many words did Shakespeare invent that we still use today?',
-     opts:['About 200','Around 800','Over 1,700','Nearly 5,000'],ans:2,
-     explain:'Over 1,700 — including bedroom, lonely, generous, gloomy, obscene, cold-blooded, and "swagger". Without Shakespeare, English would be a very different language.'},
-
-    /* CAFÉ ENGLISH */
-    {type:'choose',cat:'Café English',cc:'#FF9600',cb:'#FFF3E0',ct:'#7a3800',xp:10,
-     q:'You ordered a flat white but got a black coffee. What do you say?',
-     hl:'mix-up',
-     opts:['Excuse me, I think there might be a mix-up — I ordered a flat white?','THIS IS WRONG GIVE ME THE RIGHT ONE','Sorry so sorry I do not want this so sorry!'],ans:0,
-     explain:'"I think there might be a mix-up" is perfect British English for "you got this wrong" — firm but polite. The question mark softens it. Never over-apologise.'},
-
-    {type:'choose',cat:'Café English',cc:'#FF9600',cb:'#FFF3E0',ct:'#7a3800',xp:10,
-     q:'How do you politely ask for the bill?',
-     opts:['Bill!','Could we have the bill when you are ready, please?','We want to pay. Now.','The bill. Please.'],ans:1,
-     explain:'"When you are ready" signals you are not rushing the server. British service culture values politeness. Always add "please" and a softening phrase.'},
-
-    /* FALSE FRIENDS — now multiple choice */
-    {type:'choose',cat:'False friend',cc:'#2BDECC',cb:'#E6FAFB',ct:'#0d5c54',xp:10,
-     q:'What does SYMPATHETIC really mean in English?',
-     hl:'sympathetic',
-     opts:['Nice and likeable','Understanding someone\'s problems and feelings','Enthusiastic and energetic','Polite and well-mannered'],ans:1,
-     explain:'"Sympathetic" = showing understanding of problems. NOT the same as "nice" or "likeable" (sympathisch, simpatico). "She was sympathetic when I told her my news."'},
-
-    {type:'choose',cat:'False friend',cc:'#2BDECC',cb:'#E6FAFB',ct:'#0d5c54',xp:10,
-     q:'What does EVENTUALLY mean in English?',
-     hl:'eventually',
-     opts:['Possibly, perhaps','In the end, after some time — it WILL happen','Sometimes, occasionally','By chance, accidentally'],ans:1,
-     explain:'"Eventually" = definitely in the end, after a delay. NOT "maybe". "We had many problems but eventually we finished." Compare: "eventuell" (German) = possibly.'},
-
-    /* PRONUNCIATION — keep as tap+speak */
-    {type:'tap',cat:'Pronunciation trap',cc:'#FF6EB4',cb:'#FFF0F7',ct:'#7a1a4a',xp:10,
-     q:'How do you actually say WEDNESDAY? Click the speaker to hear it 👇',
-     stimulus:'📢 WEDNESDAY',
-     answer:'WED-NZ-DAY — the first D is completely silent.',
-     speakWord:'wednesday',
-     detail:'Other silent-letter traps: KNIFE (K silent), RECEIPT (P silent), DOUBT (B silent), COLONEL (sounds like "kernel").'},
-
-    {type:'tap',cat:'Pronunciation trap',cc:'#FF6EB4',cb:'#FFF0F7',ct:'#7a1a4a',xp:10,
-     q:'How do you actually say ENTREPRENEUR? Click the speaker to hear it 👇',
-     stimulus:'📢 ENTREPRENEUR',
-     answer:'on-truh-pruh-NUR — stress on the last syllable.',
-     speakWord:'entrepreneur',
-     detail:'Common errors: on-treh-preh-NOOR. Other French-origin traps: BUREAU (BYOO-roh), LIAISON (lee-AY-zon), PLATEAU (PLA-toh).'},
-
-    /* BUSINESS ENGLISH */
-    {type:'choose',cat:'Business English',cc:'#CE82FF',cb:'#F5EBFF',ct:'#5c2d91',xp:15,
-     q:'Which sounds more professional in a meeting?',
-     hl:'professional',
-     opts:['Can we talk about the problem?','I would like to flag a concern regarding the timeline.','There is a problem we need to talk about.','The timeline is a problem.'],ans:1,
-     explain:'"Flag a concern" is measured and professional. "Regarding" is more formal than "about". This phrasing opens discussion without blaming anyone.'},
-
-    {type:'choose',cat:'Business English',cc:'#CE82FF',cb:'#F5EBFF',ct:'#5c2d91',xp:15,
-     q:'You do not understand what someone said in a meeting. Which is best?',
-     opts:['What?','I do not understand.','Could you elaborate on that point?','Huh, can you say that again?'],ans:2,
-     explain:'"Elaborate" means explain in more detail. It sounds engaged, not confused. Also good: "Could you expand on that?" or "I would welcome a bit more context."'},
-
-    /* LEGAL / TAX */
-    {type:'choose',cat:'Legal English',cc:'#2BDECC',cb:'#E6FAFB',ct:'#0d5c54',xp:15,
-     q:'What is a FORCE MAJEURE clause in a contract?',
-     hl:'force majeure',
-     opts:['A penalty for late payment','A clause excusing obligations due to extraordinary events beyond your control','A requirement to renegotiate terms annually','A clause limiting liability to a fixed amount'],ans:1,
-     explain:'"Force majeure" (fors ma-ZHUR) covers wars, pandemics, natural disasters. "The company invoked force majeure after the earthquake." Seen in almost every commercial contract.'},
-
-    {type:'choose',cat:'Tax English',cc:'#FFC800',cb:'#FFF8DC',ct:'#786000',xp:15,
-     q:'What is WITHHOLDING TAX?',
-     hl:'withholding',
-     opts:['A tax you pay when you withdraw cash from a bank','Tax deducted at source before the recipient receives payment','A late payment penalty charged by the tax authority','A refundable deposit paid to customs'],ans:1,
-     explain:'"The dividend was subject to 15% withholding tax, so the investor received only 85%." Double tax treaties can reduce or eliminate withholding tax.'},
-];
-
-/* ── STATE ── */
-var _order=[];
-var _cardIdx=0;
-var _hitsToday=0;
-var _hitsDone=0; /* interactions completed this session */
-var _xpTotal=0;
-var _answered=false;
-var MAX_HITS=3;
-var _renderTimer=null;
-
-/* ── HELPERS ── */
-function _shuffle(a){var b=a.slice();for(var i=b.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=b[i];b[i]=b[j];b[j]=t;}return b;}
-function _esc(s){return encodeURIComponent(s||'');}
-function _unesc(s){try{return decodeURIComponent(s||'');}catch(e){return s||'';}}
-
-/* ── PROGRESS UI ── */
-function _updateProgress(){
-    var pct=Math.round((_hitsDone/MAX_HITS)*100);
-    var bar=document.getElementById('micro-progress');
-    if(bar)bar.style.width=Math.min(100,pct)+'%';
-    var ctr=document.getElementById('micro-counter');
-    if(ctr)ctr.textContent=_hitsDone+' / '+MAX_HITS;
-    /* hit dots */
-    for(var i=0;i<MAX_HITS;i++){
-        var dot=document.getElementById('hd'+i);
-        if(dot){if(i<_hitsDone)dot.classList.add('hit');else dot.classList.remove('hit');}
-    }
-}
-
-/* ── SPEAK (Web Speech API — British English) ── */
-function _speak(word){
-    if(!window.speechSynthesis)return;
-    window.speechSynthesis.cancel();
-    var btn=document.getElementById('micro-speak-btn');
-    if(btn)btn.classList.add('speaking');
-    var u=new SpeechSynthesisUtterance(word);
-    u.lang='en-GB';u.rate=0.85;u.pitch=1;
-    /* try to find a British voice */
-    var voices=window.speechSynthesis.getVoices();
-    var brit=voices.find(function(v){return v.lang==='en-GB';});
-    if(brit)u.voice=brit;
-    u.onend=function(){if(btn)btn.classList.remove('speaking');};
-    u.onerror=function(){if(btn)btn.classList.remove('speaking');};
-    window.speechSynthesis.speak(u);
-}
-window.microSpeak=_speak;
-
-/* ── KEY-WORD HIGHLIGHT helper ── */
-function _hlQ(q,hl){
-    if(!hl)return q;
-    var re=new RegExp('('+hl.replace(/[-.*+?^${}()|[\]\\]/g,'\\$&')+')','i');
-    return q.replace(re,'<span class="micro-hl hl-pop">$1</span>');
-}
-
-/* ── RENDER CARD ── */
-function _render(){
-    if(_renderTimer)clearTimeout(_renderTimer);
-    _answered=false;
-    var c=CARDS[_order[_cardIdx%_order.length]];
-    var catEl=document.getElementById('micro-cat');
-    var bodyEl=document.getElementById('micro-body');
-    var xpEl=document.getElementById('micro-xp');
-    var revBtn=document.getElementById('micro-reveal-btn');
-    var nextBtn=document.getElementById('micro-btn-next');
-    if(!catEl||!bodyEl)return;
-
-    catEl.textContent=c.cat;
-    catEl.style.background=c.cb;
-    catEl.style.color=c.ct;
-    catEl.style.borderColor=c.cc;
-    if(xpEl)xpEl.textContent='⚡ +'+(c.xp||10)+' XP';
-    if(revBtn)revBtn.style.display='none';
-    if(nextBtn)nextBtn.style.display='flex';
-
-    bodyEl.style.opacity='0';bodyEl.style.transform='translateY(6px)';
-    _renderTimer=setTimeout(function(){
-        bodyEl.style.transition='opacity .22s,transform .22s';
-        var html='';
-
-        if(c.type==='choose'){
-            var letters=['A','B','C','D'];
-            /* shuffle so correct answer is never always the same slot */
-            var idxArr=[];for(var ii=0;ii<c.opts.length;ii++)idxArr.push(ii);
-            var si=_shuffle(idxArr);
-            var newCorrect=si.indexOf(c.ans);
-            /* pass card index — no string encoding, no quote issues */
-            var cRef=_cardIdx%_order.length;
-            html='<div class="micro-label">'+c.cat+'</div>'+
-                 '<div class="micro-q">'+_hlQ(c.q,c.hl)+'</div>'+
-                 '<div class="micro-opts">'+
-                 si.map(function(origIdx,displayPos){
-                     return '<button class="micro-opt" id="mopt'+displayPos+'" onclick="microAnswer('+displayPos+','+newCorrect+','+cRef+')">'+
-                            '<span class="micro-opt-ltr">'+letters[displayPos]+'</span>'+c.opts[origIdx]+'</button>';
-                 }).join('')+
-                 '</div><div class="micro-feedback" id="mfb"></div>';
-
-        } else if(c.type==='tap'){
-            if(revBtn){revBtn.style.display='block';revBtn.textContent='👆 Show answer';}
-            var isPronun=c.cat==='Pronunciation trap';
-            /* extract clean word — lowercase so speech engine pronounces not spells */
-            var speakWord=isPronun?(c.speakWord||(c.stimulus.replace(/[^a-zA-Z\s]/g,'').trim().toLowerCase())):'';
-            var speakBtn=isPronun?
-                '<button id="micro-speak-btn" class="micro-speak-btn" onclick="microSpeak(\''+speakWord+'\')"><span class="micro-speak-icon">🔊</span> Hear it spoken</button>':
-                '';
-            html='<div class="micro-label">'+c.q+'</div>'+
-                 '<div class="micro-stimulus">'+c.stimulus+'</div>'+
-                 speakBtn+
-                 '<div class="micro-reveal-box" id="mrev">'+
-                     '<strong>✓ '+c.answer+'</strong>'+
-                     '<div style="margin-top:8px;font-size:12px;line-height:1.6;opacity:.85;">'+c.detail+'</div>'+
-                 '</div>';
-            /* auto-speak on card render so user hears it immediately */
-            if(isPronun&&speakWord){
-                setTimeout(function(){_speak(speakWord);},350);
-            }
-        }
-
-        bodyEl.innerHTML=html;
-        bodyEl.style.opacity='1';bodyEl.style.transform='translateY(0)';
-    },180);
-}
-
-/* ── ANSWER HANDLER ── */
-function microAnswer(chosen,correct,cardRef){
-    if(_answered)return;
-    _answered=true;
-    document.querySelectorAll('.micro-opt').forEach(function(b){b.disabled=true;});
-    var chosenBtn=document.getElementById('mopt'+chosen);
-    var correctBtn=document.getElementById('mopt'+correct);
-    var fb=document.getElementById('mfb');
-    var c=CARDS[_order[cardRef]];
-    var exp=c?c.explain:'';
-
-    if(chosen===correct){
-        if(chosenBtn){chosenBtn.classList.add('correct');chosenBtn.querySelector('.micro-opt-ltr').textContent='✅';}
-        if(fb){fb.textContent='Correct! '+exp;fb.className='micro-feedback micro-fb-good show';}
-        _registerHit(c.xp||10);
-    } else {
-        if(chosenBtn){chosenBtn.classList.add('wrong');chosenBtn.querySelector('.micro-opt-ltr').textContent='❌';}
-        if(correctBtn){correctBtn.classList.add('correct');correctBtn.querySelector('.micro-opt-ltr').textContent='✅';}
-        if(fb){fb.textContent='Not quite — '+exp;fb.className='micro-feedback micro-fb-bad show';}
-        _registerHit(0);
-    }
-}
-
-/* ── REVEAL HANDLER (pronunciation tap cards) ── */
-function microReveal(){
-    var r=document.getElementById('mrev');
-    var btn=document.getElementById('micro-reveal-btn');
-    var nextBtn=document.getElementById('micro-btn-next');
-    if(r){r.classList.add('show');}
-    if(btn){btn.style.display='none';}
-    if(nextBtn)nextBtn.style.display='flex';
-    if(!_answered){
-        _answered=true;
-        var c=CARDS[_order[_cardIdx%_order.length]];
-        if(c.cat==='Pronunciation trap'&&window.speechSynthesis){
-            setTimeout(function(){
-                var word=c.speakWord||(c.answer.replace(/[^a-zA-Z\s]/g,'').split('—')[0].trim().toLowerCase());
-                _speak(word);
-            },400);
-        }
-        _registerHit(c.xp||10);
-    }
-}
-
-
-
-/* ── REGISTER A HIT ── */
-function _registerHit(xp){
-    _hitsDone++;
-    _xpTotal+=xp;
-    _updateProgress();
-    if(_hitsDone>=MAX_HITS){
-        setTimeout(function(){_celebrate();},2200);
-    }
-    var xpEl=document.getElementById('micro-xp');
-    if(xpEl&&xp>0){
-        xpEl.classList.add('earned');
-        xpEl.textContent='⚡ +'+xp+' XP!';
-        setTimeout(function(){
-            xpEl.classList.remove('earned');
-            xpEl.textContent='⚡ +'+(CARDS[_order[_cardIdx%_order.length]]?CARDS[_order[_cardIdx%_order.length]].xp||10:10)+' XP';
-        },1800);
-    }
-}
-
-function microNext(){
-    _cardIdx++;
-    if(_cardIdx>=CARDS.length){
-        _cardIdx=0;
-        _order=_shuffle(Array.from({length:CARDS.length},function(_,i){return i;}));
-    }
-    var card=document.getElementById('micro-card');
-    if(card){
-        card.style.opacity='0';card.style.transform='translateY(5px)';
-        card.style.transition='opacity .15s,transform .15s';
-    }
-    setTimeout(function(){
-        _render();
-        if(card){card.style.opacity='1';card.style.transform='translateY(0)';}
-    },160);
-}
-
-/* ── CONFETTI ── */
-function _fireConfetti(){
-    var colors=['#58CC02','#1CB0F6','#FFC800','#FF4B4B','#CE82FF','#2BDECC','#FF9600'];
-    for(var i=0;i<40;i++){
-        var d=document.createElement('div');d.className='conf-dot';
-        var sz=6+Math.random()*10;
-        d.style.cssText='left:'+Math.random()*100+'vw;top:'+(Math.random()*20-10)+'px;width:'+sz+'px;height:'+sz+'px;'+
-            'background:'+colors[Math.floor(Math.random()*colors.length)]+';'+
-            'animation-delay:'+Math.random()*.5+'s;animation-duration:'+(1+Math.random()*.7)+'s;'+
-            'border-radius:'+(Math.random()>.4?'50%':'4px')+';';
-        document.body.appendChild(d);
-        setTimeout(function(el){return function(){el.remove()};}(d),2200);
-    }
-}
-
-/* ── CELEBRATION MODAL ── */
-function _celebrate(){
-    _fireConfetti();
-    var modal=document.getElementById('hit-modal');
-    var sub=document.getElementById('hit-modal-sub');
-    var xpEl=document.getElementById('hit-xp-earned');
-    var tracksEl=document.getElementById('hit-modal-tracks');
-    var deco=document.getElementById('hit-modal-deco');
-
-    if(deco)deco.textContent='🎉';
-    if(sub)sub.textContent='You nailed '+MAX_HITS+' in a row. Now go smash a real lesson!';
-    if(xpEl)xpEl.textContent='+'+_xpTotal+' XP';
-
-    /* build track buttons */
-    if(tracksEl){
-        tracksEl.innerHTML=TRACKS.map(function(t){
-            return '<a href="'+t.url+'" style="'+
-                'display:flex;align-items:center;justify-content:center;padding:11px 8px;'+
-                'background:'+t.bg+';color:#fff;font-size:13px;font-weight:900;'+
-                'border-radius:var(--rsm);border:2px solid '+t.shadow+';border-bottom:2px solid '+t.shadow+';'+
-                'text-decoration:none;letter-spacing:-.2px;'+
-                'transition:transform .1s;">'+t.label+'</a>';
-        }).join('');
-    }
-
-    if(modal){
-        modal.style.display='flex';
-        setTimeout(function(){_fireConfetti();},400);
-    }
-
-    /* reset for next session */
-    _hitsDone=0;_xpTotal=0;
-    setTimeout(function(){_updateProgress();},100);
-}
-
-/* exposed globally */
-window.closeHitModal=function(){
-    var modal=document.getElementById('hit-modal');
-    if(modal)modal.style.display='none';
+/* ═══════════════════════════════════════════════════════════
+   CATEGORY COLOURS
+   Each category has an accent colour that paints:
+   - the top bar of the card
+   - the category badge
+   - the session dots when lit
+   - the Next button
+   This gives every card a distinct visual identity.
+═══════════════════════════════════════════════════════════ */
+const CAT_COLORS = {
+  'idiom'      : { color:'#FFC800', shadow:'#E5B400', dark:true  },
+  'false'      : { color:'#FF4B4B', shadow:'#EA2B2B', dark:false },
+  'grammar'    : { color:'#1CB0F6', shadow:'#1899D6', dark:false },
+  'vocab'      : { color:'#CE82FF', shadow:'#A559D9', dark:false },
+  'fact'       : { color:'#2BDECC', shadow:'#1FB8A8', dark:true  },
+  'pronun'     : { color:'#58CC02', shadow:'#58A700', dark:false },
+  'business'   : { color:'#5C7CFA', shadow:'#3B5BDB', dark:false },
+  'tax'        : { color:'#FF9600', shadow:'#D97800', dark:true  },
+  'legal'      : { color:'#FF9600', shadow:'#D97800', dark:true  },
 };
 
-/* close modal on backdrop click */
-var hitModal=document.getElementById('hit-modal');
-if(hitModal){
-    hitModal.addEventListener('click',function(e){
-        if(e.target===hitModal)window.closeHitModal();
-    });
+function getCatKey(cat){
+  const c = cat.toLowerCase();
+  if(c.includes('idiom'))    return 'idiom';
+  if(c.includes('false'))    return 'false';
+  if(c.includes('grammar'))  return 'grammar';
+  if(c.includes('word') || c.includes('vocab')) return 'vocab';
+  if(c.includes('know') || c.includes('fact'))  return 'fact';
+  if(c.includes('say') || c.includes('pronun')) return 'pronun';
+  if(c.includes('business')) return 'business';
+  if(c.includes('tax'))      return 'tax';
+  if(c.includes('legal'))    return 'legal';
+  return 'idiom';
 }
 
-/* ── BOOT ── */
-_order=_shuffle(Array.from({length:CARDS.length},function(_,i){return i;}));
-_cardIdx=Math.floor(Math.random()*CARDS.length);
-_updateProgress();
-_render();
+function applyAccent(catKey){
+  const cc = CAT_COLORS[catKey] || CAT_COLORS['idiom'];
+  const accent  = document.getElementById('card-accent');
+  const badge   = document.getElementById('card-cat-badge');
+  const nextBtn = document.getElementById('btn-next');
+  if(accent)  accent.style.background = cc.color;
+  if(badge){
+    badge.style.background  = cc.color;
+    badge.style.boxShadow   = `0 2px 0 ${cc.shadow}`;
+    badge.style.color       = cc.dark ? '#111827' : '#fff';
+  }
+  if(nextBtn){
+    nextBtn.style.background   = cc.color;
+    nextBtn.style.borderColor  = cc.shadow;
+    nextBtn.style.color        = cc.dark ? '#111827' : '#fff';
+  }
+  // lit dots
+  for(let i=0;i<5;i++){
+    const d = document.getElementById('sd'+i);
+    if(d && d.classList.contains('lit')){
+      d.style.background   = cc.color;
+      d.style.borderColor  = cc.shadow;
+    }
+  }
+}
 
-window.microAnswer=microAnswer;
-window.microReveal=microReveal;
-window.microNext=microNext;
+/* ═══════════════════════════════════════════════════════════
+   CARDS
+   Every card requires a choice. No passive reading.
+   Types: abcd | yesno | two
+═══════════════════════════════════════════════════════════ */
+const CARDS = [
 
+  // ── IDIOMS ────────────────────────────────────────────────
+  { type:'abcd', cat:'🇬🇧 Idiom of the Day', tag:'Idioms',
+    q:'Your British colleague says he\'s "a bit <span class="hl">skint</span>" this month. What does he mean?',
+    opts:['He\'s feeling unwell and tired','He\'s extremely busy at work','He has very little money','He\'s in a fantastic mood'],
+    correct:2,
+    explain:'<strong>Skint = having very little money.</strong> Informal slang. "Sorry, can\'t come out — I\'m skint until payday." Opposite: <strong>loaded</strong> (very rich) or <strong>flush</strong> (plenty of cash right now).' },
+
+  { type:'abcd', cat:'🇬🇧 Idiom of the Day', tag:'Idioms',
+    q:'Everything works perfectly first time. Your British friend says:\n\n<span class="hl">"Bob\'s your uncle!"</span>\n\nWhat do they mean?',
+    opts:['You have a relative called Bob','Something went wrong — try again','There you go — done! Simple as that!','You need more practice'],
+    correct:2,
+    explain:'<strong>Bob\'s your uncle = there you have it! Done! Easy!</strong> Like the French "voilà". Nobody knows who Bob was, but he shows up reliably whenever something works out.' },
+
+  { type:'abcd', cat:'🇬🇧 Idiom of the Day', tag:'Idioms',
+    q:'Your friend says a deal "seems a bit <span class="hl">dodgy</span>." What does dodgy mean?',
+    opts:['Surprisingly generous','Suspicious or unreliable','Very complicated','Extremely good value'],
+    correct:1,
+    explain:'<strong>Dodgy = suspicious, unreliable, possibly dishonest.</strong> "He offered to fix my car for €50 cash — seemed a bit dodgy." Works for food too: "Don\'t eat that, it looks a bit dodgy."' },
+
+  { type:'yesno', cat:'🇬🇧 Idiom of the Day', tag:'Idioms',
+    q:'Someone invites you to a heavy metal concert. You say:\n\n<span class="hl">"It\'s not really my cup of tea."</span>\n\nHave you politely said no?',
+    optA:{ emoji:'✅', label:'Yes' },
+    optB:{ emoji:'❌', label:'No' },
+    correct:'A',
+    explain:'<strong>Not my cup of tea = not something I enjoy.</strong> A polite British way to decline without being rude. "Opera? Not my cup of tea — I prefer jazz." Useful in professional situations too.' },
+
+  { type:'yesno', cat:'🇬🇧 Idiom of the Day', tag:'Idioms',
+    q:'A British friend says:\n\n<span class="hl">"I\'m absolutely gutted."</span>\n\nAre they happy or upset?',
+    optA:{ emoji:'😢', label:'Upset' },
+    optB:{ emoji:'😄', label:'Happy' },
+    correct:'A',
+    explain:'<strong>Gutted = very disappointed or devastated.</strong> "I\'m absolutely gutted we lost the match." Stronger than "disappointed" — use it when something genuinely hurts.' },
+
+  { type:'abcd', cat:'🇬🇧 Idiom of the Day', tag:'Idioms',
+    q:'Your colleagues say they\'re going out <span class="hl">on the pull</span> on Friday. What are they planning?',
+    opts:['Going to the gym','Going out hoping to meet a romantic partner','Working late on a project','Helping someone move house'],
+    correct:1,
+    explain:'<strong>On the pull = going out hoping to attract a romantic partner.</strong> "He got all dressed up — he was definitely on the pull." Light-hearted and very common.' },
+
+  { type:'abcd', cat:'🇬🇧 Idiom of the Day', tag:'Idioms',
+    q:'Your friend says "I\'m going to <span class="hl">bite the bullet</span> and speak to my boss." What will they do?',
+    opts:['Lose their temper completely','Do something difficult they\'ve been avoiding','Quit their job immediately','Ask for a pay rise'],
+    correct:1,
+    explain:'<strong>Bite the bullet = do something difficult or unpleasant that you\'ve been putting off.</strong> "I need to bite the bullet and go to the dentist." Originally from surgery before anaesthesia — patients literally bit a bullet.' },
+
+  // ── FALSE FRIENDS ─────────────────────────────────────────
+  { type:'abcd', cat:'⚠️ False Friend Alert', tag:'False Friends',
+    q:'What does <span class="hl">sympathetic</span> actually mean in English?',
+    opts:['Nice and likeable','Showing understanding of someone\'s problems','Very energetic and enthusiastic','Polite and well-mannered'],
+    correct:1,
+    explain:'<strong>Sympathetic ≠ likeable.</strong> It means showing understanding of problems. "She was very sympathetic when I told her the bad news." German <em>sympathisch</em> and Italian <em>simpatico</em> mean "likeable" — a classic trap.' },
+
+  { type:'yesno', cat:'⚠️ False Friend Alert', tag:'False Friends',
+    q:'A colleague says:\n\n<span class="hl">"Eventually we might change the plan."</span>\n\nIn English, does "eventually" mean "possibly"?',
+    optA:{ emoji:'❌', label:'No' },
+    optB:{ emoji:'✅', label:'Yes' },
+    correct:'A',
+    explain:'<strong>Eventually = definitely in the end, after a delay. NOT "possibly".</strong> "We eventually found a solution" — it happened for certain. German <em>eventuell</em> and Spanish <em>eventualmente</em> mean "possibly" — very different!' },
+
+  { type:'abcd', cat:'⚠️ False Friend Alert', tag:'False Friends',
+    q:'Your manager asks for the <span class="hl">actual</span> figures. What do they want?',
+    opts:['The current, up-to-date figures','The real, exact figures — not estimates','The most important figures only','The final confirmed figures'],
+    correct:1,
+    explain:'<strong>Actual = real and exact — NOT "current".</strong> "The actual cost was higher than expected." German <em>aktuell</em> and French <em>actuel</em> mean "current" — a very expensive mistake in business.' },
+
+  { type:'two', cat:'⚠️ False Friend Alert', tag:'False Friends',
+    q:'You want to say your colleague is nice and easy to like. Which is correct?',
+    optA:{ emoji:'💬', label:'"She\'s very sympathetic."' },
+    optB:{ emoji:'💬', label:'"She\'s very likeable."' },
+    correct:'B',
+    explain:'<strong>Use "likeable" — not "sympathetic".</strong> Sympathetic means understanding someone\'s problems, not being pleasant. Also good: "She\'s very warm", "She\'s personable", "She\'s great to work with".' },
+
+  // ── GRAMMAR ────────────────────────────────────────────────
+  { type:'abcd', cat:'✏️ Grammar Zap', tag:'Grammar',
+    q:'Which sentence is correct?',
+    opts:['"She did a mistake in the report."','"She made a mistake in the report."','"She has done a mistake."','"She do a mistake."'],
+    correct:1,
+    explain:'<strong>Always "make a mistake" — never "do a mistake".</strong> MAKE: make a decision, make progress, make an effort, make a suggestion. DO: do homework, do exercise, do the washing up.' },
+
+  { type:'yesno', cat:'✏️ Grammar Zap', tag:'Grammar',
+    q:'Is this sentence correct?\n\n<span class="hl">"I have been to Paris last year."</span>',
+    optA:{ emoji:'❌', label:'No — there\'s a mistake' },
+    optB:{ emoji:'✅', label:'Yes — it\'s correct' },
+    correct:'A',
+    explain:'<strong>Specific past times always need simple past.</strong> ✅ "I went to Paris last year." Present perfect NEVER goes with: last year, yesterday, in 2019, on Monday. These all force simple past.' },
+
+  { type:'abcd', cat:'✏️ Grammar Zap', tag:'Grammar',
+    q:'"Can you _____ me your pen for a moment?"',
+    opts:['borrow','lend','loan','take'],
+    correct:1,
+    explain:'<strong>Lend = give temporarily. Borrow = receive temporarily.</strong> You LEND TO someone. You BORROW FROM someone. "Can you lend me €10?" / "Can I borrow €10?" — same money, different direction.' },
+
+  { type:'abcd', cat:'✏️ Grammar Zap', tag:'Grammar',
+    q:'Which is the correct second conditional?',
+    opts:['"If I would have more time, I will learn Japanese."','"If I had more time, I would learn Japanese."','"If I have more time, I would learn Japanese."','"If I had more time, I will learn Japanese."'],
+    correct:1,
+    explain:'<strong>Second conditional: If + past simple → would + infinitive.</strong> Describes imaginary PRESENT situations. Never "would" in the if-clause. Imagine a different version of right now.' },
+
+  { type:'two', cat:'✏️ Grammar Zap', tag:'Grammar',
+    q:'"I\'m really looking forward _____ the conference."',
+    optA:{ emoji:'A', label:'"to attend"' },
+    optB:{ emoji:'B', label:'"to attending"' },
+    correct:'B',
+    explain:'<strong>"Look forward to" is always followed by -ing.</strong> The "to" is a preposition here, not part of an infinitive. So: looking forward to seeing you, to hearing from you, to attending. Never the base form.' },
+
+  { type:'yesno', cat:'✏️ Grammar Zap', tag:'Grammar',
+    q:'Can you say <span class="hl">"a progress"</span> in English?\n\n"We made a good progress today."',
+    optA:{ emoji:'❌', label:'No — it\'s wrong' },
+    optB:{ emoji:'✅', label:'Yes — it\'s fine' },
+    correct:'A',
+    explain:'<strong>Progress is uncountable — no article, no plural.</strong> ✅ "We made good progress today." Same rule: advice, information, news, knowledge, luggage, furniture. Never "a progress".' },
+
+  // ── VOCABULARY ─────────────────────────────────────────────
+  { type:'abcd', cat:'📖 Word of the Day', tag:'Vocabulary',
+    q:'A bookshop owner says "I <span class="hl">curate</span> a special box of books for each customer." What does curate mean?',
+    opts:['Buy in large quantities','Wrap carefully as a gift','Select and organise items with care and expertise','Price and display on shelves'],
+    correct:2,
+    explain:'<strong>Curate = carefully select and organise a collection.</strong> Originally a museum word. Now everywhere: "a curated playlist", "a curated wardrobe", "a curated menu". Very fashionable — and very useful.' },
+
+  { type:'abcd', cat:'📖 Word of the Day', tag:'Vocabulary',
+    q:'"All <span class="hl">proceeds</span> from the concert go to the food bank." What are proceeds?',
+    opts:['The rules and regulations','The money made from a sale or event','The costs of running the event','The performers on stage'],
+    correct:1,
+    explain:'<strong>Proceeds = money obtained from a sale or event.</strong> Always plural — never "a proceed". "All proceeds from the match go to charity." Common in business, legal, and charity contexts.' },
+
+  { type:'abcd', cat:'📖 Word of the Day', tag:'Vocabulary',
+    q:'A city described as a <span class="hl">magnet</span> for young talent. What does magnet mean here?',
+    opts:['Expensive and exclusive','Dangerous to live in','Something that strongly attracts people','City with fast public transport'],
+    correct:2,
+    explain:'<strong>A magnet for = something that strongly attracts people.</strong> "London is a magnet for young professionals." "Silicon Valley is a magnet for tech talent." Very common in journalism and business writing.' },
+
+  { type:'abcd', cat:'📖 Word of the Day', tag:'Vocabulary',
+    q:'"Wigtown was <span class="hl">designated</span> Scotland\'s Book Town in 1998." What does designated mean?',
+    opts:['Destroyed and rebuilt','Officially given a particular status','Donated a large sum of money','Heavily advertised on TV'],
+    correct:1,
+    explain:'<strong>Designated = officially assigned a particular role or status.</strong> "She was designated team leader." "This area has been designated a conservation zone." Always implies a formal official decision.' },
+
+  // ── DID YOU KNOW ───────────────────────────────────────────
+  { type:'abcd', cat:'💡 Did You Know?', tag:'Fun Fact',
+    q:'Where does the English word <span class="hl">salary</span> come from?',
+    opts:['Latin for gold','Latin for salt','Old French for wages','Greek for payment'],
+    correct:1,
+    explain:'<strong>Salary comes from the Latin "salarium" — salt.</strong> Roman soldiers were sometimes paid in salt because it was so valuable. This is also why we say someone "earns their salt" — meaning they\'re worth their pay.' },
+
+  { type:'abcd', cat:'💡 Did You Know?', tag:'Fun Fact',
+    q:'Roughly how many words did Shakespeare invent that we still use today?',
+    opts:['About 200','Around 800','Over 1,700','Nearly 5,000'],
+    correct:2,
+    explain:'<strong>Over 1,700 words</strong> — including bedroom, lonely, generous, gloomy, obscene, cold-blooded, and "swagger". He also invented the name Jessica. Without Shakespeare, English would be a very different language.' },
+
+  { type:'yesno', cat:'💡 Did You Know?', tag:'Fun Fact',
+    q:'Blockbuster Video earned $800 million a year just from <span class="hl">late fees</span>.\n\nTrue or false?',
+    optA:{ emoji:'✅', label:'True' },
+    optB:{ emoji:'❌', label:'False' },
+    correct:'A',
+    explain:'<strong>True.</strong> $800 million a year from late fees — and this helped destroy them. One furious customer was Reed Hastings. He went on to found Netflix. The most expensive business decision in history.' },
+
+  { type:'abcd', cat:'💡 Did You Know?', tag:'Fun Fact',
+    q:'Annual rent at the Fuggerei in Augsburg — the world\'s oldest social housing project, built in 1516?',
+    opts:['€88 per year','€8.80 per year','€0.88 per year','Free — no rent'],
+    correct:2,
+    explain:'<strong>€0.88 per year.</strong> Built by Jakob Fugger, who\'d be worth around $400 billion today. One condition: pray three times a day for his soul. Running continuously for over 500 years.' },
+
+  { type:'yesno', cat:'💡 Did You Know?', tag:'Fun Fact',
+    q:'"Go." is a grammatically complete sentence.\n\nAgree or disagree?',
+    optA:{ emoji:'✅', label:'Agree' },
+    optB:{ emoji:'❌', label:'Disagree' },
+    correct:'A',
+    explain:'<strong>Agree — "Go." is complete.</strong> The subject is the implied "you". All imperatives work this way: Stop. Wait. Listen. Each one is grammatically whole — and punchy.' },
+
+  // ── PRONUNCIATION ──────────────────────────────────────────
+  { type:'abcd', cat:'🔊 Say It Right', tag:'Pronunciation',
+    q:'How do you actually pronounce <span class="hl">WEDNESDAY</span>?',
+    opts:['WED-nes-day — all letters sounded','WED-en-day','WENZ-day — first D silent','WED-nes-dee'],
+    correct:2,
+    explain:'<strong>WENZ-day.</strong> The first D is completely silent. Other traps: KNIFE (K silent), RECEIPT (P silent), DOUBT (B silent), COLONEL (sounds like "kernel").' },
+
+  { type:'abcd', cat:'🔊 Say It Right', tag:'Pronunciation',
+    q:'How do you pronounce <span class="hl">WORCESTERSHIRE</span>?',
+    opts:['wor-CHEST-er-SHIRE','WOR-ster-sheer','WOOSS-ter-sheer','wor-chess-TER-shire'],
+    correct:2,
+    explain:'<strong>WOOSS-ter-sheer.</strong> The middle is swallowed completely. Same: GLOUCESTER = GLOSS-ter, LEICESTER = LESS-ter, EDINBURGH = ED-in-bruh.' },
+
+  { type:'two', cat:'🔊 Say It Right', tag:'Pronunciation',
+    q:'Where is the stress in <span class="hl">ENTREPRENEUR</span>?',
+    optA:{ emoji:'🔊', label:'ON-truh-pruh-ner\n(first syllable)' },
+    optB:{ emoji:'🔊', label:'on-truh-pruh-NUR\n(last syllable)' },
+    correct:'B',
+    explain:'<strong>on-truh-pruh-NUR.</strong> Stress on the last syllable. The final R is barely pronounced in British English. Other French-origin words: BUREAU (BYOO-roh), LIAISON (lee-AY-zon).' },
+
+  // ── BUSINESS ───────────────────────────────────────────────
+  { type:'abcd', cat:'💼 Business English', tag:'Professional Language',
+    q:'You didn\'t understand something in a meeting. Which sounds most professional?',
+    opts:['"What?"','"I don\'t understand."','"Could you elaborate on that point?"','"Huh, say that again?"'],
+    correct:2,
+    explain:'<strong>"Could you elaborate?" = please explain in more detail.</strong> Sounds engaged, not confused. Also good: "Could you expand on that?" or "I\'d welcome a bit more context on that point."' },
+
+  { type:'two', cat:'💼 Business English', tag:'Professional Language',
+    q:'You want to raise a problem without sounding aggressive. Which is better?',
+    optA:{ emoji:'💬', label:'"There is a problem with the timeline."' },
+    optB:{ emoji:'💬', label:'"I\'d like to flag a concern regarding the timeline."' },
+    correct:'B',
+    explain:'<strong>"Flag a concern" is professional and non-confrontational.</strong> "Regarding" is more formal than "about". Opens a conversation without blaming anyone. The best professionals name problems without creating drama.' },
+
+  { type:'yesno', cat:'💼 Business English', tag:'Professional Language',
+    q:'Is this email phrase correct?\n\n<span class="hl">"Please revert back to me at your earliest convenience."</span>',
+    optA:{ emoji:'❌', label:'No — there\'s a mistake' },
+    optB:{ emoji:'✅', label:'Yes — it\'s correct' },
+    correct:'A',
+    explain:'<strong>"Revert back" is redundant — "revert" already means to go back.</strong> Write: "Please revert to me" or better: "Please get back to me when you have a moment."' },
+
+  // ── TAX AND LEGAL ──────────────────────────────────────────
+  { type:'abcd', cat:'💰 Tax English', tag:'Tax & Finance',
+    q:'A dividend is "subject to 15% <span class="hl">withholding tax</span>." What does this mean?',
+    opts:['Tax paid when withdrawing cash from a bank','Tax deducted at source before you receive payment','A late payment penalty','A refundable customs deposit'],
+    correct:1,
+    explain:'<strong>Withholding tax = tax deducted at source before payment reaches you.</strong> "The investor received only 85% after 15% withholding tax." Double tax treaties can reduce or eliminate it.' },
+
+  { type:'abcd', cat:'⚖️ Legal English', tag:'Legal Language',
+    q:'A contract contains a <span class="hl">force majeure</span> clause. What does it do?',
+    opts:['Sets a penalty for late payment','Excuses obligations due to extraordinary events beyond anyone\'s control','Requires annual renegotiation','Limits the total contract value'],
+    correct:1,
+    explain:'<strong>Force majeure excuses obligations due to extraordinary events</strong> — wars, pandemics, earthquakes. "The company invoked force majeure after the earthquake." In almost every commercial contract. Pronounced: fors ma-ZHUR.' },
+];
+
+/* ═══════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════ */
+let _order        = [];
+let _idx          = 0;
+let _done         = false;
+let _sessionScore = 0; // correct answers this session (max 5 dots)
+const TOTAL       = CARDS.length;
+const MAX_DOTS    = 5;
+
+/* ═══════════════════════════════════════════════════════════
+   BOOT — seed with today's date so first card is consistent
+═══════════════════════════════════════════════════════════ */
+(function(){
+  const d    = new Date();
+  const seed = d.getFullYear() * 10000 + (d.getMonth()+1) * 100 + d.getDate();
+  _order = seededShuffle([...Array(TOTAL).keys()], seed);
+  render();
 })();
 
+/* ── SEEDED FISHER-YATES ── */
+function seededShuffle(arr, seed){
+  let s = seed || 42;
+  const r = () => { s = (s * 16807) % 2147483647; return (s-1)/2147483646; };
+  for(let i = arr.length-1; i > 0; i--){
+    const j = Math.floor(r() * (i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+function randShuffle(arr){
+  const b = arr.slice();
+  for(let i = b.length-1; i > 0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [b[i],b[j]] = [b[j],b[i]];
+  }
+  return b;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RENDER CARD
+═══════════════════════════════════════════════════════════ */
+function render(){
+  _done = false;
+  const c       = CARDS[_order[_idx % TOTAL]];
+  const badgeEl = document.getElementById('card-cat-badge');
+  const bodyEl  = document.getElementById('card-body');
+  const afterEl = document.getElementById('card-after-msg');
+  const nextBtn = document.getElementById('btn-next');
+  if(!badgeEl || !bodyEl) return;
+
+  // update badge text
+  badgeEl.textContent = c.cat;
+
+  // apply category accent
+  const catKey = getCatKey(c.cat);
+  applyAccent(catKey);
+
+  // hide next button and after message
+  nextBtn.classList.remove('visible');
+  if(afterEl){ afterEl.textContent=''; afterEl.classList.remove('show'); }
+
+  // animate body out then in
+  bodyEl.classList.remove('entering');
+  bodyEl.classList.add('leaving');
+
+  setTimeout(()=>{
+    bodyEl.classList.remove('leaving');
+    const ref = _idx % TOTAL;
+
+    let html = `<div class="card-eyebrow">${c.cat}</div>
+                <div class="card-q">${c.q}</div>`;
+
+    if(c.type === 'abcd'){
+      const letters = ['A','B','C','D'];
+      const si      = randShuffle(c.opts.map((_,i)=>i));
+      const nc      = si.indexOf(c.correct);
+      html += `<div class="card-opts">
+        ${si.map((oi,pos)=>`
+          <button class="card-opt" id="co${pos}"
+            onclick="answerABCD(${pos},${nc},${ref})"
+            aria-label="Option ${letters[pos]}: ${c.opts[oi]}">
+            <span class="opt-ltr">${letters[pos]}</span>${c.opts[oi]}
+          </button>`).join('')}
+      </div>`;
+    } else {
+      html += `<div class="card-opts-two">
+        <button class="card-opt-big" id="coA"
+          onclick="answerTwo('A','${c.correct}',${ref})"
+          aria-label="${c.optA.label}">
+          <span class="big-emoji">${c.optA.emoji}</span>
+          <span>${c.optA.label}</span>
+        </button>
+        <button class="card-opt-big" id="coB"
+          onclick="answerTwo('B','${c.correct}',${ref})"
+          aria-label="${c.optB.label}">
+          <span class="big-emoji">${c.optB.emoji}</span>
+          <span>${c.optB.label}</span>
+        </button>
+      </div>`;
+    }
+
+    html += `<div class="card-feedback" id="cfb"></div>`;
+    bodyEl.innerHTML = html;
+    bodyEl.classList.add('entering');
+  }, 190);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ANSWER HANDLERS
+═══════════════════════════════════════════════════════════ */
+window.answerABCD = function(chosen, correct, ref){
+  if(_done) return; _done = true;
+  document.querySelectorAll('.card-opt').forEach(b => b.disabled = true);
+  const cb  = document.getElementById('co'+chosen);
+  const okb = document.getElementById('co'+correct);
+  const fb  = document.getElementById('cfb');
+  const c   = CARDS[_order[ref]];
+  const ok  = chosen === correct;
+
+  cb.classList.add(ok ? 'correct' : 'wrong');
+  cb.querySelector('.opt-ltr').textContent = ok ? '✅' : '❌';
+  if(!ok){
+    okb.classList.add('show-right');
+    okb.querySelector('.opt-ltr').textContent = '✅';
+  }
+
+  if(ok) celebrateCorrect(cb);
+  showFeedback(fb, c.explain, ok);
+  showNext(ok);
+};
+
+window.answerTwo = function(chosen, correct, ref){
+  if(_done) return; _done = true;
+  ['A','B'].forEach(x => {
+    const b = document.getElementById('co'+x);
+    if(b) b.disabled = true;
+  });
+  const cb  = document.getElementById('co'+chosen);
+  const okb = document.getElementById('co'+correct);
+  const fb  = document.getElementById('cfb');
+  const c   = CARDS[_order[ref]];
+  const ok  = chosen === correct;
+
+  cb.classList.add(ok ? 'correct' : 'wrong');
+  if(!ok) okb.classList.add('show-right');
+
+  if(ok) celebrateCorrect(cb);
+  showFeedback(fb, c.explain, ok);
+  showNext(ok);
+};
+
+/* ── SHOW FEEDBACK ── */
+function showFeedback(el, text, ok){
+  if(!el) return;
+  el.innerHTML  = (ok ? '✅ ' : '💡 ') + (text || '');
+  el.className  = 'card-feedback ' + (ok ? 'fb-good' : 'fb-bad') + ' show';
+}
+
+/* ── SHOW NEXT BUTTON + AFTER MESSAGE ── */
+function showNext(ok){
+  const afterEl = document.getElementById('card-after-msg');
+  const nextBtn = document.getElementById('btn-next');
+
+  const msgs = ok
+    ? ['Nice one! 🎉', 'Got it! 💪', 'Correct! 🌟', 'Yes! 🔥', 'Brilliant! ✨']
+    : ['Keep going! 💡', 'Nearly there! 👍', 'You\'ve got this! 🚀'];
+
+  if(afterEl){
+    afterEl.textContent = msgs[Math.floor(Math.random()*msgs.length)];
+    afterEl.classList.add('show');
+  }
+  if(nextBtn) nextBtn.classList.add('visible');
+}
+
+/* ── CELEBRATE CORRECT ── */
+function celebrateCorrect(el){
+  // fill next session dot
+  if(_sessionScore < MAX_DOTS){
+    const dot = document.getElementById('sd' + _sessionScore);
+    if(dot){
+      const catKey = getCatKey(CARDS[_order[_idx % TOTAL]].cat);
+      const cc     = CAT_COLORS[catKey] || CAT_COLORS['idiom'];
+      dot.classList.add('lit');
+      dot.style.background  = cc.color;
+      dot.style.borderColor = cc.shadow;
+    }
+    _sessionScore++;
+  }
+
+  // floating emoji pop
+  if(!el) return;
+  const r = el.getBoundingClientRect();
+  const f = document.createElement('div');
+  f.className   = 'xp-float';
+  f.textContent = ['✨','🎉','⭐','🌟','💥'][Math.floor(Math.random()*5)];
+  f.style.cssText = `left:${r.left + r.width/2 - 16}px;top:${r.top - 4}px`;
+  document.body.appendChild(f);
+  setTimeout(() => f.remove(), 1000);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NEXT CARD
+═══════════════════════════════════════════════════════════ */
+window.nextCard = function(){
+  _idx++;
+  const shell = document.getElementById('card-shell');
+  if(shell){
+    shell.style.opacity   = '0';
+    shell.style.transform = 'translateY(5px)';
+    shell.style.transition = 'opacity .15s, transform .15s';
+  }
+  setTimeout(()=>{
+    render();
+    if(shell){
+      shell.style.opacity   = '1';
+      shell.style.transform = 'translateY(0)';
+    }
+  }, 160);
+};
 </script>
-<script src="/surprise-rewards.js"></script>
 </body>
 </html>
