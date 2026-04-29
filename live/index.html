@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+<title>English For Cool Dudes — Live Class</title>
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css2?family=Nunito:ital,wght@0,400;0,700;0,800;0,900;1,900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --blue:#1CB0F6;      --blue-shadow:#1899D6;   --blue-light:#E8F7FE;
+  --yellow:#FFC800;    --yellow-shadow:#E5B400; --yellow-light:#FFF8DC;
+  --green:#58CC02;     --green-shadow:#58A700;  --green-light:#EDFBD8;
+  --punch:#FF4B4B;     --punch-shadow:#EA2B2B;
+  --purple:#CE82FF;    --purple-shadow:#A559D9;
+  --teal:#2BDECC;      --teal-shadow:#1FB8A8;
+  --orange:#FF9600;    --orange-shadow:#D97800;
+  --navy:#1a2e5a;
+  --bg:#FFFFFF;        --page-bg:#F4F6F8;
+  --ink:#4B4B4B;       --ink-bold:#111827;      --ink-3:#AFAFAF;
+  --border:#E5E5E5;    --border-heavy:#CECECE;
+  --r:20px;            --rsm:14px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--navy);color:#fff;font-family:'Nunito',system-ui,sans-serif;line-height:1.5;overflow-x:hidden;min-height:100vh}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+
+@keyframes up        {from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse-green{0%,100%{box-shadow:0 0 0 0 rgba(88,204,2,0)}55%{box-shadow:0 0 0 8px rgba(88,204,2,.25)}}
+@keyframes slideDown {from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bigPop    {0%{opacity:0;transform:scale(.4) rotate(-8deg)}60%{transform:scale(1.12) rotate(2deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+@keyframes confetti  {0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(180px) rotate(540deg)}}
+@keyframes spin      {from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes flamePulse{0%,100%{transform:scale(1) rotate(-3deg)}50%{transform:scale(1.15) rotate(3deg)}}
+@keyframes breathe   {0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
+@keyframes nameTick  {0%{transform:scale(1)}30%{transform:scale(1.12)}100%{transform:scale(1)}}
+@keyframes greetPop  {0%{opacity:0;transform:scale(.3) rotate(-12deg)}55%{transform:scale(1.18) rotate(3deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+@keyframes nudge     {0%,100%{transform:translateX(0)}35%{transform:translateX(5px)}}
+@keyframes float     {0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes shimmer   {0%{left:-80%}100%{left:120%}}
+
+.u1{animation:up .42s ease both .04s}
+.u2{animation:up .42s ease both .16s}
+.u3{animation:up .42s ease both .28s}
+
+/* ── HEADER ── */
+.header{background:rgba(255,255,255,.06);border-bottom:2px solid rgba(255,255,255,.1);height:56px;display:flex;align-items:center;padding:0 16px;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
+.hc{max-width:880px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.logo{width:36px;height:36px;border-radius:10px;background:var(--yellow);border:2px solid var(--yellow-shadow);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.header-title{font-size:15px;font-weight:900;color:#fff;letter-spacing:-.3px;margin-left:10px}
+.header-tagline{font-size:11px;font-weight:800;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px}
+@media(max-width:480px){.header-tagline{display:none}}
+.class-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);border-radius:99px;padding:5px 12px 5px 8px;cursor:pointer;transition:all .12s;flex-shrink:0}
+.class-pill:hover{background:rgba(255,255,255,.18)}
+.class-pill-emoji{font-size:16px}
+.class-pill-text{font-size:12px;font-weight:900;color:#fff}
+.class-pill-sub{font-size:10px;font-weight:700;color:rgba(255,255,255,.5)}
+
+/* ── PAGE ── */
+.page{max-width:880px;margin:0 auto;padding:20px 14px 60px;display:flex;flex-direction:column;gap:16px}
+
+/* ── NO SESSION STATE ── */
+.no-session{text-align:center;padding:60px 20px}
+.no-session-emoji{font-size:80px;margin-bottom:20px;display:block;animation:float 3s ease-in-out infinite}
+.no-session-title{font-size:26px;font-weight:900;color:#fff;font-style:italic;margin-bottom:8px}
+.no-session-sub{font-size:15px;font-weight:700;color:rgba(255,255,255,.6);margin-bottom:30px;line-height:1.65;max-width:400px;margin-left:auto;margin-right:auto}
+.home-link{display:inline-flex;align-items:center;gap:8px;padding:14px 24px;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);border-radius:99px;color:#fff;font-size:14px;font-weight:900;transition:all .12s}
+.home-link:hover{background:rgba(255,255,255,.18)}
+
+/* ── STEP 1: CLASS JOIN ── */
+.class-join{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);border-radius:var(--r);padding:24px 20px;animation:slideDown .3s ease both}
+.cj-eyebrow{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:var(--green);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse-green 2s ease-in-out infinite;flex-shrink:0}
+.class-btn{display:flex;align-items:center;gap:14px;padding:18px 20px;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);border-bottom:5px solid rgba(0,0,0,.2);border-radius:var(--rsm);cursor:pointer;font-family:inherit;color:#fff;text-align:left;width:100%;margin-bottom:10px;transition:all .15s}
+.class-btn:hover{background:rgba(255,255,255,.16);border-color:var(--yellow);transform:translateY(-2px)}
+.class-btn:active{transform:translateY(3px);border-bottom-width:2px}
+.cb-emoji{font-size:30px;flex-shrink:0}
+.cb-info{flex:1}
+.cb-name{font-size:18px;font-weight:900;font-style:italic}
+.cb-team{font-size:12px;font-weight:700;color:rgba(255,255,255,.6);margin-top:2px}
+.cb-arrow{font-size:22px;color:rgba(255,255,255,.4);animation:nudge 2s ease-in-out infinite}
+
+/* ── STEP 2: ROLL CALL ── */
+.roll-call{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);border-radius:var(--r);padding:22px 20px;animation:slideDown .3s ease both}
+.rc-title{font-size:22px;font-weight:900;color:#fff;font-style:italic;margin-bottom:4px}
+.rc-sub{font-size:13px;font-weight:700;color:rgba(255,255,255,.6);margin-bottom:18px}
+.rc-names{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.name-btn{display:flex;align-items:center;gap:8px;padding:12px 16px;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);border-bottom:4px solid rgba(0,0,0,.2);border-radius:var(--rsm);color:#fff;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;min-height:52px;transition:all .12s;position:relative}
+.name-btn:hover:not(.ticked){background:rgba(255,255,255,.18);border-color:var(--yellow);transform:translateY(-2px)}
+.name-btn:active{transform:translateY(2px);border-bottom-width:2px}
+.name-btn.ticked{background:rgba(88,204,2,.25);border-color:var(--green-shadow);color:#d4ffbb;animation:nameTick .35s ease}
+.name-emoji{font-size:20px}
+.name-tick{position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:var(--green);border-radius:50%;font-size:11px;font-weight:900;display:none;align-items:center;justify-content:center;border:2px solid var(--navy)}
+.name-btn.ticked .name-tick{display:flex}
+.rc-done-btn{width:100%;padding:15px 20px;background:var(--yellow);color:var(--ink-bold);font-size:16px;font-weight:900;border-radius:99px;border:3px solid var(--yellow-shadow);border-bottom:5px solid var(--yellow-shadow);cursor:pointer;font-family:inherit;transition:all .1s;display:flex;align-items:center;justify-content:space-between}
+.rc-done-btn:active{transform:translateY(3px);border-bottom-width:2px}
+
+/* ── GREETING POP ── */
+.greeting-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;align-items:center;justify-content:center;padding:20px;pointer-events:none}
+.greeting-overlay.show{display:flex}
+.greeting-card{background:var(--bg);border:4px solid var(--ink-bold);border-bottom:8px solid var(--ink-bold);border-radius:var(--r);max-width:320px;width:100%;text-align:center;padding:32px 24px;animation:greetPop .45s cubic-bezier(.175,.885,.32,1.275) both}
+.greet-emoji{font-size:64px;line-height:1;display:block;margin-bottom:10px}
+.greet-name{font-size:28px;font-weight:900;color:var(--ink-bold);font-style:italic;margin-bottom:4px}
+.greet-msg{font-size:14px;font-weight:700;color:var(--ink-3);line-height:1.5}
+
+/* ── CLASS MODE: HERO ── */
+.live-hero{border:3px solid rgba(255,255,255,.2);border-radius:var(--r);padding:24px 20px;background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.03));position:relative;overflow:hidden}
+.live-hero::after{content:attr(data-emoji);position:absolute;bottom:-16px;right:8px;font-size:100px;opacity:.08;pointer-events:none;animation:float 4s ease-in-out infinite}
+.live-eyebrow{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:var(--green);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.live-title{font-size:clamp(26px,6vw,44px);font-weight:900;font-style:italic;color:#fff;letter-spacing:-1.5px;line-height:1.05;margin-bottom:6px}
+.live-title .highlight{color:var(--yellow);text-shadow:0 2px 0 var(--yellow-shadow)}
+.live-sub{font-size:14px;font-weight:700;color:rgba(255,255,255,.7);margin-bottom:18px;line-height:1.6;max-width:440px}
+.whos-in-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.whos-chip{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.2);border-radius:99px;padding:5px 12px;font-size:13px;font-weight:900;color:#fff}
+.whos-chip-emoji{font-size:16px}
+.live-lessons-btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:15px 22px;background:var(--yellow);color:var(--ink-bold);font-size:16px;font-weight:900;border-radius:99px;border:3px solid var(--yellow-shadow);border-bottom:5px solid var(--yellow-shadow);cursor:pointer;transition:all .1s;text-decoration:none;font-family:inherit}
+.live-lessons-btn:active{transform:translateY(3px);border-bottom-width:2px}
+.btn-arrow{animation:nudge 2s ease-in-out infinite;font-size:20px}
+
+/* ── SESSION LEADERBOARD ── */
+.session-lb{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);border-radius:var(--r);overflow:hidden}
+.slb-head{background:rgba(0,0,0,.2);padding:13px 16px;display:flex;align-items:center;justify-content:space-between}
+.slb-title{font-size:14px;font-weight:900;color:#fff}
+.slb-live{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:900;color:rgba(255,255,255,.5)}
+.slb-live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse-green 2s ease-in-out infinite}
+.slb-score-big{padding:20px;text-align:center}
+.slb-score-num{font-size:56px;font-weight:900;color:var(--yellow);line-height:1;text-shadow:0 3px 0 var(--yellow-shadow)}
+.slb-score-label{font-size:12px;font-weight:900;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.slb-badges-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:0 16px 16px}
+.slb-badge{font-size:22px}
+
+/* ── CLASS VS CLASS ── */
+.cvsc{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);border-radius:var(--r);overflow:hidden}
+.cvsc-head{background:rgba(0,0,0,.2);padding:13px 16px}
+.cvsc-title{font-size:15px;font-weight:900;color:#fff;font-style:italic}
+.cvsc-sub{font-size:11px;font-weight:700;color:rgba(255,255,255,.5);margin-top:2px}
+.cvsc-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.06)}
+.cvsc-row:last-child{border-bottom:none}
+.cvsc-row.my-class{background:rgba(255,200,0,.08)}
+.cvsc-rank{font-size:16px;width:28px;text-align:center;flex-shrink:0}
+.cvsc-info{flex:1}
+.cvsc-name{font-size:13px;font-weight:900;color:#fff}
+.cvsc-team{font-size:11px;font-weight:700;color:rgba(255,255,255,.4);margin-top:1px}
+.cvsc-bar-wrap{width:50px;height:5px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden;flex-shrink:0}
+.cvsc-bar{height:100%;background:var(--blue);border-radius:99px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.cvsc-score{font-size:16px;font-weight:900;color:var(--yellow)}
+.cvsc-trophy{font-size:16px;flex-shrink:0}
+
+/* ── BADGE SHELF ── */
+.badge-shelf{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);border-radius:var(--r);padding:16px 18px}
+.shelf-title{font-size:13px;font-weight:900;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
+.shelf-row{display:flex;flex-wrap:wrap;gap:8px}
+.shelf-badge{display:flex;flex-direction:column;align-items:center;gap:4px}
+.shelf-badge-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08)}
+.shelf-badge-icon.earned{background:var(--yellow);border-color:var(--yellow-shadow);box-shadow:0 0 12px rgba(255,200,0,.4)}
+.shelf-badge-label{font-size:9px;font-weight:900;color:rgba(255,255,255,.5);text-align:center;text-transform:uppercase;letter-spacing:.5px;max-width:50px}
+.shelf-badge.earned-badge .shelf-badge-label{color:rgba(255,255,255,.8)}
+.shelf-empty{font-size:13px;font-weight:700;color:rgba(255,255,255,.35);font-style:italic}
+
+/* ── BADGE OVERLAY ── */
+.badge-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9001;align-items:center;justify-content:center;padding:20px}
+.badge-overlay.open{display:flex}
+.badge-card{background:var(--bg);border:4px solid var(--ink-bold);border-bottom:8px solid var(--ink-bold);border-radius:var(--r);max-width:340px;width:100%;text-align:center;padding:32px 24px;animation:bigPop .4s cubic-bezier(.175,.885,.32,1.275) both;position:relative;overflow:hidden}
+.badge-card::before{content:'';position:absolute;top:-20%;left:-80%;width:50%;height:140%;background:linear-gradient(to right,transparent,rgba(255,255,255,.5),transparent);animation:shimmer 1.8s ease-in-out 2;pointer-events:none}
+.badge-big-emoji{font-size:72px;line-height:1;margin-bottom:12px;display:block;animation:bigPop .5s cubic-bezier(.175,.885,.32,1.275) both .1s}
+.badge-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:var(--ink-3);margin-bottom:6px}
+.badge-name{font-size:22px;font-weight:900;color:var(--ink-bold);font-style:italic;margin-bottom:6px}
+.badge-desc{font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:20px}
+.badge-close-btn{width:100%;padding:13px;background:var(--green);color:#fff;font-size:15px;font-weight:900;border-radius:99px;border:3px solid var(--green-shadow);border-bottom:5px solid var(--green-shadow);cursor:pointer;font-family:inherit}
+
+/* ── CONFETTI ── */
+.conf-dot{position:fixed;border-radius:3px;pointer-events:none;z-index:9999;animation:confetti 1.2s ease-out both}
+
+/* ── SPINNER ── */
+.spinner{width:20px;height:20px;border:3px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;display:inline-block}
+
+/* ── LOADING STATE ── */
+.loading-state{display:flex;align-items:center;justify-content:center;gap:12px;padding:60px 20px;font-size:14px;font-weight:800;color:rgba(255,255,255,.5)}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="hc">
+    <div style="display:flex;align-items:center">
+      <a href="/" class="logo">😎</a>
+      <div style="margin-left:10px">
+        <div class="header-title">English For Cool Dudes</div>
+      </div>
+    </div>
+    <div class="header-tagline">Live Class Session</div>
+    <div id="class-pill-wrap"></div>
+  </div>
+</header>
+
+<!-- GREETING POP -->
+<div class="greeting-overlay" id="greeting-overlay">
+  <div class="greeting-card">
+    <span class="greet-emoji" id="greet-emoji">😎</span>
+    <div class="greet-name" id="greet-name">Andreas!</div>
+    <div class="greet-msg" id="greet-msg">Good morning! Great to see you.</div>
+  </div>
+</div>
+
+<!-- BADGE OVERLAY -->
+<div class="badge-overlay" id="badge-overlay">
+  <div class="badge-card">
+    <span class="badge-big-emoji" id="badge-big-emoji">⭐</span>
+    <div class="badge-label">Badge Earned!</div>
+    <div class="badge-name" id="badge-name">Star Student</div>
+    <div class="badge-desc" id="badge-desc">Outstanding effort</div>
+    <button class="badge-close-btn" onclick="closeBadge()">Awesome! ✨</button>
+  </div>
+</div>
+
+<div class="page" id="page">
+  <div class="loading-state">
+    <div class="spinner"></div>
+    Checking for live sessions…
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ══════════════════════════════════════════════
+// SUPABASE — replace with your credentials
+// ══════════════════════════════════════════════
+const SUPABASE_URL  = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ══════════════════════════════════════════════
+// GREETINGS
+// ══════════════════════════════════════════════
+function getTimeOfDay(){
+  const h=new Date().getHours();
+  if(h<5)  return 'Good evening';
+  if(h<12) return 'Good morning';
+  if(h<17) return 'Good afternoon';
+  return 'Good evening';
+}
+const GREET_MSGS=[
+  n=>`${getTimeOfDay()}, ${n}! Great to see you. 👋`,
+  n=>`${getTimeOfDay()}, ${n}! Ready to learn something cool? 😎`,
+  n=>`Hey ${n}! ${getTimeOfDay()}. Let's do this! 🚀`,
+  n=>`${getTimeOfDay()}, ${n}! So glad you're here. ✨`,
+  n=>`${n}! ${getTimeOfDay()}. Let's make it a good one. 🎯`,
+  n=>`${getTimeOfDay()}, ${n}! Your English is about to get better. 💪`,
+];
+
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+let _class        = null;
+let _classMembers = [];
+let _presentNames = [];
+let _sessionId    = null;
+let _activeClasses= [];
+let _earnedBadgesThisSession = new Set();
+let _sessionScore = 0;
+
+// ══════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════
+async function boot(){
+  // Check if already in a session
+  const savedClass   = localStorage.getItem('efcd_class_id');
+  const savedPresent = JSON.parse(localStorage.getItem('efcd_present_names')||'[]');
+
+  // Load active classes
+  const { data: classes } = await sb.from('efcd_classes')
+    .select('*').eq('is_active', true);
+  _activeClasses = classes || [];
+
+  if(_activeClasses.length === 0){
+    showNoSession();
+    return;
+  }
+
+  if(savedClass){
+    const activeClass = _activeClasses.find(c => c.id === savedClass);
+    if(activeClass){
+      _class = activeClass;
+      const { data: members } = await sb.from('efcd_students')
+        .select('*').eq('class_id', savedClass).order('name');
+      _classMembers = members || [];
+      _presentNames = savedPresent;
+      const { data: sessions } = await sb.from('efcd_sessions')
+        .select('*').eq('class_id', savedClass).is('ended_at', null)
+        .order('started_at', { ascending:false }).limit(1);
+      if(sessions?.[0]) _sessionId = sessions[0].id;
+
+      if(_presentNames.length > 0){
+        enterClassMode();
+      } else {
+        showJoinFlow();
+      }
+      return;
+    }
+  }
+
+  showJoinFlow();
+}
+
+// ══════════════════════════════════════════════
+// NO SESSION
+// ══════════════════════════════════════════════
+function showNoSession(){
+  document.getElementById('page').innerHTML = `
+    <div class="no-session u1">
+      <span class="no-session-emoji">😴</span>
+      <div class="no-session-title">No live sessions right now.</div>
+      <div class="no-session-sub">Your teacher hasn't started a class session yet. Check back when class is about to begin, or explore lessons on your own!</div>
+      <a href="/" class="home-link">← Browse all lessons</a>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════
+// STEP 1: JOIN FLOW
+// ══════════════════════════════════════════════
+function showJoinFlow(){
+  const page = document.getElementById('page');
+
+  if(_activeClasses.length === 1){
+    // Auto-select the only active class
+    joinClass(_activeClasses[0].id);
+    return;
+  }
+
+  // Multiple active classes — show picker
+  page.innerHTML = `
+    <div class="class-join u1">
+      <div class="cj-eyebrow"><div class="live-dot"></div>Sessions are live now</div>
+      <div style="font-size:22px;font-weight:900;color:#fff;font-style:italic;margin-bottom:16px">Which class are you in?</div>
+      ${_activeClasses.map(cls => `
+        <button class="class-btn" onclick="joinClass('${cls.id}')">
+          <span class="cb-emoji">${cls.emoji}</span>
+          <div class="cb-info">
+            <div class="cb-name">${cls.team_name || cls.name}</div>
+            <div class="cb-team">${cls.team_name ? cls.name : ''}</div>
+          </div>
+          <span class="cb-arrow">›</span>
+        </button>`).join('')}
+    </div>`;
+}
+
+async function joinClass(classId){
+  const cls = _activeClasses.find(c => c.id === classId);
+  if(!cls) return;
+  _class = cls;
+  localStorage.setItem('efcd_class_id', classId);
+
+  const [{ data: members }, { data: sessions }] = await Promise.all([
+    sb.from('efcd_students').select('*').eq('class_id', classId).order('name'),
+    sb.from('efcd_sessions').select('*').eq('class_id', classId).is('ended_at', null)
+      .order('started_at', { ascending:false }).limit(1),
+  ]);
+  _classMembers = members || [];
+  if(sessions?.[0]) _sessionId = sessions[0].id;
+
+  showRollCall();
+}
+
+// ══════════════════════════════════════════════
+// STEP 2: ROLL CALL
+// ══════════════════════════════════════════════
+function showRollCall(){
+  const page = document.getElementById('page');
+  const displayName = _class.team_name || _class.name;
+
+  page.innerHTML = `
+    <div class="roll-call u1">
+      <div class="cj-eyebrow"><div class="live-dot"></div>${_class.emoji} ${displayName}</div>
+      <div class="rc-title">Who's here today? 👋</div>
+      <div class="rc-sub">Tap your name — say hello to the class!</div>
+      <div class="rc-names" id="rc-names">
+        ${_classMembers.map(s => `
+          <button class="name-btn" id="nbtn-${s.id}" onclick="tapName('${s.id}')">
+            <span class="name-emoji">${s.avatar_emoji}</span>
+            ${s.name}
+            <span class="name-tick" id="ntick-${s.id}">✓</span>
+          </button>`).join('')}
+      </div>
+      <button class="rc-done-btn" onclick="finishRollCall()">
+        <span>Let's go! 🚀</span>
+        <span id="rc-count" style="font-size:13px;font-weight:800;opacity:.7">0 present</span>
+      </button>
+    </div>`;
+
+  // Re-tick previously tapped names
+  _presentNames.forEach(name => {
+    const member = _classMembers.find(m => m.name === name);
+    if(member) markTicked(member.id);
+  });
+}
+
+function tapName(studentId){
+  const student = _classMembers.find(s => s.id === studentId);
+  if(!student) return;
+  const btn = document.getElementById('nbtn-'+studentId);
+  if(!btn) return;
+
+  if(btn.classList.contains('ticked')){
+    btn.classList.remove('ticked');
+    _presentNames = _presentNames.filter(n => n !== student.name);
+  } else {
+    markTicked(studentId);
+    if(!_presentNames.includes(student.name)) _presentNames.push(student.name);
+    showGreeting(student);
+    fireConfettiSmall();
+  }
+
+  const countEl = document.getElementById('rc-count');
+  if(countEl) countEl.textContent = _presentNames.length === 1 ? '1 present' : _presentNames.length + ' present';
+  localStorage.setItem('efcd_present_names', JSON.stringify(_presentNames));
+}
+
+function markTicked(studentId){
+  const btn  = document.getElementById('nbtn-'+studentId);
+  const tick = document.getElementById('ntick-'+studentId);
+  if(btn) btn.classList.add('ticked');
+  if(tick) tick.style.display = 'flex';
+}
+
+function showGreeting(student){
+  const overlay = document.getElementById('greeting-overlay');
+  const emoji   = document.getElementById('greet-emoji');
+  const name    = document.getElementById('greet-name');
+  const msg     = document.getElementById('greet-msg');
+  if(!overlay) return;
+
+  const fn = GREET_MSGS[Math.floor(Math.random() * GREET_MSGS.length)];
+  emoji.textContent = student.avatar_emoji;
+  name.textContent  = student.name + '!';
+  msg.textContent   = fn(student.name);
+
+  overlay.classList.add('show');
+  clearTimeout(overlay._t);
+  overlay._t = setTimeout(() => overlay.classList.remove('show'), 2200);
+}
+
+function finishRollCall(){
+  if(_presentNames.length === 0) _presentNames = ['the class'];
+  localStorage.setItem('efcd_present_names', JSON.stringify(_presentNames));
+  enterClassMode();
+}
+
+// ══════════════════════════════════════════════
+// CLASS MODE
+// ══════════════════════════════════════════════
+function enterClassMode(){
+  if(!_class) return;
+  const displayName = _class.team_name || _class.name;
+
+  // Header pill
+  const pillWrap = document.getElementById('class-pill-wrap');
+  if(pillWrap) pillWrap.innerHTML = `
+    <div class="class-pill" onclick="leaveClass()">
+      <span class="class-pill-emoji">${_class.emoji}</span>
+      <div>
+        <div class="class-pill-text">${displayName}</div>
+        <div class="class-pill-sub">Tap to leave</div>
+      </div>
+    </div>`;
+
+  // Present chips
+  const presentMembers = _classMembers.filter(m => _presentNames.includes(m.name));
+  const chipsHTML = presentMembers.map(m =>
+    `<div class="whos-chip"><span class="whos-chip-emoji">${m.avatar_emoji}</span>${m.name}</div>`
+  ).join('');
+
+  document.getElementById('page').innerHTML = `
+    <!-- LIVE HERO -->
+    <div class="live-hero u1" data-emoji="${_class.emoji}">
+      <div class="live-eyebrow"><div class="live-dot"></div>${_class.emoji} ${displayName} · Session Live</div>
+      <div class="live-title">${getTimeOfDay()},<br><span class="highlight">${displayName}! ${_class.emoji}</span></div>
+      ${chipsHTML ? `<div class="whos-in-chips">${chipsHTML}</div>` : ''}
+      <div class="live-sub">You're in. Answer questions, earn badges, beat the other classes. Let's go! 🚀</div>
+      <a href="/" class="live-lessons-btn">
+        <span>📚 Go to lessons</span>
+        <span class="btn-arrow">→</span>
+      </a>
+    </div>
+
+    <!-- SESSION SCORE -->
+    <div class="session-lb u2" id="session-lb">
+      <div class="slb-head">
+        <div class="slb-title">${_class.emoji} Session Score</div>
+        <div class="slb-live"><div class="slb-live-dot"></div> Live</div>
+      </div>
+      <div class="slb-score-big">
+        <div class="slb-score-num" id="session-score-num">0</div>
+        <div class="slb-score-label">Correct answers this session</div>
+      </div>
+      <div class="slb-badges-row" id="session-badges-row"></div>
+    </div>
+
+    <!-- BADGE SHELF -->
+    <div class="badge-shelf u2" id="badge-shelf">
+      <div class="shelf-title">🏅 Badges earned today</div>
+      <div class="shelf-row" id="shelf-row">
+        <span class="shelf-empty">Answer questions to earn badges!</span>
+      </div>
+    </div>
+
+    <!-- CLASS VS CLASS -->
+    <div class="cvsc u3" id="cvsc">
+      <div class="cvsc-head">
+        <div class="cvsc-title">🏆 Class vs Class</div>
+        <div class="cvsc-sub">Weekly correct answers — who's on top?</div>
+      </div>
+      <div id="cvsc-rows">
+        <div style="padding:16px;display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.4);font-size:13px;font-weight:700">
+          <div class="spinner"></div> Loading…
+        </div>
+      </div>
+    </div>`;
+
+  loadSessionScore();
+  loadClassVsClass();
+  checkPendingBadges();
+  setInterval(() => { loadSessionScore(); loadClassVsClass(); }, 20000);
+}
+
+function leaveClass(){
+  if(!confirm('Leave this session?')) return;
+  localStorage.removeItem('efcd_class_id');
+  localStorage.removeItem('efcd_present_names');
+  location.reload();
+}
+
+// ══════════════════════════════════════════════
+// SESSION SCORE
+// ══════════════════════════════════════════════
+async function loadSessionScore(){
+  if(!_class || !_sessionId) return;
+  const { data: scores } = await sb.from('efcd_scores')
+    .select('correct').eq('session_id', _sessionId);
+  const total = (scores||[]).reduce((a,s) => a + s.correct, 0);
+  const el = document.getElementById('session-score-num');
+  if(el) el.textContent = total;
+
+  const { data: badges } = await sb.from('efcd_badges')
+    .select('badge_emoji, badge_label').eq('class_id', _class.id)
+    .eq('session_id', _sessionId);
+
+  if(badges?.length){
+    const br = document.getElementById('session-badges-row');
+    if(br) br.innerHTML = [...new Set(badges.map(b => b.badge_emoji))]
+      .slice(0, 8).map(e => `<span class="slb-badge">${e}</span>`).join('');
+
+    // Update badge shelf
+    updateBadgeShelf(badges);
+  }
+}
+
+function updateBadgeShelf(badges){
+  const shelf = document.getElementById('shelf-row');
+  if(!shelf || !badges?.length) return;
+  const unique = [];
+  const seen = new Set();
+  badges.forEach(b => {
+    if(!seen.has(b.badge_label)){ seen.add(b.badge_label); unique.push(b); }
+  });
+  shelf.innerHTML = unique.slice(0, 8).map(b => `
+    <div class="shelf-badge earned-badge">
+      <div class="shelf-badge-icon earned">${b.badge_emoji}</div>
+      <div class="shelf-badge-label">${b.badge_label}</div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════
+// CLASS VS CLASS
+// ══════════════════════════════════════════════
+async function loadClassVsClass(){
+  const rowsEl = document.getElementById('cvsc-rows');
+  if(!rowsEl) return;
+
+  const monday = getWeekStart();
+  const [{ data: classes }, { data: scores }] = await Promise.all([
+    sb.from('efcd_classes').select('*').order('id'),
+    sb.from('efcd_scores').select('class_id,correct').gte('date', monday),
+  ]);
+  if(!classes) return;
+
+  const totals = {};
+  classes.forEach(c => totals[c.id] = 0);
+  (scores||[]).forEach(s => { if(totals[s.class_id] !== undefined) totals[s.class_id] += s.correct; });
+
+  const ranked = classes.map(c => ({ ...c, total: totals[c.id]||0 })).sort((a,b) => b.total - a.total);
+  const max    = ranked[0]?.total || 1;
+  const medals = ['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣'];
+
+  rowsEl.innerHTML = ranked.map((c,i) => {
+    const isMe = _class && c.id === _class.id;
+    const pct  = Math.round((c.total / max) * 100);
+    return `
+      <div class="cvsc-row ${isMe ? 'my-class' : ''}">
+        <div class="cvsc-rank">${medals[i]||'·'}</div>
+        <div class="cvsc-info">
+          <div class="cvsc-name">${c.emoji} ${c.name}${isMe ? ' <span style="font-size:10px;opacity:.5">(you)</span>' : ''}</div>
+          <div class="cvsc-team">${c.team_name || '—'}</div>
+        </div>
+        <div class="cvsc-bar-wrap"><div class="cvsc-bar" style="width:${pct}%"></div></div>
+        <div class="cvsc-score">${c.total}</div>
+        <div class="cvsc-trophy">${i===0 && c.total>0 ? '☕' : ''}</div>
+      </div>`;
+  }).join('');
+}
+
+function getWeekStart(){
+  const d = new Date(), day = d.getDay();
+  const diff = d.getDate() - day + (day===0 ? -6 : 1);
+  return new Date(new Date(d).setDate(diff)).toISOString().split('T')[0];
+}
+
+// ══════════════════════════════════════════════
+// BADGES
+// ══════════════════════════════════════════════
+async function checkPendingBadges(){
+  if(!_class) return;
+  const presentIds = _classMembers.filter(m => _presentNames.includes(m.name)).map(m => m.id);
+  if(!presentIds.length) return;
+  for(const sid of presentIds){
+    const { data: pending } = await sb.from('efcd_badges')
+      .select('*').eq('student_id', sid).eq('is_manual', true)
+      .gte('awarded_at', new Date(Date.now() - 7*86400000).toISOString())
+      .order('awarded_at', { ascending: false }).limit(1);
+    if(pending?.[0] && !_earnedBadgesThisSession.has('manual_'+pending[0].id)){
+      _earnedBadgesThisSession.add('manual_'+pending[0].id);
+      const student = _classMembers.find(m => m.id === sid);
+      setTimeout(() => {
+        showBadge({
+          emoji: pending[0].badge_emoji,
+          name:  pending[0].badge_label,
+          desc:  `Awarded to ${student?.name || 'you'} by your teacher! 🎓`,
+        });
+        fireConfetti();
+      }, 2000);
+      break;
+    }
+  }
+}
+
+function showBadge(badge){
+  document.getElementById('badge-big-emoji').textContent = badge.emoji;
+  document.getElementById('badge-name').textContent       = badge.name;
+  document.getElementById('badge-desc').textContent       = badge.desc;
+  document.getElementById('badge-overlay').classList.add('open');
+}
+window.closeBadge = () => document.getElementById('badge-overlay').classList.remove('open');
+
+// ══════════════════════════════════════════════
+// CONFETTI
+// ══════════════════════════════════════════════
+function fireConfetti(){
+  const c = ['#FFC800','#58CC02','#1CB0F6','#FF4B4B','#CE82FF','#2BDECC','#FF9600'];
+  for(let i=0;i<36;i++){
+    const d = document.createElement('div'); d.className='conf-dot';
+    const sz = 8 + Math.random()*10;
+    d.style.cssText = `left:${Math.random()*100}vw;top:${Math.random()*20}px;width:${sz}px;height:${sz}px;background:${c[~~(Math.random()*c.length)]};animation-delay:${Math.random()*.5}s;animation-duration:${1+Math.random()*.7}s;border-radius:${Math.random()>.5?'50%':'3px'};transform:rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(d); setTimeout(()=>d.remove(), 2000);
+  }
+}
+function fireConfettiSmall(){
+  const c = ['#FFC800','#58CC02','#1CB0F6','#FF4B4B','#CE82FF'];
+  for(let i=0;i<16;i++){
+    const d = document.createElement('div'); d.className='conf-dot';
+    const sz = 6+Math.random()*7;
+    d.style.cssText = `left:${30+Math.random()*40}vw;top:${20+Math.random()*30}vh;width:${sz}px;height:${sz}px;background:${c[~~(Math.random()*c.length)]};animation-delay:${Math.random()*.2}s;animation-duration:${.7+Math.random()*.5}s;border-radius:50%`;
+    document.body.appendChild(d); setTimeout(()=>d.remove(), 1200);
+  }
+}
+
+// ══════════════════════════════════════════════
+// START
+// ══════════════════════════════════════════════
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', boot);
+} else {
+  boot();
+}
+</script>
+</body>
+</html>
