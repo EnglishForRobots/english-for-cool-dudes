@@ -616,7 +616,28 @@ async function showCompletion(){
   if(xpMult>1){const lbl=$('cc-xp-label');if(lbl)lbl.textContent='⚡ XP Earned · 2× DOUBLE XP! 🚀';}
   $('cc-correct').textContent=S.totalRight;$('cc-combo').textContent=S.bestCombo;
   // Show class badge pill if in a session
-  if(localStorage.getItem('efcd_class_id')){const ccb=$('cc-class-badge');if(ccb)ccb.style.display='flex';}
+  if(localStorage.getItem('efcd_class_id')){
+  const ccb=$('cc-class-badge');
+  if(ccb){
+    // Get the class display name and present students
+    const presentNames = JSON.parse(localStorage.getItem('efcd_present_names')||'[]');
+    const validNames = presentNames.filter(n => n !== 'the class');
+    
+    // Update the badge text to name the team
+    const mainText = ccb.querySelector('.cc-class-text-main');
+    const subText  = ccb.querySelector('.cc-class-text-sub');
+    
+    if(mainText){
+      mainText.textContent = validNames.length > 0
+        ? `🏆 ${validNames.join(', ')} earned the Tube Expert badge!`
+        : '🏆 Your class earned the Tube Expert badge!';
+    }
+    if(subText){
+      subText.textContent = `Score and badge added to the class leaderboard!`;
+    }
+    ccb.style.display='flex';
+  }
+}
   $('completion-screen').classList.add('open');
   megaConfettiBurst();setTimeout(megaConfettiBurst,600);
   // Personal account
@@ -624,7 +645,7 @@ async function showCompletion(){
   // Daily challenges
   try{if(window.DailyChallenges){const dcResult=await window.DailyChallenges.updateChallengeProgress({perfectScore:acc>=90});if(dcResult?.justCompleted)setTimeout(()=>window.DailyChallenges.showChallengeCompletionCelebration(dcResult.challenge),1800);localStorage.setItem('dc_last_lesson_date',new Date().toDateString());localStorage.setItem('dc_last_lesson_section','beginner');}}catch(e){}
   // Class session bridge — posts to /live/ leaderboard
-  try{if(typeof EFCD_Rewards!=='undefined'){await EFCD_Rewards.onLessonComplete({lessonId:window.LESSON_ID,lessonTitle:window.LESSON_TITLE,lessonLevel:'Beginner',badgeIcon:'🚇',badgeName:'Tube Expert',correctAnswers:S.totalRight,totalAnswers:S.totalAnswered,bestCombo:S.bestCombo,perfectScore:acc>=90,completionTime:null});}}catch(e){}
+  try{if(typeof EFCD_Rewards!=='undefined'){await EFCD_Rewards.onLessonComplete({lessonId:window.LESSON_ID,lessonTitle:window.LESSON_TITLE,lessonLevel:'Beginner',badgeIcon:'🚇',badgeName:'Tube Expert',correctAnswers:S.totalRight,totalAnswers:S.totalAnswered,bestCombo:S.bestCombo,perfectScore:acc>=90,xp:S.xp,completionTime:null});}}catch(e){}
 }
 
 async function handleSignOut(){if(window.EFCD_Auth?.signOut)await window.EFCD_Auth.signOut();else if(window.efcdSupabaseClient){await window.efcdSupabaseClient.auth.signOut();window.location.href='/';}}
