@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+    <title>🚇 The London Underground — English For Cool Dudes</title>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/init-auth.js"></script>
+    <style>
+    :root {
+        --tube-red:#DC241F; --tube-yellow:#FFD300; --tube-blue:#003688;
+        --tube-green:#00782A; --tube-purple:#9B0056; --tube-brown:#B36305;
+        --tube-teal:#0098D4; --tube-grey:#A0A5A9;
+        --green:#58CC02; --green-shadow:#58A700;
+        --yellow:#FFC800; --yellow-shadow:#E5B400;
+        --punch:#FF4B4B; --punch-shadow:#EA2B2B;
+        --bg:#F7F9FA; --white:#FFFFFF;
+        --ink:#4B4B4B; --ink-bold:#111827; --ink-3:#AFAFAF;
+        --border:#E5E5E5; --border-heavy:#CECECE;
+        --r:24px; --rsm:16px; --rxs:10px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--ink);font-family:'Nunito',system-ui,sans-serif;line-height:1.5;overflow-x:hidden;padding-bottom:60px;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;}
+    a{color:inherit;text-decoration:none;}
+    button{font-family:inherit;cursor:pointer;border:none;background:none;}
+    @keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes popin{0%{opacity:0;transform:scale(.7) rotate(-4deg)}60%{transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+    @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+    @keyframes heartbeat{0%,100%{transform:scale(1)}14%{transform:scale(1.18)}28%{transform:scale(1)}42%{transform:scale(1.1)}}
+    @keyframes xpPop{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(1.5)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    @keyframes bounce{0%,100%{transform:translateY(0)}40%{transform:translateY(-14px)}60%{transform:translateY(-6px)}}
+    @keyframes shimmer2{0%{left:-80%}100%{left:130%}}
+    @keyframes glowGold{0%,100%{box-shadow:0 0 24px rgba(255,211,0,.5),0 8px 32px rgba(0,0,0,.2)}50%{box-shadow:0 0 55px rgba(255,211,0,.9),0 8px 32px rgba(0,0,0,.2)}}
+    @keyframes badgeDrop{0%{opacity:0;transform:translateY(-40px) scale(.7)}60%{transform:translateY(6px) scale(1.06)}80%{transform:translateY(-2px) scale(.98)}100%{opacity:1;transform:translateY(0) scale(1)}}
+    @keyframes megaConf{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(200px) rotate(540deg)}}
+    @keyframes tileIn{0%{opacity:0;transform:scale(.5) rotate(-10deg)}60%{transform:scale(1.1) rotate(2deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+    @keyframes correctPop{0%{transform:scale(1)}30%{transform:scale(1.25)}60%{transform:scale(.95)}100%{transform:scale(1)}}
+    @keyframes roundelSpin{0%,100%{transform:rotate(0deg)}50%{transform:rotate(6deg)}}
+    .u1{animation:up .44s ease both .04s}
+    .u2{animation:up .44s ease both .14s}
+
+    /* HEADER — context-aware */
+    .header{background:#003688;border-bottom:3px solid #001f52;padding:0 20px;height:60px;position:sticky;top:0;z-index:300;display:flex;align-items:center;box-shadow:0 4px 16px rgba(0,54,136,.4);}
+    .header-inner{max-width:860px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
+    .logo-link{display:flex;align-items:center;gap:10px;text-decoration:none;}
+    .roundel{width:36px;height:36px;flex-shrink:0;position:relative;animation:roundelSpin 6s ease-in-out infinite;}
+    .roundel-circle{width:36px;height:36px;border-radius:50%;border:5px solid var(--tube-red);position:absolute;top:0;left:0;background:transparent;}
+    .roundel-bar{position:absolute;top:50%;left:-2px;right:-2px;height:10px;background:var(--tube-red);transform:translateY(-50%);}
+    .site-name{font-size:15px;font-weight:900;color:#fff;letter-spacing:-.3px;}
+    @media(max-width:420px){.site-name{display:none}}
+    .header-right{display:flex;align-items:center;gap:8px;}
+    /* Class pill - shows when in a live session */
+    .hdr-class-pill{display:none;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.2);border-radius:99px;padding:4px 12px 4px 8px;text-decoration:none;}
+    .hdr-class-pill.show{display:flex;}
+    .hdr-class-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:heartbeat 2s ease-in-out infinite;}
+    .hdr-class-name{font-size:12px;font-weight:900;color:#fff;}
+    /* Personal panel - shows only if logged in with account */
+    .hdr-user-panel{display:none;align-items:center;gap:8px;}
+    .hdr-user-panel.show{display:flex;}
+    .streak-mini{display:flex;align-items:center;gap:4px;font-size:14px;font-weight:900;color:var(--tube-yellow);}
+    .xp-pill{background:rgba(255,211,0,.15);border:2px solid rgba(255,211,0,.3);border-radius:99px;padding:5px 12px;font-size:14px;font-weight:900;color:var(--tube-yellow);display:flex;align-items:center;gap:4px;}
+    .btn-dash{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.18);border-bottom:3px solid rgba(0,0,0,.2);border-radius:10px;font-size:17px;text-decoration:none;}
+    .btn-signout{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:rgba(220,36,31,.2);border:2px solid rgba(220,36,31,.35);border-bottom:3px solid rgba(220,36,31,.4);border-radius:10px;font-size:17px;cursor:pointer;font-family:inherit;}
+
+    /* PAGE */
+    .page{max-width:860px;margin:0 auto;padding:20px 14px 40px;display:flex;flex-direction:column;gap:14px;}
+
+    /* LESSON BANNER */
+    .lesson-banner{background:linear-gradient(135deg,#001433 0%,#002266 50%,#003688 100%);border:3px solid rgba(255,255,255,.12);border-bottom:6px solid rgba(0,0,0,.3);border-radius:var(--r);padding:28px 20px 24px;position:relative;overflow:hidden;}
+    .banner-lines{position:absolute;inset:0;pointer-events:none;overflow:hidden;opacity:.15;}
+    .banner-line{position:absolute;height:5px;border-radius:3px;}
+    .bl-1{background:var(--tube-red);top:20%;left:-5%;width:65%;transform:rotate(-3deg);}
+    .bl-2{background:var(--tube-yellow);top:40%;left:25%;width:80%;transform:rotate(2deg);}
+    .bl-3{background:var(--tube-teal);top:62%;left:-5%;width:55%;transform:rotate(-2deg);}
+    .bl-4{background:#6EBE44;top:80%;left:40%;width:70%;transform:rotate(3deg);}
+    .banner-deco{position:absolute;bottom:-16px;right:8px;font-size:120px;opacity:.1;pointer-events:none;animation:float 5s ease-in-out infinite;}
+    .lesson-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.14);border:2px solid rgba(255,255,255,.25);border-radius:8px;padding:4px 12px;margin-bottom:12px;font-size:11px;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:1.5px;position:relative;z-index:1;}
+    .lesson-title{font-size:clamp(22px,6vw,40px);font-weight:900;color:#fff;letter-spacing:-1.5px;line-height:1.05;margin-bottom:8px;position:relative;z-index:1;text-shadow:0 3px 0 rgba(0,0,0,.3);}
+    .lesson-title .yellow{color:var(--tube-yellow);}
+    .lesson-sub{font-size:14px;font-weight:700;color:rgba(255,255,255,.85);position:relative;z-index:1;margin-bottom:16px;line-height:1.65;max-width:480px;}
+    .lesson-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;position:relative;z-index:1;}
+    .ls-stat{background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.18);border-radius:var(--rsm);padding:10px 8px;text-align:center;}
+    .ls-stat-n{font-size:clamp(16px,4vw,22px);font-weight:900;color:#fff;line-height:1;display:block;}
+    .ls-stat-l{font-size:9px;font-weight:900;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:1px;margin-top:3px;display:block;}
+    .prog-wrap{position:relative;z-index:1;background:rgba(0,0,0,.2);padding:11px 13px;border-radius:var(--rsm);}
+    .prog-row{display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:#fff;margin-bottom:7px;}
+    .prog-track{height:14px;background:rgba(0,0,0,.2);border-radius:99px;overflow:hidden;border:2px solid rgba(255,255,255,.08);}
+    .prog-fill{height:100%;width:0%;border-radius:99px;background:linear-gradient(to right,var(--tube-yellow),#fff8a0);transition:width .7s cubic-bezier(.4,0,.2,1);}
+
+    /* SECTION CARDS */
+    .sec-card{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);overflow:hidden;opacity:0;transform:translateY(16px);transition:opacity .4s ease,transform .4s ease;scroll-margin-top:72px;}
+    .sec-card.visible{opacity:1;transform:translateY(0);}
+    .sec-card::before{content:'';display:block;height:8px;border-radius:var(--r) var(--r) 0 0;margin:-2px -2px 0;}
+    .strip-red::before{background:var(--tube-red);}
+    .strip-yellow::before{background:var(--tube-yellow);}
+    .strip-teal::before{background:var(--tube-teal);}
+    .strip-blue::before{background:var(--tube-blue);}
+    .strip-purple::before{background:var(--tube-purple);}
+    .sec-head{padding:13px 18px 11px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:12px;}
+    .sec-head-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;background:var(--bg);border:2px solid var(--border-heavy);border-bottom:3px solid var(--border-heavy);}
+    .sec-head-title{font-size:16px;font-weight:900;color:var(--ink-bold);letter-spacing:-.3px;}
+    .sec-head-sub{font-size:12px;font-weight:700;color:var(--ink-3);margin-top:2px;}
+    .sec-body{padding:18px;}
+    .tip-box{background:rgba(255,211,0,.1);border:2px solid rgba(255,211,0,.4);border-left:5px solid var(--tube-yellow);border-radius:0 var(--rsm) var(--rsm) 0;padding:13px 16px;margin-bottom:16px;font-size:14px;font-weight:700;color:var(--ink-bold);line-height:1.6;}
+    .tip-box strong{color:#8a6800;}
+
+    /* HARRY BECK CARD */
+    .beck-card{background:linear-gradient(135deg,#001f52,#003688);border-radius:var(--rsm);overflow:hidden;margin-bottom:16px;}
+    .beck-head{padding:14px 18px;display:flex;align-items:center;gap:14px;border-bottom:2px solid rgba(255,255,255,.1);}
+    .beck-portrait{font-size:48px;animation:float 4s ease-in-out infinite;}
+    .beck-title{font-size:17px;font-weight:900;color:#fff;letter-spacing:-.3px;}
+    .beck-dates{font-size:12px;font-weight:700;color:rgba(255,255,255,.5);margin-top:3px;}
+    .beck-body{padding:16px 18px;}
+    .beck-fact{display:flex;align-items:flex-start;gap:10px;margin-bottom:11px;}
+    .beck-fact:last-child{margin-bottom:0;}
+    .beck-fact-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+    .beck-fact-text{font-size:14px;font-weight:700;color:rgba(255,255,255,.88);line-height:1.6;}
+    .beck-fact-text strong{color:var(--tube-yellow);}
+    .map-demo{background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.1);border-radius:var(--rxs);padding:14px 16px;margin-top:12px;}
+    .map-demo-label{font-size:10px;font-weight:900;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;}
+    .map-line-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+    .map-line-row:last-child{margin-bottom:0;}
+    .map-line-swatch{width:32px;height:8px;border-radius:4px;flex-shrink:0;}
+    .map-line-name{font-size:13px;font-weight:900;color:#fff;min-width:100px;}
+    .map-line-colour{font-size:11px;font-weight:700;color:rgba(255,255,255,.45);}
+
+    /* TRUE/FALSE */
+    .tf-score{display:flex;align-items:center;justify-content:space-between;background:rgba(0,54,136,.07);border:2px solid rgba(0,54,136,.15);border-radius:var(--rsm);padding:10px 14px;margin-bottom:14px;}
+    .tf-score-lbl{font-size:12px;font-weight:900;color:var(--tube-blue);text-transform:uppercase;letter-spacing:1px;}
+    .tf-score-num{font-size:22px;font-weight:900;color:var(--tube-blue);}
+    .tf-card{background:var(--bg);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);overflow:hidden;margin-bottom:12px;animation:up .3s ease both;}
+    .tf-front{display:flex;align-items:flex-start;gap:14px;padding:16px 18px;}
+    .tf-emoji{font-size:32px;flex-shrink:0;animation:float 3s ease-in-out infinite;}
+    .tf-text{font-size:clamp(14px,3.8vw,17px);font-weight:900;color:var(--ink-bold);line-height:1.35;flex:1;}
+    .tf-votes{display:grid;grid-template-columns:1fr 1fr;border-top:2px solid var(--border);}
+    .tf-btn{padding:14px 10px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;transition:all .1s;text-align:center;}
+    .tf-btn:first-child{border-right:1px solid var(--border);}
+    .tf-true-btn{background:rgba(0,120,42,.08);color:var(--tube-green);}
+    .tf-false-btn{background:rgba(220,36,31,.08);color:var(--tube-red);}
+    .tf-btn.correct{background:var(--green)!important;color:#fff!important;animation:heartbeat .5s ease;}
+    .tf-btn.wrong{background:var(--punch)!important;color:#fff!important;animation:shake .4s;}
+    .tf-btn:disabled{cursor:default;}
+    .tf-reveal{padding:13px 18px;background:rgba(0,54,136,.04);border-top:2px solid var(--border);font-size:14px;font-weight:700;color:var(--ink-bold);line-height:1.65;display:none;}
+    .tf-reveal.show{display:block;animation:up .2s ease both;}
+
+    /* WHICH LINE — guide + quiz */
+    .lines-guide{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+    .line-guide-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg);border:2px solid var(--border-heavy);border-radius:var(--rsm);animation:up .3s ease both;}
+    .line-guide-swatch{width:36px;height:10px;border-radius:5px;flex-shrink:0;}
+    .line-guide-name{font-size:14px;font-weight:900;min-width:130px;}
+    .line-guide-stations{font-size:12px;font-weight:700;color:var(--ink-3);flex:1;line-height:1.4;}
+    .line-guide-emoji{font-size:18px;flex-shrink:0;}
+    .wl-progress{display:flex;gap:5px;margin-bottom:14px;}
+    .wl-pip{flex:1;height:6px;border-radius:99px;background:var(--border-heavy);transition:background .3s;}
+    .wl-pip.done{background:var(--tube-yellow);}
+    .wl-pip.active{background:var(--tube-red);}
+    .wl-question{background:linear-gradient(135deg,#001433,#003688);border-radius:var(--rsm);padding:18px;margin-bottom:14px;text-align:center;}
+    .wl-q-label{font-size:11px;font-weight:900;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;}
+    .wl-q-station{font-size:clamp(20px,5vw,28px);font-weight:900;color:#fff;letter-spacing:-1px;margin-bottom:6px;}
+    .wl-q-hint{font-size:13px;font-weight:700;color:rgba(255,255,255,.65);}
+    .wl-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+    .wl-opt{padding:14px 10px;border-radius:var(--rsm);font-size:13px;font-weight:900;cursor:pointer;font-family:inherit;transition:all .12s;text-align:center;border:3px solid rgba(0,0,0,.15);line-height:1.3;}
+    .wl-opt:active{transform:translateY(2px);}
+    .wl-opt.correct{outline:4px solid white;outline-offset:2px;animation:heartbeat .5s ease;}
+    .wl-opt.wrong{opacity:.4;}
+    .wl-opt.show-right{outline:4px solid white;outline-offset:2px;animation:heartbeat .5s ease;}
+    .wl-opt:disabled{cursor:default;}
+    .wl-feedback{padding:12px 14px;border-radius:var(--rsm);font-size:14px;font-weight:800;border:2px solid;display:none;line-height:1.6;margin-bottom:10px;}
+    .wl-feedback.show.right{display:block;background:rgba(88,204,2,.1);color:var(--green-shadow);border-color:rgba(88,167,0,.3);animation:up .2s ease both;}
+    .wl-feedback.show.wrong{display:block;background:rgba(255,75,75,.1);color:var(--punch-shadow);border-color:rgba(255,75,75,.3);animation:up .2s ease both;}
+    .wl-next{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:10px;padding:13px;background:var(--tube-blue);color:#fff;font-size:15px;font-weight:900;border:2px solid #001f52;border-bottom:5px solid #001f52;border-radius:var(--rsm);transition:all .1s;}
+    .wl-next:active{border-bottom-width:2px;transform:translateY(3px);}
+
+    /* WORD BUILDER */
+    .wb-progress{display:flex;gap:5px;margin-bottom:14px;}
+    .wb-pip{flex:1;height:6px;border-radius:99px;background:var(--border-heavy);transition:background .3s;}
+    .wb-pip.done{background:var(--tube-yellow);}
+    .wb-pip.active{background:var(--tube-teal);}
+    .wb-def{background:rgba(0,152,212,.08);border:2px solid rgba(0,152,212,.22);border-left:5px solid var(--tube-teal);border-radius:0 var(--rsm) var(--rsm) 0;padding:14px 16px;margin-bottom:16px;font-size:15px;font-weight:800;color:var(--ink-bold);line-height:1.6;}
+    .wb-def .hint{font-size:12px;font-weight:700;color:var(--ink-3);display:block;margin-top:4px;font-style:italic;}
+    .wb-answer-row{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:16px;min-height:52px;}
+    .wb-slot{width:40px;height:48px;border-bottom:3px solid var(--tube-teal);border-radius:4px;background:rgba(0,152,212,.06);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#007aa0;cursor:pointer;transition:all .15s;}
+    .wb-slot.filled{background:rgba(0,152,212,.12);animation:tileIn .25s cubic-bezier(.175,.885,.32,1.275) both;}
+    .wb-slot.correct-final{background:var(--tube-teal);color:#fff;border-color:#007aa0;animation:correctPop .4s ease;}
+    .wb-slot.wrong-shake{animation:shake .4s;border-color:var(--punch);}
+    .wb-tiles{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+    .wb-tile{width:44px;height:48px;background:#fff;border:2px solid var(--border-heavy);border-bottom:5px solid var(--border-heavy);border-radius:var(--rsm);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:var(--ink-bold);cursor:pointer;transition:all .12s;animation:tileIn .3s cubic-bezier(.175,.885,.32,1.275) both;}
+    .wb-tile:active{border-bottom-width:2px;transform:translateY(3px);}
+    .wb-tile.used{opacity:.25;pointer-events:none;}
+    .wb-actions{display:flex;gap:8px;flex-wrap:wrap;}
+    .wb-clear{flex:1;min-width:55px;padding:12px 8px;background:#fff;color:var(--ink-bold);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);font-size:13px;font-weight:900;text-align:center;}
+    .wb-clear:active{border-bottom-width:2px;transform:translateY(2px);}
+    .wb-check{flex:1;min-width:55px;padding:12px 8px;background:var(--tube-teal);color:#fff;border:2px solid #007aa0;border-bottom:4px solid #007aa0;border-radius:var(--rsm);font-size:13px;font-weight:900;text-align:center;}
+    .wb-check:active{border-bottom-width:2px;transform:translateY(2px);}
+    .wb-hint-btn{flex:1;min-width:55px;padding:12px 8px;background:rgba(255,211,0,.15);color:#8a6800;border:2px solid var(--tube-yellow);border-bottom:4px solid #c9a800;border-radius:var(--rsm);font-size:13px;font-weight:900;text-align:center;}
+    .wb-hint-btn:active{border-bottom-width:2px;transform:translateY(2px);}
+    .wb-hint-btn:disabled{opacity:.35;cursor:default;}
+    .wb-reveal-btn{flex:1;min-width:55px;padding:12px 8px;background:rgba(220,36,31,.1);color:var(--tube-red);border:2px solid var(--tube-red);border-bottom:4px solid #a01510;border-radius:var(--rsm);font-size:13px;font-weight:900;text-align:center;}
+    .wb-reveal-btn:active{border-bottom-width:2px;transform:translateY(2px);}
+    .wb-feedback{margin-top:12px;padding:12px 14px;border-radius:var(--rsm);font-size:14px;font-weight:800;border:2px solid;display:none;line-height:1.6;}
+    .wb-feedback.show.right{display:block;background:rgba(88,204,2,.1);color:var(--green-shadow);border-color:rgba(88,167,0,.3);animation:up .2s ease both;}
+    .wb-feedback.show.wrong{display:block;background:rgba(255,75,75,.1);color:var(--punch-shadow);border-color:rgba(255,75,75,.3);animation:up .2s ease both;}
+
+    /* DIALOGUE */
+    .dialogue-wrap{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+    .bubble-row{display:flex;gap:10px;align-items:flex-end;}
+    .bubble-row.right{flex-direction:row-reverse;}
+    .bubble-avatar{width:36px;height:36px;border-radius:50%;background:var(--bg);border:2px solid var(--border-heavy);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+    .bubble{background:var(--bg);border:2px solid var(--border-heavy);border-radius:18px 18px 18px 4px;padding:12px 16px;font-size:14px;font-weight:700;color:var(--ink-bold);line-height:1.65;max-width:85%;}
+    .bubble-row.right .bubble{background:rgba(0,54,136,.07);border-color:rgba(0,54,136,.18);border-radius:18px 18px 4px 18px;}
+    .bubble-name{font-size:10px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;}
+    .dial-gap{display:inline-block;border-bottom:2.5px solid var(--tube-blue);min-width:80px;height:22px;vertical-align:bottom;margin:0 3px;cursor:pointer;background:rgba(0,54,136,.06);border-radius:3px 3px 0 0;text-align:center;font-weight:900;color:var(--tube-blue);font-size:14px;line-height:22px;padding:0 5px;transition:all .2s;}
+    .dial-gap:hover{background:rgba(0,54,136,.12);}
+    .dial-gap.filled{color:var(--tube-blue);}
+    .dial-gap.wrong{border-bottom-color:var(--punch);color:var(--punch-shadow);animation:shake .4s;}
+    .dial-wordbank{margin-bottom:14px;}
+    .dial-bank-label{font-size:11px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;}
+    .dial-chips{display:flex;flex-wrap:wrap;gap:8px;}
+    .dial-chip{padding:8px 14px;background:#fff;border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:99px;font-size:13px;font-weight:900;color:var(--ink-bold);cursor:pointer;transition:all .1s;font-family:inherit;}
+    .dial-chip:active{border-bottom-width:2px;transform:translateY(2px);}
+    .dial-chip.used{opacity:.25;pointer-events:none;}
+    .dial-chip.selected{background:var(--tube-blue);color:#fff;border-color:#001f52;}
+    .dial-submit{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;background:var(--tube-blue);color:#fff;font-size:16px;font-weight:900;border:2px solid #001f52;border-bottom:5px solid #001f52;border-radius:var(--rsm);transition:all .1s;}
+    .dial-submit:active{border-bottom-width:2px;transform:translateY(3px);}
+    .dial-result{padding:14px;border-radius:var(--rsm);display:none;font-size:14px;font-weight:800;line-height:1.6;border:2px solid;}
+    .dial-result.show.right{display:block;background:rgba(88,204,2,.1);color:var(--green-shadow);border-color:rgba(88,167,0,.3);animation:up .2s ease both;}
+    .dial-result.show.wrong{display:block;background:rgba(255,75,75,.1);color:var(--punch-shadow);border-color:rgba(255,75,75,.3);animation:up .2s ease both;}
+
+    /* SENTENCE PICK */
+    .db-progress{display:flex;gap:5px;margin-bottom:12px;}
+    .db-pip{flex:1;height:6px;border-radius:99px;background:var(--border-heavy);transition:background .3s;}
+    .db-pip.done{background:var(--tube-yellow);}
+    .db-pip.active{background:var(--tube-purple);}
+    .db-starter{background:linear-gradient(135deg,rgba(155,0,86,.1),rgba(255,200,0,.04));border:2px solid rgba(155,0,86,.22);border-left:5px solid var(--tube-purple);border-radius:0 var(--rsm) var(--rsm) 0;padding:14px 16px;margin-bottom:14px;font-size:clamp(16px,4vw,20px);font-weight:900;color:var(--ink-bold);line-height:1.5;}
+    .db-starter em{color:var(--tube-purple);}
+    .db-opts{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
+    .db-opt{padding:15px 16px;font-size:clamp(13px,3.5vw,15px);font-weight:800;background:#fff;color:var(--ink-bold);border:2px solid var(--border-heavy);border-bottom:5px solid var(--border-heavy);border-radius:var(--rsm);cursor:pointer;transition:all .12s;font-family:inherit;text-align:left;line-height:1.5;}
+    .db-opt:active{border-bottom-width:2px;transform:translateY(3px);}
+    .db-opt:hover:not(:disabled){border-color:var(--tube-purple);color:var(--tube-purple);}
+    .db-opt.correct{background:var(--green);color:#fff;border-color:var(--green-shadow);animation:heartbeat .5s ease;cursor:default;}
+    .db-opt.wrong{background:var(--punch);color:#fff;border-color:var(--punch-shadow);animation:shake .4s;cursor:default;}
+    .db-opt.show-correct{background:rgba(88,204,2,.12);border-color:var(--green-shadow);color:var(--green-shadow);}
+    .db-opt:disabled{cursor:default;}
+    .db-feedback{padding:12px 14px;border-radius:var(--rsm);font-size:14px;font-weight:800;border:2px solid;display:none;line-height:1.65;margin-bottom:10px;}
+    .db-feedback.show.right{display:block;background:rgba(88,204,2,.1);color:var(--green-shadow);border-color:rgba(88,167,0,.3);animation:up .2s ease both;}
+    .db-feedback.show.wrong{display:block;background:rgba(255,75,75,.1);color:var(--punch-shadow);border-color:rgba(255,75,75,.3);animation:up .2s ease both;}
+    .db-next{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:12px;padding:14px;background:var(--tube-purple);color:#fff;font-size:15px;font-weight:900;border:2px solid #6b003c;border-bottom:5px solid #6b003c;border-radius:var(--rsm);transition:all .1s;}
+    .db-next:active{border-bottom-width:2px;transform:translateY(3px);}
+
+    /* SHARED */
+    .sec-done{text-align:center;padding:28px 18px;animation:popin .4s cubic-bezier(.175,.885,.32,1.275) both;}
+    .sec-done-icon{font-size:64px;display:block;margin-bottom:10px;}
+    .sec-done-title{font-size:22px;font-weight:900;color:var(--ink-bold);margin-bottom:6px;}
+    .sec-done-sub{font-size:14px;font-weight:700;color:var(--ink-3);margin-bottom:18px;line-height:1.5;}
+    .btn-continue{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;margin-top:14px;background:var(--tube-blue);color:#fff;font-size:16px;font-weight:900;border:2px solid #001f52;border-bottom:5px solid #001f52;border-radius:var(--rsm);transition:all .1s;font-family:inherit;cursor:pointer;}
+    .btn-continue:active{border-bottom-width:2px;transform:translateY(3px);}
+    .xp-float{position:fixed;font-size:20px;font-weight:900;color:var(--tube-yellow);text-shadow:0 2px 0 rgba(0,0,0,.3);pointer-events:none;z-index:9998;animation:xpPop .85s ease-out forwards;}
+    .mega-conf-dot{position:fixed;pointer-events:none;z-index:9999;border-radius:4px;animation:megaConf 1.4s ease-out both;}
+
+    /* COMPLETION */
+    #completion-screen{position:fixed;inset:0;background:#001433;z-index:10000;display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;}
+    #completion-screen.open{display:flex;animation:fadeIn .4s ease both;}
+    .completion-card{background:#fff;border:3px solid var(--tube-yellow);border-bottom:8px solid #b09200;border-radius:24px;padding:32px 24px;max-width:480px;width:100%;text-align:center;margin:auto;box-shadow:0 0 60px rgba(255,211,0,.35);}
+    .cc-badge-face{width:150px;height:150px;border-radius:50%;background:linear-gradient(145deg,#001f52,#003688,#0044a8);border:5px solid var(--tube-yellow);display:flex;align-items:center;justify-content:center;font-size:84px;margin:0 auto 8px;animation:badgeDrop .8s cubic-bezier(.175,.885,.32,1.275) both,glowGold 2.5s ease-in-out infinite .9s;position:relative;overflow:hidden;}
+    .cc-badge-face::before{content:'';position:absolute;top:-10%;left:-80%;width:50%;height:120%;background:linear-gradient(to right,transparent,rgba(255,255,255,.4),transparent);transform:skewX(-20deg);animation:shimmer2 2s ease-in-out infinite;animation-delay:.8s;}
+    .cc-badge-label{font-size:14px;font-weight:900;color:var(--tube-blue);margin-top:6px;}
+    .cc-badge-sub{font-size:11px;font-weight:700;color:var(--ink-3);margin-top:3px;margin-bottom:14px;}
+    .cc-title{font-size:24px;font-weight:900;color:var(--tube-blue);letter-spacing:-1px;margin-bottom:4px;}
+    .cc-sub{font-size:14px;font-weight:700;color:var(--ink-3);margin-bottom:16px;line-height:1.5;}
+    .cc-xp-box{background:linear-gradient(135deg,#001f52,#003688);border:2px solid rgba(255,211,0,.35);border-bottom:6px solid rgba(0,0,0,.3);border-radius:var(--r);padding:18px;margin-bottom:14px;}
+    .cc-xp-num{font-size:52px;font-weight:900;color:var(--tube-yellow);line-height:1;}
+    .cc-xp-label{font-size:12px;font-weight:900;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+    .cc-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;}
+    .cc-stat{background:rgba(0,54,136,.07);border:2px solid rgba(0,54,136,.14);border-radius:var(--rsm);padding:12px 8px;}
+    .cc-stat-n{font-size:22px;font-weight:900;color:var(--tube-blue);}
+    .cc-stat-l{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);margin-top:2px;}
+    .cc-vocab{background:var(--bg);border:2px solid var(--border-heavy);border-radius:var(--rsm);padding:14px 16px;margin-bottom:16px;text-align:left;}
+    .cc-vocab-label{font-size:11px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;}
+    .cc-vocab-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+    .cc-vocab-word{font-size:13px;font-weight:900;color:var(--tube-blue);background:rgba(0,54,136,.07);border-radius:var(--rxs);padding:6px 10px;}
+    .cc-class-badge{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(255,211,0,.15),rgba(255,211,0,.05));border:2px solid rgba(255,211,0,.45);border-radius:var(--rsm);padding:14px 16px;margin-bottom:14px;position:relative;overflow:hidden;}
+    .cc-class-badge::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(to right,transparent,rgba(255,255,255,.5),transparent);animation:shimmer2 2s ease-in-out 3;animation-delay:.6s;pointer-events:none;}
+    .cc-class-icon{font-size:28px;flex-shrink:0;}
+    .cc-class-text-main{font-size:15px;font-weight:900;color:var(--ink-bold);}
+    .cc-class-text-sub{font-size:11px;font-weight:700;color:var(--ink-3);margin-top:1px;}
+    .cc-class-tick{margin-left:auto;flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--green);color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;}
+    .cc-btns{display:flex;flex-direction:column;gap:10px;}
+    .cc-btn{width:100%;padding:14px;border-radius:var(--r);font-size:15px;font-weight:900;font-family:inherit;cursor:pointer;border:2px solid;border-bottom:5px solid;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s;}
+    .cc-btn:active{border-bottom-width:2px;transform:translateY(3px);}
+    .cc-btn.primary{background:var(--tube-blue);color:#fff;border-color:#001f52;}
+    .cc-btn.secondary{background:#fff;color:var(--tube-blue);border-color:var(--tube-blue);}
+    .cc-btn.subtle{background:#fff;color:var(--ink-3);border-color:var(--border-heavy);font-size:13px;}
+
+    /* LINES CHEAT SHEET — slide-up modal */
+    .cheat-btn{display:flex;align-items:center;gap:7px;width:100%;padding:11px 14px;background:rgba(0,54,136,.08);border:2px solid rgba(0,54,136,.2);border-bottom:3px solid rgba(0,54,136,.25);border-radius:var(--rsm);font-size:13px;font-weight:900;color:var(--tube-blue);cursor:pointer;font-family:inherit;margin-bottom:12px;transition:all .12s;}
+    .cheat-btn:active{border-bottom-width:2px;transform:translateY(1px);}
+    .cheat-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:flex-end;justify-content:center;}
+    .cheat-overlay.open{display:flex;animation:fadeIn .2s ease both;}
+    .cheat-sheet{background:#fff;border-radius:24px 24px 0 0;padding:0 0 32px;width:100%;max-width:500px;max-height:80vh;overflow-y:auto;animation:slideUp .28s cubic-bezier(.25,.46,.45,.94) both;}
+    @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+    .cheat-handle{width:40px;height:5px;background:var(--border-heavy);border-radius:99px;margin:12px auto 0;}
+    .cheat-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px;}
+    .cheat-title{font-size:17px;font-weight:900;color:var(--ink-bold);}
+    .cheat-close{width:32px;height:32px;border-radius:50%;background:var(--bg);border:2px solid var(--border-heavy);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;font-family:inherit;}
+    .cheat-body{padding:0 14px;}
+    .cheat-line-row{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:var(--rsm);margin-bottom:6px;border:2px solid var(--border);}
+    .cheat-swatch{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:2px solid rgba(0,0,0,.15);}
+    .cheat-line-name{font-size:14px;font-weight:900;min-width:120px;}
+    .cheat-line-stations{font-size:12px;font-weight:700;color:var(--ink-3);flex:1;line-height:1.4;}
+    .cheat-emoji{font-size:18px;flex-shrink:0;}
+    </style>
+</head>
+<body data-section="beginner">
+
+<header class="header">
+  <div class="header-inner">
+    <a href="/beginner/" class="logo-link">
+      <div class="roundel"><div class="roundel-circle"></div><div class="roundel-bar"></div></div>
+      <span class="site-name">English For Cool Dudes</span>
+    </a>
+    <div class="header-right">
+      <a href="/live/" class="hdr-class-pill" id="hdr-class-pill">
+        <div class="hdr-class-dot"></div>
+        <span class="hdr-class-name">Back to class</span>
+      </a>
+      <div class="hdr-user-panel" id="hdr-user-panel">
+        <div class="streak-mini"><span>🔥</span><span id="hdr-streak">0</span></div>
+        <div class="xp-pill">⚡ <span id="hdr-xp">0</span></div>
+        <a href="/dashboard-gamified/" class="btn-dash">📊</a>
+        <button class="btn-signout" id="hdr-signout" onclick="handleSignOut()">👋</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="page">
+  <div class="lesson-banner u1">
+    <div class="banner-lines"><div class="banner-line bl-1"></div><div class="banner-line bl-2"></div><div class="banner-line bl-3"></div><div class="banner-line bl-4"></div></div>
+    <div class="banner-deco">🚇</div>
+    <div class="lesson-eyebrow">🌱 Beginner (A1–A2) · 🚇 London Culture</div>
+    <div class="lesson-title">Mind the Gap!<br><span class="yellow">The London Underground 🚇</span></div>
+    <div class="lesson-sub">160 years old. 272 stations. 5 million passengers every day. The world's most famous transport map. Welcome to the Tube! 🇬🇧</div>
+    <div class="lesson-stats">
+      <div class="ls-stat"><span class="ls-stat-n">272</span><span class="ls-stat-l">Stations</span></div>
+      <div class="ls-stat"><span class="ls-stat-n">A1–A2</span><span class="ls-stat-l">Level</span></div>
+      <div class="ls-stat"><span class="ls-stat-n">🚇</span><span class="ls-stat-l">Tube Badge</span></div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-row"><span id="prog-label">0 / 5 sections</span><span id="prog-pct">0%</span></div>
+      <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+    </div>
+  </div>
+  <div id="sections"></div>
+</div>
+
+<div id="completion-screen">
+  <div class="completion-card">
+    <div class="cc-badge-face">🚇</div>
+    <div class="cc-badge-label">🚇 Tube Expert Badge</div>
+    <div class="cc-badge-sub">Mind the gap between ignorance and knowledge — closed! 😄</div>
+    <div class="cc-title">Doors closing. 🏆</div>
+    <div class="cc-sub">You've learned the Tube, met Harry Beck, and mastered London English. Next stop: fluency! 🇬🇧</div>
+    <div class="cc-xp-box">
+      <div class="cc-xp-num" id="cc-xp">+0</div>
+      <div class="cc-xp-label" id="cc-xp-label">⚡ XP Earned this lesson</div>
+    </div>
+    <div class="cc-stats">
+      <div class="cc-stat"><div class="cc-stat-n" id="cc-correct">0</div><div class="cc-stat-l">Correct!</div></div>
+      <div class="cc-stat"><div class="cc-stat-n" id="cc-combo">0</div><div class="cc-stat-l">Best Combo</div></div>
+      <div class="cc-stat"><div class="cc-stat-n" id="cc-words">8</div><div class="cc-stat-l">New Words</div></div>
+    </div>
+    <div class="cc-vocab">
+      <div class="cc-vocab-label">📖 Words from this lesson</div>
+      <div class="cc-vocab-grid">
+        <div class="cc-vocab-word">platform</div><div class="cc-vocab-word">journey</div>
+        <div class="cc-vocab-word">carriage</div><div class="cc-vocab-word">delay</div>
+        <div class="cc-vocab-word">underground</div><div class="cc-vocab-word">Oyster card</div>
+        <div class="cc-vocab-word">Mind the gap</div><div class="cc-vocab-word">crowded</div>
+      </div>
+    </div>
+    <div class="cc-class-badge" id="cc-class-badge" style="display:none">
+      <span class="cc-class-icon">🚇</span>
+      <div>
+        <div class="cc-class-text-main">Tube Expert badge → class session!</div>
+        <div class="cc-class-text-sub">Your score has been added to today's leaderboard 🏆</div>
+      </div>
+      <span class="cc-class-tick">✓</span>
+    </div>
+    <div class="cc-btns">
+      <a href="/beginner/" class="cc-btn primary">🌱 More Beginner Lessons →</a>
+      <a href="/dashboard-gamified/" class="cc-btn secondary" id="cc-dashboard-btn" style="display:none">📊 Save to my profile</a>
+      <a href="/" class="cc-btn subtle">← Back to home</a>
+    </div>
+  </div>
+</div>
+
+<script src="/supabase-auth-gamified.js"></script>
+<script src="/guest-nudge-snippet.js"></script>
+<script src="/daily-challenges-system.js"></script>
+<script src="/interactions.js"></script>
+<script src="/lesson-completion-rewards.js"></script>
+<script>
+'use strict';
+window.LESSON_ID='london-underground-beginner';
+window.LESSON_TITLE='Mind the Gap! The London Underground';
+const LESSON_LINK='/tube/';
+
+const TRUE_FALSE=[
+  {emoji:'🎂',text:'The London Underground is the OLDEST underground railway in the world.',correct:true,reveal:'✅ TRUE! The Underground opened on 10 January 1863 — over 160 years ago. The very first trains were pulled by steam engines. Imagine the smoke underground! 💨 The first line ran between Paddington and Farringdon.'},
+  {emoji:'🗺️',text:'The famous Tube map shows the real distances between stations — it is geographically accurate.',correct:false,reveal:'❌ FALSE! The map is NOT geographically accurate. It\'s a design diagram. Stations that are far apart can look close on the map! It was designed by Harry Beck — you\'ll meet him above! 🎨'},
+  {emoji:'🔢',text:'There are 11 different lines on the London Underground.',correct:true,reveal:'✅ TRUE! 11 lines, each with its own colour. Central (red), Circle (yellow), Bakerloo (brown), Metropolitan (purple), District (green), Jubilee (grey), Piccadilly (dark blue), Northern (black), Victoria (light blue), Hammersmith & City (pink), Waterloo & City (teal).'},
+  {emoji:'🐛',text:'Londoners call it "the Tube" because the deep tunnels are round — like tubes.',correct:true,reveal:'✅ TRUE! The deep tunnels are circular in cross-section — exactly like a tube or a pipe. The nickname appeared in the 1890s. Tourists say "the Underground". Londoners say "the Tube". Now you know! 😄'},
+  {emoji:'🌙',text:'The Tube runs 24 hours every single night of the week.',correct:false,reveal:'❌ FALSE! Most lines stop at night — usually between midnight and 5am. However, the "Night Tube" launched in 2016 runs 24 hours on Friday and Saturday nights on five lines: Central, Jubilee, Northern, Piccadilly and Victoria. 🎉'},
+  {emoji:'📢',text:'"Mind the gap!" means: be careful of the space between the train and the platform.',correct:true,reveal:'✅ TRUE! "Mind" here means "be careful of". The gap is the space between the train door and the platform edge. A widow once visited Embankment station every day just to hear her late husband\'s recorded voice say "Mind the gap!" 💙'},
+];
+
+const LINES_GUIDE=[
+  {color:'#DC241F',name:'Central Line',   stations:'Oxford Circus, Liverpool St, Stratford',emoji:'🛍️'},
+  {color:'#003688',name:'Piccadilly Line', stations:'King\'s Cross, Heathrow Airport',       emoji:'✈️'},
+  {color:'#0098D4',name:'Victoria Line',   stations:'Victoria, King\'s Cross, Brixton',      emoji:'👑'},
+  {color:'#A0A5A9',name:'Jubilee Line',    stations:'Canary Wharf, Westminster, Bond St',    emoji:'💼'},
+  {color:'#FFD300',name:'Circle Line',     stations:'Tower Hill, Paddington, Baker St',      emoji:'🔄',dark:true},
+  {color:'#00782A',name:'District Line',   stations:'Wimbledon, Victoria, Tower Hill',       emoji:'🌿'},
+];
+
+const LINE_QUESTIONS=[
+  {station:'Oxford Circus',hint:'🛍️ London\'s most famous shopping street is directly above this station.',answer:'central',
+   options:[{name:'Central Line',color:'#DC241F',id:'central'},{name:'Circle Line',color:'#FFD300',id:'circle',dark:true},{name:'Bakerloo Line',color:'#B36305',id:'bakerloo'},{name:'Jubilee Line',color:'#A0A5A9',id:'jubilee'}],
+   fb:'✅ Central Line — red! Oxford Street above it is the most visited shopping street in the UK, with over 300,000 shoppers every day. 🛍️'},
+  {station:'Heathrow Airport',hint:'✈️ This line connects central London directly to the airport.',answer:'piccadilly',
+   options:[{name:'District Line',color:'#00782A',id:'district'},{name:'Piccadilly Line',color:'#003688',id:'piccadilly'},{name:'Victoria Line',color:'#0098D4',id:'victoria'},{name:'Jubilee Line',color:'#A0A5A9',id:'jubilee'}],
+   fb:'✅ Piccadilly Line — dark blue! It travels all the way to Heathrow — about 50 minutes from central London. Much cheaper than a taxi! ✈️'},
+  {station:'Canary Wharf',hint:'💼 London\'s financial district — banks and skyscrapers!',answer:'jubilee',
+   options:[{name:'Central Line',color:'#DC241F',id:'central'},{name:'District Line',color:'#00782A',id:'district'},{name:'Jubilee Line',color:'#A0A5A9',id:'jubilee'},{name:'Circle Line',color:'#FFD300',id:'circle',dark:true}],
+   fb:'✅ Jubilee Line — silver/grey! Canary Wharf station looks like a spaceship underground and is considered one of the most beautiful stations ever built in Britain. 🏗️'},
+  {station:'Tower Hill',hint:'🏰 Walk to a famous 1,000-year-old royal castle from here.',answer:'circle',
+   options:[{name:'Circle Line',color:'#FFD300',id:'circle',dark:true},{name:'Northern Line',color:'#000000',id:'northern'},{name:'Central Line',color:'#DC241F',id:'central'},{name:'Jubilee Line',color:'#A0A5A9',id:'jubilee'}],
+   fb:'✅ Circle Line — yellow! Tower Hill is right next to the Tower of London, built in 1078. You can see the Crown Jewels there! 🏰'},
+  {station:'Victoria',hint:'👑 Named after a famous British queen. Huge railway terminus above ground.',answer:'victoria',
+   options:[{name:'District Line',color:'#00782A',id:'district'},{name:'Victoria Line',color:'#0098D4',id:'victoria'},{name:'Circle Line',color:'#FFD300',id:'circle',dark:true},{name:'Jubilee Line',color:'#A0A5A9',id:'jubilee'}],
+   fb:'✅ Victoria Line — light blue! Named after Queen Victoria. It opened in 1969 and is one of the fastest and most automated lines on the network. 👑'},
+];
+
+const WB_WORDS=[
+  {word:'platform',  letters:['p','l','a','t','f','o','r','m'],  def:'The area at a station where you wait for the train and get on or off.',       hint:'🚇 Stand back from the edge of the ___!'},
+  {word:'journey',   letters:['j','o','u','r','n','e','y'],       def:'A trip from one place to another — especially when travelling by transport.', hint:'✈️ Have a safe ___! See you on the other side.'},
+  {word:'carriage',  letters:['c','a','r','r','i','a','g','e'],   def:'One section of a train — like a room on wheels with seats inside.',           hint:'🚃 Move down inside the ___!'},
+  {word:'delay',     letters:['d','e','l','a','y'],               def:'When something is late — it does not arrive at the expected time.',           hint:'⏰ Sorry for the ___. We\'re waiting for a signal.'},
+  {word:'crowded',   letters:['c','r','o','w','d','e','d'],       def:'Full of people — the opposite of empty.',                                     hint:'😰 The Tube is SO ___ at rush hour!'},
+  {word:'oyster',    letters:['o','y','s','t','e','r'],           def:'The blue card people in London use to pay for the Tube, buses and trains.',   hint:'💳 Tap your ___ card on the yellow reader!'},
+];
+
+const DIALOGUE={
+  context:'Two tourists try to use the Tube for the first time...',
+  gaps:{a:'platform',b:'delay',c:'line',d:'carriage',e:'Oyster'},
+  text:[
+    {speaker:'A',avatar:'😅',side:'left',parts:[{t:'text',v:'Which '},{t:'gap',k:'c',ans:'line'},{t:'text',v:' do we need? I can\'t read this map!'}]},
+    {speaker:'B',avatar:'🤓',side:'right',parts:[{t:'text',v:'The Central Line! Go to '},{t:'gap',k:'a',ans:'platform'},{t:'text',v:' 3. But tap your '},{t:'gap',k:'e',ans:'Oyster'},{t:'text',v:' card first!'}]},
+    {speaker:'A',avatar:'😅',side:'left',parts:[{t:'text',v:'Oh no — there\'s a '},{t:'gap',k:'b',ans:'delay'},{t:'text',v:'. The train is 8 minutes late!'}]},
+    {speaker:'B',avatar:'🤓',side:'right',parts:[{t:'text',v:'Very British! Move down inside the '},{t:'gap',k:'d',ans:'carriage'},{t:'text',v:' — and mind the gap! 😄'}]},
+  ],
+  wordbank:['platform','delay','line','carriage','Oyster'],
+};
+
+// All 6 sentence rounds — verified, no duplicates
+const SENTENCE_ROUNDS=[
+  {starter:'🚇 The Tube...',
+   opts:['is the oldest underground railway in the world.','is the older underground railway in the world.','is the most old underground railway in the world.','are the oldest underground railway in the world.'],
+   correct:0,fb:'✅ "THE OLDEST" — superlative! old → older (comparative) → the oldest (superlative). Always use "the" before a superlative. "The most old" is wrong — short adjectives use -est, not "most".'},
+  {starter:'📢 "Mind the gap!" means...',
+   opts:['be careful of the space between the train and the platform.','be careful from the space between the train and the platform.','be careful at the space between the train and the platform.','be careful for the space between the train and the platform.'],
+   correct:0,fb:'✅ "Be careful OF something" — always OF! "Be careful of the dog." "Be careful of the traffic." The preposition after "careful" is always OF. Learn it as a fixed phrase!'},
+  {starter:'🕐 I take the Tube...',
+   opts:['every day to get to work.','every days to get to work.','every day for get to work.','every day to getting to work.'],
+   correct:0,fb:'✅ "Every day" — no -s on "day"! Every + singular noun: every day, every week, every morning. "To get to work" = infinitive of purpose — TO + infinitive explains WHY you do something.'},
+  {starter:'🗺️ Harry Beck designed the map...',
+   opts:['in 1931.','on 1931.','at 1931.','during of 1931.'],
+   correct:0,fb:'✅ "IN 1931" — we use IN with years and months! "In 1931", "in January", "in the 1960s". We use ON for days ("on Monday") and AT for clock times ("at 8am").'},
+  {starter:'😰 At rush hour, the Tube is...',
+   opts:['very crowded and noisy.','very crowd and noisy.','very crowding and noisy.','very crowds and noisy.'],
+   correct:0,fb:'✅ "Very CROWDED and noisy" — both are adjectives describing the Tube! Crowded = full of people. Noisy = full of noise. The noun is "a crowd" (group of people). Add -ed to make the adjective.'},
+  {starter:'💳 You need an Oyster card...',
+   opts:['to travel on the Tube.','for travel on the Tube.','at travelling on the Tube.','to travelling on the Tube.'],
+   correct:0,fb:'✅ "TO travel" — infinitive of purpose! "I need money TO buy food." "You need a card TO travel." TO + infinitive explains the reason or purpose. Never "to + -ing"!'},
+];
+
+let S={xp:0,streak:0,combo:0,bestCombo:0,totalRight:0,totalAnswered:0,tfDone:false,tfScore:0,wlIdx:0,wlDone:false,wlScore:0,wbIdx:0,wbDone:false,wbScore:0,dialDone:false,dbIdx:0,dbDone:false,dbScore:0};
+let wbBuilt=[],wbWrongAttempts=0;
+
+function $(id){return document.getElementById(id);}
+function megaConfettiBurst(){const c=['#DC241F','#FFD300','#003688','#0098D4','#9B0056','#00782A','#ffffff'];for(let i=0;i<60;i++){const d=document.createElement('div');d.className='mega-conf-dot';const sz=8+Math.random()*12;d.style.cssText=`left:${Math.random()*100}vw;top:${-10+Math.random()*30}px;width:${sz}px;height:${sz}px;background:${c[Math.floor(Math.random()*c.length)]};animation-delay:${Math.random()*.8}s;animation-duration:${1+Math.random()*.8}s;border-radius:${Math.random()>.5?'50%':'3px'};transform:rotate(${Math.random()*360}deg)`;document.body.appendChild(d);setTimeout(()=>d.remove(),2200);}}
+function xpFloat(x,y,a){const el=document.createElement('div');el.className='xp-float';el.textContent=`+${a} XP`;el.style.cssText=`left:${x}px;top:${y}px`;document.body.appendChild(el);setTimeout(()=>el.remove(),1000);}
+function addXP(a,el){S.xp+=a;if(el){const r=el.getBoundingClientRect();xpFloat(r.left+r.width/2-24,r.top-10,a);}const hx=$('hdr-xp');if(hx)hx.textContent=S.xp;}
+function updateProgress(){const s=[S.tfDone,S.wlDone,S.wbDone,S.dialDone,S.dbDone];const done=s.filter(Boolean).length;const pct=Math.round((done/s.length)*100);const f=$('prog-fill');if(f)f.style.width=pct+'%';$('prog-label').textContent=`${done} / ${s.length} sections`;$('prog-pct').textContent=pct+'%';}
+function revealSection(id,fn){const sec=document.getElementById(id);if(!sec||sec.classList.contains('visible'))return;if(fn)fn();sec.classList.add('visible');setTimeout(()=>sec.scrollIntoView({behavior:'smooth',block:'start'}),80);}
+function buildAll(){const c=$('sections');c.appendChild(buildTFSec());c.appendChild(buildLineSec());c.appendChild(buildWBSec());c.appendChild(buildDialSec());c.appendChild(buildSentenceSec());revealSection('sec-tf',buildTFInner);}
+
+// ── SECTION 1: TRUE/FALSE + HARRY BECK ──
+function buildTFSec(){const sec=document.createElement('div');sec.className='sec-card strip-red';sec.id='sec-tf';sec.innerHTML=`<div class="sec-head"><div class="sec-head-icon">🤔</div><div><div class="sec-head-title">True or False?</div><div class="sec-head-sub">Meet Harry Beck · then test 6 Tube facts!</div></div></div><div class="sec-body"><div id="tf-inner"></div></div>`;return sec;}
+function buildTFInner(){
+  const slot=$('tf-inner');let answered=0;
+  slot.innerHTML=`
+    <div class="tip-box">💡 First, <strong>meet the man behind the map</strong>. Then answer the True/False questions below — some facts are very surprising! 😮</div>
+    <div class="beck-card">
+      <div class="beck-head">
+        <span class="beck-portrait">👨‍🎨</span>
+        <div><div class="beck-title">Harry Beck — the man who redesigned London</div><div class="beck-dates">1902 – 1974 · London, England</div></div>
+      </div>
+      <div class="beck-body">
+        <div class="beck-fact"><span class="beck-fact-icon">💡</span><div class="beck-fact-text">Harry Beck was an <strong>electrical draughtsman</strong> — someone who draws technical diagrams. He worked for London Underground.</div></div>
+        <div class="beck-fact"><span class="beck-fact-icon">🗺️</span><div class="beck-fact-text">In <strong>1931</strong>, in his spare time, Beck had a big idea. Instead of drawing the map geographically (real distances), he drew it like an <strong>electrical circuit diagram</strong> — simplified, with only straight lines and 45° angles. Clean. Simple. Beautiful.</div></div>
+        <div class="beck-fact"><span class="beck-fact-icon">😮</span><div class="beck-fact-text">Underground bosses <strong>almost rejected it</strong>. They thought it was too different. But when they tested it with the public, people loved it immediately. It became one of the most famous graphic designs in history.</div></div>
+        <div class="beck-fact"><span class="beck-fact-icon">😢</span><div class="beck-fact-text">Sadly, Beck was <strong>never properly paid</strong>. He received just five guineas (about £5) for one of the most iconic images ever created. He spent years trying to get recognition. Today, his name appears on every Tube map.</div></div>
+        <div class="map-demo">
+          <div class="map-demo-label">Beck's colour-coded lines — still used today</div>
+          ${[['#DC241F','Central','red'],['#003688','Piccadilly','dark blue'],['#FFD300','Circle','yellow'],['#0098D4','Victoria','light blue'],['#00782A','District','green'],['#B36305','Bakerloo','brown']].map(([col,name,label])=>`<div class="map-line-row"><div class="map-line-swatch" style="background:${col}"></div><span class="map-line-name">${name}</span><span class="map-line-colour">${label}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="tf-score"><span class="tf-score-lbl">🚇 Score</span><span class="tf-score-num" id="tf-score-num">0 / ${TRUE_FALSE.length}</span></div>
+    <div id="tf-cards"></div>
+    <button class="btn-continue" id="tf-continue" style="display:none" onclick="finishTF()">Which Line? 🎨 →</button>`;
+  const cd=$('tf-cards');
+  TRUE_FALSE.forEach((fact,i)=>{const div=document.createElement('div');div.className='tf-card';div.id=`tf-card-${i}`;div.style.animationDelay=`${i*.07}s`;div.innerHTML=`<div class="tf-front"><span class="tf-emoji">${fact.emoji}</span><span class="tf-text">${fact.text}</span></div><div class="tf-votes"><button class="tf-btn tf-true-btn" id="tf-t-${i}" onclick="answerTF(${i},true)">✅ TRUE</button><button class="tf-btn tf-false-btn" id="tf-f-${i}" onclick="answerTF(${i},false)">❌ FALSE</button></div><div class="tf-reveal" id="tf-rev-${i}"></div>`;cd.appendChild(div);});
+  window.EFCD_FX?.attachCombo(slot);
+  window.answerTF=function(idx,u){const fact=TRUE_FALSE[idx];const tBtn=$(`tf-t-${idx}`);const fBtn=$(`tf-f-${idx}`);if(tBtn.disabled)return;tBtn.disabled=true;fBtn.disabled=true;const ok=u===fact.correct;const btn=u?tBtn:fBtn;if(ok){btn.classList.add('correct');S.tfScore++;S.totalRight++;S.combo++;S.bestCombo=Math.max(S.bestCombo,S.combo);addXP(8,btn);window.EFCD_FX?.correct(btn);window.EFCD_FX?.combo(S.combo);}else{btn.classList.add('wrong');(u?fBtn:tBtn).classList.add('correct');window.EFCD_FX?.wrong(btn);window.EFCD_FX?.comboBreak(S.combo,S.bestCombo);S.combo=0;}S.totalAnswered++;const sn=$('tf-score-num');if(sn)sn.textContent=`${S.tfScore} / ${TRUE_FALSE.length}`;const rev=$(`tf-rev-${idx}`);rev.textContent=fact.reveal;rev.classList.add('show');answered++;if(answered===TRUE_FALSE.length){const c=$('tf-continue');if(c)c.style.display='flex';}};
+}
+function finishTF(){S.tfDone=true;addXP(15);window.EFCD_FX?.toast('🚇',`${S.tfScore}/${TRUE_FALSE.length} correct! +15 XP`);updateProgress();revealSection('sec-line',buildLineInner);}
+
+// ── SECTION 2: WHICH LINE? (teach first, then quiz) ──
+function buildLineSec(){const sec=document.createElement('div');sec.className='sec-card strip-yellow';sec.id='sec-line';sec.innerHTML=`<div class="sec-head"><div class="sec-head-icon">🎨</div><div><div class="sec-head-title">Which Line?</div><div class="sec-head-sub">Study the lines first · then match stations to colours!</div></div></div><div class="sec-body"><div class="wl-progress" id="wl-prog"></div><div id="wl-slot"></div></div>`;return sec;}
+function buildLineInner(){
+  const slot=$('wl-slot');const prog=$('wl-prog');
+  if(prog)prog.innerHTML=LINE_QUESTIONS.map(()=>`<div class="wl-pip"></div>`).join('');
+  slot.innerHTML=`
+    <div class="tip-box">💡 <strong>Study these 6 lines before the quiz!</strong> Each has a colour and key stations. Take your time — then press the button when you're ready! 🗺️</div>
+    <div class="lines-guide">
+      ${LINES_GUIDE.map((l,i)=>`<div class="line-guide-row" style="animation-delay:${i*.06}s"><div class="line-guide-swatch" style="background:${l.color}"></div><div class="line-guide-name" style="color:${l.color}">${l.name}</div><div class="line-guide-stations">${l.stations}</div><div class="line-guide-emoji">${l.emoji}</div></div>`).join('')}
+    </div>
+    <button class="btn-continue" style="background:var(--tube-red);border-color:#a01510" onclick="startLineQuiz()">Ready — start the quiz! 🚇</button>`;
+}
+function startLineQuiz(){renderLine();}
+function renderLine(){
+  const prog=$('wl-prog');if(prog)prog.innerHTML=LINE_QUESTIONS.map((_,i)=>`<div class="wl-pip ${i<S.wlIdx?'done':i===S.wlIdx?'active':''}"></div>`).join('');
+  if(S.wlDone){$('wl-slot').innerHTML=`<div class="sec-done"><span class="sec-done-icon" style="animation:bounce 1.5s ease-in-out infinite">🗺️</span><div class="sec-done-title">${S.wlScore}/${LINE_QUESTIONS.length} correct! 🎉</div><div class="sec-done-sub">You know your lines! Now build some Tube vocabulary.</div><button class="btn-continue" style="background:var(--tube-teal);border-color:#007aa0" onclick="revealSection('sec-wb',buildWBInner)">Word Builder! 🧱 →</button></div>`;return;}
+  const q=LINE_QUESTIONS[S.wlIdx];
+  $('wl-slot').innerHTML=`<button class="cheat-btn" onclick="openCheat()">🗺️ View line guide &nbsp;<span style="margin-left:auto;font-size:11px;opacity:.6">tap to open →</span></button><div class="wl-question"><div class="wl-q-label">Station ${S.wlIdx+1} of ${LINE_QUESTIONS.length}</div><div class="wl-q-station">${q.station}</div><div class="wl-q-hint">${q.hint}</div></div><p style="font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:10px;">Which line serves this station?</p><div class="wl-opts" id="wl-opts">${q.options.map(opt=>`<button class="wl-opt" style="background:${opt.color};border-color:${opt.color}80;" id="wl-opt-${opt.id}" onclick="answerLine('${opt.id}','${q.answer}')"><span style="color:${opt.dark?'#111':'#fff'};font-size:14px;font-weight:900">${opt.name}</span></button>`).join('')}</div><div class="wl-feedback" id="wl-fb"></div><button class="wl-next" id="wl-nxt" style="display:none" onclick="nextLine()">${S.wlIdx+1<LINE_QUESTIONS.length?'Next Station →':'All done! →'}</button>`;
+}
+window.answerLine=function(chosen,correct){document.querySelectorAll('.wl-opt').forEach(b=>b.disabled=true);const q=LINE_QUESTIONS[S.wlIdx];const fb=$('wl-fb');const ok=chosen===correct;if(ok){$(`wl-opt-${chosen}`).classList.add('correct');S.wlScore++;S.totalRight++;S.combo++;S.bestCombo=Math.max(S.bestCombo,S.combo);addXP(10,$(`wl-opt-${chosen}`));window.EFCD_FX?.correct($(`wl-opt-${chosen}`));window.EFCD_FX?.combo(S.combo);fb.className='wl-feedback show right';fb.innerHTML=q.fb;}else{$(`wl-opt-${chosen}`).classList.add('wrong');$(`wl-opt-${correct}`).classList.add('show-right');window.EFCD_FX?.wrong($(`wl-opt-${chosen}`));window.EFCD_FX?.comboBreak(S.combo,S.bestCombo);S.combo=0;fb.className='wl-feedback show wrong';fb.innerHTML='❌ Not this time! '+q.fb;}S.totalAnswered++;const nxt=$('wl-nxt');if(nxt)nxt.style.display='flex';};
+function nextLine(){S.wlIdx++;if(S.wlIdx>=LINE_QUESTIONS.length){S.wlDone=true;addXP(15);window.EFCD_FX?.toast('🎨',`${S.wlScore}/${LINE_QUESTIONS.length} lines! +15 XP`);updateProgress();renderLine();}else renderLine();}
+
+// ── SECTION 3: WORD BUILDER ──
+function buildWBSec(){const sec=document.createElement('div');sec.className='sec-card strip-teal';sec.id='sec-wb';sec.innerHTML=`<div class="sec-head"><div class="sec-head-icon">🧱</div><div><div class="sec-head-title">Word Builder!</div><div class="sec-head-sub">Read the clue · tap the letters · build the word!</div></div></div><div class="sec-body"><div class="wb-progress" id="wb-prog"></div><div id="wb-slot"></div></div>`;return sec;}
+function buildWBInner(){renderWB();window.EFCD_FX?.attachCombo(document.querySelector('#sec-wb .sec-body'));}
+function renderWB(){
+  const prog=$('wb-prog');if(prog)prog.innerHTML=WB_WORDS.map((_,i)=>`<div class="wb-pip ${i<S.wbIdx?'done':i===S.wbIdx?'active':''}"></div>`).join('');
+  if(S.wbDone){$('wb-slot').innerHTML=`<div class="sec-done"><span class="sec-done-icon" style="animation:bounce 1.5s ease-in-out infinite">🧱</span><div class="sec-done-title">${S.wbScore}/${WB_WORDS.length} words built! 🎉</div><div class="sec-done-sub">platform · journey · carriage · delay · crowded · oyster</div><button class="btn-continue" onclick="revealSection('sec-dial',buildDialInner)">Fill the Gaps! 💬 →</button></div>`;return;}
+  const w=WB_WORDS[S.wbIdx];wbBuilt=[];wbWrongAttempts=0;
+  const shuffled=[...w.letters].sort(()=>Math.random()-.5);
+  $('wb-slot').innerHTML=`<div class="wb-def">${w.def}<span class="hint">💡 ${w.hint}</span></div><div class="wb-answer-row" id="wb-answer"></div><div class="wb-tiles" id="wb-tiles">${shuffled.map((l,i)=>`<button class="wb-tile" id="wbt-${i}" onclick="tapWBTile('${l}',${i})">${l.toUpperCase()}</button>`).join('')}</div><div class="wb-feedback" id="wb-fb"></div><div class="wb-actions"><button class="wb-clear" onclick="clearWB()">🗑️ Clear</button><button class="wb-check" onclick="checkWB()">✓ Check!</button><button class="wb-hint-btn" id="wb-hint" onclick="hintWB()">💡 Hint</button><button class="wb-reveal-btn" id="wb-reveal" onclick="revealWB()">🚇 Reveal</button></div>`;
+  renderWBAnswer();
+}
+function renderWBAnswer(){const w=WB_WORDS[S.wbIdx];const row=$('wb-answer');if(!row)return;row.innerHTML='';for(let i=0;i<w.letters.length;i++){const s=document.createElement('div');s.className='wb-slot'+(wbBuilt[i]!==undefined?' filled':'');s.textContent=wbBuilt[i]!==undefined?wbBuilt[i].toUpperCase():'';if(wbBuilt[i]!==undefined)s.onclick=()=>removeWBLetter(i);row.appendChild(s);}}
+window.tapWBTile=function(letter,ti){const w=WB_WORDS[S.wbIdx];if(wbBuilt.length>=w.letters.length)return;wbBuilt.push(letter);const t=$(`wbt-${ti}`);if(t)t.classList.add('used');renderWBAnswer();const fb=$('wb-fb');if(fb){fb.className='wb-feedback';fb.textContent='';}};
+function removeWBLetter(pos){const letter=wbBuilt[pos];wbBuilt.splice(pos,1);const tiles=document.querySelectorAll('.wb-tile.used');for(const t of tiles){if(t.textContent.toUpperCase()===letter.toUpperCase()){t.classList.remove('used');break;}}renderWBAnswer();}
+function clearWB(){wbBuilt=[];document.querySelectorAll('.wb-tile').forEach(t=>t.classList.remove('used'));renderWBAnswer();const fb=$('wb-fb');if(fb){fb.className='wb-feedback';fb.textContent='';}}
+function hintWB(){const w=WB_WORDS[S.wbIdx];const np=wbBuilt.length;if(np>=w.letters.length)return;const cl=w.letters[np];const tiles=document.querySelectorAll('.wb-tile:not(.used)');for(const t of tiles){if(t.textContent.toUpperCase()===cl.toUpperCase()){t.classList.add('used');break;}}wbBuilt.push(cl);renderWBAnswer();const fb=$('wb-fb');if(fb){fb.className='wb-feedback show wrong';fb.textContent=`💡 Letter ${np+1} revealed!`;}}
+function revealWB(){const w=WB_WORDS[S.wbIdx];wbBuilt=[...w.letters];document.querySelectorAll('.wb-tile').forEach(t=>t.classList.add('used'));renderWBAnswer();const fb=$('wb-fb');fb.className='wb-feedback show wrong';fb.innerHTML=`👁️ The word is <strong>${w.word.toUpperCase()}</strong> — ${w.def}`;document.querySelectorAll('.wb-check,.wb-clear,.wb-hint-btn,.wb-reveal-btn').forEach(b=>{b.disabled=true;b.style.opacity='.4';});S.totalAnswered++;setTimeout(()=>{S.wbIdx++;if(S.wbIdx>=WB_WORDS.length){S.wbDone=true;addXP(15);window.EFCD_FX?.toast('🧱','All words! +15 XP');updateProgress();renderWB();}else renderWB();},2200);}
+function checkWB(){const w=WB_WORDS[S.wbIdx];const built=wbBuilt.join('').toLowerCase();if(built.length<w.letters.length){const fb=$('wb-fb');fb.className='wb-feedback show wrong';fb.textContent='⚠️ Fill all the letters first!';return;}const ok=built===w.word;const slots=document.querySelectorAll('.wb-slot');const fb=$('wb-fb');if(ok){slots.forEach(s=>s.classList.add('correct-final'));S.wbScore++;S.totalRight++;S.combo++;S.bestCombo=Math.max(S.bestCombo,S.combo);addXP(10);document.querySelectorAll('.wb-check,.wb-clear,.wb-hint-btn,.wb-reveal-btn').forEach(b=>{b.disabled=true;b.style.opacity='.4';});window.EFCD_FX?.correct(slots[0]);window.EFCD_FX?.combo(S.combo);fb.className='wb-feedback show right';fb.innerHTML=`✅ <strong>${w.word.toUpperCase()}</strong>! 🎉 ${w.def}`;setTimeout(()=>{S.wbIdx++;if(S.wbIdx>=WB_WORDS.length){S.wbDone=true;addXP(15);window.EFCD_FX?.toast('🧱','All words! +15 XP');updateProgress();renderWB();}else renderWB();},1600);}else{slots.forEach(s=>s.classList.add('wrong-shake'));setTimeout(()=>slots.forEach(s=>s.classList.remove('wrong-shake')),450);window.EFCD_FX?.wrong(slots[0]);window.EFCD_FX?.comboBreak(S.combo,S.bestCombo);S.combo=0;wbWrongAttempts++;fb.className='wb-feedback show wrong';fb.textContent=`Not quite! Hint: ${w.hint}`;if(wbWrongAttempts>=2){const rev=$('wb-reveal');if(rev)rev.style.opacity='1';}}S.totalAnswered++;}
+
+// ── SECTION 4: DIALOGUE ──
+function buildDialSec(){const sec=document.createElement('div');sec.className='sec-card strip-blue';sec.id='sec-dial';sec.innerHTML=`<div class="sec-head"><div class="sec-head-icon">💬</div><div><div class="sec-head-title">On the Tube!</div><div class="sec-head-sub">Tap a word · tap a gap · complete the conversation!</div></div></div><div class="sec-body"><div id="dial-inner"></div></div>`;return sec;}
+function buildDialInner(){
+  const slot=$('dial-inner');let sel=null,filled={};
+  function buildPage(){
+    const placed=new Set(Object.values(filled));
+    let html='<div class="dialogue-wrap">';
+    DIALOGUE.text.forEach(line=>{html+=`<div class="bubble-row ${line.side==='right'?'right':''}"><div class="bubble-avatar">${line.avatar}</div><div><div class="bubble-name">${line.speaker}</div><div class="bubble">`;line.parts.forEach(p=>{if(p.t==='text')html+=p.v;else{const f=filled[p.k];html+=`<span class="dial-gap ${f?'filled':''}" id="dg-${p.k}">${f||'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</span>`;}});html+=`</div></div></div>`;});html+='</div>';
+    slot.innerHTML=`<p style="font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:12px;font-style:italic">🗣️ ${DIALOGUE.context}</p><div class="dial-wordbank"><div class="dial-bank-label">📦 Word Bank — tap a word, then tap a gap!</div><div class="dial-chips">${DIALOGUE.wordbank.map(w=>`<button class="dial-chip ${placed.has(w)?'used':''} ${sel===w?'selected':''}" onclick="selDW('${w}')">${w}</button>`).join('')}</div></div>${html}<div class="dial-result" id="dial-result"></div><button class="dial-submit" onclick="submitDial()">💬 Check My Answers!</button>`;
+    Object.keys(DIALOGUE.gaps).forEach(k=>{const el=$(`dg-${k}`);if(el)el.onclick=()=>tapDG(k);});
+  }
+  window.selDW=function(w){const p=new Set(Object.values(filled));if(p.has(w))return;sel=(sel===w)?null:w;buildPage();};
+  window.tapDG=function(k){if(!sel){if(filled[k]){delete filled[k];buildPage();}return;}filled[k]=sel;sel=null;buildPage();};
+  window.submitDial=function(){const af=Object.keys(DIALOGUE.gaps).every(k=>filled[k]);if(!af){const r=$('dial-result');r.className='dial-result show wrong';r.textContent='⚠️ Fill all the gaps first!';return;}let correct=0;Object.keys(DIALOGUE.gaps).forEach(k=>{if(filled[k]===DIALOGUE.gaps[k])correct++;});const ar=correct===Object.keys(DIALOGUE.gaps).length;Object.keys(DIALOGUE.gaps).forEach(k=>{const el=$(`dg-${k}`);if(el){if(filled[k]===DIALOGUE.gaps[k])el.classList.add('filled');else{el.classList.add('wrong');el.textContent=filled[k]||'???';}}});const r=$('dial-result');if(ar){r.className='dial-result show right';r.innerHTML='✅ <strong>Brilliant!</strong> All 5 words correct! Mind the gap — closed! 🚇';S.totalRight+=5;S.combo+=3;S.bestCombo=Math.max(S.bestCombo,S.combo);addXP(25);window.EFCD_FX?.confetti?.();}else{r.className='dial-result show wrong';r.innerHTML=`📖 <strong>${correct}/5 correct!</strong> Red words are wrong — try again!`;addXP(correct*4);S.totalRight+=correct;S.combo=0;}S.totalAnswered+=5;const sub=slot.querySelector('.dial-submit');if(sub){sub.textContent='✍️ Grammar Challenge! →';sub.onclick=finishDial;sub.style.background='var(--tube-purple)';sub.style.borderColor='#6b003c';}};
+  buildPage();window.EFCD_FX?.attachCombo(slot);
+}
+function finishDial(){S.dialDone=true;addXP(10);window.EFCD_FX?.toast('💬','Dialogue done! +10 XP 🚇');updateProgress();revealSection('sec-sentence',buildSentenceInner);}
+
+// ── SECTION 5: SENTENCE PICK ──
+function buildSentenceSec(){const sec=document.createElement('div');sec.className='sec-card strip-purple';sec.id='sec-sentence';sec.innerHTML=`<div class="sec-head"><div class="sec-head-icon">✍️</div><div><div class="sec-head-title">Grammar on the Go!</div><div class="sec-head-sub">One sentence is correct — can you find it?</div></div></div><div class="sec-body"><div class="db-progress" id="db-prog"></div><div id="db-slot"></div></div>`;return sec;}
+function buildSentenceInner(){renderSentence();window.EFCD_FX?.attachCombo($('db-slot')?.parentElement);}
+function renderSentence(){
+  const prog=$('db-prog');if(prog)prog.innerHTML=SENTENCE_ROUNDS.map((_,i)=>`<div class="db-pip ${i<S.dbIdx?'done':i===S.dbIdx?'active':''}"></div>`).join('');
+  if(S.dbDone){$('db-slot').innerHTML=`<div class="sec-done"><span class="sec-done-icon" style="animation:bounce 1.5s ease-in-out infinite">🏆</span><div class="sec-done-title">${S.dbScore}/${SENTENCE_ROUNDS.length} correct! 🎉</div><div class="sec-done-sub">Superlatives, prepositions, infinitives — grammar hero! 🚇</div><button class="btn-continue" style="background:var(--tube-yellow);border-color:#b09200;color:#111" onclick="claimBadge()">🚇 Finish — get your badge!</button></div>`;return;}
+  const q=SENTENCE_ROUNDS[S.dbIdx];const indexed=q.opts.map((o,i)=>({text:o,origIdx:i})).sort(()=>Math.random()-.5);const sc=indexed.findIndex(o=>o.origIdx===q.correct);
+  $('db-slot').innerHTML=`<div class="tip-box" style="margin-bottom:14px;">💡 One sentence is <strong>correct</strong>. Three have grammar mistakes. Tap the right one!</div><div class="db-starter">${q.starter} <em>...</em></div><div class="db-opts" id="db-opts">${indexed.map((o,i)=>`<button class="db-opt" onclick="answerSentence(this,${i},${sc})">${o.text}</button>`).join('')}</div><div class="db-feedback" id="db-fb"></div><button class="db-next" id="db-nxt" onclick="nextSentence()" style="display:none">${S.dbIdx+1<SENTENCE_ROUNDS.length?'Next sentence →':'Finish! 🚇'}</button>`;
+}
+window.answerSentence=function(btn,chosen,correct){document.querySelectorAll('.db-opt').forEach(b=>b.disabled=true);const fb=$('db-fb');const q=SENTENCE_ROUNDS[S.dbIdx];if(chosen===correct){btn.classList.add('correct');S.dbScore++;S.totalRight++;S.combo++;S.bestCombo=Math.max(S.bestCombo,S.combo);addXP(12,btn);window.EFCD_FX?.correct(btn);window.EFCD_FX?.combo(S.combo);fb.className='db-feedback show right';fb.innerHTML=q.fb;}else{btn.classList.add('wrong');document.querySelectorAll('.db-opt')[correct].classList.add('show-correct');window.EFCD_FX?.wrong(btn);window.EFCD_FX?.comboBreak(S.combo,S.bestCombo);S.combo=0;fb.className='db-feedback show wrong';fb.innerHTML='❌ Not quite! '+q.fb;}S.totalAnswered++;const nxt=$('db-nxt');if(nxt)nxt.style.display='flex';};
+function nextSentence(){S.dbIdx++;if(S.dbIdx>=SENTENCE_ROUNDS.length){S.dbDone=true;addXP(15);window.EFCD_FX?.toast('✍️',`${S.dbScore}/${SENTENCE_ROUNDS.length} correct! +15 XP`);updateProgress();renderSentence();}else renderSentence();}
+
+// ── COMPLETION ──
+function claimBadge(){const btn=document.querySelector('#sec-sentence .btn-continue');if(btn){btn.textContent='🎉 Next stop...';btn.disabled=true;btn.style.opacity='.7';}setTimeout(showCompletion,400);}
+
+async function showCompletion(){
+  const acc=S.totalAnswered>0?Math.round((S.totalRight/S.totalAnswered)*100):100;
+  const xpMult=window.EFCD_Shop?.getXPMultiplier?.()??1;
+  if(xpMult>1){S.xp=Math.round(S.xp*xpMult);const hx=$('hdr-xp');if(hx)hx.textContent=S.xp;}
+  $('cc-xp').textContent='+'+S.xp;
+  if(xpMult>1){const lbl=$('cc-xp-label');if(lbl)lbl.textContent='⚡ XP Earned · 2× DOUBLE XP! 🚀';}
+  $('cc-correct').textContent=S.totalRight;$('cc-combo').textContent=S.bestCombo;
+  // Show class badge pill if in a session
+  if(localStorage.getItem('efcd_class_id')){const ccb=$('cc-class-badge');if(ccb)ccb.style.display='flex';}
+  $('completion-screen').classList.add('open');
+  megaConfettiBurst();setTimeout(megaConfettiBurst,600);
+  // Personal account
+  try{if(window.EFCD_Auth?.getCurrentUser()){const db=$('cc-dashboard-btn');if(db)db.style.display='flex';await window.EFCD_Auth.completeLesson({lessonId:window.LESSON_ID,lessonTitle:window.LESSON_TITLE,lessonLevel:'Beginner',lessonLink:LESSON_LINK,badgeIcon:'🚇',badgeName:'Tube Expert',vocabulary:[{word:'platform',definition:'Area at a station where you wait for the train'},{word:'journey',definition:'A trip from one place to another by transport'},{word:'carriage',definition:'One section of a train'},{word:'delay',definition:'When something is late'},{word:'crowded',definition:'Full of people'},{word:'underground',definition:'Below the ground — tunnels beneath the city'},{word:'Oyster card',definition:'Blue card used to pay for Tube and buses'},{word:'Mind the gap',definition:'Be careful of the space between train and platform'}],perfectScore:acc>=90});}}catch(e){}
+  // Daily challenges
+  try{if(window.DailyChallenges){const dcResult=await window.DailyChallenges.updateChallengeProgress({perfectScore:acc>=90});if(dcResult?.justCompleted)setTimeout(()=>window.DailyChallenges.showChallengeCompletionCelebration(dcResult.challenge),1800);localStorage.setItem('dc_last_lesson_date',new Date().toDateString());localStorage.setItem('dc_last_lesson_section','beginner');}}catch(e){}
+  // Class session bridge — posts to /live/ leaderboard
+  try{if(typeof EFCD_Rewards!=='undefined'){await EFCD_Rewards.onLessonComplete({lessonId:window.LESSON_ID,lessonTitle:window.LESSON_TITLE,lessonLevel:'Beginner',badgeIcon:'🚇',badgeName:'Tube Expert',correctAnswers:S.totalRight,totalAnswers:S.totalAnswered,bestCombo:S.bestCombo,perfectScore:acc>=90,completionTime:null});}}catch(e){}
+}
+
+async function handleSignOut(){if(window.EFCD_Auth?.signOut)await window.EFCD_Auth.signOut();else if(window.efcdSupabaseClient){await window.efcdSupabaseClient.auth.signOut();window.location.href='/';}}
+
+document.addEventListener('DOMContentLoaded',async()=>{
+  // Class session pill
+  if(localStorage.getItem('efcd_class_id')){const p=$('hdr-class-pill');if(p)p.classList.add('show');}
+  // Personal login
+  try{if(window.efcdReady)await window.efcdReady;if(window.EFCD_Auth){await window.EFCD_Auth.initAuth();window.EFCD_Shop?.applyActive?.();const user=window.EFCD_Auth.getCurrentUser();if(user){const panel=$('hdr-user-panel');if(panel)panel.classList.add('show');const st=window.EFCD_Auth.getUserStats();if(st){S.xp=st.xp||0;S.streak=st.streak||0;}const hx=$('hdr-xp');if(hx)hx.textContent=S.xp;const hs=$('hdr-streak');if(hs)hs.textContent=S.streak;}}}catch(e){}
+  buildAll();updateProgress();
+});
+</script>
+
+<!-- Lines reference cheat sheet -->
+<div class="cheat-overlay" id="cheat-overlay" onclick="closeCheat(event)">
+  <div class="cheat-sheet">
+    <div class="cheat-handle"></div>
+    <div class="cheat-header">
+      <span class="cheat-title">🗺️ Line Reference Guide</span>
+      <button class="cheat-close" onclick="closeCheatDirect()">✕</button>
+    </div>
+    <div class="cheat-body">
+      <div class="tip-box" style="margin-bottom:12px;">💡 Use this to help you! Tap anywhere outside to close.</div>
+      <div id="cheat-lines-list"></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
