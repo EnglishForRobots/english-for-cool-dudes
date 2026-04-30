@@ -593,25 +593,21 @@ async function renderLeaderboard(){
 
   const monday = getWeekStart();
   const { data: scores } = await sb.from('efcd_scores')
-    .select('class_id, correct')
+    .select('class_id, correct, xp')
     .gte('date', monday);
 
   // Aggregate by class
   const totals = {};
-_classes.forEach(c => totals[c.id] = { correct: 0, xp: 0 });
-(scores || []).forEach(s => {
-  if(totals[s.class_id] !== undefined){
-    totals[s.class_id].correct += s.correct;
-    totals[s.class_id].xp     += s.xp || 0;
-  }
-});
-
-const ranked = _classes
-  .map(c => ({ ...c, total: totals[c.id].correct, xp: totals[c.id].xp }))
-  .sort((a,b) => b.total - a.total);
+  _classes.forEach(c => totals[c.id] = { correct: 0, xp: 0 });
+  (scores || []).forEach(s => {
+    if(totals[s.class_id] !== undefined){
+      totals[s.class_id].correct += s.correct || 0;
+      totals[s.class_id].xp     += s.xp || 0;
+    }
+  });
 
   const ranked = _classes
-    .map(c => ({ ...c, total: totals[c.id] || 0 }))
+    .map(c => ({ ...c, total: totals[c.id].correct, xp: totals[c.id].xp }))
     .sort((a,b) => b.total - a.total);
 
   const medals = ['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣'];
