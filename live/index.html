@@ -294,6 +294,7 @@ async function boot(){
         .select('*').eq('class_id', savedClass).is('ended_at', null)
         .order('started_at', { ascending:false }).limit(1);
       if(sessions?.[0]) _sessionId = sessions[0].id;
+        localStorage.setItem('efcd_session_id', _sessionId);
 
       if(_presentNames.length > 0){
         enterClassMode();
@@ -352,6 +353,15 @@ function showJoinFlow(){
 async function joinClass(classId){
   const cls = _activeClasses.find(c => c.id === classId);
   if(!cls) return;
+
+    if (cls.join_pin) {
+    const entered = prompt('Enter the 4-digit class PIN shown by your teacher:');
+    if (entered?.trim() !== cls.join_pin) {
+      alert('Wrong PIN. Ask your teacher for today\'s code.');
+      return;
+    }
+  }
+  
   _class = cls;
   localStorage.setItem('efcd_class_id', classId);
 
