@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   lesson-completion-rewards.js  v1.0
+   lesson-completion-rewards.js  v1.1
    EFCD — drop this into every lesson page
 
    TWO systems in one file:
@@ -9,52 +9,68 @@
       Call: EFCD_Rewards.onLessonComplete(lessonData)
 
    2. CLASS BRIDGE — submits score to Supabase if a class session
-      is currently active (student joined via /live/ or homepage).
+      is currently active (student joined via /live/).
       Call: EFCD_Rewards.onLessonComplete(lessonData) — same call,
       bridge runs automatically if a session is detected.
 
    lessonData shape:
    {
-     lessonId:    'wigtown-bookshop-intermediate',  // unique slug
+     lessonId:    'wigtown-bookshop-intermediate',
      lessonTitle: 'The Town That Was Saved by Books',
-     lessonLevel: 'Intermediate',                   // Beginner / Intermediate / Advanced / Business / Tax / Legal / Kids
+     lessonLevel: 'Intermediate',
      badgeIcon:   '📚',
      badgeName:   'Honorary Bookseller',
-     correctAnswers: 18,   // total correct in this lesson
-     totalAnswers:   22,   // total answered
-     bestCombo:       5,   // longest streak
-     perfectScore:  false, // true if 100%
+     correctAnswers: 18,
+     totalAnswers:   22,
+     bestCombo:       5,
+     perfectScore:  false,
      completionTime: 480,  // seconds (optional)
    }
+
+   v1.1 fixes:
+   - getSB() now waits up to 3s for init-auth.js to finish instead
+     of returning null immediately (race condition fix)
+   - submitToClass() reads efcd_session_id from localStorage to
+     avoid an extra DB round-trip
+   - validateClassSession() exported so lesson/index pages can
+     auto-clear a dead session pill without any extra script
 ═══════════════════════════════════════════════════════════════ */
 
 'use strict';
 
 (function () {
 
-  /* ─── SUPABASE ────────────────────────────────────────────────
-     The bridge reads the URL + key from the same global the rest
-     of the site uses. If it's not there we skip silently.         */
-  function getSB () {
-    return window.efcdSupabaseClient || null;
+  const SUPABASE_URL = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+
+  /* ─── SUPABASE — waits for init-auth.js, never returns null early ── */
+  async function getSB () {
+    // Already available — fast path
+    if (window.efcdSupabaseClient) return window.efcdSupabaseClient;
+
+    // Wait up to 3 seconds for init-auth.js to finish (100ms × 30)
+    for (let i = 0; i < 30; i++) {
+      await new Promise(r => setTimeout(r, 100));
+      if (window.efcdSupabaseClient) return window.efcdSupabaseClient;
+    }
+
+    // Last resort: build our own client if the supabase global exists
+    if (window.supabase) {
+      window.efcdSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      return window.efcdSupabaseClient;
+    }
+
+    return null;
   }
 
-  /* ─── TIME HELPERS ───────────────────────────────────────────── */
-  function hour () { return new Date().getHours(); }
+  /* ─── TIME HELPERS ─────────────────────────────────────────── */
+  function hour ()      { return new Date().getHours(); }
   function dayOfWeek () { return new Date().getDay(); } // 0=Sun … 6=Sat
 
-  /* ─── MOMENT-REWARD CATALOGUE ────────────────────────────────
-     Each entry:
-       test()      → boolean — fires if true
-       emoji       → big icon shown in EFCD_FX.milestone card
-       title       → bold headline (short, punchy)
-       msg         → warm personal message
-       color       → card border colour
-       shadow      → darker shade for border-bottom
-     Priority: first match wins — order matters.                   */
+  /* ─── MOMENT-REWARD CATALOGUE ─────────────────────────────── */
   const MOMENT_REWARDS = [
 
-    // ── TIME-BASED ────────────────────────────────────────────
+    // ── TIME-BASED ──────────────────────────────────────────
     {
       id: 'dawn_patrol',
       test: () => hour() >= 5 && hour() < 7,
@@ -120,7 +136,7 @@
       color: '#1a2e5a', shadow: '#0d1a3a',
     },
 
-    // ── DAY-BASED ─────────────────────────────────────────────
+    // ── DAY-BASED ────────────────────────────────────────────
     {
       id: 'monday_crusher',
       test: () => dayOfWeek() === 1,
@@ -146,7 +162,7 @@
       color: '#2BDECC', shadow: '#1FBFAF',
     },
 
-    // ── PERFORMANCE-BASED ─────────────────────────────────────
+    // ── PERFORMANCE-BASED ────────────────────────────────────
     {
       id: 'perfectionist',
       test: (d) => d.perfectScore === true,
@@ -160,8 +176,7 @@
       test: (d) => d.bestCombo >= 10,
       emoji: '🔥',
       title: 'On Fire!',
-      msg: `${10} correct in a row at some point in that lesson. Your brain was in a different gear today. Keep that up.`,
-      // Note: msg will be personalised dynamically in fireReward()
+      msg: '10 correct in a row at some point in that lesson. Your brain was in a different gear today. Keep that up.',
       color: '#FF4B4B', shadow: '#EA2B2B',
     },
     {
@@ -173,7 +188,7 @@
       color: '#FFC800', shadow: '#E5B400',
     },
 
-    // ── FALLBACK — always fires if nothing else matched ────────
+    // ── FALLBACK — always fires if nothing else matched ──────
     {
       id: 'lesson_complete',
       test: () => true,
@@ -184,32 +199,27 @@
     },
   ];
 
-  /* ─── FIRE THE MOMENT REWARD ──────────────────────────────── */
+  /* ─── FIRE THE MOMENT REWARD ────────────────────────────── */
   function fireReward (lessonData) {
-    // Find first matching reward
     const reward = MOMENT_REWARDS.find(r => r.test(lessonData));
     if (!reward) return;
 
-    // Personalise the hot streak message
     let msg = reward.msg;
     if (reward.id === 'hot_streak' && lessonData.bestCombo) {
       msg = `${lessonData.bestCombo} correct in a row at some point in that lesson. Your brain was in a different gear today. Keep that up.`;
     }
 
-    // Delay slightly so lesson completion animation runs first
     setTimeout(() => {
       if (window.EFCD_FX && window.EFCD_FX.milestone) {
         window.EFCD_FX.milestone(reward.emoji, reward.title, msg, reward.color, reward.shadow);
         window.EFCD_FX.confetti();
       } else {
-        // Fallback if EFCD_FX isn't loaded — plain overlay
         _fallbackOverlay(reward, msg);
       }
     }, 800);
   }
 
-  /* ─── FALLBACK OVERLAY ────────────────────────────────────── */
-  // Used on pages that don't have interactions.js loaded
+  /* ─── FALLBACK OVERLAY ──────────────────────────────────── */
   function _fallbackOverlay (reward, msg) {
     const overlay = document.createElement('div');
     overlay.style.cssText = [
@@ -250,36 +260,40 @@
     setTimeout(() => overlay.remove(), 5000);
   }
 
-  /* ─── CLASS BRIDGE ────────────────────────────────────────── */
-  // Reads class session from localStorage (set by homepage/live join flow)
-  // and submits a lesson-level score to Supabase efcd_scores.
-
+  /* ─── CLASS BRIDGE ──────────────────────────────────────── */
   async function submitToClass (lessonData) {
-    const classId  = localStorage.getItem('efcd_class_id');
+    const classId    = localStorage.getItem('efcd_class_id');
     const presentRaw = localStorage.getItem('efcd_present_names');
 
-    if (!classId) return; // no active class session — skip silently
+    if (!classId) return; // not in a class session — skip silently
 
-    const sb = getSB();
-    // If we don't have a global supabase client, build one from meta tags
-    // (lessons embed their own supabase URL/key)
-    const client = sb || _buildSBClient();
+    // v1.1 FIX: await getSB() instead of calling it synchronously.
+    // The old getSB() returned null if init-auth.js hadn't finished yet,
+    // silently dropping every score. Now we wait up to 3s for the client.
+    const client = await getSB();
     if (!client) return;
 
     try {
-      // Find the current open session
-      const { data: sessions } = await client
-        .from('efcd_sessions')
-        .select('id')
-        .eq('class_id', classId)
-        .is('ended_at', null)
-        .order('started_at', { ascending: false })
-        .limit(1);
+      // v1.1 FIX: read session_id from localStorage first — set by /live/
+      // when the student joins. Avoids an extra DB round-trip and works
+      // even if the session query would otherwise race with page load.
+      let sessionId = localStorage.getItem('efcd_session_id');
 
-      const sessionId = sessions?.[0]?.id;
-      if (!sessionId) return; // session not active
+      if (!sessionId) {
+        // Fallback: query for the open session (original behaviour)
+        const { data: sessions } = await client
+          .from('efcd_sessions')
+          .select('id')
+          .eq('class_id', classId)
+          .is('ended_at', null)
+          .order('started_at', { ascending: false })
+          .limit(1);
+        sessionId = sessions?.[0]?.id;
+      }
 
-      // Get class info for the display name
+      if (!sessionId) return; // no active session found
+
+      // Get class display name
       const { data: classes } = await client
         .from('efcd_classes')
         .select('id, name, team_name')
@@ -301,10 +315,9 @@
         date:         new Date().toISOString().split('T')[0],
       });
 
-      // Award lesson completion badge to all present students
+      // Award lesson badge to all present students
       const presentNames = JSON.parse(presentRaw || '[]');
       if (presentNames.length > 0 && presentNames[0] !== 'the class') {
-        // Fetch student IDs for present members
         const { data: students } = await client
           .from('efcd_students')
           .select('id, name')
@@ -312,17 +325,18 @@
 
         const present = (students || []).filter(s => presentNames.includes(s.name));
         if (present.length > 0) {
-          const badges = present.map(s => ({
-            student_id:   s.id,
-            student_name: s.name,
-            class_id:     classId,
-            badge_key:    'lesson_' + (lessonData.lessonId || 'complete'),
-            badge_emoji:  lessonData.badgeIcon || '🏅',
-            badge_label:  lessonData.badgeName || 'Lesson Complete',
-            is_manual:    false,
-            session_id:   sessionId,
-          }));
-          await client.from('efcd_badges').insert(badges);
+          await client.from('efcd_badges').insert(
+            present.map(s => ({
+              student_id:   s.id,
+              student_name: s.name,
+              class_id:     classId,
+              badge_key:    'lesson_' + (lessonData.lessonId || 'complete'),
+              badge_emoji:  lessonData.badgeIcon || '🏅',
+              badge_label:  lessonData.badgeName || 'Lesson Complete',
+              is_manual:    false,
+              session_id:   sessionId,
+            }))
+          );
         }
       }
 
@@ -333,37 +347,66 @@
     }
   }
 
-  /* ─── BUILD SUPABASE CLIENT FROM LESSON META TAGS ────────── */
-  // Some lesson pages initialise Supabase separately via init-auth.js.
-  // This finds the already-initialised client or builds a minimal one.
-  function _buildSBClient () {
-    // Try window.efcdSupabaseClient first
-    if (window.efcdSupabaseClient) return window.efcdSupabaseClient;
-    // Try the supabase global with known credentials
-    // Lessons that include init-auth.js will have it available as a global
-    if (window.supabase && window._efcdSBUrl && window._efcdSBKey) {
-      return window.supabase.createClient(window._efcdSBUrl, window._efcdSBKey);
+  /* ─── SESSION VALIDATOR ─────────────────────────────────── */
+  // Call this on any page that shows a "Back to class" pill.
+  // It checks Supabase to confirm the stored session is still live.
+  // If the teacher has ended the session, it clears localStorage and
+  // hides the pill — so world users never see a stale "Back to class".
+  //
+  // Usage in DOMContentLoaded:
+  //   if (localStorage.getItem('efcd_class_id')) {
+  //     const pill = document.getElementById('hdr-class-pill');
+  //     if (pill) pill.classList.add('show');
+  //     EFCD_Rewards.validateClassSession('hdr-class-pill');
+  //   }
+  async function validateClassSession (pillElementId) {
+    const classId = localStorage.getItem('efcd_class_id');
+    if (!classId) return;
+
+    try {
+      const client = await getSB();
+      if (!client) return;
+
+      const { data } = await client
+        .from('efcd_classes')
+        .select('is_active')
+        .eq('id', classId)
+        .single();
+
+      if (!data || !data.is_active) {
+        // Session has ended — clear everything
+        localStorage.removeItem('efcd_class_id');
+        localStorage.removeItem('efcd_session_id');
+        localStorage.removeItem('efcd_present_names');
+
+        if (pillElementId) {
+          const pill = document.getElementById(pillElementId);
+          if (pill) pill.classList.remove('show');
+        }
+
+        console.log('ℹ️ EFCD: class session ended — localStorage cleared');
+      }
+    } catch (e) {
+      // Network failure — leave pill as-is, don't punish the user
     }
-    return null;
   }
 
-  /* ─── PUBLIC API ──────────────────────────────────────────── */
-  // Main entry point — call this from every lesson's showCompletion()
-  // It handles both the moment reward AND the class bridge in one call.
+  /* ─── PUBLIC API ────────────────────────────────────────── */
   async function onLessonComplete (lessonData) {
-    // 1. Fire the contextual moment reward (always)
+    // 1. Fire the contextual moment reward (always — no account needed)
     fireReward(lessonData);
 
-    // 2. Submit to class session if active (only if student joined a class)
+    // 2. Submit to class session if active
     await submitToClass(lessonData);
   }
 
   window.EFCD_Rewards = {
     onLessonComplete,
-    fireReward,       // call standalone if you just want the reward overlay
-    submitToClass,    // call standalone if you just want the class submission
+    fireReward,
+    submitToClass,
+    validateClassSession,   // v1.1 — exported for lesson + index pages
   };
 
-  console.log('🎉 EFCD Rewards v1.0 — moment rewards + class bridge loaded');
+  console.log('🎉 EFCD Rewards v1.1 — moment rewards + class bridge loaded');
 
 })();
