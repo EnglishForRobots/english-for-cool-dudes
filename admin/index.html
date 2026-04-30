@@ -459,16 +459,18 @@ function getElapsed(start){
   return `${m}m ${s.toString().padStart(2,'0')}s`;
 }
 
-async function startSession(classId){
+async function startSession(classId) {
+  const pin = String(Math.floor(1000 + Math.random() * 9000));
+
   const { error } = await sb.from('efcd_classes').update({
     is_active: true,
-    session_started_at: new Date().toISOString()
+    session_started_at: new Date().toISOString(),
+    join_pin: pin                                    // ← store PIN
   }).eq('id', classId);
 
-  if(!error){
-    // Create session record
+  if (!error) {
     await sb.from('efcd_sessions').insert({ class_id: classId });
-    toast('✅', 'Session started!');
+    toast('✅', `Session live! PIN: ${pin}`);        // ← teacher sees it
     await loadEverything();
   }
 }
@@ -485,6 +487,7 @@ async function endSession(classId){
   const { error } = await sb.from('efcd_classes').update({
     is_active: false,
     session_started_at: null
+    join_pin: null  
   }).eq('id', classId);
 
   if(!error){
