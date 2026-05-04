@@ -678,89 +678,156 @@ async function endSession(classId){
 function openManage(classId){
   _managingClass = _classes.find(c => c.id === classId);
   if(!_managingClass) return;
+  _renderManageModal(classId);
+  document.getElementById('manage-modal').classList.add('open');
+}
+ 
+function _renderManageModal(classId){
+  _managingClass = _classes.find(c => c.id === classId);
+  if(!_managingClass) return;
   const members = _students.filter(s => s.class_id === classId);
-
-  const EMOJIS = ['😎','🌺','⭐','🎨','🦋','🎸','⚡','🎯','🌸','🦁','🌻','❄️','🌈','🎭','🔮','🌊','🌟','🦊','🏆','🚀','⚔️','🐉','🎪','🌙','☕','🍀','💎','🔥'];
-
-  document.getElementById('manage-modal-title').textContent = `${_managingClass.emoji} ${_managingClass.name}`;
+  const EMOJIS  = ['😎','🌺','⭐','🎨','🦋','🎸','⚡','🎯','🌸','🦁','🌻',
+                   '❄️','🌈','🎭','🔮','🌊','🌟','🦊','🏆','🚀','⚔️','🐉',
+                   '🎪','🌙','☕','🍀','💎','🔥'];
+ 
+  // Other classes for "move student" dropdown
+  const otherClasses = _classes.filter(c => c.id !== classId);
+ 
+  document.getElementById('manage-modal-title').textContent =
+    `${_managingClass.emoji} ${_managingClass.name}`;
+ 
   document.getElementById('manage-modal-body').innerHTML = `
-
+ 
     <!-- Team Name -->
     <div class="modal-section">
       <div class="modal-section-title">Team Name</div>
       <div class="team-name-row">
-        <input class="team-name-input" id="team-name-input" 
-          value="${_managingClass.team_name || ''}" 
+        <input class="team-name-input" id="team-name-input"
+          value="${_managingClass.team_name || ''}"
           placeholder="e.g. The Grammar Gangsters">
         <button class="btn-save-team" onclick="saveTeamName('${classId}')">Save</button>
       </div>
     </div>
-
+ 
     <!-- Students -->
     <div class="modal-section">
       <div class="modal-section-title">Students (${members.length})</div>
       <div id="manage-students-list">
         ${members.map(s => `
-          <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)">
-            <span style="font-size:20px">${s.avatar_emoji}</span>
-            <span style="flex:1;font-size:14px;font-weight:800;color:var(--ink-bold)">${s.name}</span>
-            <div class="emoji-row" style="margin:0">
-              ${EMOJIS.slice(0,14).map(e => `<button class="emoji-btn ${s.avatar_emoji === e ? 'chosen' : ''}" onclick="setEmoji('${s.id}','${e}',this)">${e}</button>`).join('')}
+          <div style="display:flex;align-items:flex-start;gap:8px;padding:10px 0;
+            border-bottom:1px solid var(--border)" id="mrow-${s.id}">
+ 
+            <!-- Emoji picker -->
+            <div>
+              <div style="font-size:20px;margin-bottom:4px">${s.avatar_emoji}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:3px;max-width:180px">
+                ${EMOJIS.slice(0,14).map(e =>
+                  `<button class="emoji-btn ${s.avatar_emoji === e ? 'chosen' : ''}"
+                    onclick="setEmoji('${s.id}','${e}',this)"
+                    style="width:28px;height:28px;font-size:14px">${e}</button>`
+                ).join('')}
+              </div>
+            </div>
+ 
+            <!-- Name + actions -->
+            <div style="flex:1">
+              <div style="font-size:14px;font-weight:800;color:var(--ink-bold);
+                margin-bottom:8px">${s.name}</div>
+ 
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+ 
+                <!-- Move to another class -->
+                ${otherClasses.length ? `
+                  <select id="move-class-${s.id}"
+                    style="padding:5px 8px;border:2px solid var(--border-heavy);
+                      border-radius:var(--rsm);font-size:12px;font-weight:700;
+                      color:var(--ink-bold);background:var(--white);cursor:pointer;
+                      font-family:inherit;outline:none">
+                    <option value="">Move to…</option>
+                    ${otherClasses.map(c =>
+                      `<option value="${c.id}">${c.emoji} ${c.name}</option>`
+                    ).join('')}
+                  </select>
+                  <button
+                    onclick="moveStudentToClass('${s.id}','${classId}')"
+                    style="padding:5px 10px;background:var(--blue);color:#fff;
+                      font-size:11px;font-weight:900;border-radius:var(--rsm);
+                      border:2px solid var(--blue-shadow);cursor:pointer;
+                      font-family:inherit">
+                    Move
+                  </button>` : ''}
+ 
+                <!-- Remove from class -->
+                <button
+                  onclick="removeStudentFromClass('${s.id}','${classId}')"
+                  style="padding:5px 10px;background:var(--punch);color:#fff;
+                    font-size:11px;font-weight:900;border-radius:var(--rsm);
+                    border:2px solid var(--punch-shadow);cursor:pointer;
+                    font-family:inherit">
+                  🗑️ Remove
+                </button>
+ 
+              </div>
             </div>
           </div>`).join('')}
       </div>
+ 
+      <!-- Add Student -->
       <div style="margin-top:14px">
         <div class="modal-section-title">Add Student</div>
         <div style="display:flex;gap:8px;margin-top:6px">
-          <input id="new-student-name" placeholder="First name" 
-            style="flex:1;padding:10px;border:2px solid var(--border-heavy);border-radius:var(--rsm);font-size:14px;font-weight:700;outline:none">
-          <button onclick="addStudent('${classId}')" 
-            style="padding:10px 16px;background:var(--green);color:#fff;font-size:13px;font-weight:900;border-radius:var(--rsm);border:2px solid var(--green-shadow);cursor:pointer;font-family:inherit">
+          <input id="new-student-name" placeholder="First name"
+            style="flex:1;padding:10px;border:2px solid var(--border-heavy);
+              border-radius:var(--rsm);font-size:14px;font-weight:700;outline:none"
+            onkeydown="if(event.key==='Enter') addStudent('${classId}')">
+          <button onclick="addStudent('${classId}')"
+            style="padding:10px 16px;background:var(--green);color:#fff;
+              font-size:13px;font-weight:900;border-radius:var(--rsm);
+              border:2px solid var(--green-shadow);cursor:pointer;
+              font-family:inherit">
             Add
           </button>
         </div>
       </div>
-    </div>
-  `;
-  document.getElementById('manage-modal').classList.add('open');
+    </div>`;
 }
-
-function closeManage(){
-  document.getElementById('manage-modal').classList.remove('open');
-}
-
-async function saveTeamName(classId){
-  const name = document.getElementById('team-name-input').value.trim();
-  const old  = _managingClass.team_name || '';
-  await sb.from('efcd_classes').update({ team_name: name || null }).eq('id', classId);
-  await sb.from('efcd_team_name_log').insert({ class_id: classId, old_name: old, new_name: name });
-  toast('✅', `Team name saved: ${name || 'removed'}`);
+ 
+/* ── REMOVE STUDENT FROM CLASS ──────────────────────────────── */
+async function removeStudentFromClass(studentId, classId){
+  const student = _students.find(s => s.id === studentId);
+  if(!student) return;
+  if(!confirm(`Remove ${student.avatar_emoji} ${student.name} from this class?\n\nTheir badge and score history will be kept.`)) return;
+ 
+  const { error } = await sb.from('efcd_students')
+    .delete().eq('id', studentId);
+ 
+  if(error){ toast('❌', error.message); return; }
+ 
+  toast('🗑️', student.name + ' removed');
   await loadEverything();
-  closeManage();
+  _renderManageModal(classId); // refresh modal without closing it
 }
-
-async function setEmoji(studentId, emoji, btn){
-  await sb.from('efcd_students').update({ avatar_emoji: emoji }).eq('id', studentId);
-  // Update UI
-  btn.closest('div[style]').querySelector('span').textContent = emoji;
-  btn.parentElement.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('chosen'));
-  btn.classList.add('chosen');
-  // Update local
-  const s = _students.find(s => s.id === studentId);
-  if(s) s.avatar_emoji = emoji;
-  toast('✅', 'Emoji updated!');
-}
-
-async function addStudent(classId){
-  const name = document.getElementById('new-student-name').value.trim();
-  if(!name) return;
-  const id = name.toLowerCase().replace(/\s+/g,'_') + '_' + Date.now();
-  await sb.from('efcd_students').insert({
-    id, name, class_id: classId, avatar_emoji: '😊'
-  });
-  toast('✅', `${name} added!`);
+ 
+/* ── MOVE STUDENT TO ANOTHER CLASS ─────────────────────────── */
+async function moveStudentToClass(studentId, currentClassId){
+  const selectEl   = document.getElementById('move-class-' + studentId);
+  const newClassId = selectEl?.value;
+  if(!newClassId){ toast('⚠️','Please pick a class to move to'); return; }
+ 
+  const student  = _students.find(s => s.id === studentId);
+  const newClass = _classes.find(c => c.id === newClassId);
+  if(!student || !newClass) return;
+ 
+  if(!confirm(`Move ${student.avatar_emoji} ${student.name} to ${newClass.emoji} ${newClass.name}?`)) return;
+ 
+  const { error } = await sb.from('efcd_students')
+    .update({ class_id: newClassId }).eq('id', studentId);
+ 
+  if(error){ toast('❌', error.message); return; }
+ 
+  toast('✅', `${student.name} moved to ${newClass.name}!`);
   await loadEverything();
-  openManage(classId);
+  _renderManageModal(currentClassId); // refresh modal
 }
 
 // ── LEADERBOARD ───────────────────────────────────────────
@@ -1129,8 +1196,14 @@ wrap.innerHTML = activeSessions.map(session => {
                 <div class="history-section-label">📚 Lessons completed</div>
                 <div class="history-lesson-tags">
                   ${lessonsDone.map(l => `
-                    <div class="history-lesson-tag">${l.emoji} ${l.label}</div>
-                  `).join('')}
+  <div class="history-lesson-tag" style="display:flex;align-items:center;gap:8px;padding-right:8px">
+    <span>${l.emoji} ${l.label}</span>
+    <button onclick="removeLessonFromHistory('${session.id}','${l.key}')"
+      style="background:rgba(255,75,75,.15);border:none;border-radius:5px;
+        color:var(--punch);font-size:11px;font-weight:900;cursor:pointer;
+        padding:2px 7px;font-family:inherit;line-height:1.5"
+      title="Remove this lesson from history">✕</button>
+  </div>`).join('')}
                 </div>
               </div>` : ''}
  
@@ -1577,6 +1650,33 @@ function closeConfirm(){
 }
  
 
+async function removeLessonFromHistory(sessionId, badgeKey){
+  if(!confirm('Remove this lesson from history? This will delete the badge and score records for this session.')) return;
+ 
+  try {
+    // Delete lesson badges for this session
+    await sb.from('efcd_badges')
+      .delete()
+      .eq('session_id', sessionId)
+      .eq('badge_key', badgeKey)
+      .eq('is_manual', false);
+ 
+    // Delete scores for this session
+    await sb.from('efcd_scores')
+      .delete()
+      .eq('session_id', sessionId);
+ 
+    // Delete vocab for this session
+    await sb.from('efcd_lesson_vocab')
+      .delete()
+      .eq('session_id', sessionId);
+ 
+    toast('🗑️', 'Lesson removed from history');
+    renderHistory();
+  } catch(err) {
+    toast('❌', 'Error: ' + err.message);
+  }
+}
 </script>
 </body>
 </html>
