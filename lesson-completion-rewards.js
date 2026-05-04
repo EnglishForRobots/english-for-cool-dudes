@@ -288,6 +288,19 @@
               session_id:   sessionId,
             }))
           );
+
+            if (lessonData.vocabulary?.length) {
+     await client.from('efcd_lesson_vocab').insert({
+       class_id:      classId,
+       session_id:    sessionId,
+       lesson_id:     lessonData.lessonId || 'unknown',
+       lesson_title:  lessonData.lessonTitle || '',
+       lesson_level:  lessonData.lessonLevel || '',
+       vocab:         JSON.stringify(lessonData.vocabulary),
+       grammar_focus: lessonData.grammarFocus || null,
+       completed_at:  new Date().toISOString(),
+     });
+   }
         }
       }
 
