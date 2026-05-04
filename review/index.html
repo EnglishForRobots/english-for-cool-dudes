@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>😎 Vocab Review — EFCD</title>
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css2?family=Nunito:ital,wght@0,400;0,700;0,800;0,900;1,900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --navy:#1a2e5a;
+  --yellow:#FFC800;   --yellow-shadow:#E5B400;
+  --green:#58CC02;    --green-shadow:#58A700;
+  --punch:#FF4B4B;    --punch-shadow:#EA2B2B;
+  --blue:#1CB0F6;     --blue-shadow:#1899D6;
+  --purple:#CE82FF;   --purple-shadow:#A559D9;
+  --bg:#F4F6F8;       --white:#fff;
+  --ink:#4B4B4B;      --ink-bold:#111827;  --ink-3:#AFAFAF;
+  --border:#E5E5E5;   --border-heavy:#CECECE;
+  --r:20px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--navy);color:#fff;font-family:'Nunito',sans-serif;line-height:1.5}
+
+@keyframes up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pop{0%{transform:scale(.8)}60%{transform:scale(1.05)}100%{transform:scale(1)}}
+@keyframes flip{0%{transform:rotateY(0)}50%{transform:rotateY(90deg)}100%{transform:rotateY(0)}}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes celebrate{0%{transform:scale(1) rotate(0)}25%{transform:scale(1.2) rotate(-5deg)}75%{transform:scale(1.2) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes confetti{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(200px) rotate(540deg)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+
+/* ── SETUP SCREEN ── */
+#setup-screen{
+  display:flex;align-items:center;justify-content:center;
+  height:100vh;padding:20px;
+}
+.setup-card{
+  background:var(--white);border:3px solid var(--ink-bold);
+  border-bottom:6px solid var(--ink-bold);border-radius:var(--r);
+  max-width:520px;width:100%;padding:32px 28px;color:var(--ink-bold);
+}
+.setup-logo{font-size:48px;text-align:center;margin-bottom:8px}
+.setup-title{font-size:26px;font-weight:900;font-style:italic;text-align:center;margin-bottom:4px}
+.setup-sub{font-size:13px;font-weight:700;color:var(--ink-3);text-align:center;margin-bottom:24px}
+.setup-section{margin-bottom:18px}
+.setup-label{font-size:11px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px}
+.setup-select{
+  width:100%;padding:12px 14px;border:2px solid var(--border-heavy);
+  border-radius:12px;font-size:14px;font-weight:700;color:var(--ink-bold);
+  background:var(--white);outline:none;cursor:pointer;font-family:inherit;
+  appearance:none;
+}
+.setup-select:focus{border-color:var(--blue)}
+.session-list{display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto}
+.session-btn{
+  display:flex;align-items:center;gap:12px;padding:13px 16px;
+  background:var(--bg);border:2px solid var(--border-heavy);
+  border-bottom:3px solid var(--border-heavy);border-radius:12px;
+  cursor:pointer;font-family:inherit;text-align:left;transition:all .12s;
+  width:100%;
+}
+.session-btn:hover{border-color:var(--blue);background:#EEF8FE}
+.session-btn.selected{border-color:var(--blue);background:#EEF8FE;border-bottom-color:var(--blue-shadow)}
+.session-emoji{font-size:24px;flex-shrink:0}
+.session-info{flex:1}
+.session-name{font-size:14px;font-weight:900;color:var(--ink-bold)}
+.session-date{font-size:11px;font-weight:700;color:var(--ink-3);margin-top:2px}
+.session-vocab-count{
+  font-size:11px;font-weight:900;color:var(--blue);
+  background:rgba(28,176,246,.1);border:2px solid rgba(28,176,246,.2);
+  border-radius:99px;padding:2px 10px;flex-shrink:0;
+}
+.btn-start-game{
+  width:100%;padding:15px;background:var(--navy);color:#fff;
+  font-size:17px;font-weight:900;border-radius:99px;
+  border:2px solid var(--navy);border-bottom:5px solid #0d1f3c;
+  cursor:pointer;font-family:inherit;transition:all .1s;margin-top:8px;
+}
+.btn-start-game:active{transform:translateY(3px);border-bottom-width:2px}
+.btn-start-game:disabled{opacity:.4;cursor:default}
+.loading-msg{font-size:14px;font-weight:700;color:var(--ink-3);text-align:center;padding:20px;display:flex;align-items:center;justify-content:center;gap:10px}
+.spinner{width:18px;height:18px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}
+
+/* ── GAME SCREEN ── */
+#game-screen{display:none;height:100vh;flex-direction:column}
+
+.game-header{
+  background:rgba(255,255,255,.07);border-bottom:2px solid rgba(255,255,255,.1);
+  padding:0 24px;height:64px;display:flex;align-items:center;
+  justify-content:space-between;flex-shrink:0;
+}
+.game-header-left{display:flex;align-items:center;gap:12px}
+.game-class-name{font-size:17px;font-weight:900;color:#fff}
+.game-lesson-name{font-size:12px;font-weight:700;color:rgba(255,255,255,.55);margin-top:2px}
+.game-progress-pills{display:flex;gap:5px;align-items:center}
+.progress-pip{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.2);transition:all .3s;flex-shrink:0}
+.progress-pip.done{background:var(--green)}
+.progress-pip.active{background:var(--yellow);transform:scale(1.3)}
+.btn-exit{
+  padding:7px 16px;background:rgba(255,255,255,.1);color:#fff;
+  font-size:12px;font-weight:900;border:2px solid rgba(255,255,255,.2);
+  border-radius:99px;cursor:pointer;font-family:inherit;transition:all .1s;
+}
+.btn-exit:hover{background:rgba(255,255,255,.2)}
+
+.game-body{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:24px;overflow:hidden;
+}
+
+/* ── CARD ── */
+.vocab-card{
+  max-width:780px;width:100%;
+  animation:up .35s ease both;
+}
+.card-counter{
+  font-size:12px;font-weight:900;color:rgba(255,255,255,.4);
+  text-transform:uppercase;letter-spacing:2px;text-align:center;
+  margin-bottom:16px;
+}
+.card-face{
+  background:var(--white);border:3px solid rgba(255,255,255,.15);
+  border-bottom:6px solid rgba(0,0,0,.25);border-radius:var(--r);
+  overflow:hidden;cursor:pointer;transition:transform .1s;
+  user-select:none;
+}
+.card-face:active{transform:scale(.98)}
+.card-word-side{
+  padding:48px 40px;text-align:center;min-height:260px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,var(--navy),#243f73);
+}
+.card-word{
+  font-size:clamp(32px,7vw,64px);font-weight:900;font-style:italic;
+  color:#fff;letter-spacing:-2px;line-height:1.1;margin-bottom:16px;
+}
+.card-tap-hint{
+  font-size:13px;font-weight:800;color:rgba(255,255,255,.4);
+  display:flex;align-items:center;gap:6px;animation:pulse 2s ease-in-out infinite;
+}
+.card-def-side{
+  padding:40px;text-align:center;min-height:260px;
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--white);
+}
+.card-def-side.show{display:flex;animation:pop .3s ease both}
+.card-definition{
+  font-size:clamp(18px,4vw,28px);font-weight:800;color:var(--ink-bold);
+  line-height:1.5;margin-bottom:16px;
+}
+.card-word-small{
+  font-size:14px;font-weight:900;color:var(--ink-3);font-style:italic;
+}
+.card-grammar-badge{
+  margin-top:12px;display:inline-flex;align-items:center;gap:6px;
+  background:rgba(28,176,246,.1);border:2px solid rgba(28,176,246,.25);
+  border-radius:99px;padding:5px 14px;font-size:12px;font-weight:900;
+  color:var(--blue);
+}
+
+.card-actions{
+  display:flex;gap:10px;margin-top:16px;justify-content:center;
+  flex-wrap:wrap;
+}
+.btn-card{
+  padding:12px 24px;font-size:14px;font-weight:900;border-radius:99px;
+  border:2px solid;border-bottom:4px solid;cursor:pointer;
+  font-family:inherit;transition:all .1s;
+}
+.btn-card:active{transform:translateY(2px);border-bottom-width:2px}
+.btn-reveal{
+  background:var(--yellow);color:var(--ink-bold);
+  border-color:var(--yellow-shadow);min-width:160px;
+}
+.btn-prev{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2)}
+.btn-prev:hover{background:rgba(255,255,255,.2)}
+.btn-next-word{
+  background:var(--green);color:#fff;
+  border-color:var(--green-shadow);min-width:160px;
+}
+
+/* ── FINISH SCREEN ── */
+.finish-screen{
+  text-align:center;animation:up .4s ease both;
+  max-width:480px;margin:0 auto;
+}
+.finish-emoji{font-size:80px;display:block;margin-bottom:16px;animation:celebrate 1s ease-in-out infinite}
+.finish-title{font-size:36px;font-weight:900;font-style:italic;color:#fff;margin-bottom:8px}
+.finish-sub{font-size:16px;font-weight:700;color:rgba(255,255,255,.7);margin-bottom:28px;line-height:1.6}
+.finish-stats{display:flex;gap:12px;justify-content:center;margin-bottom:28px;flex-wrap:wrap}
+.finish-stat{
+  background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.15);
+  border-radius:var(--r);padding:14px 20px;text-align:center;min-width:100px;
+}
+.finish-stat-n{font-size:28px;font-weight:900;color:var(--yellow)}
+.finish-stat-l{font-size:10px;font-weight:900;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+.finish-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn-finish{
+  padding:13px 28px;font-size:15px;font-weight:900;border-radius:99px;
+  border:2px solid;border-bottom:4px solid;cursor:pointer;font-family:inherit;
+}
+.btn-finish:active{transform:translateY(2px);border-bottom-width:2px}
+.btn-again{background:var(--yellow);color:var(--ink-bold);border-color:var(--yellow-shadow)}
+.btn-back{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2)}
+
+/* confetti */
+.conf-dot{position:fixed;border-radius:3px;pointer-events:none;z-index:9999;animation:confetti 1.4s ease-out both}
+</style>
+</head>
+<body>
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen">
+  <div class="setup-card">
+    <div class="setup-logo">😎</div>
+    <div class="setup-title">Vocab Review</div>
+    <div class="setup-sub">Pick a class and a past lesson to review</div>
+
+    <div class="setup-section">
+      <div class="setup-label">Class</div>
+      <select class="setup-select" id="class-select" onchange="loadSessions()">
+        <option value="">Choose a class…</option>
+      </select>
+    </div>
+
+    <div class="setup-section">
+      <div class="setup-label">Lesson to review</div>
+      <div class="session-list" id="session-list">
+        <div class="loading-msg" style="color:var(--ink-3)">← Pick a class first</div>
+      </div>
+    </div>
+
+    <button class="btn-start-game" id="btn-start" onclick="startGame()" disabled>
+      ▶ Start Review
+    </button>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen">
+  <div class="game-header">
+    <div class="game-header-left">
+      <div>
+        <div class="game-class-name" id="g-class-name">Class Name</div>
+        <div class="game-lesson-name" id="g-lesson-name">Lesson</div>
+      </div>
+    </div>
+    <div class="game-progress-pills" id="g-progress"></div>
+    <button class="btn-exit" onclick="exitGame()">✕ Exit</button>
+  </div>
+  <div class="game-body" id="game-body"></div>
+</div>
+
+<script>
+'use strict';
+
+const SUPABASE_URL  = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let _classes       = [];
+let _selectedVocab = null;
+let _selectedMeta  = null;
+let _cards         = [];
+let _idx           = 0;
+let _revealed      = false;
+
+// ── BOOT ──────────────────────────────────────────────────────
+async function boot(){
+  const { data: classes } = await sb.from('efcd_classes').select('*').order('id');
+  _classes = classes || [];
+  const sel = document.getElementById('class-select');
+  _classes.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = c.emoji + ' ' + c.name;
+    sel.appendChild(opt);
+  });
+
+  // If class_id is in URL param, auto-select
+  const params = new URLSearchParams(window.location.search);
+  const classId = params.get('class');
+  const sessionId = params.get('session');
+  if(classId){
+    sel.value = classId;
+    await loadSessions();
+    if(sessionId){
+      const btn = document.getElementById('sess-' + sessionId);
+      if(btn) { btn.click(); }
+    }
+  }
+}
+
+// ── LOAD SESSIONS ──────────────────────────────────────────────
+async function loadSessions(){
+  const classId = document.getElementById('class-select').value;
+  const list    = document.getElementById('session-list');
+  _selectedVocab = null;
+  _selectedMeta  = null;
+  document.getElementById('btn-start').disabled = true;
+
+  if(!classId){
+    list.innerHTML = '<div class="loading-msg" style="color:var(--ink-3)">← Pick a class first</div>';
+    return;
+  }
+
+  list.innerHTML = '<div class="loading-msg"><div class="spinner"></div>Loading…</div>';
+
+  const { data: vocab } = await sb.from('efcd_lesson_vocab')
+    .select('*')
+    .eq('class_id', classId)
+    .order('completed_at', { ascending: false })
+    .limit(20);
+
+  if(!vocab?.length){
+    list.innerHTML = '<div class="loading-msg" style="color:var(--ink-3)">No lessons saved yet for this class.</div>';
+    return;
+  }
+
+  // Deduplicate by lesson_id — show latest per lesson
+  const seen = new Set();
+  const unique = vocab.filter(v => {
+    if(seen.has(v.lesson_id)) return false;
+    seen.add(v.lesson_id);
+    return true;
+  });
+
+  list.innerHTML = unique.map(v => {
+    const words = JSON.parse(v.vocab || '[]');
+    const date  = new Date(v.completed_at).toLocaleDateString('en-GB', {
+      weekday:'short', day:'numeric', month:'short'
+    });
+    return `
+      <button class="session-btn" id="sess-${v.id}" onclick="selectSession(this,'${v.id}')">
+        <span class="session-emoji">📖</span>
+        <div class="session-info">
+          <div class="session-name">${v.lesson_title || v.lesson_id}</div>
+          <div class="session-date">${v.lesson_level || ''} · ${date}</div>
+          ${v.grammar_focus ? `<div class="session-date" style="color:#1CB0F6;margin-top:2px">✏️ ${v.grammar_focus}</div>` : ''}
+        </div>
+        <span class="session-vocab-count">${words.length} words</span>
+      </button>`;
+  }).join('');
+}
+
+function selectSession(btn, vocabId){
+  document.querySelectorAll('.session-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+
+  // Find the vocab entry
+  sb.from('efcd_lesson_vocab').select('*').eq('id', vocabId).single()
+    .then(({ data }) => {
+      if(!data) return;
+      _selectedVocab = JSON.parse(data.vocab || '[]');
+      _selectedMeta  = data;
+      document.getElementById('btn-start').disabled = _selectedVocab.length === 0;
+    });
+}
+
+// ── START GAME ─────────────────────────────────────────────────
+function startGame(){
+  if(!_selectedVocab?.length) return;
+
+  // Shuffle cards
+  _cards   = [..._selectedVocab].sort(() => Math.random() - .5);
+  _idx     = 0;
+  _revealed = false;
+
+  const cls     = _classes.find(c => c.id === document.getElementById('class-select').value);
+  const clsName = cls ? cls.emoji + ' ' + (cls.team_name || cls.name) : 'Class';
+
+  document.getElementById('g-class-name').textContent  = clsName;
+  document.getElementById('g-lesson-name').textContent = _selectedMeta?.lesson_title || 'Vocabulary Review';
+
+  document.getElementById('setup-screen').style.display = 'none';
+  const gs = document.getElementById('game-screen');
+  gs.style.display = 'flex';
+
+  renderCard();
+}
+
+// ── RENDER CARD ────────────────────────────────────────────────
+function renderCard(){
+  _revealed = false;
+  const body = document.getElementById('game-body');
+
+  // Finish?
+  if(_idx >= _cards.length){
+    renderFinish();
+    return;
+  }
+
+  const card    = _cards[_idx];
+  const isLast  = _idx === _cards.length - 1;
+  const grammar = _selectedMeta?.grammar_focus;
+
+  // Progress pips
+  const prog = document.getElementById('g-progress');
+  prog.innerHTML = _cards.map((_,i) =>
+    `<div class="progress-pip ${i < _idx ? 'done' : i === _idx ? 'active' : ''}"></div>`
+  ).join('');
+
+  body.innerHTML = `
+    <div class="vocab-card">
+      <div class="card-counter">Word ${_idx + 1} of ${_cards.length}</div>
+
+      <div class="card-face" id="card-face" onclick="revealCard()">
+        <!-- Word side -->
+        <div class="card-word-side" id="word-side">
+          <div class="card-word">${card.word}</div>
+          <div class="card-tap-hint">
+            <span>👆</span>
+            <span>Tap to reveal definition</span>
+          </div>
+        </div>
+        <!-- Definition side (hidden until revealed) -->
+        <div class="card-def-side" id="def-side">
+          <div class="card-definition">${card.definition}</div>
+          <div class="card-word-small">${card.word}</div>
+          ${grammar ? `<div class="card-grammar-badge">✏️ ${grammar}</div>` : ''}
+        </div>
+      </div>
+
+      <div class="card-actions" id="card-actions">
+        <button class="btn-card btn-prev" onclick="prevCard(event)"
+          ${_idx === 0 ? 'disabled style="opacity:.3"' : ''}>
+          ← Back
+        </button>
+        <button class="btn-card btn-reveal" id="btn-reveal" onclick="revealCard()">
+          👁️ Reveal
+        </button>
+        <button class="btn-card btn-next-word" id="btn-next" onclick="nextCard(event)" style="display:none">
+          ${isLast ? '🏁 Finish' : 'Next word →'}
+        </button>
+      </div>
+    </div>`;
+}
+
+function revealCard(){
+  if(_revealed) return;
+  _revealed = true;
+  const wordSide = document.getElementById('word-side');
+  const defSide  = document.getElementById('def-side');
+  const btnReveal = document.getElementById('btn-reveal');
+  const btnNext   = document.getElementById('btn-next');
+  if(wordSide) wordSide.style.display = 'none';
+  if(defSide)  defSide.classList.add('show');
+  if(btnReveal) btnReveal.style.display = 'none';
+  if(btnNext)   btnNext.style.display = 'flex';
+  fireConfettiSmall();
+}
+
+function nextCard(e){
+  if(e) e.stopPropagation();
+  _idx++;
+  const body = document.getElementById('game-body');
+  body.style.opacity = '0';
+  body.style.transform = 'translateX(20px)';
+  body.style.transition = 'opacity .15s, transform .15s';
+  setTimeout(() => {
+    body.style.opacity = '1';
+    body.style.transform = 'translateX(0)';
+    renderCard();
+  }, 160);
+}
+
+function prevCard(e){
+  if(e) e.stopPropagation();
+  if(_idx === 0) return;
+  _idx--;
+  renderCard();
+}
+
+// ── FINISH ─────────────────────────────────────────────────────
+function renderFinish(){
+  fireConfetti();
+  const body = document.getElementById('game-body');
+  body.innerHTML = `
+    <div class="finish-screen">
+      <span class="finish-emoji">🎉</span>
+      <div class="finish-title">Review complete!</div>
+      <div class="finish-sub">
+        ${_cards.length} word${_cards.length !== 1 ? 's' : ''} reviewed from<br>
+        <strong>${_selectedMeta?.lesson_title || 'this lesson'}</strong>
+      </div>
+      <div class="finish-stats">
+        <div class="finish-stat">
+          <div class="finish-stat-n">${_cards.length}</div>
+          <div class="finish-stat-l">Words reviewed</div>
+        </div>
+        ${_selectedMeta?.grammar_focus ? `
+        <div class="finish-stat">
+          <div class="finish-stat-n">✏️</div>
+          <div class="finish-stat-l">${_selectedMeta.grammar_focus}</div>
+        </div>` : ''}
+      </div>
+      <div class="finish-btns">
+        <button class="btn-finish btn-again" onclick="startGame()">▶ Play again</button>
+        <button class="btn-finish btn-back" onclick="exitGame()">← Choose another</button>
+      </div>
+    </div>`;
+}
+
+function exitGame(){
+  document.getElementById('game-screen').style.display = 'none';
+  document.getElementById('setup-screen').style.display = 'flex';
+}
+
+// ── CONFETTI ────────────────────────────────────────────────────
+function fireConfetti(){
+  const c = ['#FFC800','#58CC02','#1CB0F6','#FF4B4B','#CE82FF','#FF9600','#fff'];
+  for(let i = 0; i < 50; i++){
+    const d = document.createElement('div');
+    d.className = 'conf-dot';
+    const sz = 7 + Math.random() * 10;
+    d.style.cssText = `left:${Math.random()*100}vw;top:${Math.random()*20}px;width:${sz}px;height:${sz}px;background:${c[~~(Math.random()*c.length)]};animation-delay:${Math.random()*.8}s;animation-duration:${1+Math.random()*.8}s;border-radius:${Math.random()>.5?'50%':'3px'};transform:rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(d);
+    setTimeout(() => d.remove(), 2400);
+  }
+}
+
+function fireConfettiSmall(){
+  const c = ['#FFC800','#58CC02','#1CB0F6'];
+  for(let i = 0; i < 12; i++){
+    const d = document.createElement('div');
+    d.className = 'conf-dot';
+    const sz = 5 + Math.random() * 7;
+    d.style.cssText = `left:${30+Math.random()*40}vw;top:${20+Math.random()*20}vh;width:${sz}px;height:${sz}px;background:${c[~~(Math.random()*c.length)]};animation-delay:0s;animation-duration:${.8+Math.random()*.5}s;border-radius:50%`;
+    document.body.appendChild(d);
+    setTimeout(() => d.remove(), 1400);
+  }
+}
+
+// keyboard support — spacebar reveals, arrow keys navigate
+document.addEventListener('keydown', e => {
+  if(document.getElementById('game-screen').style.display === 'none') return;
+  if(e.key === ' ' || e.key === 'Enter'){
+    e.preventDefault();
+    if(!_revealed) revealCard();
+    else nextCard(null);
+  }
+  if(e.key === 'ArrowRight' && _revealed) nextCard(null);
+  if(e.key === 'ArrowLeft') prevCard(null);
+});
+
+boot();
+</script>
+</body>
+</html>
