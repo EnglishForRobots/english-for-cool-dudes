@@ -1043,15 +1043,29 @@ async function renderHistory(){
     }
  
     const sessionIds = sessions.map(s => s.id);
- 
-    // Fetch related data in parallel
-    const [{ data: scores }, { data: badges }, { data: vocab }] = await Promise.all([
-      sb.from('efcd_scores').select('*').in('session_id', sessionIds),
-      sb.from('efcd_badges').select('*').in('session_id', sessionIds).eq('is_manual', false),
-      sb.from('efcd_lesson_vocab').select('*').in('session_id', sessionIds),
-    ]);
- 
-    wrap.innerHTML = sessions.map(session => {
+
+// Fetch related data in parallel
+const [{ data: scores }, { data: badges }, { data: vocab }] = await Promise.all([
+  sb.from('efcd_scores').select('*').in('session_id', sessionIds),
+  sb.from('efcd_badges').select('*').in('session_id', sessionIds).eq('is_manual', false),
+  sb.from('efcd_lesson_vocab').select('*').in('session_id', sessionIds),
+]);
+
+// Only show sessions that have actual lesson activity
+// (badges or scores) — hide empty start/stop sessions
+const activeSessions = sessions.filter(session => {
+  const hasBadges = (badges||[]).some(b => b.session_id === session.id);
+  const hasScores = (scores||[]).some(s => s.session_id === session.id);
+  return hasBadges || hasScores;
+});
+
+if(!activeSessions.length){
+  wrap.innerHTML = `<div class="history-empty">No completed lessons yet. Complete a lesson during a class session to see history here.</div>`;
+  return;
+}
+
+// Use activeSessions instead of sessions in the .map() below
+wrap.innerHTML = activeSessions.map(session => {
       const cls          = _classes.find(c => c.id === session.class_id);
       const sesScores    = (scores||[]).filter(s => s.session_id === session.id);
       const sesBadges    = (badges||[]).filter(b => b.session_id === session.id);
@@ -1271,30 +1285,116 @@ async function createClass(){
 function openEditClass(classId){
   const cls = _classes.find(c => c.id === classId);
   if(!cls) return;
-  document.getElementById('edit-class-modal-title').textContent = `${cls.emoji} Edit Class`;
+  const members = _students.filter(s => s.class_id === classId);
+
+  document.getElementById('edit-class-modal-title').textContent = `${cls.emoji} ${cls.name}`;
   document.getElementById('edit-class-modal-body').innerHTML = `
+
+    <!-- Class details -->
     <div>
       <div class="field-label">Class Name</div>
       <input class="form-input" id="edit-cls-name" value="${cls.name}" style="width:100%">
     </div>
     <div>
       <div class="field-label">Team Name (shown to students)</div>
-      <input class="form-input" id="edit-cls-team" value="${cls.team_name||''}" placeholder="e.g. The Grammar Gangsters" style="width:100%">
+      <input class="form-input" id="edit-cls-team" value="${cls.team_name||''}"
+        placeholder="e.g. The Grammar Gangsters" style="width:100%">
     </div>
     <div>
       <div class="field-label">Emoji</div>
       <div class="emoji-picker-row" id="edit-cls-emoji-picker">
         ${CLASS_EMOJIS.map(e =>
-          `<button class="emoji-pick-btn ${e===cls.emoji?'picked':''}" onclick="pickEditClassEmoji('${e}',this)">${e}</button>`
+          `<button class="emoji-pick-btn ${e===cls.emoji?'picked':''}"
+            onclick="pickEditClassEmoji('${e}',this)">${e}</button>`
         ).join('')}
       </div>
       <input type="hidden" id="edit-cls-emoji" value="${cls.emoji}">
     </div>
-    <div style="display:flex;gap:8px;margin-top:4px">
-      <button class="btn-sm btn-sm-blue" onclick="saveEditClass('${classId}')" style="flex:1;padding:12px;font-size:13px">Save Changes</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn-sm btn-sm-blue" onclick="saveEditClass('${classId}')"
+        style="flex:1;padding:12px;font-size:13px">Save Changes</button>
       <button class="btn-sm btn-sm-ghost" onclick="closeEditClass()">Cancel</button>
+    </div>
+
+    <!-- Divider -->
+    <div style="height:2px;background:var(--border);border-radius:2px;margin:4px 0"></div>
+
+    <!-- Students -->
+    <div class="field-label">Students (${members.length})</div>
+    <div id="edit-students-list">
+      ${members.length ? members.map(s => `
+        <div style="display:flex;align-items:center;gap:10px;padding:9px 0;
+          border-bottom:1px solid var(--border)" id="edit-srow-${s.id}">
+          <span style="font-size:20px;cursor:pointer" title="Click to cycle emoji"
+            onclick="cycleStudentEmojiInModal('${s.id}','${classId}')">${s.avatar_emoji}</span>
+          <span style="flex:1;font-size:14px;font-weight:800;color:var(--ink-bold)"
+            id="edit-sname-${s.id}">${s.name}</span>
+          <button class="btn-sm btn-sm-ghost" style="padding:5px 10px"
+            onclick="renameStudentInModal('${s.id}','${classId}')">✏️</button>
+          <button class="btn-sm btn-sm-red" style="padding:5px 10px"
+            onclick="deleteStudentInModal('${s.id}','${classId}')">🗑️</button>
+        </div>`).join('')
+      : '<div style="font-size:13px;color:var(--ink-3);font-weight:700;padding:8px 0">No students yet.</div>'}
+    </div>
+
+    <!-- Add student -->
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <input class="form-input" id="edit-new-student" placeholder="First name"
+        onkeydown="if(event.key==='Enter') addStudentInModal('${classId}')">
+      <button class="btn-sm btn-sm-green" onclick="addStudentInModal('${classId}')">＋ Add</button>
     </div>`;
+
   document.getElementById('edit-class-modal').classList.add('open');
+}
+
+  async function addStudentInModal(classId){
+  const input = document.getElementById('edit-new-student');
+  const name  = input?.value.trim();
+  if(!name) return;
+  const id = name.toLowerCase().replace(/\s+/g,'_') + '_' + Date.now();
+  const { error } = await sb.from('efcd_students').insert({
+    id, name, class_id: classId, avatar_emoji: '😊'
+  });
+  if(error){ toast('❌', error.message); return; }
+  toast('✅', name + ' added!');
+  await loadEverything();
+  openEditClass(classId); // refresh modal in place
+}
+
+async function deleteStudentInModal(studentId, classId){
+  const student = _students.find(s => s.id === studentId);
+  if(!student) return;
+  if(!confirm(`Remove ${student.name}?`)) return;
+  const { error } = await sb.from('efcd_students').delete().eq('id', studentId);
+  if(error){ toast('❌', error.message); return; }
+  toast('🗑️', student.name + ' removed');
+  await loadEverything();
+  openEditClass(classId); // refresh modal in place
+}
+
+async function cycleStudentEmojiInModal(studentId, classId){
+  const student = _students.find(s => s.id === studentId);
+  if(!student) return;
+  const idx  = STUDENT_EMOJIS.indexOf(student.avatar_emoji);
+  const next = STUDENT_EMOJIS[(idx + 1) % STUDENT_EMOJIS.length];
+  await sb.from('efcd_students').update({ avatar_emoji: next }).eq('id', studentId);
+  student.avatar_emoji = next;
+  toast('✅', next + ' set!');
+  await loadEverything();
+  openEditClass(classId); // refresh modal in place
+}
+
+async function renameStudentInModal(studentId, classId){
+  const student = _students.find(s => s.id === studentId);
+  if(!student) return;
+  const newName = prompt('New name for ' + student.name + ':', student.name);
+  if(!newName?.trim() || newName.trim() === student.name) return;
+  const { error } = await sb.from('efcd_students')
+    .update({ name: newName.trim() }).eq('id', studentId);
+  if(error){ toast('❌', error.message); return; }
+  toast('✅', 'Renamed to ' + newName.trim());
+  await loadEverything();
+  openEditClass(classId); // refresh modal in place
 }
  
 function pickEditClassEmoji(emoji, btn){
