@@ -400,113 +400,226 @@
     </div>
   </div>
 </div>
-
+    
+<script src="/session-mode.js"></script>
 <script src="/supabase-auth-gamified.js"></script>
 <script src="/guest-nudge-snippet.js"></script>
 <script src="/daily-challenges-system.js"></script>
 <script src="/interactions.js"></script>
 <script src="/lesson-completion-rewards.js"></script>
+<!--
+  TUBE.HTML — COMPLETE SCRIPT REPLACEMENT
+  ════════════════════════════════════════════════════════════════
+  Replace EVERYTHING between (and including) the first <script> tag
+  after the completion screen HTML and the closing </script> tag
+  with the content below.
+
+  Script load order in <head> / before closing </body>:
+    1. <script src="/session-mode.js"></script>          ← NEW, already added
+    2. <script src="/supabase-auth-gamified.js"></script>
+    3. <script src="/guest-nudge-snippet.js"></script>
+    4. <script src="/daily-challenges-system.js"></script>
+    5. <script src="/interactions.js"></script>
+    6. <script src="/lesson-completion-rewards.js"></script>
+    7. The inline <script> below
+  ════════════════════════════════════════════════════════════════
+-->
 <script>
 'use strict';
-window.LESSON_ID='london-underground-beginner';
-window.LESSON_TITLE='Mind the Gap! The London Underground';
-const LESSON_LINK='/tube/';
 
-const TRUE_FALSE=[
-  {emoji:'🎂',text:'The London Underground is the OLDEST underground railway in the world.',correct:true,reveal:'✅ TRUE! The Underground opened on 10 January 1863 — over 160 years ago. The very first trains were pulled by steam engines. Imagine the smoke underground! 💨 The first line ran between Paddington and Farringdon.'},
-  {emoji:'🗺️',text:'The famous Tube map shows the real distances between stations — it is geographically accurate.',correct:false,reveal:'❌ FALSE! The map is NOT geographically accurate. It\'s a design diagram. Stations that are far apart can look close on the map! It was designed by Harry Beck — you\'ll meet him above! 🎨'},
-  {emoji:'🔢',text:'There are 11 different lines on the London Underground.',correct:true,reveal:'✅ TRUE! 11 lines, each with its own colour. Central (red), Circle (yellow), Bakerloo (brown), Metropolitan (purple), District (green), Jubilee (grey), Piccadilly (dark blue), Northern (black), Victoria (light blue), Hammersmith & City (pink), Waterloo & City (teal).'},
-  {emoji:'🐛',text:'Londoners call it "the Tube" because the deep tunnels are round — like tubes.',correct:true,reveal:'✅ TRUE! The deep tunnels are circular in cross-section — exactly like a tube or a pipe. The nickname appeared in the 1890s. Tourists say "the Underground". Londoners say "the Tube". Now you know! 😄'},
-  {emoji:'🌙',text:'The Tube runs 24 hours every single night of the week.',correct:false,reveal:'❌ FALSE! Most lines stop at night — usually between midnight and 5am. However, the "Night Tube" launched in 2016 runs 24 hours on Friday and Saturday nights on five lines: Central, Jubilee, Northern, Piccadilly and Victoria. 🎉'},
-  {emoji:'📢',text:'"Mind the gap!" means: be careful of the space between the train and the platform.',correct:true,reveal:'✅ TRUE! "Mind" here means "be careful of". The gap is the space between the train door and the platform edge. A widow once visited Embankment station every day just to hear her late husband\'s recorded voice say "Mind the gap!" 💙'},
+// ── LESSON IDENTITY ────────────────────────────────────────────
+window.LESSON_ID    = 'london-underground-beginner';
+window.LESSON_TITLE = 'Mind the Gap! The London Underground';
+const LESSON_LINK   = '/tube/';
+const LESSON_LEVEL  = 'Beginner';
+const BADGE_ICON    = '🚇';
+const BADGE_NAME    = 'Tube Expert';
+const VOCABULARY    = [
+  { word: 'platform',     definition: 'Area at a station where you wait for the train' },
+  { word: 'journey',      definition: 'A trip from one place to another by transport' },
+  { word: 'carriage',     definition: 'One section of a train' },
+  { word: 'delay',        definition: 'When something is late' },
+  { word: 'crowded',      definition: 'Full of people' },
+  { word: 'underground',  definition: 'Below the ground — tunnels beneath the city' },
+  { word: 'Oyster card',  definition: 'Blue card used to pay for Tube and buses' },
+  { word: 'Mind the gap', definition: 'Be careful of the space between train and platform' },
 ];
 
-const LINES_GUIDE=[
-  {color:'#DC241F',name:'Central Line',   stations:'Oxford Circus, Liverpool St, Stratford',emoji:'🛍️'},
-  {color:'#003688',name:'Piccadilly Line', stations:'King\'s Cross, Heathrow Airport',       emoji:'✈️'},
-  {color:'#0098D4',name:'Victoria Line',   stations:'Victoria, King\'s Cross, Brixton',      emoji:'👑'},
-  {color:'#A0A5A9',name:'Jubilee Line',    stations:'Canary Wharf, Westminster, Bond St',    emoji:'💼'},
-  {color:'#FFD300',name:'Circle Line',     stations:'Tower Hill, Paddington, Baker St',      emoji:'🔄',dark:true},
-  {color:'#00782A',name:'District Line',   stations:'Wimbledon, Victoria, Tower Hill',       emoji:'🌿'},
+// ── LESSON DATA ─────────────────────────────────────────────────
+const TRUE_FALSE = [
+  { emoji:'🎂', text:'The London Underground is the OLDEST underground railway in the world.', correct:true,
+    reveal:'✅ TRUE! The Underground opened on 10 January 1863 — over 160 years ago. The very first trains were pulled by steam engines. Imagine the smoke underground! 💨 The first line ran between Paddington and Farringdon.' },
+  { emoji:'🗺️', text:'The famous Tube map shows the real distances between stations — it is geographically accurate.', correct:false,
+    reveal:'❌ FALSE! The map is NOT geographically accurate. It\'s a design diagram. Stations that are far apart can look close on the map! It was designed by Harry Beck — you\'ll meet him above! 🎨' },
+  { emoji:'🔢', text:'There are 11 different lines on the London Underground.', correct:true,
+    reveal:'✅ TRUE! 11 lines, each with its own colour. Central (red), Circle (yellow), Bakerloo (brown), Metropolitan (purple), District (green), Jubilee (grey), Piccadilly (dark blue), Northern (black), Victoria (light blue), Hammersmith & City (pink), Waterloo & City (teal).' },
+  { emoji:'🐛', text:'Londoners call it "the Tube" because the deep tunnels are round — like tubes.', correct:true,
+    reveal:'✅ TRUE! The deep tunnels are circular in cross-section — exactly like a tube or a pipe. The nickname appeared in the 1890s. Tourists say "the Underground". Londoners say "the Tube". Now you know! 😄' },
+  { emoji:'🌙', text:'The Tube runs 24 hours every single night of the week.', correct:false,
+    reveal:'❌ FALSE! Most lines stop at night — usually between midnight and 5am. However, the "Night Tube" launched in 2016 runs 24 hours on Friday and Saturday nights on five lines: Central, Jubilee, Northern, Piccadilly and Victoria. 🎉' },
+  { emoji:'📢', text:'"Mind the gap!" means: be careful of the space between the train and the platform.', correct:true,
+    reveal:'✅ TRUE! "Mind" here means "be careful of". The gap is the space between the train door and the platform edge. A widow once visited Embankment station every day just to hear her late husband\'s recorded voice say "Mind the gap!" 💙' },
 ];
 
-const LINE_QUESTIONS=[
-  {station:'Oxford Circus',hint:'🛍️ London\'s most famous shopping street is directly above this station.',answer:'central',
-   options:[{name:'Central Line',color:'#DC241F',id:'central'},{name:'Circle Line',color:'#FFD300',id:'circle',dark:true},{name:'Bakerloo Line',color:'#B36305',id:'bakerloo'},{name:'Jubilee Line',color:'#A0A5A9',id:'jubilee'}],
-   fb:'✅ Central Line — red! Oxford Street above it is the most visited shopping street in the UK, with over 300,000 shoppers every day. 🛍️'},
-  {station:'Heathrow Airport',hint:'✈️ This line connects central London directly to the airport.',answer:'piccadilly',
-   options:[{name:'District Line',color:'#00782A',id:'district'},{name:'Piccadilly Line',color:'#003688',id:'piccadilly'},{name:'Victoria Line',color:'#0098D4',id:'victoria'},{name:'Jubilee Line',color:'#A0A5A9',id:'jubilee'}],
-   fb:'✅ Piccadilly Line — dark blue! It travels all the way to Heathrow — about 50 minutes from central London. Much cheaper than a taxi! ✈️'},
-  {station:'Canary Wharf',hint:'💼 London\'s financial district — banks and skyscrapers!',answer:'jubilee',
-   options:[{name:'Central Line',color:'#DC241F',id:'central'},{name:'District Line',color:'#00782A',id:'district'},{name:'Jubilee Line',color:'#A0A5A9',id:'jubilee'},{name:'Circle Line',color:'#FFD300',id:'circle',dark:true}],
-   fb:'✅ Jubilee Line — silver/grey! Canary Wharf station looks like a spaceship underground and is considered one of the most beautiful stations ever built in Britain. 🏗️'},
-  {station:'Tower Hill',hint:'🏰 Walk to a famous 1,000-year-old royal castle from here.',answer:'circle',
-   options:[{name:'Circle Line',color:'#FFD300',id:'circle',dark:true},{name:'Northern Line',color:'#000000',id:'northern'},{name:'Central Line',color:'#DC241F',id:'central'},{name:'Jubilee Line',color:'#A0A5A9',id:'jubilee'}],
-   fb:'✅ Circle Line — yellow! Tower Hill is right next to the Tower of London, built in 1078. You can see the Crown Jewels there! 🏰'},
-  {station:'Victoria',hint:'👑 Named after a famous British queen. Huge railway terminus above ground.',answer:'victoria',
-   options:[{name:'District Line',color:'#00782A',id:'district'},{name:'Victoria Line',color:'#0098D4',id:'victoria'},{name:'Circle Line',color:'#FFD300',id:'circle',dark:true},{name:'Jubilee Line',color:'#A0A5A9',id:'jubilee'}],
-   fb:'✅ Victoria Line — light blue! Named after Queen Victoria. It opened in 1969 and is one of the fastest and most automated lines on the network. 👑'},
+const LINES_GUIDE = [
+  { color:'#DC241F', name:'Central Line',   stations:'Oxford Circus, Liverpool St, Stratford', emoji:'🛍️' },
+  { color:'#003688', name:'Piccadilly Line', stations:'King\'s Cross, Heathrow Airport',        emoji:'✈️' },
+  { color:'#0098D4', name:'Victoria Line',   stations:'Victoria, King\'s Cross, Brixton',       emoji:'👑' },
+  { color:'#A0A5A9', name:'Jubilee Line',    stations:'Canary Wharf, Westminster, Bond St',     emoji:'💼' },
+  { color:'#FFD300', name:'Circle Line',     stations:'Tower Hill, Paddington, Baker St',       emoji:'🔄', dark:true },
+  { color:'#00782A', name:'District Line',   stations:'Wimbledon, Victoria, Tower Hill',        emoji:'🌿' },
 ];
 
-const WB_WORDS=[
-  {word:'platform',  letters:['p','l','a','t','f','o','r','m'],  def:'The area at a station where you wait for the train and get on or off.',       hint:'🚇 Stand back from the edge of the ___!'},
-  {word:'journey',   letters:['j','o','u','r','n','e','y'],       def:'A trip from one place to another — especially when travelling by transport.', hint:'✈️ Have a safe ___! See you on the other side.'},
-  {word:'carriage',  letters:['c','a','r','r','i','a','g','e'],   def:'One section of a train — like a room on wheels with seats inside.',           hint:'🚃 Move down inside the ___!'},
-  {word:'delay',     letters:['d','e','l','a','y'],               def:'When something is late — it does not arrive at the expected time.',           hint:'⏰ Sorry for the ___. We\'re waiting for a signal.'},
-  {word:'crowded',   letters:['c','r','o','w','d','e','d'],       def:'Full of people — the opposite of empty.',                                     hint:'😰 The Tube is SO ___ at rush hour!'},
-  {word:'oyster',    letters:['o','y','s','t','e','r'],           def:'The blue card people in London use to pay for the Tube, buses and trains.',   hint:'💳 Tap your ___ card on the yellow reader!'},
+const LINE_QUESTIONS = [
+  { station:'Oxford Circus',   hint:'🛍️ London\'s most famous shopping street is directly above this station.',   answer:'central',
+    options:[{name:'Central Line',color:'#DC241F',id:'central'},{name:'Circle Line',color:'#FFD300',id:'circle',dark:true},{name:'Bakerloo Line',color:'#B36305',id:'bakerloo'},{name:'Jubilee Line',color:'#A0A5A9',id:'jubilee'}],
+    fb:'✅ Central Line — red! Oxford Street above it is the most visited shopping street in the UK, with over 300,000 shoppers every day. 🛍️' },
+  { station:'Heathrow Airport', hint:'✈️ This line connects central London directly to the airport.',             answer:'piccadilly',
+    options:[{name:'District Line',color:'#00782A',id:'district'},{name:'Piccadilly Line',color:'#003688',id:'piccadilly'},{name:'Victoria Line',color:'#0098D4',id:'victoria'},{name:'Jubilee Line',color:'#A0A5A9',id:'jubilee'}],
+    fb:'✅ Piccadilly Line — dark blue! It travels all the way to Heathrow — about 50 minutes from central London. Much cheaper than a taxi! ✈️' },
+  { station:'Canary Wharf',    hint:'💼 London\'s financial district — banks and skyscrapers!',                   answer:'jubilee',
+    options:[{name:'Central Line',color:'#DC241F',id:'central'},{name:'District Line',color:'#00782A',id:'district'},{name:'Jubilee Line',color:'#A0A5A9',id:'jubilee'},{name:'Circle Line',color:'#FFD300',id:'circle',dark:true}],
+    fb:'✅ Jubilee Line — silver/grey! Canary Wharf station looks like a spaceship underground and is considered one of the most beautiful stations ever built in Britain. 🏗️' },
+  { station:'Tower Hill',      hint:'🏰 Walk to a famous 1,000-year-old royal castle from here.',                answer:'circle',
+    options:[{name:'Circle Line',color:'#FFD300',id:'circle',dark:true},{name:'Northern Line',color:'#000000',id:'northern'},{name:'Central Line',color:'#DC241F',id:'central'},{name:'Jubilee Line',color:'#A0A5A9',id:'jubilee'}],
+    fb:'✅ Circle Line — yellow! Tower Hill is right next to the Tower of London, built in 1078. You can see the Crown Jewels there! 🏰' },
+  { station:'Victoria',        hint:'👑 Named after a famous British queen. Huge railway terminus above ground.', answer:'victoria',
+    options:[{name:'District Line',color:'#00782A',id:'district'},{name:'Victoria Line',color:'#0098D4',id:'victoria'},{name:'Circle Line',color:'#FFD300',id:'circle',dark:true},{name:'Jubilee Line',color:'#A0A5A9',id:'jubilee'}],
+    fb:'✅ Victoria Line — light blue! Named after Queen Victoria. It opened in 1969 and is one of the fastest and most automated lines on the network. 👑' },
 ];
 
-const DIALOGUE={
-  context:'Two tourists try to use the Tube for the first time...',
-  gaps:{a:'platform',b:'delay',c:'line',d:'carriage',e:'Oyster'},
-  text:[
-    {speaker:'A',avatar:'😅',side:'left',parts:[{t:'text',v:'Which '},{t:'gap',k:'c',ans:'line'},{t:'text',v:' do we need? I can\'t read this map!'}]},
-    {speaker:'B',avatar:'🤓',side:'right',parts:[{t:'text',v:'The Central Line! Go to '},{t:'gap',k:'a',ans:'platform'},{t:'text',v:' 3. But tap your '},{t:'gap',k:'e',ans:'Oyster'},{t:'text',v:' card first!'}]},
-    {speaker:'A',avatar:'😅',side:'left',parts:[{t:'text',v:'Oh no — there\'s a '},{t:'gap',k:'b',ans:'delay'},{t:'text',v:'. The train is 8 minutes late!'}]},
-    {speaker:'B',avatar:'🤓',side:'right',parts:[{t:'text',v:'Very British! Move down inside the '},{t:'gap',k:'d',ans:'carriage'},{t:'text',v:' — and mind the gap! 😄'}]},
+const WB_WORDS = [
+  { word:'platform', letters:['p','l','a','t','f','o','r','m'], def:'The area at a station where you wait for the train and get on or off.',        hint:'🚇 Stand back from the edge of the ___!' },
+  { word:'journey',  letters:['j','o','u','r','n','e','y'],      def:'A trip from one place to another — especially when travelling by transport.',  hint:'✈️ Have a safe ___! See you on the other side.' },
+  { word:'carriage', letters:['c','a','r','r','i','a','g','e'],  def:'One section of a train — like a room on wheels with seats inside.',            hint:'🚃 Move down inside the ___!' },
+  { word:'delay',    letters:['d','e','l','a','y'],              def:'When something is late — it does not arrive at the expected time.',            hint:'⏰ Sorry for the ___. We\'re waiting for a signal.' },
+  { word:'crowded',  letters:['c','r','o','w','d','e','d'],      def:'Full of people — the opposite of empty.',                                      hint:'😰 The Tube is SO ___ at rush hour!' },
+  { word:'oyster',   letters:['o','y','s','t','e','r'],          def:'The blue card people in London use to pay for the Tube, buses and trains.',    hint:'💳 Tap your ___ card on the yellow reader!' },
+];
+
+const DIALOGUE = {
+  context: 'Two tourists try to use the Tube for the first time...',
+  gaps:    { a:'platform', b:'delay', c:'line', d:'carriage', e:'Oyster' },
+  text: [
+    { speaker:'A', avatar:'😅', side:'left',  parts:[{t:'text',v:'Which '},{t:'gap',k:'c',ans:'line'},{t:'text',v:' do we need? I can\'t read this map!'}] },
+    { speaker:'B', avatar:'🤓', side:'right', parts:[{t:'text',v:'The Central Line! Go to '},{t:'gap',k:'a',ans:'platform'},{t:'text',v:' 3. But tap your '},{t:'gap',k:'e',ans:'Oyster'},{t:'text',v:' card first!'}] },
+    { speaker:'A', avatar:'😅', side:'left',  parts:[{t:'text',v:'Oh no — there\'s a '},{t:'gap',k:'b',ans:'delay'},{t:'text',v:'. The train is 8 minutes late!'}] },
+    { speaker:'B', avatar:'🤓', side:'right', parts:[{t:'text',v:'Very British! Move down inside the '},{t:'gap',k:'d',ans:'carriage'},{t:'text',v:' — and mind the gap! 😄'}] },
   ],
-  wordbank:['platform','delay','line','carriage','Oyster'],
+  wordbank: ['platform','delay','line','carriage','Oyster'],
 };
 
-// All 6 sentence rounds — verified, no duplicates
-const SENTENCE_ROUNDS=[
-  {starter:'🚇 The Tube...',
-   opts:['is the oldest underground railway in the world.','is the older underground railway in the world.','is the most old underground railway in the world.','are the oldest underground railway in the world.'],
-   correct:0,fb:'✅ "THE OLDEST" — superlative! old → older (comparative) → the oldest (superlative). Always use "the" before a superlative. "The most old" is wrong — short adjectives use -est, not "most".'},
-  {starter:'📢 "Mind the gap!" means...',
-   opts:['be careful of the space between the train and the platform.','be careful from the space between the train and the platform.','be careful at the space between the train and the platform.','be careful for the space between the train and the platform.'],
-   correct:0,fb:'✅ "Be careful OF something" — always OF! "Be careful of the dog." "Be careful of the traffic." The preposition after "careful" is always OF. Learn it as a fixed phrase!'},
-  {starter:'🕐 I take the Tube...',
-   opts:['every day to get to work.','every days to get to work.','every day for get to work.','every day to getting to work.'],
-   correct:0,fb:'✅ "Every day" — no -s on "day"! Every + singular noun: every day, every week, every morning. "To get to work" = infinitive of purpose — TO + infinitive explains WHY you do something.'},
-  {starter:'🗺️ Harry Beck designed the map...',
-   opts:['in 1931.','on 1931.','at 1931.','during of 1931.'],
-   correct:0,fb:'✅ "IN 1931" — we use IN with years and months! "In 1931", "in January", "in the 1960s". We use ON for days ("on Monday") and AT for clock times ("at 8am").'},
-  {starter:'😰 At rush hour, the Tube is...',
-   opts:['very crowded and noisy.','very crowd and noisy.','very crowding and noisy.','very crowds and noisy.'],
-   correct:0,fb:'✅ "Very CROWDED and noisy" — both are adjectives describing the Tube! Crowded = full of people. Noisy = full of noise. The noun is "a crowd" (group of people). Add -ed to make the adjective.'},
-  {starter:'💳 You need an Oyster card...',
-   opts:['to travel on the Tube.','for travel on the Tube.','at travelling on the Tube.','to travelling on the Tube.'],
-   correct:0,fb:'✅ "TO travel" — infinitive of purpose! "I need money TO buy food." "You need a card TO travel." TO + infinitive explains the reason or purpose. Never "to + -ing"!'},
+const SENTENCE_ROUNDS = [
+  { starter:'🚇 The Tube...', correct:0,
+    opts:['is the oldest underground railway in the world.','is the older underground railway in the world.','is the most old underground railway in the world.','are the oldest underground railway in the world.'],
+    fb:'✅ "THE OLDEST" — superlative! old → older (comparative) → the oldest (superlative). Always use "the" before a superlative. "The most old" is wrong — short adjectives use -est, not "most".' },
+  { starter:'📢 "Mind the gap!" means...', correct:0,
+    opts:['be careful of the space between the train and the platform.','be careful from the space between the train and the platform.','be careful at the space between the train and the platform.','be careful for the space between the train and the platform.'],
+    fb:'✅ "Be careful OF something" — always OF! "Be careful of the dog." "Be careful of the traffic." The preposition after "careful" is always OF. Learn it as a fixed phrase!' },
+  { starter:'🕐 I take the Tube...', correct:0,
+    opts:['every day to get to work.','every days to get to work.','every day for get to work.','every day to getting to work.'],
+    fb:'✅ "Every day" — no -s on "day"! Every + singular noun: every day, every week, every morning. "To get to work" = infinitive of purpose — TO + infinitive explains WHY you do something.' },
+  { starter:'🗺️ Harry Beck designed the map...', correct:0,
+    opts:['in 1931.','on 1931.','at 1931.','during of 1931.'],
+    fb:'✅ "IN 1931" — we use IN with years and months! "In 1931", "in January", "in the 1960s". We use ON for days ("on Monday") and AT for clock times ("at 8am").' },
+  { starter:'😰 At rush hour, the Tube is...', correct:0,
+    opts:['very crowded and noisy.','very crowd and noisy.','very crowding and noisy.','very crowds and noisy.'],
+    fb:'✅ "Very CROWDED and noisy" — both are adjectives describing the Tube! Crowded = full of people. Noisy = full of noise. The noun is "a crowd" (group of people). Add -ed to make the adjective.' },
+  { starter:'💳 You need an Oyster card...', correct:0,
+    opts:['to travel on the Tube.','for travel on the Tube.','at travelling on the Tube.','to travelling on the Tube.'],
+    fb:'✅ "TO travel" — infinitive of purpose! "I need money TO buy food." "You need a card TO travel." TO + infinitive explains the reason or purpose. Never "to + -ing"!' },
 ];
 
-let S={xp:0,streak:0,combo:0,bestCombo:0,totalRight:0,totalAnswered:0,tfDone:false,tfScore:0,wlIdx:0,wlDone:false,wlScore:0,wbIdx:0,wbDone:false,wbScore:0,dialDone:false,dbIdx:0,dbDone:false,dbScore:0};
-let wbBuilt=[],wbWrongAttempts=0;
+// ── SESSION STATE ──────────────────────────────────────────────
+let S = {
+  xp:0, streak:0, combo:0, bestCombo:0,
+  totalRight:0, totalAnswered:0,
+  tfDone:false, tfScore:0,
+  wlIdx:0, wlDone:false, wlScore:0,
+  wbIdx:0, wbDone:false, wbScore:0,
+  dialDone:false,
+  dbIdx:0, dbDone:false, dbScore:0,
+};
+let wbBuilt = [], wbWrongAttempts = 0;
 
-function $(id){return document.getElementById(id);}
-function megaConfettiBurst(){const c=['#DC241F','#FFD300','#003688','#0098D4','#9B0056','#00782A','#ffffff'];for(let i=0;i<60;i++){const d=document.createElement('div');d.className='mega-conf-dot';const sz=8+Math.random()*12;d.style.cssText=`left:${Math.random()*100}vw;top:${-10+Math.random()*30}px;width:${sz}px;height:${sz}px;background:${c[Math.floor(Math.random()*c.length)]};animation-delay:${Math.random()*.8}s;animation-duration:${1+Math.random()*.8}s;border-radius:${Math.random()>.5?'50%':'3px'};transform:rotate(${Math.random()*360}deg)`;document.body.appendChild(d);setTimeout(()=>d.remove(),2200);}}
-function xpFloat(x,y,a){const el=document.createElement('div');el.className='xp-float';el.textContent=`+${a} XP`;el.style.cssText=`left:${x}px;top:${y}px`;document.body.appendChild(el);setTimeout(()=>el.remove(),1000);}
-function addXP(a,el){S.xp+=a;if(el){const r=el.getBoundingClientRect();xpFloat(r.left+r.width/2-24,r.top-10,a);}const hx=$('hdr-xp');if(hx)hx.textContent=S.xp;}
-function updateProgress(){const s=[S.tfDone,S.wlDone,S.wbDone,S.dialDone,S.dbDone];const done=s.filter(Boolean).length;const pct=Math.round((done/s.length)*100);const f=$('prog-fill');if(f)f.style.width=pct+'%';$('prog-label').textContent=`${done} / ${s.length} sections`;$('prog-pct').textContent=pct+'%';}
-function revealSection(id,fn){const sec=document.getElementById(id);if(!sec||sec.classList.contains('visible'))return;if(fn)fn();sec.classList.add('visible');setTimeout(()=>sec.scrollIntoView({behavior:'smooth',block:'start'}),80);}
-function buildAll(){const c=$('sections');c.appendChild(buildTFSec());c.appendChild(buildLineSec());c.appendChild(buildWBSec());c.appendChild(buildDialSec());c.appendChild(buildSentenceSec());revealSection('sec-tf',buildTFInner);}
+// ── HELPERS ────────────────────────────────────────────────────
+function $(id) { return document.getElementById(id); }
 
-// ── SECTION 1: TRUE/FALSE + HARRY BECK ──
-function buildTFSec(){const sec=document.createElement('div');sec.className='sec-card strip-red';sec.id='sec-tf';sec.innerHTML=`<div class="sec-head"><div class="sec-head-icon">🤔</div><div><div class="sec-head-title">True or False?</div><div class="sec-head-sub">Meet Harry Beck · then test 6 Tube facts!</div></div></div><div class="sec-body"><div id="tf-inner"></div></div>`;return sec;}
-function buildTFInner(){
-  const slot=$('tf-inner');let answered=0;
-  slot.innerHTML=`
+function megaConfettiBurst() {
+  const c = ['#DC241F','#FFD300','#003688','#0098D4','#9B0056','#00782A','#ffffff'];
+  for (let i = 0; i < 60; i++) {
+    const d = document.createElement('div');
+    d.className = 'mega-conf-dot';
+    const sz = 8 + Math.random() * 12;
+    d.style.cssText = `left:${Math.random()*100}vw;top:${-10+Math.random()*30}px;width:${sz}px;height:${sz}px;background:${c[Math.floor(Math.random()*c.length)]};animation-delay:${Math.random()*.8}s;animation-duration:${1+Math.random()*.8}s;border-radius:${Math.random()>.5?'50%':'3px'};transform:rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(d);
+    setTimeout(() => d.remove(), 2200);
+  }
+}
+
+function xpFloat(x, y, amount) {
+  const el = document.createElement('div');
+  el.className = 'xp-float';
+  el.textContent = `+${amount} XP`;
+  el.style.cssText = `left:${x}px;top:${y}px`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+function addXP(amount, el) {
+  S.xp += amount;
+  if (el) {
+    const r = el.getBoundingClientRect();
+    xpFloat(r.left + r.width / 2 - 24, r.top - 10, amount);
+  }
+  // Only update header XP display in personal mode
+  if (!window.EFCD_Session?.isClassMode()) {
+    const hx = $('hdr-xp');
+    if (hx) hx.textContent = S.xp;
+  }
+}
+
+function updateProgress() {
+  const sections = [S.tfDone, S.wlDone, S.wbDone, S.dialDone, S.dbDone];
+  const done = sections.filter(Boolean).length;
+  const pct  = Math.round((done / sections.length) * 100);
+  const f    = $('prog-fill');
+  if (f) f.style.width = pct + '%';
+  $('prog-label').textContent = `${done} / ${sections.length} sections`;
+  $('prog-pct').textContent   = pct + '%';
+}
+
+function revealSection(id, fn) {
+  const sec = document.getElementById(id);
+  if (!sec || sec.classList.contains('visible')) return;
+  if (fn) fn();
+  sec.classList.add('visible');
+  setTimeout(() => sec.scrollIntoView({ behavior:'smooth', block:'start' }), 80);
+}
+
+function buildAll() {
+  const c = $('sections');
+  c.appendChild(buildTFSec());
+  c.appendChild(buildLineSec());
+  c.appendChild(buildWBSec());
+  c.appendChild(buildDialSec());
+  c.appendChild(buildSentenceSec());
+  revealSection('sec-tf', buildTFInner);
+}
+
+// ── SECTION 1: TRUE / FALSE ─────────────────────────────────────
+function buildTFSec() {
+  const sec = document.createElement('div');
+  sec.className = 'sec-card strip-red';
+  sec.id = 'sec-tf';
+  sec.innerHTML = `<div class="sec-head"><div class="sec-head-icon">🤔</div><div><div class="sec-head-title">True or False?</div><div class="sec-head-sub">Meet Harry Beck · then test 6 Tube facts!</div></div></div><div class="sec-body"><div id="tf-inner"></div></div>`;
+  return sec;
+}
+
+function buildTFInner() {
+  const slot = $('tf-inner');
+  let answered = 0;
+  slot.innerHTML = `
     <div class="tip-box">💡 First, <strong>meet the man behind the map</strong>. Then answer the True/False questions below — some facts are very surprising! 😮</div>
     <div class="beck-card">
       <div class="beck-head">
@@ -520,142 +633,492 @@ function buildTFInner(){
         <div class="beck-fact"><span class="beck-fact-icon">😢</span><div class="beck-fact-text">Sadly, Beck was <strong>never properly paid</strong>. He received just five guineas (about £5) for one of the most iconic images ever created. He spent years trying to get recognition. Today, his name appears on every Tube map.</div></div>
         <div class="map-demo">
           <div class="map-demo-label">Beck's colour-coded lines — still used today</div>
-          ${[['#DC241F','Central','red'],['#003688','Piccadilly','dark blue'],['#FFD300','Circle','yellow'],['#0098D4','Victoria','light blue'],['#00782A','District','green'],['#B36305','Bakerloo','brown']].map(([col,name,label])=>`<div class="map-line-row"><div class="map-line-swatch" style="background:${col}"></div><span class="map-line-name">${name}</span><span class="map-line-colour">${label}</span></div>`).join('')}
+          ${[['#DC241F','Central','red'],['#003688','Piccadilly','dark blue'],['#FFD300','Circle','yellow'],['#0098D4','Victoria','light blue'],['#00782A','District','green'],['#B36305','Bakerloo','brown']].map(([col,name,label]) => `<div class="map-line-row"><div class="map-line-swatch" style="background:${col}"></div><span class="map-line-name">${name}</span><span class="map-line-colour">${label}</span></div>`).join('')}
         </div>
       </div>
     </div>
     <div class="tf-score"><span class="tf-score-lbl">🚇 Score</span><span class="tf-score-num" id="tf-score-num">0 / ${TRUE_FALSE.length}</span></div>
     <div id="tf-cards"></div>
     <button class="btn-continue" id="tf-continue" style="display:none" onclick="finishTF()">Which Line? 🎨 →</button>`;
-  const cd=$('tf-cards');
-  TRUE_FALSE.forEach((fact,i)=>{const div=document.createElement('div');div.className='tf-card';div.id=`tf-card-${i}`;div.style.animationDelay=`${i*.07}s`;div.innerHTML=`<div class="tf-front"><span class="tf-emoji">${fact.emoji}</span><span class="tf-text">${fact.text}</span></div><div class="tf-votes"><button class="tf-btn tf-true-btn" id="tf-t-${i}" onclick="answerTF(${i},true)">✅ TRUE</button><button class="tf-btn tf-false-btn" id="tf-f-${i}" onclick="answerTF(${i},false)">❌ FALSE</button></div><div class="tf-reveal" id="tf-rev-${i}"></div>`;cd.appendChild(div);});
-  window.EFCD_FX?.attachCombo(slot);
-  window.answerTF=function(idx,u){const fact=TRUE_FALSE[idx];const tBtn=$(`tf-t-${idx}`);const fBtn=$(`tf-f-${idx}`);if(tBtn.disabled)return;tBtn.disabled=true;fBtn.disabled=true;const ok=u===fact.correct;const btn=u?tBtn:fBtn;if(ok){btn.classList.add('correct');S.tfScore++;S.totalRight++;S.combo++;S.bestCombo=Math.max(S.bestCombo,S.combo);addXP(8,btn);window.EFCD_FX?.correct(btn);window.EFCD_FX?.combo(S.combo);}else{btn.classList.add('wrong');(u?fBtn:tBtn).classList.add('correct');window.EFCD_FX?.wrong(btn);window.EFCD_FX?.comboBreak(S.combo,S.bestCombo);S.combo=0;}S.totalAnswered++;const sn=$('tf-score-num');if(sn)sn.textContent=`${S.tfScore} / ${TRUE_FALSE.length}`;const rev=$(`tf-rev-${idx}`);rev.textContent=fact.reveal;rev.classList.add('show');answered++;if(answered===TRUE_FALSE.length){const c=$('tf-continue');if(c)c.style.display='flex';}};
-}
-function finishTF(){S.tfDone=true;addXP(15);window.EFCD_FX?.toast('🚇',`${S.tfScore}/${TRUE_FALSE.length} correct! +15 XP`);updateProgress();revealSection('sec-line',buildLineInner);}
 
-// ── SECTION 2: WHICH LINE? (teach first, then quiz) ──
-function buildLineSec(){const sec=document.createElement('div');sec.className='sec-card strip-yellow';sec.id='sec-line';sec.innerHTML=`<div class="sec-head"><div class="sec-head-icon">🎨</div><div><div class="sec-head-title">Which Line?</div><div class="sec-head-sub">Study the lines first · then match stations to colours!</div></div></div><div class="sec-body"><div class="wl-progress" id="wl-prog"></div><div id="wl-slot"></div></div>`;return sec;}
-function buildLineInner(){
-  const slot=$('wl-slot');const prog=$('wl-prog');
-  if(prog)prog.innerHTML=LINE_QUESTIONS.map(()=>`<div class="wl-pip"></div>`).join('');
-  slot.innerHTML=`
+  const cd = $('tf-cards');
+  TRUE_FALSE.forEach((fact, i) => {
+    const div = document.createElement('div');
+    div.className = 'tf-card';
+    div.id = `tf-card-${i}`;
+    div.style.animationDelay = `${i * .07}s`;
+    div.innerHTML = `<div class="tf-front"><span class="tf-emoji">${fact.emoji}</span><span class="tf-text">${fact.text}</span></div><div class="tf-votes"><button class="tf-btn tf-true-btn" id="tf-t-${i}" onclick="answerTF(${i},true)">✅ TRUE</button><button class="tf-btn tf-false-btn" id="tf-f-${i}" onclick="answerTF(${i},false)">❌ FALSE</button></div><div class="tf-reveal" id="tf-rev-${i}"></div>`;
+    cd.appendChild(div);
+  });
+
+  window.EFCD_FX?.attachCombo(slot);
+
+  window.answerTF = function (idx, userAnswer) {
+    const fact = TRUE_FALSE[idx];
+    const tBtn = $(`tf-t-${idx}`);
+    const fBtn = $(`tf-f-${idx}`);
+    if (tBtn.disabled) return;
+    tBtn.disabled = true;
+    fBtn.disabled = true;
+    const ok  = userAnswer === fact.correct;
+    const btn = userAnswer ? tBtn : fBtn;
+    if (ok) {
+      btn.classList.add('correct');
+      S.tfScore++; S.totalRight++; S.combo++;
+      S.bestCombo = Math.max(S.bestCombo, S.combo);
+      addXP(8, btn);
+      window.EFCD_FX?.correct(btn);
+      window.EFCD_FX?.combo(S.combo);
+    } else {
+      btn.classList.add('wrong');
+      (userAnswer ? fBtn : tBtn).classList.add('correct');
+      window.EFCD_FX?.wrong(btn);
+      window.EFCD_FX?.comboBreak(S.combo, S.bestCombo);
+      S.combo = 0;
+    }
+    S.totalAnswered++;
+    const sn = $('tf-score-num');
+    if (sn) sn.textContent = `${S.tfScore} / ${TRUE_FALSE.length}`;
+    const rev = $(`tf-rev-${idx}`);
+    rev.textContent = fact.reveal;
+    rev.classList.add('show');
+    answered++;
+    if (answered === TRUE_FALSE.length) {
+      const c = $('tf-continue');
+      if (c) c.style.display = 'flex';
+    }
+  };
+}
+
+function finishTF() {
+  S.tfDone = true;
+  addXP(15);
+  window.EFCD_FX?.toast('🚇', `${S.tfScore}/${TRUE_FALSE.length} correct! +15 XP`);
+  updateProgress();
+  revealSection('sec-line', buildLineInner);
+}
+
+// ── SECTION 2: WHICH LINE? ──────────────────────────────────────
+function buildLineSec() {
+  const sec = document.createElement('div');
+  sec.className = 'sec-card strip-yellow';
+  sec.id = 'sec-line';
+  sec.innerHTML = `<div class="sec-head"><div class="sec-head-icon">🎨</div><div><div class="sec-head-title">Which Line?</div><div class="sec-head-sub">Study the lines first · then match stations to colours!</div></div></div><div class="sec-body"><div class="wl-progress" id="wl-prog"></div><div id="wl-slot"></div></div>`;
+  return sec;
+}
+
+function buildLineInner() {
+  const slot = $('wl-slot');
+  const prog = $('wl-prog');
+  if (prog) prog.innerHTML = LINE_QUESTIONS.map(() => `<div class="wl-pip"></div>`).join('');
+  slot.innerHTML = `
     <div class="tip-box">💡 <strong>Study these 6 lines before the quiz!</strong> Each has a colour and key stations. Take your time — then press the button when you're ready! 🗺️</div>
     <div class="lines-guide">
-      ${LINES_GUIDE.map((l,i)=>`<div class="line-guide-row" style="animation-delay:${i*.06}s"><div class="line-guide-swatch" style="background:${l.color}"></div><div class="line-guide-name" style="color:${l.color}">${l.name}</div><div class="line-guide-stations">${l.stations}</div><div class="line-guide-emoji">${l.emoji}</div></div>`).join('')}
+      ${LINES_GUIDE.map((l,i) => `<div class="line-guide-row" style="animation-delay:${i*.06}s"><div class="line-guide-swatch" style="background:${l.color}"></div><div class="line-guide-name" style="color:${l.color}">${l.name}</div><div class="line-guide-stations">${l.stations}</div><div class="line-guide-emoji">${l.emoji}</div></div>`).join('')}
     </div>
     <button class="btn-continue" style="background:var(--tube-red);border-color:#a01510" onclick="startLineQuiz()">Ready — start the quiz! 🚇</button>`;
 }
-function startLineQuiz(){renderLine();}
-function renderLine(){
-  const prog=$('wl-prog');if(prog)prog.innerHTML=LINE_QUESTIONS.map((_,i)=>`<div class="wl-pip ${i<S.wlIdx?'done':i===S.wlIdx?'active':''}"></div>`).join('');
-  if(S.wlDone){$('wl-slot').innerHTML=`<div class="sec-done"><span class="sec-done-icon" style="animation:bounce 1.5s ease-in-out infinite">🗺️</span><div class="sec-done-title">${S.wlScore}/${LINE_QUESTIONS.length} correct! 🎉</div><div class="sec-done-sub">You know your lines! Now build some Tube vocabulary.</div><button class="btn-continue" style="background:var(--tube-teal);border-color:#007aa0" onclick="revealSection('sec-wb',buildWBInner)">Word Builder! 🧱 →</button></div>`;return;}
-  const q=LINE_QUESTIONS[S.wlIdx];
-  $('wl-slot').innerHTML=`<button class="cheat-btn" onclick="openCheat()">🗺️ View line guide &nbsp;<span style="margin-left:auto;font-size:11px;opacity:.6">tap to open →</span></button><div class="wl-question"><div class="wl-q-label">Station ${S.wlIdx+1} of ${LINE_QUESTIONS.length}</div><div class="wl-q-station">${q.station}</div><div class="wl-q-hint">${q.hint}</div></div><p style="font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:10px;">Which line serves this station?</p><div class="wl-opts" id="wl-opts">${q.options.map(opt=>`<button class="wl-opt" style="background:${opt.color};border-color:${opt.color}80;" id="wl-opt-${opt.id}" onclick="answerLine('${opt.id}','${q.answer}')"><span style="color:${opt.dark?'#111':'#fff'};font-size:14px;font-weight:900">${opt.name}</span></button>`).join('')}</div><div class="wl-feedback" id="wl-fb"></div><button class="wl-next" id="wl-nxt" style="display:none" onclick="nextLine()">${S.wlIdx+1<LINE_QUESTIONS.length?'Next Station →':'All done! →'}</button>`;
-}
-window.answerLine=function(chosen,correct){document.querySelectorAll('.wl-opt').forEach(b=>b.disabled=true);const q=LINE_QUESTIONS[S.wlIdx];const fb=$('wl-fb');const ok=chosen===correct;if(ok){$(`wl-opt-${chosen}`).classList.add('correct');S.wlScore++;S.totalRight++;S.combo++;S.bestCombo=Math.max(S.bestCombo,S.combo);addXP(10,$(`wl-opt-${chosen}`));window.EFCD_FX?.correct($(`wl-opt-${chosen}`));window.EFCD_FX?.combo(S.combo);fb.className='wl-feedback show right';fb.innerHTML=q.fb;}else{$(`wl-opt-${chosen}`).classList.add('wrong');$(`wl-opt-${correct}`).classList.add('show-right');window.EFCD_FX?.wrong($(`wl-opt-${chosen}`));window.EFCD_FX?.comboBreak(S.combo,S.bestCombo);S.combo=0;fb.className='wl-feedback show wrong';fb.innerHTML='❌ Not this time! '+q.fb;}S.totalAnswered++;const nxt=$('wl-nxt');if(nxt)nxt.style.display='flex';};
-function nextLine(){S.wlIdx++;if(S.wlIdx>=LINE_QUESTIONS.length){S.wlDone=true;addXP(15);window.EFCD_FX?.toast('🎨',`${S.wlScore}/${LINE_QUESTIONS.length} lines! +15 XP`);updateProgress();renderLine();}else renderLine();}
 
-// ── SECTION 3: WORD BUILDER ──
-function buildWBSec(){const sec=document.createElement('div');sec.className='sec-card strip-teal';sec.id='sec-wb';sec.innerHTML=`<div class="sec-head"><div class="sec-head-icon">🧱</div><div><div class="sec-head-title">Word Builder!</div><div class="sec-head-sub">Read the clue · tap the letters · build the word!</div></div></div><div class="sec-body"><div class="wb-progress" id="wb-prog"></div><div id="wb-slot"></div></div>`;return sec;}
-function buildWBInner(){renderWB();window.EFCD_FX?.attachCombo(document.querySelector('#sec-wb .sec-body'));}
-function renderWB(){
-  const prog=$('wb-prog');if(prog)prog.innerHTML=WB_WORDS.map((_,i)=>`<div class="wb-pip ${i<S.wbIdx?'done':i===S.wbIdx?'active':''}"></div>`).join('');
-  if(S.wbDone){$('wb-slot').innerHTML=`<div class="sec-done"><span class="sec-done-icon" style="animation:bounce 1.5s ease-in-out infinite">🧱</span><div class="sec-done-title">${S.wbScore}/${WB_WORDS.length} words built! 🎉</div><div class="sec-done-sub">platform · journey · carriage · delay · crowded · oyster</div><button class="btn-continue" onclick="revealSection('sec-dial',buildDialInner)">Fill the Gaps! 💬 →</button></div>`;return;}
-  const w=WB_WORDS[S.wbIdx];wbBuilt=[];wbWrongAttempts=0;
-  const shuffled=[...w.letters].sort(()=>Math.random()-.5);
-  $('wb-slot').innerHTML=`<div class="wb-def">${w.def}<span class="hint">💡 ${w.hint}</span></div><div class="wb-answer-row" id="wb-answer"></div><div class="wb-tiles" id="wb-tiles">${shuffled.map((l,i)=>`<button class="wb-tile" id="wbt-${i}" onclick="tapWBTile('${l}',${i})">${l.toUpperCase()}</button>`).join('')}</div><div class="wb-feedback" id="wb-fb"></div><div class="wb-actions"><button class="wb-clear" onclick="clearWB()">🗑️ Clear</button><button class="wb-check" onclick="checkWB()">✓ Check!</button><button class="wb-hint-btn" id="wb-hint" onclick="hintWB()">💡 Hint</button><button class="wb-reveal-btn" id="wb-reveal" onclick="revealWB()">🚇 Reveal</button></div>`;
+function startLineQuiz() { renderLine(); }
+
+function renderLine() {
+  const prog = $('wl-prog');
+  if (prog) prog.innerHTML = LINE_QUESTIONS.map((_,i) => `<div class="wl-pip ${i < S.wlIdx ? 'done' : i === S.wlIdx ? 'active' : ''}"></div>`).join('');
+  if (S.wlDone) {
+    $('wl-slot').innerHTML = `<div class="sec-done"><span class="sec-done-icon" style="animation:bounce 1.5s ease-in-out infinite">🗺️</span><div class="sec-done-title">${S.wlScore}/${LINE_QUESTIONS.length} correct! 🎉</div><div class="sec-done-sub">You know your lines! Now build some Tube vocabulary.</div><button class="btn-continue" style="background:var(--tube-teal);border-color:#007aa0" onclick="revealSection('sec-wb',buildWBInner)">Word Builder! 🧱 →</button></div>`;
+    return;
+  }
+  const q = LINE_QUESTIONS[S.wlIdx];
+  $('wl-slot').innerHTML = `<button class="cheat-btn" onclick="openCheat()">🗺️ View line guide &nbsp;<span style="margin-left:auto;font-size:11px;opacity:.6">tap to open →</span></button><div class="wl-question"><div class="wl-q-label">Station ${S.wlIdx+1} of ${LINE_QUESTIONS.length}</div><div class="wl-q-station">${q.station}</div><div class="wl-q-hint">${q.hint}</div></div><p style="font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:10px;">Which line serves this station?</p><div class="wl-opts" id="wl-opts">${q.options.map(opt => `<button class="wl-opt" style="background:${opt.color};border-color:${opt.color}80;" id="wl-opt-${opt.id}" onclick="answerLine('${opt.id}','${q.answer}')"><span style="color:${opt.dark?'#111':'#fff'};font-size:14px;font-weight:900">${opt.name}</span></button>`).join('')}</div><div class="wl-feedback" id="wl-fb"></div><button class="wl-next" id="wl-nxt" style="display:none" onclick="nextLine()">${S.wlIdx + 1 < LINE_QUESTIONS.length ? 'Next Station →' : 'All done! →'}</button>`;
+}
+
+window.answerLine = function (chosen, correct) {
+  document.querySelectorAll('.wl-opt').forEach(b => b.disabled = true);
+  const q  = LINE_QUESTIONS[S.wlIdx];
+  const fb = $('wl-fb');
+  const ok = chosen === correct;
+  if (ok) {
+    $(`wl-opt-${chosen}`).classList.add('correct');
+    S.wlScore++; S.totalRight++; S.combo++;
+    S.bestCombo = Math.max(S.bestCombo, S.combo);
+    addXP(10, $(`wl-opt-${chosen}`));
+    window.EFCD_FX?.correct($(`wl-opt-${chosen}`));
+    window.EFCD_FX?.combo(S.combo);
+    fb.className = 'wl-feedback show right';
+    fb.innerHTML = q.fb;
+  } else {
+    $(`wl-opt-${chosen}`).classList.add('wrong');
+    $(`wl-opt-${correct}`).classList.add('show-right');
+    window.EFCD_FX?.wrong($(`wl-opt-${chosen}`));
+    window.EFCD_FX?.comboBreak(S.combo, S.bestCombo);
+    S.combo = 0;
+    fb.className = 'wl-feedback show wrong';
+    fb.innerHTML = '❌ Not this time! ' + q.fb;
+  }
+  S.totalAnswered++;
+  const nxt = $('wl-nxt');
+  if (nxt) nxt.style.display = 'flex';
+};
+
+function nextLine() {
+  S.wlIdx++;
+  if (S.wlIdx >= LINE_QUESTIONS.length) {
+    S.wlDone = true;
+    addXP(15);
+    window.EFCD_FX?.toast('🎨', `${S.wlScore}/${LINE_QUESTIONS.length} lines! +15 XP`);
+    updateProgress();
+    renderLine();
+  } else {
+    renderLine();
+  }
+}
+
+// ── SECTION 3: WORD BUILDER ─────────────────────────────────────
+function buildWBSec() {
+  const sec = document.createElement('div');
+  sec.className = 'sec-card strip-teal';
+  sec.id = 'sec-wb';
+  sec.innerHTML = `<div class="sec-head"><div class="sec-head-icon">🧱</div><div><div class="sec-head-title">Word Builder!</div><div class="sec-head-sub">Read the clue · tap the letters · build the word!</div></div></div><div class="sec-body"><div class="wb-progress" id="wb-prog"></div><div id="wb-slot"></div></div>`;
+  return sec;
+}
+
+function buildWBInner() { renderWB(); window.EFCD_FX?.attachCombo(document.querySelector('#sec-wb .sec-body')); }
+
+function renderWB() {
+  const prog = $('wb-prog');
+  if (prog) prog.innerHTML = WB_WORDS.map((_,i) => `<div class="wb-pip ${i < S.wbIdx ? 'done' : i === S.wbIdx ? 'active' : ''}"></div>`).join('');
+  if (S.wbDone) {
+    $('wb-slot').innerHTML = `<div class="sec-done"><span class="sec-done-icon" style="animation:bounce 1.5s ease-in-out infinite">🧱</span><div class="sec-done-title">${S.wbScore}/${WB_WORDS.length} words built! 🎉</div><div class="sec-done-sub">platform · journey · carriage · delay · crowded · oyster</div><button class="btn-continue" onclick="revealSection('sec-dial',buildDialInner)">Fill the Gaps! 💬 →</button></div>`;
+    return;
+  }
+  const w = WB_WORDS[S.wbIdx];
+  wbBuilt = []; wbWrongAttempts = 0;
+  const shuffled = [...w.letters].sort(() => Math.random() - .5);
+  $('wb-slot').innerHTML = `<div class="wb-def">${w.def}<span class="hint">💡 ${w.hint}</span></div><div class="wb-answer-row" id="wb-answer"></div><div class="wb-tiles" id="wb-tiles">${shuffled.map((l,i) => `<button class="wb-tile" id="wbt-${i}" onclick="tapWBTile('${l}',${i})">${l.toUpperCase()}</button>`).join('')}</div><div class="wb-feedback" id="wb-fb"></div><div class="wb-actions"><button class="wb-clear" onclick="clearWB()">🗑️ Clear</button><button class="wb-check" onclick="checkWB()">✓ Check!</button><button class="wb-hint-btn" id="wb-hint" onclick="hintWB()">💡 Hint</button><button class="wb-reveal-btn" id="wb-reveal" onclick="revealWB()">🚇 Reveal</button></div>`;
   renderWBAnswer();
 }
-function renderWBAnswer(){const w=WB_WORDS[S.wbIdx];const row=$('wb-answer');if(!row)return;row.innerHTML='';for(let i=0;i<w.letters.length;i++){const s=document.createElement('div');s.className='wb-slot'+(wbBuilt[i]!==undefined?' filled':'');s.textContent=wbBuilt[i]!==undefined?wbBuilt[i].toUpperCase():'';if(wbBuilt[i]!==undefined)s.onclick=()=>removeWBLetter(i);row.appendChild(s);}}
-window.tapWBTile=function(letter,ti){const w=WB_WORDS[S.wbIdx];if(wbBuilt.length>=w.letters.length)return;wbBuilt.push(letter);const t=$(`wbt-${ti}`);if(t)t.classList.add('used');renderWBAnswer();const fb=$('wb-fb');if(fb){fb.className='wb-feedback';fb.textContent='';}};
-function removeWBLetter(pos){const letter=wbBuilt[pos];wbBuilt.splice(pos,1);const tiles=document.querySelectorAll('.wb-tile.used');for(const t of tiles){if(t.textContent.toUpperCase()===letter.toUpperCase()){t.classList.remove('used');break;}}renderWBAnswer();}
-function clearWB(){wbBuilt=[];document.querySelectorAll('.wb-tile').forEach(t=>t.classList.remove('used'));renderWBAnswer();const fb=$('wb-fb');if(fb){fb.className='wb-feedback';fb.textContent='';}}
-function hintWB(){const w=WB_WORDS[S.wbIdx];const np=wbBuilt.length;if(np>=w.letters.length)return;const cl=w.letters[np];const tiles=document.querySelectorAll('.wb-tile:not(.used)');for(const t of tiles){if(t.textContent.toUpperCase()===cl.toUpperCase()){t.classList.add('used');break;}}wbBuilt.push(cl);renderWBAnswer();const fb=$('wb-fb');if(fb){fb.className='wb-feedback show wrong';fb.textContent=`💡 Letter ${np+1} revealed!`;}}
-function revealWB(){const w=WB_WORDS[S.wbIdx];wbBuilt=[...w.letters];document.querySelectorAll('.wb-tile').forEach(t=>t.classList.add('used'));renderWBAnswer();const fb=$('wb-fb');fb.className='wb-feedback show wrong';fb.innerHTML=`👁️ The word is <strong>${w.word.toUpperCase()}</strong> — ${w.def}`;document.querySelectorAll('.wb-check,.wb-clear,.wb-hint-btn,.wb-reveal-btn').forEach(b=>{b.disabled=true;b.style.opacity='.4';});S.totalAnswered++;setTimeout(()=>{S.wbIdx++;if(S.wbIdx>=WB_WORDS.length){S.wbDone=true;addXP(15);window.EFCD_FX?.toast('🧱','All words! +15 XP');updateProgress();renderWB();}else renderWB();},2200);}
-function checkWB(){const w=WB_WORDS[S.wbIdx];const built=wbBuilt.join('').toLowerCase();if(built.length<w.letters.length){const fb=$('wb-fb');fb.className='wb-feedback show wrong';fb.textContent='⚠️ Fill all the letters first!';return;}const ok=built===w.word;const slots=document.querySelectorAll('.wb-slot');const fb=$('wb-fb');if(ok){slots.forEach(s=>s.classList.add('correct-final'));S.wbScore++;S.totalRight++;S.combo++;S.bestCombo=Math.max(S.bestCombo,S.combo);addXP(10);document.querySelectorAll('.wb-check,.wb-clear,.wb-hint-btn,.wb-reveal-btn').forEach(b=>{b.disabled=true;b.style.opacity='.4';});window.EFCD_FX?.correct(slots[0]);window.EFCD_FX?.combo(S.combo);fb.className='wb-feedback show right';fb.innerHTML=`✅ <strong>${w.word.toUpperCase()}</strong>! 🎉 ${w.def}`;setTimeout(()=>{S.wbIdx++;if(S.wbIdx>=WB_WORDS.length){S.wbDone=true;addXP(15);window.EFCD_FX?.toast('🧱','All words! +15 XP');updateProgress();renderWB();}else renderWB();},1600);}else{slots.forEach(s=>s.classList.add('wrong-shake'));setTimeout(()=>slots.forEach(s=>s.classList.remove('wrong-shake')),450);window.EFCD_FX?.wrong(slots[0]);window.EFCD_FX?.comboBreak(S.combo,S.bestCombo);S.combo=0;wbWrongAttempts++;fb.className='wb-feedback show wrong';fb.textContent=`Not quite! Hint: ${w.hint}`;if(wbWrongAttempts>=2){const rev=$('wb-reveal');if(rev)rev.style.opacity='1';}}S.totalAnswered++;}
 
-// ── SECTION 4: DIALOGUE ──
-function buildDialSec(){const sec=document.createElement('div');sec.className='sec-card strip-blue';sec.id='sec-dial';sec.innerHTML=`<div class="sec-head"><div class="sec-head-icon">💬</div><div><div class="sec-head-title">On the Tube!</div><div class="sec-head-sub">Tap a word · tap a gap · complete the conversation!</div></div></div><div class="sec-body"><div id="dial-inner"></div></div>`;return sec;}
-function buildDialInner(){
-  const slot=$('dial-inner');let sel=null,filled={};
-  function buildPage(){
-    const placed=new Set(Object.values(filled));
-    let html='<div class="dialogue-wrap">';
-    DIALOGUE.text.forEach(line=>{html+=`<div class="bubble-row ${line.side==='right'?'right':''}"><div class="bubble-avatar">${line.avatar}</div><div><div class="bubble-name">${line.speaker}</div><div class="bubble">`;line.parts.forEach(p=>{if(p.t==='text')html+=p.v;else{const f=filled[p.k];html+=`<span class="dial-gap ${f?'filled':''}" id="dg-${p.k}">${f||'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</span>`;}});html+=`</div></div></div>`;});html+='</div>';
-    slot.innerHTML=`<p style="font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:12px;font-style:italic">🗣️ ${DIALOGUE.context}</p><div class="dial-wordbank"><div class="dial-bank-label">📦 Word Bank — tap a word, then tap a gap!</div><div class="dial-chips">${DIALOGUE.wordbank.map(w=>`<button class="dial-chip ${placed.has(w)?'used':''} ${sel===w?'selected':''}" onclick="selDW('${w}')">${w}</button>`).join('')}</div></div>${html}<div class="dial-result" id="dial-result"></div><button class="dial-submit" onclick="submitDial()">💬 Check My Answers!</button>`;
-    Object.keys(DIALOGUE.gaps).forEach(k=>{const el=$(`dg-${k}`);if(el)el.onclick=()=>tapDG(k);});
-  }
-  window.selDW=function(w){const p=new Set(Object.values(filled));if(p.has(w))return;sel=(sel===w)?null:w;buildPage();};
-  window.tapDG=function(k){if(!sel){if(filled[k]){delete filled[k];buildPage();}return;}filled[k]=sel;sel=null;buildPage();};
-  window.submitDial=function(){const af=Object.keys(DIALOGUE.gaps).every(k=>filled[k]);if(!af){const r=$('dial-result');r.className='dial-result show wrong';r.textContent='⚠️ Fill all the gaps first!';return;}let correct=0;Object.keys(DIALOGUE.gaps).forEach(k=>{if(filled[k]===DIALOGUE.gaps[k])correct++;});const ar=correct===Object.keys(DIALOGUE.gaps).length;Object.keys(DIALOGUE.gaps).forEach(k=>{const el=$(`dg-${k}`);if(el){if(filled[k]===DIALOGUE.gaps[k])el.classList.add('filled');else{el.classList.add('wrong');el.textContent=filled[k]||'???';}}});const r=$('dial-result');if(ar){r.className='dial-result show right';r.innerHTML='✅ <strong>Brilliant!</strong> All 5 words correct! Mind the gap — closed! 🚇';S.totalRight+=5;S.combo+=3;S.bestCombo=Math.max(S.bestCombo,S.combo);addXP(25);window.EFCD_FX?.confetti?.();}else{r.className='dial-result show wrong';r.innerHTML=`📖 <strong>${correct}/5 correct!</strong> Red words are wrong — try again!`;addXP(correct*4);S.totalRight+=correct;S.combo=0;}S.totalAnswered+=5;const sub=slot.querySelector('.dial-submit');if(sub){sub.textContent='✍️ Grammar Challenge! →';sub.onclick=finishDial;sub.style.background='var(--tube-purple)';sub.style.borderColor='#6b003c';}};
-  buildPage();window.EFCD_FX?.attachCombo(slot);
-}
-function finishDial(){S.dialDone=true;addXP(10);window.EFCD_FX?.toast('💬','Dialogue done! +10 XP 🚇');updateProgress();revealSection('sec-sentence',buildSentenceInner);}
-
-// ── SECTION 5: SENTENCE PICK ──
-function buildSentenceSec(){const sec=document.createElement('div');sec.className='sec-card strip-purple';sec.id='sec-sentence';sec.innerHTML=`<div class="sec-head"><div class="sec-head-icon">✍️</div><div><div class="sec-head-title">Grammar on the Go!</div><div class="sec-head-sub">One sentence is correct — can you find it?</div></div></div><div class="sec-body"><div class="db-progress" id="db-prog"></div><div id="db-slot"></div></div>`;return sec;}
-function buildSentenceInner(){renderSentence();window.EFCD_FX?.attachCombo($('db-slot')?.parentElement);}
-function renderSentence(){
-  const prog=$('db-prog');if(prog)prog.innerHTML=SENTENCE_ROUNDS.map((_,i)=>`<div class="db-pip ${i<S.dbIdx?'done':i===S.dbIdx?'active':''}"></div>`).join('');
-  if(S.dbDone){$('db-slot').innerHTML=`<div class="sec-done"><span class="sec-done-icon" style="animation:bounce 1.5s ease-in-out infinite">🏆</span><div class="sec-done-title">${S.dbScore}/${SENTENCE_ROUNDS.length} correct! 🎉</div><div class="sec-done-sub">Superlatives, prepositions, infinitives — grammar hero! 🚇</div><button class="btn-continue" style="background:var(--tube-yellow);border-color:#b09200;color:#111" onclick="claimBadge()">🚇 Finish — get your badge!</button></div>`;return;}
-  const q=SENTENCE_ROUNDS[S.dbIdx];const indexed=q.opts.map((o,i)=>({text:o,origIdx:i})).sort(()=>Math.random()-.5);const sc=indexed.findIndex(o=>o.origIdx===q.correct);
-  $('db-slot').innerHTML=`<div class="tip-box" style="margin-bottom:14px;">💡 One sentence is <strong>correct</strong>. Three have grammar mistakes. Tap the right one!</div><div class="db-starter">${q.starter} <em>...</em></div><div class="db-opts" id="db-opts">${indexed.map((o,i)=>`<button class="db-opt" onclick="answerSentence(this,${i},${sc})">${o.text}</button>`).join('')}</div><div class="db-feedback" id="db-fb"></div><button class="db-next" id="db-nxt" onclick="nextSentence()" style="display:none">${S.dbIdx+1<SENTENCE_ROUNDS.length?'Next sentence →':'Finish! 🚇'}</button>`;
-}
-window.answerSentence=function(btn,chosen,correct){document.querySelectorAll('.db-opt').forEach(b=>b.disabled=true);const fb=$('db-fb');const q=SENTENCE_ROUNDS[S.dbIdx];if(chosen===correct){btn.classList.add('correct');S.dbScore++;S.totalRight++;S.combo++;S.bestCombo=Math.max(S.bestCombo,S.combo);addXP(12,btn);window.EFCD_FX?.correct(btn);window.EFCD_FX?.combo(S.combo);fb.className='db-feedback show right';fb.innerHTML=q.fb;}else{btn.classList.add('wrong');document.querySelectorAll('.db-opt')[correct].classList.add('show-correct');window.EFCD_FX?.wrong(btn);window.EFCD_FX?.comboBreak(S.combo,S.bestCombo);S.combo=0;fb.className='db-feedback show wrong';fb.innerHTML='❌ Not quite! '+q.fb;}S.totalAnswered++;const nxt=$('db-nxt');if(nxt)nxt.style.display='flex';};
-function nextSentence(){S.dbIdx++;if(S.dbIdx>=SENTENCE_ROUNDS.length){S.dbDone=true;addXP(15);window.EFCD_FX?.toast('✍️',`${S.dbScore}/${SENTENCE_ROUNDS.length} correct! +15 XP`);updateProgress();renderSentence();}else renderSentence();}
-
-// ── COMPLETION ──
-function claimBadge(){const btn=document.querySelector('#sec-sentence .btn-continue');if(btn){btn.textContent='🎉 Next stop...';btn.disabled=true;btn.style.opacity='.7';}setTimeout(showCompletion,400);}
-
-async function showCompletion(){
-  const acc=S.totalAnswered>0?Math.round((S.totalRight/S.totalAnswered)*100):100;
-  const xpMult=window.EFCD_Shop?.getXPMultiplier?.()??1;
-  if(xpMult>1){S.xp=Math.round(S.xp*xpMult);const hx=$('hdr-xp');if(hx)hx.textContent=S.xp;}
-  $('cc-xp').textContent='+'+S.xp;
-  if(xpMult>1){const lbl=$('cc-xp-label');if(lbl)lbl.textContent='⚡ XP Earned · 2× DOUBLE XP! 🚀';}
-  $('cc-correct').textContent=S.totalRight;$('cc-combo').textContent=S.bestCombo;
-  // Show class badge pill if in a session
-  if(localStorage.getItem('efcd_class_id')){
-  const ccb=$('cc-class-badge');
-  if(ccb){
-    // Get the class display name and present students
-    const presentNames = JSON.parse(localStorage.getItem('efcd_present_names')||'[]');
-    const validNames = presentNames.filter(n => n !== 'the class');
-    
-    // Update the badge text to name the team
-    const mainText = ccb.querySelector('.cc-class-text-main');
-    const subText  = ccb.querySelector('.cc-class-text-sub');
-    
-    if(mainText){
-      mainText.textContent = validNames.length > 0
-        ? `🏆 ${validNames.join(', ')} earned the Tube Expert badge!`
-        : '🏆 Your class earned the Tube Expert badge!';
-    }
-    if(subText){
-      subText.textContent = `Score and badge added to the class leaderboard!`;
-    }
-    ccb.style.display='flex';
+function renderWBAnswer() {
+  const w   = WB_WORDS[S.wbIdx];
+  const row = $('wb-answer');
+  if (!row) return;
+  row.innerHTML = '';
+  for (let i = 0; i < w.letters.length; i++) {
+    const s = document.createElement('div');
+    s.className = 'wb-slot' + (wbBuilt[i] !== undefined ? ' filled' : '');
+    s.textContent = wbBuilt[i] !== undefined ? wbBuilt[i].toUpperCase() : '';
+    if (wbBuilt[i] !== undefined) s.onclick = () => removeWBLetter(i);
+    row.appendChild(s);
   }
 }
+
+window.tapWBTile = function (letter, ti) {
+  const w = WB_WORDS[S.wbIdx];
+  if (wbBuilt.length >= w.letters.length) return;
+  wbBuilt.push(letter);
+  const t = $(`wbt-${ti}`);
+  if (t) t.classList.add('used');
+  renderWBAnswer();
+  const fb = $('wb-fb');
+  if (fb) { fb.className = 'wb-feedback'; fb.textContent = ''; }
+};
+
+function removeWBLetter(pos) {
+  const letter = wbBuilt[pos];
+  wbBuilt.splice(pos, 1);
+  const tiles = document.querySelectorAll('.wb-tile.used');
+  for (const t of tiles) {
+    if (t.textContent.toUpperCase() === letter.toUpperCase()) { t.classList.remove('used'); break; }
+  }
+  renderWBAnswer();
+}
+
+function clearWB() {
+  wbBuilt = [];
+  document.querySelectorAll('.wb-tile').forEach(t => t.classList.remove('used'));
+  renderWBAnswer();
+  const fb = $('wb-fb');
+  if (fb) { fb.className = 'wb-feedback'; fb.textContent = ''; }
+}
+
+function hintWB() {
+  const w  = WB_WORDS[S.wbIdx];
+  const np = wbBuilt.length;
+  if (np >= w.letters.length) return;
+  const cl    = w.letters[np];
+  const tiles = document.querySelectorAll('.wb-tile:not(.used)');
+  for (const t of tiles) {
+    if (t.textContent.toUpperCase() === cl.toUpperCase()) { t.classList.add('used'); break; }
+  }
+  wbBuilt.push(cl);
+  renderWBAnswer();
+  const fb = $('wb-fb');
+  if (fb) { fb.className = 'wb-feedback show wrong'; fb.textContent = `💡 Letter ${np+1} revealed!`; }
+}
+
+function revealWB() {
+  const w = WB_WORDS[S.wbIdx];
+  wbBuilt = [...w.letters];
+  document.querySelectorAll('.wb-tile').forEach(t => t.classList.add('used'));
+  renderWBAnswer();
+  const fb = $('wb-fb');
+  fb.className = 'wb-feedback show wrong';
+  fb.innerHTML = `👁️ The word is <strong>${w.word.toUpperCase()}</strong> — ${w.def}`;
+  document.querySelectorAll('.wb-check,.wb-clear,.wb-hint-btn,.wb-reveal-btn').forEach(b => { b.disabled = true; b.style.opacity = '.4'; });
+  S.totalAnswered++;
+  setTimeout(() => {
+    S.wbIdx++;
+    if (S.wbIdx >= WB_WORDS.length) { S.wbDone = true; addXP(15); window.EFCD_FX?.toast('🧱','All words! +15 XP'); updateProgress(); renderWB(); }
+    else renderWB();
+  }, 2200);
+}
+
+function checkWB() {
+  const w     = WB_WORDS[S.wbIdx];
+  const built = wbBuilt.join('').toLowerCase();
+  const fb    = $('wb-fb');
+  if (built.length < w.letters.length) { fb.className = 'wb-feedback show wrong'; fb.textContent = '⚠️ Fill all the letters first!'; return; }
+  const ok    = built === w.word;
+  const slots = document.querySelectorAll('.wb-slot');
+  if (ok) {
+    slots.forEach(s => s.classList.add('correct-final'));
+    S.wbScore++; S.totalRight++; S.combo++;
+    S.bestCombo = Math.max(S.bestCombo, S.combo);
+    addXP(10);
+    document.querySelectorAll('.wb-check,.wb-clear,.wb-hint-btn,.wb-reveal-btn').forEach(b => { b.disabled = true; b.style.opacity = '.4'; });
+    window.EFCD_FX?.correct(slots[0]);
+    window.EFCD_FX?.combo(S.combo);
+    fb.className = 'wb-feedback show right';
+    fb.innerHTML = `✅ <strong>${w.word.toUpperCase()}</strong>! 🎉 ${w.def}`;
+    setTimeout(() => {
+      S.wbIdx++;
+      if (S.wbIdx >= WB_WORDS.length) { S.wbDone = true; addXP(15); window.EFCD_FX?.toast('🧱','All words! +15 XP'); updateProgress(); renderWB(); }
+      else renderWB();
+    }, 1600);
+  } else {
+    slots.forEach(s => s.classList.add('wrong-shake'));
+    setTimeout(() => slots.forEach(s => s.classList.remove('wrong-shake')), 450);
+    window.EFCD_FX?.wrong(slots[0]);
+    window.EFCD_FX?.comboBreak(S.combo, S.bestCombo);
+    S.combo = 0;
+    wbWrongAttempts++;
+    fb.className = 'wb-feedback show wrong';
+    fb.textContent = `Not quite! Hint: ${w.hint}`;
+    if (wbWrongAttempts >= 2) { const rev = $('wb-reveal'); if (rev) rev.style.opacity = '1'; }
+  }
+  S.totalAnswered++;
+}
+
+// ── SECTION 4: DIALOGUE ─────────────────────────────────────────
+function buildDialSec() {
+  const sec = document.createElement('div');
+  sec.className = 'sec-card strip-blue';
+  sec.id = 'sec-dial';
+  sec.innerHTML = `<div class="sec-head"><div class="sec-head-icon">💬</div><div><div class="sec-head-title">On the Tube!</div><div class="sec-head-sub">Tap a word · tap a gap · complete the conversation!</div></div></div><div class="sec-body"><div id="dial-inner"></div></div>`;
+  return sec;
+}
+
+function buildDialInner() {
+  const slot = $('dial-inner');
+  let sel = null, filled = {};
+
+  function buildPage() {
+    const placed = new Set(Object.values(filled));
+    let html = '<div class="dialogue-wrap">';
+    DIALOGUE.text.forEach(line => {
+      html += `<div class="bubble-row ${line.side === 'right' ? 'right' : ''}"><div class="bubble-avatar">${line.avatar}</div><div><div class="bubble-name">${line.speaker}</div><div class="bubble">`;
+      line.parts.forEach(p => {
+        if (p.t === 'text') html += p.v;
+        else { const f = filled[p.k]; html += `<span class="dial-gap ${f ? 'filled' : ''}" id="dg-${p.k}">${f || '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</span>`; }
+      });
+      html += `</div></div></div>`;
+    });
+    html += '</div>';
+    slot.innerHTML = `<p style="font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:12px;font-style:italic">🗣️ ${DIALOGUE.context}</p><div class="dial-wordbank"><div class="dial-bank-label">📦 Word Bank — tap a word, then tap a gap!</div><div class="dial-chips">${DIALOGUE.wordbank.map(w => `<button class="dial-chip ${placed.has(w)?'used':''} ${sel===w?'selected':''}" onclick="selDW('${w}')">${w}</button>`).join('')}</div></div>${html}<div class="dial-result" id="dial-result"></div><button class="dial-submit" onclick="submitDial()">💬 Check My Answers!</button>`;
+    Object.keys(DIALOGUE.gaps).forEach(k => { const el = $(`dg-${k}`); if (el) el.onclick = () => tapDG(k); });
+  }
+
+  window.selDW = function (w) { const p = new Set(Object.values(filled)); if (p.has(w)) return; sel = (sel === w) ? null : w; buildPage(); };
+  window.tapDG = function (k) { if (!sel) { if (filled[k]) { delete filled[k]; buildPage(); } return; } filled[k] = sel; sel = null; buildPage(); };
+  window.submitDial = function () {
+    const allFilled = Object.keys(DIALOGUE.gaps).every(k => filled[k]);
+    if (!allFilled) { const r = $('dial-result'); r.className = 'dial-result show wrong'; r.textContent = '⚠️ Fill all the gaps first!'; return; }
+    let correct = 0;
+    Object.keys(DIALOGUE.gaps).forEach(k => { if (filled[k] === DIALOGUE.gaps[k]) correct++; });
+    const allRight = correct === Object.keys(DIALOGUE.gaps).length;
+    Object.keys(DIALOGUE.gaps).forEach(k => {
+      const el = $(`dg-${k}`);
+      if (el) {
+        if (filled[k] === DIALOGUE.gaps[k]) el.classList.add('filled');
+        else { el.classList.add('wrong'); el.textContent = filled[k] || '???'; }
+      }
+    });
+    const r = $('dial-result');
+    if (allRight) {
+      r.className = 'dial-result show right';
+      r.innerHTML = '✅ <strong>Brilliant!</strong> All 5 words correct! Mind the gap — closed! 🚇';
+      S.totalRight += 5; S.combo += 3;
+      S.bestCombo = Math.max(S.bestCombo, S.combo);
+      addXP(25);
+      window.EFCD_FX?.confetti?.();
+    } else {
+      r.className = 'dial-result show wrong';
+      r.innerHTML = `📖 <strong>${correct}/5 correct!</strong> Red words are wrong — try again!`;
+      addXP(correct * 4); S.totalRight += correct; S.combo = 0;
+    }
+    S.totalAnswered += 5;
+    const sub = slot.querySelector('.dial-submit');
+    if (sub) { sub.textContent = '✍️ Grammar Challenge! →'; sub.onclick = finishDial; sub.style.background = 'var(--tube-purple)'; sub.style.borderColor = '#6b003c'; }
+  };
+
+  buildPage();
+  window.EFCD_FX?.attachCombo(slot);
+}
+
+function finishDial() {
+  S.dialDone = true;
+  addXP(10);
+  window.EFCD_FX?.toast('💬','Dialogue done! +10 XP 🚇');
+  updateProgress();
+  revealSection('sec-sentence', buildSentenceInner);
+}
+
+// ── SECTION 5: SENTENCE PICK ────────────────────────────────────
+function buildSentenceSec() {
+  const sec = document.createElement('div');
+  sec.className = 'sec-card strip-purple';
+  sec.id = 'sec-sentence';
+  sec.innerHTML = `<div class="sec-head"><div class="sec-head-icon">✍️</div><div><div class="sec-head-title">Grammar on the Go!</div><div class="sec-head-sub">One sentence is correct — can you find it?</div></div></div><div class="sec-body"><div class="db-progress" id="db-prog"></div><div id="db-slot"></div></div>`;
+  return sec;
+}
+
+function buildSentenceInner() { renderSentence(); window.EFCD_FX?.attachCombo($('db-slot')?.parentElement); }
+
+function renderSentence() {
+  const prog = $('db-prog');
+  if (prog) prog.innerHTML = SENTENCE_ROUNDS.map((_,i) => `<div class="db-pip ${i < S.dbIdx ? 'done' : i === S.dbIdx ? 'active' : ''}"></div>`).join('');
+  if (S.dbDone) {
+    $('db-slot').innerHTML = `<div class="sec-done"><span class="sec-done-icon" style="animation:bounce 1.5s ease-in-out infinite">🏆</span><div class="sec-done-title">${S.dbScore}/${SENTENCE_ROUNDS.length} correct! 🎉</div><div class="sec-done-sub">Superlatives, prepositions, infinitives — grammar hero! 🚇</div><button class="btn-continue" style="background:var(--tube-yellow);border-color:#b09200;color:#111" onclick="claimBadge()">🚇 Finish — get your badge!</button></div>`;
+    return;
+  }
+  const q       = SENTENCE_ROUNDS[S.dbIdx];
+  const indexed = q.opts.map((o,i) => ({ text:o, origIdx:i })).sort(() => Math.random() - .5);
+  const sc      = indexed.findIndex(o => o.origIdx === q.correct);
+  $('db-slot').innerHTML = `<div class="tip-box" style="margin-bottom:14px;">💡 One sentence is <strong>correct</strong>. Three have grammar mistakes. Tap the right one!</div><div class="db-starter">${q.starter} <em>...</em></div><div class="db-opts" id="db-opts">${indexed.map((o,i) => `<button class="db-opt" onclick="answerSentence(this,${i},${sc})">${o.text}</button>`).join('')}</div><div class="db-feedback" id="db-fb"></div><button class="db-next" id="db-nxt" onclick="nextSentence()" style="display:none">${S.dbIdx + 1 < SENTENCE_ROUNDS.length ? 'Next sentence →' : 'Finish! 🚇'}</button>`;
+}
+
+window.answerSentence = function (btn, chosen, correct) {
+  document.querySelectorAll('.db-opt').forEach(b => b.disabled = true);
+  const fb = $('db-fb');
+  const q  = SENTENCE_ROUNDS[S.dbIdx];
+  if (chosen === correct) {
+    btn.classList.add('correct');
+    S.dbScore++; S.totalRight++; S.combo++;
+    S.bestCombo = Math.max(S.bestCombo, S.combo);
+    addXP(12, btn);
+    window.EFCD_FX?.correct(btn);
+    window.EFCD_FX?.combo(S.combo);
+    fb.className = 'db-feedback show right';
+    fb.innerHTML = q.fb;
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.db-opt')[correct].classList.add('show-correct');
+    window.EFCD_FX?.wrong(btn);
+    window.EFCD_FX?.comboBreak(S.combo, S.bestCombo);
+    S.combo = 0;
+    fb.className = 'db-feedback show wrong';
+    fb.innerHTML = '❌ Not quite! ' + q.fb;
+  }
+  S.totalAnswered++;
+  const nxt = $('db-nxt');
+  if (nxt) nxt.style.display = 'flex';
+};
+
+function nextSentence() {
+  S.dbIdx++;
+  if (S.dbIdx >= SENTENCE_ROUNDS.length) {
+    S.dbDone = true;
+    addXP(15);
+    window.EFCD_FX?.toast('✍️', `${S.dbScore}/${SENTENCE_ROUNDS.length} correct! +15 XP`);
+    updateProgress();
+    renderSentence();
+  } else {
+    renderSentence();
+  }
+}
+
+// ── COMPLETION ──────────────────────────────────────────────────
+function claimBadge() {
+  const btn = document.querySelector('#sec-sentence .btn-continue');
+  if (btn) { btn.textContent = '🎉 Next stop...'; btn.disabled = true; btn.style.opacity = '.7'; }
+  setTimeout(showCompletion, 400);
+}
+
+async function showCompletion() {
+  const acc = S.totalAnswered > 0 ? Math.round((S.totalRight / S.totalAnswered) * 100) : 100;
+
+  // XP multiplier (personal mode only — shop cosmetics)
+  if (!window.EFCD_Session?.isClassMode()) {
+    const xpMult = window.EFCD_Shop?.getXPMultiplier?.() ?? 1;
+    if (xpMult > 1) {
+      S.xp = Math.round(S.xp * xpMult);
+      const lbl = $('cc-xp-label');
+      if (lbl) lbl.textContent = '⚡ XP Earned · 2× DOUBLE XP! 🚀';
+    }
+  }
+
+  // Populate completion card
+  $('cc-xp').textContent      = '+' + S.xp;
+  $('cc-correct').textContent = S.totalRight;
+  $('cc-combo').textContent   = S.bestCombo;
+
+  // Open screen + confetti
   $('completion-screen').classList.add('open');
-  megaConfettiBurst();setTimeout(megaConfettiBurst,600);
-  // Personal account
-  try{if(window.EFCD_Auth?.getCurrentUser()){const db=$('cc-dashboard-btn');if(db)db.style.display='flex';await window.EFCD_Auth.completeLesson({lessonId:window.LESSON_ID,lessonTitle:window.LESSON_TITLE,lessonLevel:'Beginner',lessonLink:LESSON_LINK,badgeIcon:'🚇',badgeName:'Tube Expert',vocabulary:[{word:'platform',definition:'Area at a station where you wait for the train'},{word:'journey',definition:'A trip from one place to another by transport'},{word:'carriage',definition:'One section of a train'},{word:'delay',definition:'When something is late'},{word:'crowded',definition:'Full of people'},{word:'underground',definition:'Below the ground — tunnels beneath the city'},{word:'Oyster card',definition:'Blue card used to pay for Tube and buses'},{word:'Mind the gap',definition:'Be careful of the space between train and platform'}],perfectScore:acc>=90});}}catch(e){}
-  // Daily challenges
-  try{if(window.DailyChallenges){const dcResult=await window.DailyChallenges.updateChallengeProgress({perfectScore:acc>=90});if(dcResult?.justCompleted)setTimeout(()=>window.DailyChallenges.showChallengeCompletionCelebration(dcResult.challenge),1800);localStorage.setItem('dc_last_lesson_date',new Date().toDateString());localStorage.setItem('dc_last_lesson_section','beginner');}}catch(e){}
-  // Class session bridge — posts to /live/ leaderboard
-  try{if(typeof EFCD_Rewards!=='undefined'){await EFCD_Rewards.onLessonComplete({lessonId:window.LESSON_ID,lessonTitle:window.LESSON_TITLE,lessonLevel:'Beginner',badgeIcon:'🚇',badgeName:'Tube Expert',correctAnswers:S.totalRight,totalAnswers:S.totalAnswered,bestCombo:S.bestCombo,perfectScore:acc>=90,xp:S.xp,completionTime:null});}}catch(e){}
+  megaConfettiBurst();
+  setTimeout(megaConfettiBurst, 600);
+
+  // ── ROUTE TO CORRECT SINK via session-mode.js ──────────────
+  // This single call handles everything:
+  //   CLASS MODE  → posts to class leaderboard, shows class badge, skips personal account
+  //   PERSONAL MODE → saves to user profile, updates daily challenges, posts to rewards
+  await window.EFCD_Session.onLessonComplete({
+    lessonId:       window.LESSON_ID,
+    lessonTitle:    window.LESSON_TITLE,
+    lessonLevel:    LESSON_LEVEL,
+    lessonLink:     LESSON_LINK,
+    badgeIcon:      BADGE_ICON,
+    badgeName:      BADGE_NAME,
+    correctAnswers: S.totalRight,
+    totalAnswers:   S.totalAnswered,
+    bestCombo:      S.bestCombo,
+    perfectScore:   acc >= 90,
+    xp:             S.xp,
+    vocabulary:     VOCABULARY,
+  });
+
+  // Show dashboard button in personal mode only
+  if (!window.EFCD_Session?.isClassMode() && window.EFCD_Auth?.getCurrentUser()) {
+    const db = $('cc-dashboard-btn');
+    if (db) db.style.display = 'flex';
+  }
 }
 
-async function handleSignOut(){if(window.EFCD_Auth?.signOut)await window.EFCD_Auth.signOut();else if(window.efcdSupabaseClient){await window.efcdSupabaseClient.auth.signOut();window.location.href='/';}}
+// ── SIGN OUT (personal mode only) ──────────────────────────────
+async function handleSignOut() {
+  if (window.EFCD_Auth?.signOut) {
+    await window.EFCD_Auth.signOut();
+  } else if (window.efcdSupabaseClient) {
+    await window.efcdSupabaseClient.auth.signOut();
+    window.location.href = '/';
+  }
+}
 
-// ── CHEAT SHEET (Line Reference) ──
-function openCheat(){
+// ── CHEAT SHEET ─────────────────────────────────────────────────
+function openCheat() {
   const overlay = $('cheat-overlay');
-  const list = $('cheat-lines-list');
-  if(list){
-    list.innerHTML = LINES_GUIDE.map(l=>`
+  const list    = $('cheat-lines-list');
+  if (list) {
+    list.innerHTML = LINES_GUIDE.map(l => `
       <div class="cheat-line-row">
         <div class="cheat-swatch" style="background:${l.color}"></div>
         <span class="cheat-line-name" style="color:${l.color}">${l.name}</span>
@@ -663,28 +1126,49 @@ function openCheat(){
         <span class="cheat-emoji">${l.emoji}</span>
       </div>`).join('');
   }
-  if(overlay) overlay.classList.add('open');
+  if (overlay) overlay.classList.add('open');
 }
-function closeCheat(e){
-  // Only close if clicking the overlay backdrop itself
-  if(e.target === $('cheat-overlay')) closeCheatDirect();
-}
-function closeCheatDirect(){
-  const overlay = $('cheat-overlay');
-  if(overlay) overlay.classList.remove('open');
-}
-    
-document.addEventListener('DOMContentLoaded',async()=>{
-  // Class session pill
-  // NEW — shows pill then immediately validates against Supabase
-if (localStorage.getItem('efcd_class_id')) {
-  const p = document.getElementById('hdr-class-pill');
-  if (p) p.classList.add('show');
-  if (window.EFCD_Rewards) EFCD_Rewards.validateClassSession('hdr-class-pill');
-}
-  // Personal login
-  try{if(window.efcdReady)await window.efcdReady;if(window.EFCD_Auth){await window.EFCD_Auth.initAuth();window.EFCD_Shop?.applyActive?.();const user=window.EFCD_Auth.getCurrentUser();if(user){const panel=$('hdr-user-panel');if(panel)panel.classList.add('show');const st=window.EFCD_Auth.getUserStats();if(st){S.xp=st.xp||0;S.streak=st.streak||0;}const hx=$('hdr-xp');if(hx)hx.textContent=S.xp;const hs=$('hdr-streak');if(hs)hs.textContent=S.streak;}}}catch(e){}
-  buildAll();updateProgress();
+function closeCheat(e) { if (e.target === $('cheat-overlay')) closeCheatDirect(); }
+function closeCheatDirect() { const o = $('cheat-overlay'); if (o) o.classList.remove('open'); }
+
+// ── BOOT ────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+
+  // Step 1: Apply header (class pill or personal panel) via session-mode.js
+  window.EFCD_Session.applyHeader();
+
+  // Step 2: CLASS MODE — skip all personal auth, just build the lesson
+  if (window.EFCD_Session.isClassMode()) {
+    buildAll();
+    updateProgress();
+    return; // ← personal auth never runs
+  }
+
+  // Step 3: PERSONAL MODE — load auth then build
+  try {
+    if (window.efcdReady) await window.efcdReady;
+    if (window.EFCD_Auth) {
+      await window.EFCD_Auth.initAuth();
+      window.EFCD_Shop?.applyActive?.();
+      const user = window.EFCD_Auth.getCurrentUser();
+      if (user) {
+        const panel = $('hdr-user-panel');
+        if (panel) panel.classList.add('show');
+        const st = window.EFCD_Auth.getUserStats();
+        if (st) { S.xp = st.xp || 0; S.streak = st.streak || 0; }
+        const hx = $('hdr-xp');     if (hx) hx.textContent = S.xp;
+        const hs = $('hdr-streak'); if (hs) hs.textContent = S.streak;
+      } else {
+        // Guest in personal mode — show nudge after a delay
+        setTimeout(() => window.GuestNudge?.show?.(), 45000);
+      }
+    }
+  } catch (e) {
+    console.warn('[tube] auth init failed', e);
+  }
+
+  buildAll();
+  updateProgress();
 });
 </script>
 
