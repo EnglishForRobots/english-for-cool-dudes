@@ -549,6 +549,7 @@ function leaveClass(){
 // ══════════════════════════════════════════════
 async function loadSessionScore(){
   if(!_class || !_sessionId) return;
+  
   const { data: scores } = await sb.from('efcd_scores')
     .select('correct').eq('session_id', _sessionId);
   const total = (scores||[]).reduce((a,s) => a + s.correct, 0);
@@ -556,15 +557,27 @@ async function loadSessionScore(){
   if(el) el.textContent = total;
 
   const { data: badges } = await sb.from('efcd_badges')
-    .select('badge_emoji, badge_label').eq('class_id', _class.id)
-    .eq('session_id', _sessionId);
+    .select('badge_emoji, badge_label, student_name, student_id')
+    .eq('class_id', _class.id)
+    .eq('session_id', _sessionId)
+    .order('awarded_at', { ascending: true });
 
   if(badges?.length){
     const br = document.getElementById('session-badges-row');
-    if(br) br.innerHTML = [...new Set(badges.map(b => b.badge_emoji))]
-      .slice(0, 8).map(e => `<span class="slb-badge">${e}</span>`).join('');
-
-    // Update badge shelf
+    if(br){
+      const byStudent = {};
+      badges.forEach(b => {
+        if(!byStudent[b.student_id]) byStudent[b.student_id] = { name: b.student_name, badges: [] };
+        byStudent[b.student_id].badges.push(b);
+      });
+      br.innerHTML = Object.values(byStudent).map(s => `
+        <div style="display:flex;align-items:center;gap:6px;
+          background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.12);
+          border-radius:99px;padding:5px 12px 5px 8px">
+          <span style="font-size:13px;font-weight:900;color:#fff">${s.name}</span>
+          <span style="font-size:18px">${s.badges.map(b => b.badge_emoji).join('')}</span>
+        </div>`).join('');
+    }
     updateBadgeShelf(badges);
   }
 }
@@ -572,15 +585,17 @@ async function loadSessionScore(){
 function updateBadgeShelf(badges){
   const shelf = document.getElementById('shelf-row');
   if(!shelf || !badges?.length) return;
-  const unique = [];
   const seen = new Set();
-  badges.forEach(b => {
-    if(!seen.has(b.badge_label)){ seen.add(b.badge_label); unique.push(b); }
+  const unique = badges.filter(b => {
+    const key = b.student_id + '_' + b.badge_label;
+    if(seen.has(key)) return false;
+    seen.add(key);
+    return true;
   });
-  shelf.innerHTML = unique.slice(0, 8).map(b => `
-    <div class="shelf-badge earned-badge">
+  shelf.innerHTML = unique.slice(0, 12).map(b => `
+    <div class="shelf-badge earned-badge" title="${b.student_name} earned ${b.badge_label}">
       <div class="shelf-badge-icon earned">${b.badge_emoji}</div>
-      <div class="shelf-badge-label">${b.badge_label}</div>
+      <div class="shelf-badge-label">${b.student_name}</div>
     </div>`).join('');
 }
 
