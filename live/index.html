@@ -548,18 +548,27 @@ function leaveClass(){
 // SESSION SCORE
 // ══════════════════════════════════════════════
 async function loadSessionScore(){
-  if(!_class || !_sessionId) return;
-  
-  const { data: scores } = await sb.from('efcd_scores')
-    .select('correct').eq('session_id', _sessionId);
+  if(!_class) return;
+
+  // Score — use session_id if we have it, otherwise show today's total
+  let scoreQuery = sb.from('efcd_scores').select('correct').eq('class_id', _class.id);
+  if(_sessionId) {
+    scoreQuery = scoreQuery.eq('session_id', _sessionId);
+  } else {
+    scoreQuery = scoreQuery.eq('date', new Date().toISOString().split('T')[0]);
+  }
+  const { data: scores } = await scoreQuery;
   const total = (scores||[]).reduce((a,s) => a + s.correct, 0);
   const el = document.getElementById('session-score-num');
   if(el) el.textContent = total;
 
+  // Badges — ALWAYS query by class_id + today, never by session_id alone
+  // This way badges survive session end/restart
+  const today = new Date().toISOString().split('T')[0];
   const { data: badges } = await sb.from('efcd_badges')
     .select('badge_emoji, badge_label, student_name, student_id')
     .eq('class_id', _class.id)
-    .eq('session_id', _sessionId)
+    .gte('awarded_at', today + 'T00:00:00')
     .order('awarded_at', { ascending: true });
 
   if(badges?.length){
@@ -567,7 +576,7 @@ async function loadSessionScore(){
     if(br){
       const byStudent = {};
       badges.forEach(b => {
-        if(!byStudent[b.student_id]) byStudent[b.student_id] = { name: b.student_name, badges: [] };
+        if(!byStudent[b.student_id]) byStudent[b.student_id] = { name: b.student_name, badges:[] };
         byStudent[b.student_id].badges.push(b);
       });
       br.innerHTML = Object.values(byStudent).map(s => `
