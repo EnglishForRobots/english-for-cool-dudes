@@ -130,18 +130,20 @@
       // ── CLASS MODE: post to session leaderboard only ─────────
       try {
         if (typeof EFCD_Rewards !== 'undefined') {
-          await EFCD_Rewards.onLessonComplete({
-            lessonId:       data.lessonId,
-            lessonTitle:    data.lessonTitle,
-            lessonLevel:    data.lessonLevel,
-            badgeIcon:      data.badgeIcon,
-            badgeName:      data.badgeName,
-            correctAnswers: data.correctAnswers,
-            totalAnswers:   data.totalAnswers,
-            bestCombo:      data.bestCombo,
-            perfectScore:   data.perfectScore,
-            xp:             data.xp,
-          });
+         await EFCD_Rewards.onLessonComplete({
+  lessonId:       data.lessonId,
+  lessonTitle:    data.lessonTitle,
+  lessonLevel:    data.lessonLevel,
+  badgeIcon:      data.badgeIcon,
+  badgeName:      data.badgeName,
+  correctAnswers: data.correctAnswers,
+  totalAnswers:   data.totalAnswers,
+  bestCombo:      data.bestCombo,
+  perfectScore:   data.perfectScore,
+  xp:             data.xp,
+  vocabulary:     data.vocabulary,
+  grammarFocus:   data.grammarFocus,
+});
         }
       } catch (e) {
         console.warn('[EFCD_Session] class completion post failed', e);
