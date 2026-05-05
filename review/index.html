@@ -402,9 +402,22 @@ async function selectLesson(btn, lessonId, vocabId){
 
 function toggleRound(btn){
   const r = btn.dataset.round;
-  if(_activeRounds.has(r)) _activeRounds.delete(r);
-  else _activeRounds.add(r);
-  btn.classList.toggle('on');
+  // ROUND: All grammar points for this lesson, each tagged with their own topic/rule
+if(_activeRounds.has('grammar')){
+  [ld.grammar, ld.grammar2, ld.grammar3].forEach(g => {
+    if(!g?.exercises?.length) return;
+    g.exercises.forEach(ex => {
+      q.push({
+        round:    'grammar',
+        topic:    g.topic,
+        rule:     g.rule,
+        sentence: ex.sentence,
+        opts:     shuffle([ex.answer, ...ex.wrong]),
+        answer:   ex.answer,
+        explain:  ex.explain,
+      });
+    });
+  });
 }
 
 // ── BUILD QUESTION QUEUE ────────────────────────────────────────
@@ -510,7 +523,10 @@ function renderRoundIntro(round, force){
   const m   = ROUND_META[round] || ROUND_META.blitz;
   const ld  = _lessonData;
   const q0  = _questions[_qIdx];
-  const gm  = (round === 'grammar' && q0?.topic) ? { topic: q0.topic, rule: q0.rule } : null;
+  // Read topic and rule from the actual first question of this round
+// so each grammar point introduces itself correctly
+const q0 = _questions[_qIdx];
+const gm = (round === 'grammar') ? { topic: q0?.topic, rule: q0?.rule } : null;
   const body = document.getElementById('g-body');
   hideFeedback();
   updateHeader();
@@ -816,11 +832,17 @@ function advance(){
   if(_qIdx < _questions.length){
     const nextRound = _questions[_qIdx].round;
     const prevRound = _questions[_qIdx-1].round;
-    if(nextRound !== prevRound){
-      renderRoundIntro(nextRound, false);
-    } else {
-      renderQuestion();
-    }
+    const prevQ    = _questions[_qIdx - 1];
+const nextQ    = _questions[_qIdx];
+const topicChanged = nextQ?.round === 'grammar' && 
+                     prevQ?.round === 'grammar' && 
+                     nextQ?.topic !== prevQ?.topic;
+
+if(nextRound !== prevRound || topicChanged){
+  renderRoundIntro(nextRound, false);
+} else {
+  renderQuestion();
+}
   } else {
     showFinish();
   }
