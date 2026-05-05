@@ -402,22 +402,9 @@ async function selectLesson(btn, lessonId, vocabId){
 
 function toggleRound(btn){
   const r = btn.dataset.round;
-  // ROUND: All grammar points for this lesson, each tagged with their own topic/rule
-if(_activeRounds.has('grammar')){
-  [ld.grammar, ld.grammar2, ld.grammar3].forEach(g => {
-    if(!g?.exercises?.length) return;
-    g.exercises.forEach(ex => {
-      q.push({
-        round:    'grammar',
-        topic:    g.topic,
-        rule:     g.rule,
-        sentence: ex.sentence,
-        opts:     shuffle([ex.answer, ...ex.wrong]),
-        answer:   ex.answer,
-        explain:  ex.explain,
-      });
-    });
-  });
+  if(_activeRounds.has(r)) _activeRounds.delete(r);
+  else _activeRounds.add(r);
+  btn.classList.toggle('on', _activeRounds.has(r));
 }
 
 // ── BUILD QUESTION QUEUE ────────────────────────────────────────
@@ -425,17 +412,15 @@ function buildQuestions(){
   const ld = _lessonData;
   const q  = [];
 
-  // ROUND: Word Blitz — definition → pick word (4 options)
   if(_activeRounds.has('blitz') && ld.vocab?.length >= 2){
     ld.vocab.forEach(item => {
       const wrong = ld.vocab.filter(v => v.word !== item.word)
         .sort(() => Math.random()-.5).slice(0,3).map(v => v.word);
-      const opts = shuffle([item.word, ...wrong]);
-      q.push({ round:'blitz', word:item.word, def:item.definition, opts, answer:item.word });
+      q.push({ round:'blitz', word:item.word, def:item.definition,
+               opts:shuffle([item.word, ...wrong]), answer:item.word });
     });
   }
 
-  // ROUND: Gap Fill — sentence with word missing
   if(_activeRounds.has('gap') && ld.vocab?.some(v=>v.example)){
     ld.vocab.filter(v=>v.example).forEach(item => {
       const dis = (item.distractors||[]).slice(0,3);
@@ -443,50 +428,45 @@ function buildQuestions(){
         const rand = ld.vocab.find(v => v.word !== item.word && !dis.includes(v.word));
         if(rand) dis.push(rand.word); else break;
       }
-      const opts = shuffle([item.word, ...dis]);
-      q.push({ round:'gap', word:item.word, sentence:item.example, opts, answer:item.word });
+      q.push({ round:'gap', word:item.word, sentence:item.example,
+               opts:shuffle([item.word, ...dis]), answer:item.word });
     });
   }
 
-  // ROUND: Grammar fill
-  // ROUND: Grammar 1
-if(_activeRounds.has('grammar') && ld.grammar?.exercises?.length){
-  ld.grammar.exercises.forEach(ex => {
-    q.push({ round:'grammar', topic:ld.grammar.topic, rule:ld.grammar.rule, sentence:ex.sentence, opts:shuffle([ex.answer,...ex.wrong]), answer:ex.answer, explain:ex.explain });
-  });
-}
+  if(_activeRounds.has('grammar')){
+    [ld.grammar, ld.grammar2, ld.grammar3].forEach(g => {
+      if(!g?.exercises?.length) return;
+      g.exercises.forEach(ex => {
+        q.push({ round:'grammar', topic:g.topic, rule:g.rule,
+                 sentence:ex.sentence, opts:shuffle([ex.answer,...ex.wrong]),
+                 answer:ex.answer, explain:ex.explain });
+      });
+    });
+  }
 
-// ROUND: Grammar 2  
-if(_activeRounds.has('grammar') && ld.grammar2?.exercises?.length){
-  ld.grammar2.exercises.forEach(ex => {
-    q.push({ round:'grammar', topic:ld.grammar2.topic, rule:ld.grammar2.rule, sentence:ex.sentence, opts:shuffle([ex.answer,...ex.wrong]), answer:ex.answer, explain:ex.explain });
-  });
-}
-
-  // ROUND: Word Builder — scrambled letters
   if(_activeRounds.has('builder') && ld.word_builder?.length){
     ld.word_builder.forEach(item => {
-      q.push({ round:'builder', word:item.word, def:item.definition, letters:shuffle([...item.word]) });
+      q.push({ round:'builder', word:item.word, def:item.definition,
+               letters:shuffle([...item.word]) });
     });
   }
 
-  // ROUND: True / False
   if(_activeRounds.has('tf') && ld.true_false?.length){
     ld.true_false.forEach(item => {
-      q.push({ round:'tf', statement:item.statement, answer:item.correct, reveal:item.reveal });
+      q.push({ round:'tf', statement:item.statement,
+               answer:item.correct, reveal:item.reveal });
     });
   }
 
-  // ROUND: Sentence Builder
   if(_activeRounds.has('sentence') && ld.sentences?.length){
     ld.sentences.forEach(item => {
-      q.push({ round:'sentence', words:shuffle([...item.words]), answer:item.answer, hint:item.hint });
+      q.push({ round:'sentence', words:shuffle([...item.words]),
+               answer:item.answer, hint:item.hint });
     });
   }
 
-  return q; // keep rounds in order, don't shuffle across round types
+  return q;
 }
-
 function shuffle(arr){ return [...arr].sort(() => Math.random()-.5); }
 
 // ── START GAME ──────────────────────────────────────────────────
@@ -520,13 +500,9 @@ let _lastRound = null;
 function renderRoundIntro(round, force){
   if(round === _lastRound && !force){ renderQuestion(); return; }
   _lastRound = round;
-  const m   = ROUND_META[round] || ROUND_META.blitz;
-  const ld  = _lessonData;
-  const q0  = _questions[_qIdx];
-  // Read topic and rule from the actual first question of this round
-// so each grammar point introduces itself correctly
-const q0 = _questions[_qIdx];
-const gm = (round === 'grammar') ? { topic: q0?.topic, rule: q0?.rule } : null;
+  const m  = ROUND_META[round] || ROUND_META.blitz;
+  const q0 = _questions[_qIdx];
+  const gm = (round === 'grammar') ? { topic: q0?.topic, rule: q0?.rule } : null;
   const body = document.getElementById('g-body');
   hideFeedback();
   updateHeader();
@@ -554,7 +530,6 @@ function renderQuestion(){
 
   const q    = _questions[_qIdx];
   const body = document.getElementById('g-body');
-  const next = _qIdx + 1 < _questions.length ? _questions[_qIdx+1].round : null;
   if(next && next !== q.round) _lastRound = null; // trigger intro for next round
 
   switch(q.round){
@@ -828,21 +803,17 @@ function hideFeedback(){
 function advance(){
   if(!_answered){ return; }
   _qIdx++;
-  // Check if next question is a different round type
   if(_qIdx < _questions.length){
-    const nextRound = _questions[_qIdx].round;
-    const prevRound = _questions[_qIdx-1].round;
-    const prevQ    = _questions[_qIdx - 1];
-const nextQ    = _questions[_qIdx];
-const topicChanged = nextQ?.round === 'grammar' && 
-                     prevQ?.round === 'grammar' && 
-                     nextQ?.topic !== prevQ?.topic;
-
-if(nextRound !== prevRound || topicChanged){
-  renderRoundIntro(nextRound, false);
-} else {
-  renderQuestion();
-}
+    const prevQ = _questions[_qIdx - 1];
+    const nextQ = _questions[_qIdx];
+    const topicChanged = nextQ?.round === 'grammar' &&
+                         prevQ?.round === 'grammar' &&
+                         nextQ?.topic !== prevQ?.topic;
+    if(nextQ.round !== prevQ.round || topicChanged){
+      renderRoundIntro(nextQ.round, topicChanged);
+    } else {
+      renderQuestion();
+    }
   } else {
     showFinish();
   }
