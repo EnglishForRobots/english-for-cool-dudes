@@ -1685,6 +1685,38 @@ async function removeLessonFromHistory(sessionId, badgeKey){
   function closeManage(){
   document.getElementById('manage-modal').classList.remove('open');
 }
+  async function setEmoji(studentId, emoji, btn){
+  await sb.from('efcd_students').update({ avatar_emoji: emoji }).eq('id', studentId);
+  // Update the displayed emoji above the picker
+  const row = document.getElementById('mrow-' + studentId);
+  if(row){
+    const emojiDisplay = row.querySelector('div > div:first-child');
+    if(emojiDisplay) emojiDisplay.textContent = emoji;
+  }
+  // Update chosen state on buttons
+  btn.closest('div').querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('chosen'));
+  btn.classList.add('chosen');
+  // Update local state
+  const s = _students.find(s => s.id === studentId);
+  if(s) s.avatar_emoji = emoji;
+  toast('✅', 'Emoji updated!');
+}
+
+async function saveTeamName(classId){
+  const input = document.getElementById('team-name-input');
+  const name  = input?.value.trim();
+  const old   = _managingClass?.team_name || '';
+  const { error } = await sb.from('efcd_classes')
+    .update({ team_name: name || null }).eq('id', classId);
+  if(error){ toast('❌', error.message); return; }
+  // Log the change
+  await sb.from('efcd_team_name_log').insert({
+    class_id: classId, old_name: old, new_name: name
+  });
+  toast('✅', `Team name saved: ${name || 'removed'}`);
+  await loadEverything();
+  _renderManageModal(classId);
+}
 </script>
 </body>
 </html>
