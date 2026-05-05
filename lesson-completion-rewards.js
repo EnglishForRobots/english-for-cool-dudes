@@ -249,20 +249,25 @@
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
-  async function getSB () {
-  // Always create own client with explicit key — never rely on shared client
-  // which may be missing the API key in class (non-auth) mode
-  if (window.supabase) {
-    return window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  }
-  // Wait for supabase library to load
-  for (let i = 0; i < 30; i++) {
+ async function getSB () {
+  // Wait for supabase library if needed
+  let attempts = 0;
+  while (!window.supabase && attempts < 30) {
     await new Promise(r => setTimeout(r, 100));
-    if (window.supabase) {
-      return window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    }
+    attempts++;
   }
-  return null;
+  if (!window.supabase) return null;
+
+  // Create client with apikey explicitly set in global headers
+  // This ensures the API key is always present regardless of auth state
+  return window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    global: {
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: 'Bearer ' + SUPABASE_KEY,
+      }
+    }
+  });
 }
 
   /* ─── TIME HELPERS ──────────────────────────────────────────── */
