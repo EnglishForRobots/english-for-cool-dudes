@@ -407,17 +407,26 @@
         : registryEntry?.vocab || [];
 
       if (vocabToSave.length > 0) {
-        await client.from('efcd_lesson_vocab').insert({
-          class_id:      classId,
-          session_id:    sessionId,
-          lesson_id:     lessonId,
-          lesson_title:  lessonData.lessonTitle  || registryEntry?.title   || '',
-          lesson_level:  lessonData.lessonLevel  || registryEntry?.level   || '',
-          vocab:         JSON.stringify(vocabToSave),
-          grammar_focus: lessonData.grammarFocus || registryEntry?.grammar || null,
-          completed_at:  new Date().toISOString(),
-        });
-      }
+  await fetch(SUPABASE_URL + '/rest/v1/efcd_lesson_vocab', {
+    method: 'POST',
+    headers: {
+      'Content-Type':  'application/json',
+      'apikey':        SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Prefer':        'return=minimal',
+    },
+    body: JSON.stringify({
+      class_id:      classId,
+      session_id:    sessionId,
+      lesson_id:     lessonId,
+      lesson_title:  lessonData.lessonTitle  || registryEntry?.title   || '',
+      lesson_level:  lessonData.lessonLevel  || registryEntry?.level   || '',
+      vocab:         vocabToSave,
+      grammar_focus: lessonData.grammarFocus || registryEntry?.grammar || null,
+      completed_at:  new Date().toISOString(),
+    }),
+  });
+}
       // ─────────────────────────────────────────────────────────
 
       console.log('✅ EFCD v2.0: submitted for', displayName,
