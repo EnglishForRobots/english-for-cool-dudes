@@ -250,17 +250,20 @@
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
   async function getSB () {
-    if (window.efcdSupabaseClient) return window.efcdSupabaseClient;
-    for (let i = 0; i < 30; i++) {
-      await new Promise(r => setTimeout(r, 100));
-      if (window.efcdSupabaseClient) return window.efcdSupabaseClient;
-    }
-    if (window.supabase) {
-      window.efcdSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-      return window.efcdSupabaseClient;
-    }
-    return null;
+  // Always create own client with explicit key — never rely on shared client
+  // which may be missing the API key in class (non-auth) mode
+  if (window.supabase) {
+    return window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   }
+  // Wait for supabase library to load
+  for (let i = 0; i < 30; i++) {
+    await new Promise(r => setTimeout(r, 100));
+    if (window.supabase) {
+      return window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+  }
+  return null;
+}
 
   /* ─── TIME HELPERS ──────────────────────────────────────────── */
   function hour ()      { return new Date().getHours(); }
