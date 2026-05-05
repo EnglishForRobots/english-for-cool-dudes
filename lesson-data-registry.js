@@ -309,5 +309,6 @@ const LESSON_DATA_REGISTRY = {
 
 };
 
-// Export for use in review game
+window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
+
 if (typeof module !== 'undefined') module.exports = LESSON_DATA_REGISTRY;
