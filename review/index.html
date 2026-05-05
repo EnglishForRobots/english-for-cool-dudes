@@ -436,14 +436,19 @@ function buildQuestions(){
   }
 
   // ROUND: Grammar fill
-  if(_activeRounds.has('grammar')){
-    [ld.grammar, ld.grammar2].forEach(g => {
-      if(!g?.exercises?.length) return;
-      g.exercises.forEach(ex => {
-        q.push({ round:'grammar', topic:g.topic, rule:g.rule, sentence:ex.sentence, opts:shuffle([ex.answer,...ex.wrong]), answer:ex.answer, explain:ex.explain });
-      });
-    });
-  }
+  // ROUND: Grammar 1
+if(_activeRounds.has('grammar') && ld.grammar?.exercises?.length){
+  ld.grammar.exercises.forEach(ex => {
+    q.push({ round:'grammar', topic:ld.grammar.topic, rule:ld.grammar.rule, sentence:ex.sentence, opts:shuffle([ex.answer,...ex.wrong]), answer:ex.answer, explain:ex.explain });
+  });
+}
+
+// ROUND: Grammar 2  
+if(_activeRounds.has('grammar') && ld.grammar2?.exercises?.length){
+  ld.grammar2.exercises.forEach(ex => {
+    q.push({ round:'grammar', topic:ld.grammar2.topic, rule:ld.grammar2.rule, sentence:ex.sentence, opts:shuffle([ex.answer,...ex.wrong]), answer:ex.answer, explain:ex.explain });
+  });
+}
 
   // ROUND: Word Builder — scrambled letters
   if(_activeRounds.has('builder') && ld.word_builder?.length){
@@ -504,7 +509,8 @@ function renderRoundIntro(round, force){
   _lastRound = round;
   const m   = ROUND_META[round] || ROUND_META.blitz;
   const ld  = _lessonData;
-  const gm  = (round === 'grammar') ? (ld.grammar || ld.grammar2) : null;
+  const q0  = _questions[_qIdx];
+  const gm  = (round === 'grammar' && q0?.topic) ? { topic: q0.topic, rule: q0.rule } : null;
   const body = document.getElementById('g-body');
   hideFeedback();
   updateHeader();
