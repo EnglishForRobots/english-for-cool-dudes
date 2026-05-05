@@ -183,7 +183,10 @@ body{background:var(--navy);color:#fff;line-height:1.4}
 .wb-actions{display:flex;gap:8px;justify-content:center}
 .wb-clear{padding:10px 20px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);font-size:13px;font-weight:900;border:2px solid rgba(255,255,255,.15);border-radius:99px;cursor:pointer;font-family:inherit}
 .wb-check{padding:10px 28px;background:var(--teal);color:var(--ink);font-size:13px;font-weight:900;border:2px solid #007aa0;border-bottom:3px solid #007aa0;border-radius:99px;cursor:pointer;font-family:inherit}
-
+.wb-hint  {padding:10px 16px;background:rgba(255,200,0,.15);color:#8a6800;font-size:13px;font-weight:900;border:2px solid var(--yellow);border-bottom:3px solid var(--ys);border-radius:99px;cursor:pointer;font-family:inherit}
+.wb-hint:disabled{opacity:.3;cursor:default}
+.wb-reveal{padding:10px 16px;background:rgba(255,75,75,.12);color:#ff6b6b;font-size:13px;font-weight:900;border:2px solid var(--punch);border-bottom:3px solid var(--ps);border-radius:99px;cursor:pointer;font-family:inherit}
+.wb-skip  {padding:10px 16px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);font-size:13px;font-weight:900;border:2px solid rgba(255,255,255,.15);border-bottom:3px solid rgba(255,255,255,.2);border-radius:99px;cursor:pointer;font-family:inherit}
 /* ══ FINISH ══════════════════════════════════════════════════ */
 #finish{height:100vh;display:none;align-items:center;justify-content:center;padding:20px;background:linear-gradient(160deg,#001433,#1a2e5a)}
 .fin-card{max-width:560px;width:100%;text-align:center;animation:up .5s ease both}
@@ -631,9 +634,12 @@ function renderBuilder(q, body){
         ${q.letters.map((l,i) => `<button class="wb-tile" id="wbt-${i}" onclick="tapWBLetter('${l}',${i})">${l.toUpperCase()}</button>`).join('')}
       </div>
       <div class="wb-actions">
-        <button class="wb-clear" onclick="clearWB()">🗑️ Clear</button>
-        <button class="wb-check" onclick="checkWB()">✓ Check!</button>
-      </div>
+  <button class="wb-clear" onclick="clearWB()">🗑️ Clear</button>
+  <button class="wb-check" onclick="checkWB()">✓ Check!</button>
+  <button class="wb-hint"  onclick="hintWB()"  id="wb-hint-btn">💡 Hint</button>
+  <button class="wb-reveal" onclick="revealWB()" id="wb-reveal-btn">👁️ Reveal</button>
+  <button class="wb-skip"  onclick="skipWB()">⏭️ Skip</button>
+</div>
     </div>`;
   renderWBSlots();
 }
@@ -672,6 +678,59 @@ function clearWB(){
   _wbBuilt = [];
   document.querySelectorAll('.wb-tile').forEach(t => t.classList.remove('used'));
   renderWBSlots();
+}
+
+function hintWB(){
+  const q  = _questions[_qIdx];
+  const np = _wbBuilt.length;
+  if(np >= q.word.length) return;
+  // Find the correct next letter and tap it
+  const nextLetter = q.word[np];
+  const tiles = document.querySelectorAll('.wb-tile:not(.used)');
+  for(const t of tiles){
+    if(t.textContent.toLowerCase() === nextLetter.toLowerCase()){
+      t.classList.add('used');
+      break;
+    }
+  }
+  _wbBuilt.push(nextLetter);
+  renderWBSlots();
+  // Disable hint button after 2 uses per word
+  const btn = document.getElementById('wb-hint-btn');
+  if(btn){
+    btn._uses = (btn._uses || 0) + 1;
+    if(btn._uses >= 2) btn.disabled = true;
+  }
+}
+
+function revealWB(){
+  const q = _questions[_qIdx];
+  // Fill all slots with correct letters
+  _wbBuilt = [...q.word];
+  document.querySelectorAll('.wb-tile').forEach(t => t.classList.add('used'));
+  renderWBSlots();
+  // Show answer but don't count as correct
+  _answered = true; _total++;
+  const slots = document.querySelectorAll('.wb-slot');
+  slots.forEach(s => s.classList.add('correct'));
+  handleResult(false, `👁️ The word is <strong>${q.word.toUpperCase()}</strong>`, q.def);
+}
+
+function skipWB(){
+  // Skip without penalty — just move on
+  _answered = true;
+  _qIdx++;
+  if(_qIdx < _questions.length){
+    const prevQ = _questions[_qIdx - 1];
+    const nextQ = _questions[_qIdx];
+    if(nextQ.round !== prevQ.round){
+      renderRoundIntro(nextQ.round, false);
+    } else {
+      renderQuestion();
+    }
+  } else {
+    showFinish();
+  }
 }
 
 function checkWB(){
