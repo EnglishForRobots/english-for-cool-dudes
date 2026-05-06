@@ -309,6 +309,222 @@ const LESSON_DATA_REGISTRY = {
 
 };
 
+'ikea-effect-intermediate': {
+ 
+    id:    'ikea-effect-intermediate',
+    title: 'Why Do We Love Building IKEA Furniture?',
+    level: 'Intermediate',
+    track: 'intermediate',
+    emoji: '🛋️',
+    badge: 'Flat-Pack Expert',
+ 
+    // ── VOCAB ──────────────────────────────────────────────────
+    vocab: [
+      {
+        word:        'conventional',
+        definition:  'Following the usual or expected way of doing things',
+        example:     'IKEA is certainly not ___ — it asks customers to build their own furniture.',
+        distractors: ['successful', 'Swedish', 'popular'],
+      },
+      {
+        word:        'designated',
+        definition:  'Officially assigned or set aside for a particular purpose',
+        example:     'There is a ___ road that all customers must follow through the store.',
+        distractors: ['secret', 'one-way', 'famous'],
+      },
+      {
+        word:        'preassembled',
+        definition:  'Already put together before the customer receives it',
+        example:     'Unlike most furniture retailers that sell products ___, IKEA customers build their own.',
+        distractors: ['discounted', 'delivered', 'designed'],
+      },
+      {
+        word:        'phenomena',
+        definition:  'Remarkable or observable events or facts — plural of phenomenon',
+        example:     'Researchers noticed a similar ___ in other products and businesses.',
+        distractors: ['problems', 'solutions', 'strategies'],
+      },
+      {
+        word:        'mass market appeal',
+        definition:  'The quality of being attractive or popular to a very wide range of people',
+        example:     'Today, IKEA is the very definition of ___ — students and millionaires both shop there.',
+        distractors: ['online presence', 'brand loyalty', 'luxury status'],
+      },
+      {
+        word:        'flat-packed',
+        definition:  'Compressed into a thin flat box for efficient storage and shipping',
+        example:     'Furniture could be ___ to massively reduce the cost of transportation.',
+        distractors: ['pre-ordered', 'hand-made', 'colour-coded'],
+      },
+      {
+        word:        'democratic design',
+        definition:  'The philosophy that well-designed products should be affordable for everyone',
+        example:     'IKEA\'s long-term philosophy is called ___ — good design for all, not just the wealthy.',
+        distractors: ['minimal design', 'sustainable design', 'Swedish style'],
+      },
+      {
+        word:        'coined',
+        definition:  'Invented or created a new word or phrase for the first time',
+        example:     'The term "IKEA effect" was first ___ in 2011 by independent researchers.',
+        distractors: ['discovered', 'rejected', 'published'],
+      },
+      {
+        word:        'runaway success',
+        definition:  'An overwhelming or unstoppable success that grows very fast',
+        example:     'How have these retail strategies contributed to the company\'s ___?',
+        distractors: ['global presence', 'profit margin', 'marketing budget'],
+      },
+      {
+        word:        'obsession',
+        definition:  'An extreme all-consuming focus on something',
+        example:     'That ___ with low prices is a large part of why IKEA is the world\'s largest furniture retailer.',
+        distractors: ['strategy', 'approach', 'ambition'],
+      },
+    ],
+ 
+    // ── GRAMMAR 1: Reported Speech ─────────────────────────────
+    grammar: {
+      topic: 'Reported Speech — backshifting tenses',
+      rule:  'When reporting what someone said, tenses shift back: present simple → past simple, will → would, can → could, must/have to → had to. Pronouns also change: I → he/she, we → they.',
+      exercises: [
+        {
+          sentence: 'She said the store ___ not a grab-a-carton-of-milk-and-get-out kind of place.',
+          answer:   'was',
+          wrong:    ['is', 'has been', 'were'],
+          explain:  '"is" → "was" — present simple shifts to past simple in reported speech.',
+        },
+        {
+          sentence: 'He said the product ___ be just cool looking — it ___ be all of those things.',
+          answer:   "couldn't / had to",
+          wrong:    ["can't / has to", 'wouldn\'t / must', "didn't / needs to"],
+          explain:  '"can\'t" → "couldn\'t" and "has to" → "had to" — modals backshift too.',
+        },
+        {
+          sentence: 'He said lots of people ___ buy LED bulbs if they ___ achieve it.',
+          answer:   'would / could',
+          wrong:    ['will / can', 'shall / may', 'would / can'],
+          explain:  '"will" → "would" and "can" → "could" — standard modal backshifts.',
+        },
+        {
+          sentence: 'The narrator concluded that labour ___ to love.',
+          answer:   'leads',
+          wrong:    ['led', 'had led', 'would lead'],
+          explain:  'General truths often stay in the present tense even in reported speech.',
+        },
+      ],
+    },
+ 
+    // ── GRAMMAR 2: Conditionals ────────────────────────────────
+    grammar2: {
+      topic: '2nd & 3rd Conditionals — imaginary situations',
+      rule:  '2nd conditional (imaginary present): If + past simple → would + infinitive. 3rd conditional (imaginary past — didn\'t happen): If + past perfect → would have + past participle.',
+      exercises: [
+        {
+          sentence: 'If Kamprad ___ flat-packing, IKEA ___ the world\'s largest furniture retailer.',
+          answer:   "hadn't invented / wouldn't have become",
+          wrong:    ["didn't invent / wouldn't become", "hadn't invented / won't have become", "wouldn't invent / wouldn't become"],
+          explain:  '3rd conditional — imagining a different past. If + past perfect, would have + past participle.',
+        },
+        {
+          sentence: 'If IKEA ___ customers to build furniture, people ___ it as much.',
+          answer:   "didn't ask / wouldn't value",
+          wrong:    ["hadn't asked / wouldn't value", "doesn't ask / won't value", "didn't ask / won't have valued"],
+          explain:  '2nd conditional — imagining a hypothetical present. If + past simple, would + infinitive.',
+        },
+        {
+          sentence: 'If researchers ___ the IKEA effect, companies ___ how to use it in marketing.',
+          answer:   "hadn't identified / wouldn't know",
+          wrong:    ["didn't identify / won't know", "haven't identified / don't know", "hadn't identified / won't know"],
+          explain:  '3rd conditional — researchers DID identify it in 2011. If + past perfect, would + infinitive.',
+        },
+        {
+          sentence: 'If IKEA ___ its prices, it ___ its mass market appeal.',
+          answer:   'raised / would lose',
+          wrong:    ['had raised / would have lost', 'raises / will lose', 'raised / will lose'],
+          explain:  '2nd conditional — imaginary present scenario. If + past simple, would + infinitive.',
+        },
+      ],
+    },
+ 
+    // ── SENTENCE BUILDER ──────────────────────────────────────
+    sentences: [
+      {
+        words:  ['IKEA', 'not', 'is', 'certainly', 'conventional'],
+        answer: 'IKEA is certainly not conventional',
+        hint:   '🛋️ How does the video describe IKEA?',
+      },
+      {
+        words:  ['labour', 'love', 'leads', 'to'],
+        answer: 'labour leads to love',
+        hint:   '🔨 The key idea of the IKEA effect',
+      },
+      {
+        words:  ['design', 'should', 'everyone', 'for', 'good', 'be'],
+        answer: 'good design should be for everyone',
+        hint:   '📐 The idea behind democratic design',
+      },
+      {
+        words:  ['the', 'invented', 'flat-pack', 'concept', 'Kamprad', 'Ingvar'],
+        answer: 'Ingvar Kamprad invented the flat-pack concept',
+        hint:   '📦 Who came up with the flat-pack idea?',
+      },
+    ],
+ 
+    // ── WORD BUILDER ──────────────────────────────────────────
+    word_builder: [
+      { word:'conventional',  definition:'Following the usual or expected way' },
+      { word:'designated',    definition:'Officially set aside for a purpose' },
+      { word:'obsession',     definition:'An extreme focus on something' },
+      { word:'phenomena',     definition:'Remarkable observable facts (plural)' },
+      { word:'coined',        definition:'Invented a new word or phrase' },
+    ],
+ 
+    // ── TRUE / FALSE ──────────────────────────────────────────
+    true_false: [
+      {
+        statement: 'IKEA\'s confusing floor plan is an ACCIDENT — not deliberate.',
+        correct:   false,
+        reveal:    '❌ FALSE! The winding layout is completely intentional — it forces customers to walk through the whole store and make impulse purchases.',
+      },
+      {
+        statement: 'The IKEA effect means people VALUE things MORE when they build them themselves.',
+        correct:   true,
+        reveal:    '✅ TRUE! The more effort you put into something, the more you value it. Labour leads to love.',
+      },
+      {
+        statement: 'IKEA was founded in DENMARK in 1943.',
+        correct:   false,
+        reveal:    '❌ FALSE! IKEA was founded in SWEDEN. The founder, Ingvar Kamprad, was Swedish.',
+      },
+      {
+        statement: 'IKEA sometimes decides the PRICE of a product BEFORE designing it.',
+        correct:   true,
+        reveal:    '✅ TRUE! The $1 LED light bulb example — they set the price target first, then designed backward to achieve it.',
+      },
+      {
+        statement: 'The term "IKEA effect" was invented by IKEA\'s own marketing department.',
+        correct:   false,
+        reveal:    '❌ FALSE! It was coined in 2011 by independent researchers — not by IKEA.',
+      },
+      {
+        statement: 'An average IKEA store is about the size of FIVE American football fields.',
+        correct:   true,
+        reveal:    '✅ TRUE! Around 300,000 square feet — that\'s a lot of walking through meatballs and flat-pack boxes.',
+      },
+      {
+        statement: '"CONVENTIONAL" means unusual or different from the expected way.',
+        correct:   false,
+        reveal:    '❌ FALSE! "Conventional" means FOLLOWING the usual way. UN-conventional means unusual. IKEA is unconventional.',
+      },
+      {
+        statement: '"DEMOCRATIC DESIGN" means the public votes on which products IKEA makes.',
+        correct:   false,
+        reveal:    '❌ FALSE! Democratic design means well-designed products should be affordable for EVERYONE — not just the wealthy. It\'s a philosophy, not a voting system.',
+      },
+    ],
+ 
+  },
+
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
 
 if (typeof module !== 'undefined') module.exports = LESSON_DATA_REGISTRY;
