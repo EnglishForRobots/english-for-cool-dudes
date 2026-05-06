@@ -199,6 +199,23 @@
     },
 
     // ── INTERMEDIATE ──────────────────────────────────────────
+     'ikea-effect-intermediate': {
+    title:   'Why Do We Love Building IKEA Furniture?',
+    level:   'Intermediate',
+    grammar: 'Reported speech (backshift), 2nd and 3rd conditionals',
+    vocab: [
+      { word:'conventional',       definition:'Following the usual or expected way of doing things' },
+      { word:'designated',         definition:'Officially assigned or set aside for a particular purpose' },
+      { word:'preassembled',       definition:'Already put together before the customer receives it' },
+      { word:'phenomena',          definition:'Remarkable or observable events or facts' },
+      { word:'mass market appeal', definition:'The quality of being attractive to a very wide range of people' },
+      { word:'flat-packed',        definition:'Compressed into a thin flat box for shipping' },
+      { word:'democratic design',  definition:'The philosophy that well-designed products should be affordable for everyone' },
+      { word:'coined',             definition:'Invented or created a new word or phrase for the first time' },
+      { word:'runaway success',    definition:'An overwhelming or unstoppable success' },
+      { word:'obsession',          definition:'An extreme all-consuming focus on something' },
+    ],
+  },
 
     'bookshop-intermediate': {
       title:   'Running a Bookshop',
