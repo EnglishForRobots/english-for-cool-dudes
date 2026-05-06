@@ -524,6 +524,74 @@ const LESSON_DATA_REGISTRY = {
     ],
  
   },
+
+   'royal-corgis-beginner': {
+    id:    'royal-corgis-beginner',
+    title: "The Queen's Corgis",
+    level: 'Beginner',
+    track: 'beginner',
+    emoji: '🐾',
+    badge: 'Royal Corgi Expert',
+ 
+    vocab: [
+      { word:'breed',     definition:'A particular type of dog or other animal', example:'The Pembroke Welsh Corgi is the ___ that Queen Elizabeth loved most.',  distractors:['palace','collar','kennel'] },
+      { word:'loyal',     definition:'Always supporting and caring about someone', example:'Corgis are famous for being ___ — they always stayed close to the Queen.', distractors:['noisy','pampered','retired'] },
+      { word:'companion', definition:'A friend or animal that spends a lot of time with you', example:"The Queen's corgis were her closest ___ for over 70 years.", distractors:['guard','servant','palace'] },
+      { word:'palace',    definition:'A very large grand house where a king or queen lives', example:'The corgis slept inside Buckingham ___ — not outside in kennels.', distractors:['kennel','garden','cottage'] },
+      { word:'inherit',   definition:'To receive something from someone after they die', example:"Many of the Queen's later corgis ___ their looks from Susan, her first dog.", distractors:['breed','pamper','retire'] },
+      { word:'pampered',  definition:'Given too much care and comfort', example:'The royal corgis were completely ___ — silver bowls, royal chefs, their own room!', distractors:['retired','loyal','trained'] },
+      { word:'royal',     definition:'Connected to a king or queen and their family', example:'The corgis had a very ___ life — better than most people in Britain!', distractors:['normal','simple','boring'] },
+      { word:'retired',   definition:'Stopped working — usually because of old age', example:'When the corgis got old, they ___ and lived a quiet comfortable life.', distractors:['inherited','pampered','escaped'] },
+    ],
+ 
+    grammar: {
+      topic: 'Past Simple — regular verbs',
+      rule:  'Regular verbs: add -ED in the past. walk → walked, cook → cooked, receive → received. If the verb ends in E, just add D: receive → received, love → loved.',
+      exercises: [
+        { sentence:"Queen Elizabeth ___ her first corgi on her 18th birthday.", answer:'received', wrong:['receive','receiving','has received'], explain:'"Receive" is regular → add D → "received". Finished action in the past.' },
+        { sentence:'Royal chefs ___ special meals for the corgis every day.', answer:'cooked', wrong:['cook','cooking','has cooked'], explain:'"Cook" is regular → add ED → "cooked".' },
+        { sentence:'The Queen ___ her corgis everywhere — on holidays and in the car.', answer:'loved', wrong:['love','loving','has loved'], explain:'"Love" ends in E → add D only → "loved".' },
+        { sentence:"The corgis ___ in special wicker baskets inside the palace.", answer:'slept', wrong:['sleep','sleeping','has slept'], explain:'"Sleep" is IRREGULAR → sleep → slept. Must learn these!' },
+      ],
+    },
+ 
+    grammar2: {
+      topic: 'Past Simple — irregular verbs',
+      rule:  'Some verbs are irregular — they do NOT add -ED. You must learn them. go → went, take → took, sleep → slept, eat → ate, have → had.',
+      exercises: [
+        { sentence:"The Queen ___ her corgis with her on her honeymoon!", answer:'took', wrong:['taked','take','has taken'], explain:'Irregular: take → TOOK. Never "taked"!' },
+        { sentence:'The corgis ___ to Buckingham Palace after the Queen died.', answer:'went', wrong:['goed','go','have gone'], explain:'Irregular: go → WENT. Never "goed"!' },
+        { sentence:'Queen Elizabeth ___ over 30 corgis during her life.', answer:'had', wrong:['haved','have','has had'], explain:'Irregular: have → HAD. Very common — learn it!' },
+        { sentence:"The royal corgis ___ from silver bowls every day.", answer:'ate', wrong:['eated','eat','has eaten'], explain:'Irregular: eat → ATE. Never "eated"!' },
+      ],
+    },
+ 
+    sentences: [
+      { words:['corgi','means','dog','Welsh','dwarf','in'], answer:'corgi means dwarf dog in Welsh', hint:'🏴󠁧󠁢󠁷󠁬󠁳󠁥 What does the word corgi mean?' },
+      { words:['silver','ate','corgis','bowls','The','from','royal'], answer:'The royal corgis ate from silver bowls', hint:'🍽️ How did the corgis eat?' },
+      { words:['companion','was','closest','The','her','Queen','corgi'], answer:'The corgi was her closest companion', hint:'🐾 What was the corgi to the Queen?' },
+      { words:['Susan','first','corgi','birthday','was','18th','Her','her'], answer:'Her first corgi was Susan her 18th birthday', hint:'🎂 What was the name of the first corgi?' },
+    ],
+ 
+    word_builder: [
+      { word:'loyal',    definition:'Always on your side — a loyal friend' },
+      { word:'palace',   definition:'Where a king or queen lives' },
+      { word:'breed',    definition:'A type of dog or animal' },
+      { word:'pampered', definition:'Given too much comfort and luxury' },
+      { word:'inherit',  definition:'To receive something after someone dies' },
+    ],
+ 
+    true_false: [
+      { statement:"Queen Elizabeth owned MORE THAN 30 corgis in her lifetime.", correct:true, reveal:"✅ TRUE! Over 30 corgis. Her first was Susan — a gift for her 18th birthday in 1944." },
+      { statement:"The word CORGI comes from French and means 'small friend'.", correct:false, reveal:"❌ FALSE! Corgi comes from WELSH — cor (dwarf) + gi (dog). So corgi = dwarf dog!" },
+      { statement:"The royal corgis slept OUTSIDE in kennels in the palace garden.", correct:false, reveal:"❌ FALSE! They slept INSIDE the palace — in their own room, in wicker baskets. Very pampered!" },
+      { statement:"CORGIS are small dogs with short legs and a long body.", correct:true, reveal:"✅ TRUE! Corgis are small with short legs and a long body — and a very big personality!" },
+      { statement:"Daniel Craig walked with the Queen's REAL corgis in the 2012 Olympics.", correct:true, reveal:"✅ TRUE! In the famous James Bond opening ceremony — with the real Queen and her real corgis!" },
+      { statement:"PAMPERED means given too much care and luxury.", correct:true, reveal:"✅ TRUE! The royal corgis were completely pampered — silver bowls, royal chefs, their own bedroom. What a life!" },
+      { statement:"After the Queen died, her corgis were given to a dog home.", correct:false, reveal:"❌ FALSE! They were given to Prince Andrew and Sarah Ferguson — still living in comfort!" },
+      { statement:"INHERIT means to buy something expensive from a shop.", correct:false, reveal:"❌ FALSE! Inherit means to RECEIVE something from someone who died. 'She inherited the house from her grandmother.'" },
+    ],
+  },
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
