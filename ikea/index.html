@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.bunny.net">
 <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/session-mode.js"></script>
 <script src="/init-auth.js"></script>
 <style>
 :root{
@@ -320,6 +321,10 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
       <div class="logo-box">😎</div>
       <span class="site-name">English For Cool Dudes</span>
     </a>
+    <a href="/live/" class="hdr-class-pill" id="hdr-class-pill" style="display:none;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.2);border-radius:99px;padding:4px 12px 4px 8px;text-decoration:none;margin-right:8px">
+  <div style="width:7px;height:7px;border-radius:50%;background:#58CC02"></div>
+  <span style="font-size:12px;font-weight:900;color:#fff">Back to class</span>
+</a>
     <div class="header-xp">
       <div class="streak-mini"><span>🔥</span><span id="hdr-streak">0</span></div>
       <div class="xp-pill">⚡ <span id="hdr-xp">0</span> XP</div>
@@ -403,9 +408,29 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 <script>
 'use strict';
 
-const LESSON_ID    = 'ikea-effect-intermediate';
-const LESSON_TITLE = 'Why Do We Love Building IKEA Furniture?';
-const LESSON_LINK  = '/ikea/';
+
+// Lesson identity — on window so session-mode.js and lesson-completion-rewards.js can read it
+window.LESSON_ID    = 'ikea-effect-intermediate';
+window.LESSON_TITLE = 'Why Do We Love Building IKEA Furniture?';
+const LESSON_LINK   = '/ikea/';
+const LESSON_LEVEL  = 'Intermediate';
+const BADGE_ICON    = '🛋️';
+const BADGE_NAME    = 'Flat-Pack Expert';
+ 
+// Vocabulary in the right format for class system + review game
+const VOCABULARY = [
+  { word:'conventional',       definition:'Following the usual or expected way of doing things' },
+  { word:'designated',         definition:'Officially assigned or set aside for a particular purpose' },
+  { word:'preassembled',       definition:'Already put together before the customer receives it' },
+  { word:'phenomena',          definition:'Remarkable or observable events or facts (plural of phenomenon)' },
+  { word:'mass market appeal', definition:'The quality of being attractive or popular to a very wide range of people' },
+  { word:'flat-packed',        definition:'Compressed into a thin flat box for efficient storage and shipping' },
+  { word:'democratic design',  definition:'The philosophy that well-designed products should be affordable for everyone' },
+  { word:'coined',             definition:'Officially invented or created a new word or phrase for the first time' },
+  { word:'runaway success',    definition:'An overwhelming or unstoppable success that grows very fast' },
+  { word:'obsession',          definition:'An extreme all-consuming focus on something' },
+];
+
 
 /* ════════════════════════════════
    DATA
@@ -1264,41 +1289,80 @@ function doneCond(){
 /* ════════════════════════════════
    COMPLETION
 ════════════════════════════════ */
+
 async function showCompletion(){
-  const acc=S.totalAnswered>0?Math.round((S.totalRight/S.totalAnswered)*100):100;
-  $('cc-xp').textContent='+'+S.xp;
-  $('cc-correct').textContent=S.totalRight;
-  $('cc-combo').textContent=S.bestCombo;
-  if(!S.isLoggedIn){
-    setTimeout(()=>{
-      const n=$('signup-nudge');if(n)n.classList.add('show');
-      const sb=$('cc-signup-btn');if(sb)sb.style.display='flex';
-    },2000);
+  const acc = S.totalAnswered > 0
+    ? Math.round((S.totalRight / S.totalAnswered) * 100)
+    : 100;
+ 
+  // XP multiplier — personal mode only
+  if (!window.EFCD_Session?.isClassMode()) {
+    const xpMult = window.EFCD_Shop?.getXPMultiplier?.() ?? 1;
+    if (xpMult > 1) {
+      S.xp = Math.round(S.xp * xpMult);
+      const lbl = $('cc-xp-label');
+      if (lbl) lbl.textContent = '⚡ XP Earned · 2× DOUBLE XP! 🚀';
+    }
   }
+ 
+  $('cc-xp').textContent     = '+' + S.xp;
+  $('cc-correct').textContent = S.totalRight;
+  $('cc-combo').textContent   = S.bestCombo;
+ 
   $('completion-screen').classList.add('open');
-  megaConf();setTimeout(megaConf,600);
-  try{
-    if(window.EFCD_Auth?.getCurrentUser()){
-      window.EFCD_Auth.completeLesson({
-        lessonId:    LESSON_ID,
-        lessonTitle: LESSON_TITLE,
-        lessonLevel: 'Intermediate',
-        lessonLink:  LESSON_LINK,
-        badgeIcon:   '🛋️',
-        badgeName:   'Flat-Pack Expert',
-        vocabulary:  VOCAB.map(v=>({word:v.word,definition:v.explain.split('"')[0].trim()})),
-        perfectScore: acc>=90,
-      });
+  megaConf();
+  setTimeout(megaConf, 600);
+ 
+  // ── ROUTE via session-mode.js ──────────────────────────────
+  // CLASS MODE  → posts to class leaderboard, saves vocab, awards badge
+  // PERSONAL    → saves to user profile, updates daily challenges
+  const classResult = await window.EFCD_Session.onLessonComplete({
+    lessonId:       window.LESSON_ID,
+    lessonTitle:    window.LESSON_TITLE,
+    lessonLevel:    LESSON_LEVEL,
+    lessonLink:     LESSON_LINK,
+    badgeIcon:      BADGE_ICON,
+    badgeName:      BADGE_NAME,
+    correctAnswers: S.totalRight,
+    totalAnswers:   S.totalAnswered,
+    bestCombo:      S.bestCombo,
+    perfectScore:   acc >= 90,
+    xp:             S.xp,
+    vocabulary:     VOCABULARY,
+  });
+ 
+  // Show class confirmation badge if in class mode
+  if (classResult?.inClass) {
+    const pill = $('cc-class-badge');
+    if (pill) {
+      pill.style.display = 'flex';
+      const sub = pill.querySelector('.cc-class-text-sub');
+      if (sub) sub.textContent = `Score saved for ${classResult.displayName} 🏆`;
     }
-  }catch(e){}
-  try{
-    if(window.DailyChallenges){
-      const dcResult=await window.DailyChallenges.updateChallengeProgress({perfectScore:acc>=90});
-      if(dcResult?.justCompleted)setTimeout(()=>window.DailyChallenges.showChallengeCompletionCelebration(dcResult.challenge),1800);
-      localStorage.setItem('dc_last_lesson_date',new Date().toDateString());
-      localStorage.setItem('dc_last_lesson_section','intermediate');
+  }
+ 
+  // Show signup nudge + dashboard button in personal mode
+  if (!window.EFCD_Session?.isClassMode()) {
+    if (!S.isLoggedIn) {
+      setTimeout(() => {
+        const n = $('signup-nudge');
+        if (n) n.classList.add('show');
+        const sb = $('cc-signup-btn');
+        if (sb) sb.style.display = 'flex';
+      }, 2000);
     }
-  }catch(e){}
+    // Daily challenges
+    try {
+      if (window.DailyChallenges) {
+        const dcResult = await window.DailyChallenges.updateChallengeProgress({ perfectScore: acc >= 90 });
+        if (dcResult?.justCompleted) {
+          setTimeout(() => window.DailyChallenges.showChallengeCompletionCelebration(dcResult.challenge), 1800);
+        }
+        localStorage.setItem('dc_last_lesson_date', new Date().toDateString());
+        localStorage.setItem('dc_last_lesson_section', 'intermediate');
+      }
+    } catch(e) {}
+  }
 }
 
 /* ════════════════════════════════
@@ -1308,21 +1372,44 @@ async function handleSignOut(){
   if(window.EFCD_Auth?.signOut)await window.EFCD_Auth.signOut();
   else if(window.efcdSupabaseClient){await window.efcdSupabaseClient.auth.signOut();window.location.href='/';}
 }
-document.addEventListener('DOMContentLoaded',async()=>{
-  try{
-    if(window.efcdReady)await window.efcdReady;
-    if(window.EFCD_Auth){
+document.addEventListener('DOMContentLoaded', async () => {
+ 
+  // Step 1: Apply header — class pill or personal panel
+  window.EFCD_Session.applyHeader();
+ 
+  // Show class pill if in class mode
+  if (window.EFCD_Session.isClassMode()) {
+    const pill = document.getElementById('hdr-class-pill');
+    if (pill) pill.style.display = 'flex';
+  }
+ 
+  // Step 2: CLASS MODE — skip personal auth entirely, just build lesson
+  if (window.EFCD_Session.isClassMode()) {
+    buildAll();
+    updateProgress();
+    return;
+  }
+ 
+  // Step 3: PERSONAL MODE — load auth then build
+  try {
+    if (window.efcdReady) await window.efcdReady;
+    if (window.EFCD_Auth) {
       await window.EFCD_Auth.initAuth();
-      const user=window.EFCD_Auth.getCurrentUser();
-      if(user){
-        S.isLoggedIn=true;
-        const st=window.EFCD_Auth.getUserStats();
-        if(st){S.xp=st.xp||0;S.streak=st.streak||0;}
-        $('hdr-xp').textContent=S.xp;$('hdr-streak').textContent=S.streak;
-        const sb=$('hdr-signout');if(sb)sb.classList.remove('hidden');
+      const user = window.EFCD_Auth.getCurrentUser();
+      if (user) {
+        S.isLoggedIn = true;
+        const st = window.EFCD_Auth.getUserStats();
+        if (st) { S.xp = st.xp || 0; S.streak = st.streak || 0; }
+        $('hdr-xp').textContent     = S.xp;
+        $('hdr-streak').textContent = S.streak;
+        const sb = $('hdr-signout');
+        if (sb) sb.classList.remove('hidden');
       }
     }
-  }catch(e){}
+  } catch(e) {
+    console.warn('[ikea] auth init failed', e);
+  }
+ 
   buildAll();
   updateProgress();
 });
