@@ -28,6 +28,22 @@
 
     // ── BEGINNER ──────────────────────────────────────────────
 
+   'royal-corgis-beginner': {
+    title:   "The Queen's Corgis",
+    level:   'Beginner',
+    grammar: 'Past Simple — regular and irregular verbs',
+    vocab: [
+      { word:'breed',     definition:'A particular type of dog or other animal' },
+      { word:'loyal',     definition:'Always supporting and caring about someone' },
+      { word:'companion', definition:'A friend or animal that spends a lot of time with you' },
+      { word:'palace',    definition:'A very large grand house where a king or queen lives' },
+      { word:'inherit',   definition:'To receive something from someone after they die' },
+      { word:'pampered',  definition:'Given too much care and comfort — treated like royalty' },
+      { word:'royal',     definition:'Connected to a king or queen and their family' },
+      { word:'retired',   definition:'Stopped working — usually because of old age' },
+    ],
+  },
+
     'london-underground-beginner': {
       title:   'The London Underground',
       level:   'Beginner',
