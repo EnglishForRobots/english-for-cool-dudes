@@ -265,7 +265,7 @@
 
     // ── TAX ───────────────────────────────────────────────────
 
-     'crown-estate-intermediate': {
+    'crown-estate-intermediate': {
     title:   'The Crown Estate — Who Really Owns Britain?',
     level:   'Intermediate',
     grammar: 'Passive Voice — present and past passive in financial English',
