@@ -661,6 +661,66 @@ const LESSON_DATA_REGISTRY = {
       { statement:'George III CREATED the Crown Estate in 1760 from nothing.',                        correct:false, reveal:'❌ FALSE! He surrendered existing Crown lands to Parliament in exchange for a guaranteed income. He gave it up — he didn\'t create it.' },
     ],
   },
+
+   'saudi-machine-deal-tax': {
+    id:    'saudi-machine-deal-tax',
+    title: 'The Saudi Machine Deal',
+    level: 'Tax English',
+    track: 'tax',
+    emoji: '🏭',
+    badge: 'Cross-Border Deal Expert',
+ 
+    vocab: [
+      { word:'customs duty',            definition:'A tax charged by a country on goods imported from abroad', example:'Saudi Arabia charged 5% ___ on the machine when it arrived at Jeddah port.', distractors:['withholding tax','VAT','commissioning'] },
+      { word:'permanent establishment', definition:'A fixed presence in a country that triggers local corporate tax liability', example:'After 12 months on-site, the engineer\'s presence could create a ___ in Saudi Arabia.', distractors:['PE threshold','contract splitting','title'] },
+      { word:'withholding tax',         definition:'Tax deducted at source by the payer on payments to a non-resident', example:'Al-Salam deducted ___ before paying MaschinenbauTech\'s commissioning fee.', distractors:['customs duty','VAT','zero-rated'] },
+      { word:'contract splitting',      definition:'Separating a deal into a goods contract and a services contract', example:'Their lawyer recommended ___ to separate the goods supply from the installation services.', distractors:['Incoterms','commissioning','title'] },
+      { word:'VAT',                     definition:'Value Added Tax — a consumption tax charged at each stage of the supply chain', example:'Saudi Arabia introduced ___ in 2018, raising it to 15% in 2020.', distractors:['customs duty','withholding tax','PE threshold'] },
+      { word:'commissioning',           definition:'The process of testing and verifying that an installed machine works correctly', example:'The ___ phase took 4 months longer than planned — pushing the engineer\'s total stay to 11 months.', distractors:['permanent establishment','contract splitting','title'] },
+      { word:'Incoterms',               definition:'International rules defining when risk and costs transfer from seller to buyer', example:'Under DDP ___, MaschinenbauTech was responsible for all customs duties and delivery costs.', distractors:['customs duty','VAT','withholding tax'] },
+      { word:'zero-rated',             definition:'VAT category where the rate is 0% — seller still recovers input VAT', example:'German exports are ___ — MaschinenbauTech charges 0% VAT on the sale.', distractors:['exempt','zero-charged','VAT-free'] },
+      { word:'PE threshold',            definition:'The time period after which foreign activity becomes a permanent establishment', example:'The Saudi-German treaty sets the construction/installation ___ at 12 months.', distractors:['PE limit','customs threshold','VAT threshold'] },
+      { word:'title',                   definition:'Legal ownership of goods — when it passes determines tax and liability', example:'The contract specified that ___ passed to the Saudi buyer when goods cleared customs.', distractors:['risk','Incoterms','invoice'] },
+    ],
+ 
+    grammar: {
+      topic: 'Passive Voice — cross-border deal English',
+      rule:  'In business, legal and tax English, passive voice focuses on WHAT happened rather than WHO did it. Essential for deal documentation, risk analysis and client advice. Present: is/are + past participle. Past: was/were + past participle. Future: will be + past participle.',
+      exercises: [
+        { sentence:'The machine ___ from Hamburg to Jeddah last month.', answer:'was shipped', wrong:['shipped','is shipping','has shipped'], explain:'Past passive: was + past participle. Focus on what happened to the machine.' },
+        { sentence:'German exports ___ at 0% — no VAT charged to the buyer.',  answer:'are zero-rated', wrong:['zero-rate','were zero-rating','will zero-rate'], explain:'Present passive for a general legal rule about how exports are treated.' },
+        { sentence:'Withholding tax ___ by the payer before transferring funds.', answer:'is deducted', wrong:['deducts','deducted','was deducting'], explain:'Present passive: standard ongoing procedure. The tax receives the action of deduction.' },
+        { sentence:'If the engineer stays 12+ months, a PE ___ in Saudi Arabia.', answer:'will be created', wrong:['creates','created','is creating'], explain:'Future passive in a first conditional — describing what will happen IF a condition is met.' },
+      ],
+    },
+ 
+    sentences: [
+      { words:['is','withholding','deducted','tax','by','the','payer'], answer:'withholding tax is deducted by the payer', hint:'💶 Who deducts WHT — and how?' },
+      { words:['are','exports','zero-rated','German','VAT','for'], answer:'German exports are zero-rated for VAT', hint:'🇩🇪 How does Germany treat export sales for VAT?' },
+      { words:['the','months','threshold','PE','is','twelve'], answer:'the PE threshold is twelve months', hint:'⏱️ When does a permanent establishment get triggered?' },
+      { words:['must','grossed','service','fee','the','be','up'], answer:'the service fee must be grossed up', hint:'💰 What should MaschinenbauTech do with their fees to account for WHT?' },
+    ],
+ 
+    word_builder: [
+      { word:'incoterms',    definition:'International rules for who pays freight and customs' },
+      { word:'commissioning',definition:'Testing that an installed machine works correctly' },
+      { word:'threshold',    definition:'The limit at which a new rule or tax obligation kicks in' },
+      { word:'withholding',  definition:'Keeping back part of a payment as tax' },
+      { word:'splitting',    definition:'Dividing a contract into separate parts for different tax treatment' },
+      { word:'zero-rated',   definition:'VAT at 0% — the seller still recovers input tax' },
+    ],
+ 
+    true_false: [
+      { statement:'German exports are subject to German VAT at 19%.',                                correct:false, reveal:'❌ FALSE! Exports are zero-rated — 0% German VAT. The VAT question moves to the destination country (Saudi Arabia).' },
+      { statement:'Under DDP Incoterms, the SELLER pays all customs duties.',                        correct:true,  reveal:'✅ TRUE! DDP = Delivered Duty Paid. Maximum seller responsibility — the seller absorbs all import costs.' },
+      { statement:'Commissioning time does NOT count toward the PE threshold.',                      correct:false, reveal:'❌ FALSE! Every day on-site counts — installation, testing, commissioning, all of it. The clock measures total presence.' },
+      { statement:'Withholding tax is deducted by the PAYER before making the payment.',             correct:true,  reveal:'✅ TRUE! The Saudi customer holds back the tax and pays it to the Saudi authority. The supplier receives the net amount.' },
+      { statement:'Contract splitting is automatically illegal under international tax law.',         correct:false, reveal:'❌ FALSE! Contract splitting is legitimate when it reflects genuine commercial reality. Only artificial splits are challenged.' },
+      { statement:'Zero-rated means the seller charges 0% VAT AND loses the right to reclaim input VAT.', correct:false, reveal:'❌ FALSE! Zero-rated means 0% output VAT but full input VAT recovery — unlike "exempt" which denies input VAT recovery.' },
+      { statement:'The engineer meeting potential Saudi clients while on-site creates an agency PE risk.', correct:true, reveal:'✅ TRUE! Actively soliciting business can create an agency PE — completely independent of the installation time threshold.' },
+      { statement:'To NET €300,000 after 5% withholding tax, the invoice should be €315,789.',       correct:true,  reveal:'✅ TRUE! Gross-up formula: net amount / (1 - WHT rate) = €300,000 / 0.95 = €315,789.' },
+    ],
+  },
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
