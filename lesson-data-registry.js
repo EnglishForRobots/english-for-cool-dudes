@@ -163,7 +163,7 @@ const LESSON_DATA_REGISTRY = {
         hint:   '🌍 Superlative + fact about the Tube',
       },
       {
-        words:  ['careful', 'space', 'be', 'train', 'the', 'the', 'of', 'and', 'platform', 'between'],
+        words:  ['careful', 'space', 'be', 'train', 'the', 'the', 'of', 'and', 'the', 'platform', 'between'],
         answer: 'be careful of the space between the train and the platform',
         hint:   '📢 What does "Mind the gap" mean?',
       },
@@ -594,7 +594,6 @@ const LESSON_DATA_REGISTRY = {
   },
 
    'crown-estate-intermediate': {
- 
     id:    'crown-estate-intermediate',
     title: 'The Crown Estate — Who Really Owns Britain?',
     level: 'Intermediate',
@@ -608,38 +607,38 @@ const LESSON_DATA_REGISTRY = {
       { word:'treasury',  definition:'The government department that manages a country\'s money and taxes', example:'All Crown Estate profits are paid directly to the ___.', distractors:['estate','sovereign','surplus'] },
       { word:'revenue',   definition:'Income earned by a government or company from taxes, sales or rents', example:'The ___ from offshore wind farm leases has increased dramatically.', distractors:['grant','exempt','portfolio'] },
       { word:'grant',     definition:'A sum of money given for a specific purpose, usually by a government', example:'The Sovereign ___ is set at 12% of Crown Estate profits.', distractors:['revenue','estate','surplus'] },
-      { word:'exempt',    definition:'Not required to pay a tax or follow a rule that applies to others', example:'Some royal properties are ___ from certain categories of local taxation.', distractors:['sovereign','granted','surplus'] },
-      { word:'portfolio', definition:'A collection of investments, properties or financial assets', example:'The Crown Estate is one of the largest property ___ in the United Kingdom.', distractors:['grant','revenue','treasury'] },
-      { word:'surplus',   definition:'An amount left over after all costs and obligations have been met', example:'After the Sovereign Grant is paid, the remaining ___ stays in the Treasury.', distractors:['estate','exempt','sovereign'] },
+      { word:'exempt',    definition:'Not required to pay a tax or follow a rule that applies to others', example:'Some royal residences are ___ from certain categories of local taxation.', distractors:['sovereign','surplus','portfolio'] },
+      { word:'portfolio', definition:'A collection of investments, properties or financial assets', example:'The Crown Estate\'s ___ includes central London properties and seabed leases.', distractors:['grant','revenue','treasury'] },
+      { word:'surplus',   definition:'An amount left over after all costs and obligations have been met', example:'After the Sovereign Grant is paid, a significant ___ remains in the Treasury.', distractors:['estate','exempt','sovereign'] },
     ],
  
     grammar: {
       topic: 'Passive Voice — present passive',
-      rule:  'Present passive: am/is/are + past participle. We use passive when the ACTION matters more than WHO does it. Very common in financial, legal and official English.',
+      rule:  'Present passive: is/are + past participle. We use passive when the ACTION matters more than WHO does it. Essential in financial and legal English. "Profits are paid to the Treasury." "The estate is managed independently."',
       exercises: [
-        { sentence:'Crown Estate profits ___ directly to the Treasury every year.', answer:'are paid', wrong:['pay','paid','have paid'], explain:'Present passive: are + past participle (paid). The profits receive the action.' },
-        { sentence:'The Crown Estate ___ by a board of independent commissioners.', answer:'is managed', wrong:['manages','managed','has managed'], explain:'Present passive: is + past participle (managed).' },
-        { sentence:'Sections of the seabed ___ to energy companies for wind farm construction.', answer:'are leased', wrong:['lease','leased','have leased'], explain:'Present passive: are + past participle (leased). Ongoing current arrangement.' },
-        { sentence:'The Sovereign Grant ___ as a percentage of Crown Estate profits.', answer:'is calculated', wrong:['calculates','calculated','has calculated'], explain:'Present passive: is + past participle (calculated).' },
+        { sentence:'Crown Estate profits ___ directly to the Treasury every year.',       answer:'are paid',    wrong:['pay','paid','have paid'],          explain:'Present passive: are + past participle. The profits receive the action — they are paid to the Treasury.' },
+        { sentence:'The Crown Estate ___ by a board of independent commissioners.',        answer:'is managed',  wrong:['manages','managed','has managed'],  explain:'Present passive: is + past participle. The estate receives the action of management.' },
+        { sentence:'Sections of the seabed ___ to energy companies for wind farms.',       answer:'are leased',  wrong:['lease','leased','have leased'],     explain:'Present passive: are + past participle. Current ongoing arrangement.' },
+        { sentence:'The Sovereign Grant ___ as a percentage of Crown Estate profits.',     answer:'is calculated',wrong:['calculates','calculated','has calculated'],explain:'Present passive: is + past participle. A formula applied to the profits.' },
       ],
     },
  
     grammar2: {
       topic: 'Passive Voice — past passive',
-      rule:  'Past passive: was/were + past participle. For completed actions in the past where the action matters more than who did it. Very common in reports, history and formal documents.',
+      rule:  'Past passive: was/were + past participle. For completed actions in the past where the result matters more than the actor. "The deal was made in 1760." "The grant was raised to 25%." Extremely common in financial reports, legal history and official documents.',
       exercises: [
-        { sentence:'The deal between George III and Parliament ___ in 1760.', answer:'was made', wrong:['makes','is made','has been made'], explain:'Past passive: was + past participle (made). Completed historical event.' },
-        { sentence:'The Sovereign Grant ___ to 25% to fund the Buckingham Palace renovation.', answer:'was raised', wrong:['raised','is raised','has raised'], explain:'Past passive: was + past participle (raised). Specific past decision.' },
-        { sentence:'The total value of the Crown Estate ___ at £15.6 billion in 2023.', answer:'was estimated', wrong:['estimated','is estimating','has estimated'], explain:'Past passive: was + past participle (estimated). Common in financial reporting.' },
-        { sentence:'George III ___ a fixed annual payment in exchange for surrendering the Crown lands.', answer:'was given', wrong:['gave','gives','is given'], explain:'Past passive: was + past participle (given). The king received the action.' },
+        { sentence:'The deal between George III and Parliament ___ in 1760.',               answer:'was made',    wrong:['makes','is made','has been made'],  explain:'Past passive: was + past participle. A completed historical event.' },
+        { sentence:'The Sovereign Grant ___ to 25% to fund the Buckingham Palace renovation.',answer:'was raised', wrong:['raised','is raised','has raised'],  explain:'Past passive: was + past participle. A specific past decision.' },
+        { sentence:'The total value of the Crown Estate ___ at £15.6 billion in 2023.',    answer:'was estimated',wrong:['estimated','is estimating','has estimated'],explain:'Past passive: was + past participle. Standard in financial reporting for valuations.' },
+        { sentence:'George III ___ a fixed annual payment in exchange for the Crown lands.',answer:'was given',   wrong:['gave','gives','is given'],           explain:'Past passive: was + past participle. The King received the action.' },
       ],
     },
  
     sentences: [
-      { words:['paid','are','the','to','profits','Treasury','Crown','Estate'], answer:'Crown Estate profits are paid to the Treasury', hint:'💷 Where do the profits go? (passive voice)' },
-      { words:['the','belong','not','King','does','estate','to','the'], answer:'the estate does not belong to the King', hint:'👑 A common misconception — what is the truth?' },
-      { words:['the','seabed','owns','most','of','Estate','Crown','the'], answer:'the Crown Estate owns most of the seabed', hint:'🌊 What surprising asset does the Crown Estate have?' },
-      { words:['Grant','profits','of','Sovereign','The','is','12%','Estate','Crown'], answer:'The Sovereign Grant is 12% of Crown Estate profits', hint:'📊 How is the Sovereign Grant calculated?' },
+      { words:['are','profits','paid','Crown','Estate','to','the','Treasury'], answer:'Crown Estate profits are paid to the Treasury', hint:'💷 Where do the profits go? (passive voice)' },
+      { words:['belong','not','does','estate','the','King','to','the'],        answer:'the estate does not belong to the King',       hint:'👑 What is the key misconception about ownership?' },
+      { words:['the','seabed','most','Crown','Estate','of','owns','the'],      answer:'the Crown Estate owns most of the seabed',    hint:'🌊 What surprising asset does the Crown Estate control?' },
+      { words:['is','The','12%','Sovereign','Grant','profits','of'],           answer:'The Sovereign Grant is 12% of profits',       hint:'📊 What percentage does the King receive?' },
     ],
  
     word_builder: [
@@ -652,16 +651,15 @@ const LESSON_DATA_REGISTRY = {
     ],
  
     true_false: [
-      { statement:'The Crown Estate belongs PERSONALLY to King Charles III.', correct:false, reveal:'❌ FALSE! It belongs to the Crown — the institution — not the King personally. He cannot sell it or spend its profits.' },
-      { statement:'Crown Estate profits are paid DIRECTLY to the Treasury — not to the King.', correct:true, reveal:'✅ TRUE! All profits go to the Treasury first. The King receives a percentage back as the Sovereign Grant.' },
-      { statement:'The Sovereign Grant is normally set at 25% of Crown Estate profits.', correct:false, reveal:'❌ FALSE! The standard rate is 12%. It was temporarily raised to 25% to fund the Buckingham Palace renovation.' },
-      { statement:'The Crown Estate owns almost HALF the seabed around England and Wales.', correct:true, reveal:'✅ TRUE! This is why offshore wind farms have made the Crown Estate so much more profitable.' },
-      { statement:'REVENUE means the income earned before expenses are deducted.', correct:true, reveal:'✅ TRUE! Revenue = total income. Profit = revenue minus expenses. Important distinction in financial English.' },
-      { statement:'EXEMPT means you must pay a HIGHER rate of tax.', correct:false, reveal:'❌ FALSE! Exempt means you do NOT have to pay a tax that applies to others. Tax exempt = zero tax.' },
-      { statement:'The PASSIVE VOICE is commonly used in financial and legal English.', correct:true, reveal:'✅ TRUE! "Profits are paid", "the grant was raised", "the estate is managed" — passive focuses on what happened, not who did it.' },
-      { statement:'George III CREATED the Crown Estate in 1760.', correct:false, reveal:'❌ FALSE! George III gave UP control of Crown lands to Parliament in 1760. He surrendered it in exchange for a guaranteed income — he didn\'t create it.' },
+      { statement:'The Crown Estate belongs PERSONALLY to King Charles III.',                          correct:false, reveal:'❌ FALSE! It belongs to the Crown — the institution — not the King personally. He cannot sell it or spend the profits.' },
+      { statement:'Crown Estate profits go DIRECTLY to the Treasury — not to the King.',              correct:true,  reveal:'✅ TRUE! All profits go to the Treasury. The King receives a percentage back as the Sovereign Grant.' },
+      { statement:'The standard Sovereign Grant rate is 12% of Crown Estate profits.',                correct:true,  reveal:'✅ TRUE! Normally 12%, temporarily raised to 25% for the Buckingham Palace renovation.' },
+      { statement:'The Crown Estate owns almost HALF the seabed around England and Wales.',           correct:true,  reveal:'✅ TRUE! This is why offshore wind has made the Crown Estate so much more profitable.' },
+      { statement:'REVENUE means the income earned BEFORE expenses are deducted.',                    correct:true,  reveal:'✅ TRUE! Revenue = total income. Profit = revenue minus expenses. Critical distinction in financial English.' },
+      { statement:'EXEMPT means you must pay a HIGHER rate of tax than others.',                      correct:false, reveal:'❌ FALSE! Exempt means you do NOT have to pay a tax that applies to others. The opposite of exempt is liable.' },
+      { statement:'The PASSIVE VOICE is commonly used in financial and legal English.',               correct:true,  reveal:'✅ TRUE! "Profits are paid", "the grant was raised", "the estate is managed" — passive focuses on WHAT happened, not WHO did it.' },
+      { statement:'George III CREATED the Crown Estate in 1760 from nothing.',                        correct:false, reveal:'❌ FALSE! He surrendered existing Crown lands to Parliament in exchange for a guaranteed income. He gave it up — he didn\'t create it.' },
     ],
- 
   },
    };
 
