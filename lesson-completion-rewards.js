@@ -265,6 +265,24 @@
 
     // ── TAX ───────────────────────────────────────────────────
 
+     'saudi-machine-deal-tax': {
+    title:   'The Saudi Machine Deal',
+    level:   'Tax English',
+    grammar: 'Passive Voice — past, present and future passive in cross-border deal English',
+    vocab: [
+      { word:'customs duty',            definition:'A tax charged by a country on goods imported from abroad' },
+      { word:'permanent establishment', definition:'A fixed presence in a country that triggers local corporate tax liability' },
+      { word:'withholding tax',         definition:'Tax deducted at source by the payer on payments to a non-resident' },
+      { word:'contract splitting',      definition:'Separating a deal into a goods contract and a services contract to manage tax exposure' },
+      { word:'VAT',                     definition:'Value Added Tax — a consumption tax charged at each stage of the supply chain' },
+      { word:'commissioning',           definition:'The process of testing and verifying that an installed machine works correctly' },
+      { word:'title',                   definition:'Legal ownership of goods — when title passes determines when tax obligations arise' },
+      { word:'Incoterms',               definition:'International rules defining when risk and responsibility transfer from seller to buyer' },
+      { word:'PE threshold',            definition:'The time period after which foreign activity becomes a permanent establishment' },
+      { word:'zero-rated',              definition:'VAT category where the rate is 0% — seller can still reclaim input VAT' },
+    ],
+  },
+
     'crown-estate-intermediate': {
     title:   'The Crown Estate — Who Really Owns Britain?',
     level:   'Intermediate',
