@@ -601,6 +601,7 @@ function renderClasses(){
             <div class="class-team-name">${cls.team_name ? '🏷️ ' + cls.team_name : 'No team name yet'}</div>
           </div>
           <span class="class-status ${isLive ? 'status-live' : 'status-off'}">${isLive ? 'LIVE' : 'OFF'}</span>
+${cls.is_test ? `<span class="class-status" style="background:#CE82FF;color:#fff;margin-left:4px">🧪 TEST</span>` : ''}
         </div>
         <div class="class-students">${studentChips || '<span style="font-size:12px;color:var(--ink-3)">No students yet</span>'}</div>
         <div class="class-actions">
@@ -852,8 +853,9 @@ async function renderLeaderboard(){
   });
 
   const ranked = _classes
-    .map(c => ({ ...c, total: totals[c.id].correct, xp: totals[c.id].xp }))
-    .sort((a,b) => b.total - a.total);
+  .filter(c => !c.is_test)
+  .map(c => ({ ...c, total: totals[c.id].correct, xp: totals[c.id].xp }))
+  .sort((a,b) => b.total - a.total);
 
   const medals = ['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣'];
 
@@ -977,9 +979,11 @@ async function renderStats(){
   const statsScores = document.getElementById('stats-scores');
   if(!statsRow) return;
 
-  const monday = getWeekStart();
-  const [{ data: scores }, { data: badges }] = await Promise.all([
-    sb.from('efcd_scores').select('*').gte('date', monday),
+  const testClassIds = _classes.filter(c => c.is_test).map(c => c.id);
+const monday = getWeekStart();
+const [{ data: scores }, { data: badges }] = await Promise.all([
+  sb.from('efcd_scores').select('*').gte('date', monday)
+    .not('class_id', 'in', `(${testClassIds.join(',')})`),
     sb.from('efcd_badges').select('*').gte('awarded_at', monday + 'T00:00:00'),
   ]);
 
@@ -1295,7 +1299,10 @@ function renderClassesManage(){
         <button class="class-manage-emoji-btn" onclick="openEditClassEmoji('${cls.id}')"
           title="Change emoji">${cls.emoji}</button>
         <div class="class-manage-info">
-          <div class="class-manage-name">${cls.name}</div>
+          <div class="class-manage-name">
+            ${cls.name}
+            ${cls.is_test ? '<span style="background:#CE82FF;color:#fff;font-size:10px;font-weight:900;padding:2px 7px;border-radius:5px;margin-left:6px">🧪 TEST</span>' : ''}
+          </div>
           <div class="class-manage-sub">
             ID: ${cls.id} · ${memberCount} student${memberCount !== 1 ? 's' : ''}
             ${cls.team_name ? ' · 🏷️ ' + cls.team_name : ''}
@@ -1374,7 +1381,22 @@ function openEditClass(classId){
       <input class="form-input" id="edit-cls-name" value="${cls.name}" style="width:100%">
     </div>
     <div>
-      <div class="field-label">Team Name (shown to students)</div>
+      <div>
+  <div class="field-label">Team Name (shown to students)</div>
+  <input class="form-input" id="edit-cls-team" value="${cls.team_name||''}"
+    placeholder="e.g. The Grammar Gangsters" style="width:100%">
+</div>
+<div style="padding:10px 14px;background:rgba(206,130,255,.08);border:2px solid rgba(206,130,255,.2);border-radius:var(--rsm)">
+  <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+    <input type="checkbox" id="edit-cls-test" ${cls.is_test ? 'checked' : ''}
+      style="width:18px;height:18px;cursor:pointer;flex-shrink:0">
+    <div>
+      <div style="font-size:13px;font-weight:900;color:var(--ink-bold)">🧪 Test class</div>
+      <div style="font-size:11px;font-weight:700;color:var(--ink-3);margin-top:2px">Exclude from leaderboard and stats — safe for testing new lessons</div>
+    </div>
+  </label>
+</div>
+      
       <input class="form-input" id="edit-cls-team" value="${cls.team_name||''}"
         placeholder="e.g. The Grammar Gangsters" style="width:100%">
     </div>
