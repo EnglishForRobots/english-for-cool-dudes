@@ -865,7 +865,7 @@ function revealSec(n,initFn){
   if(el){
     el.classList.add('visible');
     if(n>0)setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'start'}),80);
-    if(n===4)setTimeout(wireGaps,150);  // ← wire gaps whenever sec 4 becomes visible
+    if(n===4)setTimeout(wireGaps,150);
   }
   if(initFn)initFn();
   S.doneSecs=Math.max(S.doneSecs,n);updateProg();updateNav();
@@ -885,7 +885,6 @@ function buildAll(){
   c.appendChild(buildSec(4,'strip-purple',buildGapFill));
   c.appendChild(buildSec(5,'strip-teal',  buildSpeaking));
   revealSec(0,buildTimelineInner);
-  
 }
 function buildSec(n,strip,initFn){
   const s=document.createElement('div');s.className=`sec-card ${strip}`;s.setAttribute('data-sec',n);
@@ -1018,7 +1017,6 @@ function buildSort(sec){
         <button class="sort-bucket risk-bucket" id="sort-risk-btn" onclick="answerSort('risk')"><span class="sort-bucket-icon">🚨</span><span>Tax Risk</span><span class="sort-bucket-hint">Needs attention</span></button>
         <button class="sort-bucket safe-bucket" id="sort-safe-btn" onclick="answerSort('safe')"><span class="sort-bucket-icon">✅</span><span>Safe Structure</span><span class="sort-bucket-hint">Correctly handled</span></button>
       </div>
-      
       <button class="sort-next" id="sort-next" onclick="nextSort()">Next →</button>
       <div id="sort-done-wrap"></div>
     </div>`;
@@ -1033,7 +1031,7 @@ function sortRender(){
     <div class="sort-card-sub">${c.sub}</div>
     <div class="sort-card-q"><div class="sort-card-q-lbl">❓ Your call:</div><div class="sort-card-q-text">${c.question}</div></div>
   </div>`;
-  const fb=$('sort-fb');fb.className='sort-feedback';fb.style.display='none';
+  const fb=$('sort-fb');fb.className='sort-feedback';fb.style.display='';
   $('sort-next').className='sort-next';
   const rb=$('sort-risk-btn'),sb=$('sort-safe-btn');
   rb.style.cssText='';sb.style.cssText='';rb.classList.remove('pulse-green','pulse-red');sb.classList.remove('pulse-green','pulse-red');rb.disabled=false;sb.disabled=false;
@@ -1172,19 +1170,27 @@ function buildGapFill(sec){
     </div>`;
 }
 function wireGaps(){
-  document.querySelectorAll('.wb-word').forEach(w=>{
-    w.addEventListener('click',()=>{
+  const sec=document.querySelector('[data-sec="4"]');
+  if(!sec)return;
+  sec.querySelectorAll('.wb-word').forEach(w=>{
+    w.onclick=function(){
       if(w.classList.contains('used'))return;
       if(w.classList.contains('sel')){w.classList.remove('sel');selWord=null}
-      else{document.querySelectorAll('.wb-word').forEach(b=>b.classList.remove('sel'));w.classList.add('sel');selWord=w}
-    });
+      else{sec.querySelectorAll('.wb-word').forEach(b=>b.classList.remove('sel'));w.classList.add('sel');selWord=w}
+    };
   });
-  document.querySelectorAll('.gap').forEach(g=>{
-    g.addEventListener('click',()=>{
+  sec.querySelectorAll('.gap').forEach(g=>{
+    g.onclick=function(){
       if(g.classList.contains('correct'))return;
-      if(g.textContent.trim()){const w=Array.from(document.querySelectorAll('.wb-word')).find(b=>b.dataset.word===g.textContent.trim());if(w)w.classList.remove('used');g.textContent='';g.classList.remove('incorrect')}
-      else if(selWord){g.textContent=selWord.dataset.word;selWord.classList.add('used');selWord.classList.remove('sel');selWord=null}
-    });
+      if(g.textContent.trim()){
+        const w=Array.from(sec.querySelectorAll('.wb-word')).find(b=>b.dataset.word===g.textContent.trim());
+        if(w)w.classList.remove('used');
+        g.textContent='';g.classList.remove('incorrect');
+      } else if(selWord){
+        g.textContent=selWord.dataset.word;
+        selWord.classList.add('used');selWord.classList.remove('sel');selWord=null;
+      }
+    };
   });
 }
 function checkGapFill(){
