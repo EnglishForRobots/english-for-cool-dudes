@@ -265,6 +265,22 @@
 
     // ── TAX ───────────────────────────────────────────────────
 
+     'crown-estate-intermediate': {
+    title:   'The Crown Estate — Who Really Owns Britain?',
+    level:   'Intermediate',
+    grammar: 'Passive Voice — present and past passive in financial English',
+    vocab: [
+      { word:'estate',    definition:'A large area of land or property owned by one person or organisation' },
+      { word:'sovereign', definition:'A king or queen — the supreme ruler of a country' },
+      { word:'treasury',  definition:'The government department that manages a country\'s money and taxes' },
+      { word:'revenue',   definition:'Income earned by a government or company from taxes, sales or rents' },
+      { word:'grant',     definition:'A sum of money given for a specific purpose, usually by a government' },
+      { word:'exempt',    definition:'Not required to pay a tax or follow a rule that applies to others' },
+      { word:'portfolio', definition:'A collection of investments, properties or financial assets' },
+      { word:'surplus',   definition:'An amount left over after all costs and obligations have been met' },
+    ],
+  },
+
     'restructuring-tax': {
       title:   'The Restructuring',
       level:   'Tax',
