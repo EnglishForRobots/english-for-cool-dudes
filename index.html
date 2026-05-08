@@ -75,7 +75,6 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .header-tagline{font-size:11px;font-weight:900;color:var(--ink-3);letter-spacing:.9px;text-transform:uppercase;flex:1;text-align:center}
 @media(max-width:510px){.header-tagline{display:none}}
 
-/* live class pill — shows only if student has an active session in localStorage */
 .live-pill{display:none;align-items:center;gap:6px;background:var(--navy);border:2px solid rgba(255,255,255,.1);border-radius:99px;padding:5px 12px 5px 8px;cursor:pointer;transition:all .12s;flex-shrink:0;text-decoration:none}
 .live-pill.show{display:flex}
 .live-pill:hover{background:#243f73}
@@ -263,7 +262,6 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
       <a href="/" class="site-title">English For Cool Dudes</a>
     </div>
     <div class="header-tagline">Cool Lessons · Real English · No Excuses</div>
-    <!-- If student has an active session, a subtle pill links back to /live/ -->
     <a href="/live/" class="live-pill" id="live-pill">
       <div class="live-pill-dot"></div>
       <span class="live-pill-text" id="live-pill-text">Back to class</span>
@@ -271,7 +269,6 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
   </div>
 </header>
 
-<!-- MOTIVATIONAL OVERLAY — fires every 5 correct on daily card -->
 <div class="moti-overlay" id="moti-overlay">
   <div class="moti-card">
     <span class="moti-emoji" id="moti-emoji">🔥</span>
@@ -283,7 +280,6 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 
 <div class="page">
 
-  <!-- HERO — always the same for every visitor -->
   <div class="u1">
     <div class="hero" id="hero">
       <div class="hero-deco" id="hero-deco">😎</div>
@@ -297,7 +293,6 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
     </div>
   </div>
 
-  <!-- DAILY CARD -->
   <div class="u2">
     <div class="daily-header">
       <span class="live-dot"></span>
@@ -325,7 +320,6 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
     </div>
   </div>
 
-  <!-- LESSONS -->
   <div class="u3 tracks-section" id="lessons">
 
     <div class="sec-label">The Main Path</div>
@@ -437,18 +431,6 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 <script>
 'use strict';
 
-/* ══════════════════════════════════════════════════════════
-   THIS PAGE HAS NO SUPABASE. NO CLASS SESSION CODE.
-   It is purely public and never changes based on sessions.
-
-   Class sessions live at /live/
-   Lesson completion rewards live in lesson-completion-rewards.js
-
-   The only thing we read from localStorage here is whether
-   a student has an active session — if so we show a subtle
-   "Back to class" pill in the header. That's it.
-══════════════════════════════════════════════════════════ */
-
 /* ── UPDATE THIS WHEN YOU ADD A NEW LESSON ── */
 const TRACK_INFO = {
   beginner:     { latest:'The Queen\'s Corgis',          date:'06 May 2026', count:30, isNew:true },
@@ -462,7 +444,6 @@ const TRACK_INFO = {
   breakroom:    { latest:'Word Thief!',                  date:'',            count:9,  isNew:false },
 };
 
-/* ── HERO COLOURS — by day of week ── */
 const HERO_DAYS = [
   { bg:'linear-gradient(135deg,#CE82FF 0%,#A559D9 100%)', deco:'🌙' },
   { bg:'linear-gradient(135deg,#FF9600 0%,#FFC800 100%)', deco:'☀️' },
@@ -483,6 +464,8 @@ const CAT_COLORS = {
   business :{ color:'#5C7CFA', shadow:'#3B5BDB', dark:false },
   tax      :{ color:'#FF9600', shadow:'#D97800', dark:true  },
   legal    :{ color:'#FF9600', shadow:'#D97800', dark:true  },
+  culture  :{ color:'#FF6B35', shadow:'#D4501C', dark:false },
+  royal    :{ color:'#8A6210', shadow:'#5a3f08', dark:false },
 };
 function getCatKey(cat){
   const c=cat.toLowerCase();
@@ -493,8 +476,10 @@ function getCatKey(cat){
   if(c.includes('know')||c.includes('fact'))  return 'fact';
   if(c.includes('say')||c.includes('pronun')) return 'pronun';
   if(c.includes('business'))                  return 'business';
-  if(c.includes('tax'))                       return 'tax';
+  if(c.includes('tax')||c.includes('deal'))   return 'tax';
   if(c.includes('legal'))                     return 'legal';
+  if(c.includes('brit')||c.includes('london')||c.includes('tube')) return 'culture';
+  if(c.includes('royal')||c.includes('corgi')||c.includes('crown')||c.includes('estate')) return 'royal';
   return 'idiom';
 }
 function applyAccent(k){
@@ -513,7 +498,6 @@ function applyAccent(k){
   }
 }
 
-/* ── MOTIVATIONAL MESSAGES — class-aware ── */
 const MOTI_POOL = [
   { emoji:'🔥', title:'On fire!',       msg:'Five in a row. Your brain is doing something seriously right.' },
   { emoji:'⭐', title:'Unstoppable!',    msg:'Five correct. Not luck — that\'s skill. Keep going.' },
@@ -522,11 +506,9 @@ const MOTI_POOL = [
   { emoji:'👑', title:'Class act!',      msg:'Five perfect answers. Someone owes someone a coffee. ☕' },
 ];
 function getMoti(){
-  // If a class session is active, personalise to the class name
   const classId = localStorage.getItem('efcd_class_id');
   const base    = MOTI_POOL[Math.floor(Math.random()*MOTI_POOL.length)];
   if(!classId) return base;
-  // We don't know the class name here without Supabase, so use a generic class message
   const classMsgs = [
     'Five in a row! The leaderboard just updated. 🔥',
     'Five correct. Your class is making moves. 💪',
@@ -537,40 +519,402 @@ function getMoti(){
   return {...base, msg: classMsgs[Math.floor(Math.random()*classMsgs.length)]};
 }
 
-/* ── DAILY CARDS ── */
+/* ════════════════════════════════════════════════════
+   TODAY'S ENGLISH MOMENT — CARD POOL
+   Mix of: idioms · grammar · false friends · vocab
+   fun facts · pronunciation · business · tax English
+   British culture · Royal/Crown Estate · Tube/London
+   Corgis · IKEA lesson · Saudi Machine lesson
+════════════════════════════════════════════════════ */
 const CARDS = [
-  {type:'abcd',cat:'🇬🇧 Idiom of the Day',tag:'Idioms',q:'Your British colleague says he\'s "a bit <span class="hl">skint</span>" this month. What does he mean?',opts:['He\'s feeling unwell','He\'s extremely busy','He has very little money','He\'s in a fantastic mood'],correct:2,explain:'<strong>Skint = having very little money.</strong> "Sorry, can\'t come out — I\'m skint until payday." Opposite: <strong>loaded</strong> (very rich).'},
-  {type:'abcd',cat:'🇬🇧 Idiom of the Day',tag:'Idioms',q:'Everything works perfectly first time. Your British friend says:\n\n<span class="hl">"Bob\'s your uncle!"</span>\n\nWhat do they mean?',opts:['You have a relative called Bob','Something went wrong','There you go — done! Simple as that!','You need more practice'],correct:2,explain:'<strong>Bob\'s your uncle = there you have it! Done! Easy!</strong>'},
-  {type:'abcd',cat:'🇬🇧 Idiom of the Day',tag:'Idioms',q:'Your friend says a deal "seems a bit <span class="hl">dodgy</span>." What does dodgy mean?',opts:['Surprisingly generous','Suspicious or unreliable','Very complicated','Extremely good value'],correct:1,explain:'<strong>Dodgy = suspicious, unreliable, possibly dishonest.</strong>'},
-  {type:'yesno',cat:'🇬🇧 Idiom of the Day',tag:'Idioms',q:'Someone invites you to a concert. You say:\n\n<span class="hl">"It\'s not really my cup of tea."</span>\n\nHave you politely said no?',optA:{emoji:'✅',label:'Yes'},optB:{emoji:'❌',label:'No'},correct:'A',explain:'<strong>Not my cup of tea = not something I enjoy.</strong>'},
-  {type:'yesno',cat:'🇬🇧 Idiom of the Day',tag:'Idioms',q:'A British friend says:\n\n<span class="hl">"I\'m absolutely gutted."</span>\n\nAre they happy or upset?',optA:{emoji:'😢',label:'Upset'},optB:{emoji:'😄',label:'Happy'},correct:'A',explain:'<strong>Gutted = very disappointed or devastated.</strong>'},
-  {type:'abcd',cat:'🇬🇧 Idiom of the Day',tag:'Idioms',q:'Your friend says "I\'m going to <span class="hl">bite the bullet</span> and speak to my boss." What will they do?',opts:['Lose their temper','Do something difficult they\'ve been avoiding','Quit immediately','Ask for a pay rise'],correct:1,explain:'<strong>Bite the bullet = do something difficult you\'ve been putting off.</strong>'},
-  {type:'abcd',cat:'⚠️ False Friend Alert',tag:'False Friends',q:'What does <span class="hl">sympathetic</span> actually mean in English?',opts:['Nice and likeable','Showing understanding of someone\'s problems','Very energetic','Polite and well-mannered'],correct:1,explain:'<strong>Sympathetic ≠ likeable.</strong> German <em>sympathisch</em> = "likeable" — classic trap.'},
-  {type:'yesno',cat:'⚠️ False Friend Alert',tag:'False Friends',q:'A colleague says:\n\n<span class="hl">"Eventually we might change the plan."</span>\n\nDoes "eventually" mean "possibly" in English?',optA:{emoji:'❌',label:'No'},optB:{emoji:'✅',label:'Yes'},correct:'A',explain:'<strong>Eventually = definitely in the end, after a delay. NOT "possibly".</strong>'},
-  {type:'abcd',cat:'⚠️ False Friend Alert',tag:'False Friends',q:'Your manager asks for the <span class="hl">actual</span> figures. What do they want?',opts:['Current figures','Real, exact figures — not estimates','Most important figures','Final confirmed figures'],correct:1,explain:'<strong>Actual = real and exact — NOT "current".</strong>'},
-  {type:'two',cat:'⚠️ False Friend Alert',tag:'False Friends',q:'You want to say your colleague is nice and easy to like. Which is correct?',optA:{emoji:'💬',label:'"She\'s very sympathetic."'},optB:{emoji:'💬',label:'"She\'s very likeable."'},correct:'B',explain:'<strong>Use "likeable" — not "sympathetic".</strong>'},
-  {type:'abcd',cat:'✏️ Grammar Zap',tag:'Grammar',q:'Which sentence is correct?',opts:['"She did a mistake."','"She made a mistake."','"She has done a mistake."','"She do a mistake."'],correct:1,explain:'<strong>Always "make a mistake" — never "do a mistake".</strong>'},
-  {type:'yesno',cat:'✏️ Grammar Zap',tag:'Grammar',q:'Is this sentence correct?\n\n<span class="hl">"I have been to Paris last year."</span>',optA:{emoji:'❌',label:'No — there\'s a mistake'},optB:{emoji:'✅',label:'Yes — correct'},correct:'A',explain:'<strong>Specific past times always need simple past.</strong> ✅ "I went to Paris last year."'},
-  {type:'abcd',cat:'✏️ Grammar Zap',tag:'Grammar',q:'"Can you _____ me your pen for a moment?"',opts:['borrow','lend','loan','take'],correct:1,explain:'<strong>Lend = give temporarily. Borrow = receive temporarily.</strong>'},
-  {type:'abcd',cat:'✏️ Grammar Zap',tag:'Grammar',q:'Which is the correct second conditional?',opts:['"If I would have more time, I will learn Japanese."','"If I had more time, I would learn Japanese."','"If I have more time, I would learn Japanese."','"If I had more time, I will learn Japanese."'],correct:1,explain:'<strong>Second conditional: If + past simple → would + infinitive.</strong>'},
-  {type:'two',cat:'✏️ Grammar Zap',tag:'Grammar',q:'"I\'m really looking forward _____ the conference."',optA:{emoji:'A',label:'"to attend"'},optB:{emoji:'B',label:'"to attending"'},correct:'B',explain:'<strong>"Look forward to" is always followed by -ing.</strong>'},
-  {type:'yesno',cat:'✏️ Grammar Zap',tag:'Grammar',q:'Can you say <span class="hl">"a progress"</span>?\n\n"We made a good progress today."',optA:{emoji:'❌',label:'No — it\'s wrong'},optB:{emoji:'✅',label:'Yes — fine'},correct:'A',explain:'<strong>Progress is uncountable — no article, no plural.</strong>'},
-  {type:'abcd',cat:'📖 Word of the Day',tag:'Vocabulary',q:'A bookshop owner says "I <span class="hl">curate</span> a box of books for each customer." What does curate mean?',opts:['Buy in bulk','Wrap as a gift','Select and organise items with care','Price and display on shelves'],correct:2,explain:'<strong>Curate = carefully select and organise a collection.</strong>'},
-  {type:'abcd',cat:'📖 Word of the Day',tag:'Vocabulary',q:'"All <span class="hl">proceeds</span> from the concert go to the food bank." What are proceeds?',opts:['Rules and regulations','Money made from a sale or event','Running costs','The performers'],correct:1,explain:'<strong>Proceeds = money obtained from a sale or event.</strong> Always plural.'},
-  {type:'abcd',cat:'📖 Word of the Day',tag:'Vocabulary',q:'A city described as a <span class="hl">magnet</span> for young talent. What does magnet mean here?',opts:['Expensive and exclusive','Dangerous to live in','Something that strongly attracts people','City with fast transport'],correct:2,explain:'<strong>A magnet for = something that strongly attracts people.</strong>'},
-  {type:'abcd',cat:'💡 Did You Know?',tag:'Fun Fact',q:'Where does the English word <span class="hl">salary</span> come from?',opts:['Latin for gold','Latin for salt','Old French for wages','Greek for payment'],correct:1,explain:'<strong>Salary comes from "salarium" — salt.</strong> Roman soldiers were sometimes paid in salt.'},
-  {type:'abcd',cat:'💡 Did You Know?',tag:'Fun Fact',q:'Roughly how many words did Shakespeare invent that we still use today?',opts:['About 200','Around 800','Over 1,700','Nearly 5,000'],correct:2,explain:'<strong>Over 1,700 words</strong> — bedroom, lonely, generous, gloomy, obscene, and "swagger".'},
-  {type:'yesno',cat:'💡 Did You Know?',tag:'Fun Fact',q:'Blockbuster Video earned $800 million a year just from <span class="hl">late fees</span>.\n\nTrue or false?',optA:{emoji:'✅',label:'True'},optB:{emoji:'❌',label:'False'},correct:'A',explain:'<strong>True.</strong> One furious customer was Reed Hastings. He founded Netflix.'},
-  {type:'abcd',cat:'💡 Did You Know?',tag:'Fun Fact',q:'Annual rent at the Fuggerei in Augsburg — world\'s oldest social housing, built 1516?',opts:['€88 per year','€8.80 per year','€0.88 per year','Free'],correct:2,explain:'<strong>€0.88 per year.</strong> Condition: pray three times a day for Jakob Fugger\'s soul.'},
-  {type:'yesno',cat:'💡 Did You Know?',tag:'Fun Fact',q:'"Go." is a grammatically complete sentence.\n\nAgree or disagree?',optA:{emoji:'✅',label:'Agree'},optB:{emoji:'❌',label:'Disagree'},correct:'A',explain:'<strong>Agree — "Go." is complete.</strong> The subject is the implied "you".'},
-  {type:'abcd',cat:'🔊 Say It Right',tag:'Pronunciation',q:'How do you actually pronounce <span class="hl">WEDNESDAY</span>?',opts:['WED-nes-day — all letters','WED-en-day','WENZ-day — first D silent','WED-nes-dee'],correct:2,explain:'<strong>WENZ-day.</strong> The first D is completely silent.'},
-  {type:'abcd',cat:'🔊 Say It Right',tag:'Pronunciation',q:'How do you pronounce <span class="hl">WORCESTERSHIRE</span>?',opts:['wor-CHEST-er-SHIRE','WOR-ster-sheer','WOOSS-ter-sheer','wor-chess-TER-shire'],correct:2,explain:'<strong>WOOSS-ter-sheer.</strong> Same: GLOUCESTER = GLOSS-ter, LEICESTER = LESS-ter.'},
-  {type:'two',cat:'🔊 Say It Right',tag:'Pronunciation',q:'Where is the stress in <span class="hl">ENTREPRENEUR</span>?',optA:{emoji:'🔊',label:'ON-truh-pruh-ner\n(first syllable)'},optB:{emoji:'🔊',label:'on-truh-pruh-NUR\n(last syllable)'},correct:'B',explain:'<strong>on-truh-pruh-NUR.</strong> Stress on the last syllable.'},
-  {type:'abcd',cat:'💼 Business English',tag:'Professional Language',q:'You didn\'t understand something in a meeting. Which sounds most professional?',opts:['"What?"','"I don\'t understand."','"Could you elaborate on that point?"','"Huh, say that again?"'],correct:2,explain:'<strong>"Could you elaborate?" = please explain in more detail.</strong>'},
-  {type:'two',cat:'💼 Business English',tag:'Professional Language',q:'You want to raise a problem without sounding aggressive. Which is better?',optA:{emoji:'💬',label:'"There is a problem with the timeline."'},optB:{emoji:'💬',label:'"I\'d like to flag a concern regarding the timeline."'},correct:'B',explain:'<strong>"Flag a concern" is professional and non-confrontational.</strong>'},
-  {type:'yesno',cat:'💼 Business English',tag:'Professional Language',q:'Is this email phrase correct?\n\n<span class="hl">"Please revert back to me at your earliest convenience."</span>',optA:{emoji:'❌',label:'No — there\'s a mistake'},optB:{emoji:'✅',label:'Yes — correct'},correct:'A',explain:'<strong>"Revert back" is redundant.</strong> Write: "Please get back to me when you have a moment."'},
-  {type:'abcd',cat:'💰 Tax English',tag:'Tax & Finance',q:'A dividend is "subject to 15% <span class="hl">withholding tax</span>." What does this mean?',opts:['Tax when withdrawing from a bank','Tax deducted at source before you receive payment','A late payment penalty','A refundable customs deposit'],correct:1,explain:'<strong>Withholding tax = tax deducted at source before payment reaches you.</strong>'},
-  {type:'abcd',cat:'⚖️ Legal English',tag:'Legal Language',q:'A contract contains a <span class="hl">force majeure</span> clause. What does it do?',opts:['Sets a penalty for late payment','Excuses obligations due to extraordinary events beyond anyone\'s control','Requires annual renegotiation','Limits the contract value'],correct:1,explain:'<strong>Force majeure excuses obligations due to extraordinary events.</strong> Pronounced: fors ma-ZHUR.'},
+
+  /* ── IDIOMS ── */
+  {type:'abcd',cat:'🇬🇧 Idiom of the Day',tag:'Idioms',
+   q:'Your British colleague says he\'s "a bit <span class="hl">skint</span>" this month. What does he mean?',
+   opts:['He\'s feeling unwell','He\'s extremely busy','He has very little money','He\'s in a fantastic mood'],correct:2,
+   explain:'<strong>Skint = having very little money.</strong> "Sorry, can\'t come out — I\'m skint until payday." Opposite: <strong>loaded</strong> (very rich).'},
+
+  {type:'abcd',cat:'🇬🇧 Idiom of the Day',tag:'Idioms',
+   q:'Everything works perfectly first time. Your British friend says:\n\n<span class="hl">"Bob\'s your uncle!"</span>\n\nWhat do they mean?',
+   opts:['You have a relative called Bob','Something went wrong','There you go — done! Simple as that!','You need more practice'],correct:2,
+   explain:'<strong>Bob\'s your uncle = there you have it! Done! Easy!</strong> Origin unknown — but very, very British.'},
+
+  {type:'abcd',cat:'🇬🇧 Idiom of the Day',tag:'Idioms',
+   q:'Your friend says a deal "seems a bit <span class="hl">dodgy</span>." What does dodgy mean?',
+   opts:['Surprisingly generous','Suspicious or unreliable','Very complicated','Extremely good value'],correct:1,
+   explain:'<strong>Dodgy = suspicious, unreliable, possibly dishonest.</strong> "That CV looks a bit dodgy." Very common British informal word.'},
+
+  {type:'yesno',cat:'🇬🇧 Idiom of the Day',tag:'Idioms',
+   q:'Someone invites you to a concert. You say:\n\n<span class="hl">"It\'s not really my cup of tea."</span>\n\nHave you politely said no?',
+   optA:{emoji:'✅',label:'Yes'},optB:{emoji:'❌',label:'No'},correct:'A',
+   explain:'<strong>Not my cup of tea = not something I enjoy.</strong> The British way to decline without causing offence. Far more polite than "I hate that."'},
+
+  {type:'yesno',cat:'🇬🇧 Idiom of the Day',tag:'Idioms',
+   q:'A British friend says:\n\n<span class="hl">"I\'m absolutely gutted."</span>\n\nAre they happy or upset?',
+   optA:{emoji:'😢',label:'Upset'},optB:{emoji:'😄',label:'Happy'},correct:'A',
+   explain:'<strong>Gutted = very disappointed or devastated.</strong> "England lost on penalties again. I\'m gutted."'},
+
+  {type:'abcd',cat:'🇬🇧 Idiom of the Day',tag:'Idioms',
+   q:'Your friend says "I\'m going to <span class="hl">bite the bullet</span> and speak to my boss." What will they do?',
+   opts:['Lose their temper','Do something difficult they\'ve been avoiding','Quit immediately','Ask for a pay rise'],correct:1,
+   explain:'<strong>Bite the bullet = do something difficult or unpleasant that you\'ve been putting off.</strong> Originally from surgery before anaesthesia — patients bit a bullet during pain.'},
+
+  {type:'abcd',cat:'🇬🇧 Idiom of the Day',tag:'Idioms',
+   q:'A colleague says the new project is "a bit of a <span class="hl">dog\'s dinner</span>." What do they think?',
+   opts:['It\'s surprisingly good','It\'s messy and badly organised','It\'s taking too long','It smells strange'],correct:1,
+   explain:'<strong>A dog\'s dinner = a complete mess, badly put together.</strong> "The website redesign is a dog\'s dinner — who approved that?" Synonyms: dog\'s breakfast, shambles, disaster.'},
+
+  {type:'yesno',cat:'🇬🇧 Idiom of the Day',tag:'Idioms',
+   q:'Your British manager says your report is\n\n<span class="hl">"not bad at all."</span>\n\nIs this actually a compliment?',
+   optA:{emoji:'✅',label:'Yes — it\'s positive'},optB:{emoji:'❌',label:'No — it\'s criticism'},correct:'A',
+   explain:'<strong>Yes — in British understatement, "not bad at all" is genuine praise.</strong> British people often communicate the opposite of what other cultures expect. "Not bad" ≈ "quite good". "Quite good" ≈ "excellent".'},
+
+  {type:'abcd',cat:'🇬🇧 Idiom of the Day',tag:'Idioms',
+   q:'Your colleague says "let\'s <span class="hl">touch base</span> next week." What do they want to do?',
+   opts:['Have a formal performance review','Make physical contact as a greeting','Have a brief catch-up or check in','Start a brand new project together'],correct:2,
+   explain:'<strong>Touch base = make brief contact to share updates or check in.</strong> Common in business English. "Let\'s touch base on Monday" = let\'s have a quick chat.'},
+
+  {type:'two',cat:'🇬🇧 Idiom of the Day',tag:'Idioms',
+   q:'Something happens very quickly. Which British idiom fits best?',
+   optA:{emoji:'💬',label:'"Before you could say Jack Robinson"'},optB:{emoji:'💬',label:'"In the blink of a bicycle"'},correct:'A',
+   explain:'<strong>"Before you could say Jack Robinson" = very quickly, instantly.</strong> The second option isn\'t a real idiom — but "in the blink of an eye" is!'},
+
+  {type:'abcd',cat:'🇬🇧 Idiom of the Day',tag:'Idioms',
+   q:'Someone is <span class="hl">"over the moon"</span> about their exam results. How do they feel?',
+   opts:['Confused and overwhelmed','Extremely happy and delighted','Disappointed but relieved','Tired but satisfied'],correct:1,
+   explain:'<strong>Over the moon = absolutely delighted.</strong> "She was over the moon when she got the job." The opposite is "gutted" or "devastated".'},
+
+  /* ── FALSE FRIENDS ── */
+  {type:'abcd',cat:'⚠️ False Friend Alert',tag:'False Friends',
+   q:'What does <span class="hl">sympathetic</span> actually mean in English?',
+   opts:['Nice and likeable','Showing understanding of someone\'s problems','Very energetic','Polite and well-mannered'],correct:1,
+   explain:'<strong>Sympathetic ≠ likeable.</strong> German <em>sympathisch</em> = "likeable" — a classic false friend trap. In English, "sympathetic" means you feel sorry for someone\'s situation.'},
+
+  {type:'yesno',cat:'⚠️ False Friend Alert',tag:'False Friends',
+   q:'A colleague says:\n\n<span class="hl">"Eventually we might change the plan."</span>\n\nDoes "eventually" mean "possibly" in English?',
+   optA:{emoji:'❌',label:'No'},optB:{emoji:'✅',label:'Yes'},correct:'A',
+   explain:'<strong>Eventually = definitely in the end, after some delay — NOT "possibly".</strong> This is a major trap for French and Spanish speakers (<em>éventuellement / eventualmente</em> = possibly).'},
+
+  {type:'abcd',cat:'⚠️ False Friend Alert',tag:'False Friends',
+   q:'Your manager asks for the <span class="hl">actual</span> figures. What do they want?',
+   opts:['Current figures','Real, exact figures — not estimates','Most important figures','Final confirmed figures'],correct:1,
+   explain:'<strong>Actual = real and exact — NOT "current".</strong> German <em>aktuell</em> = current; English "actual" = real. "What are the actual numbers?" means "give me the real data."'},
+
+  {type:'two',cat:'⚠️ False Friend Alert',tag:'False Friends',
+   q:'You want to say your colleague is nice and easy to like. Which is correct?',
+   optA:{emoji:'💬',label:'"She\'s very sympathetic."'},optB:{emoji:'💬',label:'"She\'s very likeable."'},correct:'B',
+   explain:'<strong>Use "likeable" — not "sympathetic".</strong> "Sympathetic" means she understands people\'s troubles, not that she\'s a pleasant person to be around.'},
+
+  {type:'abcd',cat:'⚠️ False Friend Alert',tag:'False Friends',
+   q:'In English, <span class="hl">embarrassed</span> means you feel ashamed or awkward. What does the Spanish word <em>embarazada</em> mean?',
+   opts:['Ashamed','Confused','Pregnant','Nervous'],correct:2,
+   explain:'<strong>Embarazada (Spanish) = pregnant — not embarrassed!</strong> Saying "I am embarrassed" in Spanish as "estoy embarazada" is one of the most famous false friend mistakes in the world.'},
+
+  {type:'yesno',cat:'⚠️ False Friend Alert',tag:'False Friends',
+   q:'A French speaker says "I am very <span class="hl">sensible</span>" to describe themselves as sensitive and emotional.\n\nAre they using the word correctly?',
+   optA:{emoji:'❌',label:'No — wrong meaning'},optB:{emoji:'✅',label:'Yes — correct'},correct:'A',
+   explain:'<strong>Sensible in English = practical and reasonable — NOT emotional.</strong> French <em>sensible</em> = sensitive. So "a sensible decision" means a wise, practical one — not an emotional one.'},
+
+  {type:'abcd',cat:'⚠️ False Friend Alert',tag:'False Friends',
+   q:'You\'re excited about a new project. You say: "I\'m very <span class="hl">sympathetic</span> to this idea." What will your British colleague think?',
+   opts:['That you\'re enthusiastic','That you feel sorry for the idea','That you find it interesting but not exciting','That you find the topic depressing'],correct:2,
+   explain:'<strong>"Sympathetic to an idea" = you understand it and don\'t oppose it — but it\'s lukewarm.</strong> If you want to show enthusiasm, say "I\'m really excited about this" or "I think this is a great idea."'},
+
+  /* ── GRAMMAR ── */
+  {type:'abcd',cat:'✏️ Grammar Zap',tag:'Grammar',
+   q:'Which sentence is correct?',
+   opts:['"She did a mistake."','"She made a mistake."','"She has done a mistake."','"She do a mistake."'],correct:1,
+   explain:'<strong>Always "make a mistake" — never "do a mistake".</strong> Other collocations: make a decision, make an effort, make a suggestion. Do homework, do exercise, do your best.'},
+
+  {type:'yesno',cat:'✏️ Grammar Zap',tag:'Grammar',
+   q:'Is this sentence correct?\n\n<span class="hl">"I have been to Paris last year."</span>',
+   optA:{emoji:'❌',label:'No — there\'s a mistake'},optB:{emoji:'✅',label:'Yes — correct'},correct:'A',
+   explain:'<strong>Specific past times always need simple past.</strong> ✅ "I went to Paris last year." Present perfect can\'t be used with specific time markers like "last year", "yesterday", "in 2020".'},
+
+  {type:'abcd',cat:'✏️ Grammar Zap',tag:'Grammar',
+   q:'"Can you _____ me your pen for a moment?"',
+   opts:['borrow','lend','loan','take'],correct:1,
+   explain:'<strong>Lend = give temporarily. Borrow = receive temporarily.</strong> "Can you lend me your pen?" (give it to me). "Can I borrow your pen?" (receive it from you). Many learners mix these up.'},
+
+  {type:'abcd',cat:'✏️ Grammar Zap',tag:'Grammar',
+   q:'Which is the correct second conditional?',
+   opts:['"If I would have more time, I will learn Japanese."','"If I had more time, I would learn Japanese."','"If I have more time, I would learn Japanese."','"If I had more time, I will learn Japanese."'],correct:1,
+   explain:'<strong>Second conditional: If + past simple → would + infinitive.</strong> Used for hypothetical or unlikely present/future situations. "If I had a million euros, I would retire."'},
+
+  {type:'two',cat:'✏️ Grammar Zap',tag:'Grammar',
+   q:'"I\'m really looking forward _____ the conference."',
+   optA:{emoji:'A',label:'"to attend"'},optB:{emoji:'B',label:'"to attending"'},correct:'B',
+   explain:'<strong>"Look forward to" is always followed by -ing.</strong> The "to" here is a preposition, not part of an infinitive. Also: "I\'m used to working late." "I\'m committed to improving."'},
+
+  {type:'yesno',cat:'✏️ Grammar Zap',tag:'Grammar',
+   q:'Can you say <span class="hl">"a progress"</span>?\n\n"We made a good progress today."',
+   optA:{emoji:'❌',label:'No — it\'s wrong'},optB:{emoji:'✅',label:'Yes — fine'},correct:'A',
+   explain:'<strong>Progress is uncountable — no article, no plural.</strong> ✅ "We made good progress today." Other uncountable traps: information, advice, feedback, news, luggage, accommodation.'},
+
+  {type:'abcd',cat:'✏️ Grammar Zap',tag:'Grammar',
+   q:'Which sentence uses the passive voice correctly?',
+   opts:['"The contract was signed by the lawyer yesterday."','"The contract has been signing."','"The contract is sign by the company."','"The contract were signed yesterday."'],correct:0,
+   explain:'<strong>"Was signed" = past simple passive: was/were + past participle.</strong> Passive voice is everywhere in business and legal English — it removes the focus from who did something and puts it on what happened.'},
+
+  {type:'two',cat:'✏️ Grammar Zap',tag:'Grammar',
+   q:'Which is correct in formal written English?',
+   optA:{emoji:'A',label:'"The fee was deducted before payment."'},optB:{emoji:'B',label:'"They deducted the fee before payment."'},correct:'A',
+   explain:'<strong>Both are grammatically correct</strong> — but in formal, professional English (tax, legal, business reports), passive voice is strongly preferred. It sounds more objective and impersonal.'},
+
+  {type:'abcd',cat:'✏️ Grammar Zap',tag:'Grammar',
+   q:'"The company _____ in 1952 and now employs over 5,000 people."',
+   opts:['was found','has founded','was founded','founded'],correct:2,
+   explain:'<strong>"Was founded" — past simple passive.</strong> "Founded" (active, past simple) also works but needs a subject: "Henry Ford founded the company." Without one, you need passive: "The company was founded."'},
+
+  {type:'yesno',cat:'✏️ Grammar Zap',tag:'Grammar',
+   q:'Is this correct?\n\n<span class="hl">"The informations you need are in the report."</span>',
+   optA:{emoji:'❌',label:'No — mistake'},optB:{emoji:'✅',label:'Yes — fine'},correct:'A',
+   explain:'<strong>Information is uncountable — never "informations".</strong> ✅ "The information you need is in the report." Other commonly pluralised uncountables to avoid: "advices", "feedbacks", "equipments", "staffs".'},
+
+  /* ── VOCABULARY ── */
+  {type:'abcd',cat:'📖 Word of the Day',tag:'Vocabulary',
+   q:'A bookshop owner says "I <span class="hl">curate</span> a box of books for each customer." What does curate mean?',
+   opts:['Buy in bulk','Wrap as a gift','Select and organise items with care','Price and display on shelves'],correct:2,
+   explain:'<strong>Curate = carefully select and organise a collection.</strong> Originally used for museum curators. Now used everywhere: "a curated playlist", "a curated experience", "a curated feed."'},
+
+  {type:'abcd',cat:'📖 Word of the Day',tag:'Vocabulary',
+   q:'"All <span class="hl">proceeds</span> from the concert go to the food bank." What are proceeds?',
+   opts:['Rules and regulations','Money made from a sale or event','Running costs','The performers'],correct:1,
+   explain:'<strong>Proceeds = money obtained from a sale or event.</strong> Always plural. "The proceeds of the auction will fund the new building."'},
+
+  {type:'abcd',cat:'📖 Word of the Day',tag:'Vocabulary',
+   q:'A city described as a <span class="hl">magnet</span> for young talent. What does magnet mean here?',
+   opts:['Expensive and exclusive','Dangerous to live in','Something that strongly attracts people','City with fast transport'],correct:2,
+   explain:'<strong>A magnet for = something that strongly attracts people or things.</strong> "London is a magnet for ambitious graduates." "The restaurant has become a magnet for food critics."'},
+
+  {type:'abcd',cat:'📖 Word of the Day',tag:'Vocabulary',
+   q:'The Crown Estate\'s portfolio <span class="hl">spans</span> Windsor Great Park, Regent Street and the seabed. What does span mean here?',
+   opts:['Owns exclusively','Extends across a wide range','Recently acquired','Plans to sell'],correct:1,
+   explain:'<strong>Span = extend across, cover a wide range.</strong> "Her career spanned four decades." "The bridge spans the river." "The company\'s interests span 12 countries." Very useful formal verb.'},
+
+  {type:'abcd',cat:'📖 Word of the Day',tag:'Vocabulary',
+   q:'A business deal is described as <span class="hl">lucrative</span>. What does this mean?',
+   opts:['Complicated and risky','Producing a large profit','Legally complicated','Difficult to negotiate'],correct:1,
+   explain:'<strong>Lucrative = producing a large amount of money, very profitable.</strong> "A lucrative contract." "The most lucrative market in the region." From Latin <em>lucrum</em> = profit.'},
+
+  {type:'abcd',cat:'📖 Word of the Day',tag:'Vocabulary',
+   q:'The engineer was responsible for <span class="hl">commissioning</span> the new machine. What did this involve?',
+   opts:['Ordering it from Germany','Painting and labelling it','Testing and verifying it works correctly','Negotiating the contract price'],correct:2,
+   explain:'<strong>Commissioning = the process of testing and verifying that equipment works as specified.</strong> It\'s the final phase of installing complex machinery — and it\'s used in Tax English too, because commissioning time counts toward PE thresholds!'},
+
+  {type:'abcd',cat:'📖 Word of the Day',tag:'Vocabulary',
+   q:'The report was described as <span class="hl">scathing</span>. What kind of report was it?',
+   opts:['Very long and detailed','Highly critical and harsh','Difficult to understand','Surprisingly positive'],correct:1,
+   explain:'<strong>Scathing = harshly critical.</strong> "A scathing review." "The audit produced a scathing report on the company\'s finances." A scathing critique is one that doesn\'t hold back.'},
+
+  {type:'abcd',cat:'📖 Word of the Day',tag:'Vocabulary',
+   q:'A company\'s structure is described as <span class="hl">opaque</span>. What does this mean?',
+   opts:['Very efficient','Difficult to understand or see through','Based in multiple countries','Recently restructured'],correct:1,
+   explain:'<strong>Opaque = not transparent, hard to understand.</strong> Literally, opaque means you can\'t see through it. In business: "opaque pricing", "opaque ownership structures". The opposite is <strong>transparent</strong>.'},
+
+  /* ── FUN FACTS ── */
+  {type:'abcd',cat:'💡 Did You Know?',tag:'Fun Fact',
+   q:'Where does the English word <span class="hl">salary</span> come from?',
+   opts:['Latin for gold','Latin for salt','Old French for wages','Greek for payment'],correct:1,
+   explain:'<strong>Salary comes from "salarium" — salt.</strong> Roman soldiers were sometimes paid in salt or given money to buy it. "Worth their salt" comes from the same root.'},
+
+  {type:'abcd',cat:'💡 Did You Know?',tag:'Fun Fact',
+   q:'Roughly how many words did Shakespeare invent that we still use today?',
+   opts:['About 200','Around 800','Over 1,700','Nearly 5,000'],correct:2,
+   explain:'<strong>Over 1,700 words</strong> — bedroom, lonely, generous, gloomy, obscene, and "swagger" all came from Shakespeare. He invented words by turning nouns into verbs and adding prefixes and suffixes.'},
+
+  {type:'yesno',cat:'💡 Did You Know?',tag:'Fun Fact',
+   q:'Blockbuster Video earned $800 million a year just from <span class="hl">late fees</span>.\n\nTrue or false?',
+   optA:{emoji:'✅',label:'True'},optB:{emoji:'❌',label:'False'},correct:'A',
+   explain:'<strong>True.</strong> One furious customer was Reed Hastings. He founded Netflix. The rest is history.'},
+
+  {type:'abcd',cat:'💡 Did You Know?',tag:'Fun Fact',
+   q:'Annual rent at the Fuggerei in Augsburg — world\'s oldest social housing, built 1516 — is how much?',
+   opts:['€88 per year','€8.80 per year','€0.88 per year','Free'],correct:2,
+   explain:'<strong>€0.88 per year.</strong> Condition: pray three times a day for the soul of Jakob Fugger. Still occupied. Still operating. Still €0.88.'},
+
+  {type:'yesno',cat:'💡 Did You Know?',tag:'Fun Fact',
+   q:'"Go." is a grammatically complete sentence.\n\nAgree or disagree?',
+   optA:{emoji:'✅',label:'Agree'},optB:{emoji:'❌',label:'Disagree'},correct:'A',
+   explain:'<strong>Agree — "Go." is complete.</strong> The subject is the implied "you" — called the imperative form. "Stop." "Listen." "Run." All complete sentences.'},
+
+  {type:'abcd',cat:'💡 Did You Know?',tag:'Fun Fact',
+   q:'The Crown Estate owns almost the entire <span class="hl">seabed</span> of England, Wales and Northern Ireland. How far out?',
+   opts:['1 nautical mile','3 nautical miles (12km)','10 nautical miles','To the horizon'],correct:1,
+   explain:'<strong>3 nautical miles out — roughly 12km.</strong> The Crown Estate earns revenue from offshore wind farms, cables and pipelines crossing that seabed. It\'s one of the UK\'s most unusual asset classes.'},
+
+  {type:'abcd',cat:'💡 Did You Know?',tag:'Fun Fact',
+   q:'How many dogs did Queen Elizabeth II own during her lifetime?',
+   opts:['More than 30 corgis','Exactly 8','Just 3','She didn\'t like dogs'],correct:0,
+   explain:'<strong>Over 30 corgis</strong> across her 70-year reign. She was given her first corgi, Susan, on her 18th birthday in 1944. The breed became internationally associated with the British royal family because of her.'},
+
+  {type:'abcd',cat:'💡 Did You Know?',tag:'Fun Fact',
+   q:'Which London Underground line is the only one that goes above ground in central London?',
+   opts:['The Jubilee Line','The Hammersmith & City Line','The Circle Line','None — they all stay underground'],correct:3,
+   explain:'<strong>None of them — trick question!</strong> Actually, many lines surface at various points. But the most famous stretch is the District and Circle lines running alongside the Thames. The deep-level "tube" lines (like Jubilee and Northern) do emerge above ground outside Zone 1.'},
+
+  {type:'yesno',cat:'💡 Did You Know?',tag:'Fun Fact',
+   q:'The London Underground is the oldest metro system in the world.\n\nTrue or false?',
+   optA:{emoji:'✅',label:'True'},optB:{emoji:'❌',label:'False'},correct:'A',
+   explain:'<strong>True!</strong> The Metropolitan Railway opened in January 1863 — 160+ years ago. Passengers travelled in gas-lit wooden carriages through steam-filled tunnels. The first passengers complained about the smoke.'},
+
+  {type:'abcd',cat:'💡 Did You Know?',tag:'Fun Fact',
+   q:'IKEA\'s name is an acronym. What do the letters stand for?',
+   opts:['International Kitchens and Equipment Association','Ingvar Kamprad Elmtaryd Agunnaryd','Innovative Kitchen and Everyday Accessories','Swedish words for home, design, and quality'],correct:1,
+   explain:'<strong>IKEA = Ingvar Kamprad (founder) + Elmtaryd (the farm where he grew up) + Agunnaryd (his home village).</strong> He started the company at 17, selling matches and pens from a shed in Sweden.'},
+
+  /* ── PRONUNCIATION ── */
+  {type:'abcd',cat:'🔊 Say It Right',tag:'Pronunciation',
+   q:'How do you actually pronounce <span class="hl">WEDNESDAY</span>?',
+   opts:['WED-nes-day — all letters','WED-en-day','WENZ-day — first D silent','WED-nes-dee'],correct:2,
+   explain:'<strong>WENZ-day.</strong> The first D is completely silent in natural speech. Same pattern: <strong>SANDWICH</strong> = "san-which", <strong>HANDSOME</strong> = "han-sum".'},
+
+  {type:'abcd',cat:'🔊 Say It Right',tag:'Pronunciation',
+   q:'How do you pronounce <span class="hl">WORCESTERSHIRE</span>?',
+   opts:['wor-CHEST-er-SHIRE','WOR-ster-sheer','WOOSS-ter-sheer','wor-chess-TER-shire'],correct:2,
+   explain:'<strong>WOOSS-ter-sheer.</strong> Same rule: GLOUCESTER = GLOSS-ter, LEICESTER = LESS-ter. English place names are merciless.'},
+
+  {type:'two',cat:'🔊 Say It Right',tag:'Pronunciation',
+   q:'Where is the stress in <span class="hl">ENTREPRENEUR</span>?',
+   optA:{emoji:'🔊',label:'ON-truh-pruh-ner\n(first syllable)'},optB:{emoji:'🔊',label:'on-truh-pruh-NUR\n(last syllable)'},correct:'B',
+   explain:'<strong>on-truh-pruh-NUR.</strong> Stress on the last syllable — it\'s a French loanword and keeps French stress patterns.'},
+
+  {type:'abcd',cat:'🔊 Say It Right',tag:'Pronunciation',
+   q:'Which of these words has a SILENT letter?',
+   opts:['"table"','"knife"','"bridge"','"simple"'],correct:1,
+   explain:'<strong>KNIFE — the K is silent.</strong> Also: kneel, knock, know, knight. The K-before-N rule: always silent in English. Comes from Old English where both letters were pronounced. Now just the K stopped being said.'},
+
+  {type:'two',cat:'🔊 Say It Right',tag:'Pronunciation',
+   q:'How do you pronounce the word <span class="hl">COLONEL</span>?',
+   optA:{emoji:'🔊',label:'koh-LOH-nel\n(like it\'s spelled)'},optB:{emoji:'🔊',label:'KUR-nel\n(like "kernel")'},correct:'B',
+   explain:'<strong>KUR-nel — like the word "kernel".</strong> One of English\'s most confusing pronunciations. The L was once sounded, then the French spelling and Italian pronunciation got mixed together. The result: complete spelling chaos.'},
+
+  /* ── BUSINESS ENGLISH ── */
+  {type:'abcd',cat:'💼 Business English',tag:'Professional Language',
+   q:'You didn\'t understand something in a meeting. Which sounds most professional?',
+   opts:['"What?"','"I don\'t understand."','"Could you elaborate on that point?"','"Huh, say that again?"'],correct:2,
+   explain:'<strong>"Could you elaborate?" = please explain in more detail.</strong> Other options: "Could you clarify that for me?" / "I want to make sure I understood correctly — could you expand on that?"'},
+
+  {type:'two',cat:'💼 Business English',tag:'Professional Language',
+   q:'You want to raise a problem without sounding aggressive. Which is better?',
+   optA:{emoji:'💬',label:'"There is a problem with the timeline."'},optB:{emoji:'💬',label:'"I\'d like to flag a concern regarding the timeline."'},correct:'B',
+   explain:'<strong>"Flag a concern" is professional and non-confrontational.</strong> "Flag" = bring to attention carefully. Much better than announcing a "problem" — which sounds alarming.'},
+
+  {type:'yesno',cat:'💼 Business English',tag:'Professional Language',
+   q:'Is this email phrase correct?\n\n<span class="hl">"Please revert back to me at your earliest convenience."</span>',
+   optA:{emoji:'❌',label:'No — there\'s a mistake'},optB:{emoji:'✅',label:'Yes — correct'},correct:'A',
+   explain:'<strong>"Revert back" is redundant — "revert" already means "go back".</strong> Also, "revert" technically means to return to a previous state — not to reply. Better: "Please get back to me when you have a moment."'},
+
+  {type:'abcd',cat:'💼 Business English',tag:'Professional Language',
+   q:'Your report says the project is "<span class="hl">on track</span>." What does this mean?',
+   opts:['It\'s been cancelled','It\'s progressing as planned','It\'s finished','It\'s slightly delayed'],correct:1,
+   explain:'<strong>On track = progressing according to the plan.</strong> "The Q3 launch is on track." Opposite: "off track" or "behind schedule". Related: "ahead of schedule" = finishing early.'},
+
+  {type:'two',cat:'💼 Business English',tag:'Professional Language',
+   q:'Your project is delayed. Which email opening sounds more professional?',
+   optA:{emoji:'📧',label:'"We have a big problem and I\'m very sorry."'},optB:{emoji:'📧',label:'"I wanted to flag a delay and share a revised timeline."'},correct:'B',
+   explain:'<strong>Don\'t lead with panic or over-apologising — lead with information and solutions.</strong> Professional English is calm, clear, and solution-focused. Give the facts, explain what happened, offer next steps.'},
+
+  /* ── TAX ENGLISH (from our lessons) ── */
+  {type:'abcd',cat:'💰 Tax English',tag:'Tax & Finance',
+   q:'A dividend is "subject to 15% <span class="hl">withholding tax</span>." What does this mean?',
+   opts:['Tax when withdrawing from a bank','Tax deducted at source before you receive payment','A late payment penalty','A refundable customs deposit'],correct:1,
+   explain:'<strong>Withholding tax = tax deducted at source before payment reaches you.</strong> The payer holds back the tax and pays it to the government. You receive the net amount. Suppliers must gross up their fees to account for it.'},
+
+  {type:'abcd',cat:'💰 Tax English',tag:'Tax & Finance',
+   q:'MaschinenbauTech ships a machine from Germany to Saudi Arabia. What German VAT rate applies to the export?',
+   opts:['19% — standard German rate','7% — reduced rate','0% — exports are zero-rated','15% — Saudi rate applies'],correct:2,
+   explain:'<strong>0% — exports from the EU are zero-rated for VAT.</strong> The VAT question moves to the destination country (Saudi Arabia, 15%). Charging 19% German VAT on an export is a costly mistake. The exporter still recovers their input VAT.'},
+
+  {type:'yesno',cat:'💰 Tax English',tag:'Tax & Finance',
+   q:'A German engineer works on-site in Saudi Arabia for 11 months.\n\nThe PE threshold in the tax treaty is 12 months.\n\nHas a permanent establishment been created?',
+   optA:{emoji:'❌',label:'Not yet'},optB:{emoji:'✅',label:'Yes — PE created'},correct:'A',
+   explain:'<strong>Not yet — 11 months is under the 12-month threshold.</strong> But this is dangerously close. Every extra day counts — including commissioning and testing time. The company should take urgent advice and consider rotating engineers.'},
+
+  {type:'abcd',cat:'💰 Tax English',tag:'Tax & Finance',
+   q:'A services contract specifies the fee as <span class="hl">€300,000 gross</span> with 5% withholding tax. How much does the supplier actually receive?',
+   opts:['€300,000','€315,000','€285,000','€295,000'],correct:2,
+   explain:'<strong>€285,000.</strong> 5% of €300,000 = €15,000 withheld. Net = €285,000. To receive €300,000 net, you must invoice €315,789 (= €300,000 ÷ 0.95). This is called <strong>grossing up</strong> — essential in cross-border pricing.'},
+
+  {type:'abcd',cat:'💰 Tax English',tag:'Tax & Finance',
+   q:'Which Incoterm means the SELLER pays ALL costs — freight, insurance and customs duties — to the buyer\'s door?',
+   opts:['EXW (Ex Works)','FOB (Free on Board)','CIF (Cost, Insurance, Freight)','DDP (Delivered Duty Paid)'],correct:3,
+   explain:'<strong>DDP = maximum seller responsibility.</strong> The seller absorbs all costs including import duties. Failing to cost customs duty into a DDP price can destroy the deal\'s profit margin. EXW is the opposite — buyer takes all responsibility.'},
+
+  {type:'yesno',cat:'💰 Tax English',tag:'Tax & Finance',
+   q:'Commissioning time — testing a machine after installation — counts toward the PE time threshold.\n\nTrue or false?',
+   optA:{emoji:'✅',label:'True'},optB:{emoji:'❌',label:'False'},correct:'A',
+   explain:'<strong>True.</strong> Every day on-site counts — whether the engineer is installing, calibrating, testing, or commissioning. Companies often underestimate commissioning time and push themselves over PE thresholds as a result.'},
+
+  /* ── BRITISH CULTURE / TUBE ── */
+  {type:'abcd',cat:'🇬🇧 British Culture',tag:'British Culture',
+   q:'On the London Underground, what does "<span class="hl">Mind the gap</span>" mean?',
+   opts:['Don\'t talk to strangers','Be aware of the space between the train and the platform edge','Stand on the right side','Keep your bag close'],correct:1,
+   explain:'<strong>"Mind the gap" = be careful of the gap between the train door and the platform.</strong> First recorded in 1969. Now one of the most recognisable phrases in British culture — on mugs, t-shirts, and in every tourist\'s memory.'},
+
+  {type:'abcd',cat:'🇬🇧 British Culture',tag:'British Culture',
+   q:'On London Underground escalators, which side do you stand on?',
+   opts:['The left','The right','Either — no rule','You must always walk'],correct:1,
+   explain:'<strong>Stand on the RIGHT, walk on the left.</strong> Violating this unwritten rule is one of the fastest ways to annoy a Londoner. The rule has been so ingrained since the 1940s that it\'s considered basic social law.'},
+
+  {type:'abcd',cat:'🇬🇧 British Culture',tag:'British Culture',
+   q:'The London Underground is nicknamed <span class="hl">"the Tube"</span>. Why?',
+   opts:['Because it was invented by a man named Tube','Because the tunnels are circular — tube-shaped','Because of the sound it makes','Because it was originally called Tunnel Underground Bypass Express'],correct:1,
+   explain:'<strong>The tunnels are literally tube-shaped — circular cross-sections cut through London clay.</strong> Deep-level lines like the Northern and Jubilee have the classic circular tunnels. Shallower "cut-and-cover" lines (Circle, District) have more rectangular tunnels.'},
+
+  {type:'yesno',cat:'🇬🇧 British Culture',tag:'British Culture',
+   q:'The Crown Estate does NOT belong to the British government — it belongs to the monarch personally.\n\nTrue or false?',
+   optA:{emoji:'❌',label:'False — it\'s complicated'},optB:{emoji:'✅',label:'True'},correct:'A',
+   explain:'<strong>False — it\'s neither!</strong> The Crown Estate belongs to "the Crown" — a constitutional concept separate from both the government AND the monarch personally. The King can\'t sell it or keep the profits. 25% goes to the King as the Sovereign Grant. The rest (£1.1bn+) goes to the Treasury.'},
+
+  {type:'abcd',cat:'🇬🇧 British Culture',tag:'British Culture',
+   q:'What is Regent Street famous for — and who owns it?',
+   opts:['Famous for markets — owned by the City of London','Famous for luxury shopping — owned by the Crown Estate','Famous for theatres — owned by Westminster Council','Famous for finance — owned by the Bank of England'],correct:1,
+   explain:'<strong>Regent Street is one of London\'s most famous shopping streets — and it\'s owned by the Crown Estate.</strong> That means every time you shop at Apple, Liberty, or Burberry on Regent Street, the rent ultimately benefits the British Treasury.'},
+
+  /* ── ROYAL / CORGIS ── */
+  {type:'abcd',cat:'👑 Royal English',tag:'Royal & Crown',
+   q:'Queen Elizabeth II\'s corgis were a specific breed. What is a <span class="hl">corgi</span>?',
+   opts:['A large guard dog bred for royalty','A small Welsh herding dog with short legs','A type of spaniel favoured by British aristocracy','A Scottish terrier'],correct:1,
+   explain:'<strong>A corgi is a small herding dog from Wales — short legs, big ears, enormous personality.</strong> The full name is "Pembroke Welsh Corgi." The Queen had over 30 across her life. After her death, her last corgis went to live with Prince Andrew.'},
+
+  {type:'abcd',cat:'👑 Royal English',tag:'Royal & Crown',
+   q:'What does the phrase <span class="hl">"By Royal Appointment"</span> mean on a product?',
+   opts:['The product was designed by a member of the royal family','A member of the royal family regularly uses the product','It was given as a gift to the royal family','It is sold only in royal palaces'],correct:1,
+   explain:'<strong>By Royal Appointment = the company supplies goods or services to a senior royal.</strong> Companies must apply, be approved, and have supplied the relevant royal for at least 5 years. It\'s a prestigious mark — like a very exclusive quality seal.'},
+
+  {type:'yesno',cat:'👑 Royal English',tag:'Royal & Crown',
+   q:'The Queen\'s corgis were allowed to sleep in her bedroom at Buckingham Palace.\n\nTrue or false?',
+   optA:{emoji:'✅',label:'True'},optB:{emoji:'❌',label:'False'},correct:'A',
+   explain:'<strong>True.</strong> The corgis famously had their own wicker baskets in the Queen\'s bedroom, raised off the floor so they wouldn\'t get draughts. They were served meals prepared by palace chefs and had their own dedicated footman.'},
+
+  /* ── IKEA LESSON ── */
+  {type:'abcd',cat:'🛋️ Business Culture',tag:'Business Culture',
+   q:'IKEA is famous for its flat-pack furniture. What is the <span class="hl">IKEA effect</span>?',
+   opts:['The tendency for IKEA stores to make you spend more than planned','The psychological phenomenon where we value things more because we built them ourselves','The way IKEA arranges stores so you must walk through everything','The guilt of buying furniture you don\'t need'],correct:1,
+   explain:'<strong>The IKEA effect = we value things more when we\'ve put effort into creating them.</strong> Research by Harvard Business School showed people rated their self-assembled furniture as highly as expert-made furniture — simply because they built it.'},
+
+  {type:'abcd',cat:'🛋️ Business Culture',tag:'Business Culture',
+   q:'IKEA product names are never random. Swedish beds are named after <span class="hl">Norwegian places</span>. What are chairs named after?',
+   opts:['Swedish lakes','Swedish first names','Scandinavian professions','Danish islands'],correct:0,
+   explain:'<strong>Chairs and desks are named after Swedish lakes.</strong> Each product category has its own naming system: beds = Norwegian towns, sofas = Swedish place names, bookshelves = occupations, kitchens = grammatical terms. A genuinely enormous naming operation.'},
+
+  /* ── LEGAL ENGLISH ── */
+  {type:'abcd',cat:'⚖️ Legal English',tag:'Legal Language',
+   q:'A contract contains a <span class="hl">force majeure</span> clause. What does it do?',
+   opts:['Sets a penalty for late payment','Excuses obligations due to extraordinary events beyond anyone\'s control','Requires annual renegotiation','Limits the contract value'],correct:1,
+   explain:'<strong>Force majeure excuses obligations due to extraordinary events.</strong> Earthquakes, wars, pandemics. During COVID-19, this clause became extremely important in contract disputes worldwide. Pronounced: fors ma-ZHUR.'},
+
+  {type:'abcd',cat:'⚖️ Legal English',tag:'Legal Language',
+   q:'A contract says "Time is of the <span class="hl">essence</span>." What does this legal phrase mean?',
+   opts:['The contract must be written in clear, simple language','Deadlines in this contract are absolute — missing them is a breach','The parties must meet in person to sign','The pricing is subject to change over time'],correct:1,
+   explain:'<strong>"Time is of the essence" = deadlines are strict and legally binding.</strong> If you miss a deadline in such a contract, the other party can terminate immediately without giving you a chance to fix it.'},
+
+  {type:'yesno',cat:'⚖️ Legal English',tag:'Legal Language',
+   q:'In English law, a verbal (spoken) agreement can be legally binding without a written contract.\n\nTrue or false?',
+   optA:{emoji:'✅',label:'True'},optB:{emoji:'❌',label:'False'},correct:'A',
+   explain:'<strong>True — with important conditions.</strong> A verbal contract is generally enforceable if there was offer, acceptance, consideration, and intention to create legal relations. The problem is proof. Without writing, it\'s very hard to show what was agreed. Written contracts exist to prevent disputes, not to make contracts valid.'},
+
 ];
 
 const TOTAL = CARDS.length;
@@ -590,30 +934,24 @@ function randShuffle(arr){
 }
 
 function boot(){
-  // Hero colour
   const dayVibe = HERO_DAYS[new Date().getDay()];
   const hero    = document.getElementById('hero');
   const heroDeco = document.getElementById('hero-deco');
   if(hero)     hero.style.background = dayVibe.bg;
   if(heroDeco) heroDeco.textContent  = dayVibe.deco;
 
-  // Seed daily card
   const d    = new Date();
   const seed = d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate();
   _order = seededShuffle([...Array(TOTAL).keys()], seed);
 
-  // Populate track cards
   populateTrackCards();
 
-  // Check if student has an active class session
-  // If so, show a subtle "Back to class" pill — that's all this page does
   const savedClass = localStorage.getItem('efcd_class_id');
-if(savedClass){
-  const pill = document.getElementById('live-pill');
-  if(pill) pill.classList.add('show');
-  // Auto-clears pill if teacher has ended the session
-  if(window.EFCD_Rewards) EFCD_Rewards.validateClassSession('live-pill');
-}
+  if(savedClass){
+    const pill = document.getElementById('live-pill');
+    if(pill) pill.classList.add('show');
+    if(window.EFCD_Rewards) EFCD_Rewards.validateClassSession('live-pill');
+  }
 
   render();
 }
@@ -737,7 +1075,6 @@ function handleResult(ok, el, explain){
     }
     if(_sessionScore > 0 && _sessionScore % 5 === 0) setTimeout(showMoti, 600);
 
-    // XP float
     if(el){
       const r = el.getBoundingClientRect();
       const f = document.createElement('div');
