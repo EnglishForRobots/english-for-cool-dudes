@@ -227,7 +227,6 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 /* ── FX ── */
 .conf-dot{position:fixed;border-radius:3px;pointer-events:none;z-index:9999;animation:confetti 1.1s ease-out both}
 </style>
-<script src="/lesson-data-registry.js"></script>  
 </head>
 <body>
 
@@ -256,6 +255,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
   <!-- content rendered by JS -->
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/init-auth.js"></script>
 <script src="/supabase-auth-gamified.js"></script>
 <script>
 'use strict';
@@ -361,7 +362,7 @@ function renderPage(user, stats, lessons){
       <div class="empty-state">
         <span class="empty-icon">🎯</span>
         <div class="empty-title">No badges yet!</div>
-        <div class="empty-sub">Complete your first lesson and your badge will appear here — with everything you need to review it.</div>
+        <div class="empty-sub">Complete your first lesson and your badge appears here — with vocabulary flashcards, grammar exercises and quiz games so you can review it any time.</div>
         <a href="/" class="empty-btn">🚀 Find a lesson →</a>
       </div>`;
     return;
@@ -859,7 +860,7 @@ async function boot(){
       .eq('user_id', user.id)
       .order('completed_at', { ascending: false });
 
-    if(error) throw error;
+    if(error) console.warn('[my-lessons] lessons query error:', error);
 
     // Deduplicate — keep most recent completion per lesson_link
     const seen = new Set();
@@ -874,7 +875,14 @@ async function boot(){
 
   } catch(e) {
     console.warn('[my-lessons] boot error:', e);
-    renderPage(null, null, []);
+    // If we have a user but something else failed, still show their page
+    const user = window.EFCD_Auth?.getCurrentUser?.();
+    const stats = window.EFCD_Auth?.getUserStats?.();
+    if(user) {
+      renderPage(user, stats, []);
+    } else {
+      renderPage(null, null, []);
+    }
   }
 }
 
