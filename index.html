@@ -944,6 +944,17 @@ function boot(){
   const seed = d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate();
   _order = seededShuffle([...Array(TOTAL).keys()], seed);
 
+   // Restore today's position across page loads
+  const saved = localStorage.getItem('efcd_card_idx');
+  const savedDate = localStorage.getItem('efcd_card_date');
+  if(saved && savedDate === dateStr){
+    _idx = parseInt(saved, 10);
+  } else {
+    _idx = 0;
+    localStorage.setItem('efcd_card_date', dateStr);
+    localStorage.setItem('efcd_card_idx', '0');
+  }
+
   populateTrackCards();
 
   const savedClass = localStorage.getItem('efcd_class_id');
@@ -1102,7 +1113,8 @@ function showNext(ok){
 }
 
 window.nextCard = function(){
-  _idx++;
+   _idx++;
+  localStorage.setItem('efcd_card_idx', String(_idx));
   const shell = document.querySelector('.card-shell');
   if(shell){ shell.style.opacity='0'; shell.style.transform='translateY(5px)'; shell.style.transition='opacity .15s,transform .15s'; }
   setTimeout(() => { render(); if(shell){ shell.style.opacity='1'; shell.style.transform='translateY(0)'; } }, 160);
