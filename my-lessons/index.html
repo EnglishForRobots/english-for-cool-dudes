@@ -409,15 +409,19 @@ function openReview(idx){
   // Build vocab from registry or fall back to saved vocabulary jsonb
   const vocabData = reg?.vocab || (Array.isArray(l.vocabulary) ? l.vocabulary.map(v=>({word:v.word,definition:v.definition})) : []);
 
-  // Decide which tabs to show
+  // Decide which tabs to show — no vocab tab, activities cover it
   const tabs = [];
-  if(vocabData.length)          tabs.push({id:'vocab',    label:'📖 Vocabulary'});
   if(reg?.vocab?.length)           tabs.push({id:'quiz',        label:'🎯 Quiz'});
   if(reg?.grammar)                 tabs.push({id:'grammar',     label:'✏️ Grammar'});
+  if(reg?.grammar2)                tabs.push({id:'grammar2',    label:'✏️ Grammar 2'});
   if(reg?.sentences?.length)       tabs.push({id:'sentences',   label:'🔀 Sentences'});
   if(reg?.word_builder?.length)    tabs.push({id:'wordBuilder', label:'🔤 Words'});
   if(reg?.true_false?.length)      tabs.push({id:'trueFalse',   label:'✅ True/False'});
 
+  // Fallback if no registry data at all — show basic vocab flashcards
+  if(!tabs.length && vocabData.length){
+    tabs.push({id:'vocab', label:'📖 Vocabulary'});
+  }
   if(!tabs.length){
     tabs.push({id:'vocab', label:'📖 Vocabulary'});
   }
@@ -441,7 +445,8 @@ function openReview(idx){
 
   if(document.getElementById('panel-vocab'))       renderVocabPanel(vocabData, reg);
   if(document.getElementById('panel-quiz'))        renderQuizPanel(reg);
-  if(document.getElementById('panel-grammar'))     renderGrammarPanel(reg);
+  if(document.getElementById('panel-grammar'))     renderGrammarPanel(reg, 'grammar');
+  if(document.getElementById('panel-grammar2'))    renderGrammarPanel(reg, 'grammar2');
   if(document.getElementById('panel-sentences'))   renderSentencePanel(reg);
   if(document.getElementById('panel-wordBuilder')) renderWordBuilderPanel(reg);
   if(document.getElementById('panel-trueFalse'))   renderTFPanel(reg);
@@ -496,11 +501,10 @@ function renderQuizPanel(reg){
     el.innerHTML = `
       <div class="quiz-progress-row"><div class="quiz-pips">${pips}</div><div class="quiz-score" id="qscore">${score}/${questions.length}</div></div>
       <div class="quiz-word-display">
-        <div class="quiz-word">${q.word}</div>
-        ${q.type?`<div class="quiz-word-type">${q.type}</div>`:''}
-        <div class="quiz-sentence">"${q.example}"</div>
+        <div class="quiz-word-type" style="margin-bottom:8px">Fill in the gap</div>
+        <div class="quiz-sentence" style="font-size:15px;font-weight:800;font-style:normal">"${q.example}"</div>
       </div>
-      <p style="font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:10px">Which sentence fits <strong style="color:var(--ink-bold)">"${q.word}"</strong>?</p>
+      <p style="font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:10px">Which word fits in the gap?</p>
       <div class="quiz-opts">${allOpts.map((o,i)=>`<button class="quiz-opt" onclick="answerQuiz(this,${i},${correct})">${o}</button>`).join('')}</div>
       <div class="quiz-feedback" id="qfb"></div>
       <button class="quiz-next" id="qnxt" onclick="nextQuiz()">Next →</button>`;
@@ -544,11 +548,13 @@ function renderQuizPanel(reg){
 }
 
 /* ── GRAMMAR PANEL ── */
-function renderGrammarPanel(reg){
-  const el = document.getElementById('panel-grammar');
-  if(!el || !reg?.grammar?.exercises?.length){ if(el) el.innerHTML = comingSoon('Grammar exercises'); return; }
+function renderGrammarPanel(reg, grammarKey){
+  const key = grammarKey || 'grammar';
+  const panelId = 'panel-' + key;
+  const el = document.getElementById(panelId);
+  if(!el || !reg?.[key]?.exercises?.length){ if(el) el.innerHTML = comingSoon('Grammar exercises'); return; }
 
-  const g = reg.grammar;
+  const g = reg[key];
   let gIdx = 0, gScore = 0;
 
   function renderG(){
@@ -592,7 +598,7 @@ function renderGrammarPanel(reg){
         <span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span>
         <div class="quiz-done-title">${gScore}/${g.exercises.length} correct! ${perfect?'Perfect!':''}</div>
         <div class="quiz-done-sub">${g.topic} — ${perfect?'mastered!':'keep practising!'}</div>
-        <button class="quiz-done-btn" onclick="renderGrammarPanel(window._currentReg)">↺ Try Again</button>
+        <button class="quiz-done-btn" onclick="renderGrammarPanel(window._currentReg,'${key}')">↺ Try Again</button>
       </div>`;
     } else {
       renderG();
@@ -667,7 +673,7 @@ function renderSentencePanel(reg){
   const el = document.getElementById('panel-sentences');
   if(!el || !reg?.sentences?.length){ if(el) el.innerHTML = comingSoon('Sentence builder'); return; }
 
-  let sIdx = 0, sScore = 0;
+  let sIdx = 0, sScore = 0, sBuilt = [];
 
   function renderS(){
     const q = reg.sentences[sIdx];
@@ -680,63 +686,71 @@ function renderSentencePanel(reg){
         <div class="gram-sent-text" style="color:var(--ink-3);font-style:italic">${q.hint||'Put the words in the right order'}</div>
       </div>
       <div style="min-height:44px;background:var(--bg);border:2px dashed var(--border-heavy);border-radius:var(--rsm);padding:10px 12px;margin-bottom:12px;font-size:14px;font-weight:800;color:var(--ink-bold);line-height:1.6" id="s-answer-box">Tap words below to build the sentence →</div>
-      <div class="gram-word-btns" id="s-word-pool">${shuffled.map((w,i)=>`<button class="gram-word-btn" id="sw-${i}" onclick="tapSWord(this,'${escQ(w)}')">${w}</button>`).join('')}</div>
+      <div class="gram-word-btns" id="s-word-pool">
+        ${shuffled.map((w,i)=>`<button class="gram-word-btn s-word-btn" data-word="${escQ(w)}" data-idx="${i}">${w}</button>`).join('')}
+      </div>
       <div class="quiz-feedback" id="sfb"></div>
       <div style="display:flex;gap:8px;margin-top:10px">
-        <button class="quiz-next" id="scheck" onclick="checkSentence('${escQ(q.answer)}')" style="display:flex;flex:1;background:var(--blue);border-color:var(--bs)">Check ✓</button>
-        <button style="padding:10px 14px;border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);font-size:12px;font-weight:900;font-family:inherit;cursor:pointer;background:var(--white);color:var(--ink-3)" onclick="clearSentence()">✕ Clear</button>
+        <button class="quiz-next" id="scheck" style="display:flex;flex:1;background:var(--blue);border-color:var(--bs)">Check ✓</button>
+        <button id="sclear" style="padding:10px 14px;border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);font-size:12px;font-weight:900;font-family:inherit;cursor:pointer;background:var(--white);color:var(--ink-3)">✕ Clear</button>
       </div>
-      <button class="quiz-next" id="snxt" onclick="nextSentence()" style="margin-top:8px">${sIdx+1<reg.sentences.length?'Next →':'Done! 🎉'}</button>`;
+      <button class="quiz-next" id="snxt" style="margin-top:8px;display:none">${sIdx+1<reg.sentences.length?'Next →':'Done! 🎉'}</button>`;
 
-    let built = [];
-    window._sBuilt = built;
+    sBuilt = [];
 
-    window.tapSWord = function(btn, word){
-      if(btn.disabled) return;
-      btn.disabled = true;
-      btn.style.opacity = '.3';
-      built.push(word);
-      const box = document.getElementById('s-answer-box');
-      if(box) box.textContent = built.join(' ');
-    };
+    // Wire word buttons
+    el.querySelectorAll('.s-word-btn').forEach(btn => {
+      btn.addEventListener('click', function(){
+        if(this.disabled) return;
+        this.disabled = true;
+        this.style.opacity = '.3';
+        sBuilt.push(this.dataset.word);
+        const box = document.getElementById('s-answer-box');
+        if(box) box.textContent = sBuilt.join(' ');
+      });
+    });
 
-    window.clearSentence = function(){
-      built.length = 0;
-      document.querySelectorAll('[id^="sw-"]').forEach(b=>{ b.disabled=false; b.style.opacity='1'; });
+    // Wire clear button
+    document.getElementById('sclear').addEventListener('click', function(){
+      sBuilt = [];
+      el.querySelectorAll('.s-word-btn').forEach(b=>{ b.disabled=false; b.style.opacity='1'; });
       const box = document.getElementById('s-answer-box');
       if(box) box.textContent = 'Tap words below to build the sentence →';
       const fb = document.getElementById('sfb'); if(fb) fb.className='quiz-feedback';
-    };
+    });
+
+    // Wire check button
+    document.getElementById('scheck').addEventListener('click', function(){
+      if(!sBuilt.length) return;
+      const attempt = sBuilt.join(' ').toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
+      const correct = q.answer.toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
+      const ok = attempt === correct;
+      if(ok){ sScore++; burst(); }
+      const fb = document.getElementById('sfb');
+      if(fb){ fb.textContent = ok ? '✅ Perfect!' : `💡 Answer: "${q.answer}"`; fb.className = `quiz-feedback show ${ok?'right':'wrong'}`; }
+      el.querySelectorAll('.s-word-btn').forEach(b=>b.disabled=true);
+      this.style.display='none';
+      const pip = document.getElementById(`spip-${sIdx}`); if(pip) pip.classList.add(ok?'right':'wrong');
+      const nxt = document.getElementById('snxt');
+      if(nxt){ nxt.style.display='flex'; }
+    });
+
+    // Wire next button
+    document.getElementById('snxt').addEventListener('click', function(){
+      sIdx++;
+      if(sIdx >= reg.sentences.length){
+        const perfect = sScore === reg.sentences.length;
+        if(perfect) burst();
+        el.innerHTML = `<div class="quiz-done">
+          <span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span>
+          <div class="quiz-done-title">${sScore}/${reg.sentences.length} correct!</div>
+          <div class="quiz-done-sub">${perfect?'Every sentence nailed!':'Keep practising — sentence structure is key.'}</div>
+          <button class="quiz-done-btn" id="s-retry">↺ Try Again</button>
+        </div>`;
+        document.getElementById('s-retry').addEventListener('click', ()=>renderSentencePanel(window._currentReg));
+      } else { renderS(); }
+    });
   }
-
-  window.checkSentence = function(answer){
-    const built = window._sBuilt || [];
-    if(!built.length) return;
-    const attempt = built.join(' ').toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
-    const correct = answer.toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
-    const ok = attempt === correct;
-    if(ok){ sScore++; burst(); }
-    const fb = document.getElementById('sfb');
-    if(fb){ fb.textContent = ok ? '✅ Perfect!' : `💡 Answer: "${answer}"`; fb.className = `quiz-feedback show ${ok?'right':'wrong'}`; }
-    document.querySelectorAll('[id^="sw-"]').forEach(b=>b.disabled=true);
-    document.getElementById('scheck').style.display='none';
-    const pip = document.getElementById(`spip-${sIdx}`); if(pip) pip.classList.add(ok?'right':'wrong');
-    const nxt = document.getElementById('snxt'); if(nxt) nxt.classList.add('show');
-  };
-
-  window.nextSentence = function(){
-    sIdx++;
-    if(sIdx >= reg.sentences.length){
-      const perfect = sScore === reg.sentences.length;
-      if(perfect) burst();
-      el.innerHTML = `<div class="quiz-done">
-        <span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span>
-        <div class="quiz-done-title">${sScore}/${reg.sentences.length} correct!</div>
-        <div class="quiz-done-sub">${perfect?'Every sentence nailed!':'Keep practising — sentence structure is key.'}</div>
-        <button class="quiz-done-btn" onclick="renderSentencePanel(window._currentReg)">↺ Try Again</button>
-      </div>`;
-    } else { renderS(); }
-  };
 
   window._currentReg = reg;
   renderS();
@@ -747,7 +761,7 @@ function renderWordBuilderPanel(reg){
   const el = document.getElementById('panel-wordBuilder');
   if(!el || !reg?.word_builder?.length){ if(el) el.innerHTML = comingSoon('Word builder'); return; }
 
-  let wIdx = 0, wScore = 0;
+  let wIdx = 0, wScore = 0, wBuilt = [];
 
   function renderW(){
     const q = reg.word_builder[wIdx];
@@ -760,64 +774,74 @@ function renderWordBuilderPanel(reg){
         <div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.85);line-height:1.6;position:relative;z-index:1">${q.definition}</div>
       </div>
       <div style="min-height:52px;background:var(--bg);border:2px dashed var(--border-heavy);border-radius:var(--rsm);padding:10px 12px;margin-bottom:12px;font-size:18px;font-weight:900;color:var(--ink-bold);letter-spacing:2px;text-align:center" id="w-answer-box">_ _ _</div>
-      <div class="gram-word-btns" style="justify-content:center" id="w-letter-pool">${letters.map((l,i)=>`<button class="gram-word-btn" id="wl-${i}" onclick="tapLetter(this,'${l}')" style="min-width:40px;text-align:center;font-size:16px">${l}</button>`).join('')}</div>
+      <div class="gram-word-btns" style="justify-content:center" id="w-letter-pool">
+        ${letters.map((ltr,i)=>`<button class="gram-word-btn w-letter-btn" data-letter="${ltr}" data-idx="${i}" style="min-width:40px;text-align:center;font-size:16px">${ltr}</button>`).join('')}
+      </div>
       <div class="quiz-feedback" id="wfb"></div>
       <div style="display:flex;gap:8px;margin-top:10px">
-        <button class="quiz-next" id="wcheck" onclick="checkWord('${q.word.toUpperCase()}')" style="display:flex;flex:1;background:var(--purple);border-color:var(--pus)">Check ✓</button>
-        <button style="padding:10px 14px;border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);font-size:12px;font-weight:900;font-family:inherit;cursor:pointer;background:var(--white);color:var(--ink-3)" onclick="clearWord()">✕ Clear</button>
+        <button class="quiz-next" id="wcheck" style="display:flex;flex:1;background:var(--purple);border-color:var(--pus)">Check ✓</button>
+        <button id="wclear" style="padding:10px 14px;border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);font-size:12px;font-weight:900;font-family:inherit;cursor:pointer;background:var(--white);color:var(--ink-3)">✕ Clear</button>
       </div>
-      <button class="quiz-next" id="wnxt" onclick="nextWord()" style="margin-top:8px;background:var(--purple);border-color:var(--pus)">${wIdx+1<reg.word_builder.length?'Next →':'Done! 🎉'}</button>`;
+      <button class="quiz-next" id="wnxt" style="margin-top:8px;background:var(--purple);border-color:var(--pus);display:none">${wIdx+1<reg.word_builder.length?'Next →':'Done! 🎉'}</button>`;
 
-    let wBuilt = [];
-    window._wBuilt = wBuilt;
+    wBuilt = [];
+    const answer = q.word.toUpperCase();
 
-    window.tapLetter = function(btn, letter){
-      if(btn.disabled) return;
-      btn.disabled = true;
-      btn.style.opacity = '.3';
-      wBuilt.push(letter);
-      const box = document.getElementById('w-answer-box');
-      if(box) box.textContent = wBuilt.join(' ');
-    };
+    // Wire letter buttons
+    el.querySelectorAll('.w-letter-btn').forEach(btn => {
+      btn.addEventListener('click', function(){
+        if(this.disabled) return;
+        this.disabled = true;
+        this.style.opacity = '.3';
+        wBuilt.push(this.dataset.letter);
+        const box = document.getElementById('w-answer-box');
+        if(box) box.textContent = wBuilt.join(' ');
+      });
+    });
 
-    window.clearWord = function(){
-      wBuilt.length = 0;
-      document.querySelectorAll('[id^="wl-"]').forEach(b=>{ b.disabled=false; b.style.opacity='1'; });
+    // Wire clear button
+    document.getElementById('wclear').addEventListener('click', function(){
+      wBuilt = [];
+      el.querySelectorAll('.w-letter-btn').forEach(b=>{ b.disabled=false; b.style.opacity='1'; });
       const box = document.getElementById('w-answer-box'); if(box) box.textContent = '_ _ _';
       const fb = document.getElementById('wfb'); if(fb) fb.className = 'quiz-feedback';
-    };
+    });
+
+    // Wire check button
+    document.getElementById('wcheck').addEventListener('click', function(){
+      if(!wBuilt.length) return;
+      const built = wBuilt.join('');
+      const ok = built === answer;
+      if(ok){ wScore++; burst(); }
+      const fb = document.getElementById('wfb');
+      if(fb){ fb.textContent = ok ? `✅ ${answer} — correct!` : `💡 The word is: ${answer}`; fb.className = `quiz-feedback show ${ok?'right':'wrong'}`; }
+      el.querySelectorAll('.w-letter-btn').forEach(b=>b.disabled=true);
+      this.style.display='none';
+      const pip = document.getElementById(`wpip-${wIdx}`); if(pip) pip.classList.add(ok?'right':'wrong');
+      const nxt = document.getElementById('wnxt'); if(nxt) nxt.style.display='flex';
+    });
+
+    // Wire next button
+    document.getElementById('wnxt').addEventListener('click', function(){
+      wIdx++;
+      if(wIdx >= reg.word_builder.length){
+        const perfect = wScore === reg.word_builder.length;
+        if(perfect) burst();
+        el.innerHTML = `<div class="quiz-done">
+          <span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span>
+          <div class="quiz-done-title">${wScore}/${reg.word_builder.length} words correct!</div>
+          <div class="quiz-done-sub">${perfect?'Spelling mastered! 🔤':'These words are worth drilling until they stick.'}</div>
+          <button class="quiz-done-btn" id="w-retry" style="background:var(--purple);border-color:var(--pus)">↺ Try Again</button>
+        </div>`;
+        document.getElementById('w-retry').addEventListener('click', ()=>renderWordBuilderPanel(window._currentReg));
+      } else { renderW(); }
+    });
   }
-
-  window.checkWord = function(answer){
-    const built = (window._wBuilt||[]).join('');
-    if(!built) return;
-    const ok = built === answer;
-    if(ok){ wScore++; burst(); }
-    const fb = document.getElementById('wfb');
-    if(fb){ fb.textContent = ok ? `✅ ${answer} — correct!` : `💡 The word is: ${answer}`; fb.className = `quiz-feedback show ${ok?'right':'wrong'}`; }
-    document.querySelectorAll('[id^="wl-"]').forEach(b=>b.disabled=true);
-    document.getElementById('wcheck').style.display='none';
-    const pip = document.getElementById(`wpip-${wIdx}`); if(pip) pip.classList.add(ok?'right':'wrong');
-    const nxt = document.getElementById('wnxt'); if(nxt) nxt.classList.add('show');
-  };
-
-  window.nextWord = function(){
-    wIdx++;
-    if(wIdx >= reg.word_builder.length){
-      const perfect = wScore === reg.word_builder.length;
-      if(perfect) burst();
-      el.innerHTML = `<div class="quiz-done">
-        <span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span>
-        <div class="quiz-done-title">${wScore}/${reg.word_builder.length} words correct!</div>
-        <div class="quiz-done-sub">${perfect?'Spelling mastered! 🔤':'These words are worth drilling until they stick.'}</div>
-        <button class="quiz-done-btn" onclick="renderWordBuilderPanel(window._currentReg)" style="background:var(--purple);border-color:var(--pus)">↺ Try Again</button>
-      </div>`;
-    } else { renderW(); }
-  };
 
   window._currentReg = reg;
   renderW();
 }
+
 
 function comingSoon(label){
   return `<div class="coming-soon"><span class="coming-soon-icon">🛠️</span><div class="coming-soon-text"><strong>${label}</strong> for this lesson is coming soon.<br>The vocabulary tab is ready to use now!</div></div>`;
