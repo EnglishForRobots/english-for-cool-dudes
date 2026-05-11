@@ -491,57 +491,63 @@ function renderQuizPanel(reg){
   const questions = reg.vocab.filter(v=>v.example && v.distractors?.length);
   if(!questions.length){ el.innerHTML = comingSoon('Vocabulary quiz'); return; }
 
-  let qIdx = 0, score = 0, done = false;
+  let qIdx = 0, score = 0;
 
   function renderQ(){
-    const pips = questions.map((_,i)=>`<div class="quiz-pip${i<qIdx?' right':i===qIdx?' active':''}" id="qpip-${i}"></div>`).join('');
     const q = questions[qIdx];
     const allOpts = [q.word, ...(q.distractors||[])].sort(()=>Math.random()-.5);
-    const correct = allOpts.indexOf(q.word);
+    const correctIdx = allOpts.indexOf(q.word);
+    const pips = questions.map((_,i)=>`<div class="quiz-pip${i<qIdx?' right':i===qIdx?' active':''}" id="qpip-${i}"></div>`).join('');
+
     el.innerHTML = `
-      <div class="quiz-progress-row"><div class="quiz-pips">${pips}</div><div class="quiz-score" id="qscore">${score}/${questions.length}</div></div>
+      <div class="quiz-progress-row"><div class="quiz-pips">${pips}</div><div class="quiz-score">${score}/${questions.length}</div></div>
       <div class="quiz-word-display">
         <div class="quiz-word-type" style="margin-bottom:8px">Fill in the gap</div>
         <div class="quiz-sentence" style="font-size:15px;font-weight:800;font-style:normal">"${q.example}"</div>
       </div>
       <p style="font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:10px">Which word fits in the gap?</p>
-      <div class="quiz-opts">${allOpts.map((o,i)=>`<button class="quiz-opt" onclick="answerQuiz(this,${i},${correct})">${o}</button>`).join('')}</div>
+      <div class="quiz-opts" id="quiz-opts-wrap">
+        ${allOpts.map((o,i)=>`<button class="quiz-opt" data-idx="${i}">${o}</button>`).join('')}
+      </div>
       <div class="quiz-feedback" id="qfb"></div>
-      <button class="quiz-next" id="qnxt" onclick="nextQuiz()">Next →</button>`;
+      <button class="quiz-next" id="qnxt" style="display:none">Next →</button>`;
+
+    // Wire answer buttons
+    el.querySelectorAll('#quiz-opts-wrap .quiz-opt').forEach(btn => {
+      btn.addEventListener('click', function(){
+        el.querySelectorAll('#quiz-opts-wrap .quiz-opt').forEach(b=>b.disabled=true);
+        const chosen = parseInt(this.dataset.idx);
+        const ok = chosen === correctIdx;
+        this.classList.add(ok?'correct':'wrong');
+        if(!ok) el.querySelectorAll('#quiz-opts-wrap .quiz-opt')[correctIdx].classList.add('show-ok');
+        if(ok){ score++; burst(); }
+        const fb = document.getElementById('qfb');
+        if(fb){ fb.innerHTML = (ok?'✅ ':'💡 ') + q.definition; fb.className = `quiz-feedback show ${ok?'right':'wrong'}`; }
+        const pip = document.getElementById(`qpip-${qIdx}`);
+        if(pip) pip.classList.add(ok?'right':'wrong');
+        const nxt = document.getElementById('qnxt');
+        if(nxt){ nxt.style.display='flex'; nxt.textContent = qIdx+1 < questions.length ? 'Next →' : 'See score! 🎉'; }
+      });
+    });
+
+    // Wire next button
+    document.getElementById('qnxt').addEventListener('click', function(){
+      qIdx++;
+      if(qIdx >= questions.length){
+        const perfect = score === questions.length;
+        if(perfect) burst();
+        el.innerHTML = `<div class="quiz-done">
+          <span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span>
+          <div class="quiz-done-title">${score}/${questions.length} correct! ${perfect?'Perfect! 🎉':''}</div>
+          <div class="quiz-done-sub">${perfect?'Flawless recall — this vocabulary is locked in.':'Keep reviewing and it\'ll stick!'}</div>
+          <button class="quiz-done-btn" id="quiz-retry">↺ Try Again</button>
+        </div>`;
+        document.getElementById('quiz-retry').addEventListener('click', ()=>renderQuizPanel(window._currentReg));
+      } else {
+        renderQ();
+      }
+    });
   }
-
-  window.answerQuiz = function(btn, chosen, correct){
-    if(done) return;
-    document.querySelectorAll('.quiz-opt').forEach(b=>b.disabled=true);
-    const ok = chosen === correct;
-    btn.classList.add(ok?'correct':'wrong');
-    if(!ok) document.querySelectorAll('.quiz-opt')[correct].classList.add('show-ok');
-    if(ok){ score++; burst(); }
-    const q = questions[qIdx];
-    const fb = document.getElementById('qfb');
-    if(fb){ fb.innerHTML = (ok?'✅ ':'💡 ') + q.definition; fb.className = `quiz-feedback show ${ok?'right':'wrong'}`; }
-    const nxt = document.getElementById('qnxt');
-    if(nxt){ nxt.classList.add('show'); nxt.textContent = qIdx+1 < questions.length ? 'Next →' : 'See score! 🎉'; }
-    const pip = document.getElementById(`qpip-${qIdx}`);
-    if(pip) pip.classList.add(ok?'right':'wrong');
-  };
-
-  window.nextQuiz = function(){
-    qIdx++;
-    if(qIdx >= questions.length){
-      done = true;
-      const perfect = score === questions.length;
-      if(perfect) burst();
-      el.innerHTML = `<div class="quiz-done">
-        <span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span>
-        <div class="quiz-done-title">${score}/${questions.length} correct! ${perfect?'Perfect! 🎉':''}</div>
-        <div class="quiz-done-sub">${perfect?'Flawless recall — this vocabulary is locked in.':'Keep reviewing and it\'ll stick!'}</div>
-        <button class="quiz-done-btn" onclick="renderQuizPanel(window._currentReg)">↺ Try Again</button>
-      </div>`;
-    } else {
-      renderQ();
-    }
-  };
 
   window._currentReg = reg;
   renderQ();
@@ -560,50 +566,60 @@ function renderGrammarPanel(reg, grammarKey){
   function renderG(){
     const q = g.exercises[gIdx];
     const opts = [q.answer, ...(q.wrong||[])].sort(()=>Math.random()-.5);
-    const correct = opts.indexOf(q.answer);
-    const pips = g.exercises.map((_,i)=>`<div class="quiz-pip${i<gIdx?' right':i===gIdx?' active':''}" id="gpip-${i}"></div>`).join('');
+    const correctIdx = opts.indexOf(q.answer);
+    const explain = q.explain || q.answer;
+    const pips = g.exercises.map((_,i)=>`<div class="quiz-pip${i<gIdx?' right':i===gIdx?' active':''}" id="gpip${key}-${i}"></div>`).join('');
+
     el.innerHTML = `
       <div class="gram-explainer"><strong>${g.topic}</strong><br><br>${g.rule.replace(/\n/g,'<br>')}</div>
-      <div class="quiz-progress-row"><div class="quiz-pips">${pips}</div><div class="quiz-score">${gScore}/${g.exercises.length}</div></div>
+      <div class="quiz-progress-row"><div class="quiz-pips">${pips}</div><div class="quiz-score" id="gscore-${key}">${gScore}/${g.exercises.length}</div></div>
       <div class="gram-sent-card">
         <div class="gram-sent-num">Sentence ${gIdx+1} of ${g.exercises.length}</div>
         <div class="gram-sent-text">${q.sentence.replace('___','<span style="background:rgba(88,204,2,.15);border:2px dashed var(--gs);border-radius:6px;padding:1px 10px;color:var(--gs)">___</span>')}</div>
         ${q.hint?`<div class="gram-sent-hint">💡 ${q.hint}</div>`:''}
       </div>
-      <div class="gram-word-btns">${opts.map((o,i)=>`<button class="gram-word-btn" onclick="answerGram(this,${i},${correct},'${escQ(q.explain||q.answer)}')">${o}</button>`).join('')}</div>
-      <div class="quiz-feedback" id="gfb"></div>
-      <button class="quiz-next" id="gnxt" onclick="nextGram()">Next →</button>`;
+      <div class="gram-word-btns" id="gbtns-${key}">
+        ${opts.map((o,i)=>`<button class="gram-word-btn" data-idx="${i}">${o}</button>`).join('')}
+      </div>
+      <div class="quiz-feedback" id="gfb-${key}"></div>
+      <button class="quiz-next" id="gnxt-${key}" style="display:none">Next →</button>`;
+
+    // Wire answer buttons
+    el.querySelectorAll(`#gbtns-${key} .gram-word-btn`).forEach(btn => {
+      btn.addEventListener('click', function(){
+        el.querySelectorAll(`#gbtns-${key} .gram-word-btn`).forEach(b=>b.disabled=true);
+        const chosen = parseInt(this.dataset.idx);
+        const ok = chosen === correctIdx;
+        this.classList.add(ok ? 'correct' : 'wrong');
+        if(!ok) el.querySelectorAll(`#gbtns-${key} .gram-word-btn`)[correctIdx].classList.add('show-ok');
+        if(ok){ gScore++; burst(); }
+        const fb = document.getElementById(`gfb-${key}`);
+        if(fb){ fb.textContent = explain; fb.className = `quiz-feedback show ${ok?'right':'wrong'}`; }
+        const pip = document.getElementById(`gpip${key}-${gIdx}`);
+        if(pip) pip.classList.add(ok?'right':'wrong');
+        const nxt = document.getElementById(`gnxt-${key}`);
+        if(nxt){ nxt.style.display='flex'; nxt.textContent = gIdx+1 < g.exercises.length ? 'Next →' : 'Done! 🎉'; }
+      });
+    });
+
+    // Wire next button
+    document.getElementById(`gnxt-${key}`).addEventListener('click', function(){
+      gIdx++;
+      if(gIdx >= g.exercises.length){
+        const perfect = gScore === g.exercises.length;
+        if(perfect) burst();
+        el.innerHTML = `<div class="quiz-done">
+          <span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span>
+          <div class="quiz-done-title">${gScore}/${g.exercises.length} correct! ${perfect?'Perfect!':''}</div>
+          <div class="quiz-done-sub">${g.topic} — ${perfect?'mastered!':'keep practising!'}</div>
+          <button class="quiz-done-btn" id="g-retry-${key}">↺ Try Again</button>
+        </div>`;
+        document.getElementById(`g-retry-${key}`).addEventListener('click', ()=>renderGrammarPanel(window._currentReg, key));
+      } else {
+        renderG();
+      }
+    });
   }
-
-  window.answerGram = function(btn, chosen, correct, explain){
-    document.querySelectorAll('.gram-word-btn').forEach(b=>b.disabled=true);
-    const ok = chosen === correct;
-    btn.classList.add(ok?'correct':'wrong');
-    if(!ok) document.querySelectorAll('.gram-word-btn')[correct].classList.add('show-ok');
-    if(ok){ gScore++; burst(); }
-    const fb = document.getElementById('gfb');
-    if(fb){ fb.textContent = explain; fb.className = `quiz-feedback show ${ok?'right':'wrong'}`; }
-    const nxt = document.getElementById('gnxt');
-    if(nxt){ nxt.classList.add('show'); nxt.textContent = gIdx+1 < g.exercises.length ? 'Next →' : 'Done! 🎉'; }
-    const pip = document.getElementById(`gpip-${gIdx}`);
-    if(pip) pip.classList.add(ok?'right':'wrong');
-  };
-
-  window.nextGram = function(){
-    gIdx++;
-    if(gIdx >= g.exercises.length){
-      const perfect = gScore === g.exercises.length;
-      if(perfect) burst();
-      el.innerHTML = `<div class="quiz-done">
-        <span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span>
-        <div class="quiz-done-title">${gScore}/${g.exercises.length} correct! ${perfect?'Perfect!':''}</div>
-        <div class="quiz-done-sub">${g.topic} — ${perfect?'mastered!':'keep practising!'}</div>
-        <button class="quiz-done-btn" onclick="renderGrammarPanel(window._currentReg,'${key}')">↺ Try Again</button>
-      </div>`;
-    } else {
-      renderG();
-    }
-  };
 
   renderG();
 }
@@ -626,43 +642,49 @@ function renderTFPanel(reg){
         <div class="tf-stat-text">${q.statement}</div>
       </div>
       <div class="tf-btns">
-        <button class="tf-btn t-btn" onclick="answerTF(true,this)">✅ TRUE</button>
-        <button class="tf-btn f-btn" onclick="answerTF(false,this)">❌ FALSE</button>
+        <button class="tf-btn t-btn" id="tf-true">✅ TRUE</button>
+        <button class="tf-btn f-btn" id="tf-false">❌ FALSE</button>
       </div>
       <div class="tf-reveal" id="tf-rev"></div>
-      <button class="quiz-next" id="tfnxt" onclick="nextTF()">${tfIdx+1<questions.length?'Next →':'Done! 🎉'}</button>`;
-  }
+      <button class="quiz-next" id="tfnxt" style="display:none">${tfIdx+1<questions.length?'Next →':'Done! 🎉'}</button>`;
 
-  window.answerTF = function(chosen, btn){
-    document.querySelectorAll('.tf-btn').forEach(b=>b.disabled=true);
-    const q = questions[tfIdx];
-    const ok = chosen === q.correct;
-    btn.classList.add(ok?'correct':'wrong');
-    if(!ok)(btn.classList.contains('t-btn')?document.querySelector('.f-btn'):document.querySelector('.t-btn')).classList.add('show-ok');
-    if(ok){ tfScore++; burst(); }
-    const rev = document.getElementById('tf-rev');
-    if(rev){ rev.textContent = q.reveal; rev.classList.add('show'); }
-    const pip = document.getElementById(`tfpip-${tfIdx}`);
-    if(pip) pip.classList.add(ok?'right':'wrong');
-    const nxt = document.getElementById('tfnxt');
-    if(nxt) nxt.classList.add('show');
-  };
-
-  window.nextTF = function(){
-    tfIdx++;
-    if(tfIdx >= questions.length){
-      const perfect = tfScore === questions.length;
-      if(perfect) burst();
-      el.innerHTML = `<div class="quiz-done">
-        <span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span>
-        <div class="quiz-done-title">${tfScore}/${questions.length} correct! ${perfect?'Perfect!':''}</div>
-        <div class="quiz-done-sub">${perfect?'You know this topic inside out!':'Review the answers above to lock in the facts.'}</div>
-        <button class="quiz-done-btn" onclick="renderTFPanel(window._currentReg)">↺ Try Again</button>
-      </div>`;
-    } else {
-      renderTF();
+    function handleTF(chosen){
+      document.getElementById('tf-true').disabled = true;
+      document.getElementById('tf-false').disabled = true;
+      const ok = chosen === q.correct;
+      const clickedBtn = document.getElementById(chosen ? 'tf-true' : 'tf-false');
+      const otherBtn  = document.getElementById(chosen ? 'tf-false' : 'tf-true');
+      clickedBtn.classList.add(ok ? 'correct' : 'wrong');
+      if(!ok) otherBtn.classList.add('show-ok');
+      if(ok){ tfScore++; burst(); }
+      const rev = document.getElementById('tf-rev');
+      if(rev){ rev.textContent = q.reveal; rev.classList.add('show'); }
+      const pip = document.getElementById(`tfpip-${tfIdx}`);
+      if(pip) pip.classList.add(ok?'right':'wrong');
+      const nxt = document.getElementById('tfnxt');
+      if(nxt) nxt.style.display = 'flex';
     }
-  };
+
+    document.getElementById('tf-true').addEventListener('click', ()=>handleTF(true));
+    document.getElementById('tf-false').addEventListener('click', ()=>handleTF(false));
+
+    document.getElementById('tfnxt').addEventListener('click', function(){
+      tfIdx++;
+      if(tfIdx >= questions.length){
+        const perfect = tfScore === questions.length;
+        if(perfect) burst();
+        el.innerHTML = `<div class="quiz-done">
+          <span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span>
+          <div class="quiz-done-title">${tfScore}/${questions.length} correct! ${perfect?'Perfect!':''}</div>
+          <div class="quiz-done-sub">${perfect?'You know this topic inside out!':'Review the answers above to lock in the facts.'}</div>
+          <button class="quiz-done-btn" id="tf-retry">↺ Try Again</button>
+        </div>`;
+        document.getElementById('tf-retry').addEventListener('click', ()=>renderTFPanel(window._currentReg));
+      } else {
+        renderTF();
+      }
+    });
+  }
 
   window._currentReg = reg;
   renderTF();
