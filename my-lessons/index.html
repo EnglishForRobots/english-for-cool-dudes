@@ -10,6 +10,7 @@
 <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/init-auth.js"></script>
+<script src="/lesson-data-registry.js"></script>
 <style>
 :root {
   --blue:#1CB0F6;    --bs:#1899D6;
@@ -862,6 +863,23 @@ async function boot(){
 
     if(error) console.warn('[my-lessons] lessons query error:', error);
 
+    // Fetch name directly from profiles table
+    let firstName = user.email?.split('@')[0] || 'Dude';
+    try {
+      const { data: profile } = await window.efcdSupabaseClient
+        .from('profiles')
+        .select('full_name')
+        .eq('id', user.id)
+        .single();
+      if(profile?.full_name) {
+        firstName = profile.full_name.split(' ')[0];
+        firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
+      }
+    } catch(_) {}
+
+    // Pass firstName through stats so renderPage can use it
+    const statsWithName = { ...(stats || {}), full_name: firstName };
+
     // Deduplicate — keep most recent completion per lesson_link
     const seen = new Set();
     const lessons = (rawLessons || []).filter(l => {
@@ -871,7 +889,7 @@ async function boot(){
     });
 
     _lessons = lessons;
-    renderPage(user, stats, lessons);
+    renderPage(user, statsWithName, lessons);
 
   } catch(e) {
     console.warn('[my-lessons] boot error:', e);
