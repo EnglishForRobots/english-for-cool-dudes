@@ -339,8 +339,8 @@ const LESSON_DATA_REGISTRY = {
         distractors: ['discounted', 'delivered', 'designed'],
       },
       {
-        word:        'phenomena',
-        definition:  'Remarkable or observable events or facts — plural of phenomenon',
+        word:        'phenomenon',
+        definition:  'Remarkable or observable events or facts',
         example:     'Researchers noticed similar ___ in other products and businesses.',
         distractors: ['problems', 'solutions', 'strategies'],
       },
