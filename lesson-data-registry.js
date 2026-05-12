@@ -340,7 +340,7 @@ const LESSON_DATA_REGISTRY = {
       },
       {
         word:        'phenomena',
-        definition:  'Remarkable or observable events or facts',
+        definition:  'Remarkable or observable events or facts - plural of phenomenon',
         example:     'Researchers noticed similar ___ in other products and businesses.',
         distractors: ['problems', 'solutions', 'strategies'],
       },
