@@ -302,6 +302,9 @@
         <div class="sk sk-strip"></div>
     </div>
 
+    <!-- GUEST LABEL (populated by JS for non-logged-in users) -->
+    <div id="section-label-wrap" style="display:none"></div>
+
     <!-- HERO — static, same for everyone -->
     <div class="u1">
         <div class="hero">
@@ -479,7 +482,6 @@ function boot() {
         try {
             await window.EFCD_Auth.initAuth();
             const user = window.EFCD_Auth.getCurrentUser();
-
             if (user) {
                 const rawName   = window.EFCD_Auth.getCurrentUser()?.name || user.email?.split('@')[0] || 'Dude';
                 const firstName = rawName.split(' ')[0].replace(/^\w/, c => c.toUpperCase());
@@ -508,7 +510,15 @@ function boot() {
 
             } else {
                 document.getElementById('strip-wrap').innerHTML = '';
-                // No guest signup pill here — games are free, no nudge needed on a games page
+                const labelWrap = document.getElementById('section-label-wrap');
+                if (labelWrap) {
+                    labelWrap.style.display = 'block';
+                    labelWrap.innerHTML = `
+                        <div class="guest-label">
+                            <div class="guest-eyebrow">🎮 The Break Room</div>
+                            <a href="/signup/" class="guest-signup-pill">Create free account →</a>
+                        </div>`;
+                }
                 if (window.EFCD_UI) window.EFCD_UI.updateHeaderUI();
             }
 
