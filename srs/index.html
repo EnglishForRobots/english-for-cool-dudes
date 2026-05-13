@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+<title>Daily Review — English For Cool Dudes</title>
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css2?family=Nunito:ital,wght@0,400;0,700;0,800;0,900;1,900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/init-auth.js"></script>
+<script src="/lesson-data-registry.js"></script>
+<script src="/srs-engine.js"></script>
+<script src="/xp.js"></script>
+<style>
+:root {
+  --navy:#1a2e5a; --navy2:#243f73;
+  --yellow:#FFC800; --ys:#E5B400;
+  --green:#58CC02;  --gs:#58A700;
+  --punch:#FF4B4B;  --ps:#EA2B2B;
+  --blue:#1CB0F6;   --bs:#1899D6;
+  --purple:#CE82FF; --pus:#A559D9;
+  --teal:#2BDECC;   --ts:#1FBFAF;
+  --orange:#FF9600; --os:#D97800;
+  --white:#fff; --ink:#111827; --ink3:#AFAFAF;
+  --bg:#F7F9FA; --border:#E5E5E5; --border-heavy:#CECECE;
+  --r:20px; --rsm:14px;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html,body { height:100%; font-family:'Nunito',sans-serif; }
+body { background:var(--navy); color:#fff; line-height:1.4; overflow:hidden; }
+
+@keyframes up    { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+@keyframes pop   { 0%{transform:scale(.5)}65%{transform:scale(1.1)}100%{transform:scale(1)} }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-10px)} 60%{transform:translateX(10px)} }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.55} }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+@keyframes glow  { 0%,100%{box-shadow:0 0 20px rgba(255,200,0,.3)} 50%{box-shadow:0 0 60px rgba(255,200,0,.8)} }
+@keyframes conf  { 0%{opacity:1;transform:translateY(0) rotate(0)} 100%{opacity:0;transform:translateY(220px) rotate(720deg)} }
+@keyframes tileIn{ 0%{opacity:0;transform:scale(.4) rotate(-6deg)} 65%{transform:scale(1.08)} 100%{opacity:1;transform:scale(1)} }
+@keyframes scoreUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-80px)}}
+@keyframes spin  { from{transform:rotate(0)} to{transform:rotate(360deg)} }
+
+.conf-dot  { position:fixed;border-radius:3px;pointer-events:none;z-index:9999;animation:conf 1.5s ease-out both }
+.score-pop { position:fixed;pointer-events:none;z-index:9998;font-size:28px;font-weight:900;color:var(--yellow);text-shadow:0 3px 0 var(--ys);animation:scoreUp .9s ease-out forwards }
+
+/* ══ LOADING ════════════════════════════════════════════════ */
+#loading {
+  height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:16px;
+  background:linear-gradient(160deg,#001433,var(--navy));
+}
+.loading-icon { font-size:64px; animation:float 2s ease-in-out infinite; }
+.loading-text { font-size:16px;font-weight:800;color:rgba(255,255,255,.6); }
+.spinner { width:28px;height:28px;border:4px solid rgba(255,255,255,.15);border-top-color:var(--yellow);border-radius:50%;animation:spin .8s linear infinite; }
+
+/* ══ GAME ═══════════════════════════════════════════════════ */
+#game { height:100vh;display:none;flex-direction:column; }
+
+/* Progress bar */
+.prog-wrap { height:6px;background:rgba(255,255,255,.1);flex-shrink:0; }
+.prog-fill  { height:100%;background:linear-gradient(90deg,var(--teal),var(--green));transition:width .5s cubic-bezier(.4,0,.2,1); }
+
+/* Header */
+.g-hdr {
+  height:60px;background:rgba(0,0,0,.35);border-bottom:2px solid rgba(255,255,255,.08);
+  padding:0 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+}
+.g-left { display:flex;align-items:center;gap:10px; }
+.g-badge { font-size:24px; }
+.g-lesson-name { font-size:13px;font-weight:900;color:#fff; }
+.g-lesson-sub  { font-size:11px;font-weight:700;color:rgba(255,255,255,.45);margin-top:1px; }
+.g-right { display:flex;align-items:center;gap:12px; }
+.score-pill {
+  display:flex;align-items:center;gap:6px;
+  background:rgba(255,200,0,.1);border:2px solid rgba(255,200,0,.2);border-radius:99px;padding:6px 16px;
+}
+.score-label { font-size:10px;font-weight:900;color:rgba(255,200,0,.5);text-transform:uppercase;letter-spacing:1px; }
+.score-num   { font-size:20px;font-weight:900;color:var(--yellow);min-width:28px;text-align:right; }
+.item-counter { font-size:12px;font-weight:900;color:rgba(255,255,255,.4); }
+.btn-quit { padding:5px 12px;font-size:11px;font-weight:900;color:rgba(255,255,255,.4);background:transparent;border:2px solid rgba(255,255,255,.1);border-radius:99px;cursor:pointer;font-family:inherit; }
+.btn-quit:hover { color:#fff;border-color:rgba(255,255,255,.3); }
+
+/* Body */
+.g-body { flex:1;display:flex;align-items:center;justify-content:center;padding:16px;overflow:hidden; }
+
+/* Feedback bar */
+.fb-bar {
+  position:fixed;bottom:0;left:0;right:0;padding:14px 20px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  z-index:100;transform:translateY(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);
+}
+.fb-bar.show   { transform:translateY(0); }
+.fb-bar.good   { background:var(--green); }
+.fb-bar.great  { background:var(--teal); }
+.fb-bar.bad    { background:var(--punch); }
+.fb-left       { flex:1; }
+.fb-msg        { font-size:14px;font-weight:900;color:#fff; }
+.fb-explain    { font-size:12px;font-weight:700;color:rgba(255,255,255,.8);margin-top:2px; }
+.fb-quality    { font-size:11px;font-weight:900;color:rgba(255,255,255,.6);margin-top:2px; }
+.btn-fb-next {
+  padding:9px 20px;background:rgba(255,255,255,.2);color:#fff;
+  font-size:13px;font-weight:900;border:2px solid rgba(255,255,255,.3);border-radius:99px;
+  cursor:pointer;font-family:inherit;white-space:nowrap;
+}
+.btn-fb-next:hover { background:rgba(255,255,255,.35); }
+
+/* ── QUESTION TYPES ── */
+
+/* Vocab / Gap Fill */
+.q-card {
+  max-width:680px;width:100%;animation:up .28s ease both;
+}
+.q-eyebrow {
+  font-size:11px;font-weight:900;color:var(--teal);text-transform:uppercase;letter-spacing:2px;
+  text-align:center;margin-bottom:8px;
+}
+.q-counter {
+  font-size:10px;font-weight:900;color:rgba(255,255,255,.3);text-transform:uppercase;
+  letter-spacing:2px;text-align:center;margin-bottom:10px;
+}
+.q-main {
+  background:rgba(255,255,255,.07);border:3px solid rgba(255,255,255,.1);border-radius:var(--r);
+  padding:28px 32px;text-align:center;margin-bottom:16px;
+  font-size:clamp(16px,3.5vw,26px);font-weight:800;color:#fff;line-height:1.6;
+}
+.q-blank {
+  display:inline-block;min-width:120px;border-bottom:4px solid var(--teal);
+  color:var(--teal);font-style:italic;padding:0 4px;animation:pulse 1.8s ease-in-out infinite;
+}
+.q-blank.filled { animation:none;color:#fff;border-color:rgba(255,255,255,.3); }
+.opts-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
+@media(max-width:480px){ .opts-grid { grid-template-columns:1fr; } }
+.opt {
+  padding:16px 12px;background:rgba(255,255,255,.07);border:3px solid rgba(255,255,255,.1);
+  border-bottom:5px solid rgba(0,0,0,.2);border-radius:var(--r);
+  font-size:clamp(15px,3vw,22px);font-weight:900;font-style:italic;color:#fff;
+  cursor:pointer;font-family:inherit;transition:all .1s;text-align:center;
+}
+.opt:hover:not(:disabled) { background:rgba(255,255,255,.15);transform:translateY(-2px); }
+.opt:active:not(:disabled){ transform:translateY(2px);border-bottom-width:2px; }
+.opt:disabled { cursor:default; }
+.opt.correct { background:var(--green)!important;border-color:var(--gs)!important;animation:pop .3s ease; }
+.opt.wrong   { background:var(--punch)!important;border-color:var(--ps)!important;animation:shake .3s ease; }
+.opt.reveal  { background:rgba(88,204,2,.15)!important;border-color:var(--gs)!important; }
+
+/* True/False */
+.tf-btns { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
+.tf-btn {
+  padding:24px;border-radius:var(--r);font-size:clamp(20px,4.5vw,34px);font-weight:900;
+  cursor:pointer;font-family:inherit;transition:all .12s;border:3px solid;border-bottom:6px solid;
+}
+.tf-btn:hover:not(:disabled) { filter:brightness(1.15);transform:translateY(-2px); }
+.tf-btn:disabled { cursor:default; }
+.tf-true  { background:rgba(0,120,42,.18);color:#7fff7f;border-color:rgba(0,120,42,.35); }
+.tf-false { background:rgba(220,36,31,.18);color:#ffaaaa;border-color:rgba(220,36,31,.35); }
+.tf-btn.correct { background:var(--green)!important;color:#fff!important;border-color:var(--gs)!important;animation:pop .3s ease; }
+.tf-btn.wrong   { background:var(--punch)!important;color:#fff!important;border-color:var(--ps)!important;animation:shake .3s ease; }
+.tf-btn.reveal  { background:rgba(88,204,2,.15)!important;border-color:var(--gs)!important; }
+
+/* Word Builder */
+.wb-def {
+  background:rgba(255,255,255,.07);border:3px solid rgba(255,255,255,.1);
+  border-left:5px solid var(--teal);border-radius:0 var(--r) var(--r) 0;
+  padding:16px 20px;margin-bottom:16px;font-size:clamp(14px,2.8vw,20px);font-weight:800;color:#fff;
+}
+.wb-slots { display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:14px;min-height:52px; }
+.wb-slot  {
+  width:42px;height:50px;border-bottom:4px solid var(--teal);background:rgba(0,152,212,.07);
+  border-radius:4px;display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:900;color:#fff;cursor:pointer;transition:all .15s;
+}
+.wb-slot.filled  { background:rgba(0,152,212,.18);animation:tileIn .22s cubic-bezier(.175,.885,.32,1.275) both; }
+.wb-slot.correct { background:var(--teal)!important;border-color:var(--ts)!important;animation:pop .3s ease; }
+.wb-slot.wrong   { animation:shake .3s ease;border-color:var(--punch)!important; }
+.wb-tiles { display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:12px; }
+.wb-tile  {
+  width:42px;height:48px;background:#fff;border:2px solid #CECECE;border-bottom:5px solid #CECECE;
+  border-radius:var(--rsm);display:flex;align-items:center;justify-content:center;
+  font-size:20px;font-weight:900;color:var(--ink);cursor:pointer;font-family:inherit;
+  transition:all .12s;animation:tileIn .28s cubic-bezier(.175,.885,.32,1.275) both;
+}
+.wb-tile:hover  { border-color:var(--teal);transform:translateY(-2px); }
+.wb-tile.used   { opacity:.2;pointer-events:none; }
+
+/* Sentence Builder */
+.sb-answer {
+  min-height:58px;background:rgba(255,255,255,.05);border:3px dashed rgba(255,255,255,.15);
+  border-radius:var(--r);padding:12px 16px;display:flex;flex-wrap:wrap;gap:8px;
+  align-items:center;margin-bottom:14px;transition:border-color .2s;
+}
+.sb-answer.has-words   { border-style:solid;border-color:rgba(255,255,255,.25); }
+.sb-answer.correct-flash { border-color:var(--green);background:rgba(88,204,2,.08); }
+.sb-answer.wrong-flash   { border-color:var(--punch);animation:shake .3s ease; }
+.sb-word-placed {
+  padding:7px 12px;background:rgba(28,176,246,.2);border:2px solid var(--blue);
+  border-radius:var(--rsm);font-size:14px;font-weight:900;color:#fff;cursor:pointer;
+  animation:tileIn .22s cubic-bezier(.175,.885,.32,1.275) both;
+}
+.sb-word-placed:hover { background:rgba(28,176,246,.35); }
+.sb-words { display:flex;flex-wrap:wrap;gap:7px;justify-content:center; }
+.sb-word  {
+  padding:8px 14px;background:#fff;border:2px solid #CECECE;border-bottom:4px solid #CECECE;
+  border-radius:var(--rsm);font-size:14px;font-weight:900;color:var(--ink);
+  cursor:pointer;font-family:inherit;transition:all .12s;animation:tileIn .28s cubic-bezier(.175,.885,.32,1.275) both;
+}
+.sb-word:hover { border-color:var(--blue);transform:translateY(-2px); }
+.sb-word.used  { opacity:.2;pointer-events:none; }
+
+/* Action buttons */
+.btn-actions { display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px; }
+.btn-check  { padding:9px 22px;background:var(--yellow);color:var(--ink);font-size:13px;font-weight:900;border:2px solid var(--ys);border-bottom:3px solid var(--ys);border-radius:99px;cursor:pointer;font-family:inherit; }
+.btn-check-teal { padding:9px 22px;background:var(--teal);color:var(--ink);font-size:13px;font-weight:900;border:2px solid var(--ts);border-bottom:3px solid var(--ts);border-radius:99px;cursor:pointer;font-family:inherit; }
+.btn-hint   { padding:9px 14px;background:rgba(255,200,0,.12);color:#8a6800;font-size:12px;font-weight:900;border:2px solid rgba(255,200,0,.3);border-radius:99px;cursor:pointer;font-family:inherit; }
+.btn-hint:disabled { opacity:.3;cursor:default; }
+.btn-reveal { padding:9px 14px;background:rgba(255,75,75,.1);color:#ff6b6b;font-size:12px;font-weight:900;border:2px solid var(--punch);border-radius:99px;cursor:pointer;font-family:inherit; }
+.btn-skip   { padding:9px 14px;background:rgba(255,255,255,.07);color:rgba(255,255,255,.5);font-size:12px;font-weight:900;border:2px solid rgba(255,255,255,.12);border-radius:99px;cursor:pointer;font-family:inherit; }
+
+/* ══ FINISH ════════════════════════════════════════════════ */
+#finish {
+  height:100vh;display:none;align-items:center;justify-content:center;padding:20px;
+  background:linear-gradient(160deg,#001433,var(--navy));overflow-y:auto;
+}
+.fin-card { max-width:520px;width:100%;text-align:center;animation:up .4s ease both; }
+.fin-emoji { font-size:72px;display:block;margin-bottom:12px;animation:float 2.5s ease-in-out infinite; }
+.fin-title { font-size:36px;font-weight:900;font-style:italic;letter-spacing:-1.5px;margin-bottom:6px; }
+.fin-sub   { font-size:14px;font-weight:700;color:rgba(255,255,255,.55);margin-bottom:22px; }
+.fin-stats-grid {
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;
+}
+.fin-stat { background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.1);border-radius:var(--r);padding:14px 8px;text-align:center; }
+.fin-stat-n { font-size:26px;font-weight:900;color:#fff; }
+.fin-stat-l { font-size:9px;font-weight:900;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-top:3px; }
+.fin-xp-box {
+  background:rgba(255,200,0,.08);border:3px solid rgba(255,200,0,.25);border-radius:var(--r);
+  padding:18px;margin-bottom:18px;animation:glow 2.5s ease-in-out infinite;
+}
+.fin-xp-n { font-size:56px;font-weight:900;color:var(--yellow);line-height:1;text-shadow:0 3px 0 var(--ys); }
+.fin-xp-l { font-size:11px;font-weight:900;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:2px;margin-top:4px; }
+
+/* Learned items list */
+.learned-list { text-align:left;margin-bottom:18px; }
+.learned-label { font-size:11px;font-weight:900;color:var(--teal);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px; }
+.learned-item  { display:inline-flex;align-items:center;gap:6px;background:rgba(43,222,204,.1);border:2px solid rgba(43,222,204,.2);border-radius:99px;padding:4px 12px;margin:3px;font-size:12px;font-weight:900;color:var(--teal); }
+
+/* Item breakdown */
+.item-breakdown { margin-bottom:20px;text-align:left; }
+.ib-label { font-size:11px;font-weight:900;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px; }
+.ib-row   { display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06); }
+.ib-key   { flex:1;font-size:12px;font-weight:700;color:rgba(255,255,255,.6); }
+.ib-quality { font-size:16px; }
+.ib-interval { font-size:11px;font-weight:900;color:rgba(255,255,255,.3); }
+
+.fin-btns { display:flex;gap:10px;justify-content:center;flex-wrap:wrap; }
+.fin-btn  { padding:12px 26px;font-size:14px;font-weight:900;border-radius:99px;border:2px solid;border-bottom:5px solid;cursor:pointer;font-family:inherit;transition:all .1s;text-decoration:none;display:inline-flex;align-items:center;justify-content:center; }
+.fin-btn:active { transform:translateY(3px);border-bottom-width:2px; }
+.fin-yellow { background:var(--yellow);color:var(--ink);border-color:var(--ys); }
+.fin-ghost  { background:rgba(255,255,255,.07);color:#fff;border-color:rgba(255,255,255,.18); }
+.fin-teal   { background:var(--teal);color:var(--ink);border-color:var(--ts); }
+
+/* ══ NO ITEMS STATE ══════════════════════════════════════════ */
+#no-items {
+  height:100vh;display:none;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 20px;background:linear-gradient(160deg,#001433,var(--navy));text-align:center;gap:16px;
+}
+.ni-emoji  { font-size:72px;animation:float 2.5s ease-in-out infinite; }
+.ni-title  { font-size:28px;font-weight:900;font-style:italic;letter-spacing:-1px; }
+.ni-sub    { font-size:14px;font-weight:700;color:rgba(255,255,255,.55);max-width:380px;line-height:1.65; }
+.ni-next   { background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);border-radius:var(--r);padding:16px 20px;max-width:380px;width:100%; }
+.ni-next-label { font-size:10px;font-weight:900;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px; }
+.ni-next-item  { display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13px;font-weight:800;color:rgba(255,255,255,.7); }
+.ni-next-date  { font-size:11px;font-weight:900;color:var(--teal);margin-left:auto; }
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="loading-icon">🧠</div>
+  <div class="spinner"></div>
+  <div class="loading-text">Loading your reviews…</div>
+</div>
+
+<div id="no-items">
+  <div class="ni-emoji">🎉</div>
+  <div class="ni-title">You're all caught up!</div>
+  <div class="ni-sub">No reviews due right now. Your next items will appear when it's the optimal time to review them.</div>
+  <div class="ni-next" id="ni-next-wrap" style="display:none">
+    <div class="ni-next-label">Coming up next</div>
+    <div id="ni-next-list"></div>
+  </div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:8px">
+    <a href="/my-lessons/" class="fin-btn fin-teal">📚 My Lessons</a>
+    <a href="/"            class="fin-btn fin-ghost">← All Courses</a>
+  </div>
+</div>
+
+<div id="game">
+  <div class="prog-wrap"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+  <div class="g-hdr">
+    <div class="g-left">
+      <div class="g-badge" id="g-badge">🧠</div>
+      <div>
+        <div class="g-lesson-name" id="g-lesson-name">Daily Review</div>
+        <div class="g-lesson-sub"  id="g-lesson-sub">Spaced repetition</div>
+      </div>
+    </div>
+    <div class="g-right">
+      <div class="score-pill">
+        <span class="score-label">XP</span>
+        <span class="score-num" id="g-score">0</span>
+      </div>
+      <div class="item-counter" id="g-counter">1 / 1</div>
+      <button class="btn-quit" onclick="confirmQuit()">✕ Quit</button>
+    </div>
+  </div>
+  <div class="g-body" id="g-body"></div>
+  <div class="fb-bar" id="fb-bar">
+    <div class="fb-left">
+      <div class="fb-msg"     id="fb-msg"></div>
+      <div class="fb-explain" id="fb-explain"></div>
+      <div class="fb-quality" id="fb-quality"></div>
+    </div>
+    <button class="btn-fb-next" onclick="advance()">Next → <span style="opacity:.6;font-size:11px">SPACE</span></button>
+  </div>
+</div>
+
+<div id="finish">
+  <div class="fin-card" id="fin-card"></div>
+</div>
+
+<script>
+'use strict';
+
+const SUPABASE_URL  = 'https://knwgmrgwbpchqyqxbxea.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+
+// ── STATE ──────────────────────────────────────────────────────
+let _items       = [];   // SRS items due today (sorted)
+let _qIdx        = 0;
+let _answered    = false;
+let _sessionXP   = 0;
+let _correct     = 0;
+let _total       = 0;
+let _hintsUsed   = 0;
+let _revealed    = false;
+let _startedAt   = null; // timestamp when current item was shown
+let _results     = [];   // { item_key, quality, new_interval } per item
+let _wbBuilt     = [];
+let _sbBuilt     = [];
+let _wbWrong     = 0;
+let _currentUser = null;
+
+// ── BOOT ───────────────────────────────────────────────────────
+async function boot() {
+  try {
+    if (typeof window.efcdReady === 'undefined') {
+      await new Promise(r => setTimeout(r, 200));
+    }
+    await window.efcdReady;
+    await window.EFCD_Auth.initAuth();
+    _currentUser = window.EFCD_Auth.getCurrentUser();
+    if (!_currentUser) {
+      window.location.href = '/login/?redirect=/srs/';
+      return;
+    }
+
+    // Load due items
+    const dueItems = await window.EFCD_XP.getDueItems();
+    if (!dueItems.length) {
+      await showNoItems();
+      return;
+    }
+
+    // Sort: hardest first, overdue first
+    _items = window.EFCD_SRS.SM2.sortForSession(dueItems);
+
+    show('game');
+    renderQuestion();
+  } catch(e) {
+    console.error('SRS boot error:', e);
+    document.getElementById('loading').innerHTML =
+      `<div class="loading-icon">😬</div><div class="loading-text">Error loading reviews — <a href="/my-lessons/" style="color:var(--teal)">back to My Lessons</a></div>`;
+  }
+}
+
+// ── SHOW NO ITEMS ──────────────────────────────────────────────
+async function showNoItems() {
+  // Find upcoming items
+  try {
+    const allItems = await window.EFCD_XP.getAllSRSItems();
+    const upcoming = allItems
+      .filter(i => i.status === 'active' && i.next_review_at > new Date().toISOString().split('T')[0])
+      .sort((a,b) => a.next_review_at.localeCompare(b.next_review_at))
+      .slice(0, 5);
+
+    if (upcoming.length) {
+      document.getElementById('ni-next-wrap').style.display = 'block';
+      document.getElementById('ni-next-list').innerHTML = upcoming.map(item => {
+        const ld      = window.LESSON_DATA_REGISTRY?.[item.lesson_id];
+        const emoji   = ld?.emoji || '📖';
+        const title   = ld?.title || item.lesson_id;
+        const dueDate = new Date(item.next_review_at);
+        const label   = dueDate.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+        return `<div class="ni-next-item"><span>${emoji}</span><span>${title}</span><span class="ni-next-date">${label}</span></div>`;
+      }).join('');
+    }
+  } catch(e) {}
+
+  show('no-items');
+}
+
+// ── RENDER QUESTION ────────────────────────────────────────────
+function renderQuestion() {
+  if (_qIdx >= _items.length) { showFinish(); return; }
+
+  _answered  = false;
+  _hintsUsed = 0;
+  _revealed  = false;
+  _wbBuilt   = [];
+  _sbBuilt   = [];
+  _wbWrong   = 0;
+  _startedAt = Date.now();
+
+  hideFeedback();
+  updateProgress();
+  updateCounter();
+
+  const srsItem = _items[_qIdx];
+  const ld      = window.LESSON_DATA_REGISTRY?.[srsItem.lesson_id];
+
+  // Update header
+  document.getElementById('g-badge').textContent       = ld?.emoji || '📖';
+  document.getElementById('g-lesson-name').textContent = ld?.title || srsItem.lesson_id;
+
+  // Overdue warning
+  const overdue = window.EFCD_SRS.SM2.daysOverdue(srsItem);
+  document.getElementById('g-lesson-sub').textContent =
+    overdue > 1 ? `⚠️ ${overdue} days overdue` : 'Spaced repetition';
+
+  const resolved = window.EFCD_SRS.ITEMS.resolve(srsItem, ld);
+  const body     = document.getElementById('g-body');
+
+  if (!resolved || !ld) {
+    // Item not found in registry — skip it silently
+    _qIdx++;
+    renderQuestion();
+    return;
+  }
+
+  switch (srsItem.item_type) {
+    case 'vocab':    renderVocab(resolved, body);    break;
+    case 'grammar':  renderGrammar(resolved, body);  break;
+    case 'builder':  renderBuilder(resolved, body);  break;
+    case 'sentence': renderSentence(resolved, body); break;
+    case 'tf':       renderTF(resolved, body);       break;
+    default:         renderVocab(resolved, body);
+  }
+}
+
+// ── VOCAB ─────────────────────────────────────────────────────
+function renderVocab(resolved, body) {
+  const ld   = window.LESSON_DATA_REGISTRY?.[_items[_qIdx].lesson_id];
+  const item = resolved.item_data;
+
+  // Use example sentence if available (gap fill), else definition match
+  if (item.example) {
+    const sentence = item.example.replace('___', '<span class="q-blank" id="qblank">___</span>');
+    const distractors = (item.distractors || []).slice(0,3);
+    while (distractors.length < 3) {
+      const rand = ld.vocab?.find(v => v.word !== item.word && !distractors.includes(v.word));
+      if (rand) distractors.push(rand.word); else break;
+    }
+    const opts = _shuffle([item.word, ...distractors]);
+    body.innerHTML = `
+      <div class="q-card">
+        <div class="q-eyebrow">📝 Fill the gap</div>
+        <div class="q-counter">${_qIdx+1} of ${_items.length}</div>
+        <div class="q-main">${sentence}</div>
+        <div class="opts-grid">
+          ${opts.map(o => `<button class="opt" onclick="answerVocab('${escQ(o)}',this,'${escQ(item.word)}')" data-ans="${escQ(o)}">${o}</button>`).join('')}
+        </div>
+      </div>`;
+  } else {
+    // Pure definition → word
+    const wrong = (ld.vocab || []).filter(v => v.word !== item.word)
+      .sort(() => Math.random()-.5).slice(0,3).map(v => v.word);
+    const opts  = _shuffle([item.word, ...wrong]);
+    body.innerHTML = `
+      <div class="q-card">
+        <div class="q-eyebrow">💬 What's the word?</div>
+        <div class="q-counter">${_qIdx+1} of ${_items.length}</div>
+        <div class="q-main">${item.definition}</div>
+        <div class="opts-grid">
+          ${opts.map(o => `<button class="opt" onclick="answerVocab('${escQ(o)}',this,'${escQ(item.word)}')" data-ans="${escQ(o)}">${o}</button>`).join('')}
+        </div>
+      </div>`;
+  }
+}
+
+window.answerVocab = function(chosen, btn, correct) {
+  if (_answered) return; _answered = true; _total++;
+  document.querySelectorAll('.opt').forEach(b => b.disabled = true);
+  const ok = chosen === correct;
+  btn.classList.add(ok ? 'correct' : 'wrong');
+  if (!ok) document.querySelector(`.opt[data-ans="${escQ(correct)}"]`)?.classList.add('reveal');
+  const blank = document.getElementById('qblank');
+  if (blank) { blank.textContent = correct; blank.classList.add('filled'); }
+  _recordResult(ok);
+};
+
+// ── GRAMMAR ────────────────────────────────────────────────────
+function renderGrammar(resolved, body) {
+  const item = resolved.item_data;
+  let blankIdx = 0;
+  const sentence = item.sentence.replace(/___/g, () => {
+    return `<span class="q-blank" id="qblank-${blankIdx++}">___</span>`;
+  });
+  const opts = _shuffle([item.answer, ...item.wrong]);
+  body.innerHTML = `
+    <div class="q-card">
+      <div class="q-eyebrow" style="color:var(--teal)">✏️ Grammar — ${item.topic}</div>
+      <div class="q-counter">${_qIdx+1} of ${_items.length}</div>
+      <div class="q-main">${sentence}</div>
+      <div class="opts-grid">
+        ${opts.map(o => `<button class="opt" onclick="answerGrammar('${escQ(o)}',this,'${escQ(item.answer)}')" data-ans="${escQ(o)}">${o}</button>`).join('')}
+      </div>
+    </div>`;
+}
+
+window.answerGrammar = function(chosen, btn, correct) {
+  if (_answered) return; _answered = true; _total++;
+  document.querySelectorAll('.opt').forEach(b => b.disabled = true);
+  const ok = chosen === correct;
+  btn.classList.add(ok ? 'correct' : 'wrong');
+  if (!ok) document.querySelector(`.opt[data-ans="${escQ(correct)}"]`)?.classList.add('reveal');
+  const parts = correct.split(' / ');
+  parts.forEach((p, i) => {
+    const blank = document.getElementById(`qblank-${i}`);
+    if (blank) { blank.textContent = p; blank.classList.add('filled'); }
+  });
+  const item = window.EFCD_SRS.ITEMS.resolve(_items[_qIdx], window.LESSON_DATA_REGISTRY?.[_items[_qIdx].lesson_id])?.item_data;
+  _recordResult(ok, item?.explain || '');
+};
+
+// ── WORD BUILDER ───────────────────────────────────────────────
+function renderBuilder(resolved, body) {
+  const item = resolved.item_data;
+  const letters = _shuffle([...item.word]);
+  body.innerHTML = `
+    <div class="q-card">
+      <div class="q-eyebrow">🧱 Build the word</div>
+      <div class="q-counter">${_qIdx+1} of ${_items.length}</div>
+      <div class="wb-def">💡 ${item.definition}</div>
+      <div class="wb-slots" id="wb-slots"></div>
+      <div class="wb-tiles">
+        ${letters.map((l,i) => `<button class="wb-tile" id="wbt-${i}" onclick="tapWB('${l}',${i})">${l.toUpperCase()}</button>`).join('')}
+      </div>
+      <div class="btn-actions">
+        <button class="btn-check-teal" onclick="checkWB()">✓ Check!</button>
+        <button class="btn-hint" onclick="hintWB()" id="wb-hint">💡 Hint</button>
+        <button class="btn-reveal" onclick="revealWB()">👁️ Reveal</button>
+        <button class="btn-skip"   onclick="skipItem()">⏭️ Skip</button>
+      </div>
+    </div>`;
+  renderWBSlots(item.word);
+}
+
+function renderWBSlots(word) {
+  const s = document.getElementById('wb-slots');
+  if (!s) return;
+  s.innerHTML = '';
+  for (let i = 0; i < word.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'wb-slot' + (_wbBuilt[i] !== undefined ? ' filled' : '');
+    d.textContent = _wbBuilt[i] !== undefined ? _wbBuilt[i].toUpperCase() : '';
+    if (_wbBuilt[i] !== undefined) d.onclick = () => removeWBLetter(i);
+    s.appendChild(d);
+  }
+}
+
+window.tapWB = function(letter, ti) {
+  const word = window.EFCD_SRS.ITEMS.resolve(_items[_qIdx], window.LESSON_DATA_REGISTRY?.[_items[_qIdx].lesson_id])?.item_data?.word;
+  if (!word || _wbBuilt.length >= word.length) return;
+  _wbBuilt.push(letter);
+  document.getElementById('wbt-'+ti)?.classList.add('used');
+  renderWBSlots(word);
+};
+
+function removeWBLetter(pos) {
+  const letter = _wbBuilt[pos];
+  _wbBuilt.splice(pos, 1);
+  const tiles = document.querySelectorAll('.wb-tile.used');
+  for (const t of tiles) { if (t.textContent.toLowerCase() === letter.toLowerCase()) { t.classList.remove('used'); break; } }
+  const word = window.EFCD_SRS.ITEMS.resolve(_items[_qIdx], window.LESSON_DATA_REGISTRY?.[_items[_qIdx].lesson_id])?.item_data?.word;
+  if (word) renderWBSlots(word);
+}
+
+function hintWB() {
+  const item = window.EFCD_SRS.ITEMS.resolve(_items[_qIdx], window.LESSON_DATA_REGISTRY?.[_items[_qIdx].lesson_id])?.item_data;
+  if (!item) return;
+  const np = _wbBuilt.length;
+  if (np >= item.word.length) return;
+  const nextLetter = item.word[np];
+  const tiles = document.querySelectorAll('.wb-tile:not(.used)');
+  for (const t of tiles) { if (t.textContent.toLowerCase() === nextLetter.toLowerCase()) { t.classList.add('used'); break; } }
+  _wbBuilt.push(nextLetter);
+  renderWBSlots(item.word);
+  _hintsUsed++;
+  const btn = document.getElementById('wb-hint');
+  if (btn) { btn._uses = (btn._uses||0)+1; if (btn._uses >= 2) btn.disabled = true; }
+}
+
+function revealWB() {
+  const item = window.EFCD_SRS.ITEMS.resolve(_items[_qIdx], window.LESSON_DATA_REGISTRY?.[_items[_qIdx].lesson_id])?.item_data;
+  if (!item) return;
+  _wbBuilt = [...item.word];
+  document.querySelectorAll('.wb-tile').forEach(t => t.classList.add('used'));
+  renderWBSlots(item.word);
+  _revealed = true;
+  _recordResult(false);
+}
+
+function checkWB() {
+  if (_answered) return;
+  const item = window.EFCD_SRS.ITEMS.resolve(_items[_qIdx], window.LESSON_DATA_REGISTRY?.[_items[_qIdx].lesson_id])?.item_data;
+  if (!item) return;
+  const built = _wbBuilt.join('').toLowerCase();
+  if (built.length < item.word.length) return;
+  const ok = built === item.word.toLowerCase();
+  const slots = document.querySelectorAll('.wb-slot');
+  slots.forEach(s => s.classList.add(ok ? 'correct' : 'wrong'));
+  if (!ok) {
+    _wbWrong++;
+    if (_wbWrong < 2) {
+      slots.forEach(s => s.classList.remove('wrong'));
+      setTimeout(() => { _wbBuilt = []; document.querySelectorAll('.wb-tile').forEach(t => t.classList.remove('used')); renderWBSlots(item.word); }, 400);
+      return;
+    }
+  }
+  _answered = true; _total++;
+  _recordResult(ok);
+}
+
+// ── SENTENCE BUILDER ───────────────────────────────────────────
+function renderSentence(resolved, body) {
+  const item = resolved.item_data;
+  _sbBuilt = [];
+  const shuffled = _shuffle([...item.words]);
+  body.innerHTML = `
+    <div class="q-card">
+      <div class="q-eyebrow">🔤 Build the sentence</div>
+      <div class="q-counter">${_qIdx+1} of ${_items.length}</div>
+      ${item.hint ? `<div style="font-size:13px;font-weight:700;color:rgba(255,255,255,.45);text-align:center;margin-bottom:10px;font-style:italic">💡 ${item.hint}</div>` : ''}
+      <div class="sb-answer" id="sb-ans"></div>
+      <div class="sb-words" id="sb-words">
+        ${shuffled.map((w,i) => `<button class="sb-word" id="sbw-${i}" onclick="tapSB('${escQ(w)}',${i})">${w}</button>`).join('')}
+      </div>
+      <div class="btn-actions">
+        <button class="btn-check" onclick="checkSB()">✓ Check!</button>
+        <button class="btn-hint"  onclick="hintSB()" id="sb-hint">💡 Hint</button>
+        <button class="btn-reveal" onclick="revealSB()">👁️ Reveal</button>
+        <button class="btn-skip"   onclick="skipItem()">⏭️ Skip</button>
+      </div>
+    </div>`;
+}
+
+window.tapSB = function(word, idx) {
+  if (_answered) return;
+  _sbBuilt.push({ word, idx });
+  document.getElementById('sbw-'+idx)?.classList.add('used');
+  renderSBAnswer();
+};
+
+function renderSBAnswer() {
+  const ans = document.getElementById('sb-ans');
+  if (!ans) return;
+  ans.className = 'sb-answer' + (_sbBuilt.length ? ' has-words' : '');
+  ans.innerHTML = _sbBuilt.map((item, i) =>
+    `<span class="sb-word-placed" onclick="removeSBWord(${i})">${item.word}</span>`
+  ).join('');
+}
+
+function removeSBWord(pos) {
+  if (_answered) return;
+  const item = _sbBuilt[pos];
+  _sbBuilt.splice(pos, 1);
+  document.getElementById('sbw-'+item.idx)?.classList.remove('used');
+  renderSBAnswer();
+}
+
+function hintSB() {
+  if (_answered) return;
+  const item = window.EFCD_SRS.ITEMS.resolve(_items[_qIdx], window.LESSON_DATA_REGISTRY?.[_items[_qIdx].lesson_id])?.item_data;
+  if (!item) return;
+  const answerWords = item.answer.split(' ');
+  const nextWord = answerWords[_sbBuilt.length];
+  if (!nextWord) return;
+  const words = document.querySelectorAll('.sb-word:not(.used)');
+  for (const w of words) { if (w.textContent.toLowerCase() === nextWord.toLowerCase()) { w.click(); break; } }
+  _hintsUsed++;
+  const btn = document.getElementById('sb-hint');
+  if (btn) { btn._uses = (btn._uses||0)+1; if (btn._uses >= 2) btn.disabled = true; }
+}
+
+function revealSB() {
+  if (_answered) return;
+  const item = window.EFCD_SRS.ITEMS.resolve(_items[_qIdx], window.LESSON_DATA_REGISTRY?.[_items[_qIdx].lesson_id])?.item_data;
+  if (!item) return;
+  // Clear and fill in order
+  _sbBuilt = [];
+  document.querySelectorAll('.sb-word').forEach(b => b.classList.remove('used'));
+  item.answer.split(' ').forEach(word => {
+    const words = document.querySelectorAll('.sb-word:not(.used)');
+    for (const w of words) { if (w.textContent.toLowerCase() === word.toLowerCase()) { w.click(); break; } }
+  });
+  _revealed = true;
+  _recordResult(false);
+}
+
+function checkSB() {
+  if (_answered) return;
+  const item = window.EFCD_SRS.ITEMS.resolve(_items[_qIdx], window.LESSON_DATA_REGISTRY?.[_items[_qIdx].lesson_id])?.item_data;
+  if (!item) return;
+  const built  = _sbBuilt.map(i => i.word).join(' ').toLowerCase().replace(/[.,!?]/g,'').trim();
+  const target = item.answer.toLowerCase().replace(/[.,!?]/g,'').trim();
+  const ok     = built === target;
+  _answered = true; _total++;
+  const ans = document.getElementById('sb-ans');
+  if (ans) ans.classList.add(ok ? 'correct-flash' : 'wrong-flash');
+  _recordResult(ok);
+}
+
+// ── TRUE / FALSE ───────────────────────────────────────────────
+function renderTF(resolved, body) {
+  const item = resolved.item_data;
+  const stmt = (item.statement || '').replace(/\b([A-Z]{2,})\b/g, '<span style="color:var(--yellow)">$1</span>');
+  body.innerHTML = `
+    <div class="q-card">
+      <div class="q-eyebrow">✅ True or False?</div>
+      <div class="q-counter">${_qIdx+1} of ${_items.length}</div>
+      <div class="q-main" style="margin-bottom:18px">${stmt}</div>
+      <div class="tf-btns">
+        <button class="tf-btn tf-true"  id="tf-t" onclick="answerTF(true,this)">✅ TRUE</button>
+        <button class="tf-btn tf-false" id="tf-f" onclick="answerTF(false,this)">❌ FALSE</button>
+      </div>
+    </div>`;
+}
+
+window.answerTF = function(chosen, btn) {
+  if (_answered) return; _answered = true; _total++;
+  const item = window.EFCD_SRS.ITEMS.resolve(_items[_qIdx], window.LESSON_DATA_REGISTRY?.[_items[_qIdx].lesson_id])?.item_data;
+  document.querySelectorAll('.tf-btn').forEach(b => b.disabled = true);
+  const ok = chosen === item.correct;
+  btn.classList.add(ok ? 'correct' : 'wrong');
+  document.getElementById(chosen ? 'tf-f' : 'tf-t')?.classList.add('reveal');
+  _recordResult(ok, item.reveal || '');
+};
+
+// ── SKIP ────────────────────────────────────────────────────────
+function skipItem() {
+  if (_answered) return;
+  _answered = true;
+  // Quality 1 — skipped
+  _saveItemResult(1);
+  _qIdx++;
+  if (_qIdx < _items.length) renderQuestion();
+  else showFinish();
+}
+
+// ── RECORD RESULT ──────────────────────────────────────────────
+function _recordResult(ok, explain = '') {
+  const responseTime = Date.now() - _startedAt;
+  const srsItem      = _items[_qIdx];
+
+  const quality = window.EFCD_SRS.QUALITY.fromResult(srsItem.item_type, {
+    correct:         ok,
+    hintsUsed:       _hintsUsed,
+    revealed:        _revealed,
+    skipped:         false,
+    responseTimeMs:  responseTime,
+  });
+
+  const SM2Updates = window.EFCD_SRS.SM2.calculate(srsItem, quality);
+
+  if (ok) {
+    _correct++;
+    _sessionXP += 2; // 2 XP per correct item
+    updateScoreDisplay();
+    fireScorePop();
+  }
+
+  // Show feedback
+  const qEmoji = window.EFCD_SRS.QUALITY.emoji(quality);
+  const qLabel = window.EFCD_SRS.QUALITY.label(quality);
+  const nextReview = SM2Updates.next_review_at;
+  const nextLabel  = _formatNextReview(nextReview);
+
+  showFeedback(
+    ok,
+    ok ? `${qEmoji} ${qLabel}!` : `❌ Not quite`,
+    explain,
+    `Next review: ${nextLabel}`
+  );
+
+  // Save async (don't await — don't block UI)
+  _saveItemResult(quality, SM2Updates, responseTime);
+
+  _results.push({
+    item_key:     srsItem.item_key,
+    item_type:    srsItem.item_type,
+    lesson_id:    srsItem.lesson_id,
+    quality,
+    new_interval: SM2Updates.interval_days,
+    will_learn:   SM2Updates.status === 'learned',
+  });
+}
+
+async function _saveItemResult(quality, sm2Updates = null, responseTimeMs = null) {
+  try {
+    await window.EFCD_XP.recordItemReview(
+      _items[_qIdx].item_key,
+      _items[_qIdx].lesson_id,
+      quality,
+      responseTimeMs
+    );
+  } catch(e) {
+    console.warn('SRS save error:', e.message);
+  }
+}
+
+// ── ADVANCE ────────────────────────────────────────────────────
+function advance() {
+  if (!_answered) return;
+  _qIdx++;
+  if (_qIdx < _items.length) renderQuestion();
+  else showFinish();
+}
+
+// ── FINISH ─────────────────────────────────────────────────────
+async function showFinish() {
+  // Award session XP
+  const baseXP = window.EFCD_SRS.XP.SRS_SESSION_BASE;
+  _sessionXP += baseXP;
+  try {
+    await window.EFCD_XP.onSrsSessionComplete(_correct);
+  } catch(e) {}
+
+  const pct      = _total > 0 ? Math.round((_correct / _total) * 100) : 0;
+  const learned  = _results.filter(r => r.will_learn);
+  const ratings  = [
+    { min:90, emoji:'🌟', title:'Flawless!',    msg:'Every item nailed. Your brain is wired in.' },
+    { min:75, emoji:'🔥', title:'Strong work!', msg:'Almost everything locked in. Keep going.' },
+    { min:60, emoji:'💪', title:'Good session!',msg:'Solid progress. The harder items will come back soon.' },
+    { min:0,  emoji:'🧠', title:'Keep going!',  msg:'Each review makes it easier. The algorithm has your back.' },
+  ];
+  const r = ratings.find(x => pct >= x.min) || ratings[ratings.length-1];
+
+  document.getElementById('fin-card').innerHTML = `
+    <div class="fin-emoji">${r.emoji}</div>
+    <div class="fin-title">${r.title}</div>
+    <div class="fin-sub">${r.msg}</div>
+
+    <div class="fin-stats-grid">
+      <div class="fin-stat"><div class="fin-stat-n">${_correct}</div><div class="fin-stat-l">Correct</div></div>
+      <div class="fin-stat"><div class="fin-stat-n">${_total}</div><div class="fin-stat-l">Reviewed</div></div>
+      <div class="fin-stat"><div class="fin-stat-n">${pct}%</div><div class="fin-stat-l">Accuracy</div></div>
+    </div>
+
+    <div class="fin-xp-box">
+      <div class="fin-xp-n">+${_sessionXP}</div>
+      <div class="fin-xp-l">XP Earned</div>
+    </div>
+
+    ${learned.length ? `
+      <div class="learned-list">
+        <div class="learned-label">🎓 Newly Learned (${learned.length})</div>
+        ${learned.map(l => {
+          const typeEmoji = { vocab:'💬', grammar:'✏️', builder:'🧱', sentence:'🔤', tf:'✅' }[l.item_type] || '📖';
+          const shortKey  = l.item_key.split(':').slice(1).join(' ').replace(/_/g,' ');
+          return `<span class="learned-item">${typeEmoji} ${shortKey}</span>`;
+        }).join('')}
+      </div>` : ''}
+
+    <div class="item-breakdown">
+      <div class="ib-label">This session</div>
+      ${_results.map(r => {
+        const qEmoji = window.EFCD_SRS.QUALITY.emoji(r.quality);
+        const shortKey = r.item_key.split(':').slice(1).join(' ').replace(/_/g,' ');
+        const days = r.new_interval < 1 ? 'tomorrow' :
+                     r.new_interval === 1 ? 'tomorrow' :
+                     `${Math.ceil(r.new_interval)}d`;
+        return `<div class="ib-row">
+          <div class="ib-key">${shortKey}</div>
+          <div class="ib-quality">${qEmoji}</div>
+          <div class="ib-interval">→ ${days}</div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <div class="fin-btns">
+      <a href="/my-lessons/" class="fin-btn fin-teal">📚 My Lessons</a>
+      <a href="/"            class="fin-btn fin-ghost">← Courses</a>
+    </div>`;
+
+  show('finish');
+  fireConfetti();
+}
+
+// ── QUIT ───────────────────────────────────────────────────────
+function confirmQuit() {
+  if (confirm('Quit this review session? Progress on completed items has been saved.')) {
+    window.location.href = '/my-lessons/';
+  }
+}
+
+// ── UI HELPERS ─────────────────────────────────────────────────
+function showFeedback(ok, msg, explain, quality) {
+  const bar  = document.getElementById('fb-bar');
+  bar.className = 'fb-bar show ' + (ok ? 'good' : 'bad');
+  document.getElementById('fb-msg').textContent     = msg;
+  document.getElementById('fb-explain').textContent = explain || '';
+  document.getElementById('fb-quality').textContent = quality || '';
+}
+
+function hideFeedback() {
+  document.getElementById('fb-bar').className = 'fb-bar';
+}
+
+function updateProgress() {
+  const pct = Math.round((_qIdx / _items.length) * 100);
+  document.getElementById('prog').style.width = pct + '%';
+}
+
+function updateCounter() {
+  document.getElementById('g-counter').textContent = `${_qIdx+1} / ${_items.length}`;
+}
+
+function updateScoreDisplay() {
+  document.getElementById('g-score').textContent = _sessionXP;
+}
+
+function fireScorePop() {
+  const el = document.createElement('div');
+  el.className = 'score-pop';
+  el.textContent = '+2';
+  el.style.cssText = `left:${45+Math.random()*10}vw;top:${15+Math.random()*15}vh`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+function fireConfetti() {
+  const c = ['#FFC800','#58CC02','#2BDECC','#1CB0F6','#CE82FF','#fff'];
+  for (let i=0; i<40; i++) {
+    const d=document.createElement('div'); d.className='conf-dot';
+    const sz=6+Math.random()*10;
+    d.style.cssText=`left:${Math.random()*100}vw;top:0;width:${sz}px;height:${sz}px;background:${c[~~(Math.random()*c.length)]};animation-delay:${Math.random()*.7}s;animation-duration:${1.2+Math.random()*.6}s;border-radius:${Math.random()>.5?'50%':'3px'}`;
+    document.body.appendChild(d); setTimeout(()=>d.remove(),2200);
+  }
+}
+
+function show(id) {
+  ['loading','game','finish','no-items'].forEach(s => {
+    const el = document.getElementById(s.replace('-','_') !== s ? s : s);
+    if (el) el.style.display = s === id ? (s==='game' ? 'flex' : s==='finish' ? 'flex' : s==='no-items' ? 'flex' : 'flex') : 'none';
+  });
+  // Fix: handle hyphen IDs
+  document.getElementById('loading').style.display  = id==='loading'  ? 'flex' : 'none';
+  document.getElementById('game').style.display     = id==='game'     ? 'flex' : 'none';
+  document.getElementById('finish').style.display   = id==='finish'   ? 'flex' : 'none';
+  document.getElementById('no-items').style.display = id==='no-items' ? 'flex' : 'none';
+}
+
+function _formatNextReview(dateStr) {
+  const today    = new Date(); today.setHours(0,0,0,0);
+  const due      = new Date(dateStr); due.setHours(0,0,0,0);
+  const diffDays = Math.round((due - today) / 86400000);
+  if (diffDays <= 0)  return 'tomorrow';
+  if (diffDays === 1) return 'in 1 day';
+  if (diffDays < 7)   return `in ${diffDays} days`;
+  if (diffDays < 14)  return 'in 1 week';
+  return due.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+}
+
+function _shuffle(arr) { return [...arr].sort(() => Math.random()-.5); }
+function escQ(s) { return (s||'').replace(/'/g,"\\'"); }
+
+// ── KEYBOARD ───────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key===' '||e.key==='ArrowRight') { e.preventDefault(); if (_answered) advance(); }
+  if (e.key==='t'||e.key==='T') document.getElementById('tf-t')?.click();
+  if (e.key==='f'||e.key==='F') document.getElementById('tf-f')?.click();
+  if (e.key==='Enter') {
+    document.querySelector('.btn-check')?.click() ||
+    document.querySelector('.btn-check-teal')?.click();
+  }
+  if (e.key==='1'||e.key==='2'||e.key==='3'||e.key==='4') {
+    const opts = document.querySelectorAll('.opt:not(:disabled)');
+    opts[parseInt(e.key)-1]?.click();
+  }
+});
+
+// ── GO ─────────────────────────────────────────────────────────
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', boot);
+} else {
+  boot();
+}
+</script>
+</body>
+</html>
