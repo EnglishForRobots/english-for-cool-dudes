@@ -9,6 +9,8 @@
 <link rel="preconnect" href="https://fonts.bunny.net">
 <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/srs-engine.js"></script>
+<script src="/xp.js"></script>
 <script src="/init-auth.js"></script>
 <script src="/lesson-data-registry.js"></script>
 <style>
@@ -37,14 +39,13 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 @keyframes fadeIn   {from{opacity:0}to{opacity:1}}
 @keyframes float    {0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 @keyframes shimmer  {0%{left:-80%}100%{left:130%}}
-@keyframes glowBadge{0%,100%{box-shadow:0 0 18px rgba(255,200,0,.4)}50%{box-shadow:0 0 40px rgba(255,200,0,.8)}}
-@keyframes badgeDrop{0%{opacity:0;transform:translateY(-30px) scale(.7)}60%{transform:translateY(4px) scale(1.05)}100%{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes shake    {0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}60%{transform:translateX(6px)}}
 @keyframes heartbeat{0%,100%{transform:scale(1)}14%{transform:scale(1.18)}28%{transform:scale(1)}42%{transform:scale(1.1)}}
 @keyframes bounce   {0%,100%{transform:translateY(0)}40%{transform:translateY(-12px)}60%{transform:translateY(-5px)}}
 @keyframes revealUp {0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
 @keyframes slideUp  {from{transform:translateY(100%)}to{transform:translateY(0)}}
 @keyframes confetti {0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(150px) rotate(500deg)}}
+@keyframes pulse    {0%,100%{opacity:1}50%{opacity:.6}}
 
 /* ── HEADER ── */
 .header{background:var(--white);border-bottom:3px solid var(--border);position:sticky;top:0;z-index:300;height:60px;display:flex;align-items:center;padding:0 20px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
@@ -72,6 +73,14 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .hstat-n{font-size:clamp(18px,4vw,26px);font-weight:900;color:var(--yellow);line-height:1;display:block}
 .hstat-l{font-size:10px;font-weight:900;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-top:3px;display:block}
 
+/* ── SRS DUE BANNER ── */
+.srs-due-banner{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:rgba(28,176,246,.12);border:2px solid rgba(28,176,246,.25);border-radius:var(--rsm);padding:12px 16px;margin-top:14px;position:relative;z-index:1;text-decoration:none}
+.srs-due-left{display:flex;align-items:center;gap:10px}
+.srs-due-emoji{font-size:22px}
+.srs-due-title{font-size:14px;font-weight:900;color:#fff}
+.srs-due-sub{font-size:11px;font-weight:700;color:rgba(255,255,255,.5);margin-top:1px}
+.srs-due-link{padding:7px 14px;background:var(--blue);color:#fff;font-size:12px;font-weight:900;border-radius:var(--rsm);border:2px solid var(--bs);border-bottom:3px solid var(--bs);white-space:nowrap}
+
 /* ── SKELETON ── */
 .skeleton{background:linear-gradient(90deg,#e8e8e8 25%,#f5f5f5 50%,#e8e8e8 75%);background-size:400px 100%;animation:shimmer 1.4s infinite;border-radius:var(--rsm)}
 .skel-hero{height:180px;border-radius:var(--r);margin-bottom:0}
@@ -95,18 +104,29 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .badge-card-title{font-size:13px;font-weight:900;color:var(--ink-bold);line-height:1.3;letter-spacing:-.2px}
 .badge-card-level{font-size:10px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px}
 .badge-card-date{font-size:10px;font-weight:700;color:var(--ink-3)}
-.badge-card-btn{display:flex;align-items:center;justify-content:center;gap:5px;width:calc(100% - 24px);margin:0 12px 12px;padding:9px;font-size:12px;font-weight:900;border-radius:var(--rsm);border:2px solid;border-bottom:3px solid;transition:all .1s;font-family:inherit}
+.badge-card-btn{display:flex;align-items:center;justify-content:center;gap:5px;width:calc(100% - 24px);margin:0 12px 8px;padding:9px;font-size:12px;font-weight:900;border-radius:var(--rsm);border:2px solid;border-bottom:3px solid;transition:all .1s;font-family:inherit}
 .badge-card-btn:active{border-bottom-width:2px;transform:translateY(2px)}
 
-/* ── EMPTY STATE ── */
+/* ── SRS BUTTONS ON BADGE CARDS ── */
+.srs-activate-btn{display:flex;align-items:center;justify-content:space-between;gap:6px;width:calc(100% - 24px);margin:0 12px 12px;padding:8px 12px;background:rgba(255,200,0,.08);color:#8a6800;font-size:11px;font-weight:900;font-family:'Nunito',sans-serif;border:2px solid rgba(255,200,0,.25);border-radius:var(--rsm);cursor:pointer;transition:all .12s}
+.srs-activate-btn:hover{background:rgba(255,200,0,.18);border-color:rgba(255,200,0,.5)}
+.srs-activate-btn.cant-afford{opacity:.45;cursor:not-allowed}
+.srs-cost{background:rgba(255,200,0,.2);border-radius:99px;padding:1px 7px;font-size:10px}
+.srs-review-btn{display:flex;align-items:center;justify-content:space-between;gap:6px;width:calc(100% - 24px);margin:0 12px 12px;padding:8px 12px;background:rgba(28,176,246,.1);color:#0a6fa8;font-size:11px;font-weight:900;border:2px solid rgba(28,176,246,.3);border-radius:var(--rsm);text-decoration:none;animation:pulse 2s ease-in-out infinite}
+.srs-due-count{background:rgba(28,176,246,.2);border-radius:99px;padding:1px 7px;font-size:10px}
+.srs-status-wrap{width:calc(100% - 24px);margin:0 12px 12px}
+.srs-progress-bar-wrap{height:4px;background:rgba(0,0,0,.08);border-radius:99px;margin-bottom:4px;overflow:hidden}
+.srs-progress-bar{height:100%;background:linear-gradient(90deg,var(--teal),var(--green));border-radius:99px;transition:width .4s ease}
+.srs-progress-text{font-size:10px;font-weight:800;color:var(--ink-3);text-align:center;display:block}
+.srs-learned-wrap{display:flex;align-items:center;justify-content:center;gap:5px;width:calc(100% - 24px);margin:0 12px 12px;padding:8px;background:rgba(43,222,204,.08);color:#0d8070;font-size:11px;font-weight:900;border:2px solid rgba(43,222,204,.2);border-radius:var(--rsm)}
+
+/* ── EMPTY / GUEST STATES ── */
 .empty-state{text-align:center;padding:48px 24px;animation:up .4s ease both}
 .empty-icon{font-size:72px;display:block;margin-bottom:16px;animation:float 3s ease-in-out infinite}
 .empty-title{font-size:22px;font-weight:900;color:var(--ink-bold);margin-bottom:8px}
 .empty-sub{font-size:14px;font-weight:700;color:var(--ink-3);margin-bottom:24px;line-height:1.6;max-width:340px;margin-left:auto;margin-right:auto}
 .empty-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:var(--yellow);color:var(--ink-bold);font-size:15px;font-weight:900;border-radius:var(--r);border:2px solid var(--ys);border-bottom:5px solid var(--ys);transition:all .1s;font-family:inherit;cursor:pointer}
 .empty-btn:active{border-bottom-width:2px;transform:translateY(3px)}
-
-/* ── GUEST STATE ── */
 .guest-card{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);padding:36px 24px;text-align:center;animation:up .4s ease both}
 .guest-icon{font-size:64px;display:block;margin-bottom:14px;animation:float 3s ease-in-out infinite}
 .guest-title{font-size:22px;font-weight:900;color:var(--ink-bold);margin-bottom:8px}
@@ -140,7 +160,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .review-panel{display:none}
 .review-panel.active{display:block;animation:revealUp .25s ease both}
 
-/* ── VOCAB FLASHCARDS ── */
+/* ── VOCAB ── */
 .vocab-grid{display:flex;flex-direction:column;gap:10px}
 .vocab-item{background:var(--bg);border:2px solid var(--border);border-radius:var(--rsm);padding:14px 16px;cursor:pointer;transition:border-color .15s}
 .vocab-item:hover{border-color:var(--ys)}
@@ -151,7 +171,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .vocab-item.open .vocab-def{display:block;animation:revealUp .2s ease both}
 .vocab-example{font-size:13px;font-weight:700;color:var(--ink-3);font-style:italic;margin-top:6px}
 
-/* ── QUIZ (vocab gap-fill style) ── */
+/* ── QUIZ ── */
 .quiz-progress-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .quiz-pips{display:flex;gap:5px;flex:1}
 .quiz-pip{flex:1;height:6px;border-radius:99px;background:var(--border-heavy);transition:background .3s}
@@ -179,10 +199,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .quiz-next.show{display:flex;animation:revealUp .2s ease both}
 .quiz-next:active{border-bottom-width:2px;transform:translateY(3px)}
 
-/* ── GRAMMAR QUIZ ── */
+/* ── GRAMMAR ── */
 .gram-explainer{background:var(--bg);border:2px solid var(--border);border-left:5px solid var(--green);border-radius:0 var(--rsm) var(--rsm) 0;padding:14px 16px;margin-bottom:14px;font-size:14px;font-weight:700;color:var(--ink-bold);line-height:1.7}
 .gram-explainer strong{color:var(--gs)}
-.gram-explainer code{background:rgba(88,204,2,.12);padding:2px 6px;border-radius:4px;font-family:inherit;font-size:13px;font-weight:900;color:var(--gs)}
 .gram-sent-card{background:var(--bg);border:2px solid var(--border);border-left:5px solid var(--green);border-radius:0 var(--rsm) var(--rsm) 0;padding:14px 16px;margin-bottom:12px}
 .gram-sent-num{font-size:10px;font-weight:900;color:var(--gs);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
 .gram-sent-text{font-size:clamp(14px,3.8vw,16px);font-weight:800;color:var(--ink-bold);line-height:1.55}
@@ -196,8 +215,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .gram-word-btn.show-ok{background:rgba(88,204,2,.12)!important;color:var(--gs)!important;border-color:var(--gs)!important}
 .gram-word-btn:disabled{cursor:default}
 
-/* ── TRUE / FALSE ── */
-.tf-stat-card{background:var(--bg);border:2px solid var(--border);border-left:5px solid var(--yellow);border-radius:0 var(--rsm) var(--rsm) 0;padding:16px 16px;margin-bottom:12px}
+/* ── TRUE/FALSE ── */
+.tf-stat-card{background:var(--bg);border:2px solid var(--border);border-left:5px solid var(--yellow);border-radius:0 var(--rsm) var(--rsm) 0;padding:16px;margin-bottom:12px}
 .tf-stat-num{font-size:10px;font-weight:900;color:var(--ys);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px}
 .tf-stat-text{font-size:clamp(14px,3.8vw,16px);font-weight:800;color:var(--ink-bold);line-height:1.5}
 .tf-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
@@ -245,16 +264,13 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
   </div>
 </header>
 
-<!-- REVIEW MODAL -->
 <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
   <div class="modal-sheet" id="modal-sheet">
     <div id="modal-content"></div>
   </div>
 </div>
 
-<div class="page" id="page-content">
-  <!-- content rendered by JS -->
-</div>
+<div class="page" id="page-content"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/init-auth.js"></script>
@@ -262,22 +278,14 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 <script>
 'use strict';
 
-/* ══════════════════════════════════════════════
-   LESSON LINK → REGISTRY ID MAP
-   Maps lesson_link from Supabase → LESSON_DATA_REGISTRY key
-══════════════════════════════════════════════ */
 const LINK_TO_ID = {
-  '/corgis/':         'royal-corgis-beginner',
-  '/tube/':           'london-underground-beginner',
-  '/crown-estate/':   'crown-estate-intermediate',
-  '/ikea/':           'ikea-effect-intermediate',
-  '/saudimachine/':   'saudi-machine-deal-tax',
+  '/corgis/':       'royal-corgis-beginner',
+  '/tube/':         'london-underground-beginner',
+  '/crown-estate/': 'crown-estate-intermediate',
+  '/ikea/':         'ikea-effect-intermediate',
+  '/saudimachine/': 'saudi-machine-deal-tax',
 };
 
-/* ══════════════════════════════════════════════
-   TRACK COLOURS — for badge cards
-   Keyed by lesson_level
-══════════════════════════════════════════════ */
 const LEVEL_THEME = {
   'Beginner':      { strip:'#58CC02', bg:'linear-gradient(135deg,#1a3a0a,#2d5e14)', glow:'rgba(88,204,2,.5)' },
   'Intermediate':  { strip:'#1CB0F6', bg:'linear-gradient(135deg,#0a2240,#1a3a5e)', glow:'rgba(28,176,246,.5)' },
@@ -288,42 +296,105 @@ const LEVEL_THEME = {
 };
 function themeFor(level){ return LEVEL_THEME[level] || LEVEL_THEME['Intermediate']; }
 
-/* ══════════════════════════════════════════════
-   FORMAT DATE
-══════════════════════════════════════════════ */
-function fmtDate(ts){
-  if(!ts) return '';
-  const d = new Date(ts);
-  return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
-}
+function fmtDate(ts){ if(!ts) return ''; return new Date(ts).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
 function timeAgo(ts){
   if(!ts) return '';
-  const diff = Date.now() - new Date(ts).getTime();
-  const days = Math.floor(diff / 86400000);
-  if(days === 0) return 'Today';
-  if(days === 1) return 'Yesterday';
-  if(days < 7)  return `${days} days ago`;
-  if(days < 30) return `${Math.floor(days/7)} week${Math.floor(days/7)>1?'s':''} ago`;
+  const days = Math.floor((Date.now() - new Date(ts).getTime()) / 86400000);
+  if(days===0) return 'Today'; if(days===1) return 'Yesterday';
+  if(days<7)   return `${days} days ago`;
+  if(days<30)  return `${Math.floor(days/7)} week${Math.floor(days/7)>1?'s':''} ago`;
   return fmtDate(ts);
 }
 
-/* ══════════════════════════════════════════════
-   CONFETTI
-══════════════════════════════════════════════ */
 const CONF_COLOURS = ['#FFC800','#58CC02','#1CB0F6','#FF4B4B','#CE82FF','#2BDECC'];
 function burst(){
   for(let i=0;i<20;i++){
-    const d=document.createElement('div');d.className='conf-dot';
+    const d=document.createElement('div'); d.className='conf-dot';
     const sz=8+Math.random()*10;
     d.style.cssText=`left:${20+Math.random()*60}vw;top:${10+Math.random()*30}vh;width:${sz}px;height:${sz}px;background:${CONF_COLOURS[~~(Math.random()*CONF_COLOURS.length)]};animation-delay:${Math.random()*.4}s;animation-duration:${.8+Math.random()*.6}s;border-radius:${Math.random()>.5?'50%':'3px'};transform:rotate(${Math.random()*360}deg)`;
-    document.body.appendChild(d);setTimeout(()=>d.remove(),1600);
+    document.body.appendChild(d); setTimeout(()=>d.remove(),1600);
   }
 }
 
 /* ══════════════════════════════════════════════
-   RENDER PAGE
+   getSrsButtonHtml
+   Called once per badge card in renderPage.
+   Returns the right HTML based on SRS state.
 ══════════════════════════════════════════════ */
-function renderPage(user, stats, lessons){
+function getSrsButtonHtml(registryId, srsData, xpBalance) {
+  if(!registryId || !window.EFCD_SRS || !srsData) return '';
+
+  const today  = new Date().toISOString().split('T')[0];
+  const items  = srsData.byLesson?.[registryId] || [];
+  const COST   = 30;
+
+  if(!items.length) {
+    const canAfford = (xpBalance || 0) >= COST;
+    return `<button class="srs-activate-btn${canAfford?'':' cant-afford'}"
+      onclick="event.stopPropagation();handleActivateSRS('${registryId}')"
+      title="${canAfford?`Spend ${COST} XP to activate spaced repetition`:`Need ${COST} XP to activate`}">
+      🧠 Activate SRS <span class="srs-cost">${COST} XP</span>
+    </button>`;
+  }
+
+  if(items.every(i => i.status === 'learned')) {
+    return `<div class="srs-learned-wrap">🎓 Fully Learned!</div>`;
+  }
+
+  const dueNow = items.filter(i => i.status === 'active' && i.next_review_at <= today);
+  if(dueNow.length > 0) {
+    return `<a href="/srs/" class="srs-review-btn" onclick="event.stopPropagation()">
+      📬 Review Now <span class="srs-due-count">${dueNow.length} due</span>
+    </a>`;
+  }
+
+  const progress  = window.EFCD_SRS.STATS.lessonProgress(items, registryId);
+  const nextItem  = items.filter(i=>i.status==='active').sort((a,b)=>a.next_review_at.localeCompare(b.next_review_at))[0];
+  const nextLabel = nextItem ? _srsNextLabel(nextItem.next_review_at) : '';
+  return `<div class="srs-status-wrap">
+    <div class="srs-progress-bar-wrap"><div class="srs-progress-bar" style="width:${progress}%"></div></div>
+    <span class="srs-progress-text">${progress}% learned${nextLabel?' · next '+nextLabel:''}</span>
+  </div>`;
+}
+
+function _srsNextLabel(dateStr) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const due   = new Date(dateStr); due.setHours(0,0,0,0);
+  const d     = Math.round((due-today)/86400000);
+  if(d<=1) return 'tomorrow'; if(d<7) return `in ${d} days`;
+  return due.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+}
+
+async function handleActivateSRS(lessonId) {
+  if(!window.EFCD_XP) return;
+  const title = window.LESSON_DATA_REGISTRY?.[lessonId]?.title || lessonId;
+  if(!confirm(`Activate Spaced Repetition for "${title}"?\n\nCost: 30 XP\n\nThe system brings this lesson back at the perfect times to lock vocabulary and grammar into long-term memory.`)) return;
+  try {
+    const btn = document.querySelector(`.srs-activate-btn[onclick*="${lessonId}"]`);
+    if(btn){ btn.textContent='Activating…'; btn.disabled=true; }
+    const result = await window.EFCD_XP.activateSRS(lessonId);
+    showToast(`🧠 SRS activated! ${result.itemsActivated} items scheduled. First review tomorrow.`);
+    setTimeout(()=>window.location.reload(), 1800);
+  } catch(e) { alert(e.message||'Could not activate. Please try again.'); }
+}
+
+function showToast(msg){
+  const t=document.createElement('div');
+  t.style.cssText=`position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a2e5a;color:#fff;font-family:'Nunito',sans-serif;font-size:14px;font-weight:900;padding:12px 20px;border-radius:99px;border:2px solid rgba(255,255,255,.15);z-index:9999;transition:transform .3s;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.3)`;
+  t.textContent=msg; document.body.appendChild(t);
+  setTimeout(()=>t.style.transform='translateX(-50%) translateY(0)',50);
+  setTimeout(()=>{t.style.transform='translateX(-50%) translateY(80px)';setTimeout(()=>t.remove(),400);},3500);
+}
+
+/* ══════════════════════════════════════════════
+   RENDER PAGE
+   Three changes from original:
+   1. Accepts xpData and srsData as 4th and 5th args
+   2. Shows XP balance (not lifetime XP) in hero strip
+   3. Shows blue due-reviews banner if items are due
+   4. Adds SRS button below each badge card's Review button
+══════════════════════════════════════════════ */
+function renderPage(user, stats, lessons, xpData, srsData){
   const page = document.getElementById('page-content');
 
   if(!user){
@@ -341,11 +412,11 @@ function renderPage(user, stats, lessons){
   }
 
   const firstName = (stats?.full_name || user.email?.split('@')[0] || 'Dude').split(' ')[0];
-  const totalXP = stats?.xp || 0;
-  const streak  = stats?.streak || 0;
-  const count   = lessons.length;
+  const streak    = stats?.streak || 0;
+  const count     = lessons.length;
+  const xpBalance = xpData?.balance ?? stats?.xp ?? 0;  // NEW: use SRS wallet balance
+  const dueCount  = srsData?.dueCount || 0;             // NEW: how many items due today
 
-  // ── Hero ──
   const heroHTML = `
     <div class="hero-strip">
       <div class="hero-eyebrow">📚 My Lesson Library</div>
@@ -354,8 +425,19 @@ function renderPage(user, stats, lessons){
       <div class="hero-stats">
         <div class="hstat"><span class="hstat-n">${count}</span><span class="hstat-l">Badges</span></div>
         <div class="hstat"><span class="hstat-n">${streak}🔥</span><span class="hstat-l">Streak</span></div>
-        <div class="hstat"><span class="hstat-n">⚡${totalXP}</span><span class="hstat-l">Total XP</span></div>
+        <div class="hstat"><span class="hstat-n">⚡${xpBalance}</span><span class="hstat-l">XP Balance</span></div>
       </div>
+      ${dueCount > 0 ? `
+      <a href="/srs/" class="srs-due-banner">
+        <div class="srs-due-left">
+          <div class="srs-due-emoji">📬</div>
+          <div>
+            <div class="srs-due-title">${dueCount} review${dueCount!==1?'s':''} due today</div>
+            <div class="srs-due-sub">Tap to keep your vocabulary sharp</div>
+          </div>
+        </div>
+        <div class="srs-due-link">Review Now →</div>
+      </a>` : ''}
     </div>`;
 
   if(count === 0){
@@ -369,23 +451,25 @@ function renderPage(user, stats, lessons){
     return;
   }
 
-  // ── Badge grid ──
   const grid = lessons.map((l, i) => {
-    const theme = themeFor(l.lesson_level);
+    const theme      = themeFor(l.lesson_level);
     const registryId = LINK_TO_ID[l.lesson_link] || null;
-    const hasReview = !!registryId;
+    const hasReview  = !!registryId;
+    const srsBtnHtml = getSrsButtonHtml(registryId, srsData, xpBalance); // NEW
+
     return `
       <div class="badge-card" style="animation-delay:${i*0.06}s" onclick="openReview(${i})">
         <div class="badge-card-strip" style="background:${theme.strip}"></div>
         <div class="badge-card-body">
-          <div class="badge-face" style="background:${theme.bg};box-shadow:0 0 18px ${theme.glow}">${l.badge_icon || '🏅'}</div>
-          <div class="badge-card-title">${l.badge_name || l.lesson_title}</div>
+          <div class="badge-face" style="background:${theme.bg};box-shadow:0 0 18px ${theme.glow}">${l.badge_icon||'🏅'}</div>
+          <div class="badge-card-title">${l.badge_name||l.lesson_title}</div>
           <div class="badge-card-level">${l.lesson_level}</div>
           <div class="badge-card-date">${timeAgo(l.completed_at)}</div>
         </div>
         <button class="badge-card-btn" style="background:${hasReview?theme.strip:'var(--bg)'};color:${hasReview?'#fff':'var(--ink-3)'};border-color:${hasReview?theme.strip:'var(--border-heavy)'}">
           ${hasReview ? '▶ Review' : '📖 View'}
         </button>
+        ${srsBtnHtml}
       </div>`;
   }).join('');
 
@@ -395,7 +479,7 @@ function renderPage(user, stats, lessons){
 }
 
 /* ══════════════════════════════════════════════
-   OPEN REVIEW MODAL
+   REVIEW MODAL — unchanged from original
 ══════════════════════════════════════════════ */
 let _lessons = [];
 
@@ -404,27 +488,18 @@ function openReview(idx){
   if(!l) return;
   const registryId = LINK_TO_ID[l.lesson_link] || null;
   const theme = themeFor(l.lesson_level);
-  const reg = registryId && window.LESSON_DATA_REGISTRY ? window.LESSON_DATA_REGISTRY[registryId] : null;
-
-  // Build vocab from registry or fall back to saved vocabulary jsonb
+  const reg   = registryId && window.LESSON_DATA_REGISTRY ? window.LESSON_DATA_REGISTRY[registryId] : null;
   const vocabData = reg?.vocab || (Array.isArray(l.vocabulary) ? l.vocabulary.map(v=>({word:v.word,definition:v.definition})) : []);
 
-  // Decide which tabs to show — no vocab tab, activities cover it
   const tabs = [];
-  if(reg?.vocab?.length)           tabs.push({id:'quiz',        label:'🎯 Quiz'});
-  if(reg?.grammar)                 tabs.push({id:'grammar',     label:'✏️ Grammar'});
-  if(reg?.grammar2)                tabs.push({id:'grammar2',    label:'✏️ Grammar 2'});
-  if(reg?.sentences?.length)       tabs.push({id:'sentences',   label:'🔀 Sentences'});
-  if(reg?.word_builder?.length)    tabs.push({id:'wordBuilder', label:'🔤 Words'});
-  if(reg?.true_false?.length)      tabs.push({id:'trueFalse',   label:'✅ True/False'});
-
-  // Fallback if no registry data at all — show basic vocab flashcards
-  if(!tabs.length && vocabData.length){
-    tabs.push({id:'vocab', label:'📖 Vocabulary'});
-  }
-  if(!tabs.length){
-    tabs.push({id:'vocab', label:'📖 Vocabulary'});
-  }
+  if(reg?.vocab?.length)        tabs.push({id:'quiz',        label:'🎯 Quiz'});
+  if(reg?.grammar)              tabs.push({id:'grammar',     label:'✏️ Grammar'});
+  if(reg?.grammar2)             tabs.push({id:'grammar2',    label:'✏️ Grammar 2'});
+  if(reg?.sentences?.length)    tabs.push({id:'sentences',   label:'🔀 Sentences'});
+  if(reg?.word_builder?.length) tabs.push({id:'wordBuilder', label:'🔤 Words'});
+  if(reg?.true_false?.length)   tabs.push({id:'trueFalse',   label:'✅ True/False'});
+  if(!tabs.length && vocabData.length) tabs.push({id:'vocab', label:'📖 Vocabulary'});
+  if(!tabs.length) tabs.push({id:'vocab', label:'📖 Vocabulary'});
 
   document.getElementById('modal-content').innerHTML = `
     <div class="modal-handle"></div>
@@ -437,7 +512,7 @@ function openReview(idx){
       <button class="modal-close" onclick="closeModal()">×</button>
     </div>
     <div class="modal-body">
-      <div class="review-tabs" id="review-tabs">
+      <div class="review-tabs">
         ${tabs.map((t,i)=>`<button class="review-tab${i===0?' active':''}" onclick="switchTab('${t.id}')" data-tab="${t.id}">${t.label}</button>`).join('')}
       </div>
       ${tabs.map((t,i)=>`<div class="review-panel${i===0?' active':''}" id="panel-${t.id}"></div>`).join('')}
@@ -454,426 +529,255 @@ function openReview(idx){
   document.getElementById('modal-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
-
-function closeModal(){
-  document.getElementById('modal-overlay').classList.remove('open');
-  document.body.style.overflow = '';
-}
-function handleOverlayClick(e){
-  if(e.target === document.getElementById('modal-overlay')) closeModal();
-}
-
+function closeModal(){ document.getElementById('modal-overlay').classList.remove('open'); document.body.style.overflow=''; }
+function handleOverlayClick(e){ if(e.target===document.getElementById('modal-overlay')) closeModal(); }
 function switchTab(id){
-  document.querySelectorAll('.review-tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===id));
-  document.querySelectorAll('.review-panel').forEach(p=>p.classList.toggle('active', p.id===`panel-${id}`));
+  document.querySelectorAll('.review-tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===id));
+  document.querySelectorAll('.review-panel').forEach(p=>p.classList.toggle('active',p.id===`panel-${id}`));
 }
 
-/* ── VOCAB PANEL ── */
 function renderVocabPanel(vocabData, reg){
   const el = document.getElementById('panel-vocab');
-  if(!el || !vocabData.length){ if(el) el.innerHTML = '<p style="color:var(--ink-3);font-size:14px;font-weight:700">No vocabulary saved for this lesson.</p>'; return; }
-  el.innerHTML = `<div class="vocab-grid">${vocabData.map((v,i)=>`
+  if(!el||!vocabData.length){ if(el) el.innerHTML='<p style="color:var(--ink-3);font-size:14px;font-weight:700">No vocabulary saved for this lesson.</p>'; return; }
+  el.innerHTML=`<div class="vocab-grid">${vocabData.map(v=>`
     <div class="vocab-item" onclick="toggleVocab(this)">
       <div class="vocab-word">${v.word}</div>
       ${v.type?`<div class="vocab-type">${v.type}</div>`:''}
-      <div class="vocab-def">${v.definition}${v.example?`<div class="vocab-example">"${v.example.replace('___','______')}"</div>`:''}
-      </div>
+      <div class="vocab-def">${v.definition}${v.example?`<div class="vocab-example">"${v.example.replace('___','______')}"</div>`:''}</div>
     </div>`).join('')}</div>
     <p style="font-size:12px;font-weight:700;color:var(--ink-3);text-align:center;margin-top:14px">Tap any word to see the definition</p>`;
 }
-window.toggleVocab = function(el){ el.classList.toggle('open'); };
+window.toggleVocab=function(el){ el.classList.toggle('open'); };
 
-/* ── QUIZ PANEL ── */
 function renderQuizPanel(reg){
-  const el = document.getElementById('panel-quiz');
-  if(!el || !reg?.vocab?.length){ if(el) el.innerHTML = comingSoon('Vocabulary quiz'); return; }
-
-  const questions = reg.vocab.filter(v=>v.example && v.distractors?.length);
-  if(!questions.length){ el.innerHTML = comingSoon('Vocabulary quiz'); return; }
-
-  let qIdx = 0, score = 0;
-
+  const el=document.getElementById('panel-quiz');
+  if(!el||!reg?.vocab?.length){ if(el) el.innerHTML=comingSoon('Vocabulary quiz'); return; }
+  const questions=reg.vocab.filter(v=>v.example&&v.distractors?.length);
+  if(!questions.length){ el.innerHTML=comingSoon('Vocabulary quiz'); return; }
+  let qIdx=0,score=0;
   function renderQ(){
-    const q = questions[qIdx];
-    const allOpts = [q.word, ...(q.distractors||[])].sort(()=>Math.random()-.5);
-    const correctIdx = allOpts.indexOf(q.word);
-    const pips = questions.map((_,i)=>`<div class="quiz-pip${i<qIdx?' right':i===qIdx?' active':''}" id="qpip-${i}"></div>`).join('');
-
-    el.innerHTML = `
+    const q=questions[qIdx];
+    const allOpts=[q.word,...(q.distractors||[])].sort(()=>Math.random()-.5);
+    const correctIdx=allOpts.indexOf(q.word);
+    const pips=questions.map((_,i)=>`<div class="quiz-pip${i<qIdx?' right':i===qIdx?' active':''}" id="qpip-${i}"></div>`).join('');
+    el.innerHTML=`
       <div class="quiz-progress-row"><div class="quiz-pips">${pips}</div><div class="quiz-score">${score}/${questions.length}</div></div>
-      <div class="quiz-word-display">
-        <div class="quiz-word-type" style="margin-bottom:8px">Fill in the gap</div>
-        <div class="quiz-sentence" style="font-size:15px;font-weight:800;font-style:normal">"${q.example}"</div>
-      </div>
+      <div class="quiz-word-display"><div class="quiz-word-type" style="margin-bottom:8px">Fill in the gap</div>
+        <div class="quiz-sentence" style="font-size:15px;font-weight:800;font-style:normal">"${q.example}"</div></div>
       <p style="font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:10px">Which word fits in the gap?</p>
-      <div class="quiz-opts" id="quiz-opts-wrap">
-        ${allOpts.map((o,i)=>`<button class="quiz-opt" data-idx="${i}">${o}</button>`).join('')}
-      </div>
+      <div class="quiz-opts" id="quiz-opts-wrap">${allOpts.map((o,i)=>`<button class="quiz-opt" data-idx="${i}">${o}</button>`).join('')}</div>
       <div class="quiz-feedback" id="qfb"></div>
       <button class="quiz-next" id="qnxt" style="display:none">Next →</button>`;
-
-    // Wire answer buttons
-    el.querySelectorAll('#quiz-opts-wrap .quiz-opt').forEach(btn => {
-      btn.addEventListener('click', function(){
+    el.querySelectorAll('#quiz-opts-wrap .quiz-opt').forEach(btn=>{
+      btn.addEventListener('click',function(){
         el.querySelectorAll('#quiz-opts-wrap .quiz-opt').forEach(b=>b.disabled=true);
-        const chosen = parseInt(this.dataset.idx);
-        const ok = chosen === correctIdx;
+        const ok=parseInt(this.dataset.idx)===correctIdx;
         this.classList.add(ok?'correct':'wrong');
         if(!ok) el.querySelectorAll('#quiz-opts-wrap .quiz-opt')[correctIdx].classList.add('show-ok');
-        if(ok){ score++; burst(); }
-        const fb = document.getElementById('qfb');
-        if(fb){ fb.innerHTML = (ok?'✅ ':'💡 ') + q.definition; fb.className = `quiz-feedback show ${ok?'right':'wrong'}`; }
-        const pip = document.getElementById(`qpip-${qIdx}`);
-        if(pip) pip.classList.add(ok?'right':'wrong');
-        const nxt = document.getElementById('qnxt');
-        if(nxt){ nxt.style.display='flex'; nxt.textContent = qIdx+1 < questions.length ? 'Next →' : 'See score! 🎉'; }
+        if(ok){score++;burst();}
+        const fb=document.getElementById('qfb'); if(fb){fb.innerHTML=(ok?'✅ ':'💡 ')+q.definition;fb.className=`quiz-feedback show ${ok?'right':'wrong'}`;}
+        const pip=document.getElementById(`qpip-${qIdx}`); if(pip) pip.classList.add(ok?'right':'wrong');
+        const nxt=document.getElementById('qnxt'); if(nxt){nxt.style.display='flex';nxt.textContent=qIdx+1<questions.length?'Next →':'See score! 🎉';}
       });
     });
-
-    // Wire next button
-    document.getElementById('qnxt').addEventListener('click', function(){
+    document.getElementById('qnxt').addEventListener('click',function(){
       qIdx++;
-      if(qIdx >= questions.length){
-        const perfect = score === questions.length;
-        if(perfect) burst();
-        el.innerHTML = `<div class="quiz-done">
-          <span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span>
-          <div class="quiz-done-title">${score}/${questions.length} correct! ${perfect?'Perfect! 🎉':''}</div>
-          <div class="quiz-done-sub">${perfect?'Flawless recall — this vocabulary is locked in.':'Keep reviewing and it\'ll stick!'}</div>
-          <button class="quiz-done-btn" id="quiz-retry">↺ Try Again</button>
-        </div>`;
-        document.getElementById('quiz-retry').addEventListener('click', ()=>renderQuizPanel(window._currentReg));
-      } else {
-        renderQ();
-      }
+      if(qIdx>=questions.length){
+        const perfect=score===questions.length; if(perfect) burst();
+        el.innerHTML=`<div class="quiz-done"><span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span><div class="quiz-done-title">${score}/${questions.length} correct!</div><div class="quiz-done-sub">${perfect?'Flawless recall!':'Keep reviewing and it\'ll stick!'}</div><button class="quiz-done-btn" id="quiz-retry">↺ Try Again</button></div>`;
+        document.getElementById('quiz-retry').addEventListener('click',()=>renderQuizPanel(window._currentReg));
+      } else { renderQ(); }
     });
   }
-
-  window._currentReg = reg;
-  renderQ();
+  window._currentReg=reg; renderQ();
 }
 
-/* ── GRAMMAR PANEL ── */
-function renderGrammarPanel(reg, grammarKey){
-  const key = grammarKey || 'grammar';
-  const panelId = 'panel-' + key;
-  const el = document.getElementById(panelId);
-  if(!el || !reg?.[key]?.exercises?.length){ if(el) el.innerHTML = comingSoon('Grammar exercises'); return; }
-
-  const g = reg[key];
-  let gIdx = 0, gScore = 0;
-
+function renderGrammarPanel(reg, key){
+  key=key||'grammar';
+  const el=document.getElementById('panel-'+key);
+  if(!el||!reg?.[key]?.exercises?.length){ if(el) el.innerHTML=comingSoon('Grammar exercises'); return; }
+  const g=reg[key]; let gIdx=0,gScore=0;
   function renderG(){
-    const q = g.exercises[gIdx];
-    const opts = [q.answer, ...(q.wrong||[])].sort(()=>Math.random()-.5);
-    const correctIdx = opts.indexOf(q.answer);
-    const explain = q.explain || q.answer;
-    const pips = g.exercises.map((_,i)=>`<div class="quiz-pip${i<gIdx?' right':i===gIdx?' active':''}" id="gpip${key}-${i}"></div>`).join('');
-
-    el.innerHTML = `
+    const q=g.exercises[gIdx];
+    const opts=[q.answer,...(q.wrong||[])].sort(()=>Math.random()-.5);
+    const correctIdx=opts.indexOf(q.answer);
+    const pips=g.exercises.map((_,i)=>`<div class="quiz-pip${i<gIdx?' right':i===gIdx?' active':''}" id="gpip${key}-${i}"></div>`).join('');
+    el.innerHTML=`
       <div class="gram-explainer"><strong>${g.topic}</strong><br><br>${g.rule.replace(/\n/g,'<br>')}</div>
-      <div class="quiz-progress-row"><div class="quiz-pips">${pips}</div><div class="quiz-score" id="gscore-${key}">${gScore}/${g.exercises.length}</div></div>
-      <div class="gram-sent-card">
-        <div class="gram-sent-num">Sentence ${gIdx+1} of ${g.exercises.length}</div>
+      <div class="quiz-progress-row"><div class="quiz-pips">${pips}</div><div class="quiz-score">${gScore}/${g.exercises.length}</div></div>
+      <div class="gram-sent-card"><div class="gram-sent-num">Sentence ${gIdx+1} of ${g.exercises.length}</div>
         <div class="gram-sent-text">${q.sentence.replace('___','<span style="background:rgba(88,204,2,.15);border:2px dashed var(--gs);border-radius:6px;padding:1px 10px;color:var(--gs)">___</span>')}</div>
-        ${q.hint?`<div class="gram-sent-hint">💡 ${q.hint}</div>`:''}
-      </div>
-      <div class="gram-word-btns" id="gbtns-${key}">
-        ${opts.map((o,i)=>`<button class="gram-word-btn" data-idx="${i}">${o}</button>`).join('')}
-      </div>
+        ${q.hint?`<div class="gram-sent-hint">💡 ${q.hint}</div>`:''}</div>
+      <div class="gram-word-btns" id="gbtns-${key}">${opts.map((o,i)=>`<button class="gram-word-btn" data-idx="${i}">${o}</button>`).join('')}</div>
       <div class="quiz-feedback" id="gfb-${key}"></div>
       <button class="quiz-next" id="gnxt-${key}" style="display:none">Next →</button>`;
-
-    // Wire answer buttons
-    el.querySelectorAll(`#gbtns-${key} .gram-word-btn`).forEach(btn => {
-      btn.addEventListener('click', function(){
+    el.querySelectorAll(`#gbtns-${key} .gram-word-btn`).forEach(btn=>{
+      btn.addEventListener('click',function(){
         el.querySelectorAll(`#gbtns-${key} .gram-word-btn`).forEach(b=>b.disabled=true);
-        const chosen = parseInt(this.dataset.idx);
-        const ok = chosen === correctIdx;
-        this.classList.add(ok ? 'correct' : 'wrong');
+        const ok=parseInt(this.dataset.idx)===correctIdx;
+        this.classList.add(ok?'correct':'wrong');
         if(!ok) el.querySelectorAll(`#gbtns-${key} .gram-word-btn`)[correctIdx].classList.add('show-ok');
-        if(ok){ gScore++; burst(); }
-        const fb = document.getElementById(`gfb-${key}`);
-        if(fb){ fb.textContent = explain; fb.className = `quiz-feedback show ${ok?'right':'wrong'}`; }
-        const pip = document.getElementById(`gpip${key}-${gIdx}`);
-        if(pip) pip.classList.add(ok?'right':'wrong');
-        const nxt = document.getElementById(`gnxt-${key}`);
-        if(nxt){ nxt.style.display='flex'; nxt.textContent = gIdx+1 < g.exercises.length ? 'Next →' : 'Done! 🎉'; }
+        if(ok){gScore++;burst();}
+        const fb=document.getElementById(`gfb-${key}`); if(fb){fb.textContent=q.explain||q.answer;fb.className=`quiz-feedback show ${ok?'right':'wrong'}`;}
+        const pip=document.getElementById(`gpip${key}-${gIdx}`); if(pip) pip.classList.add(ok?'right':'wrong');
+        const nxt=document.getElementById(`gnxt-${key}`); if(nxt){nxt.style.display='flex';nxt.textContent=gIdx+1<g.exercises.length?'Next →':'Done! 🎉';}
       });
     });
-
-    // Wire next button
-    document.getElementById(`gnxt-${key}`).addEventListener('click', function(){
+    document.getElementById(`gnxt-${key}`).addEventListener('click',function(){
       gIdx++;
-      if(gIdx >= g.exercises.length){
-        const perfect = gScore === g.exercises.length;
-        if(perfect) burst();
-        el.innerHTML = `<div class="quiz-done">
-          <span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span>
-          <div class="quiz-done-title">${gScore}/${g.exercises.length} correct! ${perfect?'Perfect!':''}</div>
-          <div class="quiz-done-sub">${g.topic} — ${perfect?'mastered!':'keep practising!'}</div>
-          <button class="quiz-done-btn" id="g-retry-${key}">↺ Try Again</button>
-        </div>`;
-        document.getElementById(`g-retry-${key}`).addEventListener('click', ()=>renderGrammarPanel(window._currentReg, key));
-      } else {
-        renderG();
-      }
+      if(gIdx>=g.exercises.length){
+        const perfect=gScore===g.exercises.length; if(perfect) burst();
+        el.innerHTML=`<div class="quiz-done"><span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span><div class="quiz-done-title">${gScore}/${g.exercises.length} correct!</div><div class="quiz-done-sub">${g.topic} — ${perfect?'mastered!':'keep practising!'}</div><button class="quiz-done-btn" id="g-retry-${key}">↺ Try Again</button></div>`;
+        document.getElementById(`g-retry-${key}`).addEventListener('click',()=>renderGrammarPanel(window._currentReg,key));
+      } else { renderG(); }
     });
   }
-
   renderG();
 }
 
-/* ── TRUE/FALSE PANEL ── */
 function renderTFPanel(reg){
-  const el = document.getElementById('panel-trueFalse');
-  if(!el || !reg?.true_false?.length){ if(el) el.innerHTML = comingSoon('True/False quiz'); return; }
-
-  const questions = reg.true_false;
-  let tfIdx = 0, tfScore = 0;
-
+  const el=document.getElementById('panel-trueFalse');
+  if(!el||!reg?.true_false?.length){ if(el) el.innerHTML=comingSoon('True/False quiz'); return; }
+  const questions=reg.true_false; let tfIdx=0,tfScore=0;
   function renderTF(){
-    const q = questions[tfIdx];
-    const pips = questions.map((_,i)=>`<div class="quiz-pip${i<tfIdx?' right':i===tfIdx?' active':''}" id="tfpip-${i}"></div>`).join('');
-    el.innerHTML = `
+    const q=questions[tfIdx];
+    const pips=questions.map((_,i)=>`<div class="quiz-pip${i<tfIdx?' right':i===tfIdx?' active':''}" id="tfpip-${i}"></div>`).join('');
+    el.innerHTML=`
       <div class="quiz-progress-row"><div class="quiz-pips">${pips}</div><div class="quiz-score">${tfScore}/${questions.length}</div></div>
-      <div class="tf-stat-card">
-        <div class="tf-stat-num">Statement ${tfIdx+1} of ${questions.length}</div>
-        <div class="tf-stat-text">${q.statement}</div>
-      </div>
-      <div class="tf-btns">
-        <button class="tf-btn t-btn" id="tf-true">✅ TRUE</button>
-        <button class="tf-btn f-btn" id="tf-false">❌ FALSE</button>
-      </div>
+      <div class="tf-stat-card"><div class="tf-stat-num">Statement ${tfIdx+1} of ${questions.length}</div><div class="tf-stat-text">${q.statement}</div></div>
+      <div class="tf-btns"><button class="tf-btn t-btn" id="tf-true">✅ TRUE</button><button class="tf-btn f-btn" id="tf-false">❌ FALSE</button></div>
       <div class="tf-reveal" id="tf-rev"></div>
       <button class="quiz-next" id="tfnxt" style="display:none">${tfIdx+1<questions.length?'Next →':'Done! 🎉'}</button>`;
-
     function handleTF(chosen){
-      document.getElementById('tf-true').disabled = true;
-      document.getElementById('tf-false').disabled = true;
-      const ok = chosen === q.correct;
-      const clickedBtn = document.getElementById(chosen ? 'tf-true' : 'tf-false');
-      const otherBtn  = document.getElementById(chosen ? 'tf-false' : 'tf-true');
-      clickedBtn.classList.add(ok ? 'correct' : 'wrong');
-      if(!ok) otherBtn.classList.add('show-ok');
-      if(ok){ tfScore++; burst(); }
-      const rev = document.getElementById('tf-rev');
-      if(rev){ rev.textContent = q.reveal; rev.classList.add('show'); }
-      const pip = document.getElementById(`tfpip-${tfIdx}`);
-      if(pip) pip.classList.add(ok?'right':'wrong');
-      const nxt = document.getElementById('tfnxt');
-      if(nxt) nxt.style.display = 'flex';
+      document.getElementById('tf-true').disabled=true; document.getElementById('tf-false').disabled=true;
+      const ok=chosen===q.correct;
+      document.getElementById(chosen?'tf-true':'tf-false').classList.add(ok?'correct':'wrong');
+      document.getElementById(chosen?'tf-false':'tf-true').classList.add(ok?'':'show-ok');
+      if(ok){tfScore++;burst();}
+      const rev=document.getElementById('tf-rev'); if(rev){rev.textContent=q.reveal;rev.classList.add('show');}
+      const pip=document.getElementById(`tfpip-${tfIdx}`); if(pip) pip.classList.add(ok?'right':'wrong');
+      document.getElementById('tfnxt').style.display='flex';
     }
-
-    document.getElementById('tf-true').addEventListener('click', ()=>handleTF(true));
-    document.getElementById('tf-false').addEventListener('click', ()=>handleTF(false));
-
-    document.getElementById('tfnxt').addEventListener('click', function(){
+    document.getElementById('tf-true').addEventListener('click',()=>handleTF(true));
+    document.getElementById('tf-false').addEventListener('click',()=>handleTF(false));
+    document.getElementById('tfnxt').addEventListener('click',function(){
       tfIdx++;
-      if(tfIdx >= questions.length){
-        const perfect = tfScore === questions.length;
-        if(perfect) burst();
-        el.innerHTML = `<div class="quiz-done">
-          <span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span>
-          <div class="quiz-done-title">${tfScore}/${questions.length} correct! ${perfect?'Perfect!':''}</div>
-          <div class="quiz-done-sub">${perfect?'You know this topic inside out!':'Review the answers above to lock in the facts.'}</div>
-          <button class="quiz-done-btn" id="tf-retry">↺ Try Again</button>
-        </div>`;
-        document.getElementById('tf-retry').addEventListener('click', ()=>renderTFPanel(window._currentReg));
-      } else {
-        renderTF();
-      }
+      if(tfIdx>=questions.length){
+        const perfect=tfScore===questions.length; if(perfect) burst();
+        el.innerHTML=`<div class="quiz-done"><span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span><div class="quiz-done-title">${tfScore}/${questions.length} correct!</div><div class="quiz-done-sub">${perfect?'You know this topic inside out!':'Review the answers to lock in the facts.'}</div><button class="quiz-done-btn" id="tf-retry">↺ Try Again</button></div>`;
+        document.getElementById('tf-retry').addEventListener('click',()=>renderTFPanel(window._currentReg));
+      } else { renderTF(); }
     });
   }
-
-  window._currentReg = reg;
-  renderTF();
+  window._currentReg=reg; renderTF();
 }
 
-/* ── SENTENCE BUILDER PANEL ── */
 function renderSentencePanel(reg){
-  const el = document.getElementById('panel-sentences');
-  if(!el || !reg?.sentences?.length){ if(el) el.innerHTML = comingSoon('Sentence builder'); return; }
-
-  let sIdx = 0, sScore = 0, sBuilt = [];
-
+  const el=document.getElementById('panel-sentences');
+  if(!el||!reg?.sentences?.length){ if(el) el.innerHTML=comingSoon('Sentence builder'); return; }
+  let sIdx=0,sScore=0,sBuilt=[];
   function renderS(){
-    const q = reg.sentences[sIdx];
-    const shuffled = [...q.words].sort(()=>Math.random()-.5);
-    const pips = reg.sentences.map((_,i)=>`<div class="quiz-pip${i<sIdx?' right':i===sIdx?' active':''}" id="spip-${i}"></div>`).join('');
-    el.innerHTML = `
+    const q=reg.sentences[sIdx];
+    const shuffled=[...q.words].sort(()=>Math.random()-.5);
+    const pips=reg.sentences.map((_,i)=>`<div class="quiz-pip${i<sIdx?' right':i===sIdx?' active':''}" id="spip-${i}"></div>`).join('');
+    el.innerHTML=`
       <div class="quiz-progress-row"><div class="quiz-pips">${pips}</div><div class="quiz-score">${sScore}/${reg.sentences.length}</div></div>
-      <div class="gram-sent-card">
-        <div class="gram-sent-num">Sentence ${sIdx+1} of ${reg.sentences.length}</div>
-        <div class="gram-sent-text" style="color:var(--ink-3);font-style:italic">${q.hint||'Put the words in the right order'}</div>
-      </div>
-      <div style="min-height:44px;background:var(--bg);border:2px dashed var(--border-heavy);border-radius:var(--rsm);padding:10px 12px;margin-bottom:12px;font-size:14px;font-weight:800;color:var(--ink-bold);line-height:1.6" id="s-answer-box">Tap words below to build the sentence →</div>
-      <div class="gram-word-btns" id="s-word-pool">
-        ${shuffled.map((w,i)=>`<button class="gram-word-btn s-word-btn" data-word="${escQ(w)}" data-idx="${i}">${w}</button>`).join('')}
-      </div>
+      <div class="gram-sent-card"><div class="gram-sent-num">Sentence ${sIdx+1} of ${reg.sentences.length}</div>
+        <div class="gram-sent-text" style="color:var(--ink-3);font-style:italic">${q.hint||'Put the words in the right order'}</div></div>
+      <div style="min-height:44px;background:var(--bg);border:2px dashed var(--border-heavy);border-radius:var(--rsm);padding:10px 12px;margin-bottom:12px;font-size:14px;font-weight:800;color:var(--ink-bold);line-height:1.6" id="s-answer-box">Tap words below →</div>
+      <div class="gram-word-btns" id="s-word-pool">${shuffled.map((w,i)=>`<button class="gram-word-btn s-word-btn" data-word="${escQ(w)}" data-idx="${i}">${w}</button>`).join('')}</div>
       <div class="quiz-feedback" id="sfb"></div>
       <div style="display:flex;gap:8px;margin-top:10px">
         <button class="quiz-next" id="scheck" style="display:flex;flex:1;background:var(--blue);border-color:var(--bs)">Check ✓</button>
         <button id="sclear" style="padding:10px 14px;border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);font-size:12px;font-weight:900;font-family:inherit;cursor:pointer;background:var(--white);color:var(--ink-3)">✕ Clear</button>
       </div>
       <button class="quiz-next" id="snxt" style="margin-top:8px;display:none">${sIdx+1<reg.sentences.length?'Next →':'Done! 🎉'}</button>`;
-
-    sBuilt = [];
-
-    // Wire word buttons
-    el.querySelectorAll('.s-word-btn').forEach(btn => {
-      btn.addEventListener('click', function(){
-        if(this.disabled) return;
-        this.disabled = true;
-        this.style.opacity = '.3';
-        sBuilt.push(this.dataset.word);
-        const box = document.getElementById('s-answer-box');
-        if(box) box.textContent = sBuilt.join(' ');
-      });
+    sBuilt=[];
+    el.querySelectorAll('.s-word-btn').forEach(btn=>{
+      btn.addEventListener('click',function(){ if(this.disabled) return; this.disabled=true; this.style.opacity='.3'; sBuilt.push(this.dataset.word); const box=document.getElementById('s-answer-box'); if(box) box.textContent=sBuilt.join(' '); });
     });
-
-    // Wire clear button
-    document.getElementById('sclear').addEventListener('click', function(){
-      sBuilt = [];
-      el.querySelectorAll('.s-word-btn').forEach(b=>{ b.disabled=false; b.style.opacity='1'; });
-      const box = document.getElementById('s-answer-box');
-      if(box) box.textContent = 'Tap words below to build the sentence →';
-      const fb = document.getElementById('sfb'); if(fb) fb.className='quiz-feedback';
+    document.getElementById('sclear').addEventListener('click',function(){
+      sBuilt=[]; el.querySelectorAll('.s-word-btn').forEach(b=>{b.disabled=false;b.style.opacity='1';});
+      const box=document.getElementById('s-answer-box'); if(box) box.textContent='Tap words below →';
+      const fb=document.getElementById('sfb'); if(fb) fb.className='quiz-feedback';
     });
-
-    // Wire check button
-    document.getElementById('scheck').addEventListener('click', function(){
+    document.getElementById('scheck').addEventListener('click',function(){
       if(!sBuilt.length) return;
-      const attempt = sBuilt.join(' ').toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
-      const correct = q.answer.toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
-      const ok = attempt === correct;
-      if(ok){ sScore++; burst(); }
-      const fb = document.getElementById('sfb');
-      if(fb){ fb.textContent = ok ? '✅ Perfect!' : `💡 Answer: "${q.answer}"`; fb.className = `quiz-feedback show ${ok?'right':'wrong'}`; }
-      el.querySelectorAll('.s-word-btn').forEach(b=>b.disabled=true);
-      this.style.display='none';
-      const pip = document.getElementById(`spip-${sIdx}`); if(pip) pip.classList.add(ok?'right':'wrong');
-      const nxt = document.getElementById('snxt');
-      if(nxt){ nxt.style.display='flex'; }
+      const ok=sBuilt.join(' ').toLowerCase().replace(/[^a-z0-9 ]/g,'').trim()===q.answer.toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
+      if(ok){sScore++;burst();}
+      const fb=document.getElementById('sfb'); if(fb){fb.textContent=ok?'✅ Perfect!':`💡 Answer: "${q.answer}"`;fb.className=`quiz-feedback show ${ok?'right':'wrong'}`;}
+      el.querySelectorAll('.s-word-btn').forEach(b=>b.disabled=true); this.style.display='none';
+      const pip=document.getElementById(`spip-${sIdx}`); if(pip) pip.classList.add(ok?'right':'wrong');
+      document.getElementById('snxt').style.display='flex';
     });
-
-    // Wire next button
-    document.getElementById('snxt').addEventListener('click', function(){
+    document.getElementById('snxt').addEventListener('click',function(){
       sIdx++;
-      if(sIdx >= reg.sentences.length){
-        const perfect = sScore === reg.sentences.length;
-        if(perfect) burst();
-        el.innerHTML = `<div class="quiz-done">
-          <span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span>
-          <div class="quiz-done-title">${sScore}/${reg.sentences.length} correct!</div>
-          <div class="quiz-done-sub">${perfect?'Every sentence nailed!':'Keep practising — sentence structure is key.'}</div>
-          <button class="quiz-done-btn" id="s-retry">↺ Try Again</button>
-        </div>`;
-        document.getElementById('s-retry').addEventListener('click', ()=>renderSentencePanel(window._currentReg));
+      if(sIdx>=reg.sentences.length){
+        const perfect=sScore===reg.sentences.length; if(perfect) burst();
+        el.innerHTML=`<div class="quiz-done"><span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span><div class="quiz-done-title">${sScore}/${reg.sentences.length} correct!</div><div class="quiz-done-sub">${perfect?'Every sentence nailed!':'Keep practising — sentence structure is key.'}</div><button class="quiz-done-btn" id="s-retry">↺ Try Again</button></div>`;
+        document.getElementById('s-retry').addEventListener('click',()=>renderSentencePanel(window._currentReg));
       } else { renderS(); }
     });
   }
-
-  window._currentReg = reg;
-  renderS();
+  window._currentReg=reg; renderS();
 }
 
-/* ── WORD BUILDER PANEL ── */
 function renderWordBuilderPanel(reg){
-  const el = document.getElementById('panel-wordBuilder');
-  if(!el || !reg?.word_builder?.length){ if(el) el.innerHTML = comingSoon('Word builder'); return; }
-
-  let wIdx = 0, wScore = 0, wBuilt = [];
-
+  const el=document.getElementById('panel-wordBuilder');
+  if(!el||!reg?.word_builder?.length){ if(el) el.innerHTML=comingSoon('Word builder'); return; }
+  let wIdx=0,wScore=0,wBuilt=[];
   function renderW(){
-    const q = reg.word_builder[wIdx];
-    const letters = q.word.toUpperCase().split('').sort(()=>Math.random()-.5);
-    const pips = reg.word_builder.map((_,i)=>`<div class="quiz-pip${i<wIdx?' right':i===wIdx?' active':''}" id="wpip-${i}"></div>`).join('');
-    el.innerHTML = `
+    const q=reg.word_builder[wIdx];
+    const letters=q.word.toUpperCase().split('').sort(()=>Math.random()-.5);
+    const pips=reg.word_builder.map((_,i)=>`<div class="quiz-pip${i<wIdx?' right':i===wIdx?' active':''}" id="wpip-${i}"></div>`).join('');
+    const answer=q.word.toUpperCase();
+    el.innerHTML=`
       <div class="quiz-progress-row"><div class="quiz-pips">${pips}</div><div class="quiz-score">${wScore}/${reg.word_builder.length}</div></div>
       <div class="quiz-word-display">
         <div style="font-size:12px;font-weight:900;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">Word ${wIdx+1} of ${reg.word_builder.length}</div>
         <div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.85);line-height:1.6;position:relative;z-index:1">${q.definition}</div>
       </div>
       <div style="min-height:52px;background:var(--bg);border:2px dashed var(--border-heavy);border-radius:var(--rsm);padding:10px 12px;margin-bottom:12px;font-size:18px;font-weight:900;color:var(--ink-bold);letter-spacing:2px;text-align:center" id="w-answer-box">_ _ _</div>
-      <div class="gram-word-btns" style="justify-content:center" id="w-letter-pool">
-        ${letters.map((ltr,i)=>`<button class="gram-word-btn w-letter-btn" data-letter="${ltr}" data-idx="${i}" style="min-width:40px;text-align:center;font-size:16px">${ltr}</button>`).join('')}
-      </div>
+      <div class="gram-word-btns" style="justify-content:center" id="w-letter-pool">${letters.map((l,i)=>`<button class="gram-word-btn w-letter-btn" data-letter="${l}" data-idx="${i}" style="min-width:40px;text-align:center;font-size:16px">${l}</button>`).join('')}</div>
       <div class="quiz-feedback" id="wfb"></div>
       <div style="display:flex;gap:8px;margin-top:10px">
         <button class="quiz-next" id="wcheck" style="display:flex;flex:1;background:var(--purple);border-color:var(--pus)">Check ✓</button>
         <button id="wclear" style="padding:10px 14px;border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);font-size:12px;font-weight:900;font-family:inherit;cursor:pointer;background:var(--white);color:var(--ink-3)">✕ Clear</button>
       </div>
       <button class="quiz-next" id="wnxt" style="margin-top:8px;background:var(--purple);border-color:var(--pus);display:none">${wIdx+1<reg.word_builder.length?'Next →':'Done! 🎉'}</button>`;
-
-    wBuilt = [];
-    const answer = q.word.toUpperCase();
-
-    // Wire letter buttons
-    el.querySelectorAll('.w-letter-btn').forEach(btn => {
-      btn.addEventListener('click', function(){
-        if(this.disabled) return;
-        this.disabled = true;
-        this.style.opacity = '.3';
-        wBuilt.push(this.dataset.letter);
-        const box = document.getElementById('w-answer-box');
-        if(box) box.textContent = wBuilt.join(' ');
-      });
+    wBuilt=[];
+    el.querySelectorAll('.w-letter-btn').forEach(btn=>{
+      btn.addEventListener('click',function(){ if(this.disabled) return; this.disabled=true; this.style.opacity='.3'; wBuilt.push(this.dataset.letter); const box=document.getElementById('w-answer-box'); if(box) box.textContent=wBuilt.join(' '); });
     });
-
-    // Wire clear button
-    document.getElementById('wclear').addEventListener('click', function(){
-      wBuilt = [];
-      el.querySelectorAll('.w-letter-btn').forEach(b=>{ b.disabled=false; b.style.opacity='1'; });
-      const box = document.getElementById('w-answer-box'); if(box) box.textContent = '_ _ _';
-      const fb = document.getElementById('wfb'); if(fb) fb.className = 'quiz-feedback';
+    document.getElementById('wclear').addEventListener('click',function(){
+      wBuilt=[]; el.querySelectorAll('.w-letter-btn').forEach(b=>{b.disabled=false;b.style.opacity='1';});
+      const box=document.getElementById('w-answer-box'); if(box) box.textContent='_ _ _';
+      const fb=document.getElementById('wfb'); if(fb) fb.className='quiz-feedback';
     });
-
-    // Wire check button
-    document.getElementById('wcheck').addEventListener('click', function(){
+    document.getElementById('wcheck').addEventListener('click',function(){
       if(!wBuilt.length) return;
-      const built = wBuilt.join('');
-      const ok = built === answer;
-      if(ok){ wScore++; burst(); }
-      const fb = document.getElementById('wfb');
-      if(fb){ fb.textContent = ok ? `✅ ${answer} — correct!` : `💡 The word is: ${answer}`; fb.className = `quiz-feedback show ${ok?'right':'wrong'}`; }
-      el.querySelectorAll('.w-letter-btn').forEach(b=>b.disabled=true);
-      this.style.display='none';
-      const pip = document.getElementById(`wpip-${wIdx}`); if(pip) pip.classList.add(ok?'right':'wrong');
-      const nxt = document.getElementById('wnxt'); if(nxt) nxt.style.display='flex';
+      const ok=wBuilt.join('')===answer;
+      if(ok){wScore++;burst();}
+      const fb=document.getElementById('wfb'); if(fb){fb.textContent=ok?`✅ ${answer} — correct!`:`💡 The word is: ${answer}`;fb.className=`quiz-feedback show ${ok?'right':'wrong'}`;}
+      el.querySelectorAll('.w-letter-btn').forEach(b=>b.disabled=true); this.style.display='none';
+      const pip=document.getElementById(`wpip-${wIdx}`); if(pip) pip.classList.add(ok?'right':'wrong');
+      document.getElementById('wnxt').style.display='flex';
     });
-
-    // Wire next button
-    document.getElementById('wnxt').addEventListener('click', function(){
+    document.getElementById('wnxt').addEventListener('click',function(){
       wIdx++;
-      if(wIdx >= reg.word_builder.length){
-        const perfect = wScore === reg.word_builder.length;
-        if(perfect) burst();
-        el.innerHTML = `<div class="quiz-done">
-          <span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span>
-          <div class="quiz-done-title">${wScore}/${reg.word_builder.length} words correct!</div>
-          <div class="quiz-done-sub">${perfect?'Spelling mastered! 🔤':'These words are worth drilling until they stick.'}</div>
-          <button class="quiz-done-btn" id="w-retry" style="background:var(--purple);border-color:var(--pus)">↺ Try Again</button>
-        </div>`;
-        document.getElementById('w-retry').addEventListener('click', ()=>renderWordBuilderPanel(window._currentReg));
+      if(wIdx>=reg.word_builder.length){
+        const perfect=wScore===reg.word_builder.length; if(perfect) burst();
+        el.innerHTML=`<div class="quiz-done"><span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span><div class="quiz-done-title">${wScore}/${reg.word_builder.length} words correct!</div><div class="quiz-done-sub">${perfect?'Spelling mastered! 🔤':'These words are worth drilling until they stick.'}</div><button class="quiz-done-btn" id="w-retry" style="background:var(--purple);border-color:var(--pus)">↺ Try Again</button></div>`;
+        document.getElementById('w-retry').addEventListener('click',()=>renderWordBuilderPanel(window._currentReg));
       } else { renderW(); }
     });
   }
-
-  window._currentReg = reg;
-  renderW();
+  window._currentReg=reg; renderW();
 }
 
-
-function comingSoon(label){
-  return `<div class="coming-soon"><span class="coming-soon-icon">🛠️</span><div class="coming-soon-text"><strong>${label}</strong> for this lesson is coming soon.<br>The vocabulary tab is ready to use now!</div></div>`;
-}
-
+function comingSoon(label){ return `<div class="coming-soon"><span class="coming-soon-icon">🛠️</span><div class="coming-soon-text"><strong>${label}</strong> coming soon!</div></div>`; }
 function escQ(s){ return (s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
 
-/* ══════════════════════════════════════════════
-   SIGN OUT
-══════════════════════════════════════════════ */
 async function handleSignOut(){
   if(window.EFCD_Auth?.signOut) await window.EFCD_Auth.signOut();
   else if(window.efcdSupabaseClient){ await window.efcdSupabaseClient.auth.signOut(); window.location.href='/'; }
@@ -885,68 +789,81 @@ async function handleSignOut(){
 async function boot(){
   const page = document.getElementById('page-content');
   page.innerHTML = `<div class="skeleton skel-hero"></div>`;
-
   try {
     if(window.efcdReady) await window.efcdReady;
     if(!window.EFCD_Auth) throw new Error('no auth');
     await window.EFCD_Auth.initAuth();
     const user = window.EFCD_Auth.getCurrentUser();
+    if(!user){ renderPage(null, null, [], null, null); return; }
 
-    if(!user){ renderPage(null, null, []); return; }
-
-    // Update header
     const stats = window.EFCD_Auth.getUserStats();
-    const xpEl = document.getElementById('hdr-xp');     if(xpEl) xpEl.textContent = stats?.xp || 0;
-    const stEl = document.getElementById('hdr-streak'); if(stEl) stEl.textContent = stats?.streak || 0;
+    const xpEl  = document.getElementById('hdr-xp');     if(xpEl) xpEl.textContent = stats?.xp || 0;
+    const stEl  = document.getElementById('hdr-streak'); if(stEl) stEl.textContent = stats?.streak || 0;
     const soBtn = document.getElementById('btn-signout'); if(soBtn) soBtn.classList.add('show');
 
-    // Fetch lessons from Supabase, newest first, deduplicated by lesson_link
     const { data: rawLessons, error } = await window.efcdSupabaseClient
       .from('lessons')
       .select('lesson_title, lesson_link, lesson_level, badge_icon, badge_name, vocabulary, grammar, completed_at')
       .eq('user_id', user.id)
       .order('completed_at', { ascending: false });
-
     if(error) console.warn('[my-lessons] lessons query error:', error);
 
-    // Fetch name directly from profiles table
     let firstName = user.email?.split('@')[0] || 'Dude';
     try {
       const { data: profile } = await window.efcdSupabaseClient
-        .from('profiles')
-        .select('full_name')
-        .eq('id', user.id)
-        .single();
-      if(profile?.full_name) {
+        .from('profiles').select('full_name').eq('id', user.id).single();
+      if(profile?.full_name){
         firstName = profile.full_name.split(' ')[0];
         firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
       }
     } catch(_) {}
 
-    // Pass firstName through stats so renderPage can use it
-    const statsWithName = { ...(stats || {}), full_name: firstName };
+    const statsWithName = { ...(stats||{}), full_name: firstName };
 
-    // Deduplicate — keep most recent completion per lesson_link
     const seen = new Set();
-    const lessons = (rawLessons || []).filter(l => {
+    const lessons = (rawLessons||[]).filter(l=>{
       if(seen.has(l.lesson_link)) return false;
-      seen.add(l.lesson_link);
-      return true;
+      seen.add(l.lesson_link); return true;
     });
-
     _lessons = lessons;
-    renderPage(user, statsWithName, lessons);
+
+    // ── XP + SRS ──────────────────────────────────────────
+    let xpData  = { balance: 0, lifetime: 0 };
+    let srsData = { dueCount: 0, byLesson: {}, allItems: [] };
+
+    if(window.EFCD_XP) {
+      try {
+        const [xpResult, allSrsItems] = await Promise.all([
+          window.EFCD_XP.getBalance(),
+          window.EFCD_XP.getAllSRSItems(),
+        ]);
+        xpData = xpResult || xpData;
+        const today = new Date().toISOString().split('T')[0];
+        const byLesson = {};
+        allSrsItems.forEach(item => {
+          if(!byLesson[item.lesson_id]) byLesson[item.lesson_id] = [];
+          byLesson[item.lesson_id].push(item);
+        });
+        srsData = {
+          dueCount: allSrsItems.filter(i => i.status==='active' && i.next_review_at<=today).length,
+          byLesson,
+          allItems: allSrsItems,
+        };
+        window.EFCD_XP.checkAndAwardStreak().catch(()=>{});
+      } catch(e) {
+        console.warn('[my-lessons] XP/SRS load error:', e.message);
+      }
+    }
+    // ──────────────────────────────────────────────────────
+
+    renderPage(user, statsWithName, lessons, xpData, srsData);
 
   } catch(e) {
     console.warn('[my-lessons] boot error:', e);
-    // If we have a user but something else failed, still show their page
-    const user = window.EFCD_Auth?.getCurrentUser?.();
+    const user  = window.EFCD_Auth?.getCurrentUser?.();
     const stats = window.EFCD_Auth?.getUserStats?.();
-    if(user) {
-      renderPage(user, stats, []);
-    } else {
-      renderPage(null, null, []);
-    }
+    if(user) renderPage(user, stats, [], null, null);
+    else     renderPage(null, null, [], null, null);
   }
 }
 
