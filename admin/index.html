@@ -1012,8 +1012,8 @@ async function renderSRS(){
             </div>
             <div class="srs-lesson-actions">
               ${dueCount > 0
-                ? `<a href="/review/?class=${classId}&srs=1" class="srs-review-class-btn">`
-                    ▶ Review
+                ? `<a href="/review/?srs=1&class=${classId}" class="srs-review-class-btn" target="_blank">
+                    ▶ Start Review
                     ${overdueCount > 0 ? `<span style="background:var(--punch);color:#fff;border-radius:99px;padding:1px 7px;font-size:10px;margin-left:5px">${dueCount} due</span>`
                                         : `<span style="background:rgba(28,176,246,.2);border-radius:99px;padding:1px 7px;font-size:10px;margin-left:5px">${dueCount} due</span>`}
                    </a>`
@@ -1034,7 +1034,20 @@ async function renderSRS(){
               ${classLearned > 0 ? `<span class="srs-pill srs-pill-learned">🎓 ${classLearned} learned</span>` : ''}
             </div>
           </div>
-          <div class="srs-class-body">${lessonRows}</div>
+          <div class="srs-class-body">
+            ${lessonRows}
+            ${viewMode === 'all' ? `
+            <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+              <div style="font-size:10px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">Manually activate SRS for a lesson</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                ${Object.entries(LESSON_META).map(([lid, meta]) => {
+                  const alreadyActive = items.some(i => i.class_id === classId && i.lesson_id === lid);
+                  if (alreadyActive) return '';
+                  return `<button class="srs-activate-class-btn" onclick="activateSRSForClass('${classId}','${lid}')">${meta.emoji} ${meta.title}</button>`;
+                }).filter(Boolean).join('') || '<span style="font-size:12px;font-weight:700;color:var(--ink-3)">All available lessons are already active.</span>'}
+              </div>
+            </div>` : ''}
+          </div>
         </div>`;
     }).join('');
 
@@ -1431,6 +1444,82 @@ async function addStudent(classId){
   const id=name.toLowerCase().replace(/\s+/g,'_')+'_'+Date.now();
   const{error}=await sb.from('efcd_students').insert({id,name,class_id:classId,avatar_emoji:'😊'});
   if(error){toast('❌',error.message);return;} if(input) input.value=''; toast('✅',name+' added!'); await loadEverything(); _renderManageModal(classId);
+}
+
+// ── MANUAL CLASS SRS ACTIVATION ────────────────────────────────
+// Called from the SRS tab when teacher clicks "Activate SRS"
+// for a lesson that wasn't auto-activated (e.g. older lessons
+// completed before v3.0 was deployed).
+async function activateSRSForClass(classId, lessonId) {
+  const meta = LESSON_META[lessonId];
+  const cls  = _classes.find(c => c.id === classId);
+  if (!meta || !cls) return;
+
+  if (!confirm(`Activate SRS for "${meta.title}" for ${cls.emoji} ${cls.name}?\n\nVocabulary items will be scheduled for review. First review: tomorrow.`)) return;
+
+  try {
+    // Check if already exists
+    const { data: existing } = await sb
+      .from('efcd_srs_class_items')
+      .select('id')
+      .eq('class_id', classId)
+      .eq('lesson_id', lessonId)
+      .limit(1);
+
+    if (existing?.length) {
+      toast('ℹ️', 'SRS already active for this lesson and class');
+      return;
+    }
+
+    // Fetch vocab from efcd_lesson_vocab (saved when class completed the lesson)
+    const { data: vocabRows } = await sb
+      .from('efcd_lesson_vocab')
+      .select('vocab')
+      .eq('class_id', classId)
+      .eq('lesson_id', lessonId)
+      .limit(1);
+
+    if (!vocabRows?.length) {
+      toast('⚠️', 'This class must complete the lesson first before SRS can be activated');
+      return;
+    }
+
+    const vocab = Array.isArray(vocabRows[0].vocab)
+      ? vocabRows[0].vocab
+      : JSON.parse(vocabRows[0].vocab || '[]');
+
+    if (!vocab.length) {
+      toast('⚠️', 'No vocabulary found for this lesson');
+      return;
+    }
+
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const firstReview = tomorrow.toISOString().split('T')[0];
+
+    const srsItems = vocab.map(v => ({
+      class_id:       classId,
+      lesson_id:      lessonId,
+      item_key:       `vocab:${v.word}`,
+      item_type:      'vocab',
+      status:         'active',
+      interval_days:  1,
+      ease_factor:    2.5,
+      review_count:   0,
+      next_review_at: firstReview,
+      created_at:     new Date().toISOString(),
+    }));
+
+    const { error } = await sb.from('efcd_srs_class_items').insert(srsItems);
+    if (error) throw error;
+
+    toast('🧠', `SRS activated! ${srsItems.length} items scheduled for ${cls.name} — first review tomorrow`);
+    renderSRS();
+
+  } catch (err) {
+    toast('❌', 'Error: ' + err.message);
+    console.error('activateSRSForClass error:', err);
+  }
 }
 </script>
 </body>
