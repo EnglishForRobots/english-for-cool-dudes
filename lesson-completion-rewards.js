@@ -1,12 +1,12 @@
 /* ═══════════════════════════════════════════════════════════════
-   lesson-completion-rewards.js  v2.0
+   lesson-completion-rewards.js  v3.0
    EFCD — drop this into every lesson page
 
-   What's new in v2.0:
-   - Central LESSON_VOCAB_REGISTRY — vocab for every lesson in one place
-   - Automatic vocab save on class completion — no lesson files need changing
-   - Vocab insert into efcd_lesson_vocab table
-   - Clean production version — debug logging removed
+   What's new in v3.0:
+   - Auto-activates class SRS when a class completes a lesson
+   - Populates efcd_srs_class_items with first review scheduled
+     for the next day — no teacher action required
+   - Requires srs-engine.js + lesson-data-registry.js on lesson pages
 ═══════════════════════════════════════════════════════════════ */
 
 'use strict';
@@ -18,31 +18,24 @@
 
   /* ═══════════════════════════════════════════════════════════════
      LESSON VOCAB REGISTRY
-     ───────────────────────────────────────────────────────────────
-     This is the ONLY place you need to update when adding a lesson.
-     Key = window.LESSON_ID as set at the top of each lesson file.
-     Vocab saves automatically for every class session — no changes
-     needed to individual lesson HTML files ever.
   ═══════════════════════════════════════════════════════════════ */
   const LESSON_VOCAB_REGISTRY = {
 
-    // ── BEGINNER ──────────────────────────────────────────────
-
-   'royal-corgis-beginner': {
-    title:   "The Queen's Corgis",
-    level:   'Beginner',
-    grammar: 'Past Simple — regular and irregular verbs',
-    vocab: [
-      { word:'breed',     definition:'A particular type of dog or other animal' },
-      { word:'loyal',     definition:'Always supporting and caring about someone' },
-      { word:'companion', definition:'A friend or animal that spends a lot of time with you' },
-      { word:'palace',    definition:'A very large grand house where a king or queen lives' },
-      { word:'inherit',   definition:'To receive something from someone after they die' },
-      { word:'pampered',  definition:'Given too much care and comfort — treated like royalty' },
-      { word:'royal',     definition:'Connected to a king or queen and their family' },
-      { word:'retired',   definition:'Stopped working — usually because of old age' },
-    ],
-  },
+    'royal-corgis-beginner': {
+      title:   "The Queen's Corgis",
+      level:   'Beginner',
+      grammar: 'Past Simple — regular and irregular verbs',
+      vocab: [
+        { word:'breed',     definition:'A particular type of dog or other animal' },
+        { word:'loyal',     definition:'Always supporting and caring about someone' },
+        { word:'companion', definition:'A friend or animal that spends a lot of time with you' },
+        { word:'palace',    definition:'A very large grand house where a king or queen lives' },
+        { word:'inherit',   definition:'To receive something from someone after they die' },
+        { word:'pampered',  definition:'Given too much care and comfort — treated like royalty' },
+        { word:'royal',     definition:'Connected to a king or queen and their family' },
+        { word:'retired',   definition:'Stopped working — usually because of old age' },
+      ],
+    },
 
     'london-underground-beginner': {
       title:   'The London Underground',
@@ -61,51 +54,47 @@
     },
 
     'sandwich-beginner': {
-      title:   'The Earl of Sandwich',
-      level:   'Beginner',
+      title: 'The Earl of Sandwich', level: 'Beginner',
       grammar: 'Past simple — regular and irregular verbs',
       vocab: [
-        { word:'invention',  definition:'Something new that someone creates for the first time' },
-        { word:'nobleman',   definition:'A person from a high social class in history' },
-        { word:'gambling',   definition:'Playing games for money' },
-        { word:'slice',      definition:'A flat piece cut from something larger' },
-        { word:'filling',    definition:'The food that goes inside a sandwich' },
-        { word:'popular',    definition:'Liked by many people' },
+        { word:'invention', definition:'Something new that someone creates for the first time' },
+        { word:'nobleman',  definition:'A person from a high social class in history' },
+        { word:'gambling',  definition:'Playing games for money' },
+        { word:'slice',     definition:'A flat piece cut from something larger' },
+        { word:'filling',   definition:'The food that goes inside a sandwich' },
+        { word:'popular',   definition:'Liked by many people' },
       ],
     },
 
     'coffee-beginner': {
-      title:   'The Legend of Coffee',
-      level:   'Beginner',
+      title: 'The Legend of Coffee', level: 'Beginner',
       grammar: 'Past simple — regular and irregular verbs',
       vocab: [
-        { word:'legend',     definition:'An old story that may or may not be true' },
-        { word:'goat',       definition:'A farm animal with horns' },
-        { word:'energetic',  definition:'Full of energy, very active' },
-        { word:'monastery',  definition:'A building where monks live and work' },
-        { word:'berries',    definition:'Small round fruits that grow on bushes' },
-        { word:'trade',      definition:'Buying and selling goods between countries' },
+        { word:'legend',    definition:'An old story that may or may not be true' },
+        { word:'goat',      definition:'A farm animal with horns' },
+        { word:'energetic', definition:'Full of energy, very active' },
+        { word:'monastery', definition:'A building where monks live and work' },
+        { word:'berries',   definition:'Small round fruits that grow on bushes' },
+        { word:'trade',     definition:'Buying and selling goods between countries' },
       ],
     },
 
     'chineserobotsbeginner': {
-      title:   'Robots on Chinese TV',
-      level:   'Beginner',
+      title: 'Robots on Chinese TV', level: 'Beginner',
       grammar: 'Passive voice (was made, were shown, is used)',
       vocab: [
-        { word:'robot',        definition:'A machine that can move and do tasks automatically' },
-        { word:'performance',  definition:'An event where people show a skill to an audience' },
-        { word:'artificial',   definition:'Made by humans, not natural' },
-        { word:'demonstrate',  definition:'To show how something works' },
-        { word:'advanced',     definition:'At a high level — more developed than others' },
-        { word:'technology',   definition:'Scientific knowledge used to make useful things' },
+        { word:'robot',       definition:'A machine that can move and do tasks automatically' },
+        { word:'performance', definition:'An event where people show a skill to an audience' },
+        { word:'artificial',  definition:'Made by humans, not natural' },
+        { word:'demonstrate', definition:'To show how something works' },
+        { word:'advanced',    definition:'At a high level — more developed than others' },
+        { word:'technology',  definition:'Scientific knowledge used to make useful things' },
       ],
     },
 
     'pancakedaybeginner': {
-      title:   'Pancake Day',
-      level:   'Beginner',
-      grammar: 'Can and can\'t for ability',
+      title: 'Pancake Day', level: 'Beginner',
+      grammar: "Can and can't for ability",
       vocab: [
         { word:'Shrove Tuesday', definition:'The day before Lent begins — Pancake Day in Britain' },
         { word:'batter',         definition:'The liquid mixture used to make pancakes' },
@@ -117,8 +106,7 @@
     },
 
     'fuggereibeginner': {
-      title:   'The Fuggerei',
-      level:   'Beginner',
+      title: 'The Fuggerei', level: 'Beginner',
       grammar: 'Must and have to, passive voice',
       vocab: [
         { word:'social housing', definition:'Cheap or free homes provided for people who need them' },
@@ -131,8 +119,7 @@
     },
 
     'carnivalbeginner': {
-      title:   'Carnival and Satire',
-      level:   'Beginner',
+      title: 'Carnival and Satire', level: 'Beginner',
       grammar: 'Can/must/passive — permission and obligation',
       vocab: [
         { word:'satire',     definition:'Using humour to criticise powerful people' },
@@ -145,22 +132,20 @@
     },
 
     'flyingtaxisbeginner': {
-      title:   'Flying Cars',
-      level:   'Beginner',
+      title: 'Flying Cars', level: 'Beginner',
       grammar: 'Future forms — will and going to',
       vocab: [
-        { word:'air taxi',   definition:'A small aircraft that carries passengers like a taxi' },
-        { word:'prototype',  definition:'The first version of something new being tested' },
-        { word:'emission',   definition:'Gas or pollution released into the air' },
-        { word:'urban',      definition:'Related to cities and towns' },
-        { word:'passenger',  definition:'A person travelling in a vehicle' },
-        { word:'regulate',   definition:'To control something with rules and laws' },
+        { word:'air taxi',  definition:'A small aircraft that carries passengers like a taxi' },
+        { word:'prototype', definition:'The first version of something new being tested' },
+        { word:'emission',  definition:'Gas or pollution released into the air' },
+        { word:'urban',     definition:'Related to cities and towns' },
+        { word:'passenger', definition:'A person travelling in a vehicle' },
+        { word:'regulate',  definition:'To control something with rules and laws' },
       ],
     },
 
     'whyeaster': {
-      title:   'Why Easter?',
-      level:   'Beginner',
+      title: 'Why Easter?', level: 'Beginner',
       grammar: 'Present simple for facts and habits',
       vocab: [
         { word:'resurrection',  definition:'Coming back to life after death — in Christian belief' },
@@ -173,8 +158,7 @@
     },
 
     'fiveamazinglives': {
-      title:   'Five Amazing Lives',
-      level:   'Beginner',
+      title: 'Five Amazing Lives', level: 'Beginner',
       grammar: 'Present perfect vs past simple',
       vocab: [
         { word:'lifestyle',   definition:'The way a person lives their life' },
@@ -187,8 +171,7 @@
     },
 
     'pandas': {
-      title:   'Pandas',
-      level:   'Beginner',
+      title: 'Pandas', level: 'Beginner',
       grammar: 'Comparatives and superlatives',
       vocab: [
         { word:'endangered',   definition:'At risk of dying out completely — very few left' },
@@ -201,8 +184,7 @@
     },
 
     'artemis': {
-      title:   'Artemis 2: Mission Complete',
-      level:   'Beginner',
+      title: 'Artemis 2: Mission Complete', level: 'Beginner',
       grammar: 'Past simple and past continuous',
       vocab: [
         { word:'spacecraft', definition:'A vehicle designed to travel in space' },
@@ -214,28 +196,26 @@
       ],
     },
 
-    // ── INTERMEDIATE ──────────────────────────────────────────
-     'ikea-effect-intermediate': {
-    title:   'Why Do We Love Building IKEA Furniture?',
-    level:   'Intermediate',
-    grammar: 'Reported speech (backshift), 2nd and 3rd conditionals',
-    vocab: [
-      { word:'conventional',       definition:'Following the usual or expected way of doing things' },
-      { word:'designated',         definition:'Officially assigned or set aside for a particular purpose' },
-      { word:'preassembled',       definition:'Already put together before the customer receives it' },
-      { word:'phenomena',          definition:'Remarkable or observable events or facts' },
-      { word:'mass market appeal', definition:'The quality of being attractive to a very wide range of people' },
-      { word:'flat-packed',        definition:'Compressed into a thin flat box for shipping' },
-      { word:'democratic design',  definition:'The philosophy that well-designed products should be affordable for everyone' },
-      { word:'coined',             definition:'Invented or created a new word or phrase for the first time' },
-      { word:'runaway success',    definition:'An overwhelming or unstoppable success' },
-      { word:'obsession',          definition:'An extreme all-consuming focus on something' },
-    ],
-  },
+    'ikea-effect-intermediate': {
+      title:   'Why Do We Love Building IKEA Furniture?',
+      level:   'Intermediate',
+      grammar: 'Reported speech (backshift), 2nd and 3rd conditionals',
+      vocab: [
+        { word:'conventional',       definition:'Following the usual or expected way of doing things' },
+        { word:'designated',         definition:'Officially assigned or set aside for a particular purpose' },
+        { word:'preassembled',       definition:'Already put together before the customer receives it' },
+        { word:'phenomena',          definition:'Remarkable or observable events or facts' },
+        { word:'mass market appeal', definition:'The quality of being attractive to a very wide range of people' },
+        { word:'flat-packed',        definition:'Compressed into a thin flat box for shipping' },
+        { word:'democratic design',  definition:'The philosophy that well-designed products should be affordable for everyone' },
+        { word:'coined',             definition:'Invented or created a new word or phrase for the first time' },
+        { word:'runaway success',    definition:'An overwhelming or unstoppable success' },
+        { word:'obsession',          definition:'An extreme all-consuming focus on something' },
+      ],
+    },
 
     'bookshop-intermediate': {
-      title:   'Running a Bookshop',
-      level:   'Intermediate',
+      title: 'Running a Bookshop', level: 'Intermediate',
       grammar: 'Present perfect continuous, passive voice',
       vocab: [
         { word:'curate',      definition:'To carefully select and organise a collection' },
@@ -247,11 +227,8 @@
       ],
     },
 
-    // ── BUSINESS ──────────────────────────────────────────────
-
     'cadbury-business': {
-      title:   'The Cadbury Story',
-      level:   'Business',
+      title: 'The Cadbury Story', level: 'Business',
       grammar: 'Reported speech, passive voice in business context',
       vocab: [
         { word:'acquisition', definition:'When one company buys another company' },
@@ -263,45 +240,42 @@
       ],
     },
 
-    // ── TAX ───────────────────────────────────────────────────
-
-     'saudi-machine-deal-tax': {
-    title:   'The Saudi Machine Deal',
-    level:   'Tax English',
-    grammar: 'Passive Voice — past, present and future passive in cross-border deal English',
-    vocab: [
-      { word:'customs duty',            definition:'A tax charged by a country on goods imported from abroad' },
-      { word:'permanent establishment', definition:'A fixed presence in a country that triggers local corporate tax liability' },
-      { word:'withholding tax',         definition:'Tax deducted at source by the payer on payments to a non-resident' },
-      { word:'contract splitting',      definition:'Separating a deal into a goods contract and a services contract to manage tax exposure' },
-      { word:'VAT',                     definition:'Value Added Tax — a consumption tax charged at each stage of the supply chain' },
-      { word:'commissioning',           definition:'The process of testing and verifying that an installed machine works correctly' },
-      { word:'title',                   definition:'Legal ownership of goods — when title passes determines when tax obligations arise' },
-      { word:'Incoterms',               definition:'International rules defining when risk and responsibility transfer from seller to buyer' },
-      { word:'PE threshold',            definition:'The time period after which foreign activity becomes a permanent establishment' },
-      { word:'zero-rated',              definition:'VAT category where the rate is 0% — seller can still reclaim input VAT' },
-    ],
-  },
+    'saudi-machine-deal-tax': {
+      title:   'The Saudi Machine Deal',
+      level:   'Tax English',
+      grammar: 'Passive Voice — past, present and future passive in cross-border deal English',
+      vocab: [
+        { word:'customs duty',            definition:'A tax charged by a country on goods imported from abroad' },
+        { word:'permanent establishment', definition:'A fixed presence in a country that triggers local corporate tax liability' },
+        { word:'withholding tax',         definition:'Tax deducted at source by the payer on payments to a non-resident' },
+        { word:'contract splitting',      definition:'Separating a deal into a goods contract and a services contract to manage tax exposure' },
+        { word:'VAT',                     definition:'Value Added Tax — a consumption tax charged at each stage of the supply chain' },
+        { word:'commissioning',           definition:'The process of testing and verifying that an installed machine works correctly' },
+        { word:'title',                   definition:'Legal ownership of goods — when title passes determines when tax obligations arise' },
+        { word:'Incoterms',               definition:'International rules defining when risk and responsibility transfer from seller to buyer' },
+        { word:'PE threshold',            definition:'The time period after which foreign activity becomes a permanent establishment' },
+        { word:'zero-rated',              definition:'VAT category where the rate is 0% — seller can still reclaim input VAT' },
+      ],
+    },
 
     'crown-estate-intermediate': {
-    title:   'The Crown Estate — Who Really Owns Britain?',
-    level:   'Intermediate',
-    grammar: 'Passive Voice — present and past passive in financial English',
-    vocab: [
-      { word:'estate',    definition:'A large area of land or property owned by one person or organisation' },
-      { word:'sovereign', definition:'A king or queen — the supreme ruler of a country' },
-      { word:'treasury',  definition:'The government department that manages a country\'s money and taxes' },
-      { word:'revenue',   definition:'Income earned by a government or company from taxes, sales or rents' },
-      { word:'grant',     definition:'A sum of money given for a specific purpose, usually by a government' },
-      { word:'exempt',    definition:'Not required to pay a tax or follow a rule that applies to others' },
-      { word:'portfolio', definition:'A collection of investments, properties or financial assets' },
-      { word:'surplus',   definition:'An amount left over after all costs and obligations have been met' },
-    ],
-  },
+      title:   'The Crown Estate — Who Really Owns Britain?',
+      level:   'Intermediate',
+      grammar: 'Passive Voice — present and past passive in financial English',
+      vocab: [
+        { word:'estate',    definition:'A large area of land or property owned by one person or organisation' },
+        { word:'sovereign', definition:'A king or queen — the supreme ruler of a country' },
+        { word:'treasury',  definition:"The government department that manages a country's money and taxes" },
+        { word:'revenue',   definition:'Income earned by a government or company from taxes, sales or rents' },
+        { word:'grant',     definition:'A sum of money given for a specific purpose, usually by a government' },
+        { word:'exempt',    definition:'Not required to pay a tax or follow a rule that applies to others' },
+        { word:'portfolio', definition:'A collection of investments, properties or financial assets' },
+        { word:'surplus',   definition:'An amount left over after all costs and obligations have been met' },
+      ],
+    },
 
     'restructuring-tax': {
-      title:   'The Restructuring',
-      level:   'Tax',
+      title: 'The Restructuring', level: 'Tax',
       grammar: 'Conditional sentences in professional context',
       vocab: [
         { word:'restructuring',   definition:'Reorganising a company to make it more efficient' },
@@ -316,28 +290,18 @@
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
- async function getSB () {
-  // Wait for supabase library if needed
-  let attempts = 0;
-  while (!window.supabase && attempts < 30) {
-    await new Promise(r => setTimeout(r, 100));
-    attempts++;
-  }
-  if (!window.supabase) return null;
-
-  // Create client with apikey explicitly set in global headers
-  // This ensures the API key is always present regardless of auth state
-  return window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-    global: {
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: 'Bearer ' + SUPABASE_KEY,
-      }
+  async function getSB () {
+    let attempts = 0;
+    while (!window.supabase && attempts < 30) {
+      await new Promise(r => setTimeout(r, 100));
+      attempts++;
     }
-  });
-}
+    if (!window.supabase) return null;
+    return window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      global: { headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY } }
+    });
+  }
 
-  /* ─── TIME HELPERS ──────────────────────────────────────────── */
   function hour ()      { return new Date().getHours(); }
   function dayOfWeek () { return new Date().getDay(); }
 
@@ -465,8 +429,6 @@
       }
 
       // ── VOCAB SAVE ────────────────────────────────────────────
-      // Priority 1: vocab passed directly from the lesson file
-      // Priority 2: central registry lookup by lesson ID
       const lessonId      = lessonData.lessonId || '';
       const registryEntry = LESSON_VOCAB_REGISTRY[lessonId] || null;
       const vocabToSave   = lessonData.vocabulary?.length
@@ -474,29 +436,85 @@
         : registryEntry?.vocab || [];
 
       if (vocabToSave.length > 0) {
-  await fetch(SUPABASE_URL + '/rest/v1/efcd_lesson_vocab', {
-    method: 'POST',
-    headers: {
-      'Content-Type':  'application/json',
-      'apikey':        SUPABASE_KEY,
-      'Authorization': 'Bearer ' + SUPABASE_KEY,
-      'Prefer':        'return=minimal',
-    },
-    body: JSON.stringify({
-      class_id:      classId,
-      session_id:    sessionId,
-      lesson_id:     lessonId,
-      lesson_title:  lessonData.lessonTitle  || registryEntry?.title   || '',
-      lesson_level:  lessonData.lessonLevel  || registryEntry?.level   || '',
-      vocab:         vocabToSave,
-      grammar_focus: lessonData.grammarFocus || registryEntry?.grammar || null,
-      completed_at:  new Date().toISOString(),
-    }),
-  });
-}
-      // ─────────────────────────────────────────────────────────
+        await fetch(SUPABASE_URL + '/rest/v1/efcd_lesson_vocab', {
+          method: 'POST',
+          headers: {
+            'Content-Type':  'application/json',
+            'apikey':        SUPABASE_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_KEY,
+            'Prefer':        'return=minimal',
+          },
+          body: JSON.stringify({
+            class_id:      classId,
+            session_id:    sessionId,
+            lesson_id:     lessonId,
+            lesson_title:  lessonData.lessonTitle  || registryEntry?.title   || '',
+            lesson_level:  lessonData.lessonLevel  || registryEntry?.level   || '',
+            vocab:         vocabToSave,
+            grammar_focus: lessonData.grammarFocus || registryEntry?.grammar || null,
+            completed_at:  new Date().toISOString(),
+          }),
+        });
+      }
 
-      console.log('✅ EFCD v2.0: submitted for', displayName,
+      // ── AUTO-ACTIVATE CLASS SRS ───────────────────────────────
+      // When a class completes a lesson for the first time, populate
+      // efcd_srs_class_items so the teacher can run a group SRS
+      // review session the next time the class meets.
+      //
+      // Requires on the lesson page (in this order):
+      //   <script src="/srs-engine.js"></script>
+      //   <script src="/xp.js"></script>
+      //   <script src="/lesson-data-registry.js"></script>
+      //   <script src="/lesson-completion-rewards.js"></script>
+      try {
+        if (window.EFCD_SRS && lessonId) {
+          const reg = window.LESSON_DATA_REGISTRY?.[lessonId];
+          if (reg) {
+            const srsItems = window.EFCD_SRS.ITEMS.extract(reg, lessonId);
+
+            if (srsItems.length > 0) {
+              // Only activate once — check if already exists
+              const { data: existing } = await client
+                .from('efcd_srs_class_items')
+                .select('id')
+                .eq('class_id', classId)
+                .eq('lesson_id', lessonId)
+                .limit(1);
+
+              if (!existing?.length) {
+                // Schedule first review for tomorrow
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const firstReview = tomorrow.toISOString().split('T')[0];
+
+                await client.from('efcd_srs_class_items').insert(
+                  srsItems.map(item => ({
+                    class_id:        classId,
+                    lesson_id:       lessonId,
+                    item_key:        item.key,
+                    item_type:       item.type,
+                    status:          'active',
+                    interval_days:   1,
+                    ease_factor:     2.5,
+                    review_count:    0,
+                    next_review_at:  firstReview,
+                    created_at:      new Date().toISOString(),
+                  }))
+                );
+
+                console.log(`🧠 Class SRS activated — ${classId} — ${lessonId} — ${srsItems.length} items, first review ${firstReview}`);
+              }
+            }
+          }
+        }
+      } catch (srsErr) {
+        // Non-fatal — lesson completion still succeeds if SRS fails
+        console.warn('Class SRS auto-activate error:', srsErr.message);
+      }
+      // ── END AUTO-ACTIVATE CLASS SRS ───────────────────────────
+
+      console.log('✅ EFCD v3.0: submitted for', displayName,
         '— correct:', lessonData.correctAnswers,
         '— XP:', xp,
         '— vocab words:', vocabToSave.length);
@@ -546,24 +564,24 @@
 
   /* ─── PUBLIC API ─────────────────────────────────────────────── */
   async function onLessonComplete (lessonData) {
-  fireReward(lessonData);
-  const classResult = await submitToClass(lessonData);
+    fireReward(lessonData);
+    const classResult = await submitToClass(lessonData);
 
-  // Award XP to logged-in individual user (separate from class scoring)
-  if (window.EFCD_XP) {
-    try {
-      await window.EFCD_XP.onLessonComplete({
-        lessonId:       lessonData.lessonId       || '',
-        correctAnswers: lessonData.correctAnswers  || 0,
-        totalAnswers:   lessonData.totalAnswers    || 0,
-      });
-    } catch(e) {
-      console.warn('XP award error:', e.message);
+    // Award XP to logged-in individual user
+    if (window.EFCD_XP) {
+      try {
+        await window.EFCD_XP.onLessonComplete({
+          lessonId:       lessonData.lessonId       || '',
+          correctAnswers: lessonData.correctAnswers  || 0,
+          totalAnswers:   lessonData.totalAnswers    || 0,
+        });
+      } catch(e) {
+        console.warn('XP award error:', e.message);
+      }
     }
-  }
 
-  return classResult;
-}
+    return classResult;
+  }
 
   window.EFCD_Rewards = {
     onLessonComplete,
@@ -573,6 +591,6 @@
     LESSON_VOCAB_REGISTRY,
   };
 
-  console.log('🎉 EFCD Rewards v2.0 loaded — central vocab registry active');
+  console.log('🎉 EFCD Rewards v3.0 loaded — class SRS auto-activate enabled');
 
 })();
