@@ -9,12 +9,7 @@
 <link rel="preconnect" href="https://fonts.bunny.net">
 <link href="https://fonts.bunny.net/css2?family=Nunito:ital,wght@0,400;0,700;0,800;0,900;1,900&display=swap" rel="stylesheet">
 <style>
-/* ══════════════════════════════════════════════
-   NO SUPABASE ON THIS PAGE.
-   No session detection. No class code.
-   This page is purely public — always.
-   Class sessions live at /live/
-══════════════════════════════════════════════ */
+
 :root {
   --blue:#1CB0F6;      --blue-shadow:#1899D6;   --blue-light:#E8F7FE;
   --yellow:#FFC800;    --yellow-shadow:#E5B400; --yellow-light:#FFF8DC;
@@ -83,6 +78,14 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 
 /* ── PAGE ── */
 .page{max-width:880px;margin:0 auto;padding:72px 14px 80px;display:flex;flex-direction:column;gap:18px}
+
+.home-auth-strip{background:var(--bg);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-left:5px solid var(--green);border-radius:14px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;animation:up .3s ease both;margin-top:10px}
+.has-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.has-name{font-size:14px;font-weight:900;color:var(--ink-bold)}
+.has-streak{display:inline-flex;align-items:center;gap:4px;background:rgba(255,150,0,.12);border:2px solid rgba(255,150,0,.3);border-radius:99px;padding:2px 10px;font-size:12px;font-weight:900;color:#b85c00}
+.has-badges{display:inline-flex;align-items:center;gap:4px;background:rgba(88,204,2,.1);border:2px solid rgba(88,204,2,.25);border-radius:99px;padding:2px 10px;font-size:12px;font-weight:900;color:#3d7a00}
+.has-link{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;background:var(--green);color:#fff;font-size:12px;font-weight:900;border-radius:12px;border:2px solid var(--green-shadow);border-bottom:3px solid var(--green-shadow);white-space:nowrap;text-decoration:none;transition:transform .1s,border-bottom-width .1s}
+.has-link:active{transform:translateY(2px);border-bottom-width:2px}
 
 /* ── HERO ── */
 .hero{border:3px solid var(--ink-bold);border-bottom:6px solid var(--ink-bold);border-radius:var(--r);padding:26px 22px 22px;position:relative;overflow:hidden}
@@ -251,6 +254,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .footer a{color:var(--ink-3);font-size:12px;font-weight:800;margin:0 10px;text-decoration:underline}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/init-auth.js"></script> 
 <script src="/lesson-completion-rewards.js"></script>
 </head>
 <body>
@@ -291,6 +295,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
         <span class="cta-arrow">↓</span>
       </a>
     </div>
+     <div id="home-auth-strip-wrap"></div>
   </div>
 
   <div class="u2">
@@ -966,6 +971,47 @@ function boot(){
   }
 
   render();
+_bootAuthStrip();
+}
+
+async function _bootAuthStrip() {
+  const wrap = document.getElementById('home-auth-strip-wrap');
+  if (!wrap) return;
+  try {
+    if (typeof window.efcdReady === 'undefined') return;
+    await window.efcdReady;
+    if (!window.EFCD_Auth) return;
+    await window.EFCD_Auth.initAuth();
+    const user = window.EFCD_Auth.getCurrentUser();
+    if (!user) return;
+ 
+    const stats     = window.EFCD_Auth.getUserStats();
+    const rawName   = user.name || user.email?.split('@')[0] || 'Dude';
+    const firstName = rawName.split(' ')[0].replace(/^\w/, c => c.toUpperCase());
+    const streak    = stats?.streak || 0;
+ 
+    let badgeCount = 0;
+    try {
+      const { data: lessons } = await window.efcdSupabaseClient
+        .from('lessons').select('lesson_link').eq('user_id', user.id);
+      if (lessons) badgeCount = new Set(lessons.map(l => l.lesson_link)).size;
+    } catch(_) {}
+ 
+    const streakHtml = streak > 0
+      ? `<span class="has-streak">🔥 ${streak} day streak</span>` : '';
+    const badgesHtml = badgeCount > 0
+      ? `<span class="has-badges">🏅 ${badgeCount} badge${badgeCount !== 1 ? 's' : ''}</span>` : '';
+ 
+    wrap.innerHTML = `
+      <div class="home-auth-strip">
+        <div class="has-left">
+          <span class="has-name">👋 ${firstName}</span>
+          ${streakHtml}
+          ${badgesHtml}
+        </div>
+        <a href="/my-lessons/" class="has-link">📚 My Lessons →</a>
+      </div>`;
+  } catch(e) {}
 }
 
 function populateTrackCards(){
