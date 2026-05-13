@@ -546,10 +546,24 @@
 
   /* ─── PUBLIC API ─────────────────────────────────────────────── */
   async function onLessonComplete (lessonData) {
-    fireReward(lessonData);
-    const classResult = await submitToClass(lessonData);
-    return classResult;
+  fireReward(lessonData);
+  const classResult = await submitToClass(lessonData);
+
+  // Award XP to logged-in individual user (separate from class scoring)
+  if (window.EFCD_XP) {
+    try {
+      await window.EFCD_XP.onLessonComplete({
+        lessonId:       lessonData.lessonId       || '',
+        correctAnswers: lessonData.correctAnswers  || 0,
+        totalAnswers:   lessonData.totalAnswers    || 0,
+      });
+    } catch(e) {
+      console.warn('XP award error:', e.message);
+    }
   }
+
+  return classResult;
+}
 
   window.EFCD_Rewards = {
     onLessonComplete,
