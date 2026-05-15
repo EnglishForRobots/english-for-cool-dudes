@@ -674,15 +674,24 @@ function getElapsed(start){
 }
 
 async function startSession(classId) {
-  await sb.from('efcd_sessions').update({ ended_at: new Date().toISOString() }).eq('class_id', classId).is('ended_at', null);
+  const cleanNow = new Date();
+    const cleanLocalISO = new Date(cleanNow.getTime() - cleanNow.getTimezoneOffset() * 60000).toISOString();
+    await sb.from('efcd_sessions').update({ ended_at: cleanLocalISO }).eq('class_id', classId).is('ended_at', null);
   const pin = String(Math.floor(1000 + Math.random() * 9000));
   const { error } = await sb.from('efcd_classes').update({ is_active: true, session_started_at: new Date().toISOString(), join_pin: pin }).eq('id', classId);
-  if(!error){ await sb.from('efcd_sessions').insert({ class_id: classId }); toast('✅', `Session live! PIN: ${pin}`); await loadEverything(); }
+  if(!error){ const now = new Date();
+    const localISO = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString();
+    await sb.from('efcd_sessions').insert({ 
+      class_id:   classId,
+      started_at: localISO,
+    }); toast('✅', `Session live! PIN: ${pin}`); await loadEverything(); }
 }
 
 async function endSession(classId){
   if(!confirm('End this session? Scores will be saved.')) return;
-  await sb.from('efcd_sessions').update({ ended_at: new Date().toISOString() }).eq('class_id', classId).is('ended_at', null);
+  const endNow = new Date();
+    const endLocalISO = new Date(endNow.getTime() - endNow.getTimezoneOffset() * 60000).toISOString();
+    await sb.from('efcd_sessions').update({ ended_at: endLocalISO }).eq('class_id', classId).is('ended_at', null);
   const { error } = await sb.from('efcd_classes').update({ is_active: false, session_started_at: null, join_pin: null }).eq('id', classId);
   if(!error){ if(_sessionTimers[classId]) clearInterval(_sessionTimers[classId]); toast('🏁', 'Session ended. Scores saved!'); await loadEverything(); }
 }
@@ -1112,9 +1121,9 @@ async function renderHistory(){
     if(!sessions?.length){ wrap.innerHTML=`<div class="history-empty">No sessions yet.</div>`; return; }
     const sessionIds = sessions.map(s=>s.id);
     const [{ data: scores },{ data: badges },{ data: vocab }] = await Promise.all([
-      sb.from('efcd_scores').select('*').in('session_id',sessionIds),
-      sb.from('efcd_badges').select('*').in('session_id',sessionIds).eq('is_manual',false),
-      sb.from('efcd_lesson_vocab').select('*').in('session_id',sessionIds),
+      sb.from('efcd_scores').select('*').in('session_id', sessionIds).not('session_id', 'is', null),
+      sb.from('efcd_badges').select('*').in('session_id', sessionIds).eq('is_manual', false).not('session_id', 'is', null),
+      sb.from('efcd_lesson_vocab').select('*').in('session_id', sessionIds).not('session_id', 'is', null),
     ]);
     const activeSessions = sessions.filter(session => {
       return (badges||[]).some(b=>b.session_id===session.id) || (scores||[]).some(s=>s.session_id===session.id);
