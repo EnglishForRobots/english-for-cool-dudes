@@ -348,12 +348,28 @@ function getSrsButtonHtml(registryId, srsData, xpBalance) {
     </a>`;
   }
 
-  const progress  = window.EFCD_SRS.STATS.lessonProgress(items, registryId);
-  const nextItem  = items.filter(i=>i.status==='active').sort((a,b)=>a.next_review_at.localeCompare(b.next_review_at))[0];
-  const nextLabel = nextItem ? _srsNextLabel(nextItem.next_review_at) : '';
+  const progress   = window.EFCD_SRS.STATS.lessonProgress(items, registryId);
+  const reviewed   = items.filter(i => (i.review_count || 0) > 0).length;
+  const total      = items.length;
+  const nextItem   = items.filter(i=>i.status==='active').sort((a,b)=>a.next_review_at.localeCompare(b.next_review_at))[0];
+  const nextLabel  = nextItem ? _srsNextLabel(nextItem.next_review_at) : '';
+ 
+  // Show learned% if any items learned, otherwise show reviewed count
+  let progressText;
+  if (progress > 0) {
+    progressText = `${progress}% learned${nextLabel ? ' · next ' + nextLabel : ''}`;
+  } else if (reviewed > 0) {
+    progressText = `${reviewed} / ${total} reviewed${nextLabel ? ' · next ' + nextLabel : ''}`;
+  } else {
+    progressText = `${total} items · next ${nextLabel || 'tomorrow'}`;
+  }
+ 
+  // Bar shows learned% if any, otherwise shows reviewed progress
+  const barPct = progress > 0 ? progress : Math.round((reviewed / total) * 100);
+ 
   return `<div class="srs-status-wrap">
-    <div class="srs-progress-bar-wrap"><div class="srs-progress-bar" style="width:${progress}%"></div></div>
-    <span class="srs-progress-text">${progress}% learned${nextLabel?' · next '+nextLabel:''}</span>
+    <div class="srs-progress-bar-wrap"><div class="srs-progress-bar" style="width:${barPct}%"></div></div>
+    <span class="srs-progress-text">${progressText}</span>
   </div>`;
 }
 
@@ -798,7 +814,20 @@ async function boot(){
 
     const stats = window.EFCD_Auth.getUserStats();
     const xpEl  = document.getElementById('hdr-xp');     if(xpEl) xpEl.textContent = stats?.xp || 0;
-    const stEl  = document.getElementById('hdr-streak'); if(stEl) stEl.textContent = stats?.streak || 0;
+ 
+    // Re-fetch streak live from efcd_streaks (not cached auth)
+    let liveStreak = stats?.streak || 0;
+    try {
+      const { data: streakRow } = await window.efcdSupabaseClient
+        .from('efcd_streaks')
+        .select('current_streak')
+        .eq('user_id', user.id)
+        .single();
+      if (streakRow?.current_streak !== undefined) liveStreak = streakRow.current_streak;
+    } catch(_) {}
+    const stEl = document.getElementById('hdr-streak');
+    if (stEl) stEl.textContent = liveStreak;
+    const statsWithStreak = { ...(stats || {}), streak: liveStreak };
     const soBtn = document.getElementById('btn-signout'); if(soBtn) soBtn.classList.add('show');
 
     const { data: rawLessons, error } = await window.efcdSupabaseClient
@@ -818,7 +847,7 @@ async function boot(){
       }
     } catch(_) {}
 
-    const statsWithName = { ...(stats||{}), full_name: firstName };
+    const statsWithName = { ...(statsWithStreak||{}), full_name: firstName };
 
     const seen = new Set();
     const lessons = (rawLessons||[]).filter(l=>{
