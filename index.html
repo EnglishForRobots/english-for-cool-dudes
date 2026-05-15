@@ -87,6 +87,17 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .has-link{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;background:var(--green);color:#fff;font-size:12px;font-weight:900;border-radius:12px;border:2px solid var(--green-shadow);border-bottom:3px solid var(--green-shadow);white-space:nowrap;text-decoration:none;transition:transform .1s,border-bottom-width .1s}
 .has-link:active{transform:translateY(2px);border-bottom-width:2px}
 
+.has-xp{display:inline-flex;align-items:center;gap:4px;background:rgba(255,200,0,.12);border:2px solid rgba(255,200,0,.3);border-radius:99px;padding:2px 10px;font-size:12px;font-weight:900;color:#8a6800}
+ 
+/* SRS due-reviews nudge banner */
+.home-srs-nudge{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:rgba(28,176,246,.08);border:2px solid rgba(28,176,246,.2);border-radius:14px;padding:12px 16px;margin-top:8px;text-decoration:none;transition:background .15s}
+.home-srs-nudge:hover{background:rgba(28,176,246,.14)}
+.home-srs-nudge-left{display:flex;align-items:center;gap:10px}
+.home-srs-nudge-emoji{font-size:22px;animation:pulse-green 2s ease-in-out infinite}
+.home-srs-nudge-title{font-size:14px;font-weight:900;color:var(--ink-bold)}
+.home-srs-nudge-sub{font-size:11px;font-weight:700;color:var(--ink-3);margin-top:1px}
+.home-srs-nudge-btn{padding:7px 14px;background:var(--blue);color:#fff;font-size:12px;font-weight:900;border-radius:var(--rsm);border:2px solid var(--blue-shadow);border-bottom:3px solid var(--blue-shadow);white-space:nowrap;flex-shrink:0}
+
 /* ── HERO ── */
 .hero{border:3px solid var(--ink-bold);border-bottom:6px solid var(--ink-bold);border-radius:var(--r);padding:26px 22px 22px;position:relative;overflow:hidden}
 .hero-deco{position:absolute;bottom:-14px;right:6px;font-size:108px;opacity:.1;pointer-events:none;animation:floatDeco 5s ease-in-out infinite}
@@ -1000,7 +1011,7 @@ async function _bootAuthStrip() {
     if (!window.EFCD_Auth) return;
     await window.EFCD_Auth.initAuth();
     const user = window.EFCD_Auth.getCurrentUser();
-    if (!user) return;  // guests see nothing extra
+    if (!user) return;
  
     const stats     = window.EFCD_Auth.getUserStats();
     const rawName   = user.name || user.email?.split('@')[0] || 'Dude';
@@ -1010,17 +1021,15 @@ async function _bootAuthStrip() {
     let streak = stats?.streak || 0;
     let isNewStreakDay = false;
     try {
-      // Get current streak before update
       const { data: beforeRow } = await window.efcdSupabaseClient
         .from('efcd_streaks')
         .select('current_streak, last_activity_at')
         .eq('user_id', user.id)
         .single();
  
-      const today = new Date().toISOString().split('T')[0];
+      const today        = new Date().toISOString().split('T')[0];
       const lastActivity = beforeRow?.last_activity_at;
  
-      // Only call checkAndAwardStreak if it's a new day
       if (lastActivity !== today) {
         if (window.EFCD_XP) {
           await window.EFCD_XP.checkAndAwardStreak();
@@ -1028,28 +1037,51 @@ async function _bootAuthStrip() {
         }
       }
  
-      // Re-fetch updated streak
       const { data: afterRow } = await window.efcdSupabaseClient
         .from('efcd_streaks')
         .select('current_streak')
         .eq('user_id', user.id)
         .single();
       if (afterRow?.current_streak !== undefined) streak = afterRow.current_streak;
- 
     } catch(_) {}
  
-    // Fetch badge count
+    // ── Fetch badge count, XP balance, and SRS due count ────
     let badgeCount = 0;
+    let xpBalance  = 0;
+    let dueCount   = 0;
+ 
     try {
-      const { data: lessons } = await window.efcdSupabaseClient
-        .from('lessons').select('lesson_link').eq('user_id', user.id);
-      if (lessons) badgeCount = new Set(lessons.map(l => l.lesson_link)).size;
+      const [lessonsRes, xpRes, srsRes] = await Promise.all([
+        window.efcdSupabaseClient.from('lessons').select('lesson_link').eq('user_id', user.id),
+        window.EFCD_XP ? window.EFCD_XP.getBalance() : Promise.resolve({ balance: 0 }),
+        window.EFCD_XP ? window.EFCD_XP.getDueItems() : Promise.resolve([]),
+      ]);
+ 
+      if (lessonsRes.data) badgeCount = new Set(lessonsRes.data.map(l => l.lesson_link)).size;
+      xpBalance = xpRes?.balance ?? 0;
+      dueCount  = srsRes?.length ?? 0;
     } catch(_) {}
  
+    // ── Build strip HTML ─────────────────────────────────────
     const streakHtml = streak > 0
       ? `<span class="has-streak">🔥 ${streak} day streak</span>` : '';
     const badgesHtml = badgeCount > 0
       ? `<span class="has-badges">🏅 ${badgeCount} badge${badgeCount !== 1 ? 's' : ''}</span>` : '';
+    const xpHtml = xpBalance > 0
+      ? `<span class="has-xp">⚡ ${xpBalance} XP</span>` : '';
+ 
+    // Due reviews nudge — shown below the strip if reviews waiting
+    const dueHtml = dueCount > 0 ? `
+      <a href="/srs/" class="home-srs-nudge">
+        <div class="home-srs-nudge-left">
+          <span class="home-srs-nudge-emoji">📬</span>
+          <div>
+            <div class="home-srs-nudge-title">${dueCount} review${dueCount !== 1 ? 's' : ''} waiting</div>
+            <div class="home-srs-nudge-sub">Keep your vocabulary sharp — it takes 2 minutes</div>
+          </div>
+        </div>
+        <span class="home-srs-nudge-btn">Review now →</span>
+      </a>` : '';
  
     wrap.innerHTML = `
       <div class="home-auth-strip">
@@ -1057,9 +1089,11 @@ async function _bootAuthStrip() {
           <span class="has-name">👋 ${firstName}</span>
           ${streakHtml}
           ${badgesHtml}
+          ${xpHtml}
         </div>
         <a href="/my-lessons/" class="has-link">📚 My Lessons →</a>
-      </div>`;
+      </div>
+      ${dueHtml}`;
  
     // ── Show streak popup if new day ─────────────────────────
     if (isNewStreakDay && streak > 0) {
