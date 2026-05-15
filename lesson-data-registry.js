@@ -550,7 +550,7 @@ const LESSON_DATA_REGISTRY = {
       exercises: [
         { sentence:"Queen Elizabeth ___ her first corgi on her 18th birthday.", answer:'received', wrong:['receive','receiving','has received'], explain:'"Receive" is regular → add D → "received". Finished action in the past.' },
         { sentence:'Royal chefs ___ special meals for the corgis every day.', answer:'cooked', wrong:['cook','cooking','has cooked'], explain:'"Cook" is regular → add ED → "cooked".' },
-        { sentence:'The Queen ___ her corgis everywhere — on holidays and in the car.', answer:'loved', wrong:['love','loving','has loved'], explain:'"Love" ends in E → add D only → "loved".' },
+        { sentence:'The Queen ___ her corgis everywhere — on holidays and in the car.', answer:'took', wrong:['take','taking','has taken'], explain:'"Take" is IRREGULAR → took.' },
         { sentence:"The corgis ___ in special wicker baskets inside the palace.", answer:'slept', wrong:['sleep','sleeping','has slept'], explain:'"Sleep" is IRREGULAR → sleep → slept. Must learn these!' },
       ],
     },
@@ -560,7 +560,7 @@ const LESSON_DATA_REGISTRY = {
       rule:  'Some verbs are irregular — they do NOT add -ED. You must learn them. go → went, take → took, sleep → slept, eat → ate, have → had.',
       exercises: [
         { sentence:"The Queen ___ her corgis with her on her honeymoon!", answer:'took', wrong:['taked','take','has taken'], explain:'Irregular: take → TOOK. Never "taked"!' },
-        { sentence:'The corgis ___ to Buckingham Palace after the Queen died.', answer:'went', wrong:['goed','go','have gone'], explain:'Irregular: go → WENT. Never "goed"!' },
+        { sentence:'The corgis ___ to Andrew and Sarah after the Queen died.', answer:'went', wrong:['goed','go','have gone'], explain:'Irregular: go → WENT. Never "goed"!' },
         { sentence:'Queen Elizabeth ___ over 30 corgis during her life.', answer:'had', wrong:['haved','have','has had'], explain:'Irregular: have → HAD. Very common — learn it!' },
         { sentence:"The royal corgis ___ from silver bowls every day.", answer:'ate', wrong:['eated','eat','has eaten'], explain:'Irregular: eat → ATE. Never "eated"!' },
       ],
@@ -569,8 +569,8 @@ const LESSON_DATA_REGISTRY = {
     sentences: [
       { words:['corgi','means','dog','Welsh','dwarf','in'], answer:'corgi means dwarf dog in Welsh', hint:'🏴󠁧󠁢󠁷󠁬󠁳󠁥 What does the word corgi mean?' },
       { words:['silver','ate','corgis','bowls','The','from','royal'], answer:'The royal corgis ate from silver bowls', hint:'🍽️ How did the corgis eat?' },
-      { words:['companion','was','closest','The','her','Queen','corgi'], answer:'The corgi was her closest companion', hint:'🐾 What was the corgi to the Queen?' },
-      { words:['Susan','first','corgi','birthday','was','18th','Her','her'], answer:'Her first corgi was Susan her 18th birthday', hint:'🎂 What was the name of the first corgi?' },
+      { words:['companion','was','closest','The','her','corgi'], answer:'The corgi was her closest companion', hint:'🐾 What was the corgi to the Queen?' },
+      { words:['Susan','first','corgi','called','was','Her'], answer:'Her first corgi was called Susan', hint:'🎂 What was the name of the first corgi?' },
     ],
  
     word_builder: [
