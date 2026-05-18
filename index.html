@@ -1020,12 +1020,18 @@ _bootAuthStrip();
 async function _bootAuthStrip() {
   const wrap = document.getElementById('home-auth-strip-wrap');
   if (!wrap) return;
+ 
+  // Wait for Supabase client to be ready (created by init-auth.js)
+  let attempts = 0;
+  while (!window.efcdSupabaseClient && attempts < 40) {
+    await new Promise(r => setTimeout(r, 100));
+    attempts++;
+  }
+  if (!window.efcdSupabaseClient) return;
+ 
   try {
-    if (typeof window.efcdReady === 'undefined') return;
-    await window.efcdReady;
-    if (!window.EFCD_Auth) return;
-    await window.EFCD_Auth.initAuth();
-    const user = window.EFCD_Auth.getCurrentUser();
+    // Get current auth session directly from Supabase
+    const { data: { user } } = await window.efcdSupabaseClient.auth.getUser();
  
     // ── GUEST STATE ───────────────────────────────────────────
     if (!user) {
@@ -1053,12 +1059,22 @@ async function _bootAuthStrip() {
     }
  
     // ── LOGGED-IN STATE ───────────────────────────────────────
-    const stats   = window.EFCD_Auth.getUserStats();
-    const rawName = user.name || user.email?.split('@')[0] || 'Dude';
-    const firstName = rawName.split(' ')[0].replace(/^\w/, c => c.toUpperCase());
+    // Get first name from profile, fall back to email prefix
+    let firstName = user.email?.split('@')[0] || 'Dude';
+    try {
+      const { data: profile } = await window.efcdSupabaseClient
+        .from('profiles')
+        .select('full_name')
+        .eq('id', user.id)
+        .single();
+      if (profile?.full_name) {
+        firstName = profile.full_name.split(' ')[0];
+        firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
+      }
+    } catch(_) {}
  
     // Re-fetch streak live + trigger streak check if new day
-    let streak = stats?.streak || 0;
+    let streak = 0;
     let isNewStreakDay = false;
     try {
       const { data: beforeRow } = await window.efcdSupabaseClient
@@ -1096,8 +1112,8 @@ async function _bootAuthStrip() {
         window.EFCD_XP ? window.EFCD_XP.getDueItems() : Promise.resolve([]),
       ]);
       if (lessonsRes.data) badgeCount = new Set(lessonsRes.data.map(l => l.lesson_link)).size;
-      xpBalance = xpRes?.balance  ?? 0;
-      dueCount  = srsRes?.length  ?? 0;
+      xpBalance = xpRes?.balance ?? 0;
+      dueCount  = srsRes?.length ?? 0;
     } catch(_) {}
  
     // Build pills
@@ -1142,6 +1158,7 @@ async function _bootAuthStrip() {
     console.warn('[index] _bootAuthStrip error:', e);
   }
 }
+ 
  
 function _showStreakPopup(streak, firstName) {
   const isDay1   = streak === 1;
