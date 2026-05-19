@@ -849,8 +849,8 @@ const LESSON_DATA_REGISTRY = {
   // ── SENTENCE BUILDER ──────────────────────────────────────
   sentences: [
     {
-      words:  ['lot', 'these', 'A', 'is', 'anecdotal', 'about', 'peptides', 'of', 'what'],
-      answer: 'A lot of what is anecdotal about these peptides',
+      words:  ['lot', 'evidence', 'A', 'is', 'anecdotal', 'about', 'peptides', 'of', 'the'],
+      answer: 'A lot of the evidence about peptides is anecdotal',
       hint:   '🧪 How reliable is the evidence for unapproved peptides?',
     },
     {
@@ -864,8 +864,8 @@ const LESSON_DATA_REGISTRY = {
       hint:   '🏪 What does buying from the gray market require?',
     },
     {
-      words:  ['advisory', 'have', 'panel', 'The', 'FDA', 'an', 'will', 'meet'],
-      answer: 'The FDA will have an advisory panel meet',
+      words:  ['advisory', 'have', 'panel', 'The', 'FDA', 'an', 'will', 'meeting'],
+      answer: 'The FDA will have an advisory panel meeting',
       hint:   '🏛️ What is the FDA planning for July?',
     },
   ],
