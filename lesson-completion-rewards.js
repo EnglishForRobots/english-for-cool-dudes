@@ -287,6 +287,22 @@
       ],
     },
 
+     'peptides-intermediate': {
+  title:   'Why Is Everyone Injecting Peptides?',
+  level:   'Intermediate',
+  grammar: 'Reported speech (backshift), modal verbs of speculation (might / could / may)',
+  vocab: [
+    { word:'synthetic',         definition:'Made artificially in a lab, not occurring naturally' },
+    { word:'unapproved',        definition:'Not officially authorised or permitted by a regulator' },
+    { word:'anecdotal',         definition:'Based on personal stories, not scientific evidence' },
+    { word:'gray market',       definition:'A trade in goods that is legal but not officially regulated' },
+    { word:'dosing',            definition:'The amount of a drug taken and how often it is taken' },
+    { word:'cobbling together', definition:'Putting something together in an improvised, unofficial way' },
+    { word:'sterility',         definition:'The condition of being completely free from bacteria and germs' },
+    { word:'advisory panel',    definition:'A group of experts brought together to give official recommendations' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
