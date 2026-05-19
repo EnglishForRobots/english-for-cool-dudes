@@ -330,13 +330,13 @@ const LESSON_DATA_REGISTRY = {
         word:        'designated',
         definition:  'Officially assigned or set aside for a particular purpose',
         example:     'There is a ___ road that all customers must follow through the store.',
-        distractors: ['secret', 'one-way', 'famous'],
+        distractors: ['secret', 'stupid', 'yellow-brick'],
       },
       {
         word:        'preassembled',
         definition:  'Already put together before the customer receives it',
         example:     'Unlike most furniture retailers that sell products ___, IKEA customers build their own.',
-        distractors: ['discounted', 'delivered', 'designed'],
+        distractors: ['discounted', 'broken', 'prepared'],
       },
       {
         word:        'phenomena',
@@ -354,7 +354,7 @@ const LESSON_DATA_REGISTRY = {
         word:        'flat-packed',
         definition:  'Compressed into a thin flat box for efficient storage and shipping',
         example:     'Furniture could be ___ to massively reduce the cost of transportation.',
-        distractors: ['pre-ordered', 'hand-made', 'colour-coded'],
+        distractors: ['recycled', 'hand-made', 'colour-coded'],
       },
       {
         word:        'democratic design',
@@ -440,7 +440,7 @@ const LESSON_DATA_REGISTRY = {
         {
           sentence: 'If IKEA ___ its prices, it ___ its mass market appeal.',
           answer:   'raised / would lose',
-          wrong:    ['had raised / would have lost', 'raises / will lose', 'raised / will lose'],
+          wrong:    ['had raised / wouldn't have lost', 'raises / will have lost', 'raised / will lose'],
           explain:  '2nd conditional — imaginary present scenario. If + past simple, would + infinitive.',
         },
       ],
