@@ -303,6 +303,26 @@
   ],
 },
 
+     'phantom-parent-tax': {
+  title:   'The Phantom Parent',
+  level:   'Tax English',
+  grammar: 'Passive voice in legal/tax writing; third conditional for hypothetical case analysis',
+  vocab: [
+    { word:'withholding tax',  definition:'Tax deducted by the payer at source before a payment reaches the recipient' },
+    { word:'refund',           definition:'Money returned after tax has been overpaid or incorrectly withheld' },
+    { word:'substance',        definition:'Evidence that a company has genuine economic activity — real staff, real decisions, real premises' },
+    { word:'abusive',          definition:'Describes an arrangement set up primarily to obtain a tax benefit not intended by the law' },
+    { word:'directive',        definition:'An EU law that member states must incorporate into national legislation' },
+    { word:'beneficial owner', definition:'The entity that genuinely receives and controls a payment — not merely a formal intermediary' },
+    { word:'shell company',    definition:'A company with no genuine business activity — exists on paper only' },
+    { word:'deviation',        definition:'A departure from the normal rule — applying conditions beyond what a directive requires' },
+    { word:'reimburse',        definition:'To pay back money that was spent or withheld' },
+    { word:'retention',        definition:'The act of keeping back money — withholding tax is a form of retention' },
+    { word:'revoked',          definition:'Officially cancelled or taken back — a refund approval can be revoked' },
+    { word:'plaintiff',        definition:'The party that brings a legal case — claiming something wrong was done to them' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
