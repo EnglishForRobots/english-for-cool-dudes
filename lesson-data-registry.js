@@ -721,6 +721,210 @@ const LESSON_DATA_REGISTRY = {
       { statement:'To NET €300,000 after 5% withholding tax, the invoice should be €315,789.',       correct:true,  reveal:'✅ TRUE! Gross-up formula: net amount / (1 - WHT rate) = €300,000 / 0.95 = €315,789.' },
     ],
   },
+'peptides-intermediate': {
+ 
+  id:    'peptides-intermediate',
+  title: 'Why Is Everyone Injecting Peptides?',
+  level: 'Intermediate',
+  track: 'intermediate',
+  emoji: '💉',
+  badge: 'Biohacker',
+ 
+  // ── VOCAB ──────────────────────────────────────────────────
+  vocab: [
+    {
+      word:        'synthetic',
+      definition:  'Made artificially in a lab, not occurring naturally',
+      example:     'Many peptides are ___ versions of molecules that already exist in your body.',
+      distractors: ['unapproved', 'anecdotal', 'sterile'],
+    },
+    {
+      word:        'unapproved',
+      definition:  'Not officially authorised or permitted by a regulator',
+      example:     'These are ___ drugs — the FDA has not tested or licensed them for human use.',
+      distractors: ['synthetic', 'dosing', 'anecdotal'],
+    },
+    {
+      word:        'anecdotal',
+      definition:  'Based on personal stories, not scientific evidence',
+      example:     'A lot of what\'s out there about these peptides is ___ — one person\'s experience, not a clinical trial.',
+      distractors: ['unapproved', 'synthetic', 'gray market'],
+    },
+    {
+      word:        'gray market',
+      definition:  'A trade in goods that is legal but not officially regulated',
+      example:     'People are turning to the ___ to buy peptides sold "for research use only".',
+      distractors: ['sterility', 'dosing', 'advisory panel'],
+    },
+    {
+      word:        'dosing',
+      definition:  'The amount of a drug taken and how often it is taken',
+      example:     'We don\'t know much about their safety, effectiveness or ___.',
+      distractors: ['sterility', 'synthetic', 'unapproved'],
+    },
+    {
+      word:        'cobbling together',
+      definition:  'Putting something together in an improvised, unofficial way',
+      example:     'People are ___ their own stack of three or four peptides from different online vendors.',
+      distractors: ['dosing', 'anecdotal', 'gray market'],
+    },
+    {
+      word:        'sterility',
+      definition:  'The condition of being completely free from bacteria and germs',
+      example:     'If peptides came from licensed manufacturers, they would be monitored for ___.',
+      distractors: ['synthetic', 'dosing', 'advisory panel'],
+    },
+    {
+      word:        'advisory panel',
+      definition:  'A group of experts brought together to give official recommendations',
+      example:     'The FDA is going to have an ___ meet in July to discuss these peptides.',
+      distractors: ['gray market', 'sterility', 'unapproved'],
+    },
+  ],
+ 
+  // ── GRAMMAR 1: Reported Speech ─────────────────────────────
+  grammar: {
+    topic: 'Reported Speech — backshifting',
+    rule:  'When we report what someone said, we shift tenses back: present simple → past simple, will → would, can → could, have to → had to. Pronouns also change.',
+    exercises: [
+      {
+        sentence: 'The reporter said that they ___ unapproved drugs.',
+        answer:   'were',
+        wrong:    ['are', 'have been', 'will be'],
+        explain:  '"are" → "were". Present simple always shifts to past simple in reported speech.',
+      },
+      {
+        sentence: 'She said they ___ know if the peptides were safe.',
+        answer:   "didn't",
+        wrong:    ["don't", "haven't", "won't"],
+        explain:  '"don\'t" → "didn\'t". The auxiliary verb also backshifts.',
+      },
+      {
+        sentence: 'He said you ___ trust your supplier because it was unregulated.',
+        answer:   'had to',
+        wrong:    ['have to', 'must', 'should'],
+        explain:  '"have to" → "had to" in reported speech. "Must" usually also becomes "had to" for obligation.',
+      },
+      {
+        sentence: 'The journalist reported that the FDA ___ have an advisory panel meet.',
+        answer:   'would',
+        wrong:    ['will', 'shall', 'can'],
+        explain:  '"will" → "would". One of the most important backshifts to learn.',
+      },
+    ],
+  },
+ 
+  // ── GRAMMAR 2: Modal Verbs of Speculation ─────────────────
+  grammar2: {
+    topic: 'Modal Verbs — expressing uncertainty (might / could / may)',
+    rule:  'Use might, could, or may when something is possible but not certain. Use must when almost certain. Use can\'t when almost certainly not true. These are called epistemic modals — they describe what we KNOW.',
+    exercises: [
+      {
+        sentence: 'MT-2 ___ increase the risk of melanoma — some studies suggest this.',
+        answer:   'might',
+        wrong:    ['must', 'will', 'can\'t'],
+        explain:  '"Might" = possible but not certain. Perfect when the evidence is limited. "Must" would be too strong here.',
+      },
+      {
+        sentence: 'The FDA ___ decide to restrict ALL peptides — but that seems unlikely.',
+        answer:   'could',
+        wrong:    ['will', 'must', 'should'],
+        explain:  '"Could" = it\'s a theoretical possibility. Good when you want to acknowledge an option without committing to it.',
+      },
+      {
+        sentence: 'This product ___ contain three different peptides — the labelling is unclear.',
+        answer:   'may',
+        wrong:    ['must', 'will', 'can'],
+        explain:  '"May" = formal/neutral possibility. Very common in official language, reports and journalism. Similar to "might".',
+      },
+      {
+        sentence: 'If the peptide is completely untested, there ___ be long-term effects we don\'t know about.',
+        answer:   'could',
+        wrong:    ['must', 'would', 'should'],
+        explain:  '"Could be" = acknowledging a real unknown possibility. When we genuinely don\'t know, "could" is more honest than "must" or "will".',
+      },
+    ],
+  },
+ 
+  // ── SENTENCE BUILDER ──────────────────────────────────────
+  sentences: [
+    {
+      words:  ['lot', 'these', 'A', 'is', 'anecdotal', 'about', 'peptides', 'of', 'what'],
+      answer: 'A lot of what is anecdotal about these peptides',
+      hint:   '🧪 How reliable is the evidence for unapproved peptides?',
+    },
+    {
+      words:  ['we', 'safety', 'their', 'don\'t', 'know', 'about', 'much'],
+      answer: 'we don\'t know much about their safety',
+      hint:   '⚠️ What\'s the key problem with unapproved peptides?',
+    },
+    {
+      words:  ['supplier', 'trust', 'your', 'to', 'have', 'You'],
+      answer: 'You have to trust your supplier',
+      hint:   '🏪 What does buying from the gray market require?',
+    },
+    {
+      words:  ['advisory', 'have', 'panel', 'The', 'FDA', 'an', 'will', 'meet'],
+      answer: 'The FDA will have an advisory panel meet',
+      hint:   '🏛️ What is the FDA planning for July?',
+    },
+  ],
+ 
+  // ── WORD BUILDER ──────────────────────────────────────────
+  word_builder: [
+    { word:'synthetic',   definition:'Made in a laboratory, not natural' },
+    { word:'anecdotal',   definition:'Based on personal stories, not studies' },
+    { word:'sterility',   definition:'Completely free from bacteria and germs' },
+    { word:'unapproved',  definition:'Not licensed by an official authority' },
+    { word:'advisory',    definition:'Giving recommendations but not deciding' },
+  ],
+ 
+  // ── TRUE / FALSE ──────────────────────────────────────────
+  true_false: [
+    {
+      statement: 'Some peptides ARE used in FDA-approved medications like Ozempic.',
+      correct:   true,
+      reveal:    '✅ TRUE! GLP-1 drugs like Ozempic are based on a peptide that naturally exists in the body — just modified to be more effective. Not all peptides are unregulated.',
+    },
+    {
+      statement: 'Buying unapproved peptides online is completely illegal under US law.',
+      correct:   false,
+      reveal:    '❌ FALSE! The grey market is legally ambiguous, not illegal. These peptides are sold "for research use only" — which is technically legal. The issue is that people are using them as drugs.',
+    },
+    {
+      statement: 'MT-2 is used for tanning and may increase the risk of melanoma.',
+      correct:   true,
+      reveal:    '✅ TRUE! The video specifically warns that MT-2 can cause moles to grow larger, new moles to appear, and studies suggest a possible melanoma risk.',
+    },
+    {
+      statement: '"ANECDOTAL" evidence comes from controlled clinical trials.',
+      correct:   false,
+      reveal:    '❌ FALSE! Anecdotal evidence comes from personal stories and individual experiences — NOT from controlled studies. It\'s the lowest form of scientific evidence.',
+    },
+    {
+      statement: 'The FDA held an advisory panel to discuss peptides in January 2023.',
+      correct:   false,
+      reveal:    '❌ FALSE! The video says the FDA IS GOING TO have a panel meet in July (future tense). The 2023 date refers to when the FDA restricted certain peptides — not a panel meeting.',
+    },
+    {
+      statement: '"GRAY MARKET" means a trade that is illegal and underground.',
+      correct:   false,
+      reveal:    '❌ FALSE! Gray (or grey) market sits between the legal market and the illegal black market. The products aren\'t banned — they\'re just being used outside the approved framework.',
+    },
+    {
+      statement: 'People sometimes inject vials containing three different peptides mixed together.',
+      correct:   true,
+      reveal:    '✅ TRUE! The video says: "there might be three different peptides combined into one vial that you\'re buying on the internet." You may not know exactly what you\'re injecting.',
+    },
+    {
+      statement: '"STERILITY" refers to the quality of being free from bacteria and germs.',
+      correct:   true,
+      reveal:    '✅ TRUE! Sterility is critical for anything injected into the body. One argument for regulated peptides is that licensed manufacturers are monitored for sterility.',
+    },
+  ],
+ 
+},
+   
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
