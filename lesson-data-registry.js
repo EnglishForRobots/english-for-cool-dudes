@@ -924,6 +924,262 @@ const LESSON_DATA_REGISTRY = {
   ],
  
 },
+
+   'phantom-parent-tax': {
+ 
+  id:    'phantom-parent-tax',
+  title: 'The Phantom Parent',
+  level: 'Tax English',
+  track: 'tax',
+  emoji: '👻',
+  badge: 'Phantom Parent',
+ 
+  // ── VOCAB ──────────────────────────────────────────────────
+  vocab: [
+    {
+      word:        'withholding tax',
+      definition:  'Tax deducted by the payer at source before a payment reaches the recipient',
+      example:     'Germany applied ___ of 25% to the dividend before transferring the net amount to Luxembourg.',
+      distractors: ['beneficial owner', 'retention', 'deviation'],
+    },
+    {
+      word:        'substance',
+      definition:  'Evidence that a company has genuine economic activity — real staff, real decisions, real premises',
+      example:     'LuxHolding could not demonstrate adequate ___ in Luxembourg because its directors all worked in Frankfurt.',
+      distractors: ['plaintiff', 'deviation', 'directive'],
+    },
+    {
+      word:        'beneficial owner',
+      definition:  'The person or entity that genuinely receives and controls a payment — not merely a formal intermediary',
+      example:     'The BZSt argued that LuxHolding was not the ___ of the dividend because it immediately passed funds upward.',
+      distractors: ['plaintiff', 'shell company', 'substance'],
+    },
+    {
+      word:        'shell company',
+      definition:  'A company with no genuine business activity — exists on paper only, typically to hold assets or channel funds',
+      example:     'A company with no employees, no dedicated office, and no real activity is typically described as a ___.',
+      distractors: ['directive', 'plaintiff', 'substance'],
+    },
+    {
+      word:        'abusive',
+      definition:  'Describes an arrangement set up primarily to obtain a tax benefit that was not intended by the law',
+      example:     'The BZSt concluded the structure was ___ under Section 50d paragraph 3 because it existed solely to route dividend income.',
+      distractors: ['revoked', 'deviation', 'retention'],
+    },
+    {
+      word:        'directive',
+      definition:  'An EU law that member states must incorporate into national legislation — sets the goal but leaves method to each country',
+      example:     'The EU Parent-Subsidiary ___ should exempt dividends between EU parent and subsidiary from withholding tax.',
+      distractors: ['deviation', 'substance', 'withholding tax'],
+    },
+    {
+      word:        'deviation',
+      definition:  'A departure from the normal rule — applying conditions or restrictions beyond what a directive normally requires',
+      example:     'LuxHolding argued that Section 50d paragraph 3 was an unlawful ___ from the Directive\'s clear exemption.',
+      distractors: ['directive', 'abusive', 'refund'],
+    },
+    {
+      word:        'plaintiff',
+      definition:  'The party that brings a legal case — the one claiming that something wrong was done to them',
+      example:     'Once LuxHolding commenced proceedings at the Finanzgericht, it became the formal ___ in the case.',
+      distractors: ['beneficial owner', 'shell company', 'substance'],
+    },
+    {
+      word:        'retention',
+      definition:  'The act of keeping back money — in tax, withholding tax is a form of retention before payment reaches the recipient',
+      example:     'The total ___ by Germany on the €9.2m dividend was approximately €2.5m including the solidarity surcharge.',
+      distractors: ['refund', 'deviation', 'substance'],
+    },
+    {
+      word:        'revoked',
+      definition:  'Officially cancelled or taken back — a refund approval can be revoked if the authority later decides it was wrong',
+      example:     'A refund that has already been granted can be ___ if the BZSt subsequently discovers the structure is abusive.',
+      distractors: ['abusive', 'retention', 'beneficial owner'],
+    },
+    {
+      word:        'refund',
+      definition:  'Money returned after tax has been overpaid or incorrectly withheld — the taxpayer applies to reclaim it',
+      example:     'Hartmann deducted withholding tax under domestic law, intending to apply for a ___ under the Directive.',
+      distractors: ['retention', 'withholding tax', 'deviation'],
+    },
+    {
+      word:        'reimburse',
+      definition:  'To pay back money that was spent or withheld — used when correcting an earlier deduction or error',
+      example:     'If the court rules in LuxHolding\'s favour, Germany will be required to ___ the full €2.3m plus interest.',
+      distractors: ['revoke', 'refund', 'retain'],
+    },
+  ],
+ 
+  // ── GRAMMAR 1: Passive Voice ────────────────────────────────
+  grammar: {
+    topic: 'Passive Voice in tax and legal writing',
+    rule:  'In legal and tax English, the passive voice (is/are/was/were + past participle) focuses on what happened rather than who did it. Essential for describing how rules operate, what was decided, and what was withheld. "The refund was denied." "Tax is deducted at source."',
+    exercises: [
+      {
+        sentence: 'The withholding tax ___ from the dividend before LuxHolding received the net amount.',
+        answer:   'was deducted',
+        wrong:    ['deducted', 'is deducting', 'has been deducting'],
+        explain:  'Past passive: was + past participle. The dividend received the action — it was deducted from.',
+      },
+      {
+        sentence: 'The refund application ___ by the BZSt under Section 50d paragraph 3.',
+        answer:   'was denied',
+        wrong:    ['denied', 'has denied', 'is denying'],
+        explain:  'Past passive for a completed official decision. "The BZSt denied it" → "It was denied" — the refund is the subject.',
+      },
+      {
+        sentence: 'LuxHolding S.à r.l. ___ in Luxembourg as a holding company for the German group.',
+        answer:   'was incorporated',
+        wrong:    ['incorporated', 'has incorporated', 'is incorporating'],
+        explain:  'Past passive for a completed historical act. The company received the action of incorporation.',
+      },
+      {
+        sentence: 'Under the Parent-Subsidiary Directive, dividends ___ from withholding tax between EU parent and subsidiary.',
+        answer:   'are exempted',
+        wrong:    ['exempt', 'were exempting', 'have exempted'],
+        explain:  'Present passive for a general ongoing legal rule. "The Directive exempts" → "dividends are exempted by the Directive".',
+      },
+      {
+        sentence: 'A refund previously granted ___ if the authority subsequently discovers the structure to be abusive.',
+        answer:   'can be revoked',
+        wrong:    ['can revoke', 'could revoke', 'revokes'],
+        explain:  'Modal passive: can + be + past participle. The refund is the subject receiving the possibility of revocation.',
+      },
+      {
+        sentence: 'Post-hoc substance improvements generally ___ as evidence of what existed at the time of the transaction.',
+        answer:   'are not accepted',
+        wrong:    ['do not accept', 'have not accepted', 'were not accepting'],
+        explain:  'Present passive negative for an ongoing legal principle. "Courts do not accept" → "improvements are not accepted".',
+      },
+    ],
+  },
+ 
+  // ── GRAMMAR 2: Third Conditional ───────────────────────────
+  grammar2: {
+    topic: 'Third Conditional — imagining different past outcomes',
+    rule:  'Third conditional: If + past perfect → would have + past participle. Used in legal and advisory contexts to analyse what would have happened if facts had been different. "If LuxHolding had had substance, the refund would have been granted."',
+    exercises: [
+      {
+        sentence: 'If LuxHolding ___ local directors in Luxembourg, the BZSt ___ the refund.',
+        answer:   'had appointed / would have granted',
+        wrong:    ['appointed / would grant', 'had appointed / would grant', 'appointed / would have granted'],
+        explain:  'Third conditional: If + past perfect (had appointed), would have + past participle (would have granted). Imagining a different past.',
+      },
+      {
+        sentence: 'If the board ___ in Luxembourg, the substance argument ___ much stronger.',
+        answer:   'had met / would have been',
+        wrong:    ['met / would be', 'had met / would be', 'met / would have been'],
+        explain:  'Third conditional throughout. Both clauses refer to a past that did not happen — would have been is the correct result form.',
+      },
+      {
+        sentence: 'If the directors ___ in Frankfurt, management and control ___ to be in Germany.',
+        answer:   'hadn\'t been based / wouldn\'t have appeared',
+        wrong:    ['weren\'t based / wouldn\'t appear', 'hadn\'t been based / wouldn\'t appear', 'weren\'t based / wouldn\'t have appeared'],
+        explain:  'Negative third conditional. "Hadn\'t been based" is past perfect negative. "Wouldn\'t have appeared" is the conditional perfect result.',
+      },
+      {
+        sentence: 'If LuxHolding ___ genuine substance from the start, this litigation ___ necessary.',
+        answer:   'had established / would never have been',
+        wrong:    ['established / would never be', 'had established / would never be', 'established / would never have been'],
+        explain:  'Third conditional. The premise is clear: the substance was not established — hence the litigation. Both clauses reflect that alternative past.',
+      },
+    ],
+  },
+ 
+  // ── SENTENCE BUILDER ──────────────────────────────────────
+  sentences: [
+    {
+      words:  ['denied', 'was', 'the', 'refund', 'by', 'BZSt', 'the'],
+      answer: 'the refund was denied by the BZSt',
+      hint:   '💼 How did Germany respond to LuxHolding\'s application?',
+    },
+    {
+      words:  ['genuine', 'no', 'LuxHolding', 'had', 'substance', 'Luxembourg', 'in'],
+      answer: 'LuxHolding had no genuine substance in Luxembourg',
+      hint:   '🏗️ What was the core problem with the structure?',
+    },
+    {
+      words:  ['the', 'beneficial', 'was', 'not', 'LuxHolding', 'owner'],
+      answer: 'LuxHolding was not the beneficial owner',
+      hint:   '⚖️ What legal argument did the BZSt make?',
+    },
+    {
+      words:  ['tax', 'was', 'deducted', 'source', 'at', 'withholding'],
+      answer: 'withholding tax was deducted at source',
+      hint:   '💶 How was the tax applied to the dividend?',
+    },
+    {
+      words:  ['the', 'anti-abuse', 'proportionate', 'must', 'be', 'provision'],
+      answer: 'the anti-abuse provision must be proportionate',
+      hint:   '📜 What constraint does EU law place on Germany\'s Section 50d?',
+    },
+  ],
+ 
+  // ── WORD BUILDER ──────────────────────────────────────────
+  word_builder: [
+    { word:'withholding',  definition:'Keeping back part of a payment as tax before it reaches the recipient' },
+    { word:'beneficial',   definition:'Genuinely receiving and controlling something — not just formally holding it' },
+    { word:'plaintiff',    definition:'The party that brings a legal case' },
+    { word:'deviation',    definition:'A departure from the normal rule' },
+    { word:'subsidiary',   definition:'A company owned or controlled by a larger parent company' },
+    { word:'incorporated', definition:'Formally registered as a legal company' },
+  ],
+ 
+  // ── TRUE / FALSE ──────────────────────────────────────────
+  true_false: [
+    {
+      statement: 'LuxHolding\'s three directors all lived and worked in Luxembourg.',
+      correct:   false,
+      reveal:    '❌ FALSE! All three directors were German nationals living and working in Frankfurt. The board met in Frankfurt too. This is one of the clearest substance failures in the case.',
+    },
+    {
+      statement: 'The EU Parent-Subsidiary Directive says dividends between EU parent and subsidiary should be exempt from withholding tax.',
+      correct:   true,
+      reveal:    '✅ TRUE! This is LuxHolding\'s strongest legal card. The Directive\'s primary rule is unambiguous — no withholding tax where a parent holds 10%+ of an EU subsidiary.',
+    },
+    {
+      statement: 'Germany\'s anti-abuse rule in Section 50d paragraph 3 is automatically incompatible with EU law.',
+      correct:   false,
+      reveal:    '❌ FALSE! The ECJ accepts anti-abuse rules. The Directive itself (Article 1(2)) permits them. The question is whether Section 50d is proportionate — it must not go further than necessary to prevent abuse.',
+    },
+    {
+      statement: 'A refund initially denied can be reconsidered if new evidence relates to the facts at the time of the original transaction.',
+      correct:   true,
+      reveal:    '✅ TRUE! The court can consider evidence about what genuinely existed at the time the dividend was paid. Post-dispute improvements are different — those don\'t help.',
+    },
+    {
+      statement: 'Adding substance after the dividend was paid fixes the problem retroactively.',
+      correct:   false,
+      reveal:    '❌ FALSE! Retrospective substance is not generally accepted. The tax analysis looks at the facts at the time the payment was made — Year 3 when the dividend was paid, not Year 4 when improvements were made.',
+    },
+    {
+      statement: '"PLAINTIFF" means the party that defends itself against a legal claim.',
+      correct:   false,
+      reveal:    '❌ FALSE! The plaintiff BRINGS the case. The party defending itself is the defendant. LuxHolding is the plaintiff because it is the one challenging the BZSt\'s refusal.',
+    },
+    {
+      statement: '"SUBSTANCE" in tax law refers to genuine economic activity — real staff, real premises, real decision-making.',
+      correct:   true,
+      reveal:    '✅ TRUE! Substance is the evidence that a company really operates where it says it does. Without it, a holding company looks like a "letterbox" — present only on paper.',
+    },
+    {
+      statement: 'LuxHolding\'s shared serviced office — used by 40 other holding companies — was strong evidence of genuine substance.',
+      correct:   false,
+      reveal:    '❌ FALSE! A shared serviced address with dozens of other companies is a classic red flag — strong evidence of MISSING substance, not genuine presence.',
+    },
+    {
+      statement: 'The "beneficial owner" test asks whether a company genuinely controls the funds it receives, not just formally holds them.',
+      correct:   true,
+      reveal:    '✅ TRUE! Beneficial ownership is about real economic control. If LuxHolding immediately passed dividends upward with no discretion, the BZSt argues it was merely a conduit — not a genuine owner.',
+    },
+    {
+      statement: 'A "deviation" from an EU Directive is always unlawful.',
+      correct:   false,
+      reveal:    '❌ FALSE! Deviations are permitted if they are proportionate and serve a legitimate purpose (like preventing abuse). The question is whether Germany\'s deviation goes further than necessary — not whether deviation itself is always wrong.',
+    },
+  ],
+ 
+},
    
    };
 
