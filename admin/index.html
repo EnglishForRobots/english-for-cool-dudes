@@ -206,6 +206,10 @@ input,textarea{font-family:inherit}
 .history-filter-select{padding:8px 12px;border:2px solid var(--border-heavy);border-radius:var(--rsm);font-size:13px;font-weight:700;color:var(--ink-bold);background:var(--white);outline:none;cursor:pointer}
 .history-filter-select:focus{border-color:var(--blue)}
 
+.btn-srs{flex:1;padding:10px;background:var(--teal);color:var(--ink);font-size:13px;font-weight:900;border-radius:var(--rsm);border:2px solid var(--teal-shadow);border-bottom:3px solid var(--teal-shadow);cursor:pointer;transition:all .1s;font-family:inherit;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:5px}
+.btn-srs:active{transform:translateY(2px);border-bottom-width:2px}
+.btn-srs-count{background:rgba(0,0,0,.15);border-radius:99px;padding:1px 7px;font-size:11px}
+
 /* MANAGE TAB */
 .classes-manage-grid{display:flex;flex-direction:column;gap:10px}
 .class-manage-row{background:var(--white);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--r);padding:14px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
@@ -609,13 +613,19 @@ async function renderClasses(){
   });
  
   // Get due reviews per class from efcd_srs_class_items
-  const today = new Date().toISOString().split('T')[0];
-  const { data: srsItems } = await sb
-    .from('efcd_srs_class_items')
-    .select('class_id, lesson_id, next_review_at, status')
-    .eq('status', 'active')
-    .lte('next_review_at', today);
-  const dueLessons = new Set((srsItems || []).map(i => i.class_id + '::' + i.lesson_id));
+    const today = new Date().toISOString().split('T')[0];
+    const { data: srsItems } = await sb
+      .from('efcd_srs_class_items')
+      .select('class_id, lesson_id, next_review_at, status')
+      .eq('status', 'active')
+      .lte('next_review_at', today);
+    const dueLessons = new Set((srsItems || []).map(i => i.class_id + '::' + i.lesson_id));
+
+    // Count total due items per class (for SRS button badge)
+    const dueCountByClass = {};
+    (srsItems || []).forEach(i => {
+      dueCountByClass[i.class_id] = (dueCountByClass[i.class_id] || 0) + 1;
+    });
  
   grid.innerHTML = _classes.map(cls => {
     const members  = _students.filter(s => s.class_id === cls.id);
@@ -643,7 +653,7 @@ async function renderClasses(){
           const dateStr = new Date(t.date).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
           return `<a href="/review/?class=${cls.id}&lesson=${t.lessonId}" 
                     class="trophy-badge${isDue ? ' due' : ''}" 
-                    title="${t.label}${isDue ? ' — review due!' : ''}"
+                    title="${t.label}${isDue ? ' — review due! Click for this lesson, or use 🧠 SRS for all due items' : ''}"
                     target="_blank">
                     <span class="trophy-badge-emoji">${t.emoji}</span>
                     <div>
@@ -677,6 +687,12 @@ async function renderClasses(){
           ${isLive
             ? `<button class="btn-end" onclick="endSession('${cls.id}')">⏹ End Session</button>`
             : `<button class="btn-start" onclick="startSession('${cls.id}')">▶ Start Session</button>`
+          }
+          ${(dueCountByClass[cls.id] || 0) > 0
+            ? `<a href="/review/?class=${cls.id}&srs=1" class="btn-srs" target="_blank">
+                🧠 SRS <span class="btn-srs-count">${dueCountByClass[cls.id]}</span>
+               </a>`
+            : ''
           }
           <button class="btn-manage" onclick="openManage('${cls.id}')">⚙️</button>
         </div>
