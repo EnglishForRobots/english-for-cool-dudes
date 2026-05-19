@@ -440,7 +440,7 @@ const LESSON_DATA_REGISTRY = {
         {
           sentence: 'If IKEA ___ its prices, it ___ its mass market appeal.',
           answer:   "raised / would lose",
-          wrong:    ["had raised / wouldn't have lost", "raises / will have lost", "raised / will lose"],
+          wrong:    ["had raised / wouldn\'t have lost", "raises / will have lost", "raised / will lose"],
           explain:  '2nd conditional — imaginary present scenario. If + past simple, would + infinitive.',
         },
       ],
