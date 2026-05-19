@@ -777,7 +777,7 @@ const LESSON_DATA_REGISTRY = {
     {
       word:        'advisory panel',
       definition:  'A group of experts brought together to give official recommendations',
-      example:     'The FDA is going to have an ___ meet in July to discuss these peptides.',
+      example:     'The FDA is going to have an ___ meeting in July to discuss these peptides.',
       distractors: ['gray market', 'sterility', 'unapproved'],
     },
   ],
@@ -1006,7 +1006,7 @@ const LESSON_DATA_REGISTRY = {
       word:        'reimburse',
       definition:  'To pay back money that was spent or withheld — used when correcting an earlier deduction or error',
       example:     'If the court rules in LuxHolding\'s favour, Germany will be required to ___ the full €2.3m plus interest.',
-      distractors: ['revoke', 'refund', 'retain'],
+      distractors: ['revoke', 'withhold', 'retain'],
     },
   ],
  
