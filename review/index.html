@@ -57,6 +57,20 @@ body{background:var(--navy);color:#fff;line-height:1.4}
 .sel{width:100%;padding:12px 14px;border:2px solid #CECECE;border-radius:12px;font-size:14px;font-weight:700;color:var(--ink);background:#fff;outline:none;cursor:pointer;font-family:inherit;margin-bottom:18px}
 .sel:focus{border-color:var(--blue)}
 .lesson-list{display:flex;flex-direction:column;gap:8px;max-height:250px;overflow-y:auto;margin-bottom:20px}
+/* SRS mode option on setup screen */
+.srs-mode-card{display:flex;align-items:center;gap:14px;padding:14px 16px;background:#F0FDFC;border:2px solid var(--teal);border-bottom:3px solid var(--teal);border-radius:12px;cursor:pointer;font-family:inherit;text-align:left;transition:all .12s;width:100%;margin-bottom:8px}
+.srs-mode-card:hover{background:#E0F9F7;transform:translateY(-1px)}
+.srs-mode-card.sel{background:var(--teal);border-color:#007aa0}
+.srs-mode-card.sel .srs-mode-name{color:#fff}
+.srs-mode-card.sel .srs-mode-sub{color:rgba(255,255,255,.75)}
+.srs-mode-card.no-due{opacity:.45;cursor:default;pointer-events:none}
+.srs-mode-icon{font-size:28px;flex-shrink:0}
+.srs-mode-name{font-size:14px;font-weight:900;color:var(--ink)}
+.srs-mode-sub{font-size:11px;font-weight:700;color:var(--ink3);margin-top:2px}
+.srs-due-badge{background:var(--teal);color:#fff;border-radius:99px;padding:2px 10px;font-size:11px;font-weight:900;margin-left:auto;flex-shrink:0}
+.srs-mode-card.sel .srs-due-badge{background:rgba(255,255,255,.25)}
+.srs-divider{display:flex;align-items:center;gap:8px;margin:10px 0;font-size:11px;font-weight:900;color:var(--ink3);text-transform:uppercase;letter-spacing:1.5px}
+.srs-divider::before,.srs-divider::after{content:'';flex:1;height:2px;background:var(--border)}
 .l-btn{display:flex;align-items:center;gap:12px;padding:12px 16px;background:#F4F6F8;border:2px solid #CECECE;border-bottom:3px solid #CECECE;border-radius:12px;cursor:pointer;font-family:inherit;text-align:left;transition:all .12s;width:100%}
 .l-btn:hover,.l-btn.sel{border-color:var(--blue);background:#EEF8FE}
 .l-icon{font-size:26px;flex-shrink:0}
@@ -248,7 +262,20 @@ body{background:var(--navy);color:#fff;line-height:1.4}
       <option value="">Choose a class…</option>
     </select>
 
-    <div class="lbl">Lesson</div>
+    <div class="lbl">Review Mode</div>
+    <div id="srs-mode-wrap" style="display:none">
+      <button class="srs-mode-card no-due" id="srs-mode-btn" onclick="selectSRSMode()">
+        <span class="srs-mode-icon">🧠</span>
+        <div>
+          <div class="srs-mode-name">SRS Review</div>
+          <div class="srs-mode-sub" id="srs-mode-sub">Loading…</div>
+        </div>
+        <span class="srs-due-badge" id="srs-due-badge" style="display:none"></span>
+      </button>
+      <div class="srs-divider">or pick a lesson</div>
+    </div>
+
+    <div class="lbl" id="lesson-lbl">Lesson</div>
     <div class="lesson-list" id="lesson-list">
       <div class="loading-msg" style="color:#AFAFAF">← Pick a class first</div>
     </div>
@@ -347,9 +374,10 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
 });
 
 // ── STATE ──────────────────────────────────────────────────────
-let _lessonData   = null;
-let _vocabMeta    = null;
-let _classData    = null;
+let _lessonData      = null;
+let _vocabMeta       = null;
+let _classData       = null;
+let _pendingSRSMode  = false;
 let _questions    = [];
 let _qIdx         = 0;
 let _score        = 0;
@@ -696,16 +724,54 @@ async function boot(){
 async function loadLessons(){
   const classId = document.getElementById('class-sel').value;
   const list    = document.getElementById('lesson-list');
-  _lessonData = null; _vocabMeta = null;
+  const srsModeWrap = document.getElementById('srs-mode-wrap');
+  _lessonData = null; _vocabMeta = null; _srsMode = false;
   document.getElementById('btn-play').disabled = true;
-  if(!classId){ list.innerHTML = '<div class="loading-msg" style="color:#AFAFAF">← Pick a class first</div>'; return; }
+  document.querySelectorAll('.l-btn').forEach(b => b.classList.remove('sel'));
+
+  if(!classId){
+    list.innerHTML = '<div class="loading-msg" style="color:#AFAFAF">← Pick a class first</div>';
+    if(srsModeWrap) srsModeWrap.style.display = 'none';
+    return;
+  }
   list.innerHTML = '<div class="loading-msg"><div class="spinner"></div>Loading…</div>';
 
-  const data = await sbFetch(`efcd_lesson_vocab?class_id=eq.${classId}&order=completed_at.desc&limit=20`);
-  if(!data?.length){ list.innerHTML = '<div class="loading-msg" style="color:#AFAFAF">No lessons saved yet for this class.</div>'; return; }
+  // Check for SRS due items for this class
+  const today = new Date().toISOString().split('T')[0];
+  const [lessonData, srsData] = await Promise.all([
+    sbFetch(`efcd_lesson_vocab?class_id=eq.${classId}&order=completed_at.desc&limit=20`),
+    sbFetch(`efcd_srs_class_items?class_id=eq.${classId}&status=eq.active&next_review_at=lte.${today}&select=id,lesson_id`),
+  ]);
+
+  // Update SRS mode button
+  const srsBtn    = document.getElementById('srs-mode-btn');
+  const srsSub    = document.getElementById('srs-mode-sub');
+  const srsBadge  = document.getElementById('srs-due-badge');
+  const dueCount  = (srsData || []).length;
+
+  if(srsModeWrap) srsModeWrap.style.display = 'block';
+
+  if(dueCount > 0){
+    srsBtn.classList.remove('no-due');
+    srsSub.textContent  = `${dueCount} item${dueCount !== 1 ? 's' : ''} due for review across completed lessons`;
+    srsBadge.textContent = dueCount;
+    srsBadge.style.display = 'inline-block';
+  } else {
+    srsBtn.classList.add('no-due');
+    srsSub.textContent   = 'No items due right now — all caught up!';
+    srsBadge.style.display = 'none';
+    // Deselect SRS if it was selected and now has no due items
+    srsBtn.classList.remove('sel');
+  }
+
+  // Lesson list
+  if(!lessonData?.length){
+    list.innerHTML = '<div class="loading-msg" style="color:#AFAFAF">No lessons saved yet for this class.</div>';
+    return;
+  }
 
   const seen = new Set();
-  const unique = data.filter(v => { if(seen.has(v.lesson_id)) return false; seen.add(v.lesson_id); return true; });
+  const unique = lessonData.filter(v => { if(seen.has(v.lesson_id)) return false; seen.add(v.lesson_id); return true; });
 
   list.innerHTML = unique.map(v => {
     const reg   = window.LESSON_DATA_REGISTRY?.[v.lesson_id];
@@ -713,15 +779,39 @@ async function loadLessons(){
     const date  = new Date(v.completed_at).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
     const vocab = Array.isArray(v.vocab) ? v.vocab : JSON.parse(v.vocab||'[]');
     const rounds = reg ? _availableRounds(reg).join(', ') : 'vocab';
+    // Is this lesson's SRS due?
+    const lessonDueIds = new Set((srsData || []).map(i => i.lesson_id));
+    const lessonDue    = lessonDueIds.has(v.lesson_id);
     return `<button class="l-btn" onclick="selectLesson(this,'${v.lesson_id}','${v.id}')">
       <span class="l-icon">${emoji}</span>
       <div class="l-info">
-        <div class="l-name">${v.lesson_title||v.lesson_id}</div>
+        <div class="l-name">${v.lesson_title||v.lesson_id}${lessonDue ? ' <span style="font-size:12px">📬</span>' : ''}</div>
         <div class="l-meta">${v.lesson_level||''} · ${date} · ${rounds}</div>
       </div>
       <span class="l-count">${vocab.length} words</span>
     </button>`;
   }).join('');
+}
+
+function selectSRSMode(){
+  const btn = document.getElementById('srs-mode-btn');
+  if(btn.classList.contains('no-due')) return;
+  // Toggle: if already selected, deselect
+  if(btn.classList.contains('sel')){
+    btn.classList.remove('sel');
+    _lessonData = null; _vocabMeta = null;
+    document.getElementById('btn-play').disabled = true;
+    return;
+  }
+  // Deselect any lesson
+  document.querySelectorAll('.l-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  // Signal to startGame() that we want SRS mode
+  // We store this on a flag rather than in _lessonData
+  _pendingSRSMode = true;
+  _lessonData = null;
+  document.getElementById('btn-play').disabled = false;
+  document.getElementById('btn-play').textContent = '🧠 Start SRS Review!';
 }
 
 function _availableRounds(reg){
@@ -737,6 +827,10 @@ function _availableRounds(reg){
 
 async function selectLesson(btn, lessonId, vocabId){
   document.querySelectorAll('.l-btn').forEach(b => b.classList.remove('sel'));
+  // Deselect SRS mode if a lesson is explicitly chosen
+  document.getElementById('srs-mode-btn')?.classList.remove('sel');
+  _pendingSRSMode = false;
+  document.getElementById('btn-play').textContent = '🚇 Start Review!';
   btn.classList.add('sel');
   _lessonData = window.LESSON_DATA_REGISTRY?.[lessonId] || null;
   const data = await sbFetch(`efcd_lesson_vocab?id=eq.${vocabId}`);
@@ -819,6 +913,14 @@ function shuffle(arr){ return [...arr].sort(() => Math.random()-.5); }
 
 // ── START GAME ──────────────────────────────────────────────────
 function startGame(){
+  // If SRS mode was selected, hand off to bootSRSMode()
+  if(_pendingSRSMode){
+    const classId = document.getElementById('class-sel').value;
+    if(!classId) return;
+    show('setup'); // will be overridden inside bootSRSMode
+    bootSRSMode(classId);
+    return;
+  }
   if(!_lessonData) return;
   _questions = buildQuestions();
   if(!_questions.length){ alert('No questions available for selected rounds. Try enabling more rounds.'); return; }
