@@ -242,7 +242,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .sort-bucket-icon{font-size:26px}
 .sort-bucket-hint{font-size:10px;font-weight:700;opacity:.7}
 .sort-feedback{padding:12px 14px;border-radius:var(--rsm);font-size:14px;font-weight:800;line-height:1.6;border:2px solid;display:none;margin-bottom:10px;animation:revealUp .2s ease both}
-.sort-feedback { margin-top: 0; margin-bottom: 10px; }
+.sort-feedback.show.right{display:block;background:rgba(88,204,2,.1);color:var(--gs);border-color:rgba(88,167,0,.3)}
+.sort-feedback.show.wrong{display:block;background:rgba(255,75,75,.1);color:var(--ps);border-color:rgba(255,75,75,.3)}
 .sort-next{display:none;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:var(--gold);color:var(--ink-bold);font-size:14px;font-weight:900;font-family:inherit;border:2px solid var(--gold-dark);border-bottom:5px solid var(--gold-dark);border-radius:var(--rsm);transition:all .1s;cursor:pointer}
 .sort-next.show{display:flex;animation:revealUp .2s ease both}
 .sort-next:active{border-bottom-width:2px;transform:translateY(3px)}
@@ -530,65 +531,65 @@ const VB_QUIZ = [
   {
     wordIdx:0, /* withholding tax */
     opts:[
-      'Tax deducted at source by the payer — the recipient receives only the net amount after deduction',
-      'A tax charged only on dividends flowing between EU member states under a specific directive',
-      'The total annual tax liability of a company after all allowable deductions have been applied to its income',
+      'Tax deducted by the payer at source before a payment reaches the recipient — the recipient gets the net amount',
+      'A tax charged only on dividends flowing from one country to another within the EU',
+      'The total annual tax liability of a company, calculated after all deductions are applied',
     ],correct:0
   },
   {
     wordIdx:2, /* substance */
     opts:[
-      'The formal legal text contained in a tax treaty negotiated and signed between two sovereign countries',
-      'The financial value assigned to a company\'s assets when measured at current market rate for accounting purposes',
-      'Evidence that a company has genuine economic activity in a country — real staff, real decisions, real premises',
+      'The legal text of a tax treaty between two countries',
+      'The financial value of a company\'s assets, measured at market rate',
+      'Evidence that a company has genuine economic activity — real staff, real decisions, real premises',
     ],correct:2
   },
   {
     wordIdx:4, /* directive */
     opts:[
-      'An EU law member states must implement into national law — it sets the outcome but leaves method to each country',
-      'A formal written order issued by a national tax court directly to a taxpayer requiring immediate payment of a debt',
-      'A bilateral treaty negotiated between two countries that reduces the standard rate of withholding tax between them',
+      'An EU law that member states must incorporate — sets the goal but leaves method to each country',
+      'A formal order issued by a national tax court to a taxpayer demanding payment',
+      'A bilateral agreement between two countries reducing the rate of withholding tax',
     ],correct:0
   },
   {
     wordIdx:5, /* beneficial owner */
     opts:[
-      'A shareholder owning more than 50% of a company who therefore has the power to determine dividend distribution policy',
-      'The person or entity that genuinely receives and controls a payment — not merely a formal or intermediary recipient',
-      'Any company that is registered as the legal recipient of a dividend payment under the relevant company law rules',
+      'A shareholder who owns more than 50% of a company and therefore controls dividend policy',
+      'The person or entity that genuinely receives and controls a payment — not merely a formal intermediary',
+      'Any company registered as the legal recipient of a dividend payment under company law',
     ],correct:1
   },
   {
     wordIdx:6, /* shell company */
     opts:[
-      'A company incorporated in a low-tax country that actively employs local staff and generates substantial operating revenue',
-      'A subsidiary created specifically to hold and manage the intellectual property portfolio of a larger corporate group',
-      'A company with no genuine business activity — it exists on paper only, typically to hold assets or channel funds',
+      'A company incorporated in a low-tax country that actively employs staff and generates revenue',
+      'A subsidiary created to manage the intellectual property portfolio of a larger group',
+      'A company with no genuine business activity — exists on paper only, typically to hold assets or channel funds',
     ],correct:2
   },
   {
     wordIdx:3, /* abusive */
     opts:[
-      'Describes a tax rate that is set above the standard domestic rate and applied specifically to foreign-owned companies',
-      'Describes an arrangement set up primarily to obtain a tax benefit that the legislature never intended to provide',
-      'Refers to a company that repeatedly fails to file its annual statutory accounts within the legally required deadline',
+      'Describes a tax rate above the standard domestic rate applied to foreign companies',
+      'Describes an arrangement set up primarily to obtain a tax benefit that was not intended by the law',
+      'Refers to a company that fails to file its annual accounts within the required deadline',
     ],correct:1
   },
   {
     wordIdx:11, /* plaintiff */
     opts:[
-      'The judge presiding over the case who has the authority to decide whether a tax refund should be granted or refused',
-      'The government authority that initiates a criminal prosecution against a company suspected of deliberate tax evasion',
-      'The party that brings a legal case before a court — the one asserting that a wrong has been done to them',
+      'The judge who decides whether a tax refund should be granted or denied',
+      'The government authority that brings a prosecution against a company for tax evasion',
+      'The party that brings a legal case — the one claiming that something wrong was done to them',
     ],correct:2
   },
   {
     wordIdx:7, /* deviation */
     opts:[
-      'A departure from the standard rule — applying conditions or restrictions that go beyond what a directive normally requires',
-      'The numerical difference between a company\'s declared tax liability and the amount it actually paid to the authorities',
-      'A formal written appeal submitted to the European Court of Justice by a member state government challenging EU law',
+      'A departure from the normal rule — applying conditions beyond what a directive normally requires',
+      'The difference between a company\'s declared tax and the amount actually paid to authorities',
+      'A formal appeal submitted to the European Court of Justice by a member state government',
     ],correct:0
   },
 ];
@@ -896,10 +897,10 @@ function vbRender(){
   const q=VB_QUIZ[i];const term=VOCABULARY[q.wordIdx];
   document.querySelectorAll('.vb-pip').forEach((p,j)=>{p.classList.remove('active','done-right','done-wrong');if(j===i)p.classList.add('active')});
   $('vb-counter').textContent=`${i+1} / ${VB_QUIZ.length}`;
-  // NEW — shuffle after mapping, then reference isCorrect directly
-const opts=q.opts.map((t,oi)=>({text:t,isCorrect:oi===q.correct}));
-opts.sort(()=>Math.random()-.5);
-const optHTML=opts.map(o=>`<button class="vb-opt" data-correct="${o.isCorrect}" onclick="answerVB(this,${o.isCorrect})">${o.text}</button>`).join('');
+  /* Shuffle options but remember correct */
+  const opts=q.opts.map((t,oi)=>({text:t,isCorrect:oi===q.correct}));
+  /* Keep order — options already equal length, no verbose tells */
+  const optHTML=opts.map((o,oi)=>`<button class="vb-opt" data-correct="${o.isCorrect}" onclick="answerVB(this,${oi===q.correct?'true':'false'})">${o.text}</button>`).join('');
   $('vb-card-wrap').innerHTML=`
     <div class="vb-card" id="vb-card" style="animation:vbPop .35s cubic-bezier(.175,.885,.32,1.275) both">
       <div class="vb-label">What does this mean?</div>
@@ -998,10 +999,7 @@ function answerSort(vote){
   hb.disabled=true;hrb.disabled=true;
   const chosen=vote==='helps'?hb:hrb;
   const unchosen=vote==='helps'?hrb:hb;
-  const card=$('sort-card');
-if(card){
-  card.style.animation=c.correct==='helps'?'flyRight .38s ease-out both':'flyLeft .38s ease-out both';
-  setTimeout(()=>{ card.style.display='none'; }, 360);setTimeout(()=>{card.style.display='none';},360);}
+  const card=$('sort-card');if(card)card.style.animation=c.correct==='helps'?'flyRight .38s ease-out both':'flyLeft .38s ease-out both';
   if(correct){
     chosen.style.background='rgba(88,204,2,.25)';chosen.style.borderColor='var(--gs)';chosen.style.color='var(--gs)';
     if(fx()){fx().correct(chosen);fx().combo(++S.combo)}else{S.combo++;}
