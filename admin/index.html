@@ -514,6 +514,8 @@ const LESSON_META = {
   'crown-estate-intermediate':    { emoji:'👑', title:'The Crown Estate',                level:'Intermediate' },
   'ikea-effect-intermediate':     { emoji:'🛋️', title:'Why We Love Building IKEA Furniture', level:'Intermediate' },
   'saudi-machine-deal-tax':       { emoji:'🏭', title:'The Saudi Machine Deal',          level:'Tax English' },
+  'peptides-intermediate':        { emoji:'💉', title:'Why Is Everyone Injecting Peptides?', level:'Intermediate', worksheetLink:'/peptides/print/' },
+  'phantom-parent-tax':           { emoji:'👻', title:'The Phantom Parent',                  level:'Tax English',  worksheetLink:'/phantom-parent/print/' },
 };
 
 let _classes  = [];
@@ -647,22 +649,43 @@ async function renderClasses(){
     const trophies = Object.values(trophyMap[cls.id] || {})
       .sort((a, b) => new Date(a.date) - new Date(b.date));
  
-    const trophyHtml = trophies.length
-      ? trophies.map(t => {
-          const isDue = dueLessons.has(cls.id + '::' + t.lessonId);
-          const dateStr = new Date(t.date).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
-          return `<a href="/review/?class=${cls.id}&lesson=${t.lessonId}" 
-                    class="trophy-badge${isDue ? ' due' : ''}" 
-                    title="${t.label}${isDue ? ' — review due! Click for this lesson, or use 🧠 SRS for all due items' : ''}"
-                    target="_blank">
-                    <span class="trophy-badge-emoji">${t.emoji}</span>
-                    <div>
-                      <div class="trophy-badge-name">${t.label}</div>
-                      <div class="trophy-badge-date">${dateStr}</div>
-                    </div>
-                  </a>`;
-        }).join('')
-      : `<span class="trophy-empty">No lessons completed yet</span>`;
+   const trophyHtml = trophies.length
+  ? trophies.map(t => {
+      const isDue    = dueLessons.has(cls.id + '::' + t.lessonId);
+      const dateStr  = new Date(t.date).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+      const meta     = LESSON_META[t.lessonId];
+      const wsLink   = meta?.worksheetLink || null;
+ 
+      return `
+        <div style="display:inline-flex;flex-direction:column;align-items:center;gap:4px">
+          <a href="/review/?class=${cls.id}&lesson=${t.lessonId}"
+             class="trophy-badge${isDue ? ' due' : ''}"
+             title="${t.label}${isDue ? ' — review due! Click for this lesson, or use 🧠 SRS for all due items' : ''}"
+             target="_blank">
+            <span class="trophy-badge-emoji">${t.emoji}</span>
+            <div>
+              <div class="trophy-badge-name">${t.label}</div>
+              <div class="trophy-badge-date">${dateStr}</div>
+            </div>
+          </a>
+          ${wsLink
+            ? `<a href="${wsLink}"
+                  target="_blank"
+                  title="Open printable worksheet"
+                  style="font-size:10px;font-weight:900;color:#007a60;
+                         background:rgba(0,212,170,.08);
+                         border:1.5px solid rgba(0,212,170,.28);
+                         border-radius:5px;padding:2px 8px;
+                         text-decoration:none;white-space:nowrap;
+                         transition:background .12s"
+                  onmouseover="this.style.background='rgba(0,212,170,.18)'"
+                  onmouseout="this.style.background='rgba(0,212,170,.08)'">
+                  🖨️ Worksheet
+               </a>`
+            : ''}
+        </div>`;
+    }).join('')
+  : `<span class="trophy-empty">No lessons completed yet</span>`;
  
     return `
       <div class="class-card ${isLive ? 'active-session' : ''}" id="card-${cls.id}">
@@ -1243,12 +1266,38 @@ async function renderHistory(){
             </div>
           </div>
           <div class="history-body">
-            ${lessonsDone.length?`<div><div class="history-section-label">📚 Lessons completed</div><div class="history-lesson-tags">${lessonsDone.map(l=>`
-              <div class="history-lesson-tag" style="display:flex;align-items:center;gap:8px;padding-right:8px">
-                <span>${l.emoji} ${l.label}</span>
-                <a href="/review/?class=${session.class_id}" style="background:var(--blue);color:#fff;font-size:11px;font-weight:900;border-radius:5px;padding:2px 8px;text-decoration:none">▶ Review</a>
-                <button onclick="removeLessonFromHistory('${session.id}','${l.key}')" style="background:rgba(255,75,75,.15);border:none;border-radius:5px;color:var(--punch);font-size:11px;font-weight:900;cursor:pointer;padding:2px 7px;font-family:inherit">✕</button>
-              </div>`).join('')}</div></div>`:''}
+            
+            ${lessonsDone.length ? `
+  <div>
+    <div class="history-section-label">📚 Lessons completed</div>
+    <div class="history-lesson-tags">
+      ${lessonsDone.map(l => {
+        const lessonId = l.key.replace('lesson_', '');
+        const meta     = LESSON_META[lessonId];
+        const wsLink   = meta?.worksheetLink || null;
+        return `
+          <div class="history-lesson-tag" style="display:flex;align-items:center;gap:8px;padding-right:8px">
+            <span>${l.emoji} ${l.label}</span>
+            <a href="/review/?class=${session.class_id}"
+               style="background:var(--blue);color:#fff;font-size:11px;font-weight:900;border-radius:5px;padding:2px 8px;text-decoration:none">
+              ▶ Review
+            </a>
+            ${wsLink ? `
+              <a href="${wsLink}" target="_blank"
+                 style="background:rgba(0,212,170,.12);color:#007a60;font-size:11px;font-weight:900;
+                        border-radius:5px;padding:2px 8px;text-decoration:none;
+                        border:1.5px solid rgba(0,212,170,.28);white-space:nowrap">
+                🖨️ Worksheet
+              </a>` : ''}
+            <button onclick="removeLessonFromHistory('${session.id}','${l.key}')"
+                    style="background:rgba(255,75,75,.15);border:none;border-radius:5px;color:var(--punch);
+                           font-size:11px;font-weight:900;cursor:pointer;padding:2px 7px;font-family:inherit">
+              ✕
+            </button>
+          </div>`;
+      }).join('')}
+    </div>
+  </div>` : ''}
             ${students.length?`<div><div class="history-section-label">👥 Who was here</div><div class="history-students-row">${studentChips}</div></div>`:''}
             ${sesScores.length?`<div><div class="history-section-label">📊 Scores</div><div class="history-score-row">
               <div class="history-score-stat"><div class="history-score-n">${totalCorrect}</div><div class="history-score-l">Correct</div></div>
