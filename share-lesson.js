@@ -423,8 +423,8 @@
    * @param {string} lessonLink  - e.g. '/peptides/'
    */
   function openWorksheet(lessonLink) {
-    window.open(lessonLink + 'print/', '_blank', 'noopener');
-  }
+  window.open(lessonLink + 'print/?from=lesson', '_blank', 'noopener');
+}
 
   /* ─── EXPORT ─────────────────────────────────────────────────── */
   window.EFCD_Share = {
