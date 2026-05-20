@@ -1,3 +1,27 @@
+/**
+ * share-lesson.js
+ * English For Cool Dudes — v1.0 — May 2026
+ *
+ * Shared module for lesson sharing and worksheet access.
+ * Exposes window.EFCD_Share.
+ *
+ * Zero dependencies. No Supabase. No auth. Works for guests and logged-in users.
+ *
+ * SCRIPT LOAD ORDER — add after daily-challenges-system.js, before interactions.js:
+ *   <script src="/share-lesson.js"></script>
+ *
+ * LESSON PAGE REQUIREMENTS:
+ *   window.LESSON_TITLE  — must be set before EFCD_Share.open() is called
+ *   LESSON_LINK          — const in lesson script (e.g. '/peptides/')
+ *
+ * USAGE (in lesson script):
+ *   // Open the share sheet:
+ *   EFCD_Share.open(LESSON_LINK, window.LESSON_TITLE);
+ *
+ *   // Just open the worksheet:
+ *   EFCD_Share.openWorksheet(LESSON_LINK);
+ */
+
 (function () {
   'use strict';
 
