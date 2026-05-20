@@ -1,6 +1,6 @@
 /**
  * share-lesson.js
- * English For Cool Dudes — v1.0 — May 2026
+ * English For Cool Dudes — v1.1 — May 2026
  *
  * Shared module for lesson sharing and worksheet access.
  * Exposes window.EFCD_Share.
@@ -14,11 +14,13 @@
  *   window.LESSON_TITLE  — must be set before EFCD_Share.open() is called
  *   LESSON_LINK          — const in lesson script (e.g. '/peptides/')
  *
- * USAGE (in lesson script):
- *   // Open the share sheet:
+ * USAGE on lesson completion screen:
  *   EFCD_Share.open(LESSON_LINK, window.LESSON_TITLE);
  *
- *   // Just open the worksheet:
+ * USAGE on worksheet page (pass isWorksheet:true to hide the redundant "open worksheet" row):
+ *   EFCD_Share.open(LESSON_LINK, LESSON_TITLE, { isWorksheet: true });
+ *
+ * USAGE for the print button:
  *   EFCD_Share.openWorksheet(LESSON_LINK);
  */
 
@@ -302,16 +304,21 @@
   /* ─── PUBLIC API ─────────────────────────────────────────────── */
 
   /**
-   * EFCD_Share.open(lessonLink, lessonTitle)
+   * EFCD_Share.open(lessonLink, lessonTitle, options)
    * Opens the share sheet.
    *
-   * @param {string} lessonLink   - e.g. '/peptides/'  (with trailing slash)
-   * @param {string} lessonTitle  - e.g. 'Why Is Everyone Injecting Peptides?'
+   * @param {string} lessonLink    - e.g. '/peptides/'  (with trailing slash)
+   * @param {string} lessonTitle   - e.g. 'Why Is Everyone Injecting Peptides?'
+   * @param {object} [options]
+   * @param {boolean} [options.isWorksheet] - true when called from a worksheet page.
+   *   Suppresses the "Open printable worksheet" row since the user is already there.
    */
-  function open(lessonLink, lessonTitle) {
+  function open(lessonLink, lessonTitle, options) {
     injectCSS();
     buildDOM();
 
+    var opts          = options || {};
+    var isWorksheet   = !!opts.isWorksheet;
     var origin        = location.origin;
     var lessonURL     = origin + lessonLink;
     var worksheetURL  = origin + lessonLink + 'print/';
@@ -364,14 +371,16 @@
       }
     ));
 
-    /* ── Open worksheet ── */
-    rowsEl.appendChild(_linkRow(
-      '📄',
-      'Open printable worksheet',
-      'Vocabulary · Grammar · Answers — A4 PDF',
-      'worksheet',
-      worksheetURL
-    ));
+    /* ── Open worksheet — hidden when already on the worksheet page ── */
+    if (!isWorksheet) {
+      rowsEl.appendChild(_linkRow(
+        '📄',
+        'Open printable worksheet',
+        'Vocabulary · Grammar · Answers — A4 PDF',
+        'worksheet',
+        worksheetURL
+      ));
+    }
 
     /* ── Email ── */
     rowsEl.appendChild(_row(
@@ -423,8 +432,8 @@
    * @param {string} lessonLink  - e.g. '/peptides/'
    */
   function openWorksheet(lessonLink) {
-  window.open(lessonLink + 'print/?from=lesson', '_blank', 'noopener');
-}
+    window.open(lessonLink + 'print/', '_blank', 'noopener');
+  }
 
   /* ─── EXPORT ─────────────────────────────────────────────────── */
   window.EFCD_Share = {
