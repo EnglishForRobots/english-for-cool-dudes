@@ -323,6 +323,23 @@
   ],
 },
 
+     'weekly-drop-issue-006': {
+  title:   'The Weekly Drop — Issue 006 — Harry Kane: From Nowhere to Bayern',
+  level:   'All Levels',
+  grammar: 'Past simple (regular and irregular verbs); reported speech with backshift',
+  vocab: [
+    { word: 'loan spell',    definition: 'A temporary period when a footballer plays for a different club to gain experience' },
+    { word: 'perseverance',  definition: 'Continuing to try despite difficulties, setbacks, or failure — not giving up' },
+    { word: 'transfer',      definition: 'The permanent move of a footballer from one club to another, usually for a fee' },
+    { word: 'top scorer',    definition: 'The player who scores the most goals in a competition or season' },
+    { word: 'penalty spot',  definition: 'The marked point 11 metres from the goal from which a penalty kick is taken' },
+    { word: 'hat-trick',     definition: 'Three goals scored by the same player in a single match' },
+    { word: 'armband',       definition: 'The band worn on the upper arm to show who is captain of the team' },
+    { word: 'resilience',    definition: 'The ability to recover and keep going after setbacks, injuries, or failure' },
+  ],
+},
+ 
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
