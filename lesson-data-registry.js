@@ -1180,6 +1180,141 @@ const LESSON_DATA_REGISTRY = {
   ],
  
 },
+
+   'weekly-drop-issue-006': {
+  title: 'The Weekly Drop - Issue 006 - Harry Kane: From Nowhere to Bayern',
+  level: 'All Levels',
+  vocab: [
+    {
+      word: 'loan spell',
+      definition: 'A temporary period when a footballer plays for a different club to gain experience',
+      example: 'Kane spent a difficult ___ at Norwich City, where injury disrupted his season.',
+      distractors: ['transfer', 'hat-trick', 'penalty spot']
+    },
+    {
+      word: 'perseverance',
+      definition: 'Continuing to try despite difficulties, setbacks, or failure',
+      example: 'His ___ through four loan clubs is what eventually brought him to the top.',
+      distractors: ['defending', 'ambition', 'reputation']
+    },
+    {
+      word: 'transfer',
+      definition: 'The permanent move of a footballer from one club to another, usually for a fee',
+      example: 'Kane\'s ___ from Tottenham to Bayern Munich cost around €100 million.',
+      distractors: ['loan spell', 'contract', 'release']
+    },
+    {
+      word: 'top scorer',
+      definition: 'The player who has scored the most goals in a competition or season',
+      example: 'He won the Bundesliga ___ award in both of his first two seasons in Germany.',
+      distractors: ['armband', 'captain', 'hat-trick']
+    },
+    {
+      word: 'penalty spot',
+      definition: 'The marked point 11 metres from the goal from which a penalty kick is taken',
+      example: 'Kane has scored all 23 of his Bundesliga penalties — he is ice-cool from the ___.',
+      distractors: ['loan spell', 'transfer', 'top scorer']
+    },
+    {
+      word: 'hat-trick',
+      definition: 'Three goals scored by the same player in a single match',
+      example: 'Kane scored his eleventh ___ for Bayern in all competitions against Dinamo Zagreb.',
+      distractors: ['penalty spot', 'armband', 'resilience']
+    },
+    {
+      word: 'armband',
+      definition: 'The captain\'s band worn on the upper arm; to wear the armband means to be captain',
+      example: 'Kane has worn the ___ for England since 2018, under three different managers.',
+      distractors: ['transfer', 'hat-trick', 'top scorer']
+    },
+    {
+      word: 'resilience',
+      definition: 'The ability to recover quickly from setbacks — injuries, rejection, failure',
+      example: 'Coaches point to Kane as a model of ___, having bounced back from every setback.',
+      distractors: ['hair', 'ambition', 'loyalty']
+    },
+  ],
+  grammar: {
+    topic: 'Past simple — regular and irregular verbs',
+    rule: 'The past simple is used for finished actions in the past. Regular verbs add -ed (joined, scored, signed). Irregular verbs change completely (broke, became, went, scored). The past simple does not change for different subjects (I joined / he joined / they joined).',
+    exercises: [
+      {
+        sentence: 'Kane ___ the Tottenham academy at the age of nine in 2004.',
+        answer: 'joined',
+        wrong: ['joins', 'has joined'],
+        explain: 'Regular past simple: join → joined. The action is finished and in the past.'
+      },
+      {
+        sentence: 'He ___ a bone in his foot during his second appearance for Norwich.',
+        answer: 'broke',
+        wrong: ['breaked', 'has broken'],
+        explain: 'Irregular past simple: break → broke. Never "breaked" — this is a common mistake.'
+      },
+      {
+        sentence: 'In 2014/15, he ___ the first Spurs player to score 30 goals since Gary Lineker.',
+        answer: 'became',
+        wrong: ['becomes', 'becomed'],
+        explain: 'Irregular past simple: become → became. "Becomed" does not exist in English.'
+      },
+      {
+        sentence: 'Kane ___ six goals at the 2018 World Cup, winning the Golden Boot.',
+        answer: 'scored',
+        wrong: ['score', 'was scoring'],
+        explain: 'Regular past simple: score → scored. We use simple past (not was scoring) for a completed total.'
+      },
+      {
+        sentence: 'After his loan spell at Leicester, Kane ___ back to Tottenham determined to fight for his place.',
+        answer: 'went',
+        wrong: ['goed', 'was gone'],
+        explain: 'Irregular past simple: go → went. "Goed" is a very common learner error — go is irregular.'
+      },
+    ]
+  },
+      // ── SENTENCE BUILDER ──────────────────────────────────────
+  sentences: [
+     {
+      words:  ['grew', 'London', 'in', 'Kane', 'Harry', 'east', 'up', 'Walthamstow'],
+      answer: 'Harry Kane grew up in Walthamstow in east London',
+      hint:   '👦🏻 Where did Harry Kane live as a child?',
+    },
+      {
+      words:  ['Golden', 'World', 'with', 'the', 'Kane', 'won', 'Cup', 'Boot', 'goals', '2018', 'six'],
+      answer: 'Kane won the 2018 World Cup Golden Boot with six goals.',
+      hint:   '🥅 What did Harry win in 2018, and why?',
+    },
+     {
+      words:  ['the', 'missed', 'never', 'penalty', 'Kane', 'has', 'a', 'Bundesliga', 'in'],
+      answer: 'Kane has never missed a penalty in the Bundesliga',
+      hint:   '🎯 Harry Kane has a great record for something.',
+    },
+     {
+      words:  ['million', 'cost, 'transfer', 'Munich', 'hundred', 'to', 'euros', 'His', 'Bayern', 'one', 'around'],
+      answer: 'His transfer to Bayern Munich cost around one hundred million euros.',
+      hint:   '💰 What was the price of one Harry Kane to Germany?',
+    },
+     {
+      words:  ['play', 'Kane, 'Hotspur', 'used', 'Harry', 'to', 'for', 'Tottenham'],
+      answer: 'Harry Kane used to play for Tottenham Hotspur.',
+      hint:   '🐓 Where was Harry before Bayern Munich?',
+    },
+    
+  ],
+  word_builder: [
+    { word: 'persevere', definition: 'To continue even in difficult circumstances' },
+    { word: 'resilient', definition: ['Able to recover easily and quickly from unpleasant or damaging events' },
+    { word: 'score', definition: ['To gain a goal or a point' },
+    { word: 'transfer', definition: ['To move from one place to another' },
+  ],
+
+  
+ 
+  true_false: [
+    { statement: 'Harry Kane had four loan spells before joining Tottenham\'s first team.', answer: true, explain: 'True — Leyton Orient, Millwall, Norwich City and Leicester City.' },
+    { statement: 'Kane has missed several penalties in the Bundesliga.', answer: false, explain: 'False — he has scored all 23 of his Bundesliga penalties.' },
+    { statement: 'Kane won the Bundesliga top scorer award in both his first two seasons.', answer: true, explain: 'True — the first player in Bundesliga history to achieve this.' },
+    { statement: 'Kane has been England captain since 2022.', answer: false, explain: 'False — he has been England captain since 2018.' },
+  ],
+},
    
    };
 
