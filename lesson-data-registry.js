@@ -1273,7 +1273,7 @@ const LESSON_DATA_REGISTRY = {
       // ── SENTENCE BUILDER ──────────────────────────────────────
   sentences: [
      {
-      words:  ['grew', 'London', 'in', 'Kane', 'Harry', 'east', 'up', 'Walthamstow'],
+      words:  ['grew', 'London', 'in', 'Kane', 'Harry', 'east', 'in', 'up', 'Walthamstow'],
       answer: 'Harry Kane grew up in Walthamstow in east London',
       hint:   '👦🏻 Where did Harry Kane live as a child?',
     },
@@ -1306,14 +1306,28 @@ const LESSON_DATA_REGISTRY = {
     { word:'transfer',    definition:'To move from one place to another' },
   ],
 
- 
-  true_false: [
-    { statement: 'Harry Kane had four loan spells before joining Tottenham\'s first team.', answer: true, explain: 'True — Leyton Orient, Millwall, Norwich City and Leicester City.' },
-    { statement: 'Kane has missed several penalties in the Bundesliga.', answer: false, explain: 'False — he has scored all 23 of his Bundesliga penalties.' },
-    { statement: 'Kane won the Bundesliga top scorer award in both his first two seasons.', answer: true, explain: 'True — the first player in Bundesliga history to achieve this.' },
-    { statement: 'Kane has been England captain since 2022.', answer: false, explain: 'False — he has been England captain since 2018.' },
-  ],
-},
+ true_false: [
+    {
+      statement: 'Harry Kane had four loan spells before joining Tottenham\'s first team.',
+      correct:   true,
+      reveal:    '✅ TRUE! Leyton Orient, Millwall, Norwich City and Leicester City.',
+    },
+    {
+      statement: 'Kane has missed several penalties in the Bundesliga.',
+      correct:   false,
+      reveal:    '❌ FALSE! He has scored all 23 of his Bundesliga penalties.',
+    },
+    {
+      statement: 'Kane won the Bundesliga top scorer award in both his first two seasons.',
+      correct:   true,
+      reveal:    '❌ FALSE! He is the first player in Bundesliga history to achieve this.',
+    },
+    {
+      statement: 'Kane has been England captain since 2022.',
+      correct:   false,
+      reveal:    '❌ FALSE! He has been England captain since 2018.',
+    },
+   ],
    
    };
 
