@@ -1293,7 +1293,7 @@ const LESSON_DATA_REGISTRY = {
       hint:   '💰 What was the price of one Harry Kane to Germany?',
     },
      {
-      words:  ['play', 'Kane, 'Hotspur', 'used', 'Harry', 'to', 'for', 'Tottenham'],
+      words:  ['play', 'Kane', 'Hotspur', 'used', 'Harry', 'to', 'for', 'Tottenham'],
       answer: 'Harry Kane used to play for Tottenham Hotspur.',
       hint:   '🐓 Where was Harry before Bayern Munich?',
     },
