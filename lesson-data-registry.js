@@ -1328,7 +1328,7 @@ const LESSON_DATA_REGISTRY = {
       reveal:    '❌ FALSE! He has been England captain since 2018.',
     },
    ],
-   
+   },
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
