@@ -145,7 +145,7 @@ const LESSON_DATA_REGISTRY = {
         {
           sentence: 'The Tube is very crowded ___ rush hour.',
           answer:   'at',
-          wrong:    ['in', 'on', 'during'],
+          wrong:    ['in', 'on', 'from'],
           explain:  'Rush hour = a specific time period → AT. "At rush hour."',
         },
       ],
