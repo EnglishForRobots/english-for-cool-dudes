@@ -1124,16 +1124,16 @@ function renderWBSlots(){
 function tapWBLetter(letter, ti){
   const q = _questions[_qIdx];
   if(_wbBuilt.length >= q.word.length) return;
-  _wbBuilt.push(letter);
+  _wbBuilt.push({ letter, ti });
   document.getElementById('wbt-'+ti)?.classList.add('used');
   renderWBSlots();
 }
 
 function removeWBLetter(pos){
-  const letter = _wbBuilt[pos];
+  const item = _wbBuilt[pos];
+  if(!item) return;
   _wbBuilt.splice(pos, 1);
-  const tiles = document.querySelectorAll('.wb-tile.used');
-  for(const t of tiles){ if(t.textContent.toUpperCase() === letter.toUpperCase()){ t.classList.remove('used'); break; } }
+  document.getElementById('wbt-'+item.ti)?.classList.remove('used');
   renderWBSlots();
 }
 
@@ -1150,9 +1150,13 @@ function hintWB(){
   const nextLetter = q.word[np];
   const tiles = document.querySelectorAll('.wb-tile:not(.used)');
   for(const t of tiles){
-    if(t.textContent.toLowerCase() === nextLetter.toLowerCase()){ t.classList.add('used'); break; }
+    if(t.textContent.toLowerCase() === nextLetter.toLowerCase()){
+      const ti = parseInt(t.id.replace('wbt-',''));
+      t.classList.add('used');
+      _wbBuilt.push({ letter: nextLetter, ti });
+      break;
+    }
   }
-  _wbBuilt.push(nextLetter);
   renderWBSlots();
   const btn = document.getElementById('wb-hint-btn');
   if(btn){ btn._uses = (btn._uses||0)+1; if(btn._uses >= 2) btn.disabled = true; }
@@ -1160,8 +1164,20 @@ function hintWB(){
 
 function revealWB(){
   const q = _questions[_qIdx];
-  _wbBuilt = [...q.word];
-  document.querySelectorAll('.wb-tile').forEach(t => t.classList.add('used'));
+  _wbBuilt = [];
+  document.querySelectorAll('.wb-tile').forEach(t => t.classList.remove('used'));
+  // Place each letter using the first available matching tile
+  [...q.word].forEach(letter => {
+    const tiles = document.querySelectorAll('.wb-tile:not(.used)');
+    for(const t of tiles){
+      if(t.textContent.toLowerCase() === letter.toLowerCase()){
+        const ti = parseInt(t.id.replace('wbt-',''));
+        t.classList.add('used');
+        _wbBuilt.push({ letter, ti });
+        break;
+      }
+    }
+  });
   renderWBSlots();
   _answered = true; _total++;
   const slots = document.querySelectorAll('.wb-slot');
@@ -1169,7 +1185,6 @@ function revealWB(){
   if (_srsMode) _recordSRSResult(false, 'reveal');
   handleResult(false, `👁️ The word is <strong>${q.word.toUpperCase()}</strong>`, q.def);
 }
-
 function skipWB(){
   _answered = true;
   _qIdx++;
@@ -1184,7 +1199,7 @@ function skipWB(){
 function checkWB(){
   if(_answered) return;
   const q     = _questions[_qIdx];
-  const built = _wbBuilt.join('').toLowerCase();
+  const built = _wbBuilt.map(i => i.letter).join('').toLowerCase();
   if(built.length < q.word.length){ return; }
   _answered = true; _total++;
   const ok    = built === q.word.toLowerCase();
@@ -1198,7 +1213,11 @@ function checkWB(){
     if(_wbWrong < 2){
       _answered = false; _total--;
       slots.forEach(s => { s.classList.remove('wrong'); });
-      setTimeout(() => { _wbBuilt=[]; document.querySelectorAll('.wb-tile').forEach(t=>t.classList.remove('used')); renderWBSlots(); }, 400);
+      setTimeout(() => {
+        _wbBuilt=[];
+        document.querySelectorAll('.wb-tile').forEach(t=>t.classList.remove('used'));
+        renderWBSlots();
+      }, 400);
       return;
     }
     if (_srsMode) _recordSRSResult(false, 'wrong');
