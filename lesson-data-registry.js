@@ -1288,7 +1288,7 @@ const LESSON_DATA_REGISTRY = {
       hint:   '🎯 Harry Kane has a great record for something.',
     },
      {
-      words:  ['million', 'cost, 'transfer', 'Munich', 'hundred', 'to', 'euros', 'His', 'Bayern', 'one', 'around'],
+      words:  ['million', 'cost', 'transfer', 'Munich', 'hundred', 'to', 'euros', 'His', 'Bayern', 'one', 'around'],
       answer: 'His transfer to Bayern Munich cost around one hundred million euros.',
       hint:   '💰 What was the price of one Harry Kane to Germany?',
     },
