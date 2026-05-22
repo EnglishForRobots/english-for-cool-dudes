@@ -1301,9 +1301,9 @@ const LESSON_DATA_REGISTRY = {
   ],
   word_builder: [
     { word: 'persevere', definition: 'To continue even in difficult circumstances' },
-    { word: 'resilient', definition: ['Able to recover easily and quickly from unpleasant or damaging events' },
-    { word: 'score', definition: ['To gain a goal or a point' },
-    { word: 'transfer', definition: ['To move from one place to another' },
+    { word: 'resilient', definition: 'Able to recover easily and quickly from unpleasant or damaging events' },
+    { word: 'score', definition: 'To gain a goal or a point' },
+    { word: 'transfer', definition: 'To move from one place to another' },
   ],
 
   
