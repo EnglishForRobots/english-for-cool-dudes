@@ -1329,6 +1329,7 @@ const LESSON_DATA_REGISTRY = {
     },
    ],
    },
+   
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
