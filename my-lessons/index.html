@@ -915,40 +915,75 @@ function renderSentencePanel(reg){
   const el=document.getElementById('panel-sentences');
   if(!el||!reg?.sentences?.length){ if(el) el.innerHTML=comingSoon('Sentence builder'); return; }
   let sIdx=0,sScore=0,sBuilt=[];
+
   function renderS(){
     const q=reg.sentences[sIdx];
     const shuffled=[...q.words].sort(()=>Math.random()-.5);
     const pips=reg.sentences.map((_,i)=>`<div class="quiz-pip${i<sIdx?' right':i===sIdx?' active':''}" id="spip-${i}"></div>`).join('');
+
     el.innerHTML=`
       <div class="quiz-progress-row"><div class="quiz-pips">${pips}</div><div class="quiz-score">${sScore}/${reg.sentences.length}</div></div>
       <div class="gram-sent-card"><div class="gram-sent-num">Sentence ${sIdx+1} of ${reg.sentences.length}</div>
         <div class="gram-sent-text" style="color:var(--ink-3);font-style:italic">${q.hint||'Put the words in the right order'}</div></div>
-      <div style="min-height:44px;background:var(--bg);border:2px dashed var(--border-heavy);border-radius:var(--rsm);padding:10px 12px;margin-bottom:12px;font-size:14px;font-weight:800;color:var(--ink-bold);line-height:1.6" id="s-answer-box">Tap words below →</div>
-      <div class="gram-word-btns" id="s-word-pool">${shuffled.map((w,i)=>`<button class="gram-word-btn s-word-btn" data-word="${escQ(w)}" data-idx="${i}">${w}</button>`).join('')}</div>
+      <div id="s-answer-box" style="min-height:44px;background:var(--bg);border:2px dashed var(--border-heavy);border-radius:var(--rsm);padding:10px 12px;margin-bottom:12px;font-size:14px;font-weight:800;color:var(--ink-bold);line-height:1.6">Tap words below →</div>
+      <div class="gram-word-btns" id="s-word-pool">${shuffled.map((w,i)=>`<button class="gram-word-btn s-word-btn" id="swb-${i}" data-word="${escQ(w)}" data-ti="${i}" style="font-size:13px">${w}</button>`).join('')}</div>
       <div class="quiz-feedback" id="sfb"></div>
       <div style="display:flex;gap:8px;margin-top:10px">
         <button class="quiz-next" id="scheck" style="display:flex;flex:1;background:var(--blue);border-color:var(--bs)">Check ✓</button>
         <button id="sclear" style="padding:10px 14px;border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);font-size:12px;font-weight:900;font-family:inherit;cursor:pointer;background:var(--white);color:var(--ink-3)">✕ Clear</button>
       </div>
       <button class="quiz-next" id="snxt" style="margin-top:8px;display:none">${sIdx+1<reg.sentences.length?'Next →':'Done! 🎉'}</button>`;
-    sBuilt=[];
+
+    function renderBuilt(){
+      const box=document.getElementById('s-answer-box');
+      if(!box) return;
+      if(!sBuilt.length){ box.textContent='Tap words below →'; box.style.border='2px dashed var(--border-heavy)'; return; }
+      box.style.border='2px solid var(--border-heavy)';
+      box.innerHTML=sBuilt.map((item,pos)=>
+        `<span style="display:inline-block;padding:4px 10px;margin:2px 3px;background:rgba(28,176,246,.12);border:2px solid var(--blue);border-radius:var(--rsm);cursor:pointer;font-size:13px;font-weight:800" data-pos="${pos}">${item.word}</span>`
+      ).join('');
+      box.querySelectorAll('[data-pos]').forEach(span=>{
+        span.addEventListener('click',function(){
+          const pos=parseInt(this.dataset.pos);
+          const removed=sBuilt.splice(pos,1)[0];
+          const tile=document.getElementById('swb-'+removed.ti);
+          if(tile){ tile.disabled=false; tile.style.opacity='1'; }
+          renderBuilt();
+        });
+      });
+    }
+
     el.querySelectorAll('.s-word-btn').forEach(btn=>{
-      btn.addEventListener('click',function(){ if(this.disabled) return; this.disabled=true; this.style.opacity='.3'; sBuilt.push(this.dataset.word); const box=document.getElementById('s-answer-box'); if(box) box.textContent=sBuilt.join(' '); });
+      btn.addEventListener('click',function(){
+        if(this.disabled) return;
+        const word=this.dataset.word;
+        const ti=parseInt(this.dataset.ti);
+        sBuilt.push({word, ti});
+        this.disabled=true;
+        this.style.opacity='.3';
+        renderBuilt();
+      });
     });
+
     document.getElementById('sclear').addEventListener('click',function(){
-      sBuilt=[]; el.querySelectorAll('.s-word-btn').forEach(b=>{b.disabled=false;b.style.opacity='1';});
-      const box=document.getElementById('s-answer-box'); if(box) box.textContent='Tap words below →';
+      sBuilt=[];
+      el.querySelectorAll('.s-word-btn').forEach(b=>{b.disabled=false;b.style.opacity='1';});
+      renderBuilt();
       const fb=document.getElementById('sfb'); if(fb) fb.className='quiz-feedback';
     });
+
     document.getElementById('scheck').addEventListener('click',function(){
       if(!sBuilt.length) return;
-      const ok=sBuilt.join(' ').toLowerCase().replace(/[^a-z0-9 ]/g,'').trim()===q.answer.toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
+      const built=sBuilt.map(i=>i.word).join(' ').toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
+      const target=q.answer.toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
+      const ok=built===target;
       if(ok){sScore++;burst();}
       const fb=document.getElementById('sfb'); if(fb){fb.textContent=ok?'✅ Perfect!':`💡 Answer: "${q.answer}"`;fb.className=`quiz-feedback show ${ok?'right':'wrong'}`;}
       el.querySelectorAll('.s-word-btn').forEach(b=>b.disabled=true); this.style.display='none';
       const pip=document.getElementById(`spip-${sIdx}`); if(pip) pip.classList.add(ok?'right':'wrong');
       document.getElementById('snxt').style.display='flex';
     });
+
     document.getElementById('snxt').addEventListener('click',function(){
       sIdx++;
       if(sIdx>=reg.sentences.length){
@@ -960,48 +995,80 @@ function renderSentencePanel(reg){
   }
   window._currentReg=reg; renderS();
 }
-
 function renderWordBuilderPanel(reg){
   const el=document.getElementById('panel-wordBuilder');
   if(!el||!reg?.word_builder?.length){ if(el) el.innerHTML=comingSoon('Word builder'); return; }
   let wIdx=0,wScore=0,wBuilt=[];
+
   function renderW(){
     const q=reg.word_builder[wIdx];
     const letters=q.word.toUpperCase().split('').sort(()=>Math.random()-.5);
     const pips=reg.word_builder.map((_,i)=>`<div class="quiz-pip${i<wIdx?' right':i===wIdx?' active':''}" id="wpip-${i}"></div>`).join('');
-    const answer=q.word.toUpperCase();
+
     el.innerHTML=`
       <div class="quiz-progress-row"><div class="quiz-pips">${pips}</div><div class="quiz-score">${wScore}/${reg.word_builder.length}</div></div>
       <div class="quiz-word-display">
         <div style="font-size:12px;font-weight:900;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">Word ${wIdx+1} of ${reg.word_builder.length}</div>
         <div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.85);line-height:1.6;position:relative;z-index:1">${q.definition}</div>
       </div>
-      <div style="min-height:52px;background:var(--bg);border:2px dashed var(--border-heavy);border-radius:var(--rsm);padding:10px 12px;margin-bottom:12px;font-size:18px;font-weight:900;color:var(--ink-bold);letter-spacing:2px;text-align:center" id="w-answer-box">_ _ _</div>
-      <div class="gram-word-btns" style="justify-content:center" id="w-letter-pool">${letters.map((l,i)=>`<button class="gram-word-btn w-letter-btn" data-letter="${l}" data-idx="${i}" style="min-width:40px;text-align:center;font-size:16px">${l}</button>`).join('')}</div>
+      <div id="w-answer-box" style="min-height:52px;background:var(--bg);border:2px dashed var(--border-heavy);border-radius:var(--rsm);padding:10px 12px;margin-bottom:12px;font-size:18px;font-weight:900;color:var(--ink-bold);letter-spacing:2px;text-align:center">_ _ _</div>
+      <div class="gram-word-btns" style="justify-content:center" id="w-letter-pool">${letters.map((l,i)=>`<button class="gram-word-btn w-letter-btn" id="wlb-${i}" data-letter="${l}" data-ti="${i}" style="min-width:40px;text-align:center;font-size:16px">${l}</button>`).join('')}</div>
       <div class="quiz-feedback" id="wfb"></div>
       <div style="display:flex;gap:8px;margin-top:10px">
         <button class="quiz-next" id="wcheck" style="display:flex;flex:1;background:var(--purple);border-color:var(--pus)">Check ✓</button>
         <button id="wclear" style="padding:10px 14px;border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);font-size:12px;font-weight:900;font-family:inherit;cursor:pointer;background:var(--white);color:var(--ink-3)">✕ Clear</button>
       </div>
       <button class="quiz-next" id="wnxt" style="margin-top:8px;background:var(--purple);border-color:var(--pus);display:none">${wIdx+1<reg.word_builder.length?'Next →':'Done! 🎉'}</button>`;
-    wBuilt=[];
+
+    function renderSlots(){
+      const box=document.getElementById('w-answer-box');
+      if(!box) return;
+      if(!wBuilt.length){ box.textContent='_ _ _'; return; }
+      box.innerHTML = wBuilt.map((item,pos)=>
+        `<span style="display:inline-block;padding:2px 6px;margin:0 2px;background:rgba(206,130,255,.15);border:2px solid var(--pus);border-radius:6px;cursor:pointer" data-pos="${pos}">${item.letter}</span>`
+      ).join(' ');
+      box.querySelectorAll('[data-pos]').forEach(span=>{
+        span.addEventListener('click', function(){
+          const pos=parseInt(this.dataset.pos);
+          const removed=wBuilt.splice(pos,1)[0];
+          document.getElementById('wlb-'+removed.ti)?.classList.remove('used');
+          document.getElementById('wlb-'+removed.ti)?.removeAttribute('disabled');
+          renderSlots();
+        });
+      });
+    }
+
     el.querySelectorAll('.w-letter-btn').forEach(btn=>{
-      btn.addEventListener('click',function(){ if(this.disabled) return; this.disabled=true; this.style.opacity='.3'; wBuilt.push(this.dataset.letter); const box=document.getElementById('w-answer-box'); if(box) box.textContent=wBuilt.join(' '); });
+      btn.addEventListener('click',function(){
+        if(this.disabled) return;
+        const letter=this.dataset.letter;
+        const ti=parseInt(this.dataset.ti);
+        wBuilt.push({letter, ti});
+        this.disabled=true;
+        this.style.opacity='.3';
+        renderSlots();
+      });
     });
+
     document.getElementById('wclear').addEventListener('click',function(){
-      wBuilt=[]; el.querySelectorAll('.w-letter-btn').forEach(b=>{b.disabled=false;b.style.opacity='1';});
-      const box=document.getElementById('w-answer-box'); if(box) box.textContent='_ _ _';
+      wBuilt=[];
+      el.querySelectorAll('.w-letter-btn').forEach(b=>{b.disabled=false;b.style.opacity='1';});
+      renderSlots();
       const fb=document.getElementById('wfb'); if(fb) fb.className='quiz-feedback';
     });
+
     document.getElementById('wcheck').addEventListener('click',function(){
       if(!wBuilt.length) return;
-      const ok=wBuilt.join('')===answer;
+      const built=wBuilt.map(i=>i.letter).join('');
+      const answer=q.word.toUpperCase();
+      const ok=built===answer;
       if(ok){wScore++;burst();}
       const fb=document.getElementById('wfb'); if(fb){fb.textContent=ok?`✅ ${answer} — correct!`:`💡 The word is: ${answer}`;fb.className=`quiz-feedback show ${ok?'right':'wrong'}`;}
       el.querySelectorAll('.w-letter-btn').forEach(b=>b.disabled=true); this.style.display='none';
       const pip=document.getElementById(`wpip-${wIdx}`); if(pip) pip.classList.add(ok?'right':'wrong');
       document.getElementById('wnxt').style.display='flex';
     });
+
     document.getElementById('wnxt').addEventListener('click',function(){
       wIdx++;
       if(wIdx>=reg.word_builder.length){
