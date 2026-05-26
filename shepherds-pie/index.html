@@ -812,10 +812,17 @@ function renderVB(){
     </div>
     <div class="vb-question">What does this word mean?</div>
     <div class="vb-opts">
-      ${shuffled.map((o,i)=>`<button class="vb-opt" data-correct="${i===corIdx}" onclick="answerVB(this,${i===corIdx},'${escQ(q.explain)}')">${o.text}</button>`).join('')}
+      ${shuffled.map((o,i)=>`<button class="vb-opt" data-correct="${i===corIdx}" data-opt-idx="${i}">${o.text}</button>`).join('')}
     </div>
     <div class="vb-explain" id="vb-explain"></div>
     <button class="vb-next" id="vb-nxt" style="display:none" onclick="nextVB()">${S.vbIdx+1<VB_QUIZ.length?'Next word →':'All done! →'}</button>`;
+  // Wire answer buttons via addEventListener — no inline onclick, no string escaping
+  document.querySelectorAll('.vb-opt').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const isCorrect=btn.dataset.correct==='true';
+      answerVB(btn,isCorrect,q.explain);
+    });
+  });
 }
 window.answerVB=function(btn,correct,explain){
   document.querySelectorAll('.vb-opt').forEach(b=>b.disabled=true);
@@ -835,7 +842,7 @@ window.answerVB=function(btn,correct,explain){
     addXP(5);
   }
   const ex=$('vb-explain');
-  if(ex){ex.textContent=explain.replace(/&quot;/g,'"');ex.classList.add('show');}
+  if(ex){ex.textContent=explain;ex.classList.add('show');}
   const nxt=$('vb-nxt');if(nxt)nxt.style.display='flex';
 };
 function nextVB(){
@@ -1183,19 +1190,35 @@ function renderWO(){
         <div class="wo-context">${q.context}</div>
         <div style="font-size:12px;font-weight:700;color:var(--ink-3);margin-bottom:8px">Build the sentence:</div>
         <div class="wo-built" id="wo-built">
-          ${builtArr.length===0?'<span class="wo-built-empty">Tap words below to build the sentence…</span>':builtArr.map((w,i)=>`<span class="wo-built-word" onclick="removeWOWord(${i})">${w.word}</span>`).join('')}
+          ${builtArr.length===0
+            ? '<span class="wo-built-empty">Tap words below to build the sentence…</span>'
+            : builtArr.map((w,i)=>`<span class="wo-built-word" data-arr-idx="${i}">${w.word}</span>`).join('')}
         </div>
         <div class="wo-pool" id="wo-pool">
-          ${shuffled.map((w,i)=>`<button class="wo-word-btn ${usedIndices.has(i)?'used':''}" onclick="addWOWord(${i},'${w.replace(/'/g,"\\'")}'')">${w}</button>`).join('')}
+          ${shuffled.map((w,i)=>`<button class="wo-word-btn${usedIndices.has(i)?' used':''}" data-pool-idx="${i}">${w}</button>`).join('')}
         </div>
         <div style="font-size:12px;font-weight:700;color:var(--ink-3);font-style:italic;margin-bottom:10px">💡 ${q.hint}</div>
         <div class="wo-result" id="wo-result"></div>
         <button class="wo-check" onclick="checkWO()">✓ Check my sentence</button>
         <button class="wo-next" id="wo-nxt" style="display:none" onclick="nextWO()">${S.woIdx+1<WORD_ORDER.length?'Next sentence →':'Claim your badge! 🥧 →'}</button>
       </div>`;
+    // Wire pool buttons
+    document.querySelectorAll('.wo-word-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const idx=parseInt(btn.getAttribute('data-pool-idx'));
+        window.addWOWord(idx);
+      });
+    });
+    // Wire built-sentence words (remove on tap)
+    document.querySelectorAll('.wo-built-word').forEach(span=>{
+      span.addEventListener('click',()=>{
+        const arrIdx=parseInt(span.getAttribute('data-arr-idx'));
+        window.removeWOWord(arrIdx);
+      });
+    });
   }
 
-  window.addWOWord=function(idx,word){
+  window.addWOWord=function(idx){
     if(builtArr.some(x=>x.poolIdx===idx))return;
     builtArr.push({poolIdx:idx,word:shuffled[idx]});
     buildWOPage();
