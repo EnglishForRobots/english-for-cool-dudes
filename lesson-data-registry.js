@@ -1334,7 +1334,7 @@ const LESSON_DATA_REGISTRY = {
  
     // ── IDENTITY ─────────────────────────────────────────────
     id:    'shepherds-pie-intermediate',
-    title: 'How to Make an Authentic Shepherd\'s Pie',
+    title: "How to Make an Authentic Shepherd\'s Pie",
     level: 'Intermediate',
     track: 'intermediate',
     emoji: '🥧',
