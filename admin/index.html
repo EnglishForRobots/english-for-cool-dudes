@@ -1224,19 +1224,19 @@ async function renderHistory(){
     if(!sessions?.length){ wrap.innerHTML=`<div class="history-empty">No sessions yet.</div>`; return; }
     const sessionIds = sessions.map(s=>s.id);
     const [{ data: scores },{ data: badges },{ data: vocab }] = await Promise.all([
-      sb.from('efcd_scores').select('*').in('session_id', sessionIds).not('session_id', 'is', null),
-      sb.from('efcd_badges').select('*').in('session_id', sessionIds).eq('is_manual', false).not('session_id', 'is', null),
-      sb.from('efcd_lesson_vocab').select('*').in('session_id', sessionIds).not('session_id', 'is', null),
-    ]);
+  sb.from('efcd_scores').select('*').in('session_id', sessionIds).not('session_id', 'is', null).in('class_id', sessions.map(s=>s.class_id)),
+  sb.from('efcd_badges').select('*').in('session_id', sessionIds).eq('is_manual', false).not('session_id', 'is', null).in('class_id', sessions.map(s=>s.class_id)),
+  sb.from('efcd_lesson_vocab').select('*').in('session_id', sessionIds).not('session_id', 'is', null).in('class_id', sessions.map(s=>s.class_id)),
+]);
     const activeSessions = sessions.filter(session => {
       return (badges||[]).some(b=>b.session_id===session.id) || (scores||[]).some(s=>s.session_id===session.id);
     });
     if(!activeSessions.length){ wrap.innerHTML=`<div class="history-empty">No completed lessons yet.</div>`; return; }
     wrap.innerHTML = activeSessions.map(session => {
       const cls          = _classes.find(c=>c.id===session.class_id);
-      const sesScores    = (scores||[]).filter(s=>s.session_id===session.id);
-      const sesBadges    = (badges||[]).filter(b=>b.session_id===session.id);
-      const sesVocab     = (vocab||[]).filter(v=>v.session_id===session.id);
+      const sesScores = (scores||[]).filter(s => s.session_id === session.id && s.class_id === session.class_id);
+      const sesBadges = (badges||[]).filter(b => b.session_id === session.id && b.class_id === session.class_id);
+      const sesVocab  = (vocab||[]).filter(v => v.session_id === session.id && v.class_id === session.class_id);
       const lessonBadges = sesBadges.filter(b=>b.badge_key?.startsWith('lesson_'));
       const students     = [...new Map(sesBadges.map(b=>[b.student_id,b])).values()];
       const totalCorrect = sesScores.reduce((a,s)=>a+(s.correct||0),0);
