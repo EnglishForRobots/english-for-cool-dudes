@@ -1329,7 +1329,218 @@ const LESSON_DATA_REGISTRY = {
     },
    ],
    },
-   
+
+     'shepherds-pie-intermediate': {
+ 
+    // ── IDENTITY ─────────────────────────────────────────────
+    id:    'shepherds-pie-intermediate',
+    title: "How to Make an Authentic Shepherd's Pie",
+    level: 'Intermediate',
+    track: 'intermediate',
+    emoji: '🥧',
+    badge: 'Master Chef',
+ 
+    // ── VOCAB ────────────────────────────────────────────────
+    vocab: [
+      {
+        word:        'mince',
+        definition:  'Meat that has been finely chopped or ground into small pieces',
+        example:     'For a proper Shepherd\'s Pie, you need lamb ___ — not beef.',
+        distractors: ['sear', 'double cream', 'mash'],
+      },
+      {
+        word:        'sear',
+        definition:  'To cook the surface of meat at high heat to brown it and develop flavour',
+        example:     'The chef will ___ the lamb first to give it a caramelised colour.',
+        distractors: ['mince', 'mash', 'caramelise'],
+      },
+      {
+        word:        'caramelise',
+        definition:  'To heat food until the natural sugars turn brown and develop a richer flavour',
+        example:     'Cook the onions slowly until they ___ and turn golden and sweet.',
+        distractors: ['mince', 'sear', 'mash'],
+      },
+      {
+        word:        'mash',
+        definition:  'To crush cooked food, especially potatoes, into a soft, smooth mixture',
+        example:     'It\'s best to ___ the potatoes by hand rather than using an electric mixer.',
+        distractors: ['sear', 'caramelise', 'layer'],
+      },
+      {
+        word:        'double cream',
+        definition:  'Very thick, rich cream with a high fat content, used in cooking and baking',
+        example:     'Add a splash of ___ to the mashed potato for extra richness.',
+        distractors: ['mince', 'tomato paste', 'egg yolk'],
+      },
+      {
+        word:        'authentic',
+        definition:  'Genuine and true to the original — not a copy or a simplified version',
+        example:     'If you want an ___ Shepherd\'s Pie, use lamb mince, not beef.',
+        distractors: ['traditional', 'popular', 'simple'],
+      },
+      {
+        word:        'rigmarole',
+        definition:  'A long and unnecessarily complicated process or procedure',
+        example:     'The younger generation can\'t be fussed to go through the ___ of buying ingredients and preparing everything.',
+        distractors: ['tradition', 'challenge', 'process'],
+      },
+      {
+        word:        'consensus',
+        definition:  'A general agreement among a group of people',
+        example:     'There is a ___ that Shepherd\'s Pie has roots in both Britain and Ireland.',
+        distractors: ['tradition', 'compromise', 'argument'],
+      },
+    ],
+ 
+    // ── GRAMMAR 1: Passive Voice ─────────────────────────────
+    grammar: {
+      topic: 'Passive Voice — recipe and instructional English',
+      rule:  'In recipe English, we use passive voice because the food (not the cook) is the subject. Form: is / are + past participle. "The potatoes are peeled." "The lamb is seared." This makes instructions sound objective and professional.',
+      exercises: [
+        {
+          sentence: 'The potatoes ___ before the mash is prepared.',
+          answer:   'are peeled and boiled',
+          wrong:    ['peeled and boiled', 'peel and boil', 'is peeled and boiled'],
+          explain:  'Present passive: are + past participle. The potatoes receive the action — they don\'t peel themselves! "Are peeled and boiled" — plural subject.'
+        },
+        {
+          sentence: 'The lamb ___ at high heat to develop flavour and colour.',
+          answer:   'is seared',
+          wrong:    ['sears', 'was searing', 'has seared'],
+          explain:  'Present passive: is + past participle. The lamb receives the action of searing. Recipe present passive describes a standard step.'
+        },
+        {
+          sentence: 'The pie ___ in two layers — first the sauce, then the mash.',
+          answer:   'is made',
+          wrong:    ['makes', 'is making', 'has been making'],
+          explain:  'Present passive: is + past participle. The pie is the subject receiving the action of being assembled.'
+        },
+        {
+          sentence: 'The dish ___ at 180°C for approximately 15 minutes.',
+          answer:   'is baked',
+          wrong:    ['bakes', 'was baking', 'has baked'],
+          explain:  'Present passive for a recipe instruction. "Is baked" — the dish receives the action of baking. Very standard in recipe writing.'
+        },
+      ],
+    },
+ 
+    // ── GRAMMAR 2: Second Conditional ────────────────────────
+    grammar2: {
+      topic: 'Second Conditional — warnings, advice and hypotheticals',
+      rule:  'Second conditional: If + past simple → would + infinitive. Used for hypothetical situations, warnings and advice. "If you added too much milk, the mash would split." Formal English prefers "were" (not "was") in the if clause for hypotheticals.',
+      exercises: [
+        {
+          sentence: 'If you ___ too much milk, the mash ___ watery.',
+          answer:   'added / would become',
+          wrong:    ['add / will become', 'had added / would have become', 'added / becomes'],
+          explain:  'Second conditional: if + past simple (added) → would + infinitive (would become). A hypothetical warning — not a guaranteed fact.'
+        },
+        {
+          sentence: 'If Shepherd\'s Pie ___ made with beef, it ___ a Cottage Pie.',
+          answer:   'were / would be',
+          wrong:    ['is / will be', 'was / would have been', 'had been / would be'],
+          explain:  'Second conditional: "were" (formal subjunctive) + would + infinitive. Hypothetical — the pie is being discussed as a lamb dish, not a beef one.'
+        },
+        {
+          sentence: 'If the chef ___ an electric mixer, the mash ___ too lumpy.',
+          answer:   'used / would be',
+          wrong:    ['had used / would have been', 'uses / will be', 'was using / were'],
+          explain:  'Second conditional: if + past simple (used) → would + infinitive (would be). Advice/warning about a method the chef recommends against.'
+        },
+        {
+          sentence: 'If you ___ lamb, you ___ making the authentic version.',
+          answer:   'chose / would be',
+          wrong:    ['choose / will be', 'had chosen / would have been', 'chose / are'],
+          explain:  'Second conditional: if + past simple (chose) → would + infinitive (would be). Confirming the correct choice in a hypothetical frame.'
+        },
+      ],
+    },
+ 
+    // ── SENTENCE BUILDER ────────────────────────────────────
+    sentences: [
+      {
+        words:  ['should','lamb','traditional','If','want','you','mince','use','it','super','to','be'],
+        answer: 'If you want it super traditional use lamb mince',
+        hint:   '🐑 The chef\'s clear recommendation about which meat to use'
+      },
+      {
+        words:  ['leaves','electric','An','too','them','often','mixer','lumpy'],
+        answer: 'An electric mixer often leaves them too lumpy',
+        hint:   '🥔 Why the chef prefers to mash by hand'
+      },
+      {
+        words:  ['were','accepted','cheap','Potatoes','as','widely','food','a','filling'],
+        answer: 'Potatoes were widely accepted as a cheap filling food',
+        hint:   '🌍 How potatoes became important in European cooking'
+      },
+      {
+        words:  ['the','sauce','mash','is','The','over','spread'],
+        answer: 'The mash is spread over the sauce',
+        hint:   '🥧 How the two layers of Shepherd\'s Pie are assembled'
+      },
+      {
+        words:  ['it','been','think','a','in','I','consensus','there','is','both','that','has'],
+        answer: 'I think there is a consensus that it has been in both',
+        hint:   '🇬🇧🇮🇪 The chef\'s view on whether it\'s British or Irish'
+      },
+    ],
+ 
+    // ── WORD BUILDER ────────────────────────────────────────
+    word_builder: [
+      { word:'authentic',   definition:'Genuine and true to the original tradition' },
+      { word:'caramelise',  definition:'To heat food until sugars turn brown and sweet' },
+      { word:'consensus',   definition:'A general agreement among a group of people' },
+      { word:'rigmarole',   definition:'An unnecessarily long and complicated process' },
+      { word:'mince',       definition:'Finely ground or chopped meat' },
+      { word:'sear',        definition:'To cook meat quickly at high heat to brown the surface' },
+    ],
+ 
+    // ── TRUE / FALSE ─────────────────────────────────────────
+    true_false: [
+      {
+        statement: 'Shepherd\'s Pie should technically be made with lamb, because a shepherd looks after sheep.',
+        correct:   true,
+        reveal:    '✅ TRUE! The word "shepherd" = someone who looks after sheep. So Shepherd\'s Pie = lamb. If you use beef, it\'s technically called Cottage Pie.'
+      },
+      {
+        statement: 'Cottage Pie and Shepherd\'s Pie are the same dish with the same ingredients.',
+        correct:   false,
+        reveal:    '❌ FALSE! The key difference is the meat. Shepherd\'s Pie = lamb. Cottage Pie = beef. Same mashed potato top, different filling.'
+      },
+      {
+        statement: 'Potatoes were used in European cooking long before the 18th century.',
+        correct:   false,
+        reveal:    '❌ FALSE! Potatoes came from the Americas and were NOT widely accepted in Europe as a cheap filling food until the 18th century.'
+      },
+      {
+        statement: 'The first written record of "cottage pie" dates from 1791.',
+        correct:   true,
+        reveal:    '✅ TRUE! It appears in the diary of English Parson James Woodforde in 1791 — and it was made with beef, not lamb.'
+      },
+      {
+        statement: 'An electric mixer is the preferred tool for making the best mashed potato.',
+        correct:   false,
+        reveal:    '❌ FALSE! The chef clearly says it\'s best to mash by hand. An electric mixer often leaves the mash too lumpy.'
+      },
+      {
+        statement: 'In the Irish version of the recipe, Guinness is sometimes added.',
+        correct:   true,
+        reveal:    '✅ TRUE! One speaker says: "In the Irish recipe, a lot of the time they put Guinness in there." This is one way the Irish version is said to differ from the British one.'
+      },
+      {
+        statement: '"Caramelise" and "sear" mean exactly the same thing.',
+        correct:   false,
+        reveal:    '❌ FALSE! "Sear" means cooking at high heat to brown the surface. "Caramelise" specifically refers to sugars turning brown and developing a sweeter flavour. They overlap but are not the same.'
+      },
+      {
+        statement: 'The chef says cheese is traditionally used as a topping on Shepherd\'s Pie.',
+        correct:   false,
+        reveal:    '❌ FALSE! The chef says cheese is NOT traditionally used. Egg yolk is acceptable, but cheese is not part of the classic recipe.'
+      },
+    ],
+ 
+  },
+ 
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
