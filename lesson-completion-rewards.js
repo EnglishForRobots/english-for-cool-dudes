@@ -338,6 +338,22 @@
     { word: 'resilience',    definition: 'The ability to recover and keep going after setbacks, injuries, or failure' },
   ],
 },
+
+     'shepherds-pie-intermediate': {
+    title:   "How to Make an Authentic Shepherd's Pie",
+    level:   'Intermediate',
+    grammar: 'Passive voice in recipe English (is/are + past participle); second conditional for warnings and hypotheticals (If + past simple → would + infinitive)',
+    vocab: [
+      { word:'mince',        definition:'Meat that has been finely chopped or ground into small pieces' },
+      { word:'sear',         definition:'To cook the surface of meat at high heat to brown it and develop flavour' },
+      { word:'caramelise',   definition:'To heat food until the natural sugars turn brown and develop a richer flavour' },
+      { word:'mash',         definition:'To crush cooked food, especially potatoes, into a soft, smooth mixture' },
+      { word:'double cream', definition:'Very thick, rich cream with a high fat content, used in cooking and baking' },
+      { word:'authentic',    definition:'Genuine and true to the original — not a copy or a simplified version' },
+      { word:'rigmarole',    definition:'A long and unnecessarily complicated process or procedure' },
+      { word:'consensus',    definition:'A general agreement among a group of people' },
+    ],
+  },
  
 
   };
