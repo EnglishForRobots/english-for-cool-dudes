@@ -1223,20 +1223,29 @@ async function renderHistory(){
     const { data: sessions } = await sessionsQuery;
     if(!sessions?.length){ wrap.innerHTML=`<div class="history-empty">No sessions yet.</div>`; return; }
     const sessionIds = sessions.map(s=>s.id);
+
+    // FIX: remove the class_id .in() filter — it deduplicates class IDs and can
+    // silently drop rows when multiple sessions belong to the same class.
+    // Filtering by session_id alone is sufficient and correct.
     const [{ data: scores },{ data: badges },{ data: vocab }] = await Promise.all([
-  sb.from('efcd_scores').select('*').in('session_id', sessionIds).not('session_id', 'is', null).in('class_id', sessions.map(s=>s.class_id)),
-  sb.from('efcd_badges').select('*').in('session_id', sessionIds).eq('is_manual', false).not('session_id', 'is', null).in('class_id', sessions.map(s=>s.class_id)),
-  sb.from('efcd_lesson_vocab').select('*').in('session_id', sessionIds).not('session_id', 'is', null).in('class_id', sessions.map(s=>s.class_id)),
-]);
+      sb.from('efcd_scores').select('*').in('session_id', sessionIds),
+      sb.from('efcd_badges').select('*').in('session_id', sessionIds).eq('is_manual', false),
+      sb.from('efcd_lesson_vocab').select('*').in('session_id', sessionIds),
+    ]);
+
+    // FIX: only show sessions that have at least one lesson badge —
+    // this excludes ghost/accidental sessions with no lesson completed.
     const activeSessions = sessions.filter(session => {
-      return (badges||[]).some(b=>b.session_id===session.id) || (scores||[]).some(s=>s.session_id===session.id);
+      return (badges||[]).some(b => b.session_id === session.id && b.badge_key?.startsWith('lesson_'));
     });
+
     if(!activeSessions.length){ wrap.innerHTML=`<div class="history-empty">No completed lessons yet.</div>`; return; }
+
     wrap.innerHTML = activeSessions.map(session => {
       const cls          = _classes.find(c=>c.id===session.class_id);
-      const sesScores = (scores||[]).filter(s => s.session_id === session.id && s.class_id === session.class_id);
-      const sesBadges = (badges||[]).filter(b => b.session_id === session.id && b.class_id === session.class_id);
-      const sesVocab  = (vocab||[]).filter(v => v.session_id === session.id && v.class_id === session.class_id);
+      const sesScores = (scores||[]).filter(s => s.session_id === session.id);
+      const sesBadges = (badges||[]).filter(b => b.session_id === session.id);
+      const sesVocab  = (vocab||[]).filter(v => v.session_id === session.id);
       const lessonBadges = sesBadges.filter(b=>b.badge_key?.startsWith('lesson_'));
       const students     = [...new Map(sesBadges.map(b=>[b.student_id,b])).values()];
       const totalCorrect = sesScores.reduce((a,s)=>a+(s.correct||0),0);
@@ -1246,7 +1255,7 @@ async function renderHistory(){
       const started      = new Date(session.started_at);
       const ended        = session.ended_at ? new Date(session.ended_at) : null;
       const duration     = ended ? Math.round((ended-started)/60000) : null;
-      const lessonsDone  = [...new Set(lessonBadges.map(b=>JSON.stringify({key:b.badge_key,label:b.badge_label,emoji:b.badge_emoji})))].map(s=>JSON.parse(s));
+      const lessonsDone  = [...new Map(lessonBadges.map(b=>[b.badge_key, b])).values()];
       const allVocab     = sesVocab.flatMap(v=>{ try{return JSON.parse(v.vocab||'[]');}catch(e){return [];} });
       const studentChips = students.map(b => {
         const student = _students.find(s=>s.id===b.student_id);
@@ -1268,30 +1277,29 @@ async function renderHistory(){
             </div>
           </div>
           <div class="history-body">
-            
             ${lessonsDone.length ? `
   <div>
     <div class="history-section-label">📚 Lessons completed</div>
     <div class="history-lesson-tags">
-      ${lessonsDone.map(l => {
-        const lessonId = l.key.replace('lesson_', '');
+      ${lessonsDone.map(b => {
+        const lessonId = b.badge_key.replace('lesson_', '');
         const meta     = LESSON_META[lessonId];
         const wsLink   = meta?.worksheetLink || null;
         return `
           <div class="history-lesson-tag" style="display:flex;align-items:center;gap:8px;padding-right:8px">
-            <span>${l.emoji} ${l.label}</span>
+            <span>${b.badge_emoji} ${b.badge_label}</span>
             <a href="/review/?class=${session.class_id}"
                style="background:var(--blue);color:#fff;font-size:11px;font-weight:900;border-radius:5px;padding:2px 8px;text-decoration:none">
               ▶ Review
             </a>
             ${wsLink ? `
               <a href="${wsLink}?from=admin" target="_blank"
-             style="background:rgba(0,212,170,.12);color:#007a60;font-size:11px;font-weight:900;
+                 style="background:rgba(0,212,170,.12);color:#007a60;font-size:11px;font-weight:900;
                         border-radius:5px;padding:2px 8px;text-decoration:none;
                         border:1.5px solid rgba(0,212,170,.28);white-space:nowrap">
                 🖨️ Worksheet
               </a>` : ''}
-            <button onclick="removeLessonFromHistory('${session.id}','${l.key}')"
+            <button onclick="removeLessonFromHistory('${session.id}','${b.badge_key}')"
                     style="background:rgba(255,75,75,.15);border:none;border-radius:5px;color:var(--punch);
                            font-size:11px;font-weight:900;cursor:pointer;padding:2px 7px;font-family:inherit">
               ✕
