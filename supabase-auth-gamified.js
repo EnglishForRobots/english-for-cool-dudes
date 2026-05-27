@@ -169,37 +169,34 @@ async function getOrCreateUserProfile(user) {
         }
 
         if (profile) {
+            // Read live streak from efcd_streaks — profiles.streak can be stale
+            try {
+                const { data: streakRow } = await supabase
+                    .from('efcd_streaks')
+                    .select('current_streak')
+                    .eq('user_id', user.id)
+                    .single();
+                if (streakRow?.current_streak !== undefined) {
+                    profile.streak = streakRow.current_streak;
+                }
+            } catch(_) {}
 
-   if (profile) {
-
-    // Read live streak from efcd_streaks — profiles.streak can be stale
-    try {
-        const { data: streakRow } = await supabase
-            .from('efcd_streaks')
-            .select('current_streak')
-            .eq('user_id', user.id)
-            .single();
-        if (streakRow?.current_streak !== undefined) {
-            profile.streak = streakRow.current_streak;
+            return {
+                id: profile.id,
+                email: user.email,
+                name: profile.full_name || user.user_metadata?.full_name || user.email.split('@')[0],
+                xp: profile.xp || 0,
+                level: profile.level || 1,
+                streak: profile.streak || 0,
+                streakFreezes: profile.streak_freezes || 0,
+                completedLessons: profile.completed_lessons || [],
+                totalLessons: profile.total_lessons || 0,
+                totalPoints: profile.total_points || 0,
+                achievements: profile.achievements || [],
+                lastLessonDate: profile.last_lesson_date,
+                createdAt: profile.created_at
+            };
         }
-    } catch(_) {}
-
-    return {
-        id: profile.id,
-        email: user.email,
-        name: profile.full_name || user.user_metadata?.full_name || user.email.split('@')[0],
-        xp: profile.xp || 0,
-        level: profile.level || 1,
-        streak: profile.streak || 0,
-        streakFreezes: profile.streak_freezes || 0,
-        completedLessons: profile.completed_lessons || [],
-        totalLessons: profile.total_lessons || 0,
-        totalPoints: profile.total_points || 0,
-        achievements: profile.achievements || [],
-        lastLessonDate: profile.last_lesson_date,
-        createdAt: profile.created_at
-    };
-}
 
         // Create new profile
         const newProfile = {
