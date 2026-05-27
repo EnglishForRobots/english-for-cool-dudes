@@ -1352,7 +1352,7 @@ const LESSON_DATA_REGISTRY = {
         word:        'sear',
         definition:  'To cook the surface of meat at high heat to brown it and develop flavour',
         example:     'The chef will ___ the lamb first to give it a caramelised colour.',
-        distractors: ['mince', 'mash', 'caramelise'],
+        distractors: ['mince', 'mash', 'boil'],
       },
       {
         word:        'caramelise',
