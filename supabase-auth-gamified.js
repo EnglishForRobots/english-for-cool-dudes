@@ -170,19 +170,17 @@ async function getOrCreateUserProfile(user) {
 
         if (profile) {
 
-            // ── STREAK STALENESS CHECK ────────────────────────────────
-            // Streak is only recalculated when a lesson is completed.
-            // That means if a user hasn't done a lesson in 2+ days,
-            // their streak stays frozen at the old value on every device.
-            // We fix it here at login — the moment we load the profile,
-            // we check whether the streak has actually expired and reset
-            // it to 0 in Supabase immediately if so. Every device then
-            // reads the correct value from that point on.
-            const today = new Date().toLocaleDateString('en-CA');
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayStr = yesterday.toLocaleDateString('en-CA');
-            const lastDate = profile.last_lesson_date;
+    // Read live streak from efcd_streaks — profiles.streak can be stale
+    try {
+        const { data: streakRow } = await supabase
+            .from('efcd_streaks')
+            .select('current_streak')
+            .eq('user_id', user.id)
+            .single();
+        if (streakRow?.current_streak !== undefined) {
+            profile.streak = streakRow.current_streak;
+        }
+    } catch(_) {}
 
             const streakShouldBeZero = (
                 profile.streak > 0 &&      // only act if streak is non-zero
