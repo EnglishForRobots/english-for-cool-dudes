@@ -557,6 +557,7 @@ function showAdmin(user){
   document.getElementById('admin-wrap').classList.add('show');
   document.getElementById('admin-user-email').textContent = user.email;
   loadEverything();
+  checkAndRecordMonthlyChampion();
 }
 
 // ── LOAD DATA ──────────────────────────────────────────────────
@@ -593,6 +594,17 @@ function switchTab(name){
 async function renderClasses(){
   const grid = document.getElementById('classes-grid');
   if(!grid) return;
+
+  // Load monthly champions for class card crowns
+  const { data: champions } = await sb
+    .from('efcd_monthly_champions')
+    .select('class_id, month_label')
+    .order('month', { ascending: false });
+  const championMonths = {};
+  (champions || []).forEach(c => {
+    if (!championMonths[c.class_id]) championMonths[c.class_id] = [];
+    championMonths[c.class_id].push(c.month_label);
+  });
  
   // Load trophy cabinets for all classes
   const { data: allLessonBadges } = await sb
@@ -696,7 +708,14 @@ async function renderClasses(){
           <span class="class-emoji">${cls.emoji}</span>
           <div class="class-name-wrap">
             <div class="class-name">${cls.name}</div>
-            <div class="class-team-name">${cls.team_name ? '🏷️ ' + cls.team_name : 'No team name yet'}</div>
+            <div class="class-team-name">
+              ${cls.team_name ? '🏷️ ' + cls.team_name : 'No team name yet'}
+              ${championMonths[cls.id]?.length
+                ? championMonths[cls.id].map(m =>
+                    `<span style="display:inline-flex;align-items:center;gap:3px;background:rgba(255,200,0,.15);border:1.5px solid rgba(255,200,0,.4);border-radius:99px;padding:1px 8px;font-size:10px;font-weight:900;color:#a07800;margin-left:4px">👑 ${m}</span>`
+                  ).join('')
+                : ''}
+            </div>
           </div>
           <span class="class-status ${isLive ? 'status-live' : 'status-off'}">${isLive ? 'LIVE' : 'OFF'}</span>
           ${cls.is_test ? `<span class="class-status" style="background:#CE82FF;color:#fff;margin-left:4px">🧪 TEST</span>` : ''}
@@ -907,6 +926,22 @@ async function renderLeaderboard(){
  
   buildTable(weekScores,  'lb-weekly');
   buildTable(monthScores, 'lb-monthly');
+
+  // Hall of Fame
+  let hofEl = document.getElementById('lb-hof');
+  if (!hofEl) {
+    const hofSection = document.createElement('div');
+    hofSection.style.marginTop = '24px';
+    hofSection.innerHTML = `
+      <div class="sec-title" style="display:flex;align-items:center;gap:10px">
+        👑 Hall of Fame
+        <span style="font-size:12px;font-weight:700;color:var(--ink-3);font-style:normal">Monthly Champions</span>
+      </div>
+      <div id="lb-hof"></div>`;
+    document.getElementById('lb-wrap').appendChild(hofSection);
+    hofEl = document.getElementById('lb-hof');
+  }
+  renderHallOfFame('lb-hof');
 }
  
 function getMonthStart(){
@@ -1666,6 +1701,120 @@ async function activateSRSForClass(classId, lessonId) {
     toast('❌', 'Error: ' + err.message);
     console.error('activateSRSForClass error:', err);
   }
+}
+
+// ── MONTHLY CHAMPION ───────────────────────────────────────────
+
+function isLastDayOfMonth() {
+  const now   = new Date();
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return tomorrow.getMonth() !== now.getMonth();
+}
+
+function getMonthKey(date = new Date()) {
+  return date.toISOString().slice(0, 7); // '2026-05'
+}
+
+function getMonthLabel(date = new Date()) {
+  return date.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+}
+
+async function checkAndRecordMonthlyChampion() {
+  if (!isLastDayOfMonth()) return;
+
+  const monthKey = getMonthKey();
+
+  // Already recorded this month?
+  const { data: existing } = await sb
+    .from('efcd_monthly_champions')
+    .select('id')
+    .eq('month', monthKey)
+    .limit(1);
+  if (existing?.length) return;
+
+  // Tally this month's scores
+  const monthStart = getMonthStart();
+  const { data: scores } = await sb
+    .from('efcd_scores')
+    .select('class_id, correct, xp')
+    .gte('date', monthStart);
+
+  if (!scores?.length) return;
+
+  const totals = {};
+  _classes.forEach(c => { if (!c.is_test) totals[c.id] = { correct: 0, xp: 0 }; });
+  scores.forEach(s => {
+    if (totals[s.class_id]) {
+      totals[s.class_id].correct += s.correct || 0;
+      totals[s.class_id].xp     += s.xp     || 0;
+    }
+  });
+
+  const winner = _classes
+    .filter(c => !c.is_test && totals[c.id]?.correct > 0)
+    .sort((a, b) => totals[b.id].correct - totals[a.id].correct)[0];
+
+  if (!winner) return;
+
+  const { error } = await sb.from('efcd_monthly_champions').insert({
+    month:       monthKey,
+    month_label: getMonthLabel(),
+    class_id:    winner.id,
+    class_name:  winner.name,
+    class_emoji: winner.emoji,
+    team_name:   winner.team_name || null,
+    correct:     totals[winner.id].correct,
+    xp:          totals[winner.id].xp,
+  });
+
+  if (!error) {
+    toast('🏆', `${winner.emoji} ${winner.name} crowned ${getMonthLabel()} champion!`);
+    renderLeaderboard();
+    renderClasses();
+  }
+}
+
+async function loadMonthlyChampions() {
+  const { data } = await sb
+    .from('efcd_monthly_champions')
+    .select('*')
+    .order('month', { ascending: false });
+  return data || [];
+}
+
+async function renderHallOfFame(containerId) {
+  const champions = await loadMonthlyChampions();
+  const el = document.getElementById(containerId);
+  if (!el) return;
+
+  if (!champions.length) {
+    el.innerHTML = `<p style="font-size:13px;font-weight:700;color:var(--ink-3);font-style:italic;padding:12px 0">No monthly champions yet — first one records automatically on the last day of the month.</p>`;
+    return;
+  }
+
+  const medals = ['🥇','🥈','🥉'];
+  el.innerHTML = `
+    <div class="lb-table">
+      <div class="lb-row header">
+        <div class="lb-rank" style="width:40px">Month</div>
+        <div class="lb-class-info"><div class="lb-class-name">Champion</div></div>
+        <div class="lb-score">Correct</div>
+        <div style="font-size:11px;font-weight:900;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:1px;margin-left:8px">XP</div>
+      </div>
+      ${champions.map((c, i) => `
+        <div class="lb-row" style="${i === 0 ? 'background:linear-gradient(135deg,rgba(255,200,0,.08),rgba(255,200,0,.03));' : ''}">
+          <div class="lb-rank" style="width:40px;font-size:13px;color:var(--ink-3);font-weight:900">${c.month_label.replace(' ', '\n').split(' ')[0]}<br><span style="font-size:10px">${c.month_label.split(' ')[1]}</span></div>
+          <div class="lb-class-info">
+            <div class="lb-class-name" style="${i === 0 ? 'color:var(--yellow)' : ''}">
+              ${i === 0 ? '👑 ' : ''}${c.class_emoji} ${c.class_name}
+            </div>
+            <div class="lb-team-name">${c.team_name || 'No team name'}</div>
+          </div>
+          <div class="lb-score">${c.correct}</div>
+          <div style="font-size:13px;font-weight:800;color:var(--yellow);margin-left:8px">⚡${c.xp}</div>
+        </div>`).join('')}
+    </div>`;
 }
 </script>
 </body>
