@@ -1459,7 +1459,7 @@ const LESSON_DATA_REGISTRY = {
     // ── SENTENCE BUILDER ────────────────────────────────────
     sentences: [
       {
-        words:  ['should','lamb','traditional','If','want','you','mince','use','it','super','to','be'],
+        words:  ['lamb','traditional','If','want','you','mince','use','it','super','to','be'],
         answer: 'If you want it super traditional use lamb mince',
         hint:   '🐑 The chef\'s clear recommendation about which meat to use'
       },
