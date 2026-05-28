@@ -1088,13 +1088,16 @@ function escQ(s){ return (s||'').replace(/'/g,"\\'"); }
 
 // ── WORD BUILDER ──────────────────────────────────────────────
 function renderBuilder(q, body){
+  _wbBuilt = [];
+  _wbWrong = 0;
+  const freshLetters = shuffle([...q.word]);
   body.innerHTML = `
     <div class="wb-wrap">
       <div class="q-counter">Question ${_qIdx+1} of ${_questions.length}</div>
       <div class="wb-def">💡 ${q.def}</div>
       <div class="wb-slots" id="wb-slots"></div>
       <div class="wb-tiles" id="wb-tiles">
-        ${q.letters.map((l,i) => `<button class="wb-tile" id="wbt-${i}" onclick="tapWBLetter('${l}',${i})">${l.toUpperCase()}</button>`).join('')}
+        ${freshLetters.map((l,i) => `<button class="wb-tile" id="wbt-${i}" onclick="tapWBLetter('${l}',${i})">${l.toUpperCase()}</button>`).join('')}
       </div>
       <div class="wb-actions">
         <button class="wb-clear"  onclick="clearWB()">🗑️ Clear</button>
@@ -1185,23 +1188,29 @@ function checkWB(){
   if(_answered) return;
   const q     = _questions[_qIdx];
   const built = _wbBuilt.join('').toLowerCase();
-  if(built.length < q.word.length){ return; }
+  if(built.length < q.word.length) return;
   _answered = true; _total++;
   const ok    = built === q.word.toLowerCase();
   const slots = document.querySelectorAll('.wb-slot');
-  slots.forEach(s => s.classList.add(ok ? 'correct' : 'wrong'));
   if(ok){
-    if (_srsMode) _recordSRSResult(true, 'fast');
+    slots.forEach(s => { s.classList.remove('wrong'); void s.offsetWidth; s.classList.add('correct'); });
+    if(_srsMode) _recordSRSResult(true, 'fast');
     handleResult(true, `✅ Correct! <strong>${q.word.toUpperCase()}</strong>`, q.def);
   } else {
     _wbWrong++;
     if(_wbWrong < 2){
       _answered = false; _total--;
-      slots.forEach(s => { s.classList.remove('wrong'); });
-      setTimeout(() => { _wbBuilt=[]; document.querySelectorAll('.wb-tile').forEach(t=>t.classList.remove('used')); renderWBSlots(); }, 400);
+      slots.forEach(s => { s.classList.add('wrong'); });
+      setTimeout(() => {
+        slots.forEach(s => s.classList.remove('wrong'));
+        _wbBuilt = [];
+        document.querySelectorAll('.wb-tile').forEach(t => t.classList.remove('used'));
+        renderWBSlots();
+      }, 400);
       return;
     }
-    if (_srsMode) _recordSRSResult(false, 'wrong');
+    slots.forEach(s => { s.classList.remove('correct'); void s.offsetWidth; s.classList.add('wrong'); });
+    if(_srsMode) _recordSRSResult(false, 'wrong');
     handleResult(false, `❌ The word was: <strong>${q.word.toUpperCase()}</strong>`, q.def);
   }
 }
@@ -1235,13 +1244,14 @@ function answerTF(chosen, btn){
 // ── SENTENCE BUILDER ──────────────────────────────────────────
 function renderSentence(q, body){
   _sbBuilt = [];
+  const freshWords = shuffle([...q.words]);
   body.innerHTML = `
     <div class="sb-wrap">
       <div class="q-counter">Question ${_qIdx+1} of ${_questions.length}</div>
       ${q.hint ? `<div class="sb-hint">💡 ${q.hint}</div>` : ''}
       <div class="sb-answer" id="sb-answer"></div>
       <div class="sb-words" id="sb-words">
-        ${q.words.map((w,i) => `<button class="sb-word" id="sbw-${i}" onclick="tapSBWord('${escQ(w)}',${i})">${w}</button>`).join('')}
+        ${freshWords.map((w,i) => `<button class="sb-word" id="sbw-${i}" onclick="tapSBWord('${escQ(w)}',${i})">${w}</button>`).join('')}
       </div>
       <div class="sb-actions">
         <button class="sb-clear"  onclick="clearSB()">🗑️ Clear</button>
@@ -1291,8 +1301,12 @@ function checkSB(){
   const ok     = built === target;
   _answered = true; _total++;
   const ans = document.getElementById('sb-answer');
-  if(ans) ans.classList.add(ok ? 'correct-flash' : 'wrong-flash');
-  if (_srsMode) _recordSRSResult(ok, ok ? 'fast' : 'wrong');
+  if(ans){
+    ans.classList.remove('correct-flash','wrong-flash');
+    void ans.offsetWidth;
+    ans.classList.add(ok ? 'correct-flash' : 'wrong-flash');
+  }
+  if(_srsMode) _recordSRSResult(ok, ok ? 'fast' : 'wrong');
   handleResult(ok, ok ? '✅ Perfect sentence!' : `❌ Correct order: <strong>${q.answer}</strong>`, '');
 }
 
