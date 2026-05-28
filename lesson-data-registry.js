@@ -1460,7 +1460,7 @@ const LESSON_DATA_REGISTRY = {
     sentences: [
       {
         words:  ['lamb','traditional','If','want','you','mince','use','it','super','to','be'],
-        answer: 'If you want it super traditional use lamb mince',
+        answer: 'If you want it to be super traditional use lamb mince',
         hint:   '🐑 The chef\'s clear recommendation about which meat to use'
       },
       {
