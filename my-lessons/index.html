@@ -82,10 +82,23 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .srs-due-link:hover{background:rgba(28,176,246,.14)}
 .srs-due-link{animation:nudgePulse 3s ease-in-out infinite;}
 @keyframes nudgePulse{0%,100%{border-color:rgba(28,176,246,.2)}55%{border-color:rgba(28,176,246,.5)}}
-
 .srs-due-link{padding:7px 14px;background:var(--blue);color:#fff;font-size:12px;font-weight:900;border-radius:var(--rsm);border:2px solid var(--blue-shadow);border-bottom:3px solid var(--blue-shadow);white-space:nowrap;flex-shrink:0;position:relative;overflow:hidden;}
 .srs-due-link::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(120deg,transparent 0%,rgba(255,255,255,.45) 50%,transparent 100%);animation:btnShimmer 2.2s ease-in-out infinite;}
 @keyframes btnShimmer{0%{left:-100%}50%,100%{left:160%}}
+  .srs-due-banner:hover .srs-due-link {
+  transform: scale(1.05);
+  background: var(--blue);
+  box-shadow: 0 4px 16px rgba(28,176,246,.4);
+}
+.srs-due-banner:hover .srs-due-emoji {
+  animation: bounce 0.6s ease-in-out infinite;
+}
+.srs-due-banner:hover .srs-due-title {
+  color: var(--yellow);
+}
+.srs-due-link {
+  transition: transform .2s, box-shadow .2s, background .2s;
+}
 /* ── SKELETON ── */
 .skeleton{background:linear-gradient(90deg,#e8e8e8 25%,#f5f5f5 50%,#e8e8e8 75%);background-size:400px 100%;animation:shimmer 1.4s infinite;border-radius:var(--rsm)}
 .skel-hero{height:180px;border-radius:var(--r);margin-bottom:0}
@@ -111,12 +124,40 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .badge-card-date{font-size:10px;font-weight:700;color:var(--ink-3)}
 .badge-card-btn{display:flex;align-items:center;justify-content:center;gap:5px;width:calc(100% - 24px);margin:0 12px 8px;padding:9px;font-size:12px;font-weight:900;border-radius:var(--rsm);border:2px solid;border-bottom:3px solid;transition:all .1s;font-family:inherit}
 .badge-card-btn:active{border-bottom-width:2px;transform:translateY(2px)}
+.badge-card:hover .badge-card-btn {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,.15);
+  filter: brightness(1.08);
+}
+.badge-card-btn {
+  transition: transform .2s, box-shadow .2s, filter .2s;
+}
+
+/* SRS review button on badge card */
+.srs-review-btn {
+  transition: transform .2s, box-shadow .2s, background .2s, border-color .2s;
+}
+.badge-card:hover .srs-review-btn {
+  transform: translateY(-2px);
+  background: rgba(28,176,246,.18);
+  border-color: rgba(28,176,246,.5);
+  box-shadow: 0 4px 14px rgba(28,176,246,.25);
+  animation: none; /* pause the pulse during hover so it doesn't fight */
+}
 
 /* ── SRS BUTTONS ON BADGE CARDS ── */
 .srs-activate-btn{display:flex;align-items:center;justify-content:space-between;gap:6px;width:calc(100% - 24px);margin:0 12px 12px;padding:8px 12px;background:rgba(255,200,0,.08);color:#8a6800;font-size:11px;font-weight:900;font-family:'Nunito',sans-serif;border:2px solid rgba(255,200,0,.25);border-radius:var(--rsm);cursor:pointer;transition:all .12s}
 .srs-activate-btn:hover{background:rgba(255,200,0,.18);border-color:rgba(255,200,0,.5)}
-
 .srs-activate-btn.cant-afford{opacity:.45;cursor:not-allowed}
+.srs-activate-btn {
+  transition: transform .2s, box-shadow .2s, background .2s, border-color .2s;
+}
+.badge-card:hover .srs-activate-btn:not(.cant-afford) {
+  transform: translateY(-2px);
+  background: rgba(255,200,0,.18);
+  border-color: rgba(255,200,0,.55);
+  box-shadow: 0 4px 14px rgba(255,200,0,.2);
+}
 .srs-cost{background:rgba(255,200,0,.2);border-radius:99px;padding:1px 7px;font-size:10px}
 .srs-review-btn{display:flex;align-items:center;justify-content:space-between;gap:6px;width:calc(100% - 24px);margin:0 12px 12px;padding:8px 12px;background:rgba(28,176,246,.1);color:#0a6fa8;font-size:11px;font-weight:900;border:2px solid rgba(28,176,246,.3);border-radius:var(--rsm);text-decoration:none;animation:pulse 2s ease-in-out infinite}
 .srs-due-count{background:rgba(28,176,246,.2);border-radius:99px;padding:1px 7px;font-size:10px}
@@ -923,9 +964,10 @@ function renderTFPanel(reg){
 function renderSentencePanel(reg){
   const el=document.getElementById('panel-sentences');
   if(!el||!reg?.sentences?.length){ if(el) el.innerHTML=comingSoon('Sentence builder'); return; }
-  let sIdx=0,sScore=0,sBuilt=[];
+  let sIdx=0, sScore=0;
 
   function renderS(){
+    let sBuilt=[]; // reset per question
     const q=reg.sentences[sIdx];
     const shuffled=[...q.words].sort(()=>Math.random()-.5);
     const pips=reg.sentences.map((_,i)=>`<div class="quiz-pip${i<sIdx?' right':i===sIdx?' active':''}" id="spip-${i}"></div>`).join('');
@@ -949,8 +991,8 @@ function renderSentencePanel(reg){
       if(!sBuilt.length){ box.textContent='Tap words below →'; box.style.border='2px dashed var(--border-heavy)'; return; }
       box.style.border='2px solid var(--border-heavy)';
       box.innerHTML=sBuilt.map((item,pos)=>
-  `<span style="display:inline-block;padding:4px 10px;margin:2px 3px;background:transparent;border-radius:6px;cursor:pointer;font-size:13px;font-weight:800;color:var(--ink-bold)" data-pos="${pos}">${item.word}</span>`
-).join('');
+        `<span style="display:inline-block;padding:4px 10px;margin:2px 3px;background:transparent;border-radius:6px;cursor:pointer;font-size:13px;font-weight:800;color:var(--ink-bold)" data-pos="${pos}">${item.word}</span>`
+      ).join('');
       box.querySelectorAll('[data-pos]').forEach(span=>{
         span.addEventListener('click',function(){
           const pos=parseInt(this.dataset.pos);
@@ -965,11 +1007,8 @@ function renderSentencePanel(reg){
     el.querySelectorAll('.s-word-btn').forEach(btn=>{
       btn.addEventListener('click',function(){
         if(this.disabled) return;
-        const word=this.dataset.word;
-        const ti=parseInt(this.dataset.ti);
-        sBuilt.push({word, ti});
-        this.disabled=true;
-        this.style.opacity='.3';
+        sBuilt.push({word:this.dataset.word, ti:parseInt(this.dataset.ti)});
+        this.disabled=true; this.style.opacity='.3';
         renderBuilt();
       });
     });
@@ -987,8 +1026,17 @@ function renderSentencePanel(reg){
       const target=q.answer.toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
       const ok=built===target;
       if(ok){sScore++;burst();}
-      const fb=document.getElementById('sfb'); if(fb){fb.textContent=ok?'✅ Perfect!':`💡 Answer: "${q.answer}"`;fb.className=`quiz-feedback show ${ok?'right':'wrong'}`;}
-      el.querySelectorAll('.s-word-btn').forEach(b=>b.disabled=true); this.style.display='none';
+      const box=document.getElementById('s-answer-box');
+      if(box){
+        box.classList.remove('correct-flash','wrong-flash');
+        void box.offsetWidth;
+        box.style.border=ok?'2px solid var(--gs)':'2px solid var(--ps)';
+        box.style.background=ok?'rgba(88,204,2,.08)':'rgba(255,75,75,.08)';
+      }
+      const fb=document.getElementById('sfb');
+      if(fb){fb.textContent=ok?'✅ Perfect!':`💡 Answer: "${q.answer}"`;fb.className=`quiz-feedback show ${ok?'right':'wrong'}`;}
+      el.querySelectorAll('.s-word-btn').forEach(b=>b.disabled=true);
+      this.style.display='none';
       const pip=document.getElementById(`spip-${sIdx}`); if(pip) pip.classList.add(ok?'right':'wrong');
       document.getElementById('snxt').style.display='flex';
     });
@@ -1007,9 +1055,10 @@ function renderSentencePanel(reg){
 function renderWordBuilderPanel(reg){
   const el=document.getElementById('panel-wordBuilder');
   if(!el||!reg?.word_builder?.length){ if(el) el.innerHTML=comingSoon('Word builder'); return; }
-  let wIdx=0,wScore=0,wBuilt=[];
+  let wIdx=0, wScore=0;
 
   function renderW(){
+    let wBuilt=[]; // reset per question
     const q=reg.word_builder[wIdx];
     const letters=q.word.toUpperCase().split('').sort(()=>Math.random()-.5);
     const pips=reg.word_builder.map((_,i)=>`<div class="quiz-pip${i<wIdx?' right':i===wIdx?' active':''}" id="wpip-${i}"></div>`).join('');
@@ -1030,22 +1079,19 @@ function renderWordBuilderPanel(reg){
       <button class="quiz-next" id="wnxt" style="margin-top:8px;background:var(--purple);border-color:var(--pus);display:none">${wIdx+1<reg.word_builder.length?'Next →':'Done! 🎉'}</button>`;
 
     function renderSlots(){
-  const box=document.getElementById('w-answer-box');
-  if(!box) return;
-  if(!wBuilt.length){ box.textContent='_ _ _'; return; }
-  box.innerHTML = wBuilt.map((item,pos)=>
-  `<span style="display:inline-block;padding:4px 8px;margin:2px 2px;background:rgba(206,130,255,.12);border-radius:6px;cursor:pointer;font-size:18px;font-weight:900;color:var(--ink-bold)" data-pos="${pos}">${item.letter}</span>`
-).join('');
-  box.querySelectorAll('[data-pos]').forEach(span=>{
-    span.addEventListener('click', function(){
-      const pos=parseInt(this.dataset.pos);
-      const removed=wBuilt.splice(pos,1)[0];
-      const tile=document.getElementById('wlb-'+removed.ti);
-      if(tile){
-        tile.disabled=false;
-        tile.style.opacity='1';
-      }
-      renderSlots();
+      const box=document.getElementById('w-answer-box');
+      if(!box) return;
+      if(!wBuilt.length){ box.textContent='_ _ _'; box.style.border='2px dashed var(--border-heavy)'; box.style.background='var(--bg)'; return; }
+      box.innerHTML=wBuilt.map((item,pos)=>
+        `<span style="display:inline-block;padding:4px 8px;margin:2px 2px;background:rgba(206,130,255,.12);border-radius:6px;cursor:pointer;font-size:18px;font-weight:900;color:var(--ink-bold)" data-pos="${pos}">${item.letter}</span>`
+      ).join('');
+      box.querySelectorAll('[data-pos]').forEach(span=>{
+        span.addEventListener('click',function(){
+          const pos=parseInt(this.dataset.pos);
+          const removed=wBuilt.splice(pos,1)[0];
+          const tile=document.getElementById('wlb-'+removed.ti);
+          if(tile){ tile.disabled=false; tile.style.opacity='1'; }
+          renderSlots();
         });
       });
     }
@@ -1053,11 +1099,8 @@ function renderWordBuilderPanel(reg){
     el.querySelectorAll('.w-letter-btn').forEach(btn=>{
       btn.addEventListener('click',function(){
         if(this.disabled) return;
-        const letter=this.dataset.letter;
-        const ti=parseInt(this.dataset.ti);
-        wBuilt.push({letter, ti});
-        this.disabled=true;
-        this.style.opacity='.3';
+        wBuilt.push({letter:this.dataset.letter, ti:parseInt(this.dataset.ti)});
+        this.disabled=true; this.style.opacity='.3';
         renderSlots();
       });
     });
@@ -1075,8 +1118,16 @@ function renderWordBuilderPanel(reg){
       const answer=q.word.toUpperCase();
       const ok=built===answer;
       if(ok){wScore++;burst();}
-      const fb=document.getElementById('wfb'); if(fb){fb.textContent=ok?`✅ ${answer} — correct!`:`💡 The word is: ${answer}`;fb.className=`quiz-feedback show ${ok?'right':'wrong'}`;}
-      el.querySelectorAll('.w-letter-btn').forEach(b=>b.disabled=true); this.style.display='none';
+      const box=document.getElementById('w-answer-box');
+      if(box){
+        void box.offsetWidth;
+        box.style.border=ok?'2px solid var(--gs)':'2px solid var(--ps)';
+        box.style.background=ok?'rgba(88,204,2,.08)':'rgba(255,75,75,.08)';
+      }
+      const fb=document.getElementById('wfb');
+      if(fb){fb.textContent=ok?`✅ ${answer} — correct!`:`💡 The word is: ${answer}`;fb.className=`quiz-feedback show ${ok?'right':'wrong'}`;}
+      el.querySelectorAll('.w-letter-btn').forEach(b=>b.disabled=true);
+      this.style.display='none';
       const pip=document.getElementById(`wpip-${wIdx}`); if(pip) pip.classList.add(ok?'right':'wrong');
       document.getElementById('wnxt').style.display='flex';
     });
