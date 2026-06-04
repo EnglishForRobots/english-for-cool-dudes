@@ -354,7 +354,26 @@
       { word:'consensus',    definition:'A general agreement among a group of people' },
     ],
   },
- 
+
+     'merger-machine-tax': {
+      title:   'The Merger Machine',
+      level:   'Tax English',
+      grammar: 'Passive voice in deal and tax documentation; third conditional for hypothetical deal analysis',
+      vocab: [
+        { word:'due diligence',      definition:'The investigation a buyer does before a deal — checking finances, tax, legal issues, and any hidden risks' },
+        { word:'indemnity',          definition:'A promise by the seller to pay the buyer if a specific problem arises after the deal closes' },
+        { word:'tax covenant',       definition:'A contractual promise about tax — often that the seller will cover any tax liabilities from before the sale' },
+        { word:'goodwill',           definition:'The amount paid for a business above the value of its identifiable assets' },
+        { word:'deferred tax',       definition:'Tax that is owed but not yet paid — it appears on the balance sheet as a liability' },
+        { word:'earn-out',           definition:'A payment to the seller that depends on future performance of the target business' },
+        { word:'step-up',            definition:'An increase in the tax value of an asset when it changes ownership — reduces future taxable gains' },
+        { word:'hive-down',          definition:'Moving assets from a parent company into a subsidiary before a sale' },
+        { word:'completion accounts',definition:'The final accounts prepared on the day a deal closes — show the exact financial position at completion' },
+        { word:'warranty',           definition:'A statement made by the seller that something is true — if wrong, the buyer can claim compensation' },
+        { word:'carve-out',          definition:'A part of a business that is excluded or separated from a transaction' },
+        { word:'uplift',             definition:'An increase in value — tax uplift means the taxable base of an asset is increased, reducing future tax' },
+      ],
+    },
 
   };
 
