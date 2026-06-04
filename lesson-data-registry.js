@@ -1700,7 +1700,7 @@ const LESSON_DATA_REGISTRY = {
     // ── SENTENCE BUILDER ────────────────────────────────────
     sentences: [
       {
-        words:  ['deal', 'asset', 'a', 'step-up', 'allows', 'in', 'tax', 'the', 'base', 'buyer', 'a', 'the'],
+        words:  ['deal', 'asset', 'a', 'step-up', 'allows', 'in', 'tax', 'the', 'base', 'buyer', 'an', 'the'],
         answer: 'an asset deal allows the buyer a step-up in the tax base',
         hint:   '🏗️ Why might TechCorp prefer an asset deal to a share deal?',
       },
