@@ -1540,6 +1540,243 @@ const LESSON_DATA_REGISTRY = {
     ],
  
   },
+   'merger-machine-tax': {
+ 
+    // ── IDENTITY ─────────────────────────────────────────────
+    id:    'merger-machine-tax',
+    title: 'The Merger Machine',
+    level: 'Tax English',
+    track: 'tax',
+    emoji: '🏦',
+    badge: 'Deal Maker',
+ 
+    // ── VOCAB ────────────────────────────────────────────────
+    vocab: [
+      {
+        word:        'due diligence',
+        definition:  'The investigation a buyer does before a deal — checking finances, tax, legal issues, and any hidden risks',
+        example:     'TechCorp\'s ___ team uncovered €18m of unrecognised deferred tax liabilities in RivalSoft\'s accounts.',
+        distractors: ['tax covenant', 'completion accounts', 'earn-out'],
+      },
+      {
+        word:        'indemnity',
+        definition:  'A promise by the seller to pay the buyer if a specific problem arises after the deal closes',
+        example:     'TechCorp demanded an ___ from FounderCo covering any pre-completion tax liability that arose after the deal closed.',
+        distractors: ['warranty', 'tax covenant', 'earn-out'],
+      },
+      {
+        word:        'tax covenant',
+        definition:  'A contractual promise about tax — often that the seller will cover any tax liabilities from before the sale',
+        example:     'The ___ in the SPA required FounderCo to cover any tax liability of RivalSoft that arose before completion.',
+        distractors: ['indemnity', 'warranty', 'deferred tax'],
+      },
+      {
+        word:        'goodwill',
+        definition:  'The amount paid for a business above the value of its identifiable assets — often includes brand, customers, and reputation',
+        example:     'TechCorp paid €480m for RivalSoft. The premium above asset value sits on the balance sheet as ___.',
+        distractors: ['deferred tax', 'uplift', 'step-up'],
+      },
+      {
+        word:        'deferred tax',
+        definition:  'Tax that is owed but not yet paid — it appears on the balance sheet as a liability',
+        example:     'The accountants found €18m of ___ liabilities that had not been fully recognised in RivalSoft\'s accounts.',
+        distractors: ['goodwill', 'indemnity', 'earn-out'],
+      },
+      {
+        word:        'earn-out',
+        definition:  'A payment to the seller that depends on future performance — if profits hit a target, the seller gets more money',
+        example:     'FounderCo negotiated a €40m ___ payable in year three if EBITDA hit €60m.',
+        distractors: ['indemnity', 'tax covenant', 'completion accounts'],
+      },
+      {
+        word:        'step-up',
+        definition:  'An increase in the tax value of an asset when it changes ownership — reduces future taxable gains',
+        example:     'In an asset deal, TechCorp could have got a ___ in the tax base of RivalSoft\'s IT assets — but a share deal does not allow this.',
+        distractors: ['uplift', 'goodwill', 'hive-down'],
+      },
+      {
+        word:        'hive-down',
+        definition:  'Moving assets from a parent company into a subsidiary before a sale — often used to structure a deal more efficiently',
+        example:     'The tax advisors proposed a ___ of RivalSoft\'s main business into a new subsidiary before TechCorp acquired it.',
+        distractors: ['carve-out', 'step-up', 'earn-out'],
+      },
+      {
+        word:        'completion accounts',
+        definition:  'The final accounts prepared on the day a deal closes — they show the exact financial position at completion',
+        example:     '___ prepared at midnight on the closing date confirmed the exact cash, debt and working capital position of RivalSoft.',
+        distractors: ['due diligence', 'tax covenant', 'warranty'],
+      },
+      {
+        word:        'warranty',
+        definition:  'A statement made by the seller that something is true — if it is wrong, the buyer can claim compensation',
+        example:     'FounderCo gave TechCorp a ___ that RivalSoft\'s tax returns were accurate and there were no open investigations.',
+        distractors: ['indemnity', 'tax covenant', 'earn-out'],
+      },
+      {
+        word:        'carve-out',
+        definition:  'A part of a business that is excluded or separated from a transaction',
+        example:     'The parties agreed a ___ of RivalSoft\'s legacy hardware division, which would not be included in the deal.',
+        distractors: ['hive-down', 'step-up', 'earn-out'],
+      },
+      {
+        word:        'uplift',
+        definition:  'An increase in value — tax uplift means the taxable base of an asset is increased, reducing future tax',
+        example:     'TechCorp\'s model assumed a tax ___ on RivalSoft\'s IP assets — but the share deal structure made this unavailable.',
+        distractors: ['step-up', 'goodwill', 'deferred tax'],
+      },
+    ],
+ 
+    // ── GRAMMAR 1: Passive Voice ──────────────────────────────
+    // M&A and tax documents rely heavily on passive voice
+    grammar: {
+      topic: 'Passive Voice in deal and tax documentation',
+      rule:  'In deal documentation and tax advice, passive voice focuses on what happened — not who did it. Form: is/are/was/were + past participle. "The price was agreed." "Tax is deducted." "Goodwill is recorded." Very common in SPAs, due diligence reports and tax opinions.',
+      exercises: [
+        {
+          sentence: 'The €18m deferred tax liability ___ in RivalSoft\'s accounts before due diligence.',
+          answer:   'had not been recognised',
+          wrong:    ['was not recognising', 'did not recognise', 'has not recognised'],
+          explain:  'Past perfect passive: had not been + past participle. The liability existed before the investigation — it just wasn\'t shown.',
+        },
+        {
+          sentence: 'TechCorp\'s goodwill of €480m ___ on the balance sheet as a non-deductible intangible.',
+          answer:   'will be recorded',
+          wrong:    ['records', 'is recording', 'was recording'],
+          explain:  'Future passive: will be + past participle. This is what will happen after the deal closes.',
+        },
+        {
+          sentence: 'The tax covenant ___ for at least four years to cover the German assessment period.',
+          answer:   'should be extended',
+          wrong:    ['should extend', 'must extending', 'is extending'],
+          explain:  'Modal passive: should be + past participle. Advice — the covenant ought to receive the action of being extended.',
+        },
+        {
+          sentence: 'Under § 8c KStG, loss carry-forwards ___ when more than 50% of shares change hands.',
+          answer:   'can be cancelled',
+          wrong:    ['can cancel', 'are cancelling', 'have cancelled'],
+          explain:  'Modal passive for a general legal rule: can be + past participle. The losses receive the action — they can be cancelled by the rule.',
+        },
+        {
+          sentence: 'The earn-out payment ___ as employment income if the founder remains an employee.',
+          answer:   'may be recharacterised',
+          wrong:    ['may recharacterise', 'is recharacterising', 'could have recharacterised'],
+          explain:  'Modal passive: may be + past participle. The payment is the subject — it might receive the action of recharacterisation.',
+        },
+      ],
+    },
+ 
+    // ── GRAMMAR 2: Third Conditional ─────────────────────────
+    grammar2: {
+      topic: 'Third Conditional — deal analysis and hypothetical advice',
+      rule:  'Third conditional: If + past perfect → would have + past participle. In M&A, used constantly to analyse what would have been different if the structure had been different. "If TechCorp had chosen an asset deal, it would have obtained a tax step-up."',
+      exercises: [
+        {
+          sentence: 'If TechCorp ___ an asset deal, it ___ a step-up in the tax base of RivalSoft\'s assets.',
+          answer:   'had chosen / would have obtained',
+          wrong:    ['chose / would obtain', 'had chosen / would obtain', 'chose / would have obtained'],
+          explain:  'Third conditional: If + past perfect (had chosen) → would have + past participle (would have obtained). The deal was a share deal — this imagines the alternative.',
+        },
+        {
+          sentence: 'If the founder ___ any post-completion role, the earn-out recharacterisation risk ___ much lower.',
+          answer:   'had not accepted / would have been',
+          wrong:    ['didn\'t accept / would be', 'had not accepted / would be', 'didn\'t accept / would have been'],
+          explain:  'Third conditional negative: If + past perfect negative → would have + past participle. Imagining a different set of facts.',
+        },
+        {
+          sentence: 'If TechCorp ___ the deferred tax liabilities, it ___ €18m more than the business was worth.',
+          answer:   'hadn\'t discovered / would have paid',
+          wrong:    ['didn\'t discover / would pay', 'hadn\'t discovered / would pay', 'didn\'t discover / would have paid'],
+          explain:  'Third conditional: the discovery was the key value-protecting action. Without it, TechCorp would have overpaid.',
+        },
+        {
+          sentence: 'If FounderCo ___ a longer covenant, TechCorp ___ better protection against year-four tax assessments.',
+          answer:   'had agreed / would have had',
+          wrong:    ['agreed / would have', 'had agreed / would have', 'agreed / would have had'],
+          explain:  'Third conditional for a negotiation counterfactual. FounderCo refused the longer covenant — this imagines the outcome if they had agreed.',
+        },
+      ],
+    },
+ 
+    // ── SENTENCE BUILDER ────────────────────────────────────
+    sentences: [
+      {
+        words:  ['deal', 'asset', 'a', 'step-up', 'allows', 'in', 'tax', 'the', 'base', 'buyer', 'a', 'the'],
+        answer: 'an asset deal allows the buyer a step-up in the tax base',
+        hint:   '🏗️ Why might TechCorp prefer an asset deal to a share deal?',
+      },
+      {
+        words:  ['founder', 'the', 'stays', 'if', 'earn-out', 'employed', 'the', 'be', 'recharacterised', 'may'],
+        answer: 'if the founder stays employed the earn-out may be recharacterised',
+        hint:   '⚠️ The key earn-out tax risk — what triggers it?',
+      },
+      {
+        words:  ['period', 'the', 'years', 'German', 'is', 'assessment', 'four', 'standard'],
+        answer: 'the standard German assessment period is four years',
+        hint:   '📅 Why TechCorp needs more than a three-year indemnity',
+      },
+      {
+        words:  ['the', 'cover', 'does', 'indemnity', 'an', 'warranty', 'a', 'unlike', 'without', 'proof', 'of', 'loss'],
+        answer: 'an indemnity covers without proof of loss unlike a warranty',
+        hint:   '⚖️ The key practical difference between a warranty and an indemnity',
+      },
+    ],
+ 
+    // ── WORD BUILDER ────────────────────────────────────────
+    word_builder: [
+      { word:'indemnity',   definition:'A promise to pay if a specific loss arises' },
+      { word:'covenant',    definition:'A contractual promise — often about tax obligations' },
+      { word:'diligence',   definition:'Careful investigation before making a commitment' },
+      { word:'goodwill',    definition:'The premium paid above the value of identifiable assets' },
+      { word:'completion',  definition:'The moment a deal formally closes and ownership transfers' },
+      { word:'warranty',    definition:'A factual statement that gives rise to a claim if untrue' },
+    ],
+ 
+    // ── TRUE / FALSE ─────────────────────────────────────────
+    true_false: [
+      {
+        statement: 'In a share deal, the buyer can obtain a step-up in the tax base of the target\'s assets.',
+        correct:   false,
+        reveal:    '❌ FALSE! A step-up in basis is only available in an asset deal. In a share deal, the buyer inherits the existing tax base — no reset. This is one of the biggest tax disadvantages of share deals for buyers.',
+      },
+      {
+        statement: 'Goodwill on an asset purchase in Germany can be amortised for tax over 15 years.',
+        correct:   true,
+        reveal:    '✅ TRUE! Goodwill arising on an asset deal IS tax-deductible in Germany — amortised over 15 years. This is exactly why buyers often prefer asset deals, and why sellers resist them.',
+      },
+      {
+        statement: 'A tax indemnity and a tax warranty give the buyer exactly the same level of protection.',
+        correct:   false,
+        reveal:    '❌ FALSE! An indemnity is pound-for-pound — if the liability arises, the seller pays, full stop. A warranty requires the buyer to PROVE loss. Indemnities are much stronger protection, especially for known tax risks.',
+      },
+      {
+        statement: 'If an earn-out payment is linked to a founder\'s continued employment, it may be taxed at income tax rates rather than capital gains rates.',
+        correct:   true,
+        reveal:    '✅ TRUE! This is a classic M&A tax trap. German tax authorities look at economic reality — if the payment is really for services, it gets taxed as employment income (up to 45%), not as a capital gain (flat 25%).',
+      },
+      {
+        statement: 'Under § 8c KStG, German loss carry-forwards are always fully preserved when shares change hands.',
+        correct:   false,
+        reveal:    '❌ FALSE! § 8c KStG can cancel loss carry-forwards when more than 50% of shares change hands. There ARE exceptions (the hidden reserves clause, the restructuring clause) — but losses are absolutely not automatically preserved.',
+      },
+      {
+        statement: 'Completion accounts determine the final purchase price by showing exact cash, debt and working capital at closing.',
+        correct:   true,
+        reveal:    '✅ TRUE! This is exactly what completion accounts do. They can lead to price adjustments up or down versus the agreed headline price — so they are always heavily negotiated.',
+      },
+      {
+        statement: '"Earn-out" means TechCorp gets money back if RivalSoft misses its targets.',
+        correct:   false,
+        reveal:    '❌ FALSE! An earn-out is additional money paid TO THE SELLER if targets are hit — it\'s not a refund mechanism for the buyer. It bridges the gap between what buyer and seller think the business is currently worth.',
+      },
+      {
+        statement: 'A tax covenant in an SPA is different from a warranty — it operates on an indemnity basis.',
+        correct:   true,
+        reveal:    '✅ TRUE! A tax covenant is effectively a specific tax indemnity — if a pre-completion tax liability arises, the seller pays pound-for-pound, without the buyer needing to prove consequential loss. Much stronger than a general warranty.',
+      },
+    ],
+ 
+  },
+ 
  
    };
 
