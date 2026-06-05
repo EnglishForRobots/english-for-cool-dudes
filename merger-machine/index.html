@@ -901,9 +901,12 @@ function openEvent(id){
 function buildVerdictHTML(id, correct, ev){
   const idx = DEAL_EVENTS.findIndex(e=>e.id===id);
   const next = DEAL_EVENTS[idx+1];
+  const allVoted = DEAL_EVENTS.every(e => S.dealVoted[e.id]);
   const nextBtn = next
     ? `<button class="rs-next" onclick="closeReport();setTimeout(()=>openEvent('${next.id}'),200)">${next.emoji} Next event →</button>`
-    : `<button class="rs-next" onclick="closeReport();finishDealRoom()">Deal room complete 🏦 →</button>`;
+    : allVoted
+      ? `<button class="rs-next" onclick="closeReport();finishDealRoom()">Deal room complete 🏦 →</button>`
+      : `<button class="rs-next" onclick="closeReport()">Close & finish remaining events</button>`;
   return `<div class="rs-verd-banner ${correct?'correct':'incorrect'}">${correct?ev.verdictCorrect:ev.verdictWrong}</div><div class="rs-verd-explain">${ev.explain}${nextBtn}</div>`;
 }
 
@@ -913,11 +916,14 @@ function castVote(id, vote){
   S.dealVoted[id] = vote; S.totalAnswered++;
   const rBtn = document.querySelector('.risk-btn');
   const sBtn = document.querySelector('.safe-btn');
+  const feedbackBtn = vote==='risk' ? rBtn : sBtn;
   if(correct){
     S.totalRight++; S.combo++; S.bestCombo = Math.max(S.bestCombo, S.combo);
-    addXP(12, vote==='risk'?rBtn:sBtn);
+    addXP(12, feedbackBtn);
+    if(fx()){ fx().correct(feedbackBtn); fx().combo(S.combo); }
   } else {
     S.combo = 0; addXP(4);
+    if(fx()){ fx().wrong(feedbackBtn); fx().comboBreak(S.combo, S.bestCombo); }
   }
   document.querySelectorAll('.stamp-btn').forEach(b=>b.disabled=true);
   if(vote==='risk'){ rBtn.classList.add(correct?'chosen-correct':'chosen-incorrect'); sBtn.classList.add('chosen-dim'); }
@@ -995,12 +1001,14 @@ function answerVB(btn, correct, explain){
     S.totalRight++; S.vbRight++; S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo);
     btn.classList.add('correct');
     addXP(15, btn);
+    if(fx()){ fx().correct(btn); fx().combo(S.combo); }
     const card = document.getElementById('vb-card');
     if(card) card.classList.add('correct-flash');
   } else {
     btn.classList.add('wrong');
     document.querySelectorAll('.vb-opt').forEach(b=>{ if(b.dataset.correct==='true') b.classList.add('reveal'); });
     S.combo = 0; addXP(5);
+    if(fx()){ fx().wrong(btn); fx().comboBreak(S.combo, S.bestCombo); }
     const card = document.getElementById('vb-card');
     if(card) card.classList.add('wrong-flash');
   }
