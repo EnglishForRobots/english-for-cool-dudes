@@ -375,6 +375,23 @@
       ],
     },
 
+     'weekly-drop-issue-007': {
+  title:   "The Weekly Drop — Issue 007 — The €10M Gift: One Man vs Munich's Housing Crisis",
+  level:   'All Levels',
+  grammar: 'Passive voice in news English (was donated, are planned); collocations in housing and economics journalism (reach, drive, stand as, make an impact)',
+  vocab: [
+    { word:'housing crisis',        definition:'A situation where there are not enough affordable homes for people who need them' },
+    { word:'donation',              definition:'Something given freely without expecting payment in return' },
+    { word:'affordable housing',    definition:'Homes with rents or prices low enough for people on modest incomes' },
+    { word:'non-profit',            definition:'An organisation that does not aim to make money for owners or shareholders' },
+    { word:'social responsibility', definition:'The duty to act in a way that benefits society, not just yourself' },
+    { word:'soaring',               definition:'Rising very fast and steeply — used for prices, demand or costs' },
+    { word:'multi-generational',    definition:'Involving people of different ages living or working together' },
+    { word:'plot',                  definition:'A piece of land, especially one intended for building on' },
+    { word:'priced out',            definition:'When prices rise so high that someone can no longer afford to live somewhere' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
