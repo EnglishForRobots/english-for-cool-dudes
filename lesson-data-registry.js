@@ -1776,6 +1776,76 @@ const LESSON_DATA_REGISTRY = {
     ],
  
   },
+
+   'weekly-drop-issue-007': {
+  id:    'weekly-drop-issue-007',
+  title: "The Weekly Drop - Issue 007 - The €10M Gift: One Man vs Munich's Housing Crisis",
+  level: 'All Levels',
+  track: 'weekly-drop',
+  emoji: '🏠',
+  badge: 'Good Neighbour',
+
+  vocab: [
+    { word:'housing crisis',       definition:'A situation where there are not enough affordable homes for people who need them.',          example:'Germany faces a serious ___ with a shortage of around 1.4 million homes.',           distractors:['donation','plot','non-profit'] },
+    { word:'donation',             definition:'Something given freely without expecting payment in return.',                               example:'Otto\'s ___ of his land to the foundation was worth around €10 million.',             distractors:['housing crisis','soaring','plot'] },
+    { word:'affordable housing',   definition:'Homes with rents or prices low enough for people on modest incomes to afford.',            example:'The foundation will build around 20 units of ___ on the donated land.',              distractors:['non-profit','multi-generational','soaring'] },
+    { word:'non-profit',           definition:'An organisation that does not aim to make money for owners or shareholders.',              example:'The ___ foundation will reinvest any surplus back into creating more homes.',          distractors:['affordable housing','plot','social responsibility'] },
+    { word:'social responsibility',definition:'The duty to act in a way that benefits society, not just yourself.',                       example:'His decision is a powerful example of ___ in the property market.',                   distractors:['donation','soaring','non-profit'] },
+    { word:'soaring',              definition:'Rising very fast and steeply — used for prices, demand or costs.',                        example:'___ rents mean young families can no longer afford to live in Munich.',               distractors:['housing crisis','multi-generational','plot'] },
+    { word:'multi-generational',   definition:'Involving or designed for people of different ages living or working together.',           example:'The project promotes ___ living — young adults, families and older residents together.',distractors:['affordable housing','soaring','non-profit'] },
+    { word:'plot',                 definition:'A piece of land, especially one intended for building on.',                                example:'Otto\'s 3,000 m² ___ in Munich is estimated to be worth around €10 million.',         distractors:['donation','housing crisis','social responsibility'] },
+    { word:'priced out',           definition:'When prices rise so high that someone can no longer afford to live somewhere.',            example:'Young families are being ___ of Munich by soaring rents.',                           distractors:['soaring','plot','non-profit'] },
+  ],
+
+  grammar: {
+    topic: 'Passive Voice — present and past passive in news English',
+    rule:  'Present passive: is/are + past participle. Past passive: was/were + past participle. In news and report writing, passive focuses on what happened rather than who did it. "The land was donated." "Homes are planned." Very common in journalism and social policy writing.',
+    exercises: [
+      { sentence:'The 3,000 m² plot ___ to a non-profit foundation by Otto Gugger.',  answer:'was donated',    wrong:['donated','is donating','has donated'],           explain:'Past passive: was + past participle. The plot received the action — it was donated.' },
+      { sentence:'Around 20 affordable homes ___ on the site over the coming years.',  answer:'are planned',    wrong:['plan','were planning','have planned'],           explain:'Present passive for an ongoing arrangement: are + past participle.' },
+      { sentence:'Young families ___ of Munich by soaring rents every year.',          answer:'are being priced out', wrong:['price out','were priced out','have priced out'], explain:'Present continuous passive: are being + past participle. An ongoing current process.' },
+      { sentence:'Germany ___ short of around 1.4 million homes.',                    answer:'is estimated to be', wrong:['estimates','was estimating','has estimated'], explain:'Passive with infinitive: is estimated to be — very common in journalism for reported figures.' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Collocations — verbs that go with nouns in housing/economics news',
+    rule:  'In economics and news English, certain verbs collocate (go together) with certain nouns. "Prices REACH a level." "Costs DRIVE a shortage." "A decision STANDS AS an example." Learning these verb+noun pairs makes your English sound natural and professional.',
+    exercises: [
+      { sentence:'Rents for small apartments can ___ €1,500 per month in Munich.',         answer:'reach',  wrong:['arrive at','come to','touch'],    explain:'"Reach" is the standard collocation with prices and levels. Not "arrive" or "come to" in formal written English.' },
+      { sentence:'Rising construction costs have ___ Germany\'s housing shortage.',        answer:'driven', wrong:['caused','made','done'],            explain:'"Drive" is the journalistic verb for forces that produce crises and trends. More powerful than "cause" alone.' },
+      { sentence:'His contribution ___ a powerful example of social responsibility.',      answer:'stands as', wrong:['is like','looks like','seems'], explain:'"Stand as" means to serve as an example or symbol. Fixed phrase — very common in opinion and analysis writing.' },
+      { sentence:'The foundation will ___ an impact on the community\'s future.',          answer:'make',   wrong:['do','have','give'],               explain:'"Make an impact" is the standard collocation. "Make a difference" also works. Never "do an impact".' },
+    ],
+  },
+
+  sentences: [
+    { words:['plot','donated','Otto','his','foundation','to','a','non-profit'],           answer:'Otto donated his plot to a non-profit foundation',          hint:'🏠 What did Otto Gugger do with his land?' },
+    { words:['housing','a','human','basic','serve','should','need','as'],                 answer:'housing should serve as a basic human need',                hint:'💬 What does Otto believe about housing?' },
+    { words:['out','young','priced','being','of','Munich','are','families'],              answer:'young families are being priced out of Munich',             hint:'📈 What is happening to families because of soaring rents?' },
+    { words:['million','Germany','short','1.4','homes','is','of'],                        answer:'Germany is short of 1.4 million homes',                     hint:'🏗️ What is the scale of Germany\'s housing shortage?' },
+  ],
+
+  word_builder: [
+    { word:'donation',      definition:'Giving something freely without expecting payment' },
+    { word:'affordable',    definition:'Cheap enough for people on modest incomes' },
+    { word:'generational',  definition:'Relating to people of a particular age group' },
+    { word:'soaring',       definition:'Rising very fast and steeply' },
+    { word:'non-profit',    definition:'Not aiming to make money for owners' },
+    { word:'responsibility',definition:'A duty to act well toward others' },
+  ],
+
+  true_false: [
+    { statement:'Otto Gugger sold his land to a property developer for €10 million.',                              correct:false, reveal:'❌ FALSE! He DONATED it — gave it away freely. He received nothing financially. That is what makes the story remarkable.' },
+    { statement:'The foundation "Daheim im Viertel" means roughly "At Home in the Neighbourhood" in German.',      correct:true,  reveal:'✅ TRUE! "Daheim" = at home, "im Viertel" = in the neighbourhood. A name that perfectly captures the community spirit of the project.' },
+    { statement:'Germany currently has a shortage of around 1.4 million homes.',                                   correct:true,  reveal:'✅ TRUE! Rising construction costs and insufficient building have made Germany\'s housing crisis worse year by year.' },
+    { statement:'"Soaring" means falling quickly.',                                                                correct:false, reveal:'❌ FALSE! "Soaring" means rising very fast and steeply — like a bird going UP. "Plummeting" is the opposite and means falling sharply.' },
+    { statement:'The project plans to include multi-generational living — people of all ages together.',            correct:true,  reveal:'✅ TRUE! "Multi-generational" means different generations — young adults, families and older people — sharing communal spaces.' },
+    { statement:'"Priced out" means you negotiated a lower price than the asking price.',                          correct:false, reveal:'❌ FALSE! "Priced out" means prices rose so HIGH that you can NO LONGER afford something. The opposite of a good deal.' },
+    { statement:'A non-profit organisation distributes its profits to shareholders.',                               correct:false, reveal:'❌ FALSE! Non-profit means any surplus is reinvested into the mission — not paid to shareholders or owners. That is the whole point.' },
+    { statement:'"Stand as" means to serve as an example or symbol of something.',                                 correct:true,  reveal:'✅ TRUE! "His decision stands as a powerful example of social responsibility." A very useful phrase for formal writing and analysis.' },
+  ],
+},
  
  
    };
