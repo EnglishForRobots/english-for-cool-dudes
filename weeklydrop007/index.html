@@ -137,6 +137,7 @@
 .vw::after{content:'📖';font-size:10px;margin-left:2px;opacity:.6;}
 .inline-voc{display:none;background:var(--white);border:2px solid var(--hero);border-top:4px solid var(--hero);border-radius:var(--rsm);padding:14px 16px;margin:8px 0 4px;animation:up .2s ease both;}
 .inline-voc.open{display:block;}
+.ev-voc{color:var(--amb-dark);font-weight:900;border-bottom:2px dashed rgba(243,156,18,.5);cursor:pointer}
 .iv-word{font-size:17px;font-weight:900;color:var(--hero);}
 .iv-type{font-size:10px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
 .iv-def{font-size:13px;font-weight:700;color:var(--ink);line-height:1.6;}
@@ -1003,14 +1004,20 @@ function finishIdioms(){
 }
 
 /* ═══════════ VOCAB POPUP ═══════════ */
-function openVoc(word){
-    var v=GLOSSARY[word.toLowerCase()];if(!v)return;
-    $('vp-body').innerHTML='<div class="voc-word">'+word+'</div><div class="voc-type">'+v.type+'</div><div class="voc-def">'+v.def+'</div><button class="voc-hear-btn" onclick="speak(\''+word.replace(/'/g,"\\'")+'\')">🔊 Hear it pronounced</button>';
-    $('voc-popup').style.display='block';
+function showVoc(word){
+  const w = VOCABULARY.find(v=>v.word.toLowerCase()===word.toLowerCase()); if(!w) return;
+  $('vp-body').innerHTML = `<div class="voc-word">${w.word}</div><div class="voc-type">${w.type}</div><div class="voc-def">${w.definition}</div><button class="voc-hear" onclick="speakWord('${w.word.replace(/'/g,"\\'")}')">🔊 Hear It (British English)</button>`;
+  $('voc-popup').style.display='block';
 }
-function closeVoc(){$('voc-popup').style.display='none';}
-document.addEventListener('click',function(e){
-    if(!e.target.closest('#voc-popup')&&!e.target.classList.contains('ht-voc')&&!e.target.classList.contains('vw'))closeVoc();
+function closeVoc(){ $('voc-popup').style.display='none'; }
+function speakWord(word){
+  const u = new SpeechSynthesisUtterance(word); u.lang='en-GB'; u.rate=.85;
+  window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
+}
+document.addEventListener('click', e=>{
+  const voc = e.target.closest('[data-voc]');
+  if(voc){ e.stopPropagation(); showVoc(voc.dataset.voc); return; }
+  if(!e.target.closest('#voc-popup')) closeVoc();
 });
 
 
@@ -1107,14 +1114,14 @@ function buildReadSection(){
     </div>
     <div class="read-chunk revealed" id="rc0">
       <div class="story-text" style="font-size:14px;font-weight:700;line-height:1.75;background:var(--bg);border:2px solid var(--border);border-left:4px solid var(--hero);border-radius:0 var(--rsm) var(--rsm) 0;padding:14px 16px;margin-bottom:8px;">
-        <strong>Otto Gugger</strong> is 89 years old and lives in Munich — one of Europe's most expensive cities. He owned a 3,000 m² piece of land worth around <strong>€10 million</strong>. Most people would sell it. Otto chose to <span class="vw" onclick="toggleIV('iv0','donation')">donate</span> it instead.
+        <strong>Otto Gugger</strong> is 89 years old and lives in Munich — one of Europe's most expensive cities. He owned a 3,000 m² piece of land worth around <strong>€10 million</strong>. Most people would sell it. Otto chose to <span data-voc="donation" class="ev-voc">donate</span> it instead.
       </div>
       <div class="inline-voc" id="iv0"></div>
     </div>
     <div class="read-divider" id="rd1">· · ·</div>
     <div class="read-chunk" id="rc1">
       <div class="story-text" style="font-size:14px;font-weight:700;line-height:1.75;background:var(--bg);border:2px solid var(--border);border-left:4px solid var(--hero);border-radius:0 var(--rsm) var(--rsm) 0;padding:14px 16px;margin-bottom:8px;">
-        Germany is short of 1.4 million homes. In Munich, small flats can cost €1,500/month — many young people and families are being <span class="vw" onclick="toggleIV('iv1','priced out')">priced out</span>. Otto's land will become ~20 <span class="vw" onclick="toggleIV('iv2','affordable housing')">affordable housing</span> units through a <span class="vw" onclick="toggleIV('iv3','non-profit')">non-profit</span> foundation.
+        Germany is short of 1.4 million homes. In Munich, small flats can cost €1,500/month — many young people and families are being <span data-voc="priced out" class="ev-voc">priced</span>. Otto's land will become ~20 <span data-voc="affordable housing" class="ev-voc">affordable housing</span> units through a <span data-voc="non-profit" class="ev-voc">non-profit</span> foundation.
       </div>
       <div class="inline-voc" id="iv1"></div>
       <div class="inline-voc" id="iv2"></div>
@@ -1123,7 +1130,7 @@ function buildReadSection(){
     <div class="read-divider" id="rd2">· · ·</div>
     <div class="read-chunk" id="rc2">
       <div class="story-text" style="font-size:14px;font-weight:700;line-height:1.75;background:var(--bg);border:2px solid var(--border);border-left:4px solid var(--hero);border-radius:0 var(--rsm) var(--rsm) 0;padding:14px 16px;margin-bottom:8px;">
-        The foundation is called <em>"Daheim im Viertel"</em> — "At Home in the Neighbourhood." The plan includes <span class="vw" onclick="toggleIV('iv4','multi-generational')">multi-generational</span> living: all ages, together. Otto says housing is a basic human <strong>need</strong> — not just an investment.
+        The foundation is called <em>"Daheim im Viertel"</em> — "At Home in the Neighbourhood." The plan includes <span data-voc="multi-generational" class="ev-voc">multi-generational</span> living: all ages, together. Otto says housing is a basic human need — not just an investment.
       </div>
       <div class="inline-voc" id="iv4"></div>
       <div style="text-align:center;padding:10px 0 4px"><span style="font-size:32px;display:block;animation:float 2s ease-in-out infinite">✅</span><div style="font-size:15px;font-weight:900;color:var(--ink-bold)">Story done! Now let's play.</div></div>
