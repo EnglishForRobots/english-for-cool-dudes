@@ -390,7 +390,17 @@ async function boot() {
       return;
     }
 
-    _items = window.EFCD_SRS.SM2.sortForSession(dueItems);
+    const forgivenItems = window.EFCD_SRS.SM2.forgiveLargeBacklog(dueItems);
+// Persist any rescheduled items back to Supabase
+const rescheduled = forgivenItems.filter(i => i._rescheduled);
+if (rescheduled.length) {
+  rescheduled.forEach(item => {
+    window.EFCD_XP.updateSrsItem?.(item.item_key, item.lesson_id, {
+      next_review_at: item.next_review_at
+    }).catch(() => {});
+  });
+}
+_items = window.EFCD_SRS.SM2.sortForSession(forgivenItems);
     show('game');
     renderQuestion();
   } catch(e) {
@@ -438,7 +448,7 @@ function renderQuestion() {
   document.getElementById('g-badge').textContent       = ld?.emoji || '📖';
   document.getElementById('g-lesson-name').textContent = ld?.title || srsItem.lesson_id;
   const overdue = window.EFCD_SRS.SM2.daysOverdue(srsItem);
-  document.getElementById('g-lesson-sub').textContent  = overdue > 1 ? `⚠️ ${overdue} days overdue` : 'Spaced repetition';
+  document.getElementById('g-lesson-sub').textContent = window.EFCD_SRS.SM2.overdueLabel(srsItem);
 
   const resolved = window.EFCD_SRS.ITEMS.resolve(srsItem, ld);
   const body     = document.getElementById('g-body');
