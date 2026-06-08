@@ -470,9 +470,11 @@ function _updatePlayBtn() {
       ? `⏱️ Start ${mins}-min SRS Warm-up!`
       : '🧠 Start SRS Review!';
   } else {
+    const count = Object.keys(_selectedLessons).length;
+    const tag = count > 1 ? ` (${count} lessons)` : '';
     btn.textContent = _selectedTimerSecs > 0
-      ? `⏱️ ${mins}-min Warm-up — Let's go!`
-      : '🚇 Start Review!';
+      ? `⏱️ ${mins}-min Warm-up — Let's go!${tag}`
+      : `🚇 Start Review!${tag}`;
   }
 }
 
@@ -787,7 +789,7 @@ async function loadLessons(autoSelectLesson) {
   const classId     = document.getElementById('class-sel').value;
   const list        = document.getElementById('lesson-list');
   const srsModeWrap = document.getElementById('srs-mode-wrap');
-  _lessonData = null; _vocabMeta = null; _srsMode = false;
+  _lessonData = null; _vocabMeta = null; _srsMode = false; _selectedLessons = {};
   document.getElementById('btn-play').disabled = true;
   document.querySelectorAll('.l-btn').forEach(b => b.classList.remove('active'));
 
@@ -887,21 +889,40 @@ function _availableRounds(reg) {
   return r;
 }
 
+let _selectedLessons = {};  // lessonId -> lessonData object
+
 async function selectLesson(btn, lessonId, vocabId) {
-  document.querySelectorAll('.l-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('srs-mode-btn')?.classList.remove('active');
   _pendingSRSMode = false;
-  btn.classList.add('active');
-  _lessonData = window.LESSON_DATA_REGISTRY?.[lessonId] || null;
-  const data  = await sbFetch(`efcd_lesson_vocab?id=eq.${vocabId}`);
-  _vocabMeta  = data?.[0] || null;
-  if (_vocabMeta && !_lessonData) {
-    const vocab = Array.isArray(_vocabMeta.vocab) ? _vocabMeta.vocab : JSON.parse(_vocabMeta.vocab||'[]');
-    _lessonData = { id:lessonId, title:_vocabMeta.lesson_title, level:_vocabMeta.lesson_level, emoji:'📖', vocab };
+
+  if (_selectedLessons[lessonId]) {
+    // Deselect
+    delete _selectedLessons[lessonId];
+    btn.classList.remove('active');
+  } else {
+    // Select — fetch and store
+    let ld = window.LESSON_DATA_REGISTRY?.[lessonId] || null;
+    if (!ld) {
+      const data = await sbFetch(`efcd_lesson_vocab?id=eq.${vocabId}`);
+      const meta = data?.[0];
+      if (meta) {
+        const vocab = Array.isArray(meta.vocab) ? meta.vocab : JSON.parse(meta.vocab||'[]');
+        ld = { id:lessonId, title:meta.lesson_title, level:meta.lesson_level, emoji:'📖', vocab };
+      }
+    }
+    if (ld) {
+      _selectedLessons[lessonId] = ld;
+      btn.classList.add('active');
+    }
   }
+
+  // Keep _lessonData pointing at last selected for backward compat
+  const ids = Object.keys(_selectedLessons);
+  _lessonData = ids.length ? _selectedLessons[ids[ids.length - 1]] : null;
+
   const playBtn = document.getElementById('btn-play');
-  playBtn.disabled = !_lessonData;
-  if (_lessonData) _updatePlayBtn();
+  playBtn.disabled = ids.length === 0;
+  if (ids.length) _updatePlayBtn();
 }
 
 function toggleRound(btn) {
@@ -915,8 +936,12 @@ function toggleRound(btn) {
 // QUESTION QUEUE (normal mode)
 // ══════════════════════════════════════════════════════════════
 function buildQuestions() {
-  const ld = _lessonData;
-  const q  = [];
+  const lessons = Object.values(_selectedLessons).length
+    ? Object.values(_selectedLessons)
+    : (_lessonData ? [_lessonData] : []);
+  const q = [];
+
+  for (const ld of lessons) {
 
   if (_activeRounds.has('blitz') && ld.vocab?.length >= 2) {
     ld.vocab.forEach(item => {
@@ -963,6 +988,7 @@ function buildQuestions() {
     });
   }
 
+  } 
   // In timed mode: fully shuffle so every warm-up feels fresh
   return _selectedTimerSecs > 0 ? shuffle(q) : q;
 }
@@ -979,7 +1005,7 @@ function startGame() {
     bootSRSMode(classId);
     return;
   }
-  if (!_lessonData) return;
+  if (!Object.keys(_selectedLessons).length && !_lessonData) return;
   _questions = buildQuestions();
   if (!_questions.length) { alert('No questions available for selected rounds. Try enabling more rounds.'); return; }
   _qIdx = 0; _score = 0; _correct = 0; _total = 0; _answered = false;
@@ -1482,11 +1508,15 @@ async function showFinish(buzzerFired = false) {
   document.getElementById('fin-badge').textContent  = _srsMode ? '🧠' : (_lessonData?.emoji || '🏆');
   document.getElementById('fin-rating').textContent = r.rating;
   document.getElementById('fin-title').textContent  = r.title;
+  const lessonCount = Object.keys(_selectedLessons).length;
+  const finTitle = lessonCount > 1
+    ? `${lessonCount} lessons mixed`
+    : `${_lessonData?.title || 'Review'} — ${_lessonData?.level || ''}`;
   document.getElementById('fin-sub').textContent    = buzzerFired
     ? `${_selectedTimerSecs/60}-min warm-up complete!`
     : _srsMode
       ? `SRS Review — ${_srsItems.length} items`
-      : `${_lessonData?.title || 'Review'} — ${_lessonData?.level || ''}`;
+      : finTitle;
   document.getElementById('fin-score').textContent  = _score;
   document.getElementById('fin-correct').textContent = _correct;
   document.getElementById('fin-total').textContent   = _total;
