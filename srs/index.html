@@ -285,6 +285,35 @@ body { background:var(--navy); color:#fff; line-height:1.4; overflow:hidden; }
   transition:background .1s;
 }
 .qm-btn-stay:hover { background:rgba(255,255,255,.07); }
+
+  #setup {
+  height:100vh;display:none;align-items:center;justify-content:center;
+  padding:20px;background:linear-gradient(160deg,#001433,var(--navy));
+}
+.setup-card {
+  background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);
+  border-bottom:5px solid rgba(0,0,0,.3);border-radius:var(--r);
+  max-width:420px;width:100%;padding:32px 28px;text-align:center;
+  animation:up .4s ease both;
+}
+.setup-logo  { font-size:56px;display:block;margin-bottom:10px;animation:float 3s ease-in-out infinite; }
+.setup-title { font-size:26px;font-weight:900;font-style:italic;color:#fff;margin-bottom:4px; }
+.setup-sub   { font-size:13px;font-weight:700;color:rgba(255,255,255,.5);margin-bottom:24px; }
+.setup-lbl   { font-size:11px;font-weight:900;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px; }
+.timer-row   { display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:20px; }
+.timer-opt   { padding:9px 16px;border:2px solid rgba(255,255,255,.15);border-radius:99px;font-size:12px;font-weight:900;color:rgba(255,255,255,.5);cursor:pointer;font-family:inherit;background:rgba(255,255,255,.06);transition:all .12s; }
+.timer-opt.on{ background:var(--teal);color:var(--ink);border-color:var(--ts); }
+.setup-btn   { width:100%;padding:15px;background:var(--yellow);color:var(--ink);font-size:17px;font-weight:900;border-radius:99px;border:2px solid var(--ys);border-bottom:5px solid var(--ys);cursor:pointer;font-family:inherit;transition:all .1s;margin-bottom:14px; }
+.setup-btn:active { transform:translateY(3px);border-bottom-width:2px; }
+.setup-back  { font-size:12px;font-weight:900;color:rgba(255,255,255,.3);text-decoration:none;display:block; }
+.setup-back:hover { color:rgba(255,255,255,.6); }
+/* Timer pill in game header */
+.timer-pill  { display:none;align-items:center;gap:6px;background:rgba(43,222,204,.12);border:2px solid rgba(43,222,204,.25);border-radius:99px;padding:6px 14px; }
+.timer-pill.urgent { background:rgba(255,75,75,.15);border-color:rgba(255,75,75,.4); }
+.timer-pill.urgent .t-num { color:var(--punch);animation:timerPulse .5s ease-in-out infinite; }
+.t-lbl { font-size:10px;font-weight:900;color:rgba(43,222,204,.7);text-transform:uppercase;letter-spacing:1px; }
+.t-num { font-size:20px;font-weight:900;color:var(--teal);min-width:44px;text-align:right;font-variant-numeric:tabular-nums; }
+@keyframes timerPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
 </style>
 </head>
 <body>
@@ -293,6 +322,23 @@ body { background:var(--navy); color:#fff; line-height:1.4; overflow:hidden; }
   <div class="loading-icon">🧠</div>
   <div class="spinner"></div>
   <div class="loading-text">Loading your reviews…</div>
+</div>
+
+<div id="setup">
+  <div class="setup-card">
+    <div class="setup-logo">🧠</div>
+    <div class="setup-title">Daily Review</div>
+    <div class="setup-sub" id="setup-sub">items ready to review</div>
+    <div class="setup-lbl">⏱️ Session mode</div>
+    <div class="timer-row" id="timer-row">
+      <button class="timer-opt on" data-secs="0"  onclick="setTimer(this)">All items</button>
+      <button class="timer-opt"    data-secs="180" onclick="setTimer(this)">3 min</button>
+      <button class="timer-opt"    data-secs="300" onclick="setTimer(this)">⭐ 5 min</button>
+      <button class="timer-opt"    data-secs="600" onclick="setTimer(this)">10 min</button>
+    </div>
+    <button class="setup-btn" id="setup-btn" onclick="beginSession()">🧠 Start Review!</button>
+    <a href="/my-lessons/" class="setup-back">← My Lessons</a>
+  </div>
 </div>
 
 <div id="no-items">
@@ -321,6 +367,10 @@ body { background:var(--navy); color:#fff; line-height:1.4; overflow:hidden; }
     </div>
     <div class="g-right">
       <div class="score-pill">
+        <div class="timer-pill" id="timer-pill">
+  <span class="t-lbl">Time</span>
+  <span class="t-num" id="t-num">5:00</span>
+</div>
         <span class="score-label">XP</span>
         <span class="score-num" id="g-score">0</span>
       </div>
@@ -364,6 +414,63 @@ let _wbBuilt     = [];
 let _sbBuilt     = [];
 let _wbWrong     = 0;
 let _currentUser = null;
+// ── TIMER STATE ────────────────────────────────────────────────
+let _timerSecs     = 0;
+let _timerRemain   = 0;
+let _timerInterval = null;
+let _timerEnded    = false;
+let _timerMode     = false;
+
+function setTimer(btn) {
+  document.querySelectorAll('.timer-opt').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  _timerSecs = parseInt(btn.dataset.secs);
+  const setupBtn = document.getElementById('setup-btn');
+  if (setupBtn) {
+    const mins = _timerSecs / 60;
+    setupBtn.textContent = _timerSecs > 0 ? `⏱️ ${mins}-min Warm-up!` : '🧠 Start Review!';
+  }
+}
+
+function beginSession() {
+  show('game');
+  if (_timerSecs > 0) _startCountdown();
+  renderQuestion();
+}
+
+function _startCountdown() {
+  _timerMode    = true;
+  _timerEnded   = false;
+  _timerRemain  = _timerSecs;
+  const pill    = document.getElementById('timer-pill');
+  if (pill) pill.style.display = 'flex';
+  _updateTimerUI();
+  _timerInterval = setInterval(() => {
+    _timerRemain--;
+    _updateTimerUI();
+    if (_timerRemain === 30) document.getElementById('timer-pill')?.classList.add('urgent');
+    if (_timerRemain <= 0)  { _stopCountdown(); _buzzerEnd(); }
+  }, 1000);
+}
+
+function _stopCountdown() {
+  if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
+}
+
+function _updateTimerUI() {
+  const m  = Math.floor(_timerRemain / 60);
+  const s  = _timerRemain % 60;
+  const el = document.getElementById('t-num');
+  if (el) el.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+async function _buzzerEnd() {
+  if (_timerEnded) return;
+  _timerEnded = true;
+  _stopCountdown();
+  await new Promise(r => setTimeout(r, 600));
+  showFinish();
+}
 
 // ── BOOT ───────────────────────────────────────────────────────
 async function boot() {
@@ -401,8 +508,9 @@ if (rescheduled.length) {
   });
 }
 _items = window.EFCD_SRS.SM2.sortForSession(forgivenItems);
-    show('game');
-    renderQuestion();
+    const sub = document.getElementById('setup-sub');
+    if (sub) sub.textContent = `${_items.length} item${_items.length !== 1 ? 's' : ''} ready to review`;
+    show('setup');
   } catch(e) {
     console.error('SRS boot error:', e);
     document.getElementById('loading').innerHTML =
@@ -434,7 +542,10 @@ async function showNoItems() {
 
 // ── RENDER QUESTION ────────────────────────────────────────────
 function renderQuestion() {
-  if (_qIdx >= _items.length) { showFinish(); return; }
+  if (_timerEnded) return;
+  if (_qIdx >= _items.length) {
+    if (_timerMode) { _qIdx = 0; } else { showFinish(); return; }
+  }
 
   _answered = false; _hintsUsed = 0; _revealed = false;
   _wbBuilt = []; _sbBuilt = []; _wbWrong = 0;
@@ -785,8 +896,22 @@ async function _saveItemResult(quality, sm2Updates = null, responseTimeMs = null
 // ── ADVANCE ────────────────────────────────────────────────────
 function advance() {
   if (!_answered) return;
+  if (_timerEnded) return;
   _qIdx++;
-  if (_qIdx < _items.length) renderQuestion(); else showFinish();
+  if (_qIdx < _items.length) {
+    if (_timerMode) {
+      // loop queue in timed mode
+      if (_qIdx >= _items.length) { _qIdx = 0; _items = _items.sort(() => Math.random() - .5); }
+      renderQuestion();
+    } else {
+      renderQuestion();
+    }
+  } else if (_timerMode) {
+    _qIdx = 0; _items = _items.sort(() => Math.random() - .5);
+    renderQuestion();
+  } else {
+    showFinish();
+  }
 }
 
 // ── FINISH ─────────────────────────────────────────────────────
@@ -910,6 +1035,7 @@ function fireConfetti() {
 }
 function show(id) {
   document.getElementById('loading').style.display  = id==='loading'  ? 'flex' : 'none';
+  document.getElementById('setup').style.display    = id==='setup'    ? 'flex' : 'none';
   document.getElementById('game').style.display     = id==='game'     ? 'flex' : 'none';
   document.getElementById('finish').style.display   = id==='finish'   ? 'flex' : 'none';
   document.getElementById('no-items').style.display = id==='no-items' ? 'flex' : 'none';
