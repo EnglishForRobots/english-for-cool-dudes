@@ -1846,6 +1846,75 @@ const LESSON_DATA_REGISTRY = {
     { statement:'"Stand as" means to serve as an example or symbol of something.',                                 correct:true,  reveal:'✅ TRUE! "His decision stands as a powerful example of social responsibility." A very useful phrase for formal writing and analysis.' },
   ],
 },
+
+   'worldcup2026-intermediate': {
+  id:    'worldcup2026-intermediate',
+  title: 'World Cup 2026: Bigger, Bolder, Better?',
+  level: 'Intermediate',
+  track: 'intermediate',
+  emoji: '⚽',
+  badge: 'World Cup Expert',
+
+  vocab: [
+    { word:'expand',         definition:'To make something larger or wider in size, scope, or number',                   example:'FIFA voted to ___ the tournament from 32 to 48 teams.',                            distractors:['reduce','format','govern'] },
+    { word:'format',         definition:'The way something is organised or arranged — its structure',                    example:'Under the new ___, there will be 104 matches at this World Cup.',                    distractors:['expand','knockout','decider'] },
+    { word:'knockout phase', definition:'The part of a tournament where losing a match means elimination',               example:'The top teams move into a new 32-team ___ ___.',                                    distractors:['group stage','final round','league phase'] },
+    { word:'compact',        definition:'Small and efficient — taking up less space than expected',                      example:'That is a huge change from the ___ 2022 tournament in Qatar.',                      distractors:['expanded','crowded','organised'] },
+    { word:'host city',      definition:'A city officially chosen to hold a major event',                               example:'The games will be played across 16 ___ ___ in three countries.',                    distractors:['final venue','stadium city','home ground'] },
+    { word:'governing body', definition:'The official organisation responsible for controlling a sport or activity',     example:'Football\'s ___ ___ voted to expand the tournament.',                               distractors:['host country','advisory panel','home nation'] },
+    { word:'realistically',  definition:'In a practical way that is actually possible, not just theoretical',           example:'A fan could ___ attend two or three matches in a single day in Qatar.',              distractors:['theoretically','officially','approximately'] },
+    { word:'decider',        definition:'The final match or event that determines who wins overall',                     example:'By the time we get to the ___ at MetLife Stadium, the champions will have played eight matches.', distractors:['final stage','knockout','decider round'] },
+  ],
+
+  grammar: {
+    topic: 'Passive Voice — present, past and future passive',
+    rule:  'Present passive: is/are + past participle. Past passive: was/were + past participle. Future passive: will be + past participle. Use passive when what happened matters more than who did it — essential in news, sports journalism and official announcements.',
+    exercises: [
+      { sentence:'The tournament ___ from 32 to 48 teams in 2017.',         answer:'was expanded',    wrong:['expanded','is expanding','has expanded'],           explain:'Past passive: was + past participle. The tournament received the action.' },
+      { sentence:'48 teams ___ into 12 groups of four.',                    answer:'will be split',   wrong:['split','are splitting','will split'],                explain:'Future passive: will be + past participle. The tournament hasn\'t happened yet.' },
+      { sentence:'The final ___ at MetLife Stadium on July the 19th.',      answer:'will be played',  wrong:['plays','is played','will play'],                     explain:'Future passive for a scheduled event. The final receives the action of being played.' },
+      { sentence:'Qatar 2022 ___ as a very compact, geographically small tournament.', answer:'is remembered', wrong:['remembered','was remembering','has remembered'], explain:'Present passive for a general ongoing truth or reputation.' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Future Perfect — will have + past participle',
+    rule:  'Future perfect: will have + past participle. We use it for an action that will be COMPLETED before a specific future point. "By the time the final is played, the champions will have played eight matches." Very useful for sports commentary and results.',
+    exercises: [
+      { sentence:'By July 19th, the champions ___ eight matches.',                    answer:'will have played',   wrong:['will play','played','have played'],             explain:'Future perfect: will have + past participle. Completed before a future point.' },
+      { sentence:'By the end of the group stage, each team ___ at least three games.',answer:'will have played',   wrong:['will play','plays','has played'],               explain:'Future perfect. Three games = completed before the end of the group stage.' },
+      { sentence:'By the time you read this, FIFA ___ the host cities already.',      answer:'will have announced',wrong:['will announce','announced','has announced'],     explain:'Future perfect for something completed before a future reading moment.' },
+      { sentence:'Argentina ___ seven matches when they won Qatar 2022.',             answer:'had played',         wrong:['will have played','played','have played'],      explain:'Past perfect (not future perfect) — this refers to a completed past event.' },
+    ],
+  },
+
+  sentences: [
+    { words:['voted','FIFA','the','expand','to','tournament'], answer:'FIFA voted to expand the tournament', hint:'🏛️ What decision did FIFA make?' },
+    { words:['matches','104','will','there','be'], answer:'there will be 104 matches', hint:'📊 How many games in total?' },
+    { words:['eight','will','played','champions','have','The','matches'], answer:'The champions will have played eight matches', hint:'🏆 How many matches does the winner need to play?' },
+    { words:['three','in','hosted','is','The','countries','tournament'], answer:'The tournament is hosted in three countries', hint:'🌎 Where is the 2026 World Cup?' },
+  ],
+
+  word_builder: [
+    { word:'knockout',   definition:'Losing means you are eliminated — you are out' },
+    { word:'compact',    definition:'Small and neatly packed — very close together' },
+    { word:'governing',  definition:'Controlling and managing officially' },
+    { word:'decider',    definition:'The match that determines the final winner' },
+    { word:'expand',     definition:'To make larger or wider' },
+    { word:'format',     definition:'The structure or layout of something' },
+  ],
+
+  true_false: [
+    { statement:'The World Cup 2026 will feature 48 teams — 16 more than in 2022.',              correct:true,  reveal:'✅ TRUE! FIFA expanded from 32 to 48 teams. That is exactly 16 extra countries.' },
+    { statement:'There will be FEWER matches at World Cup 2026 than at Qatar 2022.',              correct:false, reveal:'❌ FALSE! There will be 104 matches — 40 MORE than Qatar 2022. More teams = more games.' },
+    { statement:'The 2026 World Cup is co-hosted by three countries: USA, Mexico and Canada.',    correct:true,  reveal:'✅ TRUE! 16 host cities spread across three countries — a first for the World Cup.' },
+    { statement:'In Qatar 2022, a fan could realistically watch three matches in one day.',        correct:true,  reveal:'✅ TRUE! Qatar is tiny — all stadiums were very close together. That unique situation is gone in 2026.' },
+    { statement:'The 48 teams will be divided into 8 groups of six.',                            correct:false, reveal:'❌ FALSE! It is 12 groups of four. 48 ÷ 4 = 12. The top two from each group plus the eight best third-place teams advance.' },
+    { statement:'The World Cup 2026 final will be held at MetLife Stadium.',                     correct:true,  reveal:'✅ TRUE! MetLife Stadium in New York / New Jersey — on July 19th.' },
+    { statement:'Spain are the bookmakers\' favourites to win the 2026 World Cup.',              correct:true,  reveal:'✅ TRUE! Spain are listed at 5/1 — the shortest odds, making them the favourite ahead of France at 6/1.' },
+    { statement:'The 2026 World Cup champions will play SEVEN matches — the same as in 2022.',   correct:false, reveal:'❌ FALSE! They will play EIGHT — one more than before, because of the new round of 32. Argentina won Qatar 2022 playing seven.' },
+  ],
+},
  
  
    };
