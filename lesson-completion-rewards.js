@@ -392,6 +392,22 @@
   ],
 },
 
+     'worldcup2026-intermediate': {
+  title:   'World Cup 2026: Bigger, Bolder, Better?',
+  level:   'Intermediate',
+  grammar: 'Passive voice (past, present and future passive); future perfect (will have + past participle)',
+  vocab: [
+    { word:'expand',         definition:'To make something larger or wider in size, scope, or number' },
+    { word:'format',         definition:'The way something is organised or arranged — its structure' },
+    { word:'knockout phase', definition:'The stage of a tournament where one loss means elimination' },
+    { word:'compact',        definition:'Small and efficient — taking up less space than expected' },
+    { word:'host city',      definition:'A city officially chosen to hold a major event' },
+    { word:'governing body', definition:'The official organisation responsible for controlling a sport or activity' },
+    { word:'realistically',  definition:'In a practical way that is actually possible, not just theoretical' },
+    { word:'decider',        definition:'The final match or event that determines who wins overall' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
