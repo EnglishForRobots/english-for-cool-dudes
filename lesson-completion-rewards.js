@@ -408,6 +408,23 @@
   ],
 },
 
+     'worldcup2026-beginner': {
+  title:   'World Cup 2026: The Biggest Ever!',
+  level:   'Beginner',
+  grammar: 'There is / There are; prepositions with dates and places (on / in / at)',
+  vocab: [
+    { word:'team',      definition:'A group of players who play together' },
+    { word:'match',     definition:'A game between two teams' },
+    { word:'stadium',   definition:'A large sports ground with seats for people to watch' },
+    { word:'final',     definition:'The last and most important match in a competition' },
+    { word:'favourite', definition:'The team or person that people think will win' },
+    { word:'score',     definition:'The number of goals each team has in a match' },
+    { word:'host',      definition:'A country or city that organises a big event' },
+    { word:'trophy',    definition:'A prize — usually a cup or medal — for the winner' },
+  ],
+},
+ 
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
