@@ -1915,7 +1915,77 @@ const LESSON_DATA_REGISTRY = {
     { statement:'The 2026 World Cup champions will play SEVEN matches — the same as in 2022.',   correct:false, reveal:'❌ FALSE! They will play EIGHT — one more than before, because of the new round of 32. Argentina won Qatar 2022 playing seven.' },
   ],
 },
+
+   'worldcup2026-beginner': {
  
+  id:    'worldcup2026-beginner',
+  title: 'World Cup 2026: The Biggest Ever!',
+  level: 'Beginner',
+  track: 'beginner',
+  emoji: '⚽',
+  badge: 'Football Fan',
+ 
+  vocab: [
+    { word:'team',      definition:'A group of players who play together',                            example:'England is a very good ___ with excellent players.',                    distractors:['match','stadium','trophy'] },
+    { word:'match',     definition:'A game between two teams',                                        example:'Spain plays France in a very important ___ tonight.',                  distractors:['team','score','final'] },
+    { word:'stadium',   definition:'A large sports ground with seats for people to watch',            example:'The fans go to the ___ to watch the game.',                            distractors:['team','platform','match'] },
+    { word:'final',     definition:'The last and most important match in a competition',              example:'Spain and France play in the World Cup ___ on July 19th.',             distractors:['match','score','team'] },
+    { word:'favourite', definition:'The team or person that people think will win',                   example:'Spain is the ___ to win the 2026 World Cup.',                          distractors:['score','host','team'] },
+    { word:'score',     definition:'The number of goals each team has in a match',                   example:'The ___ is 2-1 to England at half time.',                              distractors:['match','final','trophy'] },
+    { word:'host',      definition:'A country or city that organises a big event',                   example:'The USA, Mexico and Canada ___ the World Cup in 2026.',                distractors:['score','team','trophy'] },
+    { word:'trophy',    definition:'A prize — usually a cup or medal — for the winner',              example:'The winning team lifts the World Cup ___.',                            distractors:['score','final','match'] },
+  ],
+ 
+  grammar: {
+    topic: 'There is / There are',
+    rule:  'Use THERE IS for one thing: "There IS one final." Use THERE ARE for more than one: "There ARE 48 teams." For sports teams, use ARE (they are a group of people): "Spain ARE the favourites."',
+    exercises: [
+      { sentence:'___ 48 teams in the World Cup.',             answer:'There are',   wrong:['There is','They are','It are'],         explain:'"48 teams" is plural — more than one — so we use THERE ARE.' },
+      { sentence:'The final ___ at MetLife Stadium.',          answer:'is',          wrong:['are','have','is being'],                explain:'The final = one thing → IS. "The final IS at MetLife Stadium."' },
+      { sentence:'Spain ___ the favourites to win.',           answer:'are',         wrong:['is','has','were'],                      explain:'Spain = a team = a group of people → ARE. "Spain ARE the favourites."' },
+      { sentence:'___ only one trophy — the World Cup.',       answer:'There is',    wrong:['There are','They is','It have'],        explain:'One trophy = singular → THERE IS.' },
+      { sentence:'The World Cup ___ in three countries.',      answer:'is',          wrong:['are','have','is being'],                explain:'The World Cup = one event → IS. Even though three countries are involved.' },
+    ],
+  },
+ 
+  grammar2: {
+    topic: 'Prepositions with dates and places: IN / ON / AT',
+    rule:  'Use ON with dates and days: "The final IS ON July 19th." Use IN with countries and cities: "The tournament is IN the USA." Use AT with specific venues: "The final is AT MetLife Stadium."',
+    exercises: [
+      { sentence:'The final is ___ July 19th.',                answer:'on',          wrong:['in','at','by'],                        explain:'Specific date → ON. "The final is ON July 19th."' },
+      { sentence:'The World Cup is ___ the USA, Mexico and Canada.', answer:'in',   wrong:['on','at','from'],                      explain:'Countries → IN. "The tournament is IN three countries."' },
+      { sentence:'The final is ___ MetLife Stadium.',          answer:'at',          wrong:['in','on','from'],                      explain:'Specific venue → AT. "The final is AT MetLife Stadium."' },
+      { sentence:'Argentina won ___ 2022.',                    answer:'in',          wrong:['on','at','by'],                        explain:'Year → IN. "Argentina won IN 2022."' },
+    ],
+  },
+ 
+  sentences: [
+    { words:['48','are','World','There','teams','Cup','the','in'],                      answer:'There are 48 teams in the World Cup',                  hint:'⚽ How many teams? Use "there are".' },
+    { words:['in','countries','is','played','tournament','three','The'],                answer:'The tournament is played in three countries',          hint:'🌎 Where is the World Cup?' },
+    { words:['final','is','The','July','on','19th'],                                   answer:'The final is on July 19th',                           hint:'📅 When is the final? Use "is on" + date.' },
+    { words:['favourites','are','to','Spain','win','the'],                             answer:'Spain are the favourites to win',                     hint:'🏆 Who do people think will win?' },
+  ],
+ 
+  word_builder: [
+    { word:'trophy',    definition:'A prize for the winner' },
+    { word:'stadium',   definition:'A large sports ground with seats' },
+    { word:'favourite', definition:'The team people think will win' },
+    { word:'match',     definition:'A game between two teams' },
+    { word:'final',     definition:'The last and most important match' },
+  ],
+ 
+  true_false: [
+    { statement:'There are 48 teams in the 2026 World Cup.',                                    correct:true,  reveal:'✅ TRUE! In 2022, there were 32 teams. Now there are 48 — that is 16 more countries!' },
+    { statement:'The World Cup 2026 is only in the USA.',                                      correct:false, reveal:'❌ FALSE! Three countries are hosts: the USA, Mexico AND Canada. 16 cities across three countries!' },
+    { statement:'Spain are the favourites to win the 2026 World Cup.',                          correct:true,  reveal:'✅ TRUE! Spain are the number one favourites. Their odds are 5/1.' },
+    { statement:'There are 200 matches in the 2026 World Cup.',                                correct:false, reveal:'❌ FALSE! There are 104 matches — not 200. In 2022, there were only 64 matches.' },
+    { statement:'The World Cup final is on July 19th.',                                        correct:true,  reveal:'✅ TRUE! The final is on July 19th, 2026, at MetLife Stadium in New York.' },
+    { statement:'Argentina won the World Cup in 2022.',                                        correct:true,  reveal:'✅ TRUE! Argentina beat France in the 2022 final in Qatar. Messi finally won his World Cup trophy!' },
+    { statement:'Kylian Mbappé is the favourite to score the most goals.',                     correct:true,  reveal:'✅ TRUE! Mbappé is the favourite top scorer at 6/1. Better odds than Ronaldo at 22/1.' },
+    { statement:'The World Cup trophy weighs 6 kilograms.',                                    correct:true,  reveal:'✅ TRUE! The World Cup trophy is solid gold and weighs 6 kilograms. Very heavy to lift!' },
+  ],
+ 
+},
  
    };
 
