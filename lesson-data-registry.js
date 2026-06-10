@@ -1884,7 +1884,7 @@ const LESSON_DATA_REGISTRY = {
       { sentence:'By July 19th, the champions ___ eight matches.',                    answer:'will have played',   wrong:['will play','played','have played'],             explain:'Future perfect: will have + past participle. Completed before a future point.' },
       { sentence:'By the end of the group stage, each team ___ at least three games.',answer:'will have played',   wrong:['will play','plays','has played'],               explain:'Future perfect. Three games = completed before the end of the group stage.' },
       { sentence:'By the time you read this, FIFA ___ the host cities already.',      answer:'will have announced',wrong:['will announce','announced','has announced'],     explain:'Future perfect for something completed before a future reading moment.' },
-      { sentence:'Argentina ___ seven matches by the time they won Qatar 2022.',             answer:'had played',         wrong:['will have played','played','have played'],      explain:'Past perfect (not future perfect) — this refers to a completed past event.' },
+      { sentence:'Argentina ___ seven matches by the time they won Qatar 2022.',             answer:'had played',         wrong:['will have played','played','have played'],      explain:'Past perfect (not future perfect) — this refers to a completed past event before another past event.' },
     ],
   },
 
