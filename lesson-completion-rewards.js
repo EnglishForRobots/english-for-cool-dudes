@@ -423,6 +423,22 @@
     { word:'trophy',    definition:'A prize — usually a cup or medal — for the winner' },
   ],
 },
+
+     'worldcup2026-kids': {
+  title:   'World Cup 2026: The Biggest Ever!',
+  level:   'Kids',
+  grammar: 'There is / There are; prepositions with dates and places (on / in / at)',
+  vocab: [
+    { word:'team',      definition:'A group of players who play together' },
+    { word:'match',     definition:'A game between two teams' },
+    { word:'stadium',   definition:'A big sports building with seats for fans' },
+    { word:'final',     definition:'The last and most important match' },
+    { word:'favourite', definition:'The team or person people think will win' },
+    { word:'host',      definition:'A country that organises a big event' },
+    { word:'trophy',    definition:'A golden prize for the winner' },
+    { word:'goal',      definition:'When the ball goes in the net — 1 point!' },
+  ],
+},
  
 
   };
