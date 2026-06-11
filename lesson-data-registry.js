@@ -1986,6 +1986,75 @@ const LESSON_DATA_REGISTRY = {
   ],
  
 },
+
+   'worldcup2026-kids': {
+  id:    'worldcup2026-kids',
+  title: 'World Cup 2026: The Biggest Ever!',
+  level: 'Kids',
+  track: 'kids',
+  emoji: '⚽',
+  badge: 'Football Kid',
+
+  vocab: [
+    { word:'team',      definition:'A group of players who play together',                   example:'Brazil is a very good ___ with amazing players.',           distractors:['match','stadium','trophy'] },
+    { word:'match',     definition:'A game between two teams',                               example:'Spain plays France in a big ___ tonight.',                  distractors:['team','score','final'] },
+    { word:'stadium',   definition:'A big sports building with lots of seats for fans',      example:'The fans go to the ___ to watch the game.',                 distractors:['team','platform','match'] },
+    { word:'final',     definition:'The last and most important match in a competition',     example:'The World Cup ___ is on July 19th in New York.',             distractors:['match','score','team'] },
+    { word:'favourite', definition:'The team or person that people think will win',          example:'France are the ___ to win the 2026 World Cup.',             distractors:['score','host','team'] },
+    { word:'host',      definition:'A country or city that organises a big event',           example:'The USA, Mexico and Canada ___ the World Cup in 2026.',     distractors:['score','team','trophy'] },
+    { word:'trophy',    definition:'A golden prize — the cup the winner holds up!',         example:'The winning team lifts the World Cup ___.',                  distractors:['score','final','match'] },
+    { word:'goal',      definition:'When the ball goes in the net — 1 point!',              example:'Messi scored a brilliant ___ in the final.',                 distractors:['match','team','fan'] },
+  ],
+
+  grammar: {
+    topic: 'There is / There are',
+    rule:  'Use THERE IS for one thing: "There IS one final." Use THERE ARE for more than one: "There ARE 48 teams." For teams and countries, use ARE: "France ARE the favourites."',
+    exercises: [
+      { sentence:'___ 48 teams in the World Cup.',          answer:'There are',  wrong:['There is','They are','It is'],    explain:'"48 teams" is more than one, so we use THERE ARE.' },
+      { sentence:'The final ___ at MetLife Stadium.',       answer:'is',         wrong:['are','have','am'],                explain:'The final = one event, so we use IS.' },
+      { sentence:'France ___ the favourites to win.',       answer:'are',        wrong:['is','has','was'],                 explain:'France = a team = a group of people, so we use ARE.' },
+      { sentence:'___ only one golden trophy.',             answer:'There is',   wrong:['There are','They are','It are'],  explain:'One trophy = THERE IS.' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Prepositions: IN / ON / AT with dates and places',
+    rule:  'ON + dates and days: "The final is ON July 19th." IN + countries and cities: "The tournament is IN the USA." AT + venues: "The final is AT MetLife Stadium."',
+    exercises: [
+      { sentence:'The final is ___ July 19th.',                    answer:'on',  wrong:['in','at','by'],    explain:'Date → ON. "The final is ON July 19th."' },
+      { sentence:'The World Cup is ___ the USA, Mexico and Canada.',answer:'in',  wrong:['on','at','from'],  explain:'Countries → IN. "The tournament is IN three countries."' },
+      { sentence:'The final is ___ MetLife Stadium.',              answer:'at',  wrong:['in','on','for'],   explain:'Specific venue → AT. "The final is AT MetLife Stadium."' },
+      { sentence:'Argentina won ___ 2022.',                        answer:'in',  wrong:['on','at','by'],    explain:'Year → IN. "Argentina won IN 2022."' },
+    ],
+  },
+
+  sentences: [
+    { words:['are','48','There','in','teams','Cup','World','the'],    answer:'There are 48 teams in the World Cup',   hint:'⚽ Use "There are" — it\'s more than one!' },
+    { words:['are','favourites','France','the','to','win'],           answer:'France are the favourites to win',      hint:'🥖🥐 France ARE — they are a group!' },
+    { words:['final','is','New','in','The','York'],                   answer:'The final is in New York',              hint:'🗽 The final IS in...' },
+    { words:['won','Cup','2022','in','World','Argentina','the'],      answer:'Argentina won the World Cup in 2022',   hint:'🥇 Argentina WON...' },
+  ],
+
+  word_builder: [
+    { word:'trophy',    definition:'The golden prize for the winner' },
+    { word:'stadium',   definition:'A big sports building with seats' },
+    { word:'favourite', definition:'The team people think will win' },
+    { word:'match',     definition:'A game between two teams' },
+    { word:'final',     definition:'The last, most important match' },
+    { word:'goal',      definition:'When the ball goes in the net' },
+  ],
+
+  true_false: [
+    { statement:'There are 48 teams in the 2026 World Cup.',                    correct:true,  reveal:'✅ TRUE! 48 teams! That is 16 more than 2022. More football! ⚽' },
+    { statement:'The 2026 World Cup is only in the USA.',                       correct:false, reveal:'❌ FALSE! THREE countries: USA 🗽, Mexico 🌮🌶️ and Canada 🍁!' },
+    { statement:'Argentina won the World Cup in 2022.',                         correct:true,  reveal:'✅ TRUE! Messi lifted the golden trophy! 🥇🏆' },
+    { statement:'The World Cup final is in London.',                            correct:false, reveal:'❌ FALSE! The final is in NEW YORK 🗽 at MetLife Stadium!' },
+    { statement:'Brazil has won the World Cup 5 times.',                        correct:true,  reveal:'✅ TRUE! Brazil 🌅🌴 are the most successful team EVER! ⚽⚽⚽⚽⚽' },
+    { statement:'There are 200 matches in the 2026 World Cup.',                correct:false, reveal:'❌ FALSE! There are 104 matches — not 200!' },
+    { statement:'Japan fans clean up the stadium after every match.',           correct:true,  reveal:'✅ TRUE! Japan fans 🥢🍜 are famous for cleaning up. Amazing!' },
+    { statement:'The World Cup final is on July 19th.',                        correct:true,  reveal:'✅ TRUE! July 19th, 2026 — mark it in your calendar! 📅' },
+  ],
+},
  
    };
 
