@@ -2055,6 +2055,56 @@ const LESSON_DATA_REGISTRY = {
     { statement:'The World Cup final is on July 19th.',                        correct:true,  reveal:'✅ TRUE! July 19th, 2026 — mark it in your calendar! 📅' },
   ],
 },
+
+'weekly-drop-issue-008': {
+  id:    'weekly-drop-issue-008',
+  title: "The Weekly Drop - Issue 008 - The £1.7bn Bid: Frasers vs Hugo Boss",
+  level: 'All Levels',
+  track: 'weekly-drop',
+  emoji: '👔',
+  badge: 'Deal Watcher',
+
+  vocab: [
+    { word:'takeover',             definition:'When one company buys enough shares to gain control of another company, usually offering a price above market value.', example:'Frasers launched a formal ___ bid for Hugo Boss.',                       distractors:['premium','regulators','shareholder'] },
+    { word:'shareholder',          definition:'A person or company that owns shares (a percentage) in a business.',                                                  example:'Frasers is Hugo Boss\'s largest ___, with over 26%.',                    distractors:['takeover','regulators','brand equity'] },
+    { word:'premium',              definition:'An amount paid above the normal or current market price.',                                                            example:'The offer included a 4.3% ___ over the closing price.',                 distractors:['shareholder','conflict of interest','regulators'] },
+    { word:'bid',                  definition:'A formal offer to buy shares or a company at a specific price.',                                                       example:'Frasers\' ___ values Hugo Boss at around €1.98bn.',                      distractors:['premium','supervisory board','brand equity'] },
+    { word:'regulators',           definition:'Government bodies that supervise and approve business activity, including mergers and acquisitions.',                 example:'The deal must be cleared by ___ before it can close.',                  distractors:['shareholder','takeover','conflict of interest'] },
+    { word:'supervisory board',    definition:'In German company law, the board that monitors and oversees management — separate from the management board.',        example:'Michael Murray sits on Hugo Boss\'s ___.',                                distractors:['regulators','brand equity','bid'] },
+    { word:'conflict of interest', definition:'A situation where a person\'s personal or professional interests could unfairly influence their decisions.',          example:'Murray\'s dual role created a ___, so he was excluded from the talks.', distractors:['premium','supervisory board','takeover'] },
+    { word:'brand equity',         definition:'The commercial value of a brand based on consumer perception, recognition and trust — not just its financial assets.', example:'Hugo Boss has strong ___ built up over decades.',                        distractors:['bid','shareholder','regulators'] },
+  ],
+
+  true_false: [
+    { statement:'Frasers Group owns Sports Direct.',                                                                  correct:true,  reveal:'True! Frasers Group is Mike Ashley\'s retail empire, which owns Sports Direct, Game, and is now bidding for Hugo Boss.' },
+    { statement:'Frasers is offering €38 per share for the Hugo Boss shares it does not yet own.',                     correct:true,  reveal:'True! Frasers already owns just over 26% and is offering €38/share for the remaining ~74%.' },
+    { statement:'Hugo Boss immediately accepted the takeover offer from Frasers.',                                     correct:false, reveal:'False — Hugo Boss said it was only "reviewing the proposal." Shares jumped to nearly €40, suggesting investors expected a higher bid.' },
+    { statement:'Frasers\' CEO Michael Murray took part in the board discussion about the takeover bid.',              correct:false, reveal:'False! Because Murray sits on Hugo Boss\'s supervisory board, he had a conflict of interest and was excluded from the discussion.' },
+    { statement:'Hugo Boss share prices fell after Frasers announced its bid.',                                        correct:false, reveal:'False — they rose almost 10% to €39.90, signalling investors expected a higher offer or a bidding war.' },
+  ],
+
+  fix_mistakes: [
+    { sentence:'Frasers Group, which already owns a MAJORITY stake of 26% in Hugo Boss, launched a full takeover bid to acquire the rest.', wrong:'majority', correct:'minority', explain:'Owning 26% is less than half — that\'s a minority stake, not a majority.' },
+    { sentence:'The offer represented a DISCOUNT of 4.3% to Hugo Boss\'s closing price on Wednesday.',                                        wrong:'discount', correct:'premium',  explain:'Frasers offered MORE than the market price — that\'s a premium, not a discount.' },
+    { sentence:'Frasers said the deal was subject to approval from COMPETITORS before it could close.',                                       wrong:'competitors', correct:'regulators', explain:'Government regulators — not other companies — approve big takeover deals.' },
+    { sentence:'The company said it wanted to increase its investment in Hugo Boss to create value for its EMPLOYEES.',                       wrong:'employees', correct:'shareholders', explain:'"Creating value for shareholders" is the standard corporate phrase — employees are workers, not owners.' },
+  ],
+
+  gap_fill: [
+    { before:'Frasers already held just over 26% of Hugo Boss ahead of the bid, making it the company\'s ', blank:'largest',              after:' shareholder.',                                              options:['main','largest','majority','primary'] },
+    { before:'Hugo Boss shares were trading almost 10% ',                                                  blank:'up',                   after:' on Thursday morning following the announcement.',          options:['high','up','risen','above'] },
+    { before:'Frasers said it remained ',                                                                  blank:'supportive',           after:' of the current Hugo Boss management team and their strategy.', options:['positive','confident','supportive','in favour of'] },
+    { before:'The rise in Hugo Boss\'s share price suggested investors expected a higher offer to ',       blank:'come',                  after:' from either Frasers or a rival bidder.',                    options:['come','appear','emerge','arrive'] },
+    { before:'Because Murray sat on Hugo Boss\'s supervisory board, he faced a ',                          blank:'conflict of interest', after:' and was excluded from the bid discussions.',                 options:['problem of loyalty','conflict of interest','personal issue','legal barrier'] },
+    { before:'Frasers suggested it was not looking to ',                                                   blank:'rock the boat',        after:' — and would keep the existing management in place.',        options:['move the ship','keep afloat','kick the bucket','rock the boat'] },
+  ],
+
+  idioms_wild: [
+    { phrase:'rock the boat',       meaning:'To cause trouble or disturb a stable situation, often by making controversial changes.' },
+    { phrase:'in someone\'s sights', meaning:'When something or someone is being clearly targeted or aimed for.' },
+    { phrase:'rife',                meaning:'Widespread and very common, often used for rumours or something negative.' },
+  ],
+},
  
    };
 
