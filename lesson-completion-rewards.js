@@ -439,6 +439,23 @@
     { word:'goal',      definition:'When the ball goes in the net — 1 point!' },
   ],
 },
+
+
+'weekly-drop-issue-008': {
+  title:   "The Weekly Drop — Issue 008 — The £1.7bn Bid: Frasers vs Hugo Boss",
+  level:   'All Levels',
+  grammar: 'True/False statements (beginner → upper-int); Fix the Mistake (word choice in business reporting); Fill the Gap (collocations & idioms in M&A news)',
+  vocab: [
+    { word:'takeover',             definition:'When one company buys enough shares to gain control of another company.' },
+    { word:'shareholder',          definition:'A person or company that owns shares in a business.' },
+    { word:'premium',              definition:'An amount paid above the normal or current market price.' },
+    { word:'bid',                  definition:'A formal offer to buy shares or a company at a specific price.' },
+    { word:'regulators',           definition:'Government bodies that supervise and approve business activity, including mergers.' },
+    { word:'supervisory board',    definition:'In German company law, the board that monitors management (Aufsichtsrat).' },
+    { word:'conflict of interest', definition:'When personal or professional interests could unfairly influence a decision.' },
+    { word:'brand equity',         definition:'The commercial value of a brand based on perception, recognition and trust.' },
+  ],
+},
  
 
   };
