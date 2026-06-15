@@ -384,6 +384,19 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .sn-title{font-size:20px;font-weight:900;color:#fff;margin-bottom:6px}
 .sn-sub{font-size:14px;font-weight:700;color:rgba(255,255,255,.85);margin-bottom:16px;line-height:1.5}
 .sn-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:var(--ink1);color:#fff;font-size:16px;font-weight:900;border:2px solid #000;border-bottom:4px solid #000;border-radius:var(--rsm);cursor:pointer;text-decoration:none}
+
+@keyframes correctPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); border-color: #22c55e; box-shadow: 0 0 15px rgba(34, 197, 94, 0.4); }
+  100% { transform: scale(1); }
+}
+@keyframes wrongShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); border-color: #ef4444; }
+  40%, 80% { transform: translateX(8px); border-color: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+}
+.card-correct { animation: correctPop 0.4s ease-in-out !important; }
+.card-wrong { animation: wrongShake 0.4s ease-in-out !important; }
 </style>
 </head>
 <body>
@@ -600,8 +613,8 @@ const VB_QUIZ = [
   },
   {
     wordIdx:4, /* EN 16931 */
-    opts:['A German domestic standard for small business invoicing only','An EU-wide e-invoicing standard that valid German B2B e-invoices must comply with','The article number of the German e-invoicing law in the tax code'],
-    correct:1,
+    opts:['A German domestic standard for small business invoicing only','The article number of the German e-invoicing law in the tax code','An EU-wide e-invoicing standard that valid German B2B e-invoices must comply with'],
+    correct:2,
     explain:'EN 16931 is the European standard for electronic invoicing. It defines the required data fields and structure. Both XRechnung and ZUGFeRD are compliant with EN 16931 — a key point to know for client advice.'
   },
   {
@@ -612,8 +625,8 @@ const VB_QUIZ = [
   },
   {
     wordIdx:8, /* Wachstumschancengesetz */
-    opts:['The German Digitalisation Act that created XRechnung','The German Growth Opportunities Act that introduced the mandatory B2B e-invoicing framework','A EU regulation on cross-border digital trade'],
-    correct:1,
+    opts:['The German Growth Opportunities Act that introduced the mandatory B2B e-invoicing framework','The German Digitalisation Act that created XRechnung','A EU regulation on cross-border digital trade'],
+    correct:0,
     explain:'The Wachstumschancengesetz (Growth Opportunities Act, 2024) is the key law here. It amended the German VAT Act (UStG) to introduce mandatory e-invoicing for B2B domestic transactions from 2025.'
   },
 ];
@@ -644,40 +657,70 @@ const BTC_QS = [
   {q:'The receiving obligation in Germany applies to:', opts:['Only large companies over €10m turnover','All German B2B companies regardless of size','Only public sector suppliers'], correct:1},
 ];
 
-/* ══ INVOICE BUILDER ═════════════════════════════════════════════════ */
-// The puzzle: drag/tap the right label into each field on a mock invoice
+/* ── INVOICE BUILDER ═════════════════════════════════════════════════ */
+// The puzzle: drag/tap the right data point into each field on a mock invoice
 // Some fields are mandatory for e-invoice compliance, some are traps (not required)
 const INV_FIELDS = [
-  {id:'inv_num',    label:'Invoice Number',       correct:'Sequential invoice number',  required:true},
-  {id:'inv_date',   label:'Issue Date',           correct:'Date of issue',              required:true},
-  {id:'seller_vat', label:'Supplier VAT Number',  correct:'Supplier VAT ID',            required:true},
-  {id:'buyer_vat',  label:'Buyer VAT Number',     correct:'Buyer VAT ID',               required:true},
-  {id:'net_amount', label:'Net Amount',           correct:'Net amount (excl. VAT)',      required:true},
-  {id:'vat_rate',   label:'VAT Rate',             correct:'VAT rate (e.g. 19%)',         required:true},
-  {id:'vat_amount', label:'VAT Amount',           correct:'VAT amount',                 required:true},
-  {id:'total',      label:'Total Gross Amount',   correct:'Total incl. VAT',            required:true},
+  {id:'inv_num',    label:'Invoice Number',       correct:'INV-2026-8942',           required:true},
+  {id:'inv_date',   label:'Issue Date',           correct:'15.06.2026',              required:true},
+  {id:'seller_vat', label:'Supplier VAT Number',  correct:'DE314859265',             required:true},
+  {id:'buyer_vat',  label:'Buyer VAT Number',     correct:'FR71987654321',           required:true},
+  {id:'net_amount', label:'Net Amount',           correct:'€1,200.00',               required:true},
+  {id:'vat_rate',   label:'VAT Rate',             correct:'19% standard VAT',        required:true},
+  {id:'vat_amount', label:'VAT Amount',           correct:'€228.00',                 required:true},
+  {id:'total',      label:'Total Gross Amount',   correct:'€1,428.00',               required:true},
 ];
+
 const INV_TAGS_ALL = [
-  'Sequential invoice number',
-  'Date of issue',
-  'Supplier VAT ID',
-  'Buyer VAT ID',
-  'Net amount (excl. VAT)',
-  'VAT rate (e.g. 19%)',
-  'VAT amount',
-  'Total incl. VAT',
-  'Supplier\'s bank IBAN',  // not legally required in e-invoice standard (distractor)
-  'Client\'s email address',  // distractor
+  'INV-2026-8942',
+  '15.06.2026',
+  'DE314859265',
+  'FR71987654321',
+  '€1,200.00',
+  '19% standard VAT',
+  '€228.00',
+  '€1,428.00',
+  'DE89 3704 0044 0532 0130 00',  // Distractor: Valid looking IBAN but not a core structural gap
+  'PO-99415-X',                   // Distractor: Internal Purchase Order Reference number
 ];
 
 /* ══ SORT GAME ═══════════════════════════════════════════════════════ */
 const SORT_CARDS = [
-  {cat:'📅 Timeline',fact:`Your client switched accounting software in 2024. Their new system <span class="cool">can already send ZUGFeRD</span> invoices out of the box`,question:'Does this help or hurt the client\'s compliance position?',correct:'helps',explain:`If the software already supports ZUGFeRD — a valid EN 16931-compliant format — the client may just need to switch it on. No need for a separate project. This is a real advantage.`},
-  {cat:'📄 Format',fact:`A client insists on continuing to send invoices as <span class="hot">scanned paper images</span> emailed as PDF attachments`,question:'Does this approach help or hurt their compliance position?',correct:'hurts',explain:`A scanned image — even as a PDF — is not a structured format. It cannot be machine-processed. This approach will fail compliance entirely once the sending obligation kicks in.`},
-  {cat:'🏛️ Law',fact:`The <span class="cool">Wachstumschancengesetz</span> was passed in March 2024, giving businesses over a year to prepare before the first deadline`,question:'Does this preparation window help businesses?',correct:'helps',explain:`A lead time of more than a year is genuinely helpful. Companies had time to update systems, train staff, and test formats before the January 2025 receiving obligation. Many used it well.`},
-  {cat:'📊 Size',fact:`A freelance graphic designer with <span class="hot">€120,000</span> annual turnover works exclusively for German B2B clients`,question:'Are they affected by the e-invoicing mandate? Does this hurt them?',correct:'hurts',explain:`Yes — even small B2B businesses are affected. The receiving obligation applies from 2025 regardless of size. The sending obligation will apply from 2028. Being small does not mean exempt — just a later deadline.`},
-  {cat:'🔀 Format',fact:`A company uses <span class="cool">ZUGFeRD</span> — their clients include both small firms who read invoices manually and large firms with automated systems`,question:'Does ZUGFeRD\'s hybrid nature help this company?',correct:'helps',explain:`ZUGFeRD\'s dual nature is ideal here. Small clients can read the PDF as normal; large clients can process the embedded XML automatically. One format, two audiences. Smart choice.`},
-  {cat:'🗓️ Deadline',fact:`A company with <span class="hot">€950,000</span> turnover has planned its e-invoicing project to go live in <span class="hot">February 2027</span>`,question:'Does this timeline help or hurt them?',correct:'hurts',explain:`Companies above €800,000 turnover must send e-invoices from 1 January 2027. Going live in February 2027 means they miss the deadline by weeks. They should move the project earlier — or risk non-compliance and VAT problems.`},
+  {
+    cat: "Format Rules",
+    fact: "An attached PDF invoice sent via regular email counts as a valid structured e-invoice under new EU regulations.",
+    question: "Is this statement True or False?",
+    isTrue: false, // Must be structured data like XML, not just a picture/PDF
+    feedback: "❌ **False!** A standard PDF is just a digital image of paper. True e-invoicing requires a structured, machine-readable syntax (like XML) that software can process automatically."
+  },
+  {
+    cat: "Efficiency",
+    fact: "Implementing structured electronic invoicing completely eliminates the need for manual accounts payable data entry.",
+    question: "Is this statement True or False?",
+    isTrue: true,
+    feedback: "✅ **Correct!** Because the data is structured identically every time, ERP systems can read, validate, and queue the payment without a human typing in a single field."
+  },
+  {
+    cat: "Tax Compliance",
+    fact: "The ultimate objective of mandatory B2B electronic invoicing is helping governments track tax gaps and combat VAT fraud.",
+    question: "Is this statement True or False?",
+    isTrue: true,
+    feedback: "✅ **Correct!** Real-time or near-real-time reporting allows tax authorities to cross-reference sales instantly, preventing multi-billion euro tax evasion schemes."
+  },
+  {
+    cat: "Data Auditing",
+    fact: "Even when utilizing end-to-end electronic invoicing, companies are legally obligated to print out physical backup copies.",
+    question: "Is this statement True or False?",
+    isTrue: false,
+    feedback: "❌ **False!** Printing them actually breaks compliance trails. Digital archiving systems with cryptographic signatures are used to store files securely for tax audits."
+  },
+  {
+    cat: "Hybrid Formats",
+    fact: "Modern formats like Factur-X embed a machine-readable XML file directly inside a human-readable visual PDF document.",
+    question: "Is this statement True or False?",
+    isTrue: true,
+    feedback: "✅ **Correct!** This is called a hybrid invoice. It provides the best of both worlds: humans can look at the PDF, and automated systems can ingest the hidden XML data."
+  }
 ];
 
 /* ══ STATE ═══════════════════════════════════════════════════════════ */
@@ -980,10 +1023,20 @@ function answerTF(chosen){
   document.querySelectorAll('.tf-btn').forEach(b=>b.disabled=true);
   const q = TF_DATA[S.tfIdx];
   const correct = chosen === q.answer;
+
+  // ✨ ADDED: High-energy card animations for immediate feedback
+  const cardEl = document.getElementById('tf-card');
+  if(cardEl){
+    cardEl.classList.remove('card-correct', 'card-wrong');
+    void cardEl.offsetWidth; // Force a DOM reflow to restart the animation smoothly
+    cardEl.classList.add(correct ? 'card-correct' : 'card-wrong');
+  }
+
   const btns = document.querySelectorAll('.tf-btn');
   const map = {'TRUE':0,'FALSE':1};
   btns[map[chosen]].classList.add(correct?'correct':'wrong');
   if(!correct) btns[map[q.answer]].classList.add('show-ok');
+  
   S.totalAnswered++;
   if(correct){
     S.totalRight++; S.tfRight++; S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo);
