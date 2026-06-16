@@ -456,6 +456,22 @@
     { word:'brand equity',         definition:'The commercial value of a brand based on perception, recognition and trust.' },
   ],
 },
+
+     'china-ai-classrooms': {
+  title:   'AI in the Classroom: Smart Schools or Surveillance?',
+  level:   'Upper-Intermediate',
+  grammar: 'Reported speech (backshift); modal verbs of speculation (might/could/may)',
+  vocab: [
+    { word:'surveillance',   definition:'The close watching of someone\u2019s behaviour, often without them having much say in it' },
+    { word:'susceptible to', definition:'Easily affected or influenced by something, often in a negative way' },
+    { word:'alarmed',        definition:'Made to feel worried or frightened that something might be wrong' },
+    { word:'consent',        definition:'Permission for something to happen, given freely and willingly' },
+    { word:'algorithm',      definition:'A set of rules a computer follows to process data or solve a problem' },
+    { word:'artifact',       definition:'An unwanted error or distortion in a signal or measurement, not a true reading' },
+    { word:'anatomize',      definition:'To examine something in extremely fine, separated-out detail, piece by piece' },
+    { word:'glimpse',        definition:'A brief or partial view of something, suggesting more than it fully reveals' },
+  ],
+},
  
 
   };
