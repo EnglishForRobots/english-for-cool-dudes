@@ -2105,6 +2105,74 @@ const LESSON_DATA_REGISTRY = {
     { phrase:'rife',                meaning:'Widespread and very common, often used for rumours or something negative.' },
   ],
 },
+
+
+'china-ai-classrooms': {
+  id:    'china-ai-classrooms',
+  title: 'AI in the Classroom: Smart Schools or Surveillance?',
+  level: 'Upper-Intermediate',
+  track: 'intermediate',
+  emoji: '🧠',
+  badge: 'AI Classroom Analyst',
+
+  vocab: [
+    { word:'surveillance',   definition:'The close watching of someone\u2019s behaviour, often without them having much say in it', example:'A network of cameras with facial recognition helps police monitor citizens through ___.', distractors:['consent','algorithm','glimpse'] },
+    { word:'susceptible to', definition:'Easily affected or influenced by something, often in a negative way', example:'EEG is very ___ artifacts, so if you are fidgety, the signal is affected.', distractors:['alarmed by','consented to','glimpsed by'] },
+    { word:'alarmed',        definition:'Made to feel worried or frightened that something might be wrong', example:'These gadgets have ___ Chinese netizens, who are raising privacy concerns online.', distractors:['anatomized','consented','surveilled'] },
+    { word:'consent',        definition:'Permission for something to happen, given freely and willingly', example:'Schools say it wasn\u2019t hard getting parental ___ to enrol kids in the programme.', distractors:['surveillance','algorithm','artifact'] },
+    { word:'algorithm',      definition:'A set of rules a computer follows to process data or solve a problem', example:'The programme is supposed to boost grades while also feeding powerful ___.', distractors:['consent','glimpse','surveillance'] },
+    { word:'artifact',       definition:'An unwanted error or distortion in a signal or measurement, not a true reading', example:'EEG is susceptible to ___ — if the electrodes don\u2019t have good contact, it affects the signal.', distractors:['algorithm','consent','glimpse'] },
+    { word:'anatomize',      definition:'To examine something in extremely fine, separated-out detail, piece by piece', example:'If you\u2019re trying to assess an individual student in a classroom, you really can\u2019t ___ it.', distractors:['surveil','consent to','alarm'] },
+    { word:'glimpse',        definition:'A brief or partial view of something, suggesting more than it fully reveals', example:'Some schools offer ___ of what the future of high-tech education might look like.', distractors:['artifact','algorithm','consent'] },
+  ],
+
+  grammar: {
+    topic: 'Reported Speech — backshifting tenses',
+    rule:  'When reporting what someone said, tenses shift back: present simple → past simple, will → would, can → could, must/have to → had to.',
+    exercises: [
+      { sentence:'She said the store ___ not a grab-a-carton-of-milk-and-get-out kind of place.', answer:'was', wrong:['is','has been','were'], explain:'"is" → "was" — present simple shifts to past simple in reported speech.' },
+      { sentence:'He said the product ___ be just cool looking.', answer:"couldn't", wrong:["can't","wouldn't","didn't"], explain:'"can\'t" → "couldn\'t" — modals backshift too.' },
+      { sentence:'He said lots of people ___ buy LED bulbs if they ___ achieve it.', answer:'would / could', wrong:['will / can','shall / may','would / can'], explain:'"will" → "would" and "can" → "could" — standard modal backshifts.' },
+      { sentence:'The narrator concluded that labour ___ to love.', answer:'leads', wrong:['led','had led','would lead'], explain:'General truths often stay in the present tense even in reported speech.' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Modal Verbs of Speculation — might / could / may',
+    rule:  'Use might, could, or may when something is possible but not certain. Use must when almost certain.',
+    exercises: [
+      { sentence:'EEG data ___ be distorted if a student is fidgety.', answer:'might', wrong:['must','will',"can't"], explain:'"Might" = possible but not certain — fits limited evidence.' },
+      { sentence:'The FDA-style panel ___ recommend stricter rules — but that\u2019s not guaranteed.', answer:'could', wrong:['will','must','should'], explain:'"Could" = a theoretical possibility, not a certainty.' },
+      { sentence:'This device ___ contain sensors that aren\u2019t clearly explained to parents.', answer:'may', wrong:['must','will','can'], explain:'"May" = formal/neutral possibility, common in journalism.' },
+      { sentence:'If the system is untested, there ___ be long-term effects we don\u2019t know about.', answer:'could', wrong:['must','would','should'], explain:'"Could be" = acknowledging a genuine unknown.' },
+    ],
+  },
+
+  sentences: [
+    { words:['three','has','headband','electrodes','The'], answer:'The headband has three electrodes', hint:'🧠 How many sensors does the device use?' },
+    { words:['parents','sent','is','to','data','The'], answer:'The data is sent to parents', hint:'📲 Who receives the concentration reports?' },
+    { words:['susceptible','EEG','artifacts','to','is'], answer:'EEG is susceptible to artifacts', hint:'🔬 What does the neuroscientist warn about?' },
+    { words:['200','could','million','affected','students','be'], answer:'200 million students could be affected', hint:'🌏 What is the scale of this story?' },
+  ],
+
+  word_builder: [
+    { word:'surveillance', definition:'Close watching of behaviour, often without consent' },
+    { word:'consent',      definition:'Permission given freely for something to happen' },
+    { word:'algorithm',    definition:'A set of computer rules for processing data' },
+    { word:'alarmed',      definition:'Made to feel worried that something is wrong' },
+    { word:'glimpse',      definition:'A brief, partial view of something bigger' },
+  ],
+
+  true_false: [
+    { statement:'The headbands measure concentration using sensors on the wrists.', correct:false, reveal:'❌ FALSE! Three electrodes — two behind the ears and one on the forehead.' },
+    { statement:'The data is sent only to the teacher, never to parents.', correct:false, reveal:'❌ FALSE! It goes to the teacher AND to parents, including a parents\u2019 chat group.' },
+    { statement:'A neuroscientist says EEG is a new technology with still fairly little research behind it.', correct:true, reveal:'✅ TRUE! Theodore Zanto (UCSF) says this explicitly.' },
+    { statement:'Fidgeting or poor electrode contact can distort the EEG signal.', correct:true, reveal:'✅ TRUE! That distortion is called an "artifact".' },
+    { statement:'Every student interviewed said they loved the headbands.', correct:false, reveal:'❌ FALSE! One student said his parents punish him for low scores.' },
+    { statement:'The expert says it is easy to isolate one student\u2019s data in a busy classroom.', correct:false, reveal:'❌ FALSE! He says you really can\u2019t "anatomize" it cleanly.' },
+    { statement:'Roughly 200 million students could potentially be affected by this push.', correct:true, reveal:'✅ TRUE! That\u2019s the scale mentioned in the video.' },
+  ],
+},
  
    };
 
