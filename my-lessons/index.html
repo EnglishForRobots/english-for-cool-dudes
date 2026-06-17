@@ -919,11 +919,13 @@ function renderGrammarPanel(reg, key){
     const opts=[q.answer,...(q.wrong||[])].sort(()=>Math.random()-.5);
     const correctIdx=opts.indexOf(q.answer);
     const pips=g.exercises.map((_,i)=>`<div class="quiz-pip${i<gIdx?' right':i===gIdx?' active':''}" id="gpip${key}-${i}"></div>`).join('');
+    let blankN=0;
+    const sentenceHTML=q.sentence.replace(/___/g,()=>`<span class="g-blank-${key}" data-blank-idx="${blankN++}" style="display:inline-block;min-width:90px;background:rgba(88,204,2,.15);border:2px dashed var(--gs);border-radius:6px;padding:1px 10px;color:var(--gs)">___</span>`);
     el.innerHTML=`
       <div class="gram-explainer"><strong>${g.topic}</strong><br><br>${g.rule.replace(/\n/g,'<br>')}</div>
       <div class="quiz-progress-row"><div class="quiz-pips">${pips}</div><div class="quiz-score">${gScore}/${g.exercises.length}</div></div>
       <div class="gram-sent-card"><div class="gram-sent-num">Sentence ${gIdx+1} of ${g.exercises.length}</div>
-        <div class="gram-sent-text">${q.sentence.replace('___','<span style="background:rgba(88,204,2,.15);border:2px dashed var(--gs);border-radius:6px;padding:1px 10px;color:var(--gs)">___</span>')}</div>
+        <div class="gram-sent-text">${sentenceHTML}</div>
         ${q.hint?`<div class="gram-sent-hint">💡 ${q.hint}</div>`:''}</div>
       <div class="gram-word-btns" id="gbtns-${key}">${opts.map((o,i)=>`<button class="gram-word-btn" data-idx="${i}">${o}</button>`).join('')}</div>
       <div class="quiz-feedback" id="gfb-${key}"></div>
@@ -935,6 +937,13 @@ function renderGrammarPanel(reg, key){
         this.classList.add(ok?'correct':'wrong');
         if(!ok) el.querySelectorAll(`#gbtns-${key} .gram-word-btn`)[correctIdx].classList.add('show-ok');
         if(ok){gScore++;burst();}
+        const chosenParts=opts[parseInt(this.dataset.idx)].split(' / ');
+        el.querySelectorAll(`.g-blank-${key}`).forEach((span,i)=>{
+          span.textContent=chosenParts[i]||chosenParts[0]||'___';
+          span.style.color=ok?'var(--gs)':'var(--ps)';
+          span.style.borderColor=ok?'var(--gs)':'var(--ps)';
+          span.style.borderStyle='solid';
+        });
         const fb=document.getElementById(`gfb-${key}`); if(fb){fb.textContent=q.explain||q.answer;fb.className=`quiz-feedback show ${ok?'right':'wrong'}`;}
         const pip=document.getElementById(`gpip${key}-${gIdx}`); if(pip) pip.classList.add(ok?'right':'wrong');
         const nxt=document.getElementById(`gnxt-${key}`); if(nxt){nxt.style.display='flex';nxt.textContent=gIdx+1<g.exercises.length?'Next →':'Done! 🎉';}
