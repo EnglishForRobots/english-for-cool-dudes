@@ -2126,18 +2126,8 @@ const LESSON_DATA_REGISTRY = {
     { word:'glimpse',        definition:'A brief or partial view of something, suggesting more than it fully reveals', example:'Some schools offer ___ of what the future of high-tech education might look like.', distractors:['artifact','algorithm','consent'] },
   ],
 
+ 
   grammar: {
-    topic: 'Reported Speech — backshifting tenses',
-    rule:  'When reporting what someone said, tenses shift back: present simple → past simple, will → would, can → could, must/have to → had to.',
-    exercises: [
-      { sentence:'She said the store ___ not a grab-a-carton-of-milk-and-get-out kind of place.', answer:'was', wrong:['is','has been','were'], explain:'"is" → "was" — present simple shifts to past simple in reported speech.' },
-      { sentence:'He said the product ___ be just cool looking.', answer:"couldn't", wrong:["can't","wouldn't","didn't"], explain:'"can\'t" → "couldn\'t" — modals backshift too.' },
-      { sentence:'He said lots of people ___ buy LED bulbs if they ___ achieve it.', answer:'would / could', wrong:['will / can','shall / may','would / can'], explain:'"will" → "would" and "can" → "could" — standard modal backshifts.' },
-      { sentence:'The narrator concluded that labour ___ to love.', answer:'leads', wrong:['led','had led','would lead'], explain:'General truths often stay in the present tense even in reported speech.' },
-    ],
-  },
-
-  grammar2: {
     topic: 'Modal Verbs of Speculation — might / could / may',
     rule:  'Use might, could, or may when something is possible but not certain. Use must when almost certain.',
     exercises: [
