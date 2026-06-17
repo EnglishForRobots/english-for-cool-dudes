@@ -472,6 +472,24 @@
     { word:'glimpse',        definition:'A brief or partial view of something, suggesting more than it fully reveals' },
   ],
 },
+
+     'e-invoice-era-tax': {
+      title:   'The E-Invoice Era',
+      level:   'Tax English',
+      grammar: 'Modal verbs of obligation (must / have to / don\'t have to); First conditional for compliance predictions',
+      vocab: [
+        { word:'e-invoice',            definition:'A structured, machine-readable electronic invoice — not a PDF or scan' },
+        { word:'XRechnung',            definition:'The German pure-XML e-invoice standard used in B2B and B2G transactions' },
+        { word:'ZUGFeRD',              definition:'A hybrid e-invoice format — a readable PDF with embedded XML data' },
+        { word:'structured format',    definition:'A file format computers can read and process automatically, like XML' },
+        { word:'EN 16931',             definition:'The European standard defining the rules for valid electronic invoices' },
+        { word:'receiving obligation', definition:'The legal requirement to be able to receive e-invoices from January 2025' },
+        { word:'sending obligation',   definition:'The legal requirement to send e-invoices, phasing in from 2027/2028' },
+        { word:'transition period',    definition:'The window where old and new invoicing rules run in parallel' },
+        { word:'Wachstumschancengesetz', definition:'The 2024 German law that introduced the B2B e-invoicing mandate' },
+        { word:'VAT compliance',       definition:'Making sure invoices meet all required VAT rules and formats' },
+      ],
+    },
  
 
   };
