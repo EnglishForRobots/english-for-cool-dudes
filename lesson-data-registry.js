@@ -2173,6 +2173,139 @@ const LESSON_DATA_REGISTRY = {
     { statement:'Roughly 200 million students could potentially be affected by this push.', correct:true, reveal:'✅ TRUE! That\u2019s the scale mentioned in the video.' },
   ],
 },
+
+   'e-invoice-era-tax': {
+
+    // ── IDENTITY ─────────────────────────────────────────────
+    id:    'e-invoice-era-tax',
+    title: 'The E-Invoice Era',
+    level: 'Tax English',
+    track: 'tax',
+    emoji: '🧾',
+    badge: 'Compliance Pro',
+
+    // ── VOCAB ────────────────────────────────────────────────
+    vocab: [
+      { word:'e-invoice',           definition:'A structured electronic invoice — not a PDF or scan, but a machine-readable file that systems can process automatically', example:'A normal PDF does not count as an ___ — it must be a structured format like XML.', distractors:['structured format','transition period','VAT compliance'] },
+      { word:'XRechnung',           definition:'The German standard for electronic invoices in B2B and B2G transactions — a structured XML format', example:'___ is pure XML — there is no PDF layer, so a human cannot read it without special software.', distractors:['ZUGFeRD','EN 16931','sending obligation'] },
+      { word:'ZUGFeRD',             definition:'A hybrid German e-invoice format — it embeds machine-readable XML data inside a normal PDF', example:'___ lets a human read the PDF while a computer reads the embedded XML.', distractors:['XRechnung','receiving obligation','Wachstumschancengesetz'] },
+      { word:'structured format',   definition:'A file format that computers can read and process automatically — like XML, unlike a scanned image or PDF', example:'A PDF is not a ___ — even a beautiful one is just an image to a machine.', distractors:['transition period','EN 16931','VAT compliance'] },
+      { word:'EN 16931',            definition:'The European standard that defines the rules for electronic invoices — all valid e-invoices in Germany must comply with this', example:'Both XRechnung and ZUGFeRD comply with ___.', distractors:['Wachstumschancengesetz','sending obligation','receiving obligation'] },
+      { word:'receiving obligation',definition:'The legal requirement to be able to receive e-invoices — applies to all German B2B companies from January 2025', example:'The ___ began on 1 January 2025 — even for small companies.', distractors:['sending obligation','transition period','VAT compliance'] },
+      { word:'sending obligation',  definition:'The legal requirement to send e-invoices — phases in from 2027 for large companies and 2028 for smaller ones', example:'Large companies must meet the ___ from 2027.', distractors:['receiving obligation','EN 16931','structured format'] },
+      { word:'transition period',   definition:'The window of time while old and new systems run in parallel — paper or PDF invoices may still be accepted under certain conditions', example:'During the ___, paper invoices may still be accepted if the recipient agrees.', distractors:['receiving obligation','XRechnung','VAT compliance'] },
+      { word:'Wachstumschancengesetz', definition:'The German Growth Opportunities Act (2024) — the law that introduced the mandatory B2B e-invoicing framework in Germany', example:'The ___ amended the German VAT Act to introduce the e-invoicing mandate.', distractors:['EN 16931','ZUGFeRD','transition period'] },
+      { word:'VAT compliance',      definition:'Making sure invoices follow the rules for VAT — including the right format, the right data fields, and the right deadlines', example:'Getting the e-invoice format wrong is also a ___ failure.', distractors:['structured format','sending obligation','e-invoice'] },
+    ],
+
+    // ── GRAMMAR 1: Modal verbs of obligation ───────────────────
+    grammar: {
+      topic: 'Modal verbs of obligation — must / have to / don\'t have to',
+      rule:  'MUST / HAVE TO express a legal or strong obligation. MUST often signals a rule imposed by the speaker or a strict legal requirement; HAVE TO is more neutral and very common for external rules like laws. DON\'T HAVE TO means there is no obligation — it is optional, not forbidden.',
+      exercises: [
+        {
+          sentence: 'All German B2B companies ___ be able to receive e-invoices from 2025.',
+          answer:   'have to',
+          wrong:    ['can', 'might', 'should'],
+          explain:  'A legal requirement imposed by law → HAVE TO (or MUST). "Can" suggests ability, not obligation.',
+        },
+        {
+          sentence: 'Small companies ___ send e-invoices until 2028 — they only need to receive them for now.',
+          answer:   'don\'t have to',
+          wrong:    ['mustn\'t', 'can\'t', 'shouldn\'t'],
+          explain:  '"Don\'t have to" = no obligation yet. "Mustn\'t" would mean it is forbidden — which is wrong here.',
+        },
+        {
+          sentence: 'A valid e-invoice ___ follow the EN 16931 standard — there is no way around this.',
+          answer:   'must',
+          wrong:    ['could', 'may', 'might'],
+          explain:  '"Must" for a strict legal requirement with no exceptions — stronger than "should".',
+        },
+        {
+          sentence: 'During the transition period, a supplier ___ send paper invoices if the customer agrees.',
+          answer:   'can still',
+          wrong:    ['must still', 'has to still', 'mustn\'t'],
+          explain:  '"Can" expresses permission/possibility, not obligation — paper is allowed under conditions, not required.',
+        },
+      ],
+    },
+
+    // ── GRAMMAR 2: First Conditional ──────────────────────────
+    grammar2: {
+      topic: 'First Conditional — predicting compliance outcomes',
+      rule:  'First conditional: If + present simple → will + infinitive. Used to predict what will happen if a real, likely condition is met. Very common in compliance advice: "If a company sends a PDF, it will not meet the requirement."',
+      exercises: [
+        {
+          sentence: 'If a company ___ only PDFs, it ___ the e-invoicing requirement.',
+          answer:   'sends / will not meet',
+          wrong:    ['sends / would not meet', 'will send / will not meet', 'sent / will not meet'],
+          explain:  'First conditional: if + present simple (sends), will + infinitive (will not meet). A real likely outcome.',
+        },
+        {
+          sentence: 'If a business ___ over €800,000 turnover, it ___ to send e-invoices from 2027.',
+          answer:   'has / will need',
+          wrong:    ['had / will need', 'has / would need', 'will have / will need'],
+          explain:  'First conditional: if + present simple (has), will + infinitive (will need). Describes a real rule with a clear trigger.',
+        },
+        {
+          sentence: 'If the software already ___ ZUGFeRD, the client ___ to switch it on.',
+          answer:   'supports / will just need',
+          wrong:    ['supported / will just need', 'will support / will just need', 'supports / would just need'],
+          explain:  'First conditional for a likely, practical outcome — the client simply needs to enable an existing feature.',
+        },
+        {
+          sentence: 'If a freelancer ___ to receive an e-invoice, their accounting system ___ it correctly.',
+          answer:   'needs / will have to process',
+          wrong:    ['needed / will have to process', 'needs / would have to process', 'will need / will have to process'],
+          explain:  'First conditional describing the practical consequence of the receiving obligation.',
+        },
+      ],
+    },
+
+    // ── SENTENCE BUILDER ──────────────────────────────────────
+    sentences: [
+      {
+        words:  ['receive', 'must', 'companies', 'be', 'to', 'able', 'e-invoices', 'All'],
+        answer: 'All companies must be able to receive e-invoices',
+        hint:   '📬 What does the receiving obligation require?',
+      },
+      {
+        words:  ['not', 'A', 'a', 'PDF', 'structured', 'is', 'format'],
+        answer: 'A PDF is not a structured format',
+        hint:   '🧾 Why doesn\'t a nice PDF count as an e-invoice?',
+      },
+      {
+        words:  ['embeds', 'XML', 'a', 'PDF', 'inside', 'ZUGFeRD'],
+        answer: 'ZUGFeRD embeds XML inside a PDF',
+        hint:   '💻 What makes ZUGFeRD a hybrid format?',
+      },
+      {
+        words:  ['from', 'send', 'must', 'companies', 'e-invoices', 'Large', '2027'],
+        answer: 'Large companies must send e-invoices from 2027',
+        hint:   '📅 What is the sending deadline for big companies?',
+      },
+    ],
+
+    // ── WORD BUILDER ────────────────────────────────────────
+    word_builder: [
+      { word:'structured',  definition:'A format computers can read automatically' },
+      { word:'receiving',   definition:'Being able to accept and process e-invoices' },
+      { word:'transition',  definition:'A window where old and new rules overlap' },
+      { word:'compliance',  definition:'Following the rules correctly' },
+      { word:'mandate',     definition:'An official legal requirement' },
+      { word:'structured',  definition:'A format computers can read automatically' },
+    ],
+
+    // ── TRUE / FALSE ─────────────────────────────────────────
+    true_false: [
+      { statement:'All German B2B companies, including small ones, must be able to receive e-invoices from 1 January 2025.', correct:true,  reveal:'✅ TRUE! The receiving obligation applies regardless of company size — small businesses are not exempt.' },
+      { statement:'A well-formatted PDF with all the right VAT data counts as a valid e-invoice.',                            correct:false, reveal:'❌ FALSE! A PDF is not a structured format — even a perfect one cannot be processed automatically by a machine.' },
+      { statement:'ZUGFeRD is pure XML with no PDF layer at all.',                                                            correct:false, reveal:'❌ FALSE! That describes XRechnung. ZUGFeRD is the hybrid format — a readable PDF with XML embedded inside it.' },
+      { statement:'Companies with turnover above €800,000 must start sending e-invoices from 2027.',                         correct:true,  reveal:'✅ TRUE! Smaller companies get an extra year — until 2028 — but larger ones must comply from 2027.' },
+      { statement:'The Wachstumschancengesetz is the law behind Germany\'s e-invoicing mandate.',                             correct:true,  reveal:'✅ TRUE! This 2024 law amended the German VAT Act to introduce the new e-invoicing rules.' },
+    ],
+
+  },
  
    };
 
