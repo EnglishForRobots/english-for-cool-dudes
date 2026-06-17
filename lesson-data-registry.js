@@ -1715,9 +1715,9 @@ const LESSON_DATA_REGISTRY = {
         hint:   '📅 Why TechCorp needs more than a three-year indemnity',
       },
       {
-        words:  ['covers', 'indemnity', 'an', 'without', 'proof', 'of', 'loss'],
-        answer: 'an indemnity covers without proof of loss',
-        hint:   '⚖️ The key practical difference between an indemnity and a warranty',
+        words:  ['company', 'indemnity', 'future', 'us', 'any', 'gave', 'losses', 'cover', 'an', 'the', 'to'],
+        answer: 'the company gave us an indemnity to cover any future losses',
+        hint:   '⚖️ Start with the group of people who are providing the protection',
       },
     ],
  
