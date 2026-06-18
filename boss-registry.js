@@ -15,7 +15,7 @@
 
 const BOSS_REGISTRY = {
 
-  'sandwich-slime': {
+  'smelly-sandwich': {
     id:               'smelly-sandwich',
     name:             'The Smelly Sandwich',
     emoji:            '🥪',
@@ -28,7 +28,7 @@ const BOSS_REGISTRY = {
     damagePerWrong:   12,
     timerSecs:        90,
     feedsFrom:        ['sandwich-beginner', 'royal-corgis-beginner', 'london-underground-beginner', 'worldcup2026-beginner'],
-    winReward:        { xp: 300, badge: 'Slime Slayer' },
+    winReward:        { xp: 300, badge: 'Smelly Sandwich Slayer' },
     modalTone:        'low',
   },
 
