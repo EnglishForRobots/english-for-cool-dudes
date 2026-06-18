@@ -2008,11 +2008,11 @@ const LESSON_DATA_REGISTRY = {
 
   grammar: {
     topic: 'There is / There are',
-    rule:  'Use THERE IS for one thing: "There IS one final." Use THERE ARE for more than one: "There ARE 48 teams." For teams and countries, use ARE: "France ARE the favourites."',
+    rule:  'Use THERE IS for one thing: "There IS one final." Use THERE ARE for more than one: "There ARE 48 teams." For teams and countries, use ARE: "Spain ARE the favourites."',
     exercises: [
       { sentence:'___ 48 teams in the World Cup.',          answer:'There are',  wrong:['There is','They are','It is'],    explain:'"48 teams" is more than one, so we use THERE ARE.' },
       { sentence:'The final ___ at MetLife Stadium.',       answer:'is',         wrong:['are','have','am'],                explain:'The final = one event, so we use IS.' },
-      { sentence:'France ___ the favourites to win.',       answer:'are',        wrong:['is','has','was'],                 explain:'France = a team = a group of people, so we use ARE.' },
+      { sentence:'Spain ___ the favourites to win.',       answer:'are',        wrong:['is','has','was'],                 explain:'Spain = a team = a group of people, so we use ARE.' },
       { sentence:'___ only one golden trophy.',             answer:'There is',   wrong:['There are','They are','It are'],  explain:'One trophy = THERE IS.' },
     ],
   },
@@ -2030,7 +2030,7 @@ const LESSON_DATA_REGISTRY = {
 
   sentences: [
     { words:['are','48','There','in','teams','Cup','World','the'],    answer:'There are 48 teams in the World Cup',   hint:'⚽ Use "There are" — it\'s more than one!' },
-    { words:['are','favourites','France','the','to','win'],           answer:'France are the favourites to win',      hint:'🥖🥐 France ARE — they are a group!' },
+    { words:['are','favourites','Spain','the','to','win'],           answer:'Spain are the favourites to win',      hint:'💃🏽 Spain ARE — they are a group!' },
     { words:['final','is','New','in','The','York'],                   answer:'The final is in New York',              hint:'🗽 The final IS in...' },
     { words:['won','Cup','2022','in','World','Argentina','the'],      answer:'Argentina won the World Cup in 2022',   hint:'🥇 Argentina WON...' },
   ],
