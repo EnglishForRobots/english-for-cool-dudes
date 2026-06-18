@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚔️ Boss Battle — English For Cool Dudes</title>
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css2?family=Nunito:ital,wght@0,400;0,700;0,800;0,900;1,900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/lesson-data-registry.js"></script>
+<script src="/boss-registry.js"></script>
+<script src="/xp.js"></script>
+<script src="/init-auth.js"></script>
+<style>
+:root{
+  --navy:#1a2e5a; --navy2:#243f73;
+  --yellow:#FFC800; --ys:#E5B400;
+  --green:#58CC02;  --gs:#58A700;
+  --punch:#FF4B4B;  --ps:#EA2B2B;
+  --blue:#1CB0F6;   --bs:#1899D6;
+  --purple:#CE82FF; --pus:#A559D9;
+  --teal:#2BDECC;
+  --white:#fff; --ink:#111827; --ink3:#AFAFAF;
+  --r:20px; --rsm:14px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Nunito',sans-serif;overflow:hidden}
+body{background:var(--navy);color:#fff;line-height:1.4}
+
+@keyframes up      {from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pop     {0%{transform:scale(.5) rotate(-6deg)}65%{transform:scale(1.12)}100%{transform:scale(1)}}
+@keyframes shake   {0%,100%{transform:translateX(0)}20%{transform:translateX(-12px)}40%{transform:translateX(12px)}60%{transform:translateX(-8px)}80%{transform:translateX(8px)}}
+@keyframes float   {0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes zoomIn  {from{opacity:0;transform:scale(.15)}to{opacity:1;transform:scale(1)}}
+@keyframes pulse   {0%,100%{opacity:1}50%{opacity:.55}}
+@keyframes glow    {0%,100%{box-shadow:0 0 24px rgba(255,75,75,.35)}50%{box-shadow:0 0 70px rgba(255,75,75,.8)}}
+@keyframes hpFlash {0%{filter:brightness(1)}50%{filter:brightness(2)}100%{filter:brightness(1)}}
+@keyframes conf    {0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(260px) rotate(720deg)}}
+
+.conf-dot{position:fixed;border-radius:3px;pointer-events:none;z-index:9999;animation:conf 1.6s ease-out both}
+
+/* ══ SCREENS ══ */
+#select,#confirm,#fight,#result{height:100vh;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;background:linear-gradient(160deg,#001433 0%,#1a2e5a 100%);overflow-y:auto}
+
+/* ══ SELECT SCREEN ══ */
+.sel-wrap{max-width:640px;width:100%;animation:up .4s ease both}
+.sel-title{font-size:clamp(28px,6vw,40px);font-weight:900;font-style:italic;text-align:center;margin-bottom:6px;letter-spacing:-1px}
+.sel-sub{font-size:14px;font-weight:700;color:rgba(255,255,255,.6);text-align:center;margin-bottom:8px}
+.sel-balance{text-align:center;margin-bottom:26px}
+.sel-balance-n{font-size:22px;font-weight:900;color:var(--yellow)}
+.sel-balance-l{font-size:11px;font-weight:900;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1.5px}
+
+.boss-list{display:flex;flex-direction:column;gap:14px}
+.boss-card{display:flex;align-items:center;gap:16px;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.1);border-bottom:5px solid rgba(255,255,255,.1);border-radius:var(--r);padding:18px 20px;cursor:pointer;transition:all .15s;font-family:inherit;text-align:left;width:100%}
+.boss-card:hover:not(.locked){background:rgba(255,255,255,.1);transform:translateY(-2px)}
+.boss-card.locked{opacity:.4;cursor:default}
+.boss-emoji{font-size:48px;flex-shrink:0;animation:float 3s ease-in-out infinite}
+.boss-info{flex:1}
+.boss-name{font-size:18px;font-weight:900;color:#fff}
+.boss-tier{font-size:11px;font-weight:900;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px}
+.boss-stats-row{display:flex;gap:14px;margin-top:8px}
+.boss-stat{font-size:12px;font-weight:800;color:rgba(255,255,255,.55)}
+.boss-cost{flex-shrink:0;text-align:center;background:rgba(255,200,0,.12);border:2px solid rgba(255,200,0,.3);border-radius:var(--rsm);padding:10px 16px}
+.boss-cost-n{font-size:18px;font-weight:900;color:var(--yellow)}
+.boss-cost-l{font-size:9px;font-weight:900;color:rgba(255,200,0,.6);text-transform:uppercase;letter-spacing:1px}
+.boss-lock-msg{font-size:11px;font-weight:800;color:rgba(255,255,255,.5);margin-top:6px}
+
+.btn-back-lessons{display:inline-flex;align-items:center;gap:6px;margin-top:24px;padding:10px 20px;background:rgba(255,255,255,.07);color:rgba(255,255,255,.6);font-size:13px;font-weight:900;border:2px solid rgba(255,255,255,.12);border-radius:99px;cursor:pointer;font-family:inherit;text-decoration:none}
+.btn-back-lessons:hover{color:#fff;background:rgba(255,255,255,.15)}
+
+/* ══ FIGHT SCREEN ══ */
+.fight-wrap{max-width:560px;width:100%;animation:up .35s ease both}
+
+.combatant{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.combatant-face{font-size:40px;flex-shrink:0;transition:transform .15s}
+.combatant-face.impact{animation:facePop .35s ease}
+@keyframes facePop{0%{transform:scale(1)}30%{transform:scale(1.25) rotate(-4deg)}60%{transform:scale(.94) rotate(2deg)}100%{transform:scale(1)}}
+
+.combatant-info{flex:1}
+.combatant-name{font-size:14px;font-weight:900;color:#fff;margin-bottom:5px}
+
+.hp-track{position:relative;height:18px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;border:2px solid rgba(255,255,255,.15)}
+.hp-ghost{position:absolute;top:0;left:0;height:100%;border-radius:99px;background:rgba(255,255,255,.45);transition:none;z-index:1}
+.hp-ghost.fade{transition:opacity .5s ease .12s;opacity:0}
+.hp-fill{position:absolute;top:0;left:0;height:100%;border-radius:99px;transition:width .3s cubic-bezier(.4,0,.2,1);z-index:2}
+.hp-fill.boss{background:linear-gradient(90deg,#FF6B5B,#EA2B2B)}
+.hp-fill.player{background:linear-gradient(90deg,#7AE02E,#58A700)}
+.hp-segments{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;z-index:3;pointer-events:none}
+.hp-seg-line{flex:1;border-right:2px solid rgba(0,0,0,.18)}
+.hp-seg-line:last-child{border-right:none}
+.hp-num{font-size:11px;font-weight:900;color:rgba(255,255,255,.55);margin-top:4px;text-align:right}
+
+.fight-vs{text-align:center;font-size:11px;font-weight:900;color:rgba(255,255,255,.3);letter-spacing:2px;margin:14px 0}
+
+.fight-arena{display:flex;justify-content:center;margin-bottom:18px}
+.fight-arena.shake{animation:arenaShake .35s ease}
+@keyframes arenaShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+
+.fight-timer-row{text-align:center;margin-bottom:14px}
+.fight-timer{font-size:13px;font-weight:900;color:rgba(255,255,255,.45)}
+.fight-timer.urgent{color:var(--punch);animation:pulse .6s ease-in-out infinite}
+
+.fight-q-counter{font-size:11px;font-weight:900;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:2px;text-align:center;margin-bottom:10px}
+.fight-def{background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.1);border-radius:var(--r);padding:22px 26px;text-align:center;margin-bottom:16px;font-size:clamp(15px,3.4vw,20px);font-weight:800;color:#fff;line-height:1.5}
+.fight-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fight-opt{padding:15px 14px;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);border-bottom:4px solid rgba(0,0,0,.18);border-radius:var(--r);font-size:clamp(13px,2.8vw,16px);font-weight:800;color:#fff;cursor:pointer;font-family:inherit;transition:background .1s,transform .1s;text-align:center}
+.fight-opt:hover:not(:disabled){background:rgba(255,255,255,.13)}
+.fight-opt:active:not(:disabled){transform:translateY(2px);border-bottom-width:2px}
+.fight-opt:disabled{cursor:default}
+.fight-opt.correct{background:var(--green)!important;border-color:var(--gs)!important}
+.fight-opt.wrong{background:var(--punch)!important;border-color:var(--ps)!important}
+.fight-opt.reveal{background:rgba(88,204,2,.18)!important;border-color:var(--gs)!important}
+
+.fight-tf-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fight-tf-btn{padding:22px;border-radius:var(--r);font-size:clamp(18px,4vw,26px);font-weight:900;cursor:pointer;font-family:inherit;border:2px solid;border-bottom:4px solid;transition:background .1s,transform .1s}
+.fight-tf-btn:active:not(:disabled){transform:translateY(2px);border-bottom-width:2px}
+.fight-tf-true{background:rgba(0,120,42,.15);color:#7fff7f;border-color:rgba(0,120,42,.3)}
+.fight-tf-false{background:rgba(220,36,31,.15);color:#ffaaaa;border-color:rgba(220,36,31,.3)}
+
+.fight-feedback{text-align:center;margin-top:14px;min-height:24px;font-size:13px;font-weight:800;color:rgba(255,255,255,.7)}
+
+.dmg-pop{position:absolute;font-weight:900;font-size:20px;pointer-events:none;z-index:10;animation:dmgFloat .8s ease-out forwards}
+@keyframes dmgFloat{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-36px) scale(1.3)}}
+.dmg-pop.to-boss{color:#FF8A7A}
+.dmg-pop.to-player{color:#9FE08A}
+
+/* ══ RESULT SCREEN ══ */
+.result-card{max-width:420px;width:100%;text-align:center;animation:up .4s ease both}
+.result-icon{font-size:80px;display:block;margin-bottom:10px}
+.result-icon.win{animation:pop .5s cubic-bezier(.34,1.56,.64,1) both}
+.result-icon.lose{animation:facePop .5s ease both;filter:grayscale(.4)}
+.result-title{font-size:30px;font-weight:900;font-style:italic;margin-bottom:8px}
+.result-sub{font-size:14px;font-weight:700;color:rgba(255,255,255,.6);margin-bottom:22px;line-height:1.5}
+.result-reward-box{background:rgba(255,200,0,.1);border:2px solid rgba(255,200,0,.3);border-radius:var(--r);padding:18px;margin-bottom:20px}
+.result-reward-n{font-size:32px;font-weight:900;color:var(--yellow)}
+.result-reward-l{font-size:11px;font-weight:900;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px}
+.result-loss-box{background:rgba(255,75,75,.1);border:2px solid rgba(255,75,75,.25);border-radius:var(--r);padding:16px;margin-bottom:20px;font-size:13px;font-weight:800;color:rgba(255,170,170,.9)}
+.result-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.result-btn{padding:13px 26px;font-size:14px;font-weight:900;border-radius:99px;border:2px solid;border-bottom:4px solid;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.result-btn:active{transform:translateY(2px);border-bottom-width:2px}
+.result-btn-yellow{background:var(--yellow);color:var(--ink);border-color:var(--ys)}
+.result-btn-ghost{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.2)}
+/* ══ CONFIRM SCREEN ══ */
+.confirm-card{background:var(--white);color:var(--ink);border-radius:var(--r);max-width:380px;width:100%;overflow:hidden;animation:zoomIn .3s cubic-bezier(.34,1.56,.64,1) both}
+.confirm-head{padding:24px 20px 18px;text-align:center}
+.confirm-head.low{background:var(--green)}
+.confirm-head.medium{background:var(--blue)}
+.confirm-head.high{background:var(--punch)}
+.confirm-icon-ring{width:64px;height:64px;background:rgba(255,255,255,.22);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:32px}
+.confirm-eyebrow{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.8);margin-bottom:4px}
+.confirm-title{font-size:18px;font-weight:900;color:#fff;line-height:1.3}
+.confirm-body{padding:18px 20px 0}
+.confirm-xp-badge{display:flex;align-items:center;justify-content:center;gap:8px;background:#FFF3CD;border:2px solid #F5BF00;border-bottom:4px solid #F5BF00;border-radius:14px;padding:10px 16px;margin-bottom:16px}
+.confirm-xp-label{font-size:15px;font-weight:900;color:#7C5E00}
+.confirm-line{font-size:14px;font-weight:700;color:#374151;line-height:1.55;margin-bottom:12px}
+.confirm-line strong{font-weight:900;color:var(--ink)}
+.confirm-rule{height:1px;background:#e5e7eb;margin:14px 0 0;border:none}
+.confirm-footer{padding:16px 20px 22px;display:flex;flex-direction:column;gap:10px}
+.confirm-btn-fight{width:100%;padding:14px;color:#fff;font-size:16px;font-weight:900;border:none;border-radius:14px;cursor:pointer;transition:filter .1s,transform .1s,border-bottom-width .1s;font-family:inherit}
+.confirm-btn-fight.low{background:var(--green);border-bottom:4px solid var(--gs)}
+.confirm-btn-fight.medium{background:var(--blue);border-bottom:4px solid var(--bs)}
+.confirm-btn-fight.high{background:var(--punch);border-bottom:4px solid var(--ps)}
+.confirm-btn-fight:active{border-bottom-width:2px;transform:translateY(2px)}
+.confirm-btn-cancel{width:100%;padding:12px;background:transparent;color:#6b7280;font-size:15px;font-weight:700;border:2px solid #d1d5db;border-radius:14px;cursor:pointer;font-family:inherit}
+.confirm-btn-cancel:hover{background:#f3f4f6}
+</style>
+</head>
+<body>
+
+<!-- BOSS SELECT -->
+<div id="select">
+  <div class="sel-wrap">
+    <div class="sel-title">⚔️ Boss Battle</div>
+    <div class="sel-sub">Spend XP. Fight for glory. No refunds.</div>
+    <div class="sel-balance"><span class="sel-balance-n" id="sel-xp-balance">—</span> <span class="sel-balance-l">XP available</span></div>
+    <div class="boss-list" id="boss-list">
+      <div style="text-align:center;color:rgba(255,255,255,.5);font-weight:700;padding:20px">Loading bosses…</div>
+    </div>
+    <a href="/my-lessons/" class="btn-back-lessons">← Back to My Lessons</a>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL SCREEN (built in next step) -->
+<div id="confirm"></div>
+
+<!-- FIGHT SCREEN (built in next step) -->
+<div id="fight"></div>
+
+<!-- RESULT SCREEN (built in next step) -->
+<div id="result"></div>
+
+<script src="/supabase-auth-gamified.js"></script>
+<script>
+'use strict';
+
+let _xpBalance   = 0;
+let _userTracks  = [];   // which lesson tracks (levels) this user has completed at least one lesson in
+let _selectedBoss = null;
+
+function show(id){
+  ['select','confirm','fight','result'].forEach(s=>{
+    const el=document.getElementById(s);
+    if(el) el.style.display = s===id ? 'flex' : 'none';
+  });
+}
+
+function tierColor(tier){
+  if(tier==='Beginner') return {strip:'#58CC02', glow:'rgba(88,204,2,.4)'};
+  if(tier==='Intermediate') return {strip:'#1CB0F6', glow:'rgba(28,176,246,.4)'};
+  return {strip:'#FF9600', glow:'rgba(255,150,0,.4)'};
+}
+
+function renderBossList(){
+  const wrap = document.getElementById('boss-list');
+  const bosses = Object.values(window.BOSS_REGISTRY || {});
+  if(!bosses.length){
+    wrap.innerHTML = `<div style="text-align:center;color:rgba(255,255,255,.5);font-weight:700;padding:20px">No bosses configured yet.</div>`;
+    return;
+  }
+
+  wrap.innerHTML = bosses.map(b => {
+    const tc = tierColor(b.tier);
+    const trackUnlocked = b.levelGate.some(t => _userTracks.includes(t));
+    const canAfford     = _xpBalance >= b.xpCost;
+    const locked        = !trackUnlocked || !canAfford;
+
+    let lockMsg = '';
+    if(!trackUnlocked) lockMsg = `🔒 Complete a ${b.levelGate.join('/')} lesson to unlock`;
+    else if(!canAfford) lockMsg = `🔒 Need ${(b.xpCost - _xpBalance).toLocaleString()} more XP`;
+
+    return `
+      <button class="boss-card${locked?' locked':''}" ${locked?'':`onclick="openConfirm('${b.id}')"`}>
+        <span class="boss-emoji">${b.emoji}</span>
+        <div class="boss-info">
+          <div class="boss-name">${b.name}</div>
+          <div class="boss-tier" style="color:${tc.strip}">${b.tier} tier</div>
+          <div class="boss-stats-row">
+            <span class="boss-stat">❤️ ${b.bossHP} HP</span>
+            <span class="boss-stat">⏱️ ${Math.round(b.timerSecs/60)} min</span>
+            <span class="boss-stat">🏆 +${b.winReward.xp} XP</span>
+          </div>
+          ${lockMsg ? `<div class="boss-lock-msg">${lockMsg}</div>` : ''}
+        </div>
+        <div class="boss-cost">
+          <div class="boss-cost-n">${b.xpCost.toLocaleString()}</div>
+          <div class="boss-cost-l">XP cost</div>
+        </div>
+      </button>`;
+  }).join('');
+}
+
+async function boot(){
+  try{
+    if(window.efcdReady) await window.efcdReady;
+    if(!window.EFCD_Auth) throw new Error('no auth');
+    await window.EFCD_Auth.initAuth();
+    const user = window.EFCD_Auth.getCurrentUser();
+    if(!user){
+      document.getElementById('boss-list').innerHTML =
+        `<div style="text-align:center;color:rgba(255,255,255,.6);font-weight:700;padding:20px">
+          Please <a href="/login/" style="color:var(--yellow)">log in</a> to challenge a boss.
+        </div>`;
+      return;
+    }
+
+    if(window.EFCD_XP){
+      const xpResult = await window.EFCD_XP.getBalance();
+      _xpBalance = xpResult?.balance ?? 0;
+    }
+    document.getElementById('sel-xp-balance').textContent = _xpBalance.toLocaleString();
+
+    // Figure out which tracks (levels) the user has completed lessons in,
+    // so we can gate bosses by track. Derived straight from lesson_level
+    // text saved on each row — avoids depending on my-lessons.html's
+    // internal LINK_TO_ID map, which isn't available on this page.
+    const LEVEL_TO_TRACK = {
+      'Beginner':      'beginner',
+      'Intermediate':  'intermediate',
+      'Advanced':      'advanced',
+      'Tax English':   'tax',
+      'Business':      'business',
+      'Legal English': 'legal',
+      'Kids':          'kids',
+      'All Levels':    'beginner', // weekly-drop lessons count toward beginner gate
+    };
+    try{
+      const { data: rows } = await window.efcdSupabaseClient
+        .from('lessons')
+        .select('lesson_level')
+        .eq('user_id', user.id);
+      const trackSet = new Set();
+      (rows||[]).forEach(r=>{
+        const track = LEVEL_TO_TRACK[r.lesson_level];
+        if(track) trackSet.add(track);
+      });
+      _userTracks = Array.from(trackSet);
+    }catch(e){ console.warn('[boss] track lookup failed:', e.message); }
+
+    renderBossList();
+
+  }catch(e){
+    console.warn('[boss] boot error:', e);
+    document.getElementById('boss-list').innerHTML =
+      `<div style="text-align:center;color:rgba(255,255,255,.6);font-weight:700;padding:20px">Something went wrong loading bosses. Please refresh.</div>`;
+  }
+}
+
+const CONFIRM_COPY = {
+  low: {
+    icon: '⚔️',
+    eyebrow: 'Boss battle',
+    line1: 'Low stakes — good practice for bigger fights ahead.',
+    line2: (b) => `Beat it and walk away with ${b.winReward.xp} XP and the ${b.winReward.badge} badge.`,
+    btnLabel: (b) => `⚔️ Fight — spend ${b.xpCost.toLocaleString()} XP`,
+  },
+  medium: {
+    icon: '🐉',
+    eyebrow: 'Boss battle',
+    line1: 'This one bites back. Wrong answers cost you real HP.',
+    line2: (b) => `Win and you'll earn ${b.winReward.xp} XP plus the ${b.winReward.badge} badge.`,
+    btnLabel: (b) => `🐉 Fight — spend ${b.xpCost.toLocaleString()} XP`,
+  },
+  high: {
+    icon: '🗿',
+    eyebrow: 'Boss battle',
+    line1: "This isn't a quiz. One wrong streak and the Titan wins — and your XP is gone.",
+    line2: (b) => `Beat it and you'll walk away with ${b.winReward.xp} XP and the ${b.winReward.badge} badge.`,
+    btnLabel: (b) => `🗿 Fight — spend ${b.xpCost.toLocaleString()} XP`,
+  },
+};
+
+function openConfirm(bossId){
+  const b = window.BOSS_REGISTRY[bossId];
+  if(!b) return;
+  _selectedBoss = b;
+  const tone = CONFIRM_COPY[b.modalTone] || CONFIRM_COPY.medium;
+
+  document.getElementById('confirm').innerHTML = `
+    <div class="confirm-card">
+      <div class="confirm-head ${b.modalTone}">
+        <div class="confirm-icon-ring">${tone.icon}</div>
+        <p class="confirm-eyebrow">${tone.eyebrow}</p>
+        <p class="confirm-title">Challenge ${b.name}?</p>
+      </div>
+      <div class="confirm-body">
+        <div class="confirm-xp-badge">
+          <span style="font-size:18px">⚡</span>
+          <span class="confirm-xp-label">Cost: ${b.xpCost.toLocaleString()} XP</span>
+        </div>
+        <p class="confirm-line">${tone.line1}</p>
+        <p class="confirm-line">${tone.line2(b)}</p>
+        <hr class="confirm-rule">
+      </div>
+      <div class="confirm-footer">
+        <button class="confirm-btn-fight ${b.modalTone}" id="confirm-fight-btn">${tone.btnLabel(b)}</button>
+        <button class="confirm-btn-cancel" id="confirm-cancel-btn">Not today</button>
+      </div>
+    </div>`;
+
+  document.getElementById('confirm-fight-btn').onclick = handleFightConfirmed;
+  document.getElementById('confirm-cancel-btn').onclick = () => show('select');
+  show('confirm');
+}
+
+async function handleFightConfirmed(){
+  const b = _selectedBoss;
+  if(!b) return;
+  const btn = document.getElementById('confirm-fight-btn');
+  btn.disabled = true;
+  btn.textContent = 'Entering the arena…';
+
+  try{
+    if(!window.EFCD_XP || typeof window.EFCD_XP.spend !== 'function'){
+      throw new Error('XP system unavailable — cannot start boss fight.');
+    }
+    // Deduct cost up front. No refund on loss — the cost is the stakes.
+    const newBalance = await window.EFCD_XP.spend(b.xpCost, `boss_fight:${b.id}`, b.id);
+    _xpBalance = newBalance;
+    startFight(b);
+  }catch(e){
+    alert(e.message || 'Could not start the fight. Please try again.');
+    btn.disabled = false;
+    btn.textContent = (CONFIRM_COPY[b.modalTone]||CONFIRM_COPY.medium).btnLabel(b);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// FIGHT ENGINE
+// ══════════════════════════════════════════════════════════════
+let _boss          = null;
+let _bossHP         = 0;
+let _bossHPMax      = 0;
+let _playerHP       = 0;
+let _playerHPMax    = 0;
+let _fightQuestions = [];
+let _fIdx           = 0;
+let _fAnswered      = false;
+let _fTimerRemaining= 0;
+let _fTimerInterval = null;
+let _fEnded         = false;
+
+function shuffleArr(arr){ return [...arr].sort(()=>Math.random()-.5); }
+
+function buildFightQuestionPool(boss){
+  const pool = [];
+  boss.feedsFrom.forEach(lessonId => {
+    const reg = window.LESSON_DATA_REGISTRY?.[lessonId];
+    if(!reg) return;
+
+    (reg.vocab||[]).filter(v=>v.example && v.distractors?.length).forEach(v=>{
+      pool.push({
+        kind:'blitz',
+        sentence: v.example,
+        opts: shuffleArr([v.word, ...v.distractors.slice(0,3)]),
+        answer: v.word,
+        def: v.definition,
+      });
+    });
+
+    [reg.grammar, reg.grammar2].forEach(g=>{
+      if(!g?.exercises?.length) return;
+      g.exercises.forEach(ex=>{
+        pool.push({
+          kind:'grammar',
+          topic: g.topic,
+          sentence: ex.sentence,
+          opts: shuffleArr([ex.answer, ...(ex.wrong||[])]),
+          answer: ex.answer,
+          explain: ex.explain,
+        });
+      });
+    });
+
+    (reg.true_false||[]).forEach(tf=>{
+      pool.push({
+        kind:'tf',
+        statement: tf.statement,
+        answer: tf.correct,
+        reveal: tf.reveal,
+      });
+    });
+  });
+  return shuffleArr(pool);
+}
+
+function startFight(boss){
+  _boss          = boss;
+  _bossHP        = boss.bossHP;
+  _bossHPMax     = boss.bossHP;
+  _playerHP      = boss.playerHP;
+  _playerHPMax   = boss.playerHP;
+  _fightQuestions= buildFightQuestionPool(boss);
+  _fIdx          = 0;
+  _fAnswered     = false;
+  _fEnded        = false;
+
+  if(!_fightQuestions.length){
+    alert('This boss has no questions configured yet — please tell Cool Dude.');
+    show('select');
+    return;
+  }
+
+  renderFightShell();
+  startFightTimer(boss.timerSecs);
+  renderFightQuestion();
+  show('fight');
+}
+
+function renderFightShell(){
+  document.getElementById('fight').innerHTML = `
+    <div class="fight-wrap">
+      <div class="combatant">
+        <span class="combatant-face" id="boss-face">${_boss.emoji}</span>
+        <div class="combatant-info">
+          <div class="combatant-name">${_boss.name}</div>
+          <div class="hp-track">
+            <div class="hp-ghost" id="boss-ghost" style="width:100%"></div>
+            <div class="hp-fill boss" id="boss-fill" style="width:100%"></div>
+            <div class="hp-segments">${'<div class="hp-seg-line"></div>'.repeat(9)}</div>
+          </div>
+          <div class="hp-num" id="boss-hp-num">${_bossHP} / ${_bossHPMax}</div>
+        </div>
+      </div>
+
+      <div class="fight-vs">VS</div>
+
+      <div class="combatant">
+        <span class="combatant-face" id="player-face">🙂</span>
+        <div class="combatant-info">
+          <div class="combatant-name">You</div>
+          <div class="hp-track">
+            <div class="hp-ghost" id="player-ghost" style="width:100%"></div>
+            <div class="hp-fill player" id="player-fill" style="width:100%"></div>
+            <div class="hp-segments">${'<div class="hp-seg-line"></div>'.repeat(9)}</div>
+          </div>
+          <div class="hp-num" id="player-hp-num">${_playerHP} / ${_playerHPMax}</div>
+        </div>
+      </div>
+
+      <div class="fight-timer-row"><span class="fight-timer" id="fight-timer">${fmtTime(_fTimerRemaining)}</span></div>
+      <div id="fight-question-area"></div>
+      <div class="fight-feedback" id="fight-feedback"></div>
+    </div>`;
+}
+
+function fmtTime(s){ const m=Math.floor(s/60), r=s%60; return `${m}:${r.toString().padStart(2,'0')}`; }
+
+function startFightTimer(secs){
+  _fTimerRemaining = secs;
+  updateFightTimerUI();
+  if(_fTimerInterval) clearInterval(_fTimerInterval);
+  _fTimerInterval = setInterval(()=>{
+    _fTimerRemaining--;
+    updateFightTimerUI();
+    if(_fTimerRemaining <= 0){
+      clearInterval(_fTimerInterval);
+      endFight(false, 'timeout');
+    }
+  }, 1000);
+}
+
+function updateFightTimerUI(){
+  const el = document.getElementById('fight-timer');
+  if(!el) return;
+  el.textContent = fmtTime(_fTimerRemaining);
+  el.classList.toggle('urgent', _fTimerRemaining <= 20);
+}
+
+function updateHPBars(damagedSide){
+  const bossPct   = Math.max(0, Math.round((_bossHP/_bossHPMax)*100));
+  const playerPct = Math.max(0, Math.round((_playerHP/_playerHPMax)*100));
+
+  const bossFill  = document.getElementById('boss-fill');
+  const bossGhost = document.getElementById('boss-ghost');
+  const playerFill  = document.getElementById('player-fill');
+  const playerGhost = document.getElementById('player-ghost');
+
+  if(damagedSide==='boss' && bossGhost){
+    bossGhost.style.width = bossGhost.style.width; // keep old width as ghost
+    bossGhost.classList.remove('fade');
+    void bossGhost.offsetWidth;
+    requestAnimationFrame(()=>bossGhost.classList.add('fade'));
+  }
+  if(damagedSide==='player' && playerGhost){
+    playerGhost.classList.remove('fade');
+    void playerGhost.offsetWidth;
+    requestAnimationFrame(()=>playerGhost.classList.add('fade'));
+  }
+
+  if(bossFill)  bossFill.style.width = bossPct+'%';
+  if(playerFill) playerFill.style.width = playerPct+'%';
+  document.getElementById('boss-hp-num').textContent   = `${Math.max(0,_bossHP)} / ${_bossHPMax}`;
+  document.getElementById('player-hp-num').textContent = `${Math.max(0,_playerHP)} / ${_playerHPMax}`;
+
+  // set ghost to the PREVIOUS (pre-damage) width so it visibly trails behind the new fill
+  if(damagedSide==='boss' && bossGhost)   bossGhost.style.width = bossFill.style.width;
+  if(damagedSide==='player' && playerGhost) playerGhost.style.width = playerFill.style.width;
+}
+
+function showImpact(side, amount){
+  const face = document.getElementById(side==='boss'?'boss-face':'player-face');
+  const arena = document.querySelector('.fight-wrap');
+  if(face){ face.classList.remove('impact'); void face.offsetWidth; face.classList.add('impact'); }
+  if(side==='player' && arena){ arena.classList.remove('shake'); void arena.offsetWidth; arena.classList.add('shake'); }
+
+  const pop = document.createElement('div');
+  pop.className = 'dmg-pop ' + (side==='boss' ? 'to-boss' : 'to-player');
+  pop.textContent = '-'+amount;
+  const target = face?.getBoundingClientRect();
+  if(target){
+    pop.style.left = (target.left + target.width/2 - 10) + 'px';
+    pop.style.top  = (target.top - 6) + 'px';
+    pop.style.position = 'fixed';
+    document.body.appendChild(pop);
+    setTimeout(()=>pop.remove(), 850);
+  }
+}
+
+function renderFightQuestion(){
+  if(_fEnded) return;
+  if(_fIdx >= _fightQuestions.length){
+    _fightQuestions = shuffleArr(_fightQuestions); // loop the pool, fight isn't over till HP runs out
+    _fIdx = 0;
+  }
+  _fAnswered = false;
+  const q = _fightQuestions[_fIdx];
+  const area = document.getElementById('fight-question-area');
+  document.getElementById('fight-feedback').textContent = '';
+
+  if(q.kind === 'tf'){
+    area.innerHTML = `
+      <div class="fight-q-counter">Round ${_fIdx+1}</div>
+      <div class="fight-def">${q.statement}</div>
+      <div class="fight-tf-grid">
+        <button class="fight-tf-btn fight-tf-true" data-v="true">✅ TRUE</button>
+        <button class="fight-tf-btn fight-tf-false" data-v="false">❌ FALSE</button>
+      </div>`;
+    area.querySelectorAll('.fight-tf-btn').forEach(btn=>{
+      btn.onclick = ()=>handleFightAnswer(btn.dataset.v==='true', q, btn);
+    });
+    return;
+  }
+
+  // blitz or grammar share the same multiple-choice layout
+  const sentence = q.kind==='grammar' ? q.sentence.replace('___','<span style="color:var(--yellow)">___</span>') : q.sentence;
+  area.innerHTML = `
+    <div class="fight-q-counter">Round ${_fIdx+1}${q.topic?` · ${q.topic}`:''}</div>
+    <div class="fight-def">${sentence}</div>
+    <div class="fight-opts">
+      ${q.opts.map(o=>`<button class="fight-opt" data-v="${escFightStr(o)}">${o}</button>`).join('')}
+    </div>`;
+  area.querySelectorAll('.fight-opt').forEach(btn=>{
+    btn.onclick = ()=>handleFightAnswer(btn.dataset.v===escFightStr(q.answer), q, btn);
+  });
+}
+
+function escFightStr(s){ return (s||'').replace(/"/g,'&quot;'); }
+
+function handleFightAnswer(isCorrect, q, btnEl){
+  if(_fAnswered || _fEnded) return;
+  _fAnswered = true;
+
+  document.querySelectorAll('.fight-opt, .fight-tf-btn').forEach(b=>b.disabled=true);
+  if(btnEl) btnEl.classList.add(isCorrect ? 'correct' : 'wrong');
+  if(!isCorrect){
+    const correctBtn = document.querySelector(`[data-v="${escFightStr(q.answer)}"]`);
+    if(correctBtn) correctBtn.classList.add('reveal');
+  }
+
+  const fb = document.getElementById('fight-feedback');
+
+  if(isCorrect){
+    _bossHP = Math.max(0, _bossHP - _boss.damagePerCorrect);
+    updateHPBars('boss');
+    showImpact('boss', _boss.damagePerCorrect);
+    fb.textContent = q.explain || q.def || q.reveal || '✅ Hit!';
+  } else {
+    _playerHP = Math.max(0, _playerHP - _boss.damagePerWrong);
+    updateHPBars('player');
+    showImpact('player', _boss.damagePerWrong);
+    fb.textContent = q.explain || q.def || q.reveal || '❌ Ouch!';
+  }
+
+  setTimeout(()=>{
+    if(_bossHP <= 0){ endFight(true, 'boss_defeated'); return; }
+    if(_playerHP <= 0){ endFight(false, 'player_defeated'); return; }
+    _fIdx++;
+    renderFightQuestion();
+  }, 1100);
+}
+
+async function endFight(won, reasonCode){
+  if(_fEnded) return;
+  _fEnded = true;
+  if(_fTimerInterval) clearInterval(_fTimerInterval);
+
+  // Hold-frame beat before showing the result, like a KO freeze
+  await new Promise(r=>setTimeout(r, 550));
+
+  if(won){
+    try{
+      if(window.EFCD_XP){
+        await window.EFCD_XP.earn(_boss.winReward.xp, `boss_defeated:${_boss.id}`, _boss.id);
+      }
+    }catch(e){ console.warn('[boss] reward XP failed:', e.message); }
+  }
+
+  renderResult(won, reasonCode);
+  show('result');
+  if(won) fireConfetti();
+}
+
+function fireConfetti(){
+  const c = ['#FFC800','#58CC02','#1CB0F6','#FF4B4B','#CE82FF','#fff'];
+  for(let i=0;i<55;i++){
+    const d=document.createElement('div'); d.className='conf-dot';
+    const sz=7+Math.random()*11;
+    d.style.cssText=`left:${Math.random()*100}vw;top:${Math.random()*20}px;width:${sz}px;height:${sz}px;background:${c[~~(Math.random()*c.length)]};animation-delay:${Math.random()*.6}s;animation-duration:${1.2+Math.random()*.7}s;border-radius:${Math.random()>.5?'50%':'3px'};transform:rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(d); setTimeout(()=>d.remove(),2600);
+  }
+}
+
+function renderResult(won, reasonCode){
+  const reasonText = {
+    boss_defeated:   `You broke through ${_boss.name}'s last point of HP.`,
+    player_defeated: `${_boss.name} landed the final blow.`,
+    timeout:         `Time ran out before you could finish the fight.`,
+  }[reasonCode] || '';
+
+  document.getElementById('result').innerHTML = won ? `
+    <div class="result-card">
+      <span class="result-icon win">🏆</span>
+      <div class="result-title">Victory!</div>
+      <div class="result-sub">${reasonText}</div>
+      <div class="result-reward-box">
+        <div class="result-reward-n">+${_boss.winReward.xp} XP</div>
+        <div class="result-reward-l">${_boss.winReward.badge} earned</div>
+      </div>
+      <div class="result-btns">
+        <a href="/boss/" class="result-btn result-btn-yellow">⚔️ Fight Again</a>
+        <a href="/my-lessons/" class="result-btn result-btn-ghost">← My Lessons</a>
+      </div>
+    </div>` : `
+    <div class="result-card">
+      <span class="result-icon lose">💀</span>
+      <div class="result-title">Defeated</div>
+      <div class="result-sub">${reasonText}</div>
+      <div class="result-loss-box">Your ${_boss.xpCost.toLocaleString()} XP is gone. That's the deal — come back stronger.</div>
+      <div class="result-btns">
+        <a href="/boss/" class="result-btn result-btn-yellow">⚔️ Try Another Boss</a>
+        <a href="/my-lessons/" class="result-btn result-btn-ghost">← My Lessons</a>
+      </div>
+    </div>`;
+}
+
+show('select');
+document.addEventListener('DOMContentLoaded', boot);
+</script>
+</body>
+</html>
