@@ -1793,6 +1793,61 @@ async function checkAndRecordMonthlyChampion() {
     }
   }
 
+  // ── CURRENT MONTH: only record once the month has actually ended ──
+  if (!isLastDayOfMonth()) return;
+
+  const monthKey = getMonthKey();
+
+  // Already recorded this month?
+  const { data: existing } = await sb
+    .from('efcd_monthly_champions')
+    .select('id')
+    .eq('month', monthKey)
+    .limit(1);
+  if (existing?.length) return;
+
+  // Tally this month's scores
+  const monthStart = getMonthStart();
+  const { data: scores } = await sb
+    .from('efcd_scores')
+    .select('class_id, correct, xp')
+    .gte('date', monthStart);
+
+  if (!scores?.length) return;
+
+  const totals = {};
+  _classes.forEach(c => { if (!c.is_test) totals[c.id] = { correct: 0, xp: 0 }; });
+  scores.forEach(s => {
+    if (totals[s.class_id]) {
+      totals[s.class_id].correct += s.correct || 0;
+      totals[s.class_id].xp     += s.xp     || 0;
+    }
+  });
+
+  const winner = _classes
+    .filter(c => !c.is_test && totals[c.id]?.correct > 0)
+    .sort((a, b) => totals[b.id].correct - totals[a.id].correct)[0];
+
+  if (!winner) return;
+
+  const { error } = await sb.from('efcd_monthly_champions').insert({
+    month:       monthKey,
+    month_label: getMonthLabel(),
+    class_id:    winner.id,
+    class_name:  winner.name,
+    class_emoji: winner.emoji,
+    team_name:   winner.team_name || null,
+    correct:     totals[winner.id].correct,
+    xp:          totals[winner.id].xp,
+  });
+
+  if (!error) {
+    toast('🏆', `${winner.emoji} ${winner.name} crowned ${getMonthLabel()} champions!`);
+    renderLeaderboard();
+    renderClasses();
+  }
+}
+
 
   const monthKey = getMonthKey();
 
