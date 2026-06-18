@@ -16,8 +16,8 @@
 const BOSS_REGISTRY = {
 
   'sandwich-slime': {
-    id:               'sandwich-slime',
-    name:             'The Sandwich Slime',
+    id:               'smelly-sandwich',
+    name:             'The Smelly Sandwich',
     emoji:            '🥪',
     tier:             'Beginner',
     levelGate:        ['beginner'],
