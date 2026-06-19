@@ -700,7 +700,7 @@ function _buildQuestionFromSRSItem(srsItem, reg) {
     const idx  = parseInt(parts[1]);
     const item = reg.sentences?.[idx];
     if (!item) return null;
-    return { round:'sentence', words:shuffle([...item.words]), answer:item.answer, hint:item.hint };
+    return { round:'sentence', words:shuffle([...item.words]), answer:item.answer, altAnswers:item.altAnswers, hint:item.hint };
   }
 
   return null;
@@ -984,7 +984,7 @@ function buildQuestions() {
 
   if (_activeRounds.has('sentence') && ld.sentences?.length) {
     ld.sentences.forEach(item => {
-      q.push({ round:'sentence', words:shuffle([...item.words]), answer:item.answer, hint:item.hint });
+      q.push({ round:'sentence', words:shuffle([...item.words]), answer:item.answer, altAnswers:item.altAnswers, hint:item.hint });
     });
   }
 
@@ -1394,10 +1394,11 @@ function clearSB() {
 
 function checkSB() {
   if (_answered) return;
-  const q      = _questions[_qIdx];
-  const built  = _sbBuilt.map(i=>i.word).join(' ').toLowerCase().replace(/[.,!?]/g,'').trim();
-  const target = q.answer.toLowerCase().replace(/[.,!?]/g,'').trim();
-  const ok     = built === target;
+  const q    = _questions[_qIdx];
+  const norm = s => s.toLowerCase().replace(/[.,!?]/g,'').trim();
+  const built      = norm(_sbBuilt.map(i=>i.word).join(' '));
+  const acceptable = [q.answer, ...(q.altAnswers||[])].map(norm);
+  const ok = acceptable.includes(built);
   _answered = true; _total++;
   const ans = document.getElementById('sb-answer');
   if (ans) { ans.classList.remove('correct-flash','wrong-flash'); void ans.offsetWidth; ans.classList.add(ok ? 'correct-flash' : 'wrong-flash'); }
