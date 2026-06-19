@@ -490,6 +490,22 @@
         { word:'VAT compliance',       definition:'Making sure invoices meet all required VAT rules and formats' },
       ],
     },
+
+     'weekly-drop-issue-009': {
+  title:   "The Weekly Drop — Issue 009 — The Mega-Merger: SpaceX, Tesla and Elon Musk's Empire",
+  level:   'All Levels',
+  grammar: 'True/False; Fix the Mistake (word choice in business reporting); Word Match (M&A/business terms); Beat the Clock mixed-level quiz',
+  vocab: [
+    { word:'merger',             definition:'When two companies combine to form one single company.' },
+    { word:'speculation',        definition:'Discussion or guessing about something that has not been confirmed.' },
+    { word:'conglomerate',       definition:'A large company made up of several different businesses.' },
+    { word:'synergies',          definition:'The extra benefits created when two things work together.' },
+    { word:'stake',              definition:'A share or percentage of ownership in a company.' },
+    { word:'valuation',          definition:'The estimated total worth of a company.' },
+    { word:'cash flow positive', definition:'When a company brings in more cash than it spends.' },
+    { word:'diluted',            definition:"When a shareholder's ownership percentage decreases." },
+  ],
+},
  
 
   };
