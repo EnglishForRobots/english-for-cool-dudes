@@ -864,6 +864,9 @@ function openReview(idx){
   if(reg?.sentences?.length)    tabs.push({id:'sentences',   label:'🔀 Sentences'});
   if(reg?.word_builder?.length) tabs.push({id:'wordBuilder', label:'🔤 Words'});
   if(reg?.true_false?.length)   tabs.push({id:'trueFalse',   label:'✅ True/False'});
+  if(reg?.fix_mistakes?.length) tabs.push({id:'fixMistakes', label:'🔍 Fix It'});
+  if(reg?.word_match?.length)   tabs.push({id:'wordMatch',   label:'🔗 Match'});
+  if(reg?.beat_clock?.length)   tabs.push({id:'beatClock',   label:'⏱️ Clock'});
   if(!tabs.length && vocabData.length) tabs.push({id:'vocab', label:'📖 Vocabulary'});
   if(!tabs.length) tabs.push({id:'vocab', label:'📖 Vocabulary'});
 
@@ -891,6 +894,9 @@ function openReview(idx){
   if(document.getElementById('panel-sentences'))   renderSentencePanel(reg);
   if(document.getElementById('panel-wordBuilder')) renderWordBuilderPanel(reg);
   if(document.getElementById('panel-trueFalse'))   renderTFPanel(reg);
+  if(document.getElementById('panel-fixMistakes')) renderFixMistakesPanel(reg);
+  if(document.getElementById('panel-wordMatch'))   renderWordMatchPanel(reg);
+  if(document.getElementById('panel-beatClock'))   renderBeatClockPanel(reg);
 
   document.getElementById('modal-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -1046,6 +1052,176 @@ function renderTFPanel(reg){
     });
   }
   window._currentReg=reg; renderTF();
+}
+
+function renderFixMistakesPanel(reg){
+  const el=document.getElementById('panel-fixMistakes');
+  if(!el||!reg?.fix_mistakes?.length){ if(el) el.innerHTML=comingSoon('Fix the Mistake'); return; }
+  const items=reg.fix_mistakes; let idx=0,score=0;
+  function renderItem(){
+    const q=items[idx];
+    const pips=items.map((_,i)=>`<div class="quiz-pip${i<idx?' right':i===idx?' active':''}" id="fmpip-${i}"></div>`).join('');
+    el.innerHTML=`
+      <div class="quiz-progress-row"><div class="quiz-pips">${pips}</div><div class="quiz-score">${score}/${items.length}</div></div>
+      <div class="gram-sent-card"><div class="gram-sent-num">Sentence ${idx+1} of ${items.length}</div>
+        <div class="gram-sent-text">${q.sentence}</div>
+        ${q.hint?`<div class="gram-sent-hint">💡 ${q.hint}</div>`:''}</div>
+      <div class="gram-word-btns" id="fmbtns" style="flex-direction:column;align-items:stretch">${q.opts.map((o,i)=>`<button class="gram-word-btn fm-opt" data-idx="${i}" style="text-align:left">${o}</button>`).join('')}</div>
+      <div class="quiz-feedback" id="fmfb"></div>
+      <button class="quiz-next" id="fmnxt" style="display:none">${idx+1<items.length?'Next →':'Done! 🎉'}</button>`;
+    el.querySelectorAll('.fm-opt').forEach(btn=>{
+      btn.addEventListener('click',function(){
+        el.querySelectorAll('.fm-opt').forEach(b=>b.disabled=true);
+        const ok=parseInt(this.dataset.idx)===q.correct;
+        this.classList.add(ok?'correct':'wrong');
+        if(!ok) el.querySelectorAll('.fm-opt')[q.correct].classList.add('show-ok');
+        if(ok){score++;burst();}
+        const fb=document.getElementById('fmfb'); if(fb){fb.textContent=q.fb;fb.className=`quiz-feedback show ${ok?'right':'wrong'}`;}
+        const pip=document.getElementById(`fmpip-${idx}`); if(pip) pip.classList.add(ok?'right':'wrong');
+        document.getElementById('fmnxt').style.display='flex';
+      });
+    });
+    document.getElementById('fmnxt').addEventListener('click',function(){
+      idx++;
+      if(idx>=items.length){
+        const perfect=score===items.length; if(perfect) burst();
+        el.innerHTML=`<div class="quiz-done"><span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span><div class="quiz-done-title">${score}/${items.length} correct!</div><div class="quiz-done-sub">${perfect?'Sharp eye for detail!':'Review the explanations and try again.'}</div><button class="quiz-done-btn" id="fm-retry">↺ Try Again</button></div>`;
+        document.getElementById('fm-retry').addEventListener('click',()=>renderFixMistakesPanel(window._currentReg));
+      } else { renderItem(); }
+    });
+  }
+  window._currentReg=reg; renderItem();
+}
+
+function renderWordMatchPanel(reg){
+  const el=document.getElementById('panel-wordMatch');
+  if(!el||!reg?.word_match?.length){ if(el) el.innerHTML=comingSoon('Word Match'); return; }
+  const pairs=reg.word_match;
+  let matched=0, selected=null;
+  const termOrder=pairs.map((_,i)=>i).sort(()=>Math.random()-.5);
+  const defOrder=pairs.map((_,i)=>i).sort(()=>Math.random()-.5);
+
+  el.innerHTML=`
+    <div class="quiz-progress-row"><div id="wm-counter" style="font-size:13px;font-weight:900;color:var(--ink-bold)">${matched} of ${pairs.length} pairs matched</div></div>
+    <div style="display:flex;flex-direction:column;gap:8px" id="wm-grid">
+      ${termOrder.map((ti,row)=>{
+        const di=defOrder[row];
+        return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button class="gram-word-btn wm-card" data-kind="term" data-idx="${ti}" style="min-height:54px;white-space:normal">${pairs[ti].term}</button>
+          <button class="gram-word-btn wm-card" data-kind="def" data-idx="${di}" style="min-height:54px;white-space:normal;font-size:12px;font-weight:700">${pairs[di].def}</button>
+        </div>`;
+      }).join('')}
+    </div>
+    <div id="wm-done-slot"></div>`;
+
+  el.querySelectorAll('.wm-card').forEach(btn=>{
+    btn.addEventListener('click', function(){
+      if(this.disabled) return;
+      const kind=this.dataset.kind, idx=parseInt(this.dataset.idx);
+      if(!selected){
+        selected={el:this, kind, idx};
+        this.style.outline='3px solid var(--purple)';
+        return;
+      }
+      if(selected.kind===kind){
+        selected.el.style.outline='';
+        selected={el:this, kind, idx};
+        this.style.outline='3px solid var(--purple)';
+        return;
+      }
+      const a=selected, b={el:this, kind, idx};
+      const ok=a.idx===b.idx;
+      if(ok){
+        a.el.classList.add('correct'); a.el.disabled=true; a.el.style.outline='';
+        b.el.classList.add('correct'); b.el.disabled=true;
+        matched++; burst();
+        const counter=document.getElementById('wm-counter');
+        if(counter) counter.textContent=`${matched} of ${pairs.length} pairs matched`;
+        selected=null;
+        if(matched>=pairs.length){
+          setTimeout(()=>{
+            const doneEl=document.getElementById('wm-done-slot');
+            if(doneEl){
+              doneEl.innerHTML=`<div class="quiz-done"><span class="quiz-done-icon">🏆</span><div class="quiz-done-title">All ${pairs.length} pairs matched!</div><button class="quiz-done-btn" id="wm-retry">↺ Try Again</button></div>`;
+              document.getElementById('wm-retry').addEventListener('click',()=>renderWordMatchPanel(window._currentReg));
+            }
+          },400);
+        }
+      } else {
+        a.el.classList.add('wrong'); b.el.classList.add('wrong');
+        setTimeout(()=>{ a.el.classList.remove('wrong'); b.el.classList.remove('wrong'); a.el.style.outline=''; },500);
+        selected=null;
+      }
+    });
+  });
+  window._currentReg=reg;
+}
+
+let _bcTimerId = null;
+function renderBeatClockPanel(reg){
+  const el=document.getElementById('panel-beatClock');
+  if(!el||!reg?.beat_clock?.length){ if(el) el.innerHTML=comingSoon('Beat the Clock'); return; }
+  const qs=reg.beat_clock, PER_Q=12;
+  let idx=0, score=0, timeLeft=PER_Q;
+
+  function start(){ idx=0; score=0; el.innerHTML=`<div id="bc-live"></div>`; renderQ(); }
+
+  function renderQ(){
+    if(_bcTimerId){ clearInterval(_bcTimerId); _bcTimerId=null; }
+    if(idx>=qs.length){ finish(); return; }
+    const q=qs[idx];
+    const shuffled=q.opts.map((o,i)=>({text:o,orig:i})).sort(()=>Math.random()-.5);
+    const corIdx=shuffled.findIndex(o=>o.orig===q.correct);
+    const live=document.getElementById('bc-live');
+    live.innerHTML=`
+      <div class="quiz-progress-row">
+        <div style="flex:1;background:var(--bg);border:2px solid var(--border-heavy);border-radius:99px;height:30px;position:relative;overflow:hidden">
+          <div id="bc-timer-fill" style="position:absolute;left:0;top:0;bottom:0;width:100%;background:linear-gradient(90deg,var(--os),var(--orange));border-radius:99px;transition:width 1s linear"></div>
+          <div id="bc-timer-num" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:var(--ink-bold)">${PER_Q}</div>
+        </div>
+        <div class="quiz-score" style="margin-left:10px">${score}/${qs.length}</div>
+      </div>
+      <div class="gram-sent-card"><div class="gram-sent-num">Question ${idx+1} of ${qs.length} · ${q.label||''}</div>
+        <div class="gram-sent-text">${q.q}</div></div>
+      <div class="gram-word-btns" id="bc-opts" style="flex-direction:column;align-items:stretch">
+        ${shuffled.map((o,i)=>`<button class="gram-word-btn bc-opt" data-idx="${i}" style="text-align:left">${o.text}</button>`).join('')}
+      </div>
+      <div class="quiz-feedback" id="bcfb"></div>`;
+    live.querySelectorAll('.bc-opt').forEach(btn=>{
+      btn.addEventListener('click', function(){ answer(parseInt(this.dataset.idx), corIdx); });
+    });
+    timeLeft=PER_Q;
+    const fill=document.getElementById('bc-timer-fill'), num=document.getElementById('bc-timer-num');
+    _bcTimerId=setInterval(()=>{
+      timeLeft--;
+      const pct=Math.max(0,(timeLeft/PER_Q)*100);
+      if(fill) fill.style.width=pct+'%';
+      if(num) num.textContent=Math.max(0,timeLeft);
+      if(timeLeft<=4 && fill) fill.style.background='linear-gradient(90deg,var(--ps),var(--punch))';
+      if(timeLeft<=0){ clearInterval(_bcTimerId); _bcTimerId=null; answer(-1, corIdx); }
+    },1000);
+  }
+
+  function answer(chosen, corIdx){
+    if(_bcTimerId){ clearInterval(_bcTimerId); _bcTimerId=null; }
+    const opts=document.querySelectorAll('#bc-opts .bc-opt');
+    opts.forEach(b=>b.disabled=true);
+    const ok=chosen===corIdx;
+    if(opts[corIdx]) opts[corIdx].classList.add(ok?'correct':'show-ok');
+    if(!ok && chosen>=0 && opts[chosen]) opts[chosen].classList.add('wrong');
+    if(ok){ score++; burst(); }
+    const fb=document.getElementById('bcfb');
+    if(fb){ fb.textContent= chosen===-1 ? "⏱️ Time's up!" : (ok?'✅ Nice!':'❌ Not quite!'); fb.className=`quiz-feedback show ${ok?'right':'wrong'}`; }
+    setTimeout(()=>{ idx++; renderQ(); }, 900);
+  }
+
+  function finish(){
+    const perfect=score===qs.length; if(perfect) burst();
+    el.innerHTML=`<div class="quiz-done"><span class="quiz-done-icon">${perfect?'🏆':score>=Math.ceil(qs.length*0.7)?'🚀':'⭐'}</span><div class="quiz-done-title">${score}/${qs.length} correct!</div><div class="quiz-done-sub">${perfect?'Lightning fast and flawless!':'Speed comes with practice — go again!'}</div><button class="quiz-done-btn" id="bc-retry">↺ Try Again</button></div>`;
+    document.getElementById('bc-retry').addEventListener('click',()=>renderBeatClockPanel(window._currentReg));
+  }
+
+  window._currentReg=reg; start();
 }
 
 function renderSentencePanel(reg){
@@ -1435,8 +1611,10 @@ document.addEventListener('DOMContentLoaded', boot);
     if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
   });
  
-  function closeModal() {
-    modal.classList.remove('open');
+  function closeModal(){
+  if(_bcTimerId){ clearInterval(_bcTimerId); _bcTimerId=null; }
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow='';
   }
 })();
 </script>
