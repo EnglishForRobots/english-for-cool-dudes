@@ -1705,9 +1705,10 @@ const LESSON_DATA_REGISTRY = {
         hint:   '🏗️ Why might TechCorp prefer an asset deal to a share deal?',
       },
       {
-        words:  ['founder', 'the', 'stays', 'if', 'earn-out', 'employed', 'the', 'be', 'recharacterised', 'may'],
-        answer: 'if the founder stays employed the earn-out may be recharacterised',
-        hint:   '⚠️ The key earn-out tax risk — what triggers it?',
+        words:      ['founder', 'the', 'stays', 'if', 'earn-out', 'employed', 'the', 'be', 'recharacterised', 'may'],
+        answer:     'if the founder stays employed the earn-out may be recharacterised',
+        altAnswers: ['the earn-out may be recharacterised if the founder stays employed'],
+        hint:       '⚠️ The key earn-out tax risk — what triggers it?',
       },
       {
         words:  ['period', 'the', 'years', 'German', 'is', 'assessment', 'four', 'standard'],
