@@ -202,6 +202,16 @@ body { background:var(--navy); color:#fff; line-height:1.4; overflow:hidden; }
 .fin-next-label { font-size:10px;font-weight:900;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px; }
 .fin-next-date  { font-size:20px;font-weight:900;color:var(--teal); }
 
+.fin-keepgoing {
+  display:flex;align-items:center;gap:14px;text-align:left;
+  background:rgba(255,150,0,.1);border:2px solid rgba(255,150,0,.3);
+  border-radius:var(--r);padding:14px 18px;margin-bottom:16px;
+  animation:glow 2.5s ease-in-out infinite;
+}
+.fin-keepgoing-icon{font-size:32px;flex-shrink:0;animation:float 2s ease-in-out infinite}
+.fin-keepgoing-title{font-size:15px;font-weight:900;color:#fff}
+.fin-keepgoing-sub{font-size:12px;font-weight:700;color:rgba(255,255,255,.6);margin-top:2px}
+
 .fin-why { background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.08);border-radius:var(--r);padding:14px 18px;margin-bottom:20px;font-size:12px;font-weight:700;color:rgba(255,255,255,.6);line-height:1.7;text-align:left; }
 .fin-why strong { color:#fff;font-weight:900; }
 
@@ -521,7 +531,13 @@ if (timerParam > 0) {
 }
     const sub = document.getElementById('setup-sub');
     if (sub) sub.textContent = `${_items.length} item${_items.length !== 1 ? 's' : ''} ready to review`;
-    show('setup');
+
+    const autostart = new URLSearchParams(location.search).get('autostart') === '1';
+    if (autostart) {
+      beginSession();
+    } else {
+      show('setup');
+    }
   } catch(e) {
     console.error('SRS boot error:', e);
     document.getElementById('loading').innerHTML =
@@ -936,7 +952,6 @@ async function showFinish() {
 
   const pct = _total > 0 ? Math.round((_correct / _total) * 100) : 0;
 
-  // Rating
   const ratings = [
     { min:90, emoji:'🌟', title:'Outstanding!',   colour:'var(--yellow)' },
     { min:75, emoji:'🔥', title:'Strong session!', colour:'var(--orange)' },
@@ -945,21 +960,18 @@ async function showFinish() {
   ];
   const r = ratings.find(x => pct >= x.min) || ratings[ratings.length-1];
 
-  // Newly mastered — vocab and builder only, clean readable labels
   const masteredWords = _results
     .filter(res => res.will_learn && (res.item_type === 'vocab' || res.item_type === 'builder'))
     .map(res => res.item_key.split(':').slice(1).join(' ').replace(/_/g, ' '))
     .filter(Boolean);
 
-  // Soonest next review date
-  const nextDate = _results
-    .map(res => res.next_review_at)
-    .filter(Boolean)
-    .sort()[0];
+  const nextDate = _results.map(res => res.next_review_at).filter(Boolean).sort()[0];
   const nextLabel = nextDate ? _formatNextReviewFriendly(nextDate) : 'Tomorrow';
-
-  // Accuracy bar colour
   const barColour = pct >= 80 ? 'var(--green)' : pct >= 60 ? 'var(--orange)' : 'var(--punch)';
+
+  // NEW: is there more to review right now, across all lessons?
+  let remainingDue = 0;
+  try { remainingDue = (await window.EFCD_XP.getDueItems()).length; } catch(e) {}
 
   document.getElementById('fin-card').innerHTML = `
     <div class="fin-emoji">${r.emoji}</div>
@@ -991,24 +1003,32 @@ async function showFinish() {
       </div>
     </div>` : ''}
 
+    ${remainingDue > 0 ? `
+    <div class="fin-keepgoing">
+      <div class="fin-keepgoing-icon">🔥</div>
+      <div>
+        <div class="fin-keepgoing-title">${remainingDue} more ready right now</div>
+        <div class="fin-keepgoing-sub">You're warmed up — strike while it's fresh!</div>
+      </div>
+    </div>` : `
     <div class="fin-next">
       <div class="fin-next-label">Your next review</div>
       <div class="fin-next-date">📬 ${nextLabel}</div>
-    </div>
+    </div>`}
 
     <div class="fin-why">
       <strong>Why does this work?</strong> Every time you review a word at exactly the right moment — just before you'd forget it — the memory gets stronger and lasts longer. That's spaced repetition. A few minutes today means you'll still know these words in months, not days.
     </div>
 
     <div class="fin-btns">
-      <a href="/my-lessons/" class="fin-btn fin-teal">📚 My Lessons</a>
+      ${remainingDue > 0 ? `<a href="/srs/?autostart=1" class="fin-btn fin-yellow">🔥 Keep Going (${remainingDue}) →</a>` : ''}
+      <a href="/my-lessons/" class="fin-btn ${remainingDue > 0 ? 'fin-ghost' : 'fin-teal'}">📚 My Lessons</a>
       <a href="/"            class="fin-btn fin-ghost">← Courses</a>
     </div>`;
 
   show('finish');
   fireConfetti();
 
-  // Animate accuracy bar after paint
   setTimeout(() => {
     const bar = document.getElementById('acc-bar');
     if (bar) bar.style.width = pct + '%';
