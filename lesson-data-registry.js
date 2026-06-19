@@ -2124,7 +2124,7 @@ const LESSON_DATA_REGISTRY = {
     { word:'algorithms',      definition:'A set of rules a computer follows to process data or solve a problem', example:'The programme is supposed to boost grades while also feeding powerful ___.', distractors:['consent','glimpse','surveillance'] },
     { word:'artifact',       definition:'An unwanted error or distortion in a signal or measurement, not a true reading', example:'EEG is susceptible to ___ — if the electrodes don\u2019t have good contact, it affects the signal.', distractors:['algorithm','consent','glimpse'] },
     { word:'anatomize',      definition:'To examine something in extremely fine, separated-out detail, piece by piece', example:'If you\u2019re trying to assess an individual student in a classroom, you really can\u2019t ___ it.', distractors:['surveil','consent to','alarm'] },
-    { word:'glimpse',        definition:'A brief or partial view of something, suggesting more than it fully reveals', example:'Some schools offer ___ of what the future of high-tech education might look like.', distractors:['artifact','algorithm','consent'] },
+    { word:'glimpse',        definition:'A brief or partial view of something, suggesting more than it fully reveals', example:'Some schools offer a ___ of what the future of high-tech education might look like.', distractors:['artifact','algorithm','consent'] },
   ],
 
  
