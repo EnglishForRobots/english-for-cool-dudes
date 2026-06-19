@@ -2306,15 +2306,15 @@ const LESSON_DATA_REGISTRY = {
   badge: 'Mega-Deal Maker',
 
   vocab: [
-    { word:'merger',             definition:'When two companies combine to form one single company — often framed as a joining of equals rather than a takeover.' },
-    { word:'speculation',        definition:'Discussion or guessing about something that has not been confirmed.' },
-    { word:'conglomerate',       definition:'A large company made up of several different businesses, often in unrelated industries.' },
-    { word:'synergies',          definition:'The extra benefits created when two things (like companies) work together — more than they could achieve separately.' },
-    { word:'stake',              definition:'A share or percentage of ownership in a company.' },
-    { word:'valuation',          definition:'The estimated total worth of a company.' },
-    { word:'cash flow positive', definition:'When a company brings in more cash than it spends.' },
-    { word:'diluted',            definition:"When a shareholder's percentage of ownership decreases because a company issues new shares." },
-  ],
+  { word:'merger',             definition:'When two companies combine to form one single company.',                        example:'Investors are speculating about a possible ___ between SpaceX and Tesla.',       distractors:['lawsuit','bailout','dividend'] },
+  { word:'speculation',        definition:'Discussion or guessing about something that has not been confirmed.',           example:"There is a lot of ___ in the markets about Musk's next move.",                   distractors:['confirmation','regulation','taxation'] },
+  { word:'conglomerate',       definition:'A large company made up of several different businesses, often in unrelated industries.', example:'Merging SpaceX and Tesla would create a powerful ___.',                          distractors:['subsidiary','monopoly','franchise'] },
+  { word:'synergies',          definition:'The extra benefits created when two things work together.',                     example:"Analysts say there are real ___ between SpaceX's rockets and Tesla's batteries.", distractors:['penalties','liabilities','disputes'] },
+  { word:'stake',              definition:'A share or percentage of ownership in a company.',                              example:'Tesla already holds a ___ in SpaceX.',                                            distractors:['lease','patent','license'] },
+  { word:'valuation',          definition:'The estimated total worth of a company.',                                       example:"SpaceX's ___ passed $1 trillion after its IPO.",                                  distractors:['turnover','overhead','payroll'] },
+  { word:'cash flow positive', definition:'When a company brings in more cash than it spends.',                            example:'Unlike SpaceX, Tesla has been ___ for years.',                                    distractors:['debt-free','tax-exempt','asset-backed'] },
+  { word:'diluted',            definition:"When a shareholder's percentage of ownership decreases because a company issues new shares.", example:'Tesla investors worry their shares could be ___ if the merger goes ahead.',       distractors:['frozen','audited','insured'] },
+],
 
   true_false: [
     { statement:'SpaceX recently became a publicly traded company through an IPO.',                                  correct:true,  reveal:'True! SpaceX went public with an IPO that raised over $85 billion — now valued at more than $1 trillion.' },
