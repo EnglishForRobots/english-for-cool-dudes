@@ -2296,6 +2296,63 @@ const LESSON_DATA_REGISTRY = {
     ],
 
   },
+
+   'weekly-drop-issue-009': {
+  id:    'weekly-drop-issue-009',
+  title: "The Weekly Drop - Issue 009 - The Mega-Merger: SpaceX, Tesla and Elon Musk's Empire",
+  level: 'All Levels',
+  track: 'weekly-drop',
+  emoji: '🚀',
+  badge: 'Mega-Deal Maker',
+
+  vocab: [
+    { word:'merger',             definition:'When two companies combine to form one single company — often framed as a joining of equals rather than a takeover.' },
+    { word:'speculation',        definition:'Discussion or guessing about something that has not been confirmed.' },
+    { word:'conglomerate',       definition:'A large company made up of several different businesses, often in unrelated industries.' },
+    { word:'synergies',          definition:'The extra benefits created when two things (like companies) work together — more than they could achieve separately.' },
+    { word:'stake',              definition:'A share or percentage of ownership in a company.' },
+    { word:'valuation',          definition:'The estimated total worth of a company.' },
+    { word:'cash flow positive', definition:'When a company brings in more cash than it spends.' },
+    { word:'diluted',            definition:"When a shareholder's percentage of ownership decreases because a company issues new shares." },
+  ],
+
+  true_false: [
+    { statement:'SpaceX recently became a publicly traded company through an IPO.',                                  correct:true,  reveal:'True! SpaceX went public with an IPO that raised over $85 billion — now valued at more than $1 trillion.' },
+    { statement:'SpaceX is now worth less money than Tesla.',                                                        correct:false, reveal:'False! SpaceX is worth over $1 trillion — over a trillion dollars more than Tesla.' },
+    { statement:"Tesla's stock price has gone up significantly this year.",                                          correct:false, reveal:'False — Tesla stock is down around 10% this year, partly because self-driving and robotics ambitions have stalled.' },
+    { statement:'SpaceX President Gwynne Shotwell completely ruled out a merger with Tesla.',                        correct:false, reveal:'False! She said a merger "could actually make Elon\'s life a little easier," without ruling it out.' },
+    { statement:'SpaceX and Tesla currently have no business relationship at all.',                                  correct:false, reveal:'False! SpaceX is one of Tesla\'s largest customers — buying Megapack batteries and Cybertrucks, and co-building a $55bn chip factory.' },
+  ],
+
+  fix_mistakes: [
+    { sentence:'"SpaceX posted a <u>profit</u> of $4.9 billion last year, mainly due to the enormous costs of its AI expansion."', hint:'If costs were enormous, the company almost certainly lost money. What\'s the opposite of "profit"?', opts:['profit → REVENUE','profit → BUDGET','profit → LOSS'], correct:2, fb:'LOSS — SpaceX posted a $4.9bn loss, driven by heavy AI investment.' },
+    { sentence:'"Tesla, on the other hand, has been <u>cash flow negative</u> for years and sits on a $45 billion cash reserve."', hint:'A $45bn reserve built up over years means more money coming in than going out.', opts:['cash flow negative → DEBT FREE','cash flow negative → CASH FLOW POSITIVE','cash flow negative → OVERVALUED'], correct:1, fb:'CASH FLOW POSITIVE — bringing in more cash than you spend.' },
+    { sentence:'"A merger would allow Musk to <u>reduce</u> his control of more of the AI ecosystem, according to analyst Dan Ives."', hint:'Why would a CEO want LESS control over a valuable, fast-growing area?', opts:['reduce → INCREASE','reduce → SELL OFF','reduce → IGNORE'], correct:0, fb:'INCREASE — Ives argued the merger would let Musk consolidate and expand his grip on AI.' },
+    { sentence:'"Tesla\'s move from Texas to Delaware has made it significantly <u>easier</u> for shareholders to pursue lawsuits."', hint:'Check the direction of the move, and whether legal challenges got easier or harder.', opts:['easier → SIMPLER','easier → MOST CHALLENGING','easier → MORE CHALLENGING'], correct:2, fb:'Moving FROM Delaware TO Texas made it MORE CHALLENGING for shareholders to sue.' },
+  ],
+
+  word_match: [
+    { term:'IPO',                 def:"A company's first sale of shares to the public" },
+    { term:'shareholder lawsuit', def:'Legal action brought by investors against a company' },
+    { term:'governance',          def:'The system of rules and oversight that controls a company' },
+    { term:'lock-up period',      def:'A set time after an IPO when insiders cannot sell shares' },
+    { term:'robotaxi',            def:'A self-driving vehicle that operates as a taxi service' },
+    { term:'compensation package',def:'The total pay and benefits awarded to an executive' },
+  ],
+
+  beat_clock: [
+    { level:'h1', label:'🟢 Beginner',    q:'SpaceX recently had its IPO on a:', opts:['Friday','Monday','Weekend'], correct:0 },
+    { level:'h1', label:'🟢 Beginner',    q:'"Speculation" means:', opts:['Confirmed fact','Guessing or discussion','A type of contract'], correct:1 },
+    { level:'h1', label:'🟢 Beginner',    q:'SpaceX President is named:', opts:['Gwynne Shotwell','Dan Ives','Ross Gerber'], correct:0 },
+    { level:'h2', label:'🟡 A2',          q:'A "stake" in a company means:', opts:['A type of meeting','A legal penalty','A share of ownership'], correct:2 },
+    { level:'h2', label:'🟡 A2',          q:"Tesla's cash reserve is approximately:", opts:['$4.9 billion','$506 million','$45 billion'], correct:2 },
+    { level:'h2', label:'🟡 A2',          q:'"Synergies" between two companies means:', opts:['Combined benefits working together','Legal disputes','Separate, unrelated operations'], correct:0 },
+    { level:'h3', label:'🔴 Upper Int',   q:'A "conglomerate" is best described as:', opts:['One company in a single industry','A government regulator','A large firm spanning several different businesses'], correct:2 },
+    { level:'h3', label:'🔴 Upper Int',   q:'If a shareholder\'s stake is "diluted," their ownership percentage:', opts:['Increases','Stays exactly the same','Decreases'], correct:2 },
+    { level:'h4', label:'🏆 Advanced',    q:'"Cash flow positive" means a company:', opts:['Has filed for bankruptcy','Brings in more cash than it spends','Has no employees'], correct:1 },
+    { level:'h4', label:'🏆 Advanced',    q:'In the article, Ross Gerber calls Tesla:', opts:['"The crown jewel"','"The second child we don\'t want to talk about"','"A safe long-term bet"'], correct:1 },
+  ],
+},
  
    };
 
