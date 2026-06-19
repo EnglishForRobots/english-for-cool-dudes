@@ -820,9 +820,10 @@ function checkSB() {
   if (_answered) return;
   const item = window.EFCD_SRS.ITEMS.resolve(_items[_qIdx], window.LESSON_DATA_REGISTRY?.[_items[_qIdx].lesson_id])?.item_data;
   if (!item) return;
-  const built  = _sbBuilt.map(i => i.word).join(' ').toLowerCase().replace(/[.,!?]/g,'').trim();
-  const target = item.answer.toLowerCase().replace(/[.,!?]/g,'').trim();
-  const ok     = built === target;
+  const norm = s => s.toLowerCase().replace(/[.,!?]/g,'').trim();
+  const built      = norm(_sbBuilt.map(i => i.word).join(' '));
+  const acceptable = [item.answer, ...(item.altAnswers||[])].map(norm);
+  const ok = acceptable.includes(built);
   _answered = true; _total++;
   const ans = document.getElementById('sb-ans');
   if (ans) ans.classList.add(ok ? 'correct-flash' : 'wrong-flash');
