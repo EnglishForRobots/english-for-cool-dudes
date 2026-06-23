@@ -131,6 +131,16 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .sec-done-title{font-size:22px;font-weight:900;color:var(--ink-bold);margin-bottom:6px}
 .sec-done-sub{font-size:14px;font-weight:700;color:var(--ink-3);margin-bottom:18px;line-height:1.5}
 
+/* ── ARTICLE ── */
+.article-body{font-size:15px;font-weight:700;color:var(--ink-bold);line-height:1.8}
+.article-body p{margin-bottom:14px}
+.article-body p:last-child{margin-bottom:0}
+.article-hl{font-size:clamp(17px,4.5vw,22px);font-weight:900;color:var(--ink-bold);letter-spacing:-.3px;line-height:1.3;margin-bottom:6px}
+.article-byline{font-size:12px;font-weight:700;color:var(--ink-3);margin-bottom:18px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.article-byline-tag{background:rgba(255,61,129,.1);border:2px solid rgba(255,61,129,.2);border-radius:99px;padding:3px 10px;font-size:11px;font-weight:900;color:var(--pink-dark)}
+.article-highlight{background:rgba(255,200,0,.15);border-left:4px solid var(--yellow);border-radius:0 var(--rxs) var(--rxs) 0;padding:12px 14px;margin:14px 0;font-size:14px;font-weight:800;color:var(--ink-bold);line-height:1.6}
+.article-highlight strong{color:#8a6000}
+
 /* ── VOCAB BLITZ ── */
 .vb-progress{display:flex;gap:5px;margin-bottom:16px}
 .vb-pip{flex:1;height:6px;border-radius:99px;background:var(--border-heavy);transition:background .3s}
@@ -749,7 +759,7 @@ const MC_GRAMMAR = [
 let S = {
   xp:0, combo:0, bestCombo:0,
   totalRight:0, totalAnswered:0,
-  videoDone:false,
+  videoDone:false, articleDone:false,
   vbIdx:0, vbRight:0, vbDone:false,
   tfIdx:0, tfRight:0, tfDone:false,
   gfIdx:0, gfDone:false,
@@ -796,7 +806,7 @@ function toast(icon,text){
   document.body.appendChild(b);setTimeout(()=>b.remove(),4000);
 }
 function updateProgress(){
-  const done=[S.videoDone,S.vbDone,S.tfDone,S.gfDone,S.atcDone||S.mcDone].filter(Boolean).length;
+  const done=[S.vbDone,S.tfDone,S.gfDone,S.atcDone||S.mcDone,S.mcDone].filter(Boolean).length;
   const pct=Math.round(done/5*100);
   const f=$('prog-fill');if(f)f.style.width=pct+'%';
   $('prog-label').textContent=`${done} / 5 sections`;
@@ -826,6 +836,7 @@ function body(id){return $(`${id}-body`);}
 function buildAll(){
   const c=$('sections');
   c.appendChild(buildVideoSec());
+  c.appendChild(buildArticleSec());
   c.appendChild(mkSec('sec-vb',  'strip-pink',  '📖','Vocab Blitz','8 key words · pick the right meaning!'));
   c.appendChild(mkSec('sec-tf',  'strip-blue',  '🎯','True or False?','7 statements about the article · stick to what you read!'));
   c.appendChild(mkSec('sec-gf',  'strip-purple','📝','Fill the Gap','Tenses, connectors & collocations · 3 exercises'));
@@ -841,7 +852,7 @@ function buildVideoSec(){
   sec.innerHTML=`
     <div class="sec-head">
       <div class="sec-head-icon">🎬</div>
-      <div><div class="sec-head-title">Watch & Listen</div><div class="sec-head-sub">Official music video · ~4 min · then answer questions</div></div>
+      <div><div class="sec-head-title">Watch & Listen</div><div class="sec-head-sub">Official music video · ~4 min · then answer questions about the DW article</div></div>
     </div>
     <div class="sec-body">
       <div class="tip-box">💡 <strong>Watch tip:</strong> Watch the music video and enjoy it! Then the activities are based on the DW article about the song. You don't need to understand every word — just feel the vibe!</div>
@@ -855,7 +866,7 @@ function buildVideoSec(){
         <span class="fact-chip">🌍 Millions of non-German fans</span>
         <span class="fact-chip">💜 "You are good enough"</span>
       </div>
-      <p style="font-size:14px;font-weight:700;color:var(--ink);line-height:1.7;margin-bottom:8px">A German song about being enough — and somehow the whole world agrees. Let's find out how and why it happened.</p>
+      <p style="font-size:14px;font-weight:700;color:var(--ink);line-height:1.7;margin-bottom:8px">A German song about being enough — and somehow the whole world agrees. Here in Dresden you can even see it on posters! Let's find out how and why it happened.</p>
       <button class="btn-continue" onclick="markVideoDone()" style="background:var(--pink);border-color:var(--pink-dark);color:#fff">I've watched it! Let's go 🎵</button>
     </div>`;
   return sec;
@@ -863,6 +874,44 @@ function buildVideoSec(){
 function markVideoDone(){
   S.videoDone=true;addXP(10,$('sec-video'));
   toast('🎵','Video done! +10 XP');
+  updateProgress();revealSection('sec-article');
+}
+
+/* ── ARTICLE ── */
+function buildArticleSec(){
+  const sec=document.createElement('div');
+  sec.className='sec-card strip-yellow';sec.id='sec-article';
+  sec.innerHTML=`
+    <div class="sec-head">
+      <div class="sec-head-icon">📰</div>
+      <div><div class="sec-head-title">Read the Article</div><div class="sec-head-sub">DW News · June 2026 · ~3 min read</div></div>
+    </div>
+    <div class="sec-body">
+      <div class="tip-box">💡 <strong>Read tip:</strong> You don't need to understand every word. Read for the main ideas — <strong>why</strong> the song went viral, <strong>who</strong> made it, and <strong>what</strong> the controversy was. The activities come straight from this article!</div>
+      <div class="article-hl">The feel-good German song taking over social media</div>
+      <div class="article-byline">
+        <span class="article-byline-tag">🌍 DW News</span>
+        <span class="article-byline-tag">🎵 Music</span>
+        <span>Silke Wünsch · June 18, 2026</span>
+      </div>
+      <div class="article-body">
+        <p>Being encouraging and building confidence is what the German song <strong>"Gut genug"</strong> ("Good Enough") is all about. A meme is now bringing the track and its message to millions of people around the world.</p>
+        <p>German is not the first language you'd expect to find behind a global TikTok hit, which is why the success of "Gut genug" is so surprising. The track was a collaboration between Berlin-based producers <strong>KitschKrieg</strong>, indie duo <strong>Blumengarten</strong> and rapper <strong>Shirin David</strong>.</p>
+        <p>Now, millions of social media users worldwide have featured the song in their videos — although many of them don't understand a word of German. Despite that fact — or perhaps because of it — the song has become a hit. The hook sticks in your head and is easy to sing along to.</p>
+        <p>Blumengarten singer Rayan croons in a high, expressive voice, and the melody carries a message that transcends language. It offers comfort, reassurance and the desire to simply be accepted; things that are felt all over the world.</p>
+        <div class="article-highlight">🎵 <strong>"Doobie Scoot Canoe"</strong> — In the English-speaking world, many listeners mishear "Du bist gut genug" this way. The phrase might not mean much, but "doobie" is slang for a cannabis joint — which makes it extra funny!</div>
+        <p>Like many viral hits, the song has drifted far from its original context. The song works on multiple levels. People looking for comfort can relate to it. People looking for a meme to share and laugh at can enjoy it too.</p>
+        <p><strong>Algorithms drive the hits.</strong> A German-language song gaining global traction also reflects how social media algorithms work. In the past, songs in local languages rarely broke out on a global scale. Social media platforms like Instagram and YouTube have changed that. They don't pay attention to the language a song uses — they pay attention to how users respond. If people watch a video to the end, like it, comment on it, share it or reuse the sound, the algorithm spots the engagement and spreads it further.</p>
+        <p><strong>The Heidi Klum controversy.</strong> German model and TV personality Heidi Klum commented on the song in a Tweet, saying: <em>"I love only his part."</em> Her remark immediately created confusion and online debate. Some saw it as a dig at Shirin David. Others called it a matter of taste. Klum hosts the reality show "Germany's Next Top Model," where participants feel constant pressure to appear more successful or attractive — and Shirin David's rap verse directly addresses that pressure.</p>
+        <p>The combination of self-doubt in the verses and reassurance in the chorus — that repeated <strong>"Du bist gut genug"</strong> — likely drives much of the song's global appeal. Four simple German words are now travelling the world, reminding listeners of something many already know but often forget: <strong>You are good enough.</strong></p>
+      </div>
+      <button class="btn-continue" onclick="markArticleDone()" style="background:var(--yellow-shadow);border-color:#b38a00;color:#fff;margin-top:18px">I've read it! Start the activities 📖</button>
+    </div>`;
+  return sec;
+}
+function markArticleDone(){
+  S.articleDone=true;addXP(10,$('sec-article'));
+  toast('📰','Article done! +10 XP');
   updateProgress();revealSection('sec-vb');
 }
 
