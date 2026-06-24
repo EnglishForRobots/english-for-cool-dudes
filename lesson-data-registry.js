@@ -2423,6 +2423,75 @@ const LESSON_DATA_REGISTRY = {
     { statement:'The song is only popular in Germany because it is in German.',              correct:false, reveal:'❌ FALSE! It is popular all over the world — even people who do not speak German love it!' },
   ],
 },
+
+   'gut-genug': {
+  id:    'gut-genug',
+  title: 'Du bist gut genug — You Are Good Enough! (Intermediate)',
+  level: 'Intermediate',
+  track: 'intermediate',
+  emoji: '🎵',
+  badge: 'Viral English Expert',
+
+  vocab: [
+    { word:'go viral',    definition:'To spread very quickly across the internet, reaching millions of people',              example:'The song didn\'t need radio to ___ ___ — TikTok did it in days.',           distractors:['get famous','go global','trend up'] },
+    { word:'transcend',   definition:'To go beyond the usual limits of something',                                           example:'The melody ___ language — people feel it without understanding the words.', distractors:['translate','replace','include'] },
+    { word:'traction',    definition:'The process of gaining popularity or making progress',                                 example:'The song has been gaining ___ globally, even outside German-speaking countries.', distractors:['attention','streams','fans'] },
+    { word:'resonate',    definition:'To have a strong, meaningful personal impact on someone',                              example:'The message of self-acceptance really ___ with listeners worldwide.',          distractors:['relate','respond','react'] },
+    { word:'mishear',     definition:'To hear words incorrectly, understanding the wrong thing',                             example:'Many English speakers ___ "Du bist gut genug" as "Doobie Scoot Canoe."',    distractors:['misread','misquote','misuse'] },
+    { word:'algorithm',   definition:'The rules a platform uses to decide what content to show users',                      example:'The ___ tracks how users respond and pushes popular content further.',        distractors:['database','playlist','feed'] },
+    { word:'reassurance', definition:'Something that removes doubt or worry and makes someone feel better',                  example:'The chorus offers ___ — a reminder that you don\'t need to be perfect.',    distractors:['validation','confidence','comfort'] },
+    { word:'engagement',  definition:'How users interact with content — likes, comments, shares, watch time',               example:'High ___ signals to the platform to push the content to more feeds.',         distractors:['views','followers','reach'] },
+  ],
+
+  grammar: {
+    topic: 'Present simple vs past simple — facts, processes and events',
+    rule:  'Present simple: facts that are always true, and how systems work in general. "The algorithm TRACKS engagement." Past simple: completed events. "Heidi Klum COMMENTED on the song." Present perfect: past action with current relevance. "The song HAS BEEN gaining traction."',
+    exercises: [
+      { sentence:'The hook ___ in your head from the very first listen.',                       answer:'sticks',           wrong:['stuck','is sticking','has stuck'],    explain:'"Stick in your head" — present simple for a general fact about how the song works.' },
+      { sentence:'When users share a video, the algorithm ___ it to more people.',              answer:'pushes',           wrong:['pushed','is pushing','had pushed'],   explain:'Present simple for how a system always works — not a specific past event.' },
+      { sentence:'Heidi Klum\'s comment ___ immediate debate and confusion online.',            answer:'caused',           wrong:['causes','is causing','has caused'],   explain:'Past simple — a completed event in the past.' },
+      { sentence:'The song ___ global traction since it went viral in early 2026.',            answer:'has been gaining', wrong:['gained','gains','was gaining'],       explain:'Present perfect continuous — started in the past, still happening now.' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Contrast connectors — despite / even though / without',
+    rule:  'DESPITE + noun or gerund (-ing). EVEN THOUGH + subject + verb (full clause). WITHOUT + noun or gerund. Common mistake: "Despite they don\'t understand" ❌ → "Despite not understanding" ✅ or "Even though they don\'t understand" ✅.',
+    exercises: [
+      { sentence:'___ not understanding the words, millions of people love and share the song.',answer:'Despite',     wrong:['Even though','Although','Without'],   explain:'"Despite" + gerund (not understanding). No subject needed after "despite".' },
+      { sentence:'___ many listeners don\'t speak German, the message comes across immediately.',answer:'Even though', wrong:['Despite','Without','However'],         explain:'"Even though" + full clause (subject + verb). Introduces a surprising contrast.' },
+      { sentence:'The song crossed language barriers ___ anyone translating it.',              answer:'without',     wrong:['despite','even though','although'],    explain:'"Without" + gerund — no translation was needed or done.' },
+      { sentence:'___ the Heidi Klum controversy, the song\'s popularity continued to grow.', answer:'Despite',     wrong:['Even though','Without','Although'],    explain:'"Despite" + noun phrase. The controversy didn\'t stop the growth.' },
+    ],
+  },
+
+  sentences: [
+    { words:['viral','go','the','to','need','didn\'t','radio','song','The'],       answer:'The song didn\'t need radio to go viral',            hint:'📱 How did the song spread without traditional media?' },
+    { words:['attention','language','to','pays','algorithm','no','The'],           answer:'The algorithm pays no attention to language',         hint:'🤖 What does the algorithm actually track?' },
+    { words:['Klum','wrote','comment','a','Heidi','only','his','loved','part','she'], answer:'Heidi Klum wrote a comment she loved only his part', hint:'💬 What was Heidi Klum\'s controversial reaction?' },
+    { words:['barriers','language','transcends','The','melody'],                   answer:'The melody transcends language barriers',             hint:'🌍 Why do people love it without understanding it?' },
+  ],
+
+  word_builder: [
+    { word:'viral',       definition:'Spreading extremely fast online' },
+    { word:'transcend',   definition:'To go beyond the usual limits' },
+    { word:'traction',    definition:'Growing popularity or momentum' },
+    { word:'algorithm',   definition:'The rules that decide what you see online' },
+    { word:'resonate',    definition:'To connect deeply with someone' },
+    { word:'engagement',  definition:'How users interact with content' },
+  ],
+
+  true_false: [
+    { statement:'"Gut genug" is a collaboration between a Berlin producer collective, an indie duo, and a rapper.',       correct:true,  reveal:'✅ TRUE! KitschKrieg (producers), Blumengarten (indie duo) and Shirin David (rapper). Three different acts.' },
+    { statement:'The song went viral mainly because an American DJ remixed it and put it on Spotify.',                   correct:false, reveal:'❌ FALSE! The article says nothing about a remix. It spread organically — users used the sound in their own videos, and the algorithm amplified it.' },
+    { statement:'Social media algorithms spread content based on engagement, not the language of the song.',              correct:true,  reveal:'✅ TRUE! Platforms track watch time, likes, shares, and comments — not whether the song is in German, English or Swahili.' },
+    { statement:'Heidi Klum praised both Blumengarten and Shirin David equally in her comment.',                         correct:false, reveal:'❌ FALSE! She said "I love only his part" — which sparked debate. Many saw it as a dig at Shirin David.' },
+    { statement:'Shirin David\'s verse directly addresses the pressure to look perfect and appear successful.',           correct:true,  reveal:'✅ TRUE! Her verse mentions constant judgment and the struggle to stay confident — connected to the world of Germany\'s Next Top Model.' },
+    { statement:'The article says songs in foreign languages never succeeded globally before social media.',              correct:false, reveal:'❌ FALSE! The article says they "rarely" broke out globally — not "never". Important difference! K-pop existed before the algorithm era.' },
+    { statement:'The word "mishear" means to deliberately change the lyrics when you sing along.',                       correct:false, reveal:'❌ FALSE! "Mishear" means to accidentally hear the wrong words. "Mis-" = doing something wrongly. You mishear — you don\'t choose to.' },
+    { statement:'"Gain traction" means to start making progress and becoming more widely known.',                        correct:true,  reveal:'✅ TRUE! "Gain traction" describes a gradual build-up of momentum. "The idea is gaining traction" = more people are paying attention to it.' },
+  ],
+},
  
    };
 
