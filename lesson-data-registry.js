@@ -2354,6 +2354,75 @@ const LESSON_DATA_REGISTRY = {
     { level:'h4', label:'🏆 Advanced',    q:'In the article, Ross Gerber calls Tesla:', opts:['"The crown jewel"','"The second child we don\'t want to talk about"','"A safe long-term bet"'], correct:1 },
   ],
 },
+
+   'gut-genug-beginner': {
+  id:    'gut-genug-beginner',
+  title: 'Du bist gut genug — You Are Good Enough!',
+  level: 'Beginner',
+  track: 'beginner',
+  emoji: '🎵',
+  badge: 'Gut Genug Star',
+
+  vocab: [
+    { word:'popular',   definition:'Liked by many people',                                          example:'The song is very ___ — millions of people listen to it.',          distractors:['famous','common','expensive'] },
+    { word:'share',     definition:'To send something to other people online',                       example:'People ___ the video on TikTok and Instagram every day.',           distractors:['watch','upload','find'] },
+    { word:'melody',    definition:'The main tune of a song — the part you sing',                    example:'The ___ is simple and beautiful — easy to sing along to.',          distractors:['lyrics','chorus','bridge'] },
+    { word:'mishear',   definition:'To hear words incorrectly and understand the wrong thing',       example:'Many people ___ the words and think it says "Doobie Scoot Canoe."', distractors:['misread','misuse','mistranslate'] },
+    { word:'comment',   definition:'A message you write online about something',                     example:'Heidi Klum wrote a ___ about the song on Instagram.',               distractors:['post','story','review'] },
+    { word:'pressure',  definition:'The feeling that you must be perfect or do something difficult', example:'Shirin David sings about the ___ to look perfect all the time.',   distractors:['stress','anger','sadness'] },
+    { word:'algorithm', definition:'The rules an app uses to decide what to show you',               example:'The ___ shows the song to more people when they like it.',          distractors:['database','programme','playlist'] },
+    { word:'message',   definition:'The main idea or meaning of a song, film or book',              example:'The ___ of the song is: you are good enough.',                     distractors:['title','theme','story'] },
+  ],
+
+  grammar: {
+    topic: 'Present simple — facts and routines',
+    rule:  'Use present simple for facts that are always true and things that happen regularly. He/she/it + verb + -s. "The song IS popular." "She SINGS about pressure." "The algorithm SHOWS it to more people."',
+    exercises: [
+      { sentence:'"Gut genug" ___ "good enough" in English.',          answer:'means',  wrong:['mean','is meaning','meant'],   explain:'"Mean" is a state verb — it does not use -ing. Singular subject "Gut genug" = it → means.' },
+      { sentence:'Millions of people ___ the song on social media.',   answer:'share',  wrong:['shares','is sharing','shared'], explain:'"Millions of people" = they → base form, no -s. Regular present simple for habits.' },
+      { sentence:'The algorithm ___ the song to more and more people.',answer:'shows',  wrong:['show','is showing','showed'],   explain:'"The algorithm" = it → add -s. Present simple for how apps always work.' },
+      { sentence:'Shirin David ___ about the pressure to be perfect.', answer:'sings',  wrong:['sing','is singing','sang'],    explain:'"Shirin David" = she → add -s. Present simple for facts about the song.' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Past simple — regular and irregular verbs',
+    rule:  'Past simple for finished actions in the past. Regular: add -ED. Irregular: must learn. make → made, become → became, write → wrote.',
+    exercises: [
+      { sentence:'Three artists ___ the song together.',              answer:'made',   wrong:['make','maked','have made'],     explain:'Irregular: make → MADE. The song was finished in the past.' },
+      { sentence:'Heidi Klum ___ a comment online about the song.',   answer:'wrote',  wrong:['write','writed','has written'], explain:'Irregular: write → WROTE. She wrote it once in the past.' },
+      { sentence:'The song ___ very popular all over the world.',     answer:'became', wrong:['become','becomed','has become'],explain:'Irregular: become → BECAME. A change that happened in the past.' },
+      { sentence:'Many English speakers ___ the German words.',       answer:'misheard',wrong:['mishear','misheared','have misheard'], explain:'"Mishear" is irregular (like "hear"): hear → heard → misheard.' },
+    ],
+  },
+
+  sentences: [
+    { words:['say','The','words','enough','you','are','good','song'], answer:'The song words say you are good enough',          hint:'🎵 What is the message of the song?' },
+    { words:['speak','love','even','who','German','don\'t','people','it'], answer:'people love it even who don\'t speak German', hint:'🌍 Who enjoys the song around the world?' },
+    { words:['Doobie','Canoe','Scoot','think','people','it','says','Many'], answer:'Many people think it says Doobie Scoot Canoe', hint:'😂 What do English speakers mishear?' },
+    { words:['like','algorithm','shows','people','more','When','it','to','they','the'], answer:'When they like it the algorithm shows it to more people', hint:'📱 How does the song reach new people?' },
+  ],
+
+  word_builder: [
+    { word:'popular',   definition:'Liked by many people' },
+    { word:'melody',    definition:'The main tune of a song' },
+    { word:'pressure',  definition:'The feeling that you must be perfect' },
+    { word:'algorithm', definition:'The rules an app uses to show you things' },
+    { word:'mishear',   definition:'To hear something incorrectly' },
+    { word:'comment',   definition:'A message written online' },
+  ],
+
+  true_false: [
+    { statement:'"Gut genug" was made by one solo artist.',                                   correct:false, reveal:'❌ FALSE! Three artists made it together: KitschKrieg, Blumengarten and Shirin David. A collaboration!' },
+    { statement:'"Gut genug" means "good enough" in English.',                                correct:true,  reveal:'✅ TRUE! "Gut" = good. "Genug" = enough. Four simple words with a powerful message.' },
+    { statement:'Many English speakers correctly understand all the German words.',            correct:false, reveal:'❌ FALSE! Many mishear "Du bist gut genug" and think it says "Doobie Scoot Canoe" — which is very funny!' },
+    { statement:'Heidi Klum is one of the three artists who made the song.',                  correct:false, reveal:'❌ FALSE! She is a German TV star. She only wrote a comment about the song online.' },
+    { statement:'The algorithm helps the song reach more people when they like and share it.',correct:true,  reveal:'✅ TRUE! The more people interact with it, the more TikTok and Instagram show it to new people.' },
+    { statement:'Shirin David sings about the pressure to look perfect.',                     correct:true,  reveal:'✅ TRUE! Her part of the song is about the difficult feeling that you must always be perfect.' },
+    { statement:'The message of the song is "you are not good enough."',                     correct:false, reveal:'❌ FALSE! The message is the OPPOSITE — "Du bist gut genug" means "You ARE good enough." A positive message!' },
+    { statement:'The song is only popular in Germany because it is in German.',              correct:false, reveal:'❌ FALSE! It is popular all over the world — even people who do not speak German love it!' },
+  ],
+},
  
    };
 
