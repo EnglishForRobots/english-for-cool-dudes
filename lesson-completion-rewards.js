@@ -522,6 +522,22 @@
     { word:'message',   definition:'The main idea or meaning of a song, film or book' },
   ],
 },
+
+     'gut-genug': {
+  title:   'Du bist gut genug — You Are Good Enough! (Intermediate)',
+  level:   'Intermediate',
+  grammar: 'Present simple vs past simple vs present perfect; contrast connectors (despite / even though / without)',
+  vocab: [
+    { word:'go viral',    definition:'To spread very quickly across the internet, reaching millions of people' },
+    { word:'transcend',   definition:'To go beyond the usual limits of something' },
+    { word:'traction',    definition:'The process of gaining popularity or making progress' },
+    { word:'resonate',    definition:'To have a strong, meaningful personal impact on someone' },
+    { word:'mishear',     definition:'To hear words incorrectly, understanding the wrong thing' },
+    { word:'algorithm',   definition:'The rules a platform uses to decide what content to show users' },
+    { word:'reassurance', definition:'Something that removes doubt and makes someone feel better' },
+    { word:'engagement',  definition:'How users interact with content — likes, comments, shares, watch time' },
+  ],
+},
  
 
   };
