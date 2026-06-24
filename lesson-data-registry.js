@@ -1212,7 +1212,7 @@ const LESSON_DATA_REGISTRY = {
     {
       word: 'penalty spot',
       definition: 'The marked point 11 metres from the goal from which a penalty kick is taken',
-      example: 'Kane has scored all 23 of his Bundesliga penalties — he is ice-cool from the ___.',
+      example: 'Kane had scored all 23 of his Bundesliga penalties — he was ice-cool from the ___.',
       distractors: ['loan spell', 'transfer', 'top scorer']
     },
     {
