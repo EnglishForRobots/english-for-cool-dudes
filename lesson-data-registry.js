@@ -2492,6 +2492,228 @@ const LESSON_DATA_REGISTRY = {
     { statement:'"Gain traction" means to start making progress and becoming more widely known.',                        correct:true,  reveal:'✅ TRUE! "Gain traction" describes a gradual build-up of momentum. "The idea is gaining traction" = more people are paying attention to it.' },
   ],
 },
+
+   /* ═══════════════════════════════════════════════════════════════
+   ADD TO lesson-data-registry.js
+   Key: 'airbnb-problem-tax'
+═══════════════════════════════════════════════════════════════ */
+
+  'airbnb-problem-tax': {
+
+    id:    'airbnb-problem-tax',
+    title: 'The Airbnb Problem',
+    level: 'Tax English',
+    track: 'tax',
+    emoji: '🏖️',
+    badge: 'Rental Income Expert',
+
+    // ── VOCAB ────────────────────────────────────────────────
+    vocab: [
+      {
+        word:        'rental income',
+        definition:  'Money you earn from renting out a property — even for just a few nights. In most countries, this is taxable income.',
+        example:     'You must declare all ___ to the tax office, even from short Airbnb stays.',
+        distractors: ['source country', 'platform reporting', 'DAC7'],
+      },
+      {
+        word:        'source country',
+        definition:  'The country where the money is earned — e.g. if you rent out a flat in Italy, Italy is the source country, even if you live in Germany.',
+        example:     'Italy is the ___ because the rented property is located there.',
+        distractors: ['residence country', 'tax treaty', 'double taxation'],
+      },
+      {
+        word:        'residence country',
+        definition:  'The country where you live and pay your main taxes. You may owe tax here on your worldwide income, including rental income from abroad.',
+        example:     'Germany is Henrik\'s ___ — so Germany taxes his worldwide income.',
+        distractors: ['source country', 'letting allowance', 'DAC7'],
+      },
+      {
+        word:        'double taxation',
+        definition:  'When the same income is taxed twice — once in the source country and once in the residence country. Tax treaties exist to prevent this.',
+        example:     'A ___ agreement stops Marco paying full tax in both Italy and Germany.',
+        distractors: ['platform reporting', 'short-term rental', 'letting allowance'],
+      },
+      {
+        word:        'tax treaty',
+        definition:  'An agreement between two countries that decides which country has the right to tax which income — so the same money is not taxed twice.',
+        example:     'The German-Italian ___ gives Italy the primary right to tax rental income.',
+        distractors: ['double taxation', 'source country', 'DAC7'],
+      },
+      {
+        word:        'platform reporting',
+        definition:  'Since 2023, platforms like Airbnb and Booking.com must automatically share host earnings data with EU tax authorities.',
+        example:     '___ means Airbnb sends your income data directly to the tax office — you cannot hide it.',
+        distractors: ['tax treaty', 'letting allowance', 'principal residence'],
+      },
+      {
+        word:        'letting allowance',
+        definition:  'A tax-free amount you can earn from renting before you owe income tax. In the UK, the Rent-a-Room Scheme allows up to £1,000 per year tax-free.',
+        example:     'Sarah earned £920 — under the UK ___ — so she owes no tax.',
+        distractors: ['rental income', 'double taxation', 'short-term rental'],
+      },
+      {
+        word:        'short-term rental',
+        definition:  'Renting out a property for a short period — typically less than 30 days at a time. Tax rules for short-term rentals are often stricter.',
+        example:     'Airbnb and Booking.com are the main platforms for ___ accommodation.',
+        distractors: ['letting allowance', 'residence country', 'principal residence'],
+      },
+      {
+        word:        'principal residence',
+        definition:  'Your main home — the place where you actually live. Renting out your principal residence is treated differently from renting a second property.',
+        example:     'Sarah rents a room in her own home, which is her ___ — this qualifies for the UK letting allowance.',
+        distractors: ['source country', 'platform reporting', 'rental income'],
+      },
+      {
+        word:        'DAC7',
+        definition:  'An EU directive that came into force in January 2023, requiring digital platforms to report seller and host income to tax authorities across the EU.',
+        example:     'Since ___ came into force, Booking.com must report every host\'s earnings to the EU tax authorities.',
+        distractors: ['tax treaty', 'short-term rental', 'letting allowance'],
+      },
+    ],
+
+    // ── GRAMMAR 1: Passive Voice ──────────────────────────────
+    grammar: {
+      topic: 'Passive Voice in tax advice and compliance English',
+      rule:  'Passive voice (is/are/was/were + past participle) focuses on what happened, not who did it. Essential in tax advice: "Tax is deducted at source." "The income must be declared." "Earnings are reported automatically." Very common in legal and compliance contexts.',
+      exercises: [
+        {
+          sentence: 'Since 2023, host earnings ___ automatically to EU tax authorities by platforms like Airbnb.',
+          answer:   'are reported',
+          wrong:    ['report', 'reported', 'have reported'],
+          explain:  'Present passive: are + past participle. The earnings receive the action of reporting — Airbnb is not mentioned as the subject.',
+        },
+        {
+          sentence: 'In an asset deal — sorry, in a rental deal — the income ___ first in the source country.',
+          answer:   'is taxed',
+          wrong:    ['taxes', 'taxed', 'has taxed'],
+          explain:  'Present passive: is + past participle. A general ongoing legal rule — the income receives the action of taxation.',
+        },
+        {
+          sentence: 'Under DAC7, Booking.com ___ to collect and share host earnings data.',
+          answer:   'is required',
+          wrong:    ['requires', 'required', 'was requiring'],
+          explain:  'Present passive for an ongoing legal obligation: is required. The platform receives the obligation.',
+        },
+        {
+          sentence: 'A credit for Italian tax paid ___ by Germany under the bilateral treaty.',
+          answer:   'is given',
+          wrong:    ['gives', 'was giving', 'has given'],
+          explain:  'Present passive: is + past participle. Germany gives it — but the focus is on the credit (what is received), not Germany.',
+        },
+      ],
+    },
+
+    // ── GRAMMAR 2: First Conditional ─────────────────────────
+    grammar2: {
+      topic: 'First Conditional — predicting tax outcomes for clients',
+      rule:  'First conditional: If + present simple → will + infinitive. Used to advise clients about real, likely outcomes. "If you rent your flat, you will need to declare the income." Very common in professional tax advice.',
+      exercises: [
+        {
+          sentence: 'If a host ___ their earnings, the tax office ___ them automatically via DAC7.',
+          answer:   'doesn\'t declare / will receive',
+          wrong:    ['didn\'t declare / would receive', 'doesn\'t declare / would receive', 'won\'t declare / will receive'],
+          explain:  'First conditional: if + present simple (doesn\'t declare) → will + infinitive (will receive). A real, likely outcome.',
+        },
+        {
+          sentence: 'If Marco ___ tax in Italy, Germany ___ him a credit for the amount paid.',
+          answer:   'pays / will give',
+          wrong:    ['paid / would give', 'pays / would give', 'will pay / will give'],
+          explain:  'First conditional for a real scenario. If + present simple (pays) → will + infinitive (will give).',
+        },
+        {
+          sentence: 'If Sarah ___ under £1,000 from renting her room, she ___ to file a tax return.',
+          answer:   'earns / won\'t need',
+          wrong:    ['earned / wouldn\'t need', 'earns / wouldn\'t need', 'will earn / won\'t need'],
+          explain:  'First conditional: if + present simple (earns) → won\'t + infinitive. A real, favourable outcome under the UK scheme.',
+        },
+        {
+          sentence: 'If Henrik ___ to declare the Swedish rental income, Germany ___ him interest and penalties.',
+          answer:   'fails / will charge',
+          wrong:    ['failed / would charge', 'fails / would charge', 'will fail / will charge'],
+          explain:  'First conditional for a warning: if + present simple (fails) → will + infinitive (will charge).',
+        },
+      ],
+    },
+
+    // ── SENTENCE BUILDER ────────────────────────────────────
+    sentences: [
+      {
+        words:  ['source', 'the', 'tax', 'Italy', 'is', 'country', 'right', 'has', 'the', 'first', 'to'],
+        answer: 'Italy is the source country and has the first right to tax',
+        hint:   '🇮🇹 Which country gets to tax rental income from a flat in Rome?',
+      },
+      {
+        words:  ['share', 'DAC7', 'platforms', 'host', 'automatically', 'requires', 'to', 'data', 'earnings'],
+        answer: 'DAC7 requires platforms to automatically share host earnings data',
+        hint:   '📱 What does the EU directive require Airbnb and Booking.com to do?',
+      },
+      {
+        words:  ['worldwide', 'Germany', 'residents', 'income', 'taxes', 'their'],
+        answer: 'Germany taxes residents on their worldwide income',
+        hint:   '🌍 Why does Germany want to know about Henrik\'s Swedish cabin?',
+      },
+      {
+        words:  ['prevents', 'the', 'same', 'taxed', 'treaty', 'income', 'being', 'twice', 'tax'],
+        answer: 'the tax treaty prevents the same income being taxed twice',
+        hint:   '🤝 What is the main purpose of a double taxation agreement?',
+      },
+    ],
+
+    // ── WORD BUILDER ────────────────────────────────────────
+    word_builder: [
+      { word:'principal',   definition:'Your main home — the place where you actually live' },
+      { word:'residence',   definition:'The country where you live and pay your main taxes' },
+      { word:'declaration', definition:'A formal report to the tax office of income earned' },
+      { word:'reporting',   definition:'Automatically sharing host data with tax authorities' },
+      { word:'allowance',   definition:'A tax-free amount before you owe income tax' },
+      { word:'treaty',      definition:'An agreement between two countries on taxing rights' },
+    ],
+
+    // ── TRUE / FALSE ─────────────────────────────────────────
+    true_false: [
+      {
+        statement: 'Since January 2023, Airbnb is required to report host earnings to EU tax authorities under DAC7.',
+        correct:   true,
+        reveal:    '✅ TRUE! DAC7 came into force on 1 January 2023. Platforms must collect and share host data automatically — the "Airbnb doesn\'t report" myth is dead.',
+      },
+      {
+        statement: 'If you rent your Italian flat while living in Germany, only Germany can tax the income.',
+        correct:   false,
+        reveal:    '❌ FALSE! Italy (the source country) has the first right to tax rental income from an Italian property. Germany may also tax it as worldwide income — but the treaty prevents real double taxation.',
+      },
+      {
+        statement: 'The UK Rent-a-Room Scheme allows up to £1,000 of gross rental income from your own home, tax-free.',
+        correct:   true,
+        reveal:    '✅ TRUE! And you don\'t even need to file a return if you earn under this amount from renting a room in your principal residence.',
+      },
+      {
+        statement: 'A tax treaty makes all cross-border rental income completely tax-free.',
+        correct:   false,
+        reveal:    '❌ FALSE! A tax treaty prevents DOUBLE taxation — not all taxation. You still owe tax somewhere; the treaty just prevents paying the full rate in two countries.',
+      },
+      {
+        statement: 'German tax residents must declare rental income from properties abroad, not just in Germany.',
+        correct:   true,
+        reveal:    '✅ TRUE! Germany taxes worldwide income. Whether the cabin is in Sweden or the flat is in France — Germany wants to know. A treaty credit prevents you paying full tax twice.',
+      },
+      {
+        statement: '"Short-term rental" usually means a tenancy of less than 30 days at a time.',
+        correct:   true,
+        reveal:    '✅ TRUE! Airbnb-style lets (a few nights, a few weeks) are typically defined as short-term. They often face stricter rules than long-term lets in many EU countries.',
+      },
+      {
+        statement: 'Platform reporting means the host must manually upload their earnings to the tax office each year.',
+        correct:   false,
+        reveal:    '❌ FALSE! Platform reporting means the PLATFORM (Airbnb, Booking.com etc.) sends the data automatically. Hosts have no control over it — it happens whether they like it or not.',
+      },
+      {
+        statement: '"Source country" means the country where you live and pay your main taxes.',
+        correct:   false,
+        reveal:    '❌ FALSE! That\'s the RESIDENCE country. The source country is where the INCOME is earned — i.e. where the property is. Two different things!',
+      },
+    ],
+
+  },
  
    };
 
