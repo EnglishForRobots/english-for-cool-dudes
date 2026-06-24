@@ -1283,9 +1283,9 @@ const LESSON_DATA_REGISTRY = {
       hint:   '🥅 What did Harry win in 2018, and why?',
     },
      {
-      words:  ['the', 'missed', 'never', 'penalty', 'Kane', 'has', 'a', 'Bundesliga', 'in'],
-      answer: 'Kane has never missed a penalty in the Bundesliga',
-      hint:   '🎯 Harry Kane has a great record for something.',
+      words:  ['the', 'missed', 'never', 'penalty', 'Kane', 'had', 'a', 'Bundesliga', 'in'],
+      answer: 'Kane had never missed a penalty in the Bundesliga',
+      hint:   '🎯 Harry Kane had a great record for something until very recently.',
     },
      {
       words:  ['million', 'cost', 'transfer', 'Munich', 'hundred', 'to', 'euros', 'His', 'Bayern', 'one', 'around'],
@@ -1313,9 +1313,9 @@ const LESSON_DATA_REGISTRY = {
       reveal:    '✅ TRUE! Leyton Orient, Millwall, Norwich City and Leicester City.',
     },
     {
-      statement: 'Kane has missed several penalties in the Bundesliga.',
-      correct:   false,
-      reveal:    '❌ FALSE! He has scored all 23 of his Bundesliga penalties.',
+      statement: 'Kane has a near 100% penalty scoring record in the Bundesliga.',
+      correct:   true,
+      reveal:    '✅ TRUE! He only recently missed after scoring all 23 of his Bundesliga penalties.',
     },
     {
       statement: 'Kane won the Bundesliga top scorer award in both his first two seasons.',
