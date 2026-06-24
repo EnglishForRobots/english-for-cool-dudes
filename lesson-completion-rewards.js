@@ -506,6 +506,22 @@
     { word:'diluted',            definition:"When a shareholder's ownership percentage decreases." },
   ],
 },
+
+     'gut-genug-beginner': {
+  title:   'Du bist gut genug — You Are Good Enough!',
+  level:   'Beginner',
+  grammar: 'Present simple — facts and routines (he/she/it + -s); past simple — regular and irregular verbs',
+  vocab: [
+    { word:'popular',   definition:'Liked by many people' },
+    { word:'share',     definition:'To send something to other people online' },
+    { word:'melody',    definition:'The main tune of a song — the part you sing or hum' },
+    { word:'mishear',   definition:'To hear words incorrectly and understand the wrong thing' },
+    { word:'comment',   definition:'A message you write online about something' },
+    { word:'pressure',  definition:'The feeling that you must be perfect or do something difficult' },
+    { word:'algorithm', definition:'The rules an app uses to decide what to show you' },
+    { word:'message',   definition:'The main idea or meaning of a song, film or book' },
+  ],
+},
  
 
   };
