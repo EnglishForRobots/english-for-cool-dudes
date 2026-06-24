@@ -1816,7 +1816,7 @@ const LESSON_DATA_REGISTRY = {
       { sentence:'Rents for small apartments can ___ €1,500 per month in Munich.',         answer:'reach',  wrong:['arrive at','come to','touch'],    explain:'"Reach" is the standard collocation with prices and levels. Not "arrive" or "come to" in formal written English.' },
       { sentence:'Rising construction costs have ___ Germany\'s housing shortage.',        answer:'driven', wrong:['caused','made','done'],            explain:'"Drive" is the journalistic verb for forces that produce crises and trends. More powerful than "cause" alone.' },
       { sentence:'His contribution ___ a powerful example of social responsibility.',      answer:'stands as', wrong:['is like','looks like','seems'], explain:'"Stand as" means to serve as an example or symbol. Fixed phrase — very common in opinion and analysis writing.' },
-      { sentence:'The foundation will ___ an impact on the community\'s future.',          answer:'make',   wrong:['do','have','give'],               explain:'"Make an impact" is the standard collocation. "Make a difference" also works. Never "do an impact".' },
+      { sentence:'The foundation will ___ an impact on the community\'s future.',          answer:'make',   wrong:['do','take','give'],               explain:'"Make an impact" is the standard collocation. "Make a difference" also works. Never "do an impact".' },
     ],
   },
 
