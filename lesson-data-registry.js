@@ -1871,7 +1871,7 @@ const LESSON_DATA_REGISTRY = {
     topic: 'Passive Voice — present, past and future passive',
     rule:  'Present passive: is/are + past participle. Past passive: was/were + past participle. Future passive: will be + past participle. Use passive when what happened matters more than who did it — essential in news, sports journalism and official announcements.',
     exercises: [
-      { sentence:'The tournament ___ from 32 to 48 teams in 2017.',         answer:'was expanded',    wrong:['expanded','is expanding','has expanded'],           explain:'Past passive: was + past participle. The tournament received the action.' },
+      { sentence:'The tournament ___ from 32 to 48 teams in 2026.',         answer:'was expanded',    wrong:['expanded','are expanded','expands'],           explain:'Past passive: was + past participle. The tournament received the action.' },
       { sentence:'48 teams ___ into 12 groups of four.',                    answer:'will be split',   wrong:['split','are splitting','will split'],                explain:'Future passive: will be + past participle. The tournament hasn\'t happened yet.' },
       { sentence:'The final ___ at MetLife Stadium on July the 19th.',      answer:'will be played',  wrong:['plays','is played','will play'],                     explain:'Future passive for a scheduled event. The final receives the action of being played.' },
       { sentence:'Qatar 2022 ___ as a very compact, geographically small tournament.', answer:'is remembered', wrong:['remembered','was remembering','has remembered'], explain:'Present passive for a general ongoing truth or reputation.' },
