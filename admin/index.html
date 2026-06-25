@@ -683,7 +683,7 @@ async function renderClasses(){
       const wsLink   = meta?.worksheetLink || null;
  
       return `
-        <div style="display:inline-flex;flex-direction:column;align-items:center;gap:4px;position:relative">
+        <div style="display:inline-flex;flex-direction:column;align-items:center;gap:4px">
           <a href="/review/?class=${cls.id}&lesson=${t.lessonId}"
              class="trophy-badge${isDue ? ' due' : ''}" style="${isDue ? `animation:pulse 2s ease-in-out infinite ${tIdx * 0.4}s` : ''}"
              title="${t.label}${isDue ? ' — review due! Click for this lesson, or use 🧠 SRS for all due items' : ''}"
@@ -807,16 +807,34 @@ async function endSession(classId){
 function openManage(classId){
   _managingClass = _classes.find(c => c.id === classId);
   if(!_managingClass) return;
-  _renderManageModal(classId);
+  await _renderManageModal
   document.getElementById('manage-modal').classList.add('open');
 }
 
-function _renderManageModal(classId){
+async function _renderManageModal(classId){
   _managingClass = _classes.find(c => c.id === classId);
   if(!_managingClass) return;
   const members     = _students.filter(s => s.class_id === classId);
   const EMOJIS      = ['😎','🌺','⭐','🎨','🦋','🎸','⚡','🎯','🌸','🦁','🌻','❄️','🌈','🎭','🔮','🌊','🌟','🦊','🏆','🚀','⚔️','🐉','🎪','🌙','☕','🍀','💎','🔥'];
   const otherClasses= _classes.filter(c => c.id !== classId);
+  // Get trophies for this class
+const { data: lessonBadges } = await sb
+  .from('efcd_badges')
+  .select('badge_key, badge_emoji, badge_label, awarded_at')
+  .eq('class_id', classId)
+  .like('badge_key', 'lesson_%')
+  .eq('is_manual', false);
+
+// Deduplicate
+const trophies = [];
+const seen = new Set();
+(lessonBadges || []).forEach(b => {
+  if (!seen.has(b.badge_key)) {
+    seen.add(b.badge_key);
+    trophies.push(b);
+  }
+});
+trophies.sort((a, b) => new Date(a.awarded_at) - new Date(b.awarded_at));
   document.getElementById('manage-modal-title').textContent = `${_managingClass.emoji} ${_managingClass.name}`;
   document.getElementById('manage-modal-body').innerHTML = `
     <div class="modal-section">
@@ -826,6 +844,22 @@ function _renderManageModal(classId){
         <button class="btn-save-team" onclick="saveTeamName('${classId}')">Save</button>
       </div>
     </div>
+    <div class="modal-section">
+  <div class="modal-section-title">Trophy Cabinet (${trophies.length})</div>
+  ${trophies.length ? trophies.map(t => {
+    const lessonId = t.badge_key.replace('lesson_', '');
+    const dateStr  = new Date(t.awarded_at).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+    return `
+      <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:22px">${t.badge_emoji}</span>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:900;color:var(--ink-bold)">${t.badge_label}</div>
+          <div style="font-size:11px;font-weight:700;color:var(--ink-3)">${dateStr}</div>
+        </div>
+        
+      </div>`;
+  }).join('') : '<div style="font-size:13px;font-weight:700;color:var(--ink-3);padding:8px 0">No lessons completed yet.</div>'}
+</div>
     <div class="modal-section">
       <div class="modal-section-title">Students (${members.length})</div>
       <div id="manage-students-list">
@@ -869,7 +903,7 @@ async function removeStudentFromClass(studentId, classId){
   if(error){ toast('❌', error.message); return; }
   toast('🗑️', student.name + ' removed');
   await loadEverything();
-  _renderManageModal(classId);
+  await _renderManageModal(classId);
 }
 
 async function moveStudentToClass(studentId, currentClassId){
@@ -887,24 +921,7 @@ async function moveStudentToClass(studentId, currentClassId){
   _renderManageModal(currentClassId);
 }
 
-async function removeLessonBadgeFromClass(event, classId, lessonId) {
-  event.preventDefault();
-  const cls = _classes.find(c => c.id === classId);
-  if (!cls) return;
-  const meta = LESSON_META[lessonId] || { title: lessonId };
-  if (!confirm(`Remove "${meta.title}" from ${cls.emoji} ${cls.name}'s trophy cabinet?\n\nThis deletes the lesson badge. Scores and SRS data are kept.`)) return;
 
-  const { error } = await sb
-    .from('efcd_badges')
-    .delete()
-    .eq('class_id', classId)
-    .eq('badge_key', 'lesson_' + lessonId)
-    .eq('is_manual', false);
-
-  if (error) { toast('❌', error.message); return; }
-  toast('🗑️', `"${meta.title}" removed from trophy cabinet`);
-  await loadEverything();
-}
 
 // ── LEADERBOARD ────────────────────────────────────────────────
 async function renderLeaderboard(){
