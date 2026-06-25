@@ -694,6 +694,14 @@ async function renderClasses(){
               <div class="trophy-badge-date">${dateStr}</div>
             </div>
           </a>
+          <button
+      onclick="removeLessonBadgeFromClass(event,'${cls.id}','${t.lessonId}')"
+      title="Remove this lesson from trophy cabinet"
+      style="font-size:10px;font-weight:900;color:var(--punch);background:rgba(255,75,75,.1);
+             border:1.5px solid rgba(255,75,75,.25);border-radius:5px;
+             padding:2px 7px;cursor:pointer;font-family:inherit;margin-top:2px">
+      ✕ remove
+    </button>
           ${wsLink
             ? `<a href="${wsLink}?from=admin"
              target="_blank"
@@ -876,6 +884,25 @@ async function moveStudentToClass(studentId, currentClassId){
   toast('✅', `${student.name} moved to ${newClass.name}!`);
   await loadEverything();
   _renderManageModal(currentClassId);
+}
+
+async function removeLessonBadgeFromClass(event, classId, lessonId) {
+  event.preventDefault();
+  const cls = _classes.find(c => c.id === classId);
+  if (!cls) return;
+  const meta = LESSON_META[lessonId] || { title: lessonId };
+  if (!confirm(`Remove "${meta.title}" from ${cls.emoji} ${cls.name}'s trophy cabinet?\n\nThis deletes the lesson badge. Scores and SRS data are kept.`)) return;
+
+  const { error } = await sb
+    .from('efcd_badges')
+    .delete()
+    .eq('class_id', classId)
+    .eq('badge_key', 'lesson_' + lessonId)
+    .eq('is_manual', false);
+
+  if (error) { toast('❌', error.message); return; }
+  toast('🗑️', `"${meta.title}" removed from trophy cabinet`);
+  await loadEverything();
 }
 
 // ── LEADERBOARD ────────────────────────────────────────────────
