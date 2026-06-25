@@ -57,7 +57,7 @@ const LESSON_DATA_REGISTRY = {
         word:        'crowded',
         definition:  'Full of people — the opposite of empty',
         example:     'The Central Line is extremely ___ during rush hour every morning.',
-        distractors: ['delayed', 'fast', 'busy'],
+        distractors: ['delayed', 'fast', 'business'],
       },
       {
         word:        'underground',
