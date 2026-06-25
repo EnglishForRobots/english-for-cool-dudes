@@ -468,17 +468,27 @@ function enterClassMode(){
   if(!_class) return;
   const displayName = _class.team_name || _class.name;
 
-  // Header pill
-  const pillWrap = document.getElementById('class-pill-wrap');
-  if(pillWrap) pillWrap.innerHTML = `
+ // In enterClassMode(), replace the pillWrap.innerHTML block:
+
+const pillWrap = document.getElementById('class-pill-wrap');
+if(pillWrap){
+  const presentMembers = _classMembers.filter(m => _presentNames.includes(m.name));
+  const MAX_SHOW = 9; // show up to 3 names before collapsing
+  const shown  = presentMembers.slice(0, MAX_SHOW).map(m => m.name).join(', ');
+  const extra  = presentMembers.length > MAX_SHOW ? ` +${presentMembers.length - MAX_SHOW}` : '';
+  const pillText = presentMembers.length
+    ? shown + extra
+    : displayName;
+
+  pillWrap.innerHTML = `
     <div class="class-pill" onclick="leaveClass()">
       <span class="class-pill-emoji">${_class.emoji}</span>
       <div>
-        <div class="class-pill-text">${displayName}</div>
+        <div class="class-pill-text">${pillText}</div>
         <div class="class-pill-sub">Tap to leave</div>
       </div>
     </div>`;
-
+}
   // Present chips
   const presentMembers = _classMembers.filter(m => _presentNames.includes(m.name));
   const chipsHTML = presentMembers.map(m =>
