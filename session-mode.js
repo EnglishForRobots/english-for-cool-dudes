@@ -43,9 +43,7 @@
   // ── DISPLAY HELPERS ─────────────────────────────────────────
   function _label() {
     if (!_names.length) return 'Class session 🚇';
-    if (_names.length === 1) return _names[0] + ' 🚇';
-    if (_names.length === 2) return _names[0] + ' & ' + _names[1] + ' 🚇';
-    return _names.slice(0, 2).join(', ') + ' +' + (_names.length - 2) + ' 🚇';
+    return _names.join(', ') + ' 🚇';
   }
 
   // ── HEADER ──────────────────────────────────────────────────
