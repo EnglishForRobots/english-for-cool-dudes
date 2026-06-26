@@ -623,13 +623,17 @@ function updateProgress(){
     }).join('');
 }
 
-function revealSection(id){
+function revealSection(id, preventScroll){
     var sec=document.getElementById(id);
     if(!sec||sec.classList.contains('visible'))return;
     var inits={'sec-hottakes':renderHotTakes,'sec-ftm':renderFTM,'sec-match':renderMatch,'sec-clock':renderClockIntro};
     if(inits[id])inits[id]();
     sec.classList.add('visible');
-    setTimeout(function(){sec.scrollIntoView({behavior:'smooth',block:'start'});},80);
+    
+    // Only trigger the scroll if preventScroll is false or undefined
+    if (!preventScroll) {
+        setTimeout(function(){sec.scrollIntoView({behavior:'smooth',block:'start'});},80);
+    }
 }
 
 /* ═══════════ START ═══════════ */
@@ -639,8 +643,14 @@ function startLesson(){
     buildAll();
     setTimeout(function(){
         var videoCard=$('sec-video');
-        if(videoCard){videoCard.style.opacity='1';videoCard.style.transform='translateY(0)';}
-        revealSection('sec-reading');
+        if(videoCard){
+            videoCard.style.opacity='1';
+            videoCard.style.transform='translateY(0)';
+            // Make the browser scroll to the video card specifically
+            setTimeout(function(){ videoCard.scrollIntoView({behavior:'smooth',block:'start'}); }, 80);
+        }
+        // Reveal the reading section, but tell it NOT to scroll down to it
+        revealSection('sec-reading', true); 
     },300);
     addXP(5);
     window.EFCD_FX&&window.EFCD_FX.toast&&window.EFCD_FX.toast('🍕','Issue 010 — The Pizza Wars! +5 XP');
