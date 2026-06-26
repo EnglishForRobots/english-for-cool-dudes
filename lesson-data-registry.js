@@ -2714,6 +2714,74 @@ const LESSON_DATA_REGISTRY = {
     ],
 
   },
+
+   'weekly-drop-issue-010': {
+    id:    'weekly-drop-issue-010',
+    title: 'The Weekly Drop — Issue 010 — The Pizza Wars: Why Pizza Hut Got Sold',
+    level: 'All Levels',
+    track: 'weekly-drop',
+    emoji: '🍕',
+    badge: 'Pizza War Pro',
+
+    vocab: [
+      { word:'iconic',          definition:'Very famous and widely recognised — considered a symbol of something',                    example:'Pizza Hut is one of the most ___ restaurant brands in the world.',               distractors:['popular','profitable','global'] },
+      { word:'spin off',        definition:'When a company separates one part of its business into a new, independent company',       example:'PepsiCo ___ its restaurant brands, which became Yum! Brands in 1997.',             distractors:['buy out','merge','franchise'] },
+      { word:'private equity',  definition:'Investment firms that buy companies to make them more profitable',                        example:'___ firm LongRange Capital is paying $1.5 billion for Pizza Hut\'s international operations.', distractors:['central bank','hedge fund','stock exchange'] },
+      { word:'divest',          definition:'When a company sells off a part of its business',                                        example:'Yum! Brands decided to ___ Pizza Hut and focus on KFC and Taco Bell.',              distractors:['acquire','franchise','rebrand'] },
+      { word:'stagnate',        definition:'To stop growing — sales become flat',                                                    example:'The dine-in pizza market began to ___ as delivery services took over.',             distractors:['collapse','recover','expand'] },
+      { word:'nimble',          definition:'Quick to adapt to changing conditions',                                                  example:'In China, Pizza Hut was ___ enough to adapt its menu for local tastes.',           distractors:['dominant','cautious','corporate'] },
+      { word:'dilute',          definition:'To weaken something by spreading it thinner',                                            example:'Delivery apps ___ Pizza Hut\'s dominance by giving customers more choices.',        distractors:['boost','challenge','replace'] },
+      { word:'administration',  definition:'UK legal process to rescue or wind down an insolvent company',                           example:'Many Pizza Hut UK franchise sites went into ___ during the COVID-19 pandemic.',   distractors:['liquidation','privatisation','regulation'] },
+    ],
+
+    grammar: {
+      topic: 'Past simple — regular and irregular verbs',
+      rule:  'Past simple for finished actions. Regular: add -ED (decided, stagnated). Irregular: must learn (sell → sold, buy → bought, become → became, spin → spun). The form does not change for different subjects.',
+      exercises: [
+        { sentence:'PepsiCo ___ Pizza Hut for $320 million in 1977.',                  answer:'bought',  wrong:['buyed','buy','has bought'],      explain:'Irregular: buy → bought. Never "buyed" — this is a very common mistake.' },
+        { sentence:'In 1997, PepsiCo ___ its restaurant brands into a new company.',   answer:'spun off',wrong:['spinned off','spin off','has spun off'], explain:'Irregular: spin → spun. "Spinned" does not exist.' },
+        { sentence:'Domino\'s ___ its delivery model to beat Pizza Hut in the US.',    answer:'used',    wrong:['use','was using','has used'],     explain:'Regular past simple: use → used. Completed strategy in the past.' },
+        { sentence:'Pizza Hut ___ the biggest pizza chain on the planet in the 2000s.',answer:'became',  wrong:['becomed','become','was become'],  explain:'Irregular: become → became. Never "becomed".' },
+      ],
+    },
+
+    grammar2: {
+      topic: 'Passive Voice — present and past passive in business news',
+      rule:  'Present passive: is/are + past participle. Past passive: was/were + past participle. In business news, passive focuses on what happened rather than who did it. "Pizza Hut was sold." "The deal is structured as two separate payments."',
+      exercises: [
+        { sentence:'Pizza Hut ___ by Yum! Brands for $2.7 billion in 2026.',           answer:'was sold',    wrong:['sold','is sold','has sold'],            explain:'Past passive: was + past participle. The deal is complete — use past.' },
+        { sentence:'The international operations ___ to LongRange Capital.',           answer:'are being sold', wrong:['sold','are sold','were sold'],         explain:'Present passive continuous for an ongoing deal being completed now.' },
+        { sentence:'Pizza Hut ___ in Wichita, Kansas by two brothers in 1958.',        answer:'was founded',  wrong:['founded','was founding','has founded'], explain:'Past passive for a historical fact: was + past participle.' },
+        { sentence:'In China, Pizza Hut\'s menu ___ to suit local customers.',         answer:'has been adapted', wrong:['adapted','was adapting','is adapting'], explain:'Present perfect passive: has been + past participle — result of a past change still relevant now.' },
+      ],
+    },
+
+    sentences: [
+      { words:['bought','1977','PepsiCo','for','in','Pizza','Hut','million','$320'],            answer:'PepsiCo bought Pizza Hut for $320 million in 1977',          hint:'💰 What was the price of Pizza Hut in 1977?' },
+      { words:['dine-in','Pizza','Hut','known','was','for','restaurants'],                      answer:'Pizza Hut was known for dine-in restaurants',                hint:'🪑 What was Pizza Hut famous for?' },
+      { words:['in','is','the','Pizza','brand','China','casual','Hut','biggest','dining'],      answer:'Pizza Hut is the biggest casual dining brand in China',      hint:'🇨🇳 How big is Pizza Hut in China?' },
+      { words:['on','focus','Bell','to','KFC','Yum!','Taco','and','wants'],                     answer:'Yum! wants to focus on KFC and Taco Bell',                  hint:'🍗 What does Yum! Brands want to do after the sale?' },
+    ],
+
+    word_builder: [
+      { word:'divest',    definition:'To sell off part of your business' },
+      { word:'stagnate',  definition:'To stop growing — flat sales' },
+      { word:'iconic',    definition:'Famous enough to be a symbol of something bigger' },
+      { word:'nimble',    definition:'Quick to adapt to change' },
+      { word:'dilute',    definition:'To weaken by spreading thinner' },
+    ],
+
+    true_false: [
+      { statement:'Pizza Hut was founded in the United Kingdom.',                                   correct:false, reveal:'❌ FALSE! Pizza Hut was founded in Wichita, Kansas — in the United States — by two brothers in 1958.' },
+      { statement:'Yum! Brands is selling Pizza Hut for a total of $2.7 billion.',                  correct:true,  reveal:'✅ TRUE! $1.5 billion to LongRange Capital (non-China) + $1.2 billion to Yum China = $2.7 billion total.' },
+      { statement:'Domino\'s success came mainly from its dine-in restaurant model.',               correct:false, reveal:'❌ FALSE! Domino\'s was built on DELIVERY, not dine-in. That is exactly why it beat Pizza Hut as the market shifted.' },
+      { statement:'Pizza Hut is actually doing very well in China.',                                correct:true,  reveal:'✅ TRUE! Pizza Hut is the largest casual dining brand in mainland China with $2.3 billion in annual sales.' },
+      { statement:'"Divest" means to buy a new business.',                                          correct:false, reveal:'❌ FALSE! "Divest" is the opposite — it means to SELL OFF a part of your business. Yum! is divesting Pizza Hut.' },
+      { statement:'A company that has "stagnated" is growing very quickly.',                        correct:false, reveal:'❌ FALSE! "Stagnate" means to STOP growing. A stagnating market has flat sales and no expansion.' },
+      { statement:'In 2025, Yum! Brands first announced it was considering selling Pizza Hut.',     correct:true,  reveal:'✅ TRUE! They revealed the potential sale in November 2025 — after several quarters of declining US same-store sales.' },
+      { statement:'"Administration" in the UK is similar to bankruptcy protection in the US.',      correct:true,  reveal:'✅ TRUE! When a company goes into administration in the UK, an administrator takes over to try to rescue it — similar to Chapter 11 bankruptcy protection in the US.' },
+    ],
+  },
  
    };
 
