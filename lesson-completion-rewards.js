@@ -538,7 +538,22 @@
     { word:'engagement',  definition:'How users interact with content — likes, comments, shares, watch time' },
   ],
 },
- 
+
+     'weekly-drop-issue-010': {
+      title:   'The Weekly Drop — Issue 010 — The Pizza Wars: Why Pizza Hut Got Sold',
+      level:   'All Levels',
+      grammar: 'Past simple (regular and irregular verbs); passive voice in business news (was sold, is being sold)',
+      vocab: [
+        { word:'iconic',         definition:'Very famous and widely recognised — considered a symbol of something' },
+        { word:'spin off',       definition:'When a company separates one part of its business into a new, independent company' },
+        { word:'private equity', definition:'Investment firms that buy companies to make them more profitable' },
+        { word:'divest',         definition:'When a company sells off a part of its business' },
+        { word:'stagnate',       definition:'To stop growing — sales become flat' },
+        { word:'nimble',         definition:'Quick to adapt to changing conditions' },
+        { word:'dilute',         definition:'To weaken something by spreading it thinner' },
+        { word:'administration', definition:'UK legal process to rescue or wind down an insolvent company' },
+      ],
+    },
 
   };
 
