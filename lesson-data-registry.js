@@ -2725,12 +2725,12 @@ const LESSON_DATA_REGISTRY = {
 
     vocab: [
       { word:'iconic',          definition:'Very famous and widely recognised — considered a symbol of something',                    example:'Pizza Hut is one of the most ___ restaurant brands in the world.',               distractors:['popular','profitable','global'] },
-      { word:'spin off',        definition:'When a company separates one part of its business into a new, independent company',       example:'PepsiCo ___ its restaurant brands, which became Yum! Brands in 1997.',             distractors:['buy out','merge','franchise'] },
+      { word:'spun off',        definition:'When a company separates one part of its business into a new, independent company',       example:'PepsiCo ___ its restaurant brands, which became Yum! Brands in 1997.',             distractors:['bought out','merged','franchised'] },
       { word:'private equity',  definition:'Investment firms that buy companies to make them more profitable',                        example:'___ firm LongRange Capital is paying $1.5 billion for Pizza Hut\'s international operations.', distractors:['central bank','hedge fund','stock exchange'] },
       { word:'divest',          definition:'When a company sells off a part of its business',                                        example:'Yum! Brands decided to ___ Pizza Hut and focus on KFC and Taco Bell.',              distractors:['acquire','franchise','rebrand'] },
       { word:'stagnate',        definition:'To stop growing — sales become flat',                                                    example:'The dine-in pizza market began to ___ as delivery services took over.',             distractors:['collapse','recover','expand'] },
       { word:'nimble',          definition:'Quick to adapt to changing conditions',                                                  example:'In China, Pizza Hut was ___ enough to adapt its menu for local tastes.',           distractors:['dominant','cautious','corporate'] },
-      { word:'dilute',          definition:'To weaken something by spreading it thinner',                                            example:'Delivery apps ___ Pizza Hut\'s dominance by giving customers more choices.',        distractors:['boost','challenge','replace'] },
+      { word:'diluted',          definition:'To weaken something by spreading it thinner',                                            example:'Delivery apps ___ Pizza Hut\'s dominance by giving customers more choices.',        distractors:['boosted','challenged','replaced'] },
       { word:'administration',  definition:'UK legal process to rescue or wind down an insolvent company',                           example:'Many Pizza Hut UK franchise sites went into ___ during the COVID-19 pandemic.',   distractors:['liquidation','privatisation','regulation'] },
     ],
 
@@ -2760,7 +2760,7 @@ const LESSON_DATA_REGISTRY = {
       { words:['bought','1977','PepsiCo','for','in','Pizza','Hut','million','$320'],            answer:'PepsiCo bought Pizza Hut for $320 million in 1977',          hint:'💰 What was the price of Pizza Hut in 1977?' },
       { words:['dine-in','Pizza','Hut','known','was','for','restaurants'],                      answer:'Pizza Hut was known for dine-in restaurants',                hint:'🪑 What was Pizza Hut famous for?' },
       { words:['in','is','the','Pizza','brand','China','casual','Hut','biggest','dining'],      answer:'Pizza Hut is the biggest casual dining brand in China',      hint:'🇨🇳 How big is Pizza Hut in China?' },
-      { words:['on','focus','Bell','to','KFC','Yum!','Taco','and','wants'],                     answer:'Yum! wants to focus on KFC and Taco Bell',                  hint:'🍗 What does Yum! Brands want to do after the sale?' },
+      { words:['on','focus','Bell','to','KFC','Yum!','Taco','and','wants'],                     answer:'Yum! wants to focus on KFC and Taco Bell', altAnswers:['Yum! wants to focus on Taco Bell and KFC'],                 hint:'🍗 What does Yum! Brands want to do after the sale?' },
     ],
 
     word_builder: [
