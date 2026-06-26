@@ -2638,7 +2638,7 @@ const LESSON_DATA_REGISTRY = {
     // ── SENTENCE BUILDER ────────────────────────────────────
     sentences: [
       {
-        words:  ['source', 'the', 'tax', 'Italy', 'is', 'country', 'right', 'has', 'the', 'first', 'to'],
+        words:  ['source', 'the', 'tax', 'Italy', 'is', 'and', 'country', 'right', 'has', 'the', 'first', 'to'],
         answer: 'Italy is the source country and has the first right to tax',
         hint:   '🇮🇹 Which country gets to tax rental income from a flat in Rome?',
       },
@@ -2648,12 +2648,12 @@ const LESSON_DATA_REGISTRY = {
         hint:   '📱 What does the EU directive require Airbnb and Booking.com to do?',
       },
       {
-        words:  ['worldwide', 'Germany', 'residents', 'income', 'taxes', 'their'],
+        words:  ['worldwide', 'Germany', 'residents', 'income', 'taxes', 'their', 'on'],
         answer: 'Germany taxes residents on their worldwide income',
         hint:   '🌍 Why does Germany want to know about Henrik\'s Swedish cabin?',
       },
       {
-        words:  ['prevents', 'the', 'same', 'taxed', 'treaty', 'income', 'being', 'twice', 'tax'],
+        words:  ['prevents', 'the', 'same', 'taxed', 'treaty', 'the', 'income', 'being', 'twice', 'tax'],
         answer: 'the tax treaty prevents the same income being taxed twice',
         hint:   '🤝 What is the main purpose of a double taxation agreement?',
       },
