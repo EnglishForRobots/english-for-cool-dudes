@@ -2782,6 +2782,74 @@ const LESSON_DATA_REGISTRY = {
       { statement:'"Administration" in the UK is similar to bankruptcy protection in the US.',      correct:true,  reveal:'✅ TRUE! When a company goes into administration in the UK, an administrator takes over to try to rescue it — similar to Chapter 11 bankruptcy protection in the US.' },
     ],
   },
+
+   'the-office-is-back': {
+  id:    'the-office-is-back',
+  title: 'The Office Is Back. Whether You Like It or Not.',
+  level: 'Intermediate',
+  track: 'intermediate',
+  emoji: '🏢',
+  badge: 'Office Survivor',
+
+  vocab: [
+    { word:'mandate',      definition:'An official order or requirement that must be obeyed',                    example:'Management issued a ___ requiring all staff back by Monday.',                    distractors:['guideline','suggestion','request'] },
+    { word:'morale',       definition:'The confidence, enthusiasm, and happiness of a group',                   example:'After the announcement, ___ in the team absolutely collapsed.',                  distractors:['attitude','salary','performance'] },
+    { word:'hybrid',       definition:'A working model combining office and home days',                         example:'We had a ___ model — two days in, three from home.',                             distractors:['flexible','remote','part-time'] },
+    { word:'pushback',     definition:'Resistance or opposition to a plan or decision',                         example:'The memo got enormous ___ — 47 angry replies in the first hour.',                distractors:['feedback','response','complaint'] },
+    { word:'retention',    definition:'A company\'s ability to keep its employees from leaving',                example:'If we force people back five days a week, our ___ figures will be a disaster.',   distractors:['recruitment','performance','headcount'] },
+    { word:'autonomy',     definition:'The freedom to make your own decisions at work',                         example:'Working from home gave me ___ over my schedule.',                               distractors:['flexibility','freedom','privilege'] },
+    { word:'productivity', definition:'The amount of useful work achieved in a given time',                     example:'Studies show remote workers report higher ___ than office workers.',             distractors:['efficiency','output','workload'] },
+    { word:'commute',      definition:'The regular journey between home and work',                              example:'I used to spend three hours a day on the ___.',                                 distractors:['journey','travel','trip'] },
+  ],
+
+  grammar: {
+    topic: 'Reported Speech — backshifting tenses',
+    rule:  'When reporting what someone said, tenses shift back: present simple → past simple, will → would, can → could, must/have to → had to.',
+    exercises: [
+      { sentence:'The CEO said the return to office ___ from Monday 7 July.',                answer:'would take effect',         wrong:['will take effect','takes effect','took effect'],                    explain:'"will take effect" → "would take effect". Standard reported speech backshift.' },
+      { sentence:'Priya said there ___ no productivity data in the memo.',                    answer:'was',                      wrong:['is','has been','were'],                                             explain:'"is" → "was". Present simple shifts to past simple.' },
+      { sentence:'Tom said the pushback from team leads ___ significant.',                    answer:'had been',                 wrong:['has been','was being','is'],                                        explain:'"has been" → "had been". Present perfect shifts to past perfect.' },
+      { sentence:'Fatima said the hybrid schedule ___ the only reason she ___ manage childcare.', answer:'had been / could',    wrong:['was / can','has been / could','had been / can'],                    explain:'Two backshifts in one sentence: "was" → "had been" and "can" → "could".' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Mixed Conditionals and Inversion',
+    rule:  '3rd conditional: If + past perfect → would have + past participle. Mixed conditional: If + past perfect → would + infinitive (ongoing result). Inversion: "Hardly had he walked in when..." — subject and auxiliary swap after negative adverbials.',
+    exercises: [
+      { sentence:'If the company ___ a hybrid model, people ___ for new jobs by now.',       answer:'hadn\'t scrapped / wouldn\'t be looking', wrong:['didn\'t scrap / won\'t look','hadn\'t scrapped / wouldn\'t look','didn\'t scrap / wouldn\'t be looking'], explain:'Mixed conditional: past perfect cause → present continuous result.' },
+      { sentence:'Hardly ___ the memo when his phone ___ with Slack notifications.',          answer:'had he sent / started',  wrong:['he had sent / started','he sent / had started','did he send / started'],              explain:'Inversion after "Hardly": auxiliary moves before subject → "Hardly HAD HE sent".' },
+      { sentence:'The employees demanded ___ before the policy was announced.',               answer:'to be consulted',        wrong:['to consult','being consulting','have consulted'],                                        explain:'Passive infinitive after "demand": to be + past participle. They demanded consulting happened TO THEM.' },
+      { sentence:'It\'s time companies ___ that flexibility is an expectation, not a perk.', answer:'stopped pretending',     wrong:['stop pretending','to stop pretending','had stopped to pretend'],                        explain:'"It\'s time + subject + past simple" — a present wish/criticism. The past form doesn\'t mean past time.' },
+    ],
+  },
+
+  sentences: [
+    { words:['office','every','level','at','applies','The','policy','to','member','team'], answer:'The policy applies to every team member at every level', hint:'📧 What does the CEO\'s memo say about who must return?' },
+    { words:['cannot','on','screen','energy','be','a','The','replicated'], answer:'The energy cannot be replicated on a screen', hint:'💬 What does the CEO say about working together in person?' },
+    { words:['already','Marcus','LinkedIn','on','I\'m'], answer:'I\'m already on LinkedIn', hint:'😤 What does Marcus say he is doing?' },
+    { words:['final','as','Watch','suggests','this','space','might','not','it','be'], answer:'Watch this space it might not be as final as it suggests', hint:'👀 What does Tom the Team Lead tell the group?' },
+  ],
+
+  word_builder: [
+    { word:'mandate',     definition:'An official order that must be obeyed' },
+    { word:'hybrid',      definition:'Combining office and home working' },
+    { word:'pushback',    definition:'Resistance to a plan or decision' },
+    { word:'autonomy',    definition:'Freedom to make your own decisions' },
+    { word:'retention',   definition:'Keeping employees from leaving' },
+    { word:'commute',     definition:'The journey between home and work' },
+  ],
+
+  true_false: [
+    { statement:'The CEO\'s memo applies to all staff, including senior management.', correct:true,  reveal:'✅ TRUE! "Every team member, at every level." In theory it includes management — though Marcus has his doubts.' },
+    { statement:'The memo includes productivity data to support the return-to-office decision.', correct:false, reveal:'❌ FALSE! The memo mentions "energy" and "culture" — zero productivity data. That\'s exactly Priya\'s point.' },
+    { statement:'Every employee in the Slack thread is opposed to the policy.', correct:false, reveal:'❌ FALSE! Dave from Sales says he\'s "kind of looking forward to it" — he misses the social side of the office.' },
+    { statement:'Fatima says the hybrid schedule was important for her childcare arrangements.', correct:true,  reveal:'✅ TRUE! She says five days in the office "isn\'t possible without major changes at home" because of her two young children.' },
+    { statement:'Marcus says he is already looking for a new job on LinkedIn.', correct:true,  reveal:'✅ TRUE! "I\'m already on LinkedIn." A very real reaction companies face after sudden RTO announcements.' },
+    { statement:'Research shows that most workers hate offices and prefer working from home full-time.', correct:false, reveal:'❌ FALSE! Research shows most workers don\'t hate offices — they hate MANDATES. Given the choice, most pick a hybrid model.' },
+    { statement:'Tom (Team Lead) confirms the policy has been reversed after significant pushback.', correct:false, reveal:'❌ FALSE! Tom says the pushback "has been significant" and the policy "might not be as final as it seems." Cautiously hopeful — but no reversal confirmed.' },
+  ],
+},
  
    };
 
