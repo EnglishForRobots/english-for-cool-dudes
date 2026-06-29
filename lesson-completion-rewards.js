@@ -555,6 +555,22 @@
       ],
     },
 
+     'the-office-is-back': {
+  title:   'The Office Is Back. Whether You Like It or Not.',
+  level:   'Intermediate',
+  grammar: 'Reported speech (backshifting); mixed conditionals; inversion after negative adverbials; passive infinitive',
+  vocab: [
+    { word:'mandate',      definition:'An official order or requirement that must be obeyed' },
+    { word:'morale',       definition:'The confidence, enthusiasm, and happiness of a group' },
+    { word:'hybrid',       definition:'A working model combining office and home days' },
+    { word:'pushback',     definition:'Resistance or opposition to a plan or decision' },
+    { word:'retention',    definition:'A company\'s ability to keep its employees from leaving' },
+    { word:'autonomy',     definition:'The freedom to make your own decisions at work' },
+    { word:'productivity', definition:'The amount of useful work achieved in a given time' },
+    { word:'commute',      definition:'The regular journey between home and work' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
