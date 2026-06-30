@@ -571,6 +571,22 @@
   ],
 },
 
+     'hastings-1066': {
+  title:   '1066 — The Day England Changed Forever',
+  level:   'Intermediate',
+  grammar: 'Past Simple (regular & irregular verbs); Passive Voice — past passive in historical narrative',
+  vocab: [
+    { word:'evenly matched',     definition:'Two sides that are equally strong, so it is hard to predict the winner' },
+    { word:'withstand',          definition:'To resist or survive something difficult, like an attack' },
+    { word:'assault',            definition:'A violent, forceful attack' },
+    { word:'infantry',           definition:'Soldiers who fight on foot, not on horseback' },
+    { word:'cavalry',            definition:'Soldiers who fight on horseback' },
+    { word:'strengthen',         definition:'To make something stronger or more powerful' },
+    { word:'gain the upper hand',definition:'To get an advantage over your opponent' },
+    { word:'fearsome',           definition:'Causing fear; frightening because of great power or appearance' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
