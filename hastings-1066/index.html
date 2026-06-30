@@ -141,6 +141,21 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .article-highlight{background:rgba(255,200,0,.15);border-left:4px solid var(--yellow);border-radius:0 var(--rxs) var(--rxs) 0;padding:12px 14px;margin:14px 0;font-size:14px;font-weight:800;color:var(--ink-bold);line-height:1.6}
 .article-highlight strong{color:#8a6000}
 
+/* ── ARTICLE FLIP CARDS ── */
+.ac-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+@media(max-width:420px){.ac-grid{grid-template-columns:1fr}}
+.ac-card{perspective:1000px;height:140px;background:none;padding:0;font-family:inherit}
+.ac-card-inner{position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d}
+.ac-card.flipped .ac-card-inner{transform:rotateY(180deg)}
+.ac-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--rsm);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px;border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy)}
+.ac-front{background:linear-gradient(135deg,#1a0505,#3a0a0a);border-color:rgba(255,75,75,.3)}
+.ac-icon{font-size:30px;display:block;margin-bottom:6px}
+.ac-front-text{font-size:13px;font-weight:900;color:#fff;line-height:1.4}
+.ac-tap-hint{font-size:10px;font-weight:800;color:rgba(255,255,255,.5);margin-top:8px;text-transform:uppercase;letter-spacing:1px}
+.ac-back{background:rgba(255,200,0,.12);border-color:var(--yellow-shadow);transform:rotateY(180deg)}
+.ac-back-text{font-size:13px;font-weight:800;color:var(--ink-bold);line-height:1.5}
+.ac-counter{text-align:center;font-size:12px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+
 /* ── VOCAB BLITZ ── */
 .vb-progress{display:flex;gap:5px;margin-bottom:16px}
 .vb-pip{flex:1;height:6px;border-radius:99px;background:var(--border-heavy);transition:background .3s}
@@ -475,6 +490,15 @@ const VOCABULARY = [
   { word:'fearsome',        definition:'Causing fear; frightening because of its power or appearance' },
 ];
 
+const ARTICLE_CARDS = [
+  { icon:'⚔️', front:'How big were the armies?', back:'Around 5,000–7,000 soldiers each — almost perfectly evenly matched!' },
+  { icon:'🏹', front:'Who had the secret weapon?', back:'The Normans! Skilled archers gave William a key edge the English didn\'t have.' },
+  { icon:'🛡️', front:'How did the English defend?', back:'A tight shield wall — soldiers locked shields together to withstand wave after wave of attacks.' },
+  { icon:'🪓', front:'Who were the Housecarls?', back:'Elite English soldiers who could kill a knight or his horse in ONE axe blow. Fearsome doesn\'t even cover it.' },
+  { icon:'🐴', front:'What finally turned the tide?', back:'William\'s 2,000+ knights on horseback — the cavalry gradually gained the upper hand.' },
+  { icon:'👑', front:'How did it end?', back:'Harold was killed in the final attack, and William was crowned King of England on Christmas Day, 1066.' },
+];
+
 const VB_QUIZ = [
   {
     wordIdx: 0, // evenly matched
@@ -615,11 +639,11 @@ const TRUE_FALSE = [
 const GAP_FILL = [
   {
     context: '⚔️ About the two armies at daybreak...',
-    template: 'By daybreak, the two armies [B1] one another with similar numbers, and both sides [B2] similar armour, although only the Normans [B3] skilled archers.',
+    template: 'By daybreak, the two armies [B1] one another with similar numbers, both sides [B2] similar armour, and only the Normans [B3] skilled archers.',
     keys: ['B1','B2','B3'],
-    answers: ['faced','had','had'],
-    wordbank: ['had','faced','have','has','were facing','holds'],
-    explain: '✅ Past simple throughout — a completed historical event. "Faced one another" — stood opposing each other. "Had similar armour" and "had skilled archers" — both describe a state in the past using simple past "had", not "have" or "has".'
+    answers: ['faced','carried','had'],
+    wordbank: ['had','carried','faced','have','were facing','holds'],
+    explain: '✅ Past simple throughout — a completed historical event. "Faced one another" — stood opposing each other. "Carried similar armour" and "had skilled archers" — both describe a past state with different verbs, all in simple past.'
   },
   {
     context: '🛡️ About the Housecarls and their weapons...',
@@ -631,11 +655,11 @@ const GAP_FILL = [
   },
   {
     context: '👑 About the end of the battle...',
-    template: 'Gradually, the Normans [B1] the upper hand until, in the last attack, Harold [B2] killed, and William [B3] crowned on Christmas Day.',
+    template: 'Gradually, the Normans [B1] the upper hand until, in the last attack, Harold [B2] killed, and William [B3] king on Christmas Day.',
     keys: ['B1','B2','B3'],
-    answers: ['gained','was','was'],
-    wordbank: ['was','gained','has','were','win','got'],
-    explain: '✅ "Gained the upper hand" — past simple active verb. "Was killed" and "was crowned" — both passive voice in the past (was + past participle), since Harold and William received the actions rather than performing them.'
+    answers: ['gained','was','became'],
+    wordbank: ['was','gained','became','were','win','got'],
+    explain: '✅ "Gained the upper hand" — past simple active verb. "Was killed" — passive voice in the past (was + past participle), since Harold received the action. "Became king" — past simple active verb describing a change of state.'
   },
 ];
 
@@ -759,7 +783,7 @@ const MC_GRAMMAR = [
 let S = {
   xp:0, combo:0, bestCombo:0,
   totalRight:0, totalAnswered:0,
-  videoDone:false, articleDone:false,
+  videoDone:false, articleDone:false, acFlipped:new Set(),
   vbIdx:0, vbRight:0, vbDone:false,
   tfIdx:0, tfRight:0, tfDone:false,
   gfIdx:0, gfDone:false,
@@ -837,6 +861,7 @@ function buildAll(){
   const c=$('sections');
   c.appendChild(buildVideoSec());
   c.appendChild(buildArticleSec());
+  renderACGrid();
   c.appendChild(mkSec('sec-vb',  'strip-pink',  '📖','Vocab Blitz','8 key words · pick the right meaning!'));
   c.appendChild(mkSec('sec-tf',  'strip-blue',  '🎯','True or False?','7 statements about the battle · stick to what you watched!'));
   c.appendChild(mkSec('sec-gf',  'strip-purple','📝','Fill the Gap','Past tenses & passive voice · 3 exercises'));
@@ -877,37 +902,51 @@ function markVideoDone(){
   updateProgress();revealSection('sec-article');
 }
 
-/* ── ARTICLE ── */
+/* ── ARTICLE (now: flip cards) ── */
 function buildArticleSec(){
   const sec=document.createElement('div');
   sec.className='sec-card strip-yellow';sec.id='sec-article';
   sec.innerHTML=`
     <div class="sec-head">
-      <div class="sec-head-icon">📰</div>
-      <div><div class="sec-head-title">Read the Summary</div><div class="sec-head-sub">English Heritage · Battle of Hastings · ~2 min read</div></div>
+      <div class="sec-head-icon">🃏</div>
+      <div><div class="sec-head-title">Flip the Battle Cards</div><div class="sec-head-sub">6 quick facts · tap each card to reveal the answer!</div></div>
     </div>
     <div class="sec-body">
-      <div class="tip-box">💡 <strong>Read tip:</strong> Focus on the key facts — army sizes, weapons, and how the battle was won. This short text repeats exactly what you just watched, in writing!</div>
-      <div class="article-hl">Why William won at the Battle of Hastings</div>
-      <div class="article-byline">
-        <span class="article-byline-tag">🏰 English Heritage</span>
-        <span class="article-byline-tag">⚔️ History</span>
-        <span>14 October 1066</span>
-      </div>
-      <div class="article-body">
-        <p>The Battle of Hastings was fought on the 14th of October, 1066, between the army of King Harold of England and the invading force of William, Duke of Normandy. It was an exceptionally long battle by medieval standards, lasting all day — a clear sign of how evenly matched the two armies were.</p>
-        <p>By daybreak, the rival armies faced one another with between 5,000 and 7,000 men each. Both sides carried similar armour and weapons, but the Normans had one extra advantage: skilled archers. The English fought entirely on foot, forming a tight shield wall to withstand repeated, bloody assaults from the Norman lines.</p>
-        <div class="article-highlight">🛡️ <strong>The shield wall:</strong> English soldiers locked their shields together to create a solid barrier, absorbing arrows and blows while striking back at any Norman who came too close.</div>
-        <p>William's strength lay elsewhere. His army included a powerful cavalry force of over 2,000 knights and esquires, supporting the infantry with speed and weight that the English could not match on foot.</p>
-        <p>Yet the English defence was far from weak. It was strengthened by the Housecarls — elite, highly trained soldiers famous for one terrifying skill: they could kill a knight or his horse in a single blow using their fearsome battle axes.</p>
-        <p>For hours, neither side could gain a true advantage. Gradually, however, the Normans began to gain the upper hand. In the final, decisive attack of the day, King Harold was killed — either struck by an arrow in the eye, or hacked down in close combat. Accounts differ, and nobody knows for certain which is true.</p>
-        <p>With Harold dead and his army broken, William's path to the throne was clear. He was crowned King of England on Christmas Day, 1066 — just over two months after the battle that changed the course of English history forever.</p>
-      </div>
-      <button class="btn-continue" onclick="markArticleDone()" style="background:var(--yellow-shadow);border-color:#b38a00;color:#fff;margin-top:18px">I've read it! Start the activities 📖</button>
+      <div class="tip-box">💡 <strong>Tap tip:</strong> Tap (or click) each card below to flip it and reveal the fact. Flip all 6 to unlock the activities!</div>
+      <div class="ac-grid" id="ac-grid"></div>
+      <div class="ac-counter" id="ac-counter">0 / ${ARTICLE_CARDS.length} flipped</div>
+      <button class="btn-continue" id="ac-continue-btn" onclick="markArticleDone()" style="background:var(--yellow-shadow);border-color:#b38a00;color:#fff;margin-top:18px;opacity:.4;pointer-events:none">Flip all the cards first! 🃏</button>
     </div>`;
   return sec;
 }
+function renderACGrid(){
+  const grid=$('ac-grid');
+  if(!grid)return;
+  grid.innerHTML=ARTICLE_CARDS.map((c,i)=>`
+    <button class="ac-card" id="ac-card-${i}" onclick="flipAC(${i})">
+      <div class="ac-card-inner">
+        <div class="ac-face ac-front"><span class="ac-icon">${c.icon}</span><span class="ac-front-text">${c.front}</span><span class="ac-tap-hint">tap to flip ↻</span></div>
+        <div class="ac-face ac-back"><span class="ac-back-text">${c.back}</span></div>
+      </div>
+    </button>`).join('');
+}
+window.flipAC=function(i){
+  const card=$('ac-card-'+i);
+  if(!card||card.classList.contains('flipped'))return;
+  card.classList.add('flipped');
+  S.acFlipped.add(i);
+  addXP(2,card);
+  const cnt=$('ac-counter');
+  if(cnt)cnt.textContent=`${S.acFlipped.size} / ${ARTICLE_CARDS.length} flipped`;
+  if(S.acFlipped.size===ARTICLE_CARDS.length){
+    const btn=$('ac-continue-btn');
+    if(btn){btn.style.opacity='1';btn.style.pointerEvents='auto';btn.textContent='All revealed! Start the activities 📖';}
+    toast('🃏','All cards flipped! +'+(ARTICLE_CARDS.length*2)+' XP total');
+    if(fx())fx().confetti?.();
+  }
+};
 function markArticleDone(){
+  if(S.acFlipped.size<ARTICLE_CARDS.length)return;
   S.articleDone=true;addXP(10,$('sec-article'));
   toast('📰','Summary done! +10 XP');
   updateProgress();revealSection('sec-vb');
@@ -999,7 +1038,17 @@ function doneVB(){
 /* ══════════════════════════════════
    ACT 2 — TRUE / FALSE
 ══════════════════════════════════ */
+function shuffleTFOrder(){
+  // Fisher–Yates shuffle
+  let order=TRUE_FALSE.map((_,i)=>i);
+  for(let i=order.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [order[i],order[j]]=[order[j],order[i]];
+  }
+  return order;
+}
 function initTF(){
+  S.tfOrder=shuffleTFOrder();
   const b=body('sec-tf');
   b.innerHTML=`
     <div class="tip-box">💡 <strong>Remember:</strong> Only use information from the video and summary. Don't guess based on what you already know about 1066!</div>
@@ -1020,7 +1069,7 @@ function tfPips(){
 function renderTF(){
   tfPips();
   if(S.tfDone){doneTF();return;}
-  const q=TRUE_FALSE[S.tfIdx];
+  const q=TRUE_FALSE[S.tfOrder[S.tfIdx]];
   $('tf-slot').innerHTML=`
     <div class="tf-card" id="tf-card">
       <div class="tf-statement">
@@ -1036,7 +1085,7 @@ function renderTF(){
 }
 window.answerTF=function(chosen){
   document.querySelectorAll('.tf-btn').forEach(b=>b.disabled=true);
-  const q=TRUE_FALSE[S.tfIdx];
+  const q=TRUE_FALSE[S.tfOrder[S.tfIdx]];
   const correct=chosen===q.answer;
   const chosenBtn=document.querySelector(chosen==='TRUE'?'.t-btn':'.f-btn');
   const correctBtn=document.querySelector(q.answer==='TRUE'?'.t-btn':'.f-btn');
