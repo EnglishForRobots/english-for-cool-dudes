@@ -2850,6 +2850,123 @@ const LESSON_DATA_REGISTRY = {
     { statement:'Tom (Team Lead) confirms the policy has been reversed after significant pushback.', correct:false, reveal:'❌ FALSE! Tom says the pushback "has been significant" and the policy "might not be as final as it seems." Cautiously hopeful — but no reversal confirmed.' },
   ],
 },
+
+   'hastings-1066': {
+ 
+    // ── IDENTITY ─────────────────────────────────────────────
+    id:    'hastings-1066',
+    title: '1066 — The Day England Changed Forever',
+    level: 'Intermediate',
+    track: 'intermediate',
+    emoji: '⚔️',
+    badge: 'Conquest English Expert',
+ 
+    // ── VOCAB ────────────────────────────────────────────────
+    vocab: [
+      {
+        word:        'evenly matched',
+        definition:  'Two sides that are equally strong, so it is hard to predict the winner',
+        example:     'The battle lasted all day — a sign of how ___ the two armies were.',
+        distractors: ['heavily armed', 'badly organised', 'newly formed'],
+      },
+      {
+        word:        'withstand',
+        definition:  'To resist or survive something difficult, like an attack',
+        example:     'The English used their shield wall to ___ repeated assaults.',
+        distractors: ['surrender', 'retreat from', 'avoid'],
+      },
+      {
+        word:        'assault',
+        definition:  'A violent, forceful attack',
+        example:     'The shield wall withstood repeated and bloody ___ throughout the day.',
+        distractors: ['agreement', 'retreat', 'ceremony'],
+      },
+      {
+        word:        'infantry',
+        definition:  'Soldiers who fight on foot, not on horseback',
+        example:     'The English fought entirely on foot, as ___.',
+        distractors: ['cavalry', 'archers', 'engineers'],
+      },
+      {
+        word:        'cavalry',
+        definition:  'Soldiers who fight on horseback',
+        example:     'The Normans had a strong ___ force of over 2,000 knights.',
+        distractors: ['infantry', 'navy', 'garrison'],
+      },
+      {
+        word:        'strengthen',
+        definition:  'To make something stronger or more powerful',
+        example:     'The English defence was ___ by the fearsome Housecarls.',
+        distractors: ['replace', 'delay', 'design'],
+      },
+      {
+        word:        'gain the upper hand',
+        definition:  'To get an advantage over your opponent',
+        example:     'Gradually, the Normans ___ ___ ___ ___ as the day went on.',
+        distractors: ['lose all hope', 'call a truce', 'change sides'],
+      },
+      {
+        word:        'fearsome',
+        definition:  'Causing fear; frightening because of great power or appearance',
+        example:     'The Housecarls killed with one blow of their ___ battle axes.',
+        distractors: ['ancient', 'lightweight', 'borrowed'],
+      },
+    ],
+ 
+    // ── GRAMMAR 1: Past Simple — regular & irregular ──────────
+    grammar: {
+      topic: 'Past Simple — regular and irregular verbs',
+      rule:  'Regular verbs: add -ED in the past. attack → attacked, defend → defended. Irregular verbs change completely and must be learned: fight → fought, win → won, become → became.',
+      exercises: [
+        { sentence:'The two armies ___ each other at daybreak with similar numbers.',  answer:'faced',   wrong:['face','was facing','has faced'],     explain:'Regular past simple: face → faced. A completed historical event.' },
+        { sentence:'The English ___ all day behind their shield wall.',                answer:'fought',  wrong:['fighted','fight','has fought'],      explain:'Irregular: fight → FOUGHT. Never "fighted".' },
+        { sentence:'William ___ King of England on Christmas Day, 1066.',              answer:'became',  wrong:['becomed','become','was become'],     explain:'Irregular: become → BECAME.' },
+        { sentence:'The Housecarls ___ a knight or his horse with a single blow.',     answer:'could kill', wrong:['killed','was killing','can kill'], explain:'Past modal "could" + base verb expresses past ability.' },
+      ],
+    },
+ 
+    // ── GRAMMAR 2: Passive Voice ──────────────────────────────
+    grammar2: {
+      topic: 'Passive Voice — past passive in historical narrative',
+      rule:  'Past passive: was/were + past participle. Used when the action matters more than who did it — very common in history writing. "Harold was killed." "William was crowned."',
+      exercises: [
+        { sentence:'Harold ___ in the final Norman attack of the day.',        answer:'was killed',     wrong:['killed','has been killed','were killed'], explain:'Past passive: was + past participle. Harold received the action.' },
+        { sentence:'William ___ King of England on Christmas Day, 1066.',     answer:'was crowned',    wrong:['crowned','has crowned','were crowned'],   explain:'Past passive for a completed historical ceremony.' },
+        { sentence:'A knight ___ with a single blow from a Housecarl\'s axe.', answer:'could be killed', wrong:['could kill','could killed','could being killed'], explain:'Modal passive: could + be + past participle.' },
+        { sentence:'The shield wall ___ to withstand repeated assaults.',     answer:'was used',       wrong:['used','has used','were used'],            explain:'Past passive describing the purpose of English tactics.' },
+      ],
+    },
+ 
+    // ── SENTENCE BUILDER ──────────────────────────────────────
+    sentences: [
+      { words:['evenly','two','were','The','matched','armies'],                                          answer:'The two armies were evenly matched',                hint:'⚔️ What made the battle last all day?' },
+      { words:['axe','blow','one','horse','could','a','with','kill','knight','a','Housecarl'],            answer:'A Housecarl could kill a knight with one axe blow', hint:'🪓 What made the Housecarls so fearsome?' },
+      { words:['Christmas','was','William','on','Day','crowned'],                                         answer:'William was crowned on Christmas Day',               hint:'👑 When did William become king?' },
+      { words:['upper','gained','the','Normans','hand','The'],                                            answer:'The Normans gained the upper hand',                  hint:'🐴 What happened gradually during the battle?' },
+    ],
+ 
+    // ── WORD BUILDER ──────────────────────────────────────────
+    word_builder: [
+      { word:'cavalry',   definition:'Soldiers who fight on horseback' },
+      { word:'infantry',  definition:'Soldiers who fight on foot' },
+      { word:'fearsome',  definition:'Causing fear because of great power' },
+      { word:'withstand', definition:'To resist or survive something difficult' },
+      { word:'assault',   definition:'A violent, forceful attack' },
+    ],
+ 
+    // ── TRUE / FALSE ─────────────────────────────────────────
+    true_false: [
+      { statement:'The Battle of Hastings took place on the 14th of October, 1066.',                       correct:true,  reveal:'✅ TRUE! One of the most famous dates in English history.' },
+      { statement:'The battle was very short, lasting only about an hour.',                                 correct:false, reveal:'❌ FALSE! It lasted ALL DAY — exceptionally long for a medieval battle, showing how evenly matched the armies were.' },
+      { statement:'Both armies had roughly the same number of soldiers — around 5,000 to 7,000 each.',     correct:true,  reveal:'✅ TRUE! Confirmed at daybreak — a near-even fight on paper.' },
+      { statement:'Only the English army had skilled archers.',                                             correct:false, reveal:'❌ FALSE! It was the NORMANS who had skilled archers — a key English disadvantage.' },
+      { statement:'The Norman cavalry force had more than 2,000 knights and esquires.',                     correct:true,  reveal:'✅ TRUE! Over 2,000 mounted knights supported the Norman infantry.' },
+      { statement:'The Housecarls were untrained farmers holding basic shields.',                           correct:false, reveal:'❌ FALSE! They were elite, highly trained soldiers — famous for killing a knight in one axe blow.' },
+      { statement:'William was crowned King of England on Christmas Day, 1066.',                            correct:true,  reveal:'✅ TRUE! Just over two months after the battle.' },
+      { statement:'Harold definitely died from an arrow in the eye — historians all agree on this.',        correct:false, reveal:'❌ FALSE! Accounts differ — he may have been struck by an arrow OR hacked down. Nobody knows for certain.' },
+    ],
+ 
+  },
  
    };
 
