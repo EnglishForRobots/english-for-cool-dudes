@@ -324,25 +324,46 @@ input,textarea{font-family:inherit}
 
     <!-- TABS -->
     <div class="tabs u1">
-      <button class="tab active" onclick="switchTab('classes')">🏫 Classes</button>
-      <button class="tab" onclick="switchTab('leaderboard')">🏆 Leaderboard</button>
-      <button class="tab" onclick="switchTab('badges')">🎖️ Award Badge</button>
-      <button class="tab" onclick="switchTab('stats')">📊 Stats</button>
-      <button class="tab" onclick="switchTab('history')">📚 History</button>
-      <button class="tab" onclick="switchTab('manage')">⚙️ Manage</button>
-    </div>
+  <button class="tab active" onclick="switchTab('classes')">🏫 Classes</button>
+  <button class="tab" onclick="switchTab('leaderboard')">🏆 Leaderboard</button>
+  <button class="tab" onclick="switchTab('manage')">⚙️ Manage</button>
+</div>
 
     <!-- CLASSES TAB -->
-    <div class="tab-panel active" id="tab-classes">
-      <div class="sec-title">Your Classes</div>
-      <div class="classes-grid" id="classes-grid">
-        <div class="loading"><div class="spinner"></div>Loading classes…</div>
+    <div class="tab-panel" id="tab-manage">
+  <div class="sec-title">Classes & Students</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <div style="font-size:13px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1.5px">Classes</div>
+    <button class="btn-sm btn-sm-green" onclick="showAddClass()">＋ Add Class</button>
+  </div>
+  <div class="classes-manage-grid" id="classes-manage-grid">
+    <div class="loading"><div class="spinner"></div>Loading…</div>
+  </div>
+  <div class="add-class-card" id="add-class-card" style="display:none">
+    <div class="add-class-title">New Class</div>
+    <div class="add-class-form">
+      <div>
+        <div class="field-label">Pick an emoji</div>
+        <div class="emoji-picker-row" id="new-class-emoji-picker"></div>
+        <input type="hidden" id="new-class-emoji" value="🌱">
+      </div>
+      <div class="form-row">
+        <input class="form-input" id="new-class-name" placeholder="Class name (e.g. Tuesday Morning)">
+        <input class="form-input" id="new-class-id" placeholder="ID — no spaces (e.g. tue-morning)">
+      </div>
+      <input class="form-input" id="new-class-team" placeholder="Team name (optional)">
+      <div class="form-row">
+        <button class="btn-sm btn-sm-green" onclick="createClass()" style="padding:10px 20px;font-size:13px">✓ Create Class</button>
+        <button class="btn-sm btn-sm-ghost" onclick="hideAddClass()">Cancel</button>
       </div>
     </div>
+  </div>
+</div>
 
     <!-- LEADERBOARD TAB -->
     <div class="tab-panel" id="tab-leaderboard">
       <div class="sec-title">Class vs Class — This Week</div>
+      <div class="stats-row" id="lb-stats-row" style="margin-bottom:20px"></div>
       <div id="lb-wrap">
         <div class="loading"><div class="spinner"></div>Loading scores…</div>
       </div>
@@ -351,54 +372,11 @@ input,textarea{font-family:inherit}
       </div>
     </div>
 
-    <!-- BADGES TAB -->
-    <div class="tab-panel" id="tab-badges">
-      <div class="sec-title">Award a Badge</div>
-      <p style="font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:18px">Manually award a special badge to any student.</p>
-      <div style="margin-bottom:16px">
-        <div class="modal-section-title">1. Pick a student</div>
-        <div class="student-selector" id="badge-student-selector">
-          <div class="loading"><div class="spinner"></div></div>
-        </div>
-      </div>
-      <div style="margin-bottom:16px">
-        <div class="modal-section-title">2. Choose a badge</div>
-        <div class="badge-grid" id="badge-picker"></div>
-      </div>
-      <button class="btn-award" id="btn-award" onclick="awardBadge()" disabled>🎖️ Award Badge</button>
-      <div id="badge-result" style="margin-top:12px;font-size:13px;font-weight:800;color:var(--green);display:none"></div>
-    </div>
+    
 
-    <!-- STATS TAB -->
-    <div class="tab-panel" id="tab-stats">
-      <div class="sec-title">Overview</div>
-      <div class="stats-row" id="stats-row">
-        <div class="loading"><div class="spinner"></div></div>
-      </div>
-      <div class="sec-title" style="margin-top:8px">All Scores This Week</div>
-      <div id="stats-scores">
-        <div class="loading"><div class="spinner"></div></div>
-      </div>
-    </div>
+   
 
-    <!-- HISTORY TAB -->
-    <div class="tab-panel" id="tab-history">
-      <div class="sec-title">Class History</div>
-      <div class="history-filter-row">
-        <select class="history-filter-select" id="history-class-filter" onchange="renderHistory()">
-          <option value="">All classes</option>
-        </select>
-        <select class="history-filter-select" id="history-limit-filter" onchange="renderHistory()">
-          <option value="10">Last 10 sessions</option>
-          <option value="25">Last 25 sessions</option>
-          <option value="50">Last 50 sessions</option>
-          <option value="0">All sessions</option>
-        </select>
-      </div>
-      <div id="history-wrap">
-        <div class="loading"><div class="spinner"></div>Loading history…</div>
-      </div>
-    </div>
+    
 
     
 
@@ -446,16 +424,6 @@ input,textarea{font-family:inherit}
   </div><!-- end admin-body -->
 </div><!-- end admin-wrap -->
 
-<!-- EDIT CLASS MODAL -->
-<div class="modal-overlay" id="edit-class-modal">
-  <div class="modal">
-    <div class="modal-head">
-      <div class="modal-title" id="edit-class-modal-title">Edit Class</div>
-      <button class="modal-close" onclick="closeEditClass()">×</button>
-    </div>
-    <div class="edit-modal-body" id="edit-class-modal-body"></div>
-  </div>
-</div>
 
 <!-- CONFIRM DELETE OVERLAY -->
 <div class="confirm-overlay" id="confirm-overlay">
@@ -585,15 +553,14 @@ async function loadEverything(){
   _classes  = classes  || [];
   _students = students || [];
   renderClasses();
-  renderBadgeStudentSelector();
-  renderBadgePicker();
+ 
   renderLeaderboard();
-  renderStats();
+
 }
 
 // ── TAB SWITCHING ──────────────────────────────────────────────
 function switchTab(name){
-  const names = ['classes','leaderboard','badges','stats','history','manage'];
+  const names = ['classes','leaderboard','manage'];
   document.querySelectorAll('.tab').forEach((t,i) => {
     t.classList.toggle('active', names[i] === name);
   });
@@ -601,8 +568,6 @@ function switchTab(name){
   const panel = document.getElementById('tab-' + name);
   if(panel) panel.classList.add('active');
   if(name === 'leaderboard') renderLeaderboard();
-  if(name === 'stats')       renderStats();
-  if(name === 'history')     renderHistory();
   if(name === 'manage')      renderManage();
 }
 
@@ -948,6 +913,15 @@ async function renderLeaderboard(){
     sb.from('efcd_scores').select('class_id, correct, xp').gte('date', monday),
     sb.from('efcd_scores').select('class_id, correct, xp').gte('date', monthStart),
   ]);
+
+    const statsEl = document.getElementById('lb-stats-row');
+  if (statsEl) {
+    statsEl.innerHTML = `
+      <div class="stat-card"><div class="stat-n">${_classes.filter(c=>c.is_active).length}</div><div class="stat-l">Live now</div></div>
+      <div class="stat-card"><div class="stat-n">${(weekScores||[]).reduce((a,s)=>a+(s.correct||0),0)}</div><div class="stat-l">Correct this week</div></div>
+      <div class="stat-card"><div class="stat-n">${_students.length}</div><div class="stat-l">Total students</div></div>
+      <div class="stat-card"><div class="stat-n">${_classes.filter(c=>!c.is_test).length}</div><div class="stat-l">Classes</div></div>`;
+  }
  
   function buildTable(scores, containerId) {
     const totals = {};
@@ -1028,51 +1002,7 @@ async function confirmReset(){
   renderLeaderboard();
 }
 
-// ── BADGE AWARD ────────────────────────────────────────────────
-function renderBadgeStudentSelector(){
-  const el = document.getElementById('badge-student-selector');
-  if(!el) return;
-  el.innerHTML = _students.sort((a,b)=>a.name.localeCompare(b.name)).map(s =>
-    `<button class="student-btn" id="sbtn-${s.id}" onclick="selectBadgeStudent('${s.id}')"><span>${s.avatar_emoji}</span>${s.name}</button>`
-  ).join('');
-}
-function renderBadgePicker(){
-  const el = document.getElementById('badge-picker');
-  if(!el) return;
-  el.innerHTML = MANUAL_BADGES.map(b =>
-    `<div class="badge-option" id="bopt-${b.key}" onclick="selectBadge('${b.key}')">
-      <span class="badge-emoji-big">${b.emoji}</span>
-      <div><div class="badge-info-name">${b.label}</div><div class="badge-info-desc">${b.desc}</div></div>
-    </div>`
-  ).join('');
-}
-function selectBadgeStudent(id){
-  _selectedStudent = id;
-  document.querySelectorAll('.student-btn').forEach(b=>b.classList.remove('selected'));
-  document.getElementById('sbtn-'+id)?.classList.add('selected');
-  checkAwardReady();
-}
-function selectBadge(key){
-  _selectedBadge = key;
-  document.querySelectorAll('.badge-option').forEach(b=>b.classList.remove('selected'));
-  document.getElementById('bopt-'+key)?.classList.add('selected');
-  checkAwardReady();
-}
-function checkAwardReady(){
-  document.getElementById('btn-award').disabled = !(_selectedStudent && _selectedBadge);
-}
-async function awardBadge(){
-  if(!_selectedStudent||!_selectedBadge) return;
-  const student = _students.find(s=>s.id===_selectedStudent);
-  const badge   = MANUAL_BADGES.find(b=>b.key===_selectedBadge);
-  if(!student||!badge) return;
-  await sb.from('efcd_badges').insert({ student_id:student.id, student_name:student.name, class_id:student.class_id, badge_key:badge.key, badge_emoji:badge.emoji, badge_label:badge.label, is_manual:true });
-  const resultEl = document.getElementById('badge-result');
-  if(resultEl){ resultEl.textContent=`${badge.emoji} ${badge.label} awarded to ${student.avatar_emoji} ${student.name}!`; resultEl.style.display='block'; setTimeout(()=>resultEl.style.display='none',3000); }
-  _selectedStudent=null; _selectedBadge=null;
-  document.querySelectorAll('.student-btn,.badge-option').forEach(b=>b.classList.remove('selected'));
-  checkAwardReady(); toast('🎖️',`Badge awarded to ${student.name}!`);
-}
+
 
 // ── STATS ──────────────────────────────────────────────────────
 async function renderStats(){
@@ -1107,184 +1037,8 @@ async function renderStats(){
     : '<p style="color:var(--ink-3);font-size:13px;font-weight:700">No scores this week yet.</p>';
 }
 
-// ── SRS DASHBOARD ──────────────────────────────────────────────
-async function renderSRS(){
-  const wrap      = document.getElementById('srs-wrap');
-  const summaryEl = document.getElementById('srs-summary-row');
-  if(!wrap) return;
 
-  // Populate class filter dropdown once
-  const classFilter = document.getElementById('srs-class-filter');
-  if(classFilter && classFilter.options.length <= 1){
-    _classes.forEach(c => {
-      const opt = document.createElement('option');
-      opt.value = c.id; opt.textContent = c.emoji + ' ' + c.name;
-      classFilter.appendChild(opt);
-    });
-  }
 
-  wrap.innerHTML = `<div class="loading"><div class="spinner"></div>Loading SRS data…</div>`;
-
-  const selectedClass = document.getElementById('srs-class-filter')?.value || '';
-  const viewMode      = document.getElementById('srs-view-filter')?.value || 'due';
-  const today         = new Date().toISOString().split('T')[0];
-
-  try {
-    // Fetch all class SRS items
-    let query = sb.from('efcd_srs_class_items').select('*').order('next_review_at');
-    if(selectedClass) query = query.eq('class_id', selectedClass);
-    const { data: allItems, error } = await query;
-
-    if(error) throw error;
-    const items = allItems || [];
-
-    // ── Summary stats ──────────────────────────────────────
-    const totalActive   = items.filter(i => i.status === 'active').length;
-    const totalDue      = items.filter(i => i.status === 'active' && i.next_review_at <= today).length;
-    const totalOverdue  = items.filter(i => i.status === 'active' && i.next_review_at < today).length;
-    const totalLearned  = items.filter(i => i.status === 'learned').length;
-    const classesWithDue= new Set(items.filter(i => i.status==='active' && i.next_review_at<=today).map(i=>i.class_id)).size;
-
-    summaryEl.innerHTML = `
-      <div class="srs-stat"><div class="srs-stat-n" style="color:var(--blue)">${totalDue}</div><div class="srs-stat-l">Due today</div></div>
-      <div class="srs-stat"><div class="srs-stat-n" style="color:var(--punch)">${totalOverdue}</div><div class="srs-stat-l">Overdue</div></div>
-      <div class="srs-stat"><div class="srs-stat-n" style="color:var(--teal)">${totalLearned}</div><div class="srs-stat-l">Learned</div></div>
-      <div class="srs-stat"><div class="srs-stat-n">${totalActive}</div><div class="srs-stat-l">Active items</div></div>
-      <div class="srs-stat"><div class="srs-stat-n" style="color:var(--orange)">${classesWithDue}</div><div class="srs-stat-l">Classes with due</div></div>`;
-
-    if(!items.length){
-      wrap.innerHTML = `<div class="srs-empty">No SRS lessons activated yet. Students activate SRS from their My Lessons page — spending 30 XP per lesson to start the spaced repetition schedule.</div>`;
-      return;
-    }
-
-    // ── Filter items based on view mode ───────────────────
-    let filteredItems = items;
-    if(viewMode === 'due')     filteredItems = items.filter(i => i.status==='active' && i.next_review_at<=today);
-    if(viewMode === 'learned') filteredItems = items.filter(i => i.status==='learned');
-
-    if(!filteredItems.length){
-      wrap.innerHTML = `<div class="srs-empty">${viewMode==='due' ? 'No items due today — all classes are up to date! 🎉' : viewMode==='learned' ? 'No items fully learned yet.' : 'No active SRS items.'}</div>`;
-      return;
-    }
-
-    // ── Group by class_id, then by lesson_id ──────────────
-    const byClass = {};
-    filteredItems.forEach(item => {
-      if(!byClass[item.class_id]) byClass[item.class_id] = {};
-      if(!byClass[item.class_id][item.lesson_id]) byClass[item.class_id][item.lesson_id] = [];
-      byClass[item.class_id][item.lesson_id].push(item);
-    });
-
-    // Also get total items per lesson per class (for progress bar — need all items, not just filtered)
-    const totalByClassLesson = {};
-    items.forEach(item => {
-      const key = item.class_id + '::' + item.lesson_id;
-      if(!totalByClassLesson[key]) totalByClassLesson[key] = { total:0, learned:0 };
-      totalByClassLesson[key].total++;
-      if(item.status === 'learned') totalByClassLesson[key].learned++;
-    });
-
-    // ── Render ─────────────────────────────────────────────
-    wrap.innerHTML = Object.entries(byClass).map(([classId, lessonMap]) => {
-      const cls       = _classes.find(c => c.id === classId);
-      const className = cls ? `${cls.emoji} ${cls.name}` : classId;
-      const teamName  = cls?.team_name || '';
-
-      // Class-level pills
-      const classDue      = Object.values(lessonMap).flat().filter(i => i.status==='active' && i.next_review_at<=today).length;
-      const classOverdue  = Object.values(lessonMap).flat().filter(i => i.status==='active' && i.next_review_at<today).length;
-      const classLearned  = Object.values(lessonMap).flat().filter(i => i.status==='learned').length;
-
-      const lessonRows = Object.entries(lessonMap).map(([lessonId, lessonItems]) => {
-        const meta       = LESSON_META[lessonId] || { emoji:'📖', title: lessonId, level:'' };
-        const key        = classId + '::' + lessonId;
-        const totals     = totalByClassLesson[key] || { total: lessonItems.length, learned: 0 };
-        const progress   = totals.total > 0 ? Math.round((totals.learned / totals.total) * 100) : 0;
-        const dueCount   = lessonItems.filter(i => i.status==='active' && i.next_review_at<=today).length;
-        const overdueCount = lessonItems.filter(i => i.status==='active' && i.next_review_at<today).length;
-
-        // Next review date for this lesson
-        const nextItem   = lessonItems.filter(i=>i.status==='active').sort((a,b)=>a.next_review_at.localeCompare(b.next_review_at))[0];
-        const nextLabel  = nextItem ? _srsDateLabel(nextItem.next_review_at) : '';
-
-        // Item type breakdown
-        const typeCount  = lessonItems.reduce((acc,i)=>{ acc[i.item_type]=(acc[i.item_type]||0)+1; return acc; }, {});
-        const typeStr    = Object.entries(typeCount).map(([t,n]) => `${_typeEmoji(t)} ${n}`).join(' · ');
-
-        return `
-          <div class="srs-lesson-row">
-            <div class="srs-lesson-emoji">${meta.emoji}</div>
-            <div class="srs-lesson-info">
-              <div class="srs-lesson-title">${meta.title}</div>
-              <div class="srs-lesson-sub">${meta.level}${typeStr ? ' · ' + typeStr : ''}${nextLabel && !dueCount ? ' · next ' + nextLabel : ''}</div>
-            </div>
-            <div class="srs-progress-wrap">
-              <div class="srs-progress-bar-bg">
-                <div class="srs-progress-bar-fill" style="width:${progress}%"></div>
-              </div>
-              <span class="srs-progress-pct">${progress}%</span>
-            </div>
-            <div class="srs-lesson-actions">
-              ${dueCount > 0
-                ? `<a href="/review/?srs=1&class=${classId}" class="srs-review-class-btn" target="_blank">
-                    ▶ Start Review
-                    ${overdueCount > 0 ? `<span style="background:var(--punch);color:#fff;border-radius:99px;padding:1px 7px;font-size:10px;margin-left:5px">${dueCount} due</span>`
-                                        : `<span style="background:rgba(28,176,246,.2);border-radius:99px;padding:1px 7px;font-size:10px;margin-left:5px">${dueCount} due</span>`}
-                   </a>`
-                : `<span style="font-size:11px;font-weight:800;color:var(--ink-3)">✅ Up to date</span>`}
-            </div>
-          </div>`;
-      }).join('');
-
-      return `
-        <div class="srs-class-card">
-          <div class="srs-class-head">
-            <div>
-              <div class="srs-class-name">${className}</div>
-              ${teamName ? `<div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.5);margin-top:2px">🏷️ ${teamName}</div>` : ''}
-            </div>
-            <div class="srs-class-meta">
-              ${classDue > 0 ? `<span class="srs-pill ${classOverdue>0?'srs-pill-overdue':'srs-pill-due'}">📬 ${classDue} due</span>` : ''}
-              ${classLearned > 0 ? `<span class="srs-pill srs-pill-learned">🎓 ${classLearned} learned</span>` : ''}
-            </div>
-          </div>
-          <div class="srs-class-body">
-            ${lessonRows}
-            ${viewMode === 'all' ? `
-            <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
-              <div style="font-size:10px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">Manually activate SRS for a lesson</div>
-              <div style="display:flex;gap:8px;flex-wrap:wrap">
-                ${Object.entries(LESSON_META).map(([lid, meta]) => {
-                  const alreadyActive = items.some(i => i.class_id === classId && i.lesson_id === lid);
-                  if (alreadyActive) return '';
-                  return `<button class="srs-activate-class-btn" onclick="activateSRSForClass('${classId}','${lid}')">${meta.emoji} ${meta.title}</button>`;
-                }).filter(Boolean).join('') || '<span style="font-size:12px;font-weight:700;color:var(--ink-3)">All available lessons are already active.</span>'}
-              </div>
-            </div>` : ''}
-          </div>
-        </div>`;
-    }).join('');
-
-  } catch(err) {
-    wrap.innerHTML = `<div class="srs-empty">Error loading SRS data: ${err.message}</div>`;
-    console.error('SRS render error:', err);
-  }
-}
-
-function _srsDateLabel(dateStr){
-  const today = new Date(); today.setHours(0,0,0,0);
-  const due   = new Date(dateStr); due.setHours(0,0,0,0);
-  const d     = Math.round((due-today)/86400000);
-  if(d<0)  return `${Math.abs(d)}d overdue`;
-  if(d===0) return 'today';
-  if(d===1) return 'tomorrow';
-  if(d<7)  return `in ${d} days`;
-  return due.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-}
-
-function _typeEmoji(type){
-  return { vocab:'💬', grammar:'✏️', builder:'🧱', sentence:'🔤', tf:'✅' }[type] || '📖';
-}
 
 // ── TOAST ──────────────────────────────────────────────────────
 function toast(emoji, text){
@@ -1301,159 +1055,127 @@ setInterval(() => {
   if(!document.getElementById('admin-wrap').classList.contains('show')) return;
   const activeTab = document.querySelector('.tab-panel.active')?.id;
   if(activeTab==='tab-leaderboard') renderLeaderboard();
-  if(activeTab==='tab-stats')       renderStats();
+ 
   sb.from('efcd_classes').select('*').then(({ data }) => { if(data){ _classes=data; renderClasses(); } });
 }, 30000);
 
-// ── HISTORY ────────────────────────────────────────────────────
-async function renderHistory(){
-  const wrap        = document.getElementById('history-wrap');
-  const classFilter = document.getElementById('history-class-filter');
-  const limitFilter = document.getElementById('history-limit-filter');
-  if(!wrap) return;
-  if(classFilter && classFilter.options.length <= 1){
-    _classes.forEach(c => { const opt=document.createElement('option'); opt.value=c.id; opt.textContent=c.emoji+' '+c.name; classFilter.appendChild(opt); });
-  }
-  wrap.innerHTML = `<div class="loading"><div class="spinner"></div>Loading history…</div>`;
-  const selectedClass = classFilter?.value||'';
-  const limit = parseInt(limitFilter?.value||'10');
-  try {
-    let sessionsQuery = sb.from('efcd_sessions').select('*').order('started_at',{ascending:false});
-    if(selectedClass) sessionsQuery = sessionsQuery.eq('class_id', selectedClass);
-    if(limit>0) sessionsQuery = sessionsQuery.limit(limit);
-    const { data: sessions } = await sessionsQuery;
-    if(!sessions?.length){ wrap.innerHTML=`<div class="history-empty">No sessions yet.</div>`; return; }
-    const sessionIds = sessions.map(s=>s.id);
 
-    // FIX: remove the class_id .in() filter — it deduplicates class IDs and can
-    // silently drop rows when multiple sessions belong to the same class.
-    // Filtering by session_id alone is sufficient and correct.
-    const [{ data: scores },{ data: badges },{ data: vocab }] = await Promise.all([
-      sb.from('efcd_scores').select('*').in('session_id', sessionIds),
-      sb.from('efcd_badges').select('*').in('session_id', sessionIds).eq('is_manual', false),
-      sb.from('efcd_lesson_vocab').select('*').in('session_id', sessionIds),
-    ]);
 
-    // FIX: only show sessions that have at least one lesson badge —
-    // this excludes ghost/accidental sessions with no lesson completed.
-    const activeSessions = sessions.filter(session => {
-      return (badges||[]).some(b => b.session_id === session.id && b.badge_key?.startsWith('lesson_'));
-    });
-
-    if(!activeSessions.length){ wrap.innerHTML=`<div class="history-empty">No completed lessons yet.</div>`; return; }
-
-    wrap.innerHTML = activeSessions.map(session => {
-      const cls          = _classes.find(c=>c.id===session.class_id);
-      const sesScores = (scores||[]).filter(s => s.session_id === session.id);
-      const sesBadges = (badges||[]).filter(b => b.session_id === session.id);
-      const sesVocab  = (vocab||[]).filter(v => v.session_id === session.id);
-      const lessonBadges = sesBadges.filter(b=>b.badge_key?.startsWith('lesson_'));
-      const students     = [...new Map(sesBadges.map(b=>[b.student_id,b])).values()];
-      const totalCorrect = sesScores.reduce((a,s)=>a+(s.correct||0),0);
-      const totalAnswered= sesScores.reduce((a,s)=>a+(s.answered||0),0);
-      const totalXP      = sesScores.reduce((a,s)=>a+(s.xp||0),0);
-      const pct          = totalAnswered>0 ? Math.round(totalCorrect/totalAnswered*100) : 0;
-      const started      = new Date(session.started_at);
-      const ended        = session.ended_at ? new Date(session.ended_at) : null;
-      const duration     = ended ? Math.round((ended-started)/60000) : null;
-      const lessonsDone  = [...new Map(lessonBadges.map(b=>[b.badge_key, b])).values()];
-      const allVocab     = sesVocab.flatMap(v=>{ try{return JSON.parse(v.vocab||'[]');}catch(e){return [];} });
-      const studentChips = students.map(b => {
-        const student = _students.find(s=>s.id===b.student_id);
-        const stuBadges = sesBadges.filter(x=>x.student_id===b.student_id&&x.badge_key?.startsWith('lesson_')).map(x=>x.badge_emoji).join('');
-        return `<span class="history-student-chip"><span>${student?.avatar_emoji||'😊'}</span><span>${b.student_name}</span>${stuBadges?`<span class="hs-badges">${stuBadges}</span>`:''}</span>`;
-      }).join('');
-      return `
-        <div class="history-session">
-          <div class="history-session-head">
-            <div>
-              <div class="history-session-class">${cls?.emoji||''} ${cls?.name||session.class_id}</div>
-              <div class="history-session-date">${_formatDate(session.started_at)}${duration?` · ${duration} min`:session.ended_at?'':' · still open'}</div>
-            </div>
-            <div class="history-session-meta">
-              ${students.length?`<span class="history-pill">👥 ${students.length} students</span>`:''}
-              ${totalCorrect?`<span class="history-pill">✅ ${totalCorrect} correct</span>`:''}
-              ${totalXP?`<span class="history-pill">⚡ ${totalXP} XP</span>`:''}
-              ${pct?`<span class="history-pill">${pct}% accuracy</span>`:''}
-            </div>
-          </div>
-          <div class="history-body">
-            ${lessonsDone.length ? `
-  <div>
-    <div class="history-section-label">📚 Lessons completed</div>
-    <div class="history-lesson-tags">
-      ${lessonsDone.map(b => {
-        const lessonId = b.badge_key.replace('lesson_', '');
-        const meta     = LESSON_META[lessonId];
-        const wsLink   = meta?.worksheetLink || null;
-        return `
-          <div class="history-lesson-tag" style="display:flex;align-items:center;gap:8px;padding-right:8px">
-            <span>${b.badge_emoji} ${b.badge_label}</span>
-            <a href="/review/?class=${session.class_id}"
-               style="background:var(--blue);color:#fff;font-size:11px;font-weight:900;border-radius:5px;padding:2px 8px;text-decoration:none">
-              ▶ Review
-            </a>
-            ${wsLink ? `
-              <a href="${wsLink}?from=admin" target="_blank"
-                 style="background:rgba(0,212,170,.12);color:#007a60;font-size:11px;font-weight:900;
-                        border-radius:5px;padding:2px 8px;text-decoration:none;
-                        border:1.5px solid rgba(0,212,170,.28);white-space:nowrap">
-                🖨️ Worksheet
-              </a>` : ''}
-            <button onclick="removeLessonFromHistory('${session.id}','${b.badge_key}')"
-                    style="background:rgba(255,75,75,.15);border:none;border-radius:5px;color:var(--punch);
-                           font-size:11px;font-weight:900;cursor:pointer;padding:2px 7px;font-family:inherit">
-              ✕
-            </button>
-          </div>`;
-      }).join('')}
-    </div>
-  </div>` : ''}
-            ${students.length?`<div><div class="history-section-label">👥 Who was here</div><div class="history-students-row">${studentChips}</div></div>`:''}
-            ${sesScores.length?`<div><div class="history-section-label">📊 Scores</div><div class="history-score-row">
-              <div class="history-score-stat"><div class="history-score-n">${totalCorrect}</div><div class="history-score-l">Correct</div></div>
-              <div class="history-score-stat"><div class="history-score-n">${totalAnswered}</div><div class="history-score-l">Answered</div></div>
-              <div class="history-score-stat"><div class="history-score-n">${pct}%</div><div class="history-score-l">Accuracy</div></div>
-              <div class="history-score-stat"><div class="history-score-n">⚡${totalXP}</div><div class="history-score-l">XP Earned</div></div>
-            </div></div>`:''}
-            ${allVocab.length?`<div><div class="history-section-label">📖 Vocabulary covered</div><div class="history-vocab-grid">${allVocab.map(w=>`<div class="history-vocab-item"><div class="history-vocab-word">${w.word}</div><div class="history-vocab-def">${w.definition}</div></div>`).join('')}</div></div>`:''}
-          </div>
-        </div>`;
-    }).join('');
-  } catch(err) { wrap.innerHTML=`<div class="history-empty">Error: ${err.message}</div>`; }
-}
-
-function _formatDate(isoString){
-  if(!isoString) return '—';
-  return new Date(isoString).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
-}
 
 // ── MANAGE ─────────────────────────────────────────────────────
+let _expandedClassId = null;
+
 function renderManage(){
   renderClassesManage();
-  renderStudentsManage();
-  const sf = document.getElementById('students-class-filter');
-  if(sf && sf.options.length<=1){ _classes.forEach(c=>{ const opt=document.createElement('option'); opt.value=c.id; opt.textContent=c.emoji+' '+c.name; sf.appendChild(opt); }); }
 }
 
 function renderClassesManage(){
   const grid = document.getElementById('classes-manage-grid');
   if(!grid) return;
   grid.innerHTML = _classes.map(cls => {
-    const mc = _students.filter(s=>s.class_id===cls.id).length;
+    const members = _students.filter(s=>s.class_id===cls.id);
+    const isOpen  = _expandedClassId === cls.id;
     return `
-      <div class="class-manage-row">
-        <button class="class-manage-emoji-btn" onclick="openEditClassEmoji('${cls.id}')">${cls.emoji}</button>
-        <div class="class-manage-info">
-          <div class="class-manage-name">${cls.name}${cls.is_test?'<span style="background:#CE82FF;color:#fff;font-size:10px;font-weight:900;padding:2px 7px;border-radius:5px;margin-left:6px">🧪 TEST</span>':''}</div>
-          <div class="class-manage-sub">ID: ${cls.id} · ${mc} student${mc!==1?'s':''}${cls.team_name?' · 🏷️ '+cls.team_name:''}</div>
+      <div class="class-manage-row" style="flex-direction:column;align-items:stretch;padding:0;overflow:hidden">
+        <div style="display:flex;align-items:center;gap:14px;padding:14px 18px">
+          <span style="font-size:24px;flex-shrink:0">${cls.emoji}</span>
+          <div class="class-manage-info">
+            <div class="class-manage-name">${cls.name}${cls.is_test?'<span style="background:#CE82FF;color:#fff;font-size:10px;font-weight:900;padding:2px 7px;border-radius:5px;margin-left:6px">🧪 TEST</span>':''}</div>
+            <div class="class-manage-sub">ID: ${cls.id} · ${members.length} student${members.length!==1?'s':''}${cls.team_name?' · 🏷️ '+cls.team_name:''}</div>
+          </div>
+          <div class="class-manage-actions">
+            <button class="btn-sm btn-sm-blue" onclick="toggleClassExpand('${cls.id}')">${isOpen?'▲ Close':'▼ Manage'}</button>
+            <button class="btn-sm btn-sm-red" onclick="confirmDeleteClass('${cls.id}')">🗑️</button>
+          </div>
         </div>
-        <div class="class-manage-actions">
-          <button class="btn-sm btn-sm-blue" onclick="openEditClass('${cls.id}')">✏️ Edit</button>
-          <button class="btn-sm btn-sm-red" onclick="confirmDeleteClass('${cls.id}')">🗑️</button>
-        </div>
+        ${isOpen ? renderClassExpandPanel(cls, members) : ''}
       </div>`;
   }).join('') || '<div style="color:var(--ink-3);font-size:13px;font-weight:700;padding:12px">No classes yet.</div>';
+}
+
+function toggleClassExpand(classId){
+  _expandedClassId = (_expandedClassId === classId) ? null : classId;
+  renderClassesManage();
+}
+
+function renderClassExpandPanel(cls, members){
+  return `
+    <div style="padding:16px 18px;background:var(--bg);border-top:2px solid var(--border-heavy)">
+      <div class="field-label">Class Name</div>
+      <input class="form-input" id="mng-name-${cls.id}" value="${cls.name}" style="width:100%;margin-bottom:10px">
+      <div class="field-label">Team Name</div>
+      <input class="form-input" id="mng-team-${cls.id}" value="${cls.team_name||''}" placeholder="e.g. The Grammar Gangsters" style="width:100%;margin-bottom:10px">
+      <div class="field-label">Emoji</div>
+      <div class="emoji-picker-row" id="mng-emoji-picker-${cls.id}" style="margin-bottom:10px">
+        ${CLASS_EMOJIS.map(e=>`<button class="emoji-pick-btn ${e===cls.emoji?'picked':''}" onclick="pickMngEmoji('${cls.id}','${e}',this)">${e}</button>`).join('')}
+      </div>
+      <input type="hidden" id="mng-emoji-${cls.id}" value="${cls.emoji}">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:12px;font-size:13px;font-weight:800">
+        <input type="checkbox" id="mng-test-${cls.id}" ${cls.is_test?'checked':''}> 🧪 Test class (excluded from leaderboard)
+      </label>
+      <button class="btn-sm btn-sm-blue" onclick="saveClassInline('${cls.id}')" style="padding:9px 16px">✓ Save Class Details</button>
+
+      <div style="height:2px;background:var(--border-heavy);margin:16px 0"></div>
+      <div class="field-label" style="margin-bottom:8px">Students (${members.length})</div>
+      ${members.map(s => `
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:18px;cursor:pointer" onclick="cycleStudentEmojiInline('${s.id}')">${s.avatar_emoji}</span>
+          <span style="flex:1;font-size:13px;font-weight:800;color:var(--ink-bold)" id="mng-sname-${s.id}">${s.name}</span>
+          <button class="btn-sm btn-sm-ghost" style="padding:5px 9px" onclick="renameStudentInline('${s.id}')">✏️</button>
+          <button class="btn-sm btn-sm-red" style="padding:5px 9px" onclick="confirmDeleteStudent('${s.id}','${cls.id}')">🗑️</button>
+        </div>`).join('') || '<div style="font-size:12px;color:var(--ink-3);font-weight:700;padding:6px 0">No students yet.</div>'}
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <input class="form-input" id="mng-newstu-${cls.id}" placeholder="First name" onkeydown="if(event.key==='Enter') addStudentInline('${cls.id}')">
+        <button class="btn-sm btn-sm-green" onclick="addStudentInline('${cls.id}')">＋ Add</button>
+      </div>
+    </div>`;
+}
+
+function pickMngEmoji(classId, emoji, btn){
+  document.getElementById('mng-emoji-'+classId).value = emoji;
+  btn.closest('.emoji-picker-row').querySelectorAll('.emoji-pick-btn').forEach(b=>b.classList.remove('picked'));
+  btn.classList.add('picked');
+}
+
+async function saveClassInline(classId){
+  const name  = document.getElementById('mng-name-'+classId).value.trim();
+  const team  = document.getElementById('mng-team-'+classId).value.trim();
+  const emoji = document.getElementById('mng-emoji-'+classId).value;
+  const isTest= document.getElementById('mng-test-'+classId)?.checked||false;
+  if(!name){ toast('⚠️','Class name cannot be empty'); return; }
+  const { error } = await sb.from('efcd_classes').update({ name, team_name: team||null, emoji, is_test: isTest }).eq('id', classId);
+  if(error){ toast('❌', error.message); return; }
+  toast('✅','Class updated!'); await loadEverything(); renderClassesManage();
+}
+
+async function addStudentInline(classId){
+  const input = document.getElementById('mng-newstu-'+classId);
+  const name = input?.value.trim(); if(!name) return;
+  const id = name.toLowerCase().replace(/\s+/g,'_')+'_'+Date.now();
+  const { error } = await sb.from('efcd_students').insert({ id, name, class_id: classId, avatar_emoji:'😊' });
+  if(error){ toast('❌', error.message); return; }
+  toast('✅', name+' added!'); await loadEverything(); renderClassesManage();
+}
+
+async function cycleStudentEmojiInline(studentId){
+  const student = _students.find(s=>s.id===studentId); if(!student) return;
+  const next = STUDENT_EMOJIS[(STUDENT_EMOJIS.indexOf(student.avatar_emoji)+1)%STUDENT_EMOJIS.length];
+  await sb.from('efcd_students').update({ avatar_emoji: next }).eq('id', studentId);
+  toast('✅', next+' set!'); await loadEverything(); renderClassesManage();
+}
+
+function renameStudentInline(studentId){
+  const student = _students.find(s=>s.id===studentId); if(!student) return;
+  const nameEl = document.getElementById('mng-sname-'+studentId); if(!nameEl) return;
+  nameEl.innerHTML = `<input class="form-input" id="mng-rename-${studentId}" value="${student.name}" style="width:100%;padding:4px 8px;font-size:13px" onkeydown="if(event.key==='Enter')saveRenameStudentInline('${studentId}')">`;
+  const inp = document.getElementById('mng-rename-'+studentId); if(inp){ inp.focus(); inp.select(); }
+}
+async function saveRenameStudentInline(studentId){
+  const inp = document.getElementById('mng-rename-'+studentId);
+  const newName = inp?.value.trim(); if(!newName) return;
+  const { error } = await sb.from('efcd_students').update({ name: newName }).eq('id', studentId);
+  if(error){ toast('❌', error.message); return; }
+  toast('✅','Renamed to '+newName); await loadEverything(); renderClassesManage();
 }
 
 const CLASS_EMOJIS = ['🌱','🚀','🎯','💼','🎸','⚡','🦋','🐉','🌺','🏆','🧠','🎭','🌊','🔥','💎','🎪','🦁','🌙','⭐','🎨','🏅','🌻','🤖','🎲','🦊','🌿','🍜','🏁','☕','☀️','🌤️'];
@@ -1485,87 +1207,15 @@ async function createClass(){
   toast('✅',`${emoji} ${name} created!`); hideAddClass(); await loadEverything(); renderManage();
 }
 
-function openEditClass(classId){
-  const cls = _classes.find(c=>c.id===classId);
-  if(!cls) return;
-  const members = _students.filter(s=>s.class_id===classId);
-  document.getElementById('edit-class-modal-title').textContent = `${cls.emoji} ${cls.name}`;
-  document.getElementById('edit-class-modal-body').innerHTML = `
-    <div><div class="field-label">Class Name</div><input class="form-input" id="edit-cls-name" value="${cls.name}" style="width:100%"></div>
-    <div><div class="field-label">Team Name</div><input class="form-input" id="edit-cls-team" value="${cls.team_name||''}" placeholder="e.g. The Grammar Gangsters" style="width:100%"></div>
-    <div style="padding:10px 14px;background:rgba(206,130,255,.08);border:2px solid rgba(206,130,255,.2);border-radius:var(--rsm)">
-      <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
-        <input type="checkbox" id="edit-cls-test" ${cls.is_test?'checked':''} style="width:18px;height:18px;cursor:pointer;flex-shrink:0">
-        <div><div style="font-size:13px;font-weight:900;color:var(--ink-bold)">🧪 Test class</div><div style="font-size:11px;font-weight:700;color:var(--ink-3);margin-top:2px">Exclude from leaderboard and stats</div></div>
-      </label>
-    </div>
-    <div><div class="field-label">Emoji</div>
-      <div class="emoji-picker-row" id="edit-cls-emoji-picker">${CLASS_EMOJIS.map(e=>`<button class="emoji-pick-btn ${e===cls.emoji?'picked':''}" onclick="pickEditClassEmoji('${e}',this)">${e}</button>`).join('')}</div>
-      <input type="hidden" id="edit-cls-emoji" value="${cls.emoji}">
-    </div>
-    <div style="display:flex;gap:8px">
-      <button class="btn-sm btn-sm-blue" onclick="saveEditClass('${classId}')" style="flex:1;padding:12px;font-size:13px">Save Changes</button>
-      <button class="btn-sm btn-sm-ghost" onclick="closeEditClass()">Cancel</button>
-    </div>
-    <div style="height:2px;background:var(--border);border-radius:2px;margin:4px 0"></div>
-    <div class="field-label">Students (${members.length})</div>
-    <div id="edit-students-list">
-      ${members.length ? members.map(s=>`
-        <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)" id="edit-srow-${s.id}">
-          <span style="font-size:20px;cursor:pointer" onclick="cycleStudentEmojiInModal('${s.id}','${classId}')">${s.avatar_emoji}</span>
-          <span style="flex:1;font-size:14px;font-weight:800;color:var(--ink-bold)" id="edit-sname-${s.id}">${s.name}</span>
-          <button class="btn-sm btn-sm-ghost" style="padding:5px 10px" onclick="renameStudentInModal('${s.id}','${classId}')">✏️</button>
-          <button class="btn-sm btn-sm-red" style="padding:5px 10px" onclick="deleteStudentInModal('${s.id}','${classId}')">🗑️</button>
-        </div>`).join('')
-      : '<div style="font-size:13px;color:var(--ink-3);font-weight:700;padding:8px 0">No students yet.</div>'}
-    </div>
-    <div style="display:flex;gap:8px;margin-top:8px">
-      <input class="form-input" id="edit-new-student" placeholder="First name" onkeydown="if(event.key==='Enter') addStudentInModal('${classId}')">
-      <button class="btn-sm btn-sm-green" onclick="addStudentInModal('${classId}')">＋ Add</button>
-    </div>`;
-  document.getElementById('edit-class-modal').classList.add('open');
-}
 
-async function addStudentInModal(classId){
-  const input=document.getElementById('edit-new-student'); const name=input?.value.trim(); if(!name) return;
-  const id=name.toLowerCase().replace(/\s+/g,'_')+'_'+Date.now();
-  const { error }=await sb.from('efcd_students').insert({id,name,class_id:classId,avatar_emoji:'😊'});
-  if(error){toast('❌',error.message);return;} toast('✅',name+' added!'); await loadEverything(); openEditClass(classId);
-}
-async function deleteStudentInModal(studentId, classId){
-  const student=_students.find(s=>s.id===studentId); if(!student) return;
-  if(!confirm(`Remove ${student.name}?`)) return;
-  const{error}=await sb.from('efcd_students').delete().eq('id',studentId);
-  if(error){toast('❌',error.message);return;} toast('🗑️',student.name+' removed'); await loadEverything(); openEditClass(classId);
-}
-async function cycleStudentEmojiInModal(studentId, classId){
-  const student=_students.find(s=>s.id===studentId); if(!student) return;
-  const next=STUDENT_EMOJIS[(STUDENT_EMOJIS.indexOf(student.avatar_emoji)+1)%STUDENT_EMOJIS.length];
-  await sb.from('efcd_students').update({avatar_emoji:next}).eq('id',studentId);
-  student.avatar_emoji=next; toast('✅',next+' set!'); await loadEverything(); openEditClass(classId);
-}
-async function renameStudentInModal(studentId, classId){
-  const student=_students.find(s=>s.id===studentId); if(!student) return;
-  const newName=prompt('New name for '+student.name+':',student.name);
-  if(!newName?.trim()||newName.trim()===student.name) return;
-  const{error}=await sb.from('efcd_students').update({name:newName.trim()}).eq('id',studentId);
-  if(error){toast('❌',error.message);return;} toast('✅','Renamed to '+newName.trim()); await loadEverything(); openEditClass(classId);
-}
-function pickEditClassEmoji(emoji, btn){
-  document.getElementById('edit-cls-emoji').value=emoji;
-  document.querySelectorAll('#edit-cls-emoji-picker .emoji-pick-btn').forEach(b=>b.classList.remove('picked'));
-  btn.classList.add('picked');
-}
-async function saveEditClass(classId){
-  const name =document.getElementById('edit-cls-name').value.trim();
-  const team =document.getElementById('edit-cls-team').value.trim();
-  const emoji=document.getElementById('edit-cls-emoji').value;
-  const isTest=document.getElementById('edit-cls-test')?.checked||false;
-  if(!name){toast('⚠️','Class name cannot be empty');return;}
-  const{error}=await sb.from('efcd_classes').update({name,team_name:team||null,emoji,is_test:isTest}).eq('id',classId);
-  if(error){toast('❌',error.message);return;} toast('✅','Class updated!'); closeEditClass(); await loadEverything(); renderManage();
-}
-function closeEditClass(){ document.getElementById('edit-class-modal').classList.remove('open'); }
+
+
+
+
+
+
+
+
 
 function confirmDeleteClass(classId){
   const cls=_classes.find(c=>c.id===classId); if(!cls) return;
@@ -1577,73 +1227,22 @@ function confirmDeleteClass(classId){
   });
 }
 
-function renderStudentsManage(){
-  const wrap=document.getElementById('students-manage-wrap');
-  const filter=document.getElementById('students-class-filter')?.value||'';
-  if(!wrap) return;
-  const classes=filter?_classes.filter(c=>c.id===filter):_classes;
-  wrap.innerHTML=classes.map(cls=>{
-    const members=_students.filter(s=>s.class_id===cls.id);
-    const rows=members.map(s=>`
-      <div class="student-manage-row" id="srow-${s.id}">
-        <span class="student-manage-emoji" onclick="cycleStudentEmoji('${s.id}')">${s.avatar_emoji}</span>
-        <span class="student-manage-name" id="sname-${s.id}">${s.name}</span>
-        <div class="student-manage-actions">
-          <button class="btn-sm btn-sm-ghost" onclick="renameStudent('${s.id}')">✏️</button>
-          <button class="btn-sm btn-sm-red" onclick="confirmDeleteStudent('${s.id}','${cls.id}')">🗑️</button>
-        </div>
-      </div>`).join('');
-    return `
-      <div class="students-class-section">
-        <div class="students-class-header"><span class="students-class-name">${cls.emoji} ${cls.name}</span><span class="students-class-count">${members.length} student${members.length!==1?'s':''}</span></div>
-        <div class="students-list">
-          ${rows||'<div style="padding:12px 16px;font-size:13px;color:var(--ink-3);font-weight:700">No students yet.</div>'}
-          <div class="add-student-row">
-            <input class="form-input" id="add-stu-${cls.id}" placeholder="Student first name" onkeydown="if(event.key==='Enter') addStudentManage('${cls.id}')">
-            <button class="btn-sm btn-sm-green" onclick="addStudentManage('${cls.id}')">Add</button>
-          </div>
-        </div>
-      </div>`;
-  }).join('')||'<div style="color:var(--ink-3);font-size:13px;font-weight:700;padding:12px">No classes to show.</div>';
-}
 
-async function addStudentManage(classId){
-  const input=document.getElementById('add-stu-'+classId); if(!input) return;
-  const name=input.value.trim(); if(!name) return;
-  const id=name.toLowerCase().replace(/\s+/g,'_')+'_'+Date.now();
-  const{error}=await sb.from('efcd_students').insert({id,name,class_id:classId,avatar_emoji:'😊'});
-  if(error){toast('❌',error.message);return;} input.value=''; toast('✅',name+' added!'); await loadEverything(); renderStudentsManage();
-}
 
-function renameStudent(studentId){
-  const student=_students.find(s=>s.id===studentId); if(!student) return;
-  const nameEl=document.getElementById('sname-'+studentId); if(!nameEl) return;
-  const current=student.name;
-  nameEl.innerHTML=`<input class="form-input" id="rename-input-${studentId}" value="${current}" style="width:100%;padding:4px 8px;font-size:14px" onkeydown="if(event.key==='Enter')saveRenameStudent('${studentId}');if(event.key==='Escape')cancelRenameStudent('${studentId}','${current}')">`;
-  const inp=document.getElementById('rename-input-'+studentId); if(inp){inp.focus();inp.select();}
-}
-async function saveRenameStudent(studentId){
-  const inp=document.getElementById('rename-input-'+studentId); const newName=inp?.value.trim(); if(!newName) return;
-  const{error}=await sb.from('efcd_students').update({name:newName}).eq('id',studentId);
-  if(error){toast('❌',error.message);return;} toast('✅','Renamed to '+newName); await loadEverything(); renderStudentsManage();
-}
-function cancelRenameStudent(studentId, originalName){ const nameEl=document.getElementById('sname-'+studentId); if(nameEl) nameEl.textContent=originalName; }
+
+
+
+
+
 
 const STUDENT_EMOJIS=['😊','😎','🌺','⭐','🎨','🦋','🎸','⚡','🎯','🌸','🦁','🌻','❄️','🌈','🎭','🔮','🌊','🌟','🦊','🏆','🚀','⚔️','🐉','🎪','🌙','☕','🍀','💎','🔥','🧠','🤖'];
-async function cycleStudentEmoji(studentId){
-  const student=_students.find(s=>s.id===studentId); if(!student) return;
-  const next=STUDENT_EMOJIS[(STUDENT_EMOJIS.indexOf(student.avatar_emoji)+1)%STUDENT_EMOJIS.length];
-  await sb.from('efcd_students').update({avatar_emoji:next}).eq('id',studentId);
-  student.avatar_emoji=next;
-  const el=document.querySelector(`#srow-${studentId} .student-manage-emoji`); if(el) el.textContent=next;
-  toast('✅',next+' set!');
-}
+
 
 function confirmDeleteStudent(studentId, classId){
   const student=_students.find(s=>s.id===studentId); if(!student) return;
   showConfirm('🗑️',`Remove ${student.avatar_emoji} ${student.name}?`,'History will be kept.', async()=>{
     await sb.from('efcd_students').delete().eq('id',studentId);
-    toast('🗑️',student.name+' removed'); await loadEverything(); renderStudentsManage();
+    toast('🗑️',student.name+' removed'); await loadEverything(); renderClassesManage();
   });
 }
 
@@ -1657,15 +1256,7 @@ function showConfirm(emoji, title, msg, onYes){
 }
 function closeConfirm(){ document.getElementById('confirm-overlay').classList.remove('open'); }
 
-async function removeLessonFromHistory(sessionId, badgeKey){
-  if(!confirm('Remove this lesson from history?')) return;
-  try {
-    await sb.from('efcd_badges').delete().eq('session_id',sessionId).eq('badge_key',badgeKey).eq('is_manual',false);
-    await sb.from('efcd_scores').delete().eq('session_id',sessionId);
-    await sb.from('efcd_lesson_vocab').delete().eq('session_id',sessionId);
-    toast('🗑️','Lesson removed from history'); renderHistory();
-  } catch(err){ toast('❌','Error: '+err.message); }
-}
+
 function closeManage(){ document.getElementById('manage-modal').classList.remove('open'); }
 
 async function setEmoji(studentId, emoji, btn){
@@ -1693,81 +1284,7 @@ async function addStudent(classId){
   if(error){toast('❌',error.message);return;} if(input) input.value=''; toast('✅',name+' added!'); await loadEverything(); _renderManageModal(classId);
 }
 
-// ── MANUAL CLASS SRS ACTIVATION ────────────────────────────────
-// Called from the SRS tab when teacher clicks "Activate SRS"
-// for a lesson that wasn't auto-activated (e.g. older lessons
-// completed before v3.0 was deployed).
-async function activateSRSForClass(classId, lessonId) {
-  const meta = LESSON_META[lessonId];
-  const cls  = _classes.find(c => c.id === classId);
-  if (!meta || !cls) return;
 
-  if (!confirm(`Activate SRS for "${meta.title}" for ${cls.emoji} ${cls.name}?\n\nVocabulary items will be scheduled for review. First review: tomorrow.`)) return;
-
-  try {
-    // Check if already exists
-    const { data: existing } = await sb
-      .from('efcd_srs_class_items')
-      .select('id')
-      .eq('class_id', classId)
-      .eq('lesson_id', lessonId)
-      .limit(1);
-
-    if (existing?.length) {
-      toast('ℹ️', 'SRS already active for this lesson and class');
-      return;
-    }
-
-    // Fetch vocab from efcd_lesson_vocab (saved when class completed the lesson)
-    const { data: vocabRows } = await sb
-      .from('efcd_lesson_vocab')
-      .select('vocab')
-      .eq('class_id', classId)
-      .eq('lesson_id', lessonId)
-      .limit(1);
-
-    if (!vocabRows?.length) {
-      toast('⚠️', 'This class must complete the lesson first before SRS can be activated');
-      return;
-    }
-
-    const vocab = Array.isArray(vocabRows[0].vocab)
-      ? vocabRows[0].vocab
-      : JSON.parse(vocabRows[0].vocab || '[]');
-
-    if (!vocab.length) {
-      toast('⚠️', 'No vocabulary found for this lesson');
-      return;
-    }
-
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const firstReview = tomorrow.toISOString().split('T')[0];
-
-    const srsItems = vocab.map(v => ({
-      class_id:       classId,
-      lesson_id:      lessonId,
-      item_key:       `vocab:${v.word}`,
-      item_type:      'vocab',
-      status:         'active',
-      interval_days:  1,
-      ease_factor:    2.5,
-      review_count:   0,
-      next_review_at: firstReview,
-      created_at:     new Date().toISOString(),
-    }));
-
-    const { error } = await sb.from('efcd_srs_class_items').insert(srsItems);
-    if (error) throw error;
-
-    toast('🧠', `SRS activated! ${srsItems.length} items scheduled for ${cls.name} — first review tomorrow`);
-    renderSRS();
-
-  } catch (err) {
-    toast('❌', 'Error: ' + err.message);
-    console.error('activateSRSForClass error:', err);
-  }
-}
 
 // ── MONTHLY CHAMPION ───────────────────────────────────────────
 
@@ -1907,8 +1424,10 @@ async function checkAndRecordMonthlyChampion() {
     toast('🏆', `${winner.emoji} ${winner.name} crowned ${getMonthLabel()} champions!`);
     renderLeaderboard();
     renderClasses();
+  } else {
+    console.error('Monthly champion insert failed for current month', error);
+    toast('❌', `Failed to record ${getMonthLabel()} champion: ${error.message}`);
   }
-}
 
 async function loadMonthlyChampions() {
   const { data, error } = await sb
