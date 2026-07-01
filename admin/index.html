@@ -612,10 +612,11 @@ async function renderClasses(){
   if(!grid) return;
 
   // Load monthly champions for class card crowns
-  const { data: champions } = await sb
+  const { data: champions, error: champErr } = await sb
     .from('efcd_monthly_champions')
     .select('class_id, month_label')
     .order('month', { ascending: false });
+  if (champErr) console.error('champions fetch failed:', champErr);
   const championMonths = {};
   (champions || []).forEach(c => {
     if (!championMonths[c.class_id]) championMonths[c.class_id] = [];
@@ -1843,10 +1844,13 @@ async function checkAndRecordMonthlyChampion() {
       xp:          totals[winner.id].xp,
     });
 
-    if (!error) {
+     if (!error) {
       toast('👑', `${winner.emoji} ${winner.name} crowned ${m.label} champions!`);
       renderLeaderboard();
       renderClasses();
+    } else {
+      console.error('Monthly champion insert failed for', m.key, error);
+      toast('❌', `Failed to record ${m.label} champion: ${error.message}`);
     }
   }
 
@@ -1906,10 +1910,14 @@ async function checkAndRecordMonthlyChampion() {
 }
 
 async function loadMonthlyChampions() {
-  const { data } = await sb
+  const { data, error } = await sb
     .from('efcd_monthly_champions')
     .select('*')
     .order('month', { ascending: false });
+  if (error) {
+    console.error('loadMonthlyChampions failed:', error);
+    toast('❌', 'Could not load Hall of Fame: ' + error.message);
+  }
   return data || [];
 }
 
