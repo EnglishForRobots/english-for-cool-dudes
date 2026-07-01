@@ -587,6 +587,24 @@
   ],
 },
 
+     'crypto-capital-gains-tax': {
+  title:   'The Crypto Capital Gains Trap',
+  level:   'Tax English',
+  grammar: 'Passive Voice in financial/tax English (is/are/was/were + past participle); First Conditional for client advice (If + present simple → will + infinitive)',
+  vocab: [
+    { word:'capital gain',          definition:'The profit made when you sell an asset for more than you paid for it' },
+    { word:'cost basis',            definition:'The original purchase price of an asset, used to calculate the taxable gain' },
+    { word:'taxable event',         definition:'Any transaction that triggers a tax obligation — selling, swapping or spending crypto' },
+    { word:'realised gain',         definition:'A profit that has actually become taxable because the asset has been sold or swapped' },
+    { word:'unrealised gain',       definition:'A profit that exists only on paper because the asset has not yet been sold' },
+    { word:'holding period',        definition:'The length of time you owned an asset before selling — can affect the tax rate' },
+    { word:'crypto-to-crypto swap', definition:'Exchanging one cryptocurrency directly for another without converting to regular currency first' },
+    { word:'tax-loss harvesting',   definition:'Deliberately selling a losing asset to offset taxable gains made elsewhere in your portfolio' },
+    { word:'CARF',                  definition:'The OECD Crypto-Asset Reporting Framework — requires exchanges to report user transactions to tax authorities' },
+    { word:'FIFO',                  definition:'"First In, First Out" — accounting method assuming the first units bought are the first ones sold' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
