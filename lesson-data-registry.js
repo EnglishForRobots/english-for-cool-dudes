@@ -2967,6 +2967,77 @@ const LESSON_DATA_REGISTRY = {
     ],
  
   },
+
+   'crypto-capital-gains-tax': {
+  id:    'crypto-capital-gains-tax',
+  title: 'The Crypto Capital Gains Trap',
+  level: 'Tax English',
+  track: 'tax',
+  emoji: '📈',
+  badge: 'Capital Gains Expert',
+
+  vocab: [
+    { word:'capital gain',          definition:'The profit made when you sell an asset for more than you paid for it',                                        example:'She made a €12,000 ___ when she sold her Bitcoin.',                         distractors:['cost basis','taxable event','holding period'] },
+    { word:'cost basis',            definition:'The original purchase price of an asset, used to calculate the taxable gain',                                 example:'Without an accurate ___, you cannot calculate how much tax is owed.',        distractors:['capital gain','FIFO','realised gain'] },
+    { word:'taxable event',         definition:'Any transaction that triggers a tax obligation — selling, swapping, or spending crypto',                       example:'A crypto-to-crypto swap is a ___ in most countries.',                       distractors:['unrealised gain','holding period','cost basis'] },
+    { word:'realised gain',         definition:'A profit that has actually become taxable because the asset has been sold or swapped',                         example:'Once she sold her Ethereum, the profit became a ___ gain.',                 distractors:['unrealised gain','capital gain','CARF'] },
+    { word:'unrealised gain',       definition:'A profit that exists only on paper because the asset has not yet been sold',                                   example:'His portfolio is up €40,000 — but it is still an ___ gain.',               distractors:['realised gain','taxable event','FIFO'] },
+    { word:'holding period',        definition:'The length of time you owned an asset before selling — can affect the tax rate in many countries',             example:'A ___ of over 12 months often qualifies for a lower tax rate.',            distractors:['capital gain','CARF','cost basis'] },
+    { word:'crypto-to-crypto swap', definition:'Exchanging one cryptocurrency directly for another without converting to regular currency first',              example:'A ___ is still a taxable event — even without touching euros.',             distractors:['realised gain','tax-loss harvesting','FIFO'] },
+    { word:'tax-loss harvesting',   definition:'Deliberately selling a losing asset to offset taxable gains made elsewhere in your portfolio',                 example:'He sold the failed token as a form of ___ to reduce his tax bill.',         distractors:['capital gain','cost basis','CARF'] },
+    { word:'CARF',                  definition:'The OECD Crypto-Asset Reporting Framework — requires exchanges to report user transactions to tax authorities', example:'From 2026, ___ means your crypto exchange sends data straight to the tax office.', distractors:['DAC7','FIFO','taxable event'] },
+    { word:'FIFO',                  definition:'"First In, First Out" — an accounting method assuming the first units bought are the first ones sold',         example:'Her broker used ___ to work out the gain on the partial sale.',             distractors:['CARF','cost basis','holding period'] },
+  ],
+
+  grammar: {
+    topic: 'Passive Voice in tax and financial English',
+    rule:  'Present passive: is/are + past participle. Past passive: was/were + past participle. In financial and legal English, passive focuses on what happened rather than who did it. "Tax is deducted." "The gain was realised." "Transactions are reported automatically."',
+    exercises: [
+      { sentence:'Under CARF, transaction data ___ automatically to tax authorities by exchanges.',    answer:'is reported',     wrong:['reports','reported','has reported'],        explain:'Present passive: is + past participle. The data receives the action of reporting.' },
+      { sentence:'The gain ___ at the moment she swapped her Bitcoin for Ethereum.',                  answer:'was realised',    wrong:['realised','is realising','has realised'],   explain:'Past passive: was + past participle. The gain received the action of being realised at a specific past moment.' },
+      { sentence:'The cost basis ___ from the original purchase price plus any transaction fees.',    answer:'is calculated',   wrong:['calculates','calculated','was calculating'], explain:'Present passive for an ongoing rule about how something is always done.' },
+      { sentence:'If the asset ___ for more than 12 months, a lower tax rate ___ in many countries.', answer:'is held / is applied', wrong:['holds / applies','held / applied','is holding / applying'], explain:'Present passive in both clauses: a general ongoing legal rule — the asset receives the holding, the rate receives the application.' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'First Conditional — predicting tax outcomes',
+    rule:  'First conditional: If + present simple → will + infinitive. Used to predict real, likely outcomes. Very common in client advice: "If you swap the Bitcoin, you will trigger a taxable event." Reminds clients of the consequences before they act.',
+    exercises: [
+      { sentence:'If she ___ her Bitcoin for Ethereum, she ___ a capital gain.',         answer:'swaps / will realise',      wrong:['swapped / would realise','will swap / realises','swaps / would realise'],    explain:'First conditional: if + present simple (swaps) → will + infinitive (will realise). A real likely outcome.' },
+      { sentence:'If he ___ the losing token, he ___ offset some of his gains.',         answer:'sells / will be able to',   wrong:['sold / would be able to','sells / would be able to','will sell / is able to'], explain:'First conditional for practical advice: if + present simple (sells) → will + infinitive.' },
+      { sentence:'If CARF ___ in force, exchanges ___ transaction data automatically.',  answer:'comes / will report',       wrong:['came / would report','comes / would report','will come / report'],           explain:'First conditional: a real upcoming event (CARF) triggers a certain outcome (reporting).' },
+      { sentence:'If a client ___ crypto without tracking their cost basis, they ___ trouble at audit.', answer:'buys / will have', wrong:['bought / would have','buys / would have','will buy / have'], explain:'First conditional for a warning: if + present simple (buys) → will + infinitive (will have). A predictable consequence.' },
+    ],
+  },
+
+  sentences: [
+    { words:['gain','a','sold','when','asset','is','made','it','A','capital','is','above','cost','basis','the'], answer:'A capital gain is made when an asset is sold above the cost basis', hint:'📈 What is a capital gain — and what triggers it?' },
+    { words:['swap','taxable','a','is','event','crypto-to-crypto','most','in','A','countries'],                  answer:'A crypto-to-crypto swap is a taxable event in most countries',       hint:'🪙 Why does swapping Bitcoin for Ethereum matter for tax?' },
+    { words:['exchanges','CARF','report','automatically','to','transaction','requires','data','authorities','tax'], answer:'CARF requires exchanges to automatically report transaction data to tax authorities', hint:'🔍 What does the OECD\'s new framework require?' },
+    { words:['gains','harvesting','offset','losses','tax-loss','uses','to','taxable'],                           answer:'tax-loss harvesting uses losses to offset taxable gains',            hint:'📉 What is the purpose of tax-loss harvesting?' },
+  ],
+
+  word_builder: [
+    { word:'realised',    definition:'Actually made — the asset has been sold or swapped' },
+    { word:'unrealised',  definition:'Existing only on paper — the asset has not been sold yet' },
+    { word:'harvesting',  definition:'Collecting something — here, deliberately using a loss' },
+    { word:'basis',       definition:'The starting point for a calculation' },
+    { word:'disposal',    definition:'Getting rid of an asset — selling, swapping, or gifting it' },
+    { word:'threshold',   definition:'The level at which a new rule or tax obligation kicks in' },
+  ],
+
+  true_false: [
+    { statement:'Swapping Bitcoin for Ethereum directly is NOT a taxable event because no cash was involved.',           correct:false, reveal:'❌ FALSE! In most countries, a crypto-to-crypto swap is treated as a disposal of the first asset — triggering a capital gain or loss. "No cash" does not mean "no tax."' },
+    { statement:'A capital gain only becomes taxable once the asset has actually been sold or swapped.',                  correct:true,  reveal:'✅ TRUE! An unrealised gain — profit that only exists "on paper" — is not taxable. It becomes taxable when the asset is disposed of.' },
+    { statement:'CARF is an OECD framework that requires crypto exchanges to report user transactions to tax authorities.', correct:true,  reveal:'✅ TRUE! From 2026, CARF (Crypto-Asset Reporting Framework) means exchanges in adopting countries automatically share transaction data — just like DAC7 does for Airbnb hosts.' },
+    { statement:'Tax-loss harvesting is illegal when applied to cryptocurrency.',                                         correct:false, reveal:'❌ FALSE! Tax-loss harvesting is a completely legitimate strategy for crypto, just as it is for stocks. Deliberately selling at a loss to offset gains is legal in most jurisdictions.' },
+    { statement:'In Germany, private crypto gains held for more than 12 months are generally tax-exempt.',                correct:true,  reveal:'✅ TRUE! Germany has historically treated long-term private crypto gains (over 1 year) as tax-exempt — but clients should always verify the current rules and document their holding dates carefully.' },
+    { statement:'"FIFO" stands for "First In, First Out" and determines which units are treated as sold first.',          correct:true,  reveal:'✅ TRUE! FIFO assumes the earliest-purchased units are the first ones sold — which directly affects the cost basis applied and therefore the size of the calculated gain.' },
+    { statement:'A longer holding period never affects the tax rate applied to a capital gain.',                          correct:false, reveal:'❌ FALSE! In many countries, holding an asset for longer than a threshold (often 12 months) qualifies the gain for a reduced "long-term" capital gains rate. The holding period absolutely matters.' },
+    { statement:'"Cost basis" is the original purchase price used as the starting point to calculate a capital gain.',   correct:true,  reveal:'✅ TRUE! Without an accurate cost basis, you cannot correctly calculate a gain. It\'s the first thing to check with any crypto-holding client.' },
+  ],
+},
  
    };
 
