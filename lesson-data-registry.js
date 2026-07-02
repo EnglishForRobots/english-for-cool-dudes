@@ -2466,7 +2466,7 @@ const LESSON_DATA_REGISTRY = {
   },
 
   sentences: [
-    { words:['viral','go','to','need','didn't','radio','song','The'],       answer:"The song didn't need radio to go viral",            hint:'📱 How did the song spread without traditional media?' },
+    { words:['viral','go','to','need',"didn't",'radio','song','The'],       answer:"The song didn't need radio to go viral",            hint:'📱 How did the song spread without traditional media?' },
     { words:['attention','language','to','pays','algorithm','no','The'],           answer:'The algorithm pays no attention to language',         hint:'🤖 What does the algorithm actually track?' },
     { words:['Klum','wrote','comment','a','Heidi','only','his','loved','part','that','she'], answer:'Heidi Klum wrote a comment that she loved only his part', hint:'💬 What was Heidi Klum\'s controversial reaction?' },
     { words:['barriers','language','transcends','The','melody'],                   answer:'The melody transcends language barriers',             hint:'🌍 Why do people love it without understanding it?' },
