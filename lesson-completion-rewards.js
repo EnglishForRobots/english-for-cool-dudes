@@ -605,6 +605,22 @@
   ],
 },
 
+     'weekly-drop-issue-011': {
+  title:   "The Weekly Drop — Issue 011 — The Telegraph Gets a New Owner: Axel Springer's £575m Deal",
+  level:   'All Levels',
+  grammar: 'Past Simple (regular and irregular verbs); Passive Voice — past passive in business news',
+  vocab: [
+    { word:'acquisition',          definition:'The act of buying a company, or part of a company.' },
+    { word:'consortium',           definition:'A group of companies or investors who join together to make one big deal.' },
+    { word:'regulatory clearance', definition:'Official permission from government bodies needed before a deal can go ahead.' },
+    { word:'stake',                definition:'A share, or percentage of ownership, in a company.' },
+    { word:'gazump',               definition:'To beat a buyer to a deal by offering more money at the last moment.' },
+    { word:'swoop',                definition:'To arrive suddenly and take fast, decisive action.' },
+    { word:'premium',              definition:'An extra amount of money paid above the normal or expected price.' },
+    { word:'sacrosanct',           definition:'Too important or valuable to be changed or questioned.' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
