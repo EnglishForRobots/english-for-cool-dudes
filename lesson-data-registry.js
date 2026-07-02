@@ -3038,6 +3038,71 @@ const LESSON_DATA_REGISTRY = {
     { statement:'"Cost basis" is the original purchase price used as the starting point to calculate a capital gain.',   correct:true,  reveal:'✅ TRUE! Without an accurate cost basis, you cannot correctly calculate a gain. It\'s the first thing to check with any crypto-holding client.' },
   ],
 },
+
+   'weekly-drop-issue-011': {
+  id:    'weekly-drop-issue-011',
+  title: "The Weekly Drop - Issue 011 - The Telegraph Gets a New Owner: Axel Springer's £575m Deal",
+  level: 'All Levels',
+  track: 'weekly-drop',
+  emoji: '📰',
+  badge: 'Headline Hunter',
+
+  vocab: [
+    { word:'acquisition',          definition:'The act of buying a company, or part of a company.',                          example:'Axel Springer completed its ___ of the Telegraph in June 2026.',              distractors:['consortium','regulatory clearance','premium'] },
+    { word:'consortium',           definition:'A group of companies or investors who join together to make one big deal.',   example:'A ___ led by RedBird Capital offered £500 million, then walked away.',        distractors:['stake','swoop','sacrosanct'] },
+    { word:'regulatory clearance', definition:'Official permission from government bodies needed before a deal can go ahead.', example:'The deal needed ___ ___ in the UK, Ireland and Austria.',                     distractors:['consortium','premium','gazump'] },
+    { word:'stake',                definition:'A share, or percentage of ownership, in a company.',                          example:'A new UK law caps foreign-state ___s in newspapers at 15%.',                  distractors:['premium','clearance','consortium'] },
+    { word:'gazump',               definition:'To beat a buyer to a deal by offering more money at the last moment.',        example:'Axel Springer ___ed DMGT with a last-minute higher offer.',                   distractors:['swoop','divest','acquire'] },
+    { word:'swoop',                definition:'To arrive suddenly and take fast, decisive action.',                          example:'Axel Springer ___ed in at the last minute to win the deal.',                  distractors:['gazump','stake','clearance'] },
+    { word:'premium',              definition:'An extra amount of money paid above the normal or expected price.',           example:'Axel Springer paid a £75 million ___ to beat its rival.',                     distractors:['stake','consortium','acquisition'] },
+    { word:'sacrosanct',           definition:'Too important or valuable to be changed or questioned.',                      example:'Axel Springer called editorial independence ___.',                            distractors:['diluted','nimble','iconic'] },
+  ],
+
+  grammar: {
+    topic: 'Past Simple — regular and irregular verbs',
+    rule:  'Regular verbs: add -ED (offered, passed). Irregular verbs change completely and must be learned: buy → bought, lose → lost. Past simple describes completed events in the story.',
+    exercises: [
+      { sentence:'Axel Springer ___ the Telegraph on 30 June 2026.',                  answer:'bought',   wrong:['buyed','buy','has bought'],         explain:'Irregular: buy → BOUGHT. Never "buyed".' },
+      { sentence:'The Barclay family ___ control of the Telegraph in 2023.',          answer:'lost',      wrong:['losed','lose','has lost'],          explain:'Irregular: lose → LOST. Never "losed".' },
+      { sentence:'A consortium led by RedBird Capital ___ £500 million — then walked away.', answer:'offered', wrong:['offer','was offering','has offered'], explain:'Regular past simple: offer → offered. A completed, finished action.' },
+      { sentence:'The UK government ___ a new law capping foreign ownership.',        answer:'passed',    wrong:['pass','passing','has passed'],      explain:'Regular past simple: pass → passed.' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Passive Voice — past passive in business news',
+    rule:  'Past passive: was/were + past participle. Common in news writing when the action matters more than who did it. "The Telegraph was founded in 1855." "The bid was blocked."',
+    exercises: [
+      { sentence:'The Telegraph ___ in London in 1855.',                              answer:'was founded', wrong:['founded','is founded','has founded'], explain:'Past passive: was + past participle. A completed historical fact.' },
+      { sentence:'RedBird IMI\'s own bid ___ over foreign ownership fears.',           answer:'was blocked', wrong:['blocked','is blocked','has blocked'],  explain:'Past passive: was + past participle. The bid received the action.' },
+      { sentence:'The Spectator ___ separately, for £100 million.',                   answer:'was sold',    wrong:['sold','is sold','has sold'],           explain:'Past passive for a completed transaction.' },
+      { sentence:'Regulatory clearance ___ in the UK, Ireland and Austria.',           answer:'was given',   wrong:['gave','is given','has given'],         explain:'Past passive: was + past participle. Clearance is the subject receiving the action.' },
+    ],
+  },
+
+  sentences: [
+    { words:['bought','Axel','the','Telegraph','Springer'],                    answer:'Axel Springer bought the Telegraph',              hint:'📰 Who bought the paper?' },
+    { words:['blocked','was','fears','ownership','over','bid','The'],          answer:'The bid was blocked over ownership fears',        hint:'🚫 What happened to RedBird IMI\'s own bid?' },
+    { words:['1855','founded','in','was','The','Telegraph'],                   answer:'The Telegraph was founded in 1855',               hint:'📅 How old is the Telegraph?' },
+    { words:['at','law','15%','caps','stakes','New'],                          answer:'New law caps stakes at 15%',                      hint:'⚖️ What does the new UK law do?' },
+  ],
+
+  word_builder: [
+    { word:'acquisition', definition:'The act of buying a company' },
+    { word:'consortium',  definition:'A group of investors working together' },
+    { word:'premium',     definition:'Extra money paid above the normal price' },
+    { word:'clearance',   definition:'Official permission to proceed' },
+    { word:'sacrosanct',  definition:'Too important to be changed or questioned' },
+  ],
+
+  true_false: [
+    { statement:'Axel Springer paid £575 million to buy the Telegraph.',                         correct:true,  reveal:'True! The £575 million acquisition ended three years without a permanent owner.' },
+    { statement:'Axel Springer is a British company.',                                           correct:false, reveal:'False! Axel Springer is German, based in Berlin — it also owns Bild, Die Welt, Politico and Business Insider.' },
+    { statement:'The Telegraph had one stable owner for the last three years.',                  correct:false, reveal:'False! It spent three years without a permanent owner while several buyers competed for control.' },
+    { statement:'The Spectator magazine was sold in the same deal as the Telegraph.',            correct:false, reveal:'False! The Spectator was sold separately to Sir Paul Marshall\'s OQS Ventures for £100 million.' },
+    { statement:'RedBird IMI had to sell the Telegraph because of a new UK law on foreign ownership.', correct:true, reveal:'True! A new UK law banning foreign states from owning newspapers forced the sale.' },
+  ],
+},
  
    };
 
