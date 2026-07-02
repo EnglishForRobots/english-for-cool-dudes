@@ -2434,9 +2434,9 @@ const LESSON_DATA_REGISTRY = {
 
   vocab: [
     { word:'go viral',    definition:'To spread very quickly across the internet, reaching millions of people',              example:'The song didn\'t need radio to ___ ___ — TikTok did it in days.',           distractors:['get famous','go global','trend up'] },
-    { word:'transcend',   definition:'To go beyond the usual limits of something',                                           example:'The melody ___ language — people feel it without understanding the words.', distractors:['translate','replace','include'] },
+    { word:'transcends',   definition:'To go beyond the usual limits of something',                                           example:'The melody ___ language — people feel it without understanding the words.', distractors:['translate','replace','include'] },
     { word:'traction',    definition:'The process of gaining popularity or making progress',                                 example:'The song has been gaining ___ globally, even outside German-speaking countries.', distractors:['attention','streams','fans'] },
-    { word:'resonate',    definition:'To have a strong, meaningful personal impact on someone',                              example:'The message of self-acceptance really ___ with listeners worldwide.',          distractors:['relate','respond','react'] },
+    { word:'resonates',    definition:'To have a strong, meaningful personal impact on someone',                              example:'The message of self-acceptance really ___ with listeners worldwide.',          distractors:['relate','respond','react'] },
     { word:'mishear',     definition:'To hear words incorrectly, understanding the wrong thing',                             example:'Many English speakers ___ "Du bist gut genug" as "Doobie Scoot Canoe."',    distractors:['misread','misquote','misuse'] },
     { word:'algorithm',   definition:'The rules a platform uses to decide what content to show users',                      example:'The ___ tracks how users respond and pushes popular content further.',        distractors:['database','playlist','feed'] },
     { word:'reassurance', definition:'Something that removes doubt or worry and makes someone feel better',                  example:'The chorus offers ___ — a reminder that you don\'t need to be perfect.',    distractors:['validation','confidence','comfort'] },
@@ -2466,7 +2466,7 @@ const LESSON_DATA_REGISTRY = {
   },
 
   sentences: [
-    { words:['viral','go','to','need','didn\'t','radio','song','The'],       answer:'The song didn\'t need radio to go viral',            hint:'📱 How did the song spread without traditional media?' },
+    { words:['viral','go','to','need','didn\'t','radio','song','The'],       answer:"The song didn't need radio to go viral",            hint:'📱 How did the song spread without traditional media?' },
     { words:['attention','language','to','pays','algorithm','no','The'],           answer:'The algorithm pays no attention to language',         hint:'🤖 What does the algorithm actually track?' },
     { words:['Klum','wrote','comment','a','Heidi','only','his','loved','part','that','she'], answer:'Heidi Klum wrote a comment that she loved only his part', hint:'💬 What was Heidi Klum\'s controversial reaction?' },
     { words:['barriers','language','transcends','The','melody'],                   answer:'The melody transcends language barriers',             hint:'🌍 Why do people love it without understanding it?' },
