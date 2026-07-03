@@ -621,6 +621,24 @@
   ],
 },
 
+     'deal-breaker-clause-legal': {
+  title:   'The Deal Breaker Clause',
+  level:   'Legal English',
+  grammar: 'Modal verbs of obligation and possibility (must/can/could); Third conditional for hypothetical deal analysis',
+  vocab: [
+    { word:'material adverse change (MAC) clause', definition:'A clause allowing a buyer to walk away from — or renegotiate — a deal if the target suffers a serious, unexpected decline in its business before closing.' },
+    { word:'due diligence',            definition:'The detailed investigation a buyer carries out into a company\'s finances, contracts, and risks before agreeing to buy it.' },
+    { word:'non-disclosure agreement (NDA)', definition:'A contract that legally binds both sides to keep the deal — and any information shared during negotiations — completely confidential.' },
+    { word:'earn-out',                 definition:'A part of the purchase price paid only later, and only if the acquired company hits agreed performance targets after the sale.' },
+    { word:'warranties and representations', definition:'Formal promises the seller makes about the true state of the company — if false, the buyer can claim compensation.' },
+    { word:'indemnity clause',         definition:'A clause where one party agrees to compensate the other for specific losses.' },
+    { word:'closing conditions',       definition:'The specific requirements that must be satisfied before a deal can legally complete.' },
+    { word:'breach of contract',       definition:'Failing to do what a contract legally requires.' },
+    { word:'good faith negotiation',   definition:'Negotiating honestly and fairly, without deliberately misleading or sabotaging the other side.' },
+    { word:'break fee',                definition:'A pre-agreed payment made if a party walks away from a deal without valid legal reason.' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
