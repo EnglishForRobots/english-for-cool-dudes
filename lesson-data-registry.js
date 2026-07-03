@@ -3065,7 +3065,7 @@ const LESSON_DATA_REGISTRY = {
       { sentence:'Axel Springer ___ the Telegraph on 30 June 2026.',                  answer:'bought',   wrong:['buyed','buy','has bought'],         explain:'Irregular: buy → BOUGHT. Never "buyed".' },
       { sentence:'The Barclay family ___ control of the Telegraph in 2023.',          answer:'lost',      wrong:['losed','lose','has lost'],          explain:'Irregular: lose → LOST. Never "losed".' },
       { sentence:'A consortium led by RedBird Capital ___ £500 million — then walked away.', answer:'offered', wrong:['offer','was offering','has offered'], explain:'Regular past simple: offer → offered. A completed, finished action.' },
-      { sentence:'The UK government ___ a new law capping foreign ownership.',        answer:'passed',    wrong:['pass','passing','has passed'],      explain:'Regular past simple: pass → passed.' },
+      { sentence:'The UK government ___ a new law capping foreign ownership.',        answer:'passed',    wrong:['pass','passed','past'],      explain:'Regular past simple: pass → passed.' },
     ],
   },
 
@@ -3084,7 +3084,7 @@ const LESSON_DATA_REGISTRY = {
     { words:['bought','Axel','the','Telegraph','Springer'],                    answer:'Axel Springer bought the Telegraph',              hint:'📰 Who bought the paper?' },
     { words:['blocked','was','fears','ownership','over','bid','The'],          answer:'The bid was blocked over ownership fears',        hint:'🚫 What happened to RedBird IMI\'s own bid?' },
     { words:['1855','founded','in','was','The','Telegraph'],                   answer:'The Telegraph was founded in 1855',               hint:'📅 How old is the Telegraph?' },
-    { words:['at','law','15%','caps','stakes','New'],                          answer:'New law caps stakes at 15%',                      hint:'⚖️ What does the new UK law do?' },
+    { words:['at','law','15%','caps','stakes','new','A'],                          answer:'A new law caps stakes at 15%',                      hint:'⚖️ What does the new UK law do?' },
   ],
 
   word_builder: [
@@ -3148,9 +3148,9 @@ const LESSON_DATA_REGISTRY = {
   },
 
   sentences: [
-    { words:['a','clause','MAC','walk','get-out-of-jail-free','isn\'t','card','a'], answer:'a MAC clause isn\'t a get-out-of-jail-free card', hint:'⚖️ What the lawyer tells TechNova\'s CFO' },
+    { words:['a','clause','MAC','get-out-of-jail-free','isn\'t','card','a'], answer:'a MAC clause isn\'t a get-out-of-jail-free card', hint:'⚖️ What the lawyer tells TechNova\'s CFO' },
     { words:['closing','conditions','still','be','must','satisfied'], answer:'closing conditions must still be satisfied', hint:'📝 What happens between signing and closing' },
-    { words:['breach','could','a','NDA','the','trigger','leak'], answer:'the leak could trigger a breach of the NDA', hint:'📰 The risk from the journalist\'s message' },
+    { words:['breach','of','could','the','a','NDA','the','trigger','leak'], answer:'the leak could trigger a breach of the NDA', hint:'📰 The risk from the journalist\'s message' },
     { words:['obligation','good','a','faith','includes','the','earn-out'], answer:'the earn-out includes a good faith obligation', hint:'🤝 What protects Solvix\'s founders from sabotage' },
   ],
 
