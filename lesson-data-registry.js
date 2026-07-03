@@ -3103,6 +3103,77 @@ const LESSON_DATA_REGISTRY = {
     { statement:'RedBird IMI had to sell the Telegraph because of a new UK law on foreign ownership.', correct:true, reveal:'True! A new UK law banning foreign states from owning newspapers forced the sale.' },
   ],
 },
+
+   'deal-breaker-clause-legal': {
+  id:    'deal-breaker-clause-legal',
+  title: 'The Deal Breaker Clause',
+  level: 'Legal English',
+  track: 'legal',
+  emoji: '🤝',
+  badge: 'Deal Closer',
+
+  vocab: [
+    { word:'material adverse change (MAC) clause', definition:'A clause allowing a buyer to walk away from — or renegotiate — a deal if the target company suffers a serious, unexpected decline in its business before closing.', example:'TechNova tried to invoke the ___ to walk away from the €40M deal.', distractors:['due diligence','earn-out','break fee'] },
+    { word:'due diligence',            definition:'The detailed investigation a buyer carries out into a company\'s finances, contracts, and risks before agreeing to buy it.', example:'TechNova\'s ___ team reviewed Solvix\'s contracts and accounts before signing.', distractors:['closing conditions','indemnity clause','good faith negotiation'] },
+    { word:'non-disclosure agreement (NDA)', definition:'A contract that legally binds both sides to keep the deal — and any information shared during negotiations — completely confidential.', example:'A leak to a journalist could be a breach of the ___ signed at the start of talks.', distractors:['tax covenant','warranties and representations','break fee'] },
+    { word:'earn-out',                 definition:'A part of the purchase price paid only later, and only if the acquired company hits agreed performance targets after the sale.', example:'Part of Solvix\'s payment depends on an ___ tied to revenue targets.', distractors:['indemnity clause','closing conditions','breach of contract'] },
+    { word:'warranties and representations', definition:'Formal promises the seller makes about the true state of the company — if they turn out to be false, the buyer can claim compensation.', example:'If Solvix\'s ___ turn out to be false, TechNova can claim compensation.', distractors:['due diligence','good faith negotiation','break fee'] },
+    { word:'indemnity clause',         definition:'A clause where one party agrees to compensate the other for specific losses, separate from a general breach of contract claim.', example:'An ___ covers a specific, named risk found during due diligence.', distractors:['closing conditions','earn-out','MAC clause'] },
+    { word:'closing conditions',       definition:'The specific requirements that must be satisfied before a deal can legally complete, even after both sides have signed.', example:'Signing and closing are different moments — ___ must still be met.', distractors:['due diligence','indemnity clause','breach of contract'] },
+    { word:'breach of contract',       definition:'Failing to do what a contract legally requires, giving the other party the right to claim damages or another remedy.', example:'A serious NDA leak could trigger a ___ claim.', distractors:['closing conditions','earn-out','good faith negotiation'] },
+    { word:'good faith negotiation',   definition:'Negotiating honestly and fairly, without deliberately misleading the other side or trying to sabotage the deal.', example:'Earn-out clauses usually include a ___ obligation on the buyer.', distractors:['due diligence','warranties and representations','MAC clause'] },
+    { word:'break fee',                definition:'A pre-agreed payment one party must make to the other if they walk away from a deal without a valid legal reason.', example:'Walking away without grounds still means paying the ___.', distractors:['indemnity clause','earn-out','due diligence'] },
+  ],
+
+  grammar: {
+    topic: 'Modal verbs of obligation and possibility — must / can / could',
+    rule:  'MUST expresses a strict legal requirement with no exception. CAN expresses permission or a real option. COULD expresses a possible — but not certain — outcome. In deal English these are used constantly to describe what parties are required, allowed, or likely to do.',
+    exercises: [
+      { sentence:'A signed contract ___ still satisfy closing conditions before the deal completes.', answer:'must', wrong:['can','might','should'], explain:'"Must" for a strict legal requirement — closing conditions are not optional.' },
+      { sentence:'A buyer ___ walk away using a MAC clause, but only for a genuinely serious event.', answer:'can', wrong:['must','should','will'], explain:'"Can" expresses a real, permitted option — not an obligation.' },
+      { sentence:'If TechNova wrongly invokes the MAC clause, Solvix ___ pursue a breach of contract claim.', answer:'could', wrong:['must','can\'t','shouldn\'t'], explain:'"Could" expresses a real possible consequence, not a certainty.' },
+      { sentence:'The buyer ___ deliberately sabotage the earn-out targets — that would breach good faith.', answer:'mustn\'t', wrong:['can\'t','shouldn\'t always','doesn\'t have to'], explain:'"Mustn\'t" — a legal prohibition rather than mere advice.' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Third Conditional — analysing what would have happened',
+    rule:  'Third conditional: If + past perfect → would have + past participle. Used constantly in legal analysis to explain what would have happened if the facts had been different. "If TechNova had proven a MAC event, it would have avoided the break fee."',
+    exercises: [
+      { sentence:'If TechNova ___ real grounds, it ___ the break fee.', answer:'had had / would have avoided', wrong:['had / would avoid','had had / would avoid','had / would have avoided'], explain:'Third conditional: If + past perfect (had had) → would have + past participle (would have avoided).' },
+      { sentence:'If Solvix ___ the leak earlier, the NDA breach ___ easier to prove.', answer:'had reported / would have been', wrong:['reported / would be','had reported / would be','reported / would have been'], explain:'Third conditional throughout — both clauses imagine a different past.' },
+      { sentence:'If the earn-out ___ tiered, missing the target by 3% ___ zero payment.', answer:'hadn\'t been / wouldn\'t have meant', wrong:['wasn\'t / wouldn\'t mean','hadn\'t been / wouldn\'t mean','wasn\'t / wouldn\'t have meant'], explain:'Negative third conditional — imagining the clause had been structured differently.' },
+      { sentence:'If the parties ___ closing conditions, the deal ___ automatically.', answer:'hadn\'t agreed / would never have completed', wrong:['didn\'t agree / would never complete','hadn\'t agreed / would never complete','didn\'t agree / would never have completed'], explain:'Third conditional — closing conditions are never automatic, hence the hypothetical.' },
+    ],
+  },
+
+  sentences: [
+    { words:['a','clause','MAC','walk','get-out-of-jail-free','isn\'t','card','a'], answer:'a MAC clause isn\'t a get-out-of-jail-free card', hint:'⚖️ What the lawyer tells TechNova\'s CFO' },
+    { words:['closing','conditions','still','be','must','satisfied'], answer:'closing conditions must still be satisfied', hint:'📝 What happens between signing and closing' },
+    { words:['breach','could','a','NDA','the','trigger','leak'], answer:'the leak could trigger a breach of the NDA', hint:'📰 The risk from the journalist\'s message' },
+    { words:['obligation','good','a','faith','includes','the','earn-out'], answer:'the earn-out includes a good faith obligation', hint:'🤝 What protects Solvix\'s founders from sabotage' },
+  ],
+
+  word_builder: [
+    { word:'diligence',  definition:'Careful investigation before making a commitment' },
+    { word:'indemnity',  definition:'A promise to pay for a specific named loss' },
+    { word:'warranty',   definition:'A promise that gives rise to a claim if untrue' },
+    { word:'closing',    definition:'The moment a deal formally completes' },
+    { word:'breach',     definition:'Failing to do what a contract requires' },
+    { word:'earn-out',   definition:'Extra payment tied to future performance' },
+  ],
+
+  true_false: [
+    { statement:'A MAC clause lets a buyer walk away from any deal simply because they\'ve changed their mind.', correct:false, reveal:'❌ FALSE. A MAC clause requires a genuinely serious, unforeseen event threatening the target\'s core business — not buyer\'s remorse.' },
+    { statement:'Due diligence normally happens before a deal is signed, not after.', correct:true, reveal:'✅ TRUE. Due diligence is the investigation phase that happens before signing, so the buyer knows exactly what they are agreeing to buy.' },
+    { statement:'An NDA can be legally enforced even if the deal ultimately falls through.', correct:true, reveal:'✅ TRUE. Confidentiality obligations under an NDA usually survive regardless of whether the deal actually closes.' },
+    { statement:'Earn-outs mean the seller receives 100% of the purchase price immediately at closing.', correct:false, reveal:'❌ FALSE. With an earn-out, part of the price is deferred and depends on hitting agreed targets after the sale.' },
+    { statement:'If a seller\'s warranties turn out to be false, the buyer may be able to claim compensation.', correct:true, reveal:'✅ TRUE. That is the entire purpose of warranties and representations.' },
+    { statement:'Closing conditions are simply a formality and never actually stop a deal from happening.', correct:false, reveal:'❌ FALSE. Closing conditions are real legal requirements — if one isn\'t met, a signed deal can fail to complete.' },
+    { statement:'A break fee is designed to discourage a party from abandoning a deal without good reason.', correct:true, reveal:'✅ TRUE. Break fees make an unjustified walkaway costly.' },
+    { statement:'Good faith obligations in an earn-out can prevent a buyer from deliberately sabotaging performance targets.', correct:true, reveal:'✅ TRUE. Many earn-out clauses require the buyer to operate the business reasonably.' },
+  ],
+},
  
    };
 
