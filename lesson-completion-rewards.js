@@ -639,6 +639,22 @@
   ],
 },
 
+     'weekly-drop-issue-012': {
+      title:   "The Weekly Drop — Issue 012 — Learning Another Language Slows Brain Ageing, Scientists Say",
+      level:   'All Levels',
+      grammar: 'True/False; Fix the Mistake (word choice); Word Match; Say It Like a Local (language ID mini-game); Beat the Clock mixed-level quiz',
+      vocab: [
+        { word:'multilingualism',   definition:'The ability to speak more than one language.' },
+        { word:'proficiency',       definition:'How skilled or able someone is at a language.' },
+        { word:'connectivity',      definition:'How different parts of the brain link and communicate.' },
+        { word:'deteriorate',       definition:'To become worse or weaker over time.' },
+        { word:'resilience',        definition:'The ability to stay strong or recover from difficulty.' },
+        { word:'gradient',          definition:'A gradual scale of change, rather than a strict either/or.' },
+        { word:'rule out',          definition:'To say that something is not a possible cause or explanation.' },
+        { word:'chronological age', definition:'A person\'s actual age in years, counted from their date of birth.' },
+      ],
+    },
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
