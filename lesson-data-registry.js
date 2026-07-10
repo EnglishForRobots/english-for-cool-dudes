@@ -3174,6 +3174,73 @@ const LESSON_DATA_REGISTRY = {
     { statement:'Good faith obligations in an earn-out can prevent a buyer from deliberately sabotaging performance targets.', correct:true, reveal:'✅ TRUE. Many earn-out clauses require the buyer to operate the business reasonably.' },
   ],
 },
+
+   'weekly-drop-issue-012': {
+    id:    'weekly-drop-issue-012',
+    title: "The Weekly Drop — Issue 012 — Learning Another Language Slows Brain Ageing, Scientists Say",
+    level: 'All Levels',
+    track: 'weekly-drop',
+    emoji: '🧠',
+    badge: 'Brain Booster',
+
+    vocab: [
+      { word:'multilingualism',   definition:'The ability to speak more than one language.',                                            example:'The Basque region has high levels of ___, with people speaking several languages.', distractors:['proficiency','connectivity','resilience'] },
+      { word:'proficiency',       definition:'How skilled or able someone is at something, especially a language.',                     example:'Higher language ___ was linked to slower brain ageing.',                            distractors:['multilingualism','deteriorate','gradient'] },
+      { word:'connectivity',      definition:'The way that different parts of the brain are linked together and communicate.',          example:'Scientists compared brain ___ against people\'s real age.',                          distractors:['proficiency','resilience','rule out'] },
+      { word:'deteriorate',       definition:'To become worse or weaker over time.',                                                     example:'As we age, brain connectivity often ___.',                                          distractors:['gradient','connectivity','chronological age'] },
+      { word:'resilience',        definition:'The ability to stay strong, recover, or keep working well despite difficulty or damage.',  example:'Other habits could also boost the brain\'s ___.',                                    distractors:['multilingualism','deteriorate','rule out'] },
+      { word:'gradient',          definition:'A gradual scale of change, rather than a strict either/or category.',                      example:'Multilingual experience matters as a ___, not simply bilingual or not.',              distractors:['connectivity','proficiency','chronological age'] },
+      { word:'rule out',          definition:'To say that something is definitely not a possible cause or explanation for a result.',    example:'Scientists could not ___ ___ other factors like lifestyle.',                          distractors:['deteriorate','gradient','resilience'] },
+      { word:'chronological age', definition:'A person\'s actual age in years, counted from their date of birth.',                       example:'It doesn\'t matter what your ___ ___ is — brains can slow ageing at any point.',       distractors:['multilingualism','connectivity','proficiency'] },
+    ],
+
+    true_false: [
+      { statement:'People who speak two languages have brains that appear about six years younger.', correct:true,  reveal:'✅ TRUE! The study found brains looked around six years younger in two-language speakers.' },
+      { statement:'Speaking more languages makes the brain age faster.',                              correct:false, reveal:'❌ FALSE! It\'s the opposite — more languages, younger-looking brain.' },
+      { statement:'Scientists studied the Basque region because many people there speak more than one language.', correct:true, reveal:'✅ TRUE! High levels of multilingualism made it an ideal study location.' },
+      { statement:'Scientists used an MRI scanner to measure brain activity.',                         correct:false, reveal:'❌ FALSE! They used magnetoencephalography (MEG), not an MRI.' },
+      { statement:'Every expert agrees speaking languages is definitely the only reason for a younger brain.', correct:false, reveal:'❌ FALSE! Professor Eef Hogervorst urged caution — other factors could play a role.' },
+      { statement:'Four languages was linked to a bigger brain-age benefit than two.',                 correct:true,  reveal:'✅ TRUE! Four languages was linked to brains looking around 13 years younger.' },
+    ],
+
+    fix_mistakes: [
+      { sentence:'"As we get older, the connectivity in our brains often <u>improves</u>, causing memory and speed of thought to decline."', wrong:'improves', correct:'deteriorates', explain:'Brain connectivity gets worse with age, not better — "improves" contradicts the rest of the sentence.' },
+      { sentence:'"Higher language <u>deficiency</u> and earlier acquisition of a second language were linked to slower brain ageing."', wrong:'deficiency', correct:'proficiency', explain:'Proficiency = skill in a language. Deficiency means lacking something — the opposite idea.' },
+      { sentence:'"Multilingual experience matters as a <u>deterioration</u>: depth and duration matter, not simply bilingual or not."', wrong:'deterioration', correct:'gradient', explain:'A gradient is a scale of depth/degree — not a synonym for decline.' },
+      { sentence:'"Researchers could not <u>acquire</u> the possible influence of other factors, such as lifestyle."', wrong:'acquire', correct:'rule out', explain:'"Rule out" means to say something isn\'t a possible cause — "acquire" means to obtain, which doesn\'t fit.' },
+    ],
+
+    word_match: [
+      { term:'multilingualism', def:'The ability to speak more than one language' },
+      { term:'proficiency',     def:'How skilled or able someone is at a language' },
+      { term:'connectivity',    def:'How different parts of the brain link and communicate' },
+      { term:'deteriorate',     def:'To become worse or weaker over time' },
+      { term:'resilience',      def:'The ability to stay strong or recover from difficulty' },
+      { term:'gradient',        def:'A gradual scale of change, rather than a strict either/or' },
+    ],
+
+    language_guess: [
+      { word:'Cerebro', clue:'(hint: sounds like "cerebral")', opts:['French','Spanish','German'], correct:1, fact:'🇪🇸 "Cerebro" is Spanish for brain.' },
+      { word:'Gehirn',  clue:'(hint: think science class)',    opts:['German','Spanish','French'], correct:0, fact:'🇩🇪 "Gehirn" is German for brain.' },
+      { word:'Cerveau', clue:'(hint: close cousin of "cerebro")', opts:['Spanish','German','French'], correct:2, fact:'🇫🇷 "Cerveau" is French for brain.' },
+      { word:'Garuna',  clue:'(hint: won\'t look familiar at all)', opts:['Spanish','Basque','French'], correct:1, fact:'🏔️ "Garuna" is Basque for brain — Basque is a language isolate.' },
+      { word:'Hola',    clue:'(hint: one of the first words every learner picks up)', opts:['German','French','Spanish'], correct:2, fact:'🇪🇸 "Hola" means hello in Spanish!' },
+      { word:'Bonjour', clue:'(hint: literally means "good day")', opts:['French','Spanish','German'], correct:0, fact:'🇫🇷 "Bonjour" means hello in French!' },
+    ],
+
+    beat_clock: [
+      { level:'h1', label:'🟢 Beginner',   q:'How many years younger did TWO-language brains look?', opts:['Six years','Ten years','Two years'], correct:0 },
+      { level:'h1', label:'🟢 Beginner',   q:'The Basque Country spans Spain and which other country?', opts:['Portugal','France','Italy'], correct:1 },
+      { level:'h1', label:'🟢 Beginner',   q:'How many languages gave the BIGGEST brain-age boost?', opts:['Two','Three','Four'], correct:2 },
+      { level:'h2', label:'🟡 A2',         q:'What\'s Spanish for "brain"?', opts:['Cerebro','Gehirn','Cerveau'], correct:0 },
+      { level:'h2', label:'🟡 A2',         q:'What\'s French for "hello"?', opts:['Hola','Bonjour','Hallo'], correct:1 },
+      { level:'h3', label:'🔴 Upper Int',  q:'Basque is a language isolate — it isn\'t related to...', opts:['Only Spanish','Only French','Spanish, French OR English'], correct:2 },
+      { level:'h3', label:'🔴 Upper Int',  q:'Who urged caution about the study\'s results?', opts:['Eef Hogervorst','Dr Lucia Amoruso','Chris Evans'], correct:0 },
+      { level:'h4', label:'🏆 Advanced',   q:'What does "gradient" mean in this story?', opts:['A strict yes/no category','A gradual scale of depth and experience','A type of brain scan'], correct:1 },
+      { level:'h4', label:'🏆 Advanced',   q:'Which word means "to get worse over time"?', opts:['Acquire','Resilience','Deteriorate'], correct:2 },
+      { level:'h4', label:'🏆 Advanced',   q:'Speaking FOUR languages was linked to a brain looking how much younger?', opts:['6 years','13 years','7 years'], correct:1 },
+    ],
+  },
  
    };
 
