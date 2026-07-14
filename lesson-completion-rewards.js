@@ -655,6 +655,22 @@
       ],
     },
 
+     'spot-fake-ai-ads': {
+  title:   'How to Spot Fake AI Ads',
+  level:   'Intermediate',
+  grammar: 'Passive Voice (present and past); Zero Conditional for warnings and red flags',
+  vocab: [
+    { word:'aggressively',         definition:'In a forceful, pushy way' },
+    { word:'fell for it',          definition:'Believed something false' },
+    { word:'legit',                definition:'Genuine and trustworthy (informal)' },
+    { word:'malware',              definition:'Harmful software that damages devices' },
+    { word:'reverse image search', definition:'Searching the web using a picture, not words' },
+    { word:'compromised',          definition:'Stolen, hacked, or exposed' },
+    { word:'slip through',         definition:'Pass by unnoticed' },
+    { word:'too good to be true',  definition:'So great it\u2019s probably fake' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
