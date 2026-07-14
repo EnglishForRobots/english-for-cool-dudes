@@ -3241,6 +3241,137 @@ const LESSON_DATA_REGISTRY = {
       { level:'h4', label:'🏆 Advanced',   q:'Speaking FOUR languages was linked to a brain looking how much younger?', opts:['6 years','13 years','7 years'], correct:1 },
     ],
   },
+
+   'spot-fake-ai-ads': {
+
+    id:    'spot-fake-ai-ads',
+    title: 'How to Spot Fake AI Ads',
+    level: 'Intermediate',
+    track: 'intermediate',
+    emoji: '🕵️',
+    badge: 'Scam Spotter',
+
+    // ── VOCAB ────────────────────────────────────────────────
+    vocab: [
+      { word:'aggressively',         definition:'In a forceful, pushy way',                          example:'The mug was ___ advertised online with fake discounts.',                distractors:['legit','compromised','slip through'] },
+      { word:'fell for it',          definition:'Believed something false',                           example:'Many users ___ ___ ___ and bought the fake product.',                    distractors:['slipped through it','ruled it out','compromised it'] },
+      { word:'legit',                definition:'Genuine and trustworthy (informal)',                 example:'How can you tell what\u2019s ___ and what isn\u2019t?',                    distractors:['aggressive','compromised','malware'] },
+      { word:'malware',              definition:'Harmful software that damages devices',              example:'The link can download ___ before you even enter your card details.',     distractors:['legit','too good to be true','fell for it'] },
+      { word:'reverse image search', definition:'Searching the web using a picture, not words',       example:'A ___ ___ ___ showed the same photo on five different websites.',         distractors:['gray market','platform reporting','cost basis'] },
+      { word:'compromised',          definition:'Stolen, hacked, or exposed',                          example:'___ card details often get resold online.',                              distractors:['aggressive','legit','slip through'] },
+      { word:'slip through',         definition:'Pass by unnoticed',                                   example:'Some fake ads ___ ___ the platform\u2019s filters.',                      distractors:['fall for it','rule out','compromise'] },
+      { word:'too good to be true',  definition:'So great it\u2019s probably fake',                    example:'If it sounds ___ ___ ___ ___ ___, it probably is.',                       distractors:['legit and compromised','aggressively priced','slipped through twice'] },
+    ],
+
+    // ── GRAMMAR 1: Passive Voice ─────────────────────────────
+    grammar: {
+      topic: 'Passive Voice — present and past passive in tech/scam reporting',
+      rule:  'Present passive: is/are + past participle. Past passive: was/were + past participle. Modal passive: can/could + be + past participle. Used constantly in reporting on scams and technology — the focus is on what happened, not who did it.',
+      exercises: [
+        {
+          sentence: 'Both the mug and the model in the ad ___ using AI.',
+          answer:   'were created',
+          wrong:    ['created', 'are created', 'has created'],
+          explain:  'Past passive: were + past participle. Both nouns are plural, so "were" — not "was".',
+        },
+        {
+          sentence: 'Malware ___ onto a device before any payment details are even entered.',
+          answer:   'can be downloaded',
+          wrong:    ['can download', 'downloads', 'was downloading'],
+          explain:  'Modal passive: can + be + past participle. The device receives the action.',
+        },
+        {
+          sentence: 'The fake listing ___ down after enough users reported it.',
+          answer:   'was taken',
+          wrong:    ['took', 'has taken', 'is taking'],
+          explain:  'Past passive with phrasal verb "take down": was + past participle.',
+        },
+        {
+          sentence: 'These days, realistic fake ads ___ using nothing more than a text prompt.',
+          answer:   'are generated',
+          wrong:    ['generate', 'generated', 'have generate'],
+          explain:  'Present passive for a general, ongoing truth about how these ads are made now.',
+        },
+      ],
+    },
+
+    // ── GRAMMAR 2: Zero Conditional ──────────────────────────
+    grammar2: {
+      topic: 'Zero Conditional — general truths and warnings',
+      rule:  'Zero conditional: If + present simple, present simple. Used for general truths, rules and warnings that are always true. "If it sounds too good to be true, it probably is." Very common in safety and consumer advice.',
+      exercises: [
+        {
+          sentence: 'If an offer ___ too good to be true, it usually ___ fake.',
+          answer:   'sounds / is',
+          wrong:    ['sounded / was', 'will sound / will be', 'sounds / was'],
+          explain:  'Zero conditional: present simple in both clauses for a general rule that is always true.',
+        },
+        {
+          sentence: 'If you ___ your card details on an unfamiliar site, you ___ the risk of fraud.',
+          answer:   'enter / increase',
+          wrong:    ['entered / increased', 'will enter / will increase', 'enter / increased'],
+          explain:  'Zero conditional: both verbs stay in present simple — a general consequence, not a one-off prediction.',
+        },
+        {
+          sentence: 'If the comments ___ turned off or full of bot-like replies, that usually ___ a red flag.',
+          answer:   'are / means',
+          wrong:    ['were / meant', 'will be / will mean', 'are / meant'],
+          explain:  'Zero conditional for a general warning sign — always true, not a specific future event.',
+        },
+        {
+          sentence: 'If a reverse image search ___ the same product on five different sites, the ad ___ likely a scam.',
+          answer:   'shows / is',
+          wrong:    ['showed / was', 'will show / will be', 'shows / was'],
+          explain:  'Zero conditional: a reliable, repeatable test — present simple throughout.',
+        },
+      ],
+    },
+
+    // ── SENTENCE BUILDER ────────────────────────────────────
+    sentences: [
+      {
+        words:  ['were', 'Both', 'the', 'mug', 'and', 'the', 'model', 'created', 'using', 'AI'],
+        answer: 'Both the mug and the model were created using AI',
+        hint:   '🎭 What was actually fake about the coffee mug ad?',
+      },
+      {
+        words:  ['too', 'it', 'sounds', 'good', 'to', 'be', 'true', 'If'],
+        answer: 'If it sounds too good to be true',
+        hint:   '🚩 The first half of the video\u2019s golden rule',
+      },
+      {
+        words:  ['moderation', 'automated', 'through', 'ads', 'slip', 'systems', 'often', 'Fake'],
+        answer: 'Fake ads often slip through automated moderation systems',
+        hint:   '🤖 Why do platforms miss so many fake ads?',
+      },
+      {
+        words:  ['image', 'a', 'reveals', 'search', 'reverse', 'the', 'scam'],
+        answer: 'a reverse image search reveals the scam',
+        hint:   '🔍 What simple first step can expose a fake product photo?',
+      },
+    ],
+
+    // ── WORD BUILDER ────────────────────────────────────────
+    word_builder: [
+      { word:'malware',      definition:'Harmful software that damages devices' },
+      { word:'compromised',  definition:'Stolen, hacked, or exposed' },
+      { word:'legit',        definition:'Genuine and trustworthy (informal)' },
+      { word:'aggressively', definition:'In a forceful, pushy way' },
+      { word:'scam',         definition:'A dishonest scheme to trick people out of money' },
+    ],
+
+    // ── TRUE / FALSE ─────────────────────────────────────────
+    true_false: [
+      { statement:'The coffee mug shown in the ad was a real product.',                                                    correct:false, reveal:'❌ FALSE! Both the mug AND the model in the ad were created using AI — neither one was real.' },
+      { statement:'A fake ad link can download malware before you even enter your card details.',                         correct:true,  reveal:'✅ TRUE! Malware can be downloaded onto your device before you upload any payment information at all.' },
+      { statement:'Amazon removes every fake AI-generated listing within 24 hours.',                                       correct:false, reveal:'❌ FALSE! These listings can stay up for weeks or months, and scammers just make a new one once it\u2019s taken down.' },
+      { statement:'Modern AI video tools can now create a realistic fake ad from a single prompt.',                        correct:true,  reveal:'✅ TRUE! The video mentions a famous IKEA-style ad created with just one single prompt.' },
+      { statement:'A reverse image search can reveal the same product being sold on several sites at different prices.',  correct:true,  reveal:'✅ TRUE! That\u2019s exactly what happened with the coffee mug — the same design turned up on multiple platforms.' },
+      { statement:'Experts say social media platforms catch and block every fake ad before users ever see it.',           correct:false, reveal:'❌ FALSE! Many fake ads slip through automated moderation — platforms often only react after users report them.' },
+      { statement:'A turned-off comments section or lots of bot-like comments can be a warning sign.',                     correct:true,  reveal:'✅ TRUE! The video lists this as one of the clearest red flags to watch for.' },
+    ],
+
+  },
  
    };
 
