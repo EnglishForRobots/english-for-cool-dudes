@@ -2932,7 +2932,7 @@ const LESSON_DATA_REGISTRY = {
       exercises: [
         { sentence:'Harold ___ in the final Norman attack of the day.',        answer:'was killed',     wrong:['killed','has been killed','were killed'], explain:'Past passive: was + past participle. Harold received the action.' },
         { sentence:'William ___ King of England on Christmas Day, 1066.',     answer:'was crowned',    wrong:['crowned','has crowned','were crowned'],   explain:'Past passive for a completed historical ceremony.' },
-        { sentence:'A knight ___ with a single blow from a Housecarl\'s axe.', answer:'could be killed', wrong:['could kill','could killed','could being killed'], explain:'Modal passive: could + be + past participle.' },
+        { sentence:"A knight ___ with a single blow from a Housecarl's axe.", answer:'could be killed', wrong:['could kill','could killed','could being killed'], explain:'Modal passive: could + be + past participle.' },
         { sentence:'The shield wall ___ to withstand repeated assaults.',     answer:'was used',       wrong:['used','has used','were used'],            explain:'Past passive describing the purpose of English tactics.' },
       ],
     },
