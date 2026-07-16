@@ -2783,8 +2783,8 @@ const LESSON_DATA_REGISTRY = {
     ],
   },
 
-   'the-office-is-back': {
-  id:    'the-office-is-back',
+   'the-office-is-back-business': {
+  id:    'the-office-is-back-business',
   title: 'The Office Is Back. Whether You Like It or Not.',
   level: 'Intermediate',
   track: 'intermediate',
@@ -2851,10 +2851,10 @@ const LESSON_DATA_REGISTRY = {
   ],
 },
 
-   'hastings-1066': {
+   'hastings-1066-intermediate': {
  
     // ── IDENTITY ─────────────────────────────────────────────
-    id:    'hastings-1066',
+    id:    'hastings-1066-intermediate',
     title: '1066 — The Day England Changed Forever',
     level: 'Intermediate',
     track: 'intermediate',
@@ -3242,9 +3242,9 @@ const LESSON_DATA_REGISTRY = {
     ],
   },
 
-   'spot-fake-ai-ads': {
+   'spot-fake-ai-ads-advanced': {
 
-    id:    'spot-fake-ai-ads',
+    id:    'spot-fake-ai-ads-advanced',
     title: 'How to Spot Fake AI Ads',
     level: 'Intermediate',
     track: 'intermediate',
