@@ -1081,38 +1081,49 @@ function renderFixMistakesPanel(reg){
   if(!el||!reg?.fix_mistakes?.length){ if(el) el.innerHTML=comingSoon('Fix the Mistake'); return; }
   const items=reg.fix_mistakes; let idx=0,score=0;
   function renderItem(){
-    const q=items[idx];
-    const pips=items.map((_,i)=>`<div class="quiz-pip${i<idx?' right':i===idx?' active':''}" id="fmpip-${i}"></div>`).join('');
-    el.innerHTML=`
-      <div class="quiz-progress-row"><div class="quiz-pips">${pips}</div><div class="quiz-score">${score}/${items.length}</div></div>
-      <div class="gram-sent-card"><div class="gram-sent-num">Sentence ${idx+1} of ${items.length}</div>
-        <div class="gram-sent-text">${q.sentence}</div>
-        ${q.hint?`<div class="gram-sent-hint">💡 ${q.hint}</div>`:''}</div>
-      <div class="gram-word-btns" id="fmbtns" style="flex-direction:column;align-items:stretch">${q.opts.map((o,i)=>`<button class="gram-word-btn fm-opt" data-idx="${i}" style="text-align:left">${o}</button>`).join('')}</div>
-      <div class="quiz-feedback" id="fmfb"></div>
-      <button class="quiz-next" id="fmnxt" style="display:none">${idx+1<items.length?'Next →':'Done! 🎉'}</button>`;
-    el.querySelectorAll('.fm-opt').forEach(btn=>{
-      btn.addEventListener('click',function(){
-        el.querySelectorAll('.fm-opt').forEach(b=>b.disabled=true);
-        const ok=parseInt(this.dataset.idx)===q.correct;
-        this.classList.add(ok?'correct':'wrong');
-        if(!ok) el.querySelectorAll('.fm-opt')[q.correct].classList.add('show-ok');
-        if(ok){score++;burst();}
-        const fb=document.getElementById('fmfb'); if(fb){fb.textContent=q.fb;fb.className=`quiz-feedback show ${ok?'right':'wrong'}`;}
-        const pip=document.getElementById(`fmpip-${idx}`); if(pip) pip.classList.add(ok?'right':'wrong');
-        document.getElementById('fmnxt').style.display='flex';
-      });
-    });
-    document.getElementById('fmnxt').addEventListener('click',function(){
-      idx++;
-      if(idx>=items.length){
-        const perfect=score===items.length; if(perfect) burst();
-        el.innerHTML=`<div class="quiz-done"><span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span><div class="quiz-done-title">${score}/${items.length} correct!</div><div class="quiz-done-sub">${perfect?'Sharp eye for detail!':'Review the explanations and try again.'}</div><button class="quiz-done-btn" id="fm-retry">↺ Try Again</button></div>`;
-        document.getElementById('fm-retry').addEventListener('click',()=>renderFixMistakesPanel(window._currentReg));
-      } else { renderItem(); }
-    });
+  const q=items[idx];
+
+  // 🛡️ Legacy Schema Fallback: If 'opts' is missing, construct it dynamically
+  if (q && !q.opts && q.wrong && q.correct) {
+    q.opts = [`${q.wrong} → ${q.correct}`, `${q.wrong} → KEEP AS IS`];
+    q.correct = 0;
+    q.fb = q.explain || '';
   }
-  window._currentReg=reg; renderItem();
+  
+  // Safe guard in case a question has absolutely no options or legacy fields
+  if (q && !q.opts) {
+    q.opts = [];
+  }
+
+  const pips=items.map((_,i)=>`<div class="quiz-pip${i<idx?' right':i===idx?' active':''}" id="fmpip-${i}"></div>`).join('');
+  el.innerHTML=`
+    <div class="quiz-progress-row"><div class="quiz-pips">${pips}</div><div class="quiz-score">${score}/${items.length}</div></div>
+    <div class="gram-sent-card"><div class="gram-sent-num">Sentence ${idx+1} of ${items.length}</div>
+      <div class="gram-sent-text">${q.sentence}</div>
+      ${q.hint?`<div class="gram-sent-hint">💡 ${q.hint}</div>`:''}</div>
+    <div class="gram-word-btns" id="fmbtns" style="flex-direction:column;align-items:stretch">${q.opts.map((o,i)=>`<button class="gram-word-btn fm-opt" data-idx="${i}" style="text-align:left">${o}</button>`).join('')}</div>
+    <div class="quiz-feedback" id="fmfb"></div>
+    <button class="quiz-next" id="fmnxt" style="display:none">${idx+1<items.length?'Next →':'Done! 🎉'}</button>`;
+  el.querySelectorAll('.fm-opt').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      el.querySelectorAll('.fm-opt').forEach(b=>b.disabled=true);
+      const ok=parseInt(this.dataset.idx)===q.correct;
+      this.classList.add(ok?'correct':'wrong');
+      if(!ok) el.querySelectorAll('.fm-opt')[q.correct].classList.add('show-ok');
+      if(ok){score++;burst();}
+      const fb=document.getElementById('fmfb'); if(fb){fb.textContent=q.fb;fb.className=`quiz-feedback show ${ok?'right':'wrong'}`;}
+      const pip=document.getElementById(`fmpip-${idx}`); if(pip) pip.classList.add(ok?'right':'wrong');
+      document.getElementById('fmnxt').style.display='flex';
+    });
+  });
+  document.getElementById('fmnxt').addEventListener('click',function(){
+    idx++;
+    if(idx>=items.length){
+      const perfect=score===items.length; if(perfect) burst();
+      el.innerHTML=`<div class="quiz-done"><span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span><div class="quiz-done-title">${score}/${items.length} correct!</div><div class="quiz-done-sub">${perfect?'Sharp eye for detail!':'Review the explanations and try again.'}</div><button class="quiz-done-btn" id="fm-retry">↺ Try Again</button></div>`;
+      document.getElementById('fm-retry').addEventListener('click',()=>renderFixMistakesPanel(window._currentReg));
+    } else { renderItem(); }
+  });
 }
 
 function renderWordMatchPanel(reg){
