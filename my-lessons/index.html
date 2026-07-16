@@ -1080,114 +1080,53 @@ function renderFixMistakesPanel(reg){
   const el=document.getElementById('panel-fixMistakes');
   if(!el||!reg?.fix_mistakes?.length){ if(el) el.innerHTML=comingSoon('Fix the Mistake'); return; }
   const items=reg.fix_mistakes; let idx=0,score=0;
-  function renderItem(){
-  const q=items[idx];
+ function renderItem(){
+    const q=items[idx];
 
-  // 🛡️ Legacy Schema Fallback: If 'opts' is missing, construct it dynamically
-  if (q && !q.opts && q.wrong && q.correct) {
-    q.opts = [`${q.wrong} → ${q.correct}`, `${q.wrong} → KEEP AS IS`];
-    q.correct = 0;
-    q.fb = q.explain || '';
+    if (q && !q.opts && q.wrong && q.correct) {
+      q.opts = [`${q.wrong} → ${q.correct}`, `${q.wrong} → KEEP AS IS`];
+      q.correct = 0;
+      q.fb = q.explain || '';
+    }
+    
+    if (q && !q.opts) {
+      q.opts = [];
+    }
+
+    const pips=items.map((_,i)=>`<div class="quiz-pip${i<idx?' right':i===idx?' active':''}" id="fmpip-${i}"></div>`).join('');
+    el.innerHTML=`
+      <div class="quiz-progress-row"><div class="quiz-pips">${pips}</div><div class="quiz-score">${score}/${items.length}</div></div>
+      <div class="gram-sent-card"><div class="gram-sent-num">Sentence ${idx+1} of ${items.length}</div>
+        <div class="gram-sent-text">${q.sentence}</div>
+        ${q.hint?`<div class="gram-sent-hint">💡 ${q.hint}</div>`:''}</div>
+      <div class="gram-word-btns" id="fmbtns" style="flex-direction:column;align-items:stretch">${q.opts.map((o,i)=>`<button class="gram-word-btn fm-opt" data-idx="${i}" style="text-align:left">${o}</button>`).join('')}</div>
+      <div class="quiz-feedback" id="fmfb"></div>
+      <button class="quiz-next" id="fmnxt" style="display:none">${idx+1<items.length?'Next →':'Done! 🎉'}</button>`;
+    el.querySelectorAll('.fm-opt').forEach(btn=>{
+      btn.addEventListener('click',function(){
+        el.querySelectorAll('.fm-opt').forEach(b=>b.disabled=true);
+        const ok=parseInt(this.dataset.idx)===q.correct;
+        this.classList.add(ok?'correct':'wrong');
+        if(!ok) el.querySelectorAll('.fm-opt')[q.correct].classList.add('show-ok');
+        if(ok){score++;burst();}
+        const fb=document.getElementById('fmfb'); if(fb){fb.textContent=q.fb;fb.className=`quiz-feedback show ${ok?'right':'wrong'}`;}
+        const pip=document.getElementById(`fmpip-${idx}`); if(pip) pip.classList.add(ok?'right':'wrong');
+        document.getElementById('fmnxt').style.display='flex';
+      });
+    });
+    document.getElementById('fmnxt').addEventListener('click',function(){
+      idx++;
+      if(idx>=items.length){
+        const perfect=score===items.length; if(perfect) burst();
+        el.innerHTML=`<div class="quiz-done"><span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span><div class="quiz-done-title">${score}/${items.length} correct!</div><div class="quiz-done-sub">${perfect?'Sharp eye for detail!':'Review the explanations and try again.'}</div><button class="quiz-done-btn" id="fm-retry">↺ Try Again</button></div>`;
+        document.getElementById('fm-retry').addEventListener('click',()=>renderFixMistakesPanel(window._currentReg));
+      } else { renderItem(); }
+    });
   }
   
-  // Safe guard in case a question has absolutely no options or legacy fields
-  if (q && !q.opts) {
-    q.opts = [];
-  }
-
-  const pips=items.map((_,i)=>`<div class="quiz-pip${i<idx?' right':i===idx?' active':''}" id="fmpip-${i}"></div>`).join('');
-  el.innerHTML=`
-    <div class="quiz-progress-row"><div class="quiz-pips">${pips}</div><div class="quiz-score">${score}/${items.length}</div></div>
-    <div class="gram-sent-card"><div class="gram-sent-num">Sentence ${idx+1} of ${items.length}</div>
-      <div class="gram-sent-text">${q.sentence}</div>
-      ${q.hint?`<div class="gram-sent-hint">💡 ${q.hint}</div>`:''}</div>
-    <div class="gram-word-btns" id="fmbtns" style="flex-direction:column;align-items:stretch">${q.opts.map((o,i)=>`<button class="gram-word-btn fm-opt" data-idx="${i}" style="text-align:left">${o}</button>`).join('')}</div>
-    <div class="quiz-feedback" id="fmfb"></div>
-    <button class="quiz-next" id="fmnxt" style="display:none">${idx+1<items.length?'Next →':'Done! 🎉'}</button>`;
-  el.querySelectorAll('.fm-opt').forEach(btn=>{
-    btn.addEventListener('click',function(){
-      el.querySelectorAll('.fm-opt').forEach(b=>b.disabled=true);
-      const ok=parseInt(this.dataset.idx)===q.correct;
-      this.classList.add(ok?'correct':'wrong');
-      if(!ok) el.querySelectorAll('.fm-opt')[q.correct].classList.add('show-ok');
-      if(ok){score++;burst();}
-      const fb=document.getElementById('fmfb'); if(fb){fb.textContent=q.fb;fb.className=`quiz-feedback show ${ok?'right':'wrong'}`;}
-      const pip=document.getElementById(`fmpip-${idx}`); if(pip) pip.classList.add(ok?'right':'wrong');
-      document.getElementById('fmnxt').style.display='flex';
-    });
-  });
-  document.getElementById('fmnxt').addEventListener('click',function(){
-    idx++;
-    if(idx>=items.length){
-      const perfect=score===items.length; if(perfect) burst();
-      el.innerHTML=`<div class="quiz-done"><span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span><div class="quiz-done-title">${score}/${items.length} correct!</div><div class="quiz-done-sub">${perfect?'Sharp eye for detail!':'Review the explanations and try again.'}</div><button class="quiz-done-btn" id="fm-retry">↺ Try Again</button></div>`;
-      document.getElementById('fm-retry').addEventListener('click',()=>renderFixMistakesPanel(window._currentReg));
-    } else { renderItem(); }
-  });
-}
-
-function renderWordMatchPanel(reg){
-  const el=document.getElementById('panel-wordMatch');
-  if(!el||!reg?.word_match?.length){ if(el) el.innerHTML=comingSoon('Word Match'); return; }
-  const pairs=reg.word_match;
-  let matched=0, selected=null;
-  const termOrder=pairs.map((_,i)=>i).sort(()=>Math.random()-.5);
-  const defOrder=pairs.map((_,i)=>i).sort(()=>Math.random()-.5);
-
-  el.innerHTML=`
-    <div class="quiz-progress-row"><div id="wm-counter" style="font-size:13px;font-weight:900;color:var(--ink-bold)">${matched} of ${pairs.length} pairs matched</div></div>
-    <div style="display:flex;flex-direction:column;gap:8px" id="wm-grid">
-      ${termOrder.map((ti,row)=>{
-        const di=defOrder[row];
-        return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <button class="gram-word-btn wm-card" data-kind="term" data-idx="${ti}" style="min-height:54px;white-space:normal">${pairs[ti].term}</button>
-          <button class="gram-word-btn wm-card" data-kind="def" data-idx="${di}" style="min-height:54px;white-space:normal;font-size:12px;font-weight:700">${pairs[di].def}</button>
-        </div>`;
-      }).join('')}
-    </div>
-    <div id="wm-done-slot"></div>`;
-
-  el.querySelectorAll('.wm-card').forEach(btn=>{
-    btn.addEventListener('click', function(){
-      if(this.disabled) return;
-      const kind=this.dataset.kind, idx=parseInt(this.dataset.idx);
-      if(!selected){
-        selected={el:this, kind, idx};
-        this.style.outline='3px solid var(--purple)';
-        return;
-      }
-      if(selected.kind===kind){
-        selected.el.style.outline='';
-        selected={el:this, kind, idx};
-        this.style.outline='3px solid var(--purple)';
-        return;
-      }
-      const a=selected, b={el:this, kind, idx};
-      const ok=a.idx===b.idx;
-      if(ok){
-        a.el.classList.add('correct'); a.el.disabled=true; a.el.style.outline='';
-        b.el.classList.add('correct'); b.el.disabled=true;
-        matched++; burst();
-        const counter=document.getElementById('wm-counter');
-        if(counter) counter.textContent=`${matched} of ${pairs.length} pairs matched`;
-        selected=null;
-        if(matched>=pairs.length){
-          setTimeout(()=>{
-            const doneEl=document.getElementById('wm-done-slot');
-            if(doneEl){
-              doneEl.innerHTML=`<div class="quiz-done"><span class="quiz-done-icon">🏆</span><div class="quiz-done-title">All ${pairs.length} pairs matched!</div><button class="quiz-done-btn" id="wm-retry">↺ Try Again</button></div>`;
-              document.getElementById('wm-retry').addEventListener('click',()=>renderWordMatchPanel(window._currentReg));
-            }
-          },400);
-        }
-      } else {
-        a.el.classList.add('wrong'); b.el.classList.add('wrong');
-        setTimeout(()=>{ a.el.classList.remove('wrong'); b.el.classList.remove('wrong'); a.el.style.outline=''; },500);
-        selected=null;
-      }
-    });
-  });
-  window._currentReg=reg;
+  // These lines were missing!
+  window._currentReg = reg; 
+  renderItem();
 }
 
 let _bcTimerId = null;
