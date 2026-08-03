@@ -671,6 +671,24 @@
   ],
 },
 
+     'audit-file-tax': {
+      title:   'The Audit File',
+      level:   'Tax English',
+      grammar: 'Passive voice in audit/compliance documentation; modals of obligation and possibility (must/have to/could) in tax advice',
+      vocab: [
+        { word:'audit order',                definition:'The official notice from the tax office stating an audit will take place, and which years and taxes it covers' },
+        { word:'retention obligation',       definition:'The legal requirement to keep certain business records for a set number of years' },
+        { word:'closing meeting',            definition:'The final meeting between auditor and taxpayer to discuss findings before the report is written' },
+        { word:'additional assessment',      definition:'Extra tax found to be owed as a direct result of an audit\'s findings' },
+        { word:'sampling method',            definition:'Reviewing a representative sample of transactions rather than checking every single one' },
+        { word:'voluntary disclosure',       definition:'Proactively informing the tax office of an error before they discover it — often reduces penalties' },
+        { word:'audit report',               definition:'The official written document summarising everything the auditor found' },
+        { word:'subject to subsequent review', definition:'Describes an assessment that is not yet final and could still be changed later' },
+        { word:'plausibility check',         definition:'A check comparing declared figures to see if they logically make sense together' },
+        { word:'related-party transaction',  definition:'A business deal between connected parties, which typically gets extra audit scrutiny' },
+      ],
+    },
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
