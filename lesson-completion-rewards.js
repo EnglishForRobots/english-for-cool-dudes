@@ -689,6 +689,24 @@
       ],
     },
 
+     'the-odyssey-2026-advanced': {
+      title:   "The Odyssey (2026): Nolan's Epic Homecoming",
+      level:   'Advanced',
+      grammar: 'Inversion after negative adverbials; cleft sentences; subjunctive after "insist"; dangling participles; journalistic/critical register',
+      vocab: [
+        { word:'epic',        definition:'A grand-scale work recounting heroic deeds' },
+        { word:'adaptation',  definition:'A reworking of an existing text into a new medium' },
+        { word:'visceral',    definition:'Felt in a deep, instinctive, physical way' },
+        { word:'colossal',    definition:'Extraordinarily large in scale or degree' },
+        { word:'steadfast',   definition:'Resolutely firm and unwavering' },
+        { word:'hubris',      definition:'Excessive pride, especially toward fate or the gods' },
+        { word:'auteur',      definition:'A director whose personal vision defines their films' },
+        { word:'anachronism', definition:'Something out of place in its historical setting' },
+        { word:'xenia',       definition:'The ancient Greek custom of hospitality to strangers' },
+        { word:'sprawling',   definition:'Extending irregularly over a wide, expansive scope' },
+      ],
+    },
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
