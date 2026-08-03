@@ -3558,6 +3558,78 @@ const LESSON_DATA_REGISTRY = {
     ],
 
   },
+
+   'the-odyssey-2026-advanced': {
+
+    id:    'the-odyssey-2026-advanced',
+    title: "The Odyssey (2026): Nolan's Epic Homecoming",
+    level: 'Advanced',
+    track: 'intermediate',
+    emoji: '🏛️',
+    badge: 'Epic Scholar',
+
+    vocab: [
+      { word:'epic',         definition:'A grand-scale work recounting heroic deeds', example:"Homer's original is one of the founding ___s of Western literature.", distractors:['adaptation','auteur','sprawling'] },
+      { word:'adaptation',   definition:'A reworking of an existing text into a new medium', example:"This is Nolan's first ___ of an existing literary work.", distractors:['anachronism','epic','xenia'] },
+      { word:'visceral',     definition:'Felt in a deep, instinctive, physical way', example:'Critics called the battle sequences ___ and overwhelming.', distractors:['steadfast','colossal','auteur'] },
+      { word:'colossal',     definition:'Extraordinarily large in scale or degree', example:"Even by Nolan's standards, the production is ___.", distractors:['visceral','sprawling','hubris'] },
+      { word:'steadfast',    definition:'Resolutely firm and unwavering', example:'Penelope is portrayed as ___, refusing every suitor.', distractors:['hubris','xenia','anachronism'] },
+      { word:'hubris',       definition:'Excessive pride, especially toward fate or the gods', example:"Odysseus's ___ is what draws Poseidon's wrath.", distractors:['steadfast','auteur','epic'] },
+      { word:'auteur',       definition:'A director whose personal vision defines their films', example:"Nolan is often held up as cinema's ultimate ___.", distractors:['adaptation','colossal','xenia'] },
+      { word:'anachronism',  definition:'Something out of place in its historical setting', example:'Critics flagged several ___s in the costume design.', distractors:['epic','visceral','sprawling'] },
+      { word:'xenia',        definition:'The ancient Greek custom of hospitality to strangers', example:'Violating ___ is treated as a crime against the gods.', distractors:['hubris','auteur','adaptation'] },
+      { word:'sprawling',    definition:'Extending irregularly over a wide, expansive scope', example:'The ___ narrative spans six countries in production alone.', distractors:['colossal','visceral','steadfast'] },
+    ],
+
+    grammar: {
+      topic: 'Inversion, cleft sentences and the subjunctive — advanced structures',
+      rule:  'After negative adverbials ("Not since..."), invert the auxiliary and subject. Cleft sentences ("It was X that...") use "that", not "which/who". After verbs like "insist" or "demand" in a formal register, use the bare subjunctive: "insist that it be judged", not "is judged".',
+      exercises: [
+        { sentence:'Not since Oppenheimer ___ Nolan attempted anything on this scale.', answer:'has', wrong:['does','did','have'], explain:'Inversion after a negative adverbial: "Not since... has Nolan attempted...".' },
+        { sentence:'It was the accents, not the mythology, ___ sparked the fiercest backlash.', answer:'that', wrong:['which','who','what'], explain:'Cleft sentences with "It was X that..." require "that", not "which/who/what".' },
+        { sentence:"Critics insist that the film's ambition ___ judged on its own terms.", answer:'be', wrong:['is','was','will be'], explain:'After "insist that" in formal register, use the bare subjunctive: "be judged".' },
+        { sentence:'Shot entirely on IMAX film, The Odyssey ___ a genuine cinematic first.', answer:'marks', wrong:['marked','was marking','has marked'], explain:'The subject after the participle phrase must be the one doing the "marking" — The Odyssey, not critics — avoiding a dangling participle.' },
+      ],
+    },
+
+    grammar2: {
+      topic: 'Journalistic and critical register',
+      rule:  'Formal critical writing favours clean, direct verb phrases over clunky nominalisations. "Drew criticism" reads better than "was a thing people were critical about". Hedging phrases like "would argue" and general-truth present simple ("is one of the closest...") are typical of critical register.',
+      exercises: [
+        { sentence:'The choice of American accents ___ widespread criticism online.', answer:'drew', wrong:['was drew','has draw','were drawing'], explain:'Clean past simple for journalistic register: "drew criticism".' },
+        { sentence:'While the accents are unconventional, they ___ a global audience to connect more easily.', answer:'allow', wrong:['are allowing','allowed','will have allowed'], explain:'Present simple for a general ongoing effect.' },
+        { sentence:'Some critics ___ that performance matters more than accent accuracy.', answer:'would argue', wrong:['will argue','argue','argued'], explain:'"Would argue" is a typical hedge in critical/argumentative writing.' },
+        { sentence:'Arguably, hip-hop ___ one of the closest modern equivalents to oral storytelling.', answer:'is', wrong:['was','has been','would be'], explain:'General truth-claims in critical writing use present simple.' },
+      ],
+    },
+
+    sentences: [
+      { words:['entirely','shot','IMAX','on','was','film','The','Odyssey'], answer:'The Odyssey was shot entirely on IMAX film', hint:'🎞️ What is unique about how it was filmed?' },
+      { words:['budget','of','around','had','a','$250','million','film','The'], answer:'The film had a budget of around $250 million', hint:'💰 How expensive was the production?' },
+      { words:['chose','accents','American','Nolan','the','for','cast'], answer:'Nolan chose American accents for the cast', hint:'🗣️ What sparked the online debate?' },
+      { words:['plays','Athena','goddess','Zendaya','the'], answer:'Zendaya plays the goddess Athena', hint:'⚡ Who joined the cast as a Greek deity?' },
+    ],
+
+    word_builder: [
+      { word:'hubris',      definition:'Excessive pride, especially toward fate or the gods' },
+      { word:'auteur',      definition:'A director whose personal vision defines their films' },
+      { word:'xenia',       definition:'The ancient Greek custom of hospitality to strangers' },
+      { word:'colossal',    definition:'Extraordinarily large in scale or degree' },
+      { word:'visceral',    definition:'Felt in a deep, instinctive, physical way' },
+      { word:'sprawling',   definition:'Extending irregularly over a wide, expansive scope' },
+    ],
+
+    true_false: [
+      { statement:'The Odyssey is the first narrative feature ever shot entirely on IMAX 70mm film.', correct:true,  reveal:'✅ TRUE! Cinematographer Hoyte van Hoytema and Nolan shot the whole film on IMAX 70mm cameras — a first for a narrative feature.' },
+      { statement:'The film had a modest budget of under $50 million.', correct:false, reveal:'❌ FALSE! With an estimated budget of around $250 million, it is one of the most expensive productions of Nolan\'s career.' },
+      { statement:'The cast speaks in authentic Ancient Greek throughout the film.', correct:false, reveal:'❌ FALSE! Nolan chose American accents for the cast — a decision that sparked considerable online debate ahead of release.' },
+      { statement:'Matt Damon changed his diet and grew a year-long beard to prepare for the role.', correct:true,  reveal:'✅ TRUE! Damon cut gluten, dropped to 167 lbs, and grew out real facial hair at Nolan\'s request for authenticity.' },
+      { statement:'The film runs for under two hours.', correct:false, reveal:'❌ FALSE! At 2 hours 52 minutes, it is a genuine epic in runtime as well as scale.' },
+      { statement:'Zendaya plays the goddess Athena in the film.', correct:true,  reveal:'✅ TRUE! Zendaya joins the ensemble as Athena, goddess of wisdom and strategy.' },
+      { statement:'Travis Scott was cast to draw a parallel between rap and ancient oral poetry.', correct:true,  reveal:'✅ TRUE! Nolan explained he cast the rapper as a bard specifically to connect hip-hop with the oral tradition that carried Homer\'s epic for centuries.' },
+    ],
+
+  },
  
    };
 
