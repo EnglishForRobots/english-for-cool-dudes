@@ -3372,6 +3372,192 @@ const LESSON_DATA_REGISTRY = {
     ],
 
   },
+
+   'audit-file-tax': {
+
+    // ── IDENTITY ─────────────────────────────────────────────
+    id:    'audit-file-tax',
+    title: 'The Audit File',
+    level: 'Tax English',
+    track: 'tax',
+    emoji: '🗂️',
+    badge: 'Audit Ace',
+
+    // ── VOCAB ────────────────────────────────────────────────
+    vocab: [
+      {
+        word:        'audit order',
+        definition:  'The official notice from the tax office stating that an audit will take place, and which years and taxes it covers',
+        example:     'Stefan received an ___ ___ stating the tax office would review the last three years.',
+        distractors: ['audit report', 'closing meeting', 'plausibility check'],
+      },
+      {
+        word:        'retention obligation',
+        definition:  'The legal requirement to keep certain business records for a set number of years so they are available if audited',
+        example:     'Germany\'s ___ ___ typically requires records to be kept for six to ten years.',
+        distractors: ['sampling method', 'voluntary disclosure', 'additional assessment'],
+      },
+      {
+        word:        'closing meeting',
+        definition:  'The final meeting between the auditor and the taxpayer to discuss findings before the official report is written',
+        example:     'Anja wanted to skip the ___ ___ and just receive the report by post.',
+        distractors: ['audit order', 'subject to subsequent review', 'related-party transaction'],
+      },
+      {
+        word:        'additional assessment',
+        definition:  'Extra tax found to be owed as a direct result of an audit\'s findings',
+        example:     'The audit resulted in an ___ ___ for previously undeclared profit.',
+        distractors: ['retention obligation', 'plausibility check', 'audit report'],
+      },
+      {
+        word:        'sampling method',
+        definition:  'Reviewing a representative sample of transactions rather than checking every single one individually',
+        example:     'Markus worried the auditor would check every receipt, but a ___ ___ is more common.',
+        distractors: ['closing meeting', 'voluntary disclosure', 'subject to subsequent review'],
+      },
+      {
+        word:        'voluntary disclosure',
+        definition:  'Proactively informing the tax office of an error before they discover it themselves — often reduces or removes penalties',
+        example:     'Lena made a ___ ___ about an old underpayment before the audit began.',
+        distractors: ['audit order', 'additional assessment', 'related-party transaction'],
+      },
+      {
+        word:        'audit report',
+        definition:  'The official written document summarising everything the auditor found during the audit',
+        example:     'The ___ ___ is written after the closing meeting, not instead of it.',
+        distractors: ['sampling method', 'retention obligation', 'closing meeting'],
+      },
+      {
+        word:        'subject to subsequent review',
+        definition:  'Describes a tax assessment that is not yet final and could still be changed later',
+        example:     'A status of ___ ___ ___ ___ means the case isn\'t closed yet.',
+        distractors: ['audit order', 'plausibility check', 'sampling method'],
+      },
+      {
+        word:        'plausibility check',
+        definition:  'A check comparing declared figures against each other, or against expectations, to see if they logically make sense',
+        example:     'The inspector ran a ___ ___ comparing till receipts against bank deposits.',
+        distractors: ['additional assessment', 'audit report', 'voluntary disclosure'],
+      },
+      {
+        word:        'related-party transaction',
+        definition:  'A business deal between connected parties — like family members or sister companies — which typically gets extra audit scrutiny',
+        example:     'A deal between the bakery owner and their brother-landlord is a ___-___ ___.',
+        distractors: ['retention obligation', 'closing meeting', 'audit order'],
+      },
+    ],
+
+    // ── GRAMMAR 1: Passive Voice ──────────────────────────────
+    grammar: {
+      topic: 'Passive Voice in audit and compliance documentation',
+      rule:  'In audit reports and tax advice, passive voice (is/are/was/were + past participle) focuses on what happened rather than who did it. "The report was written." "Records are kept for six years." "Findings were discussed at the closing meeting."',
+      exercises: [
+        {
+          sentence: 'The audit report ___ after the closing meeting, not before it.',
+          answer:   'is written',
+          wrong:    ['writes', 'was writing', 'has write'],
+          explain:  'Present passive: is + past participle. The report is the subject receiving the action.',
+        },
+        {
+          sentence: 'Business records ___ for several years under the retention obligation.',
+          answer:   'must be kept',
+          wrong:    ['must keep', 'are keeping', 'have kept'],
+          explain:  'Modal passive: must + be + past participle. The records receive the obligation.',
+        },
+        {
+          sentence: 'Stefan\'s till receipts ___ against his bank deposits during the plausibility check.',
+          answer:   'were compared',
+          wrong:    ['compared', 'are comparing', 'have compared'],
+          explain:  'Past passive: were + past participle. A completed step of the audit.',
+        },
+        {
+          sentence: 'An assessment marked "subject to subsequent review" ___ later if new facts emerge.',
+          answer:   'can still be changed',
+          wrong:    ['can still change', 'still changes', 'was still changing'],
+          explain:  'Modal passive: can + be + past participle. The assessment receives the possible action.',
+        },
+      ],
+    },
+
+    // ── GRAMMAR 2: Modals of obligation and possibility ───────
+    grammar2: {
+      topic: 'Modal verbs — obligation and possibility in tax advice',
+      rule:  'MUST / HAVE TO express legal obligation. MIGHT / COULD express a real possibility without certainty. Tax advisors use these constantly: "You must keep records for six years." "This could reduce your penalty." "You don\'t have to attend, but it is strongly advised."',
+      exercises: [
+        {
+          sentence: 'Stefan ___ keep his business records for several years — it is a legal duty.',
+          answer:   'has to',
+          wrong:    ['can', 'might', 'used to'],
+          explain:  '"Has to" expresses a real legal obligation, not just a possibility.',
+        },
+        {
+          sentence: 'A voluntary disclosure ___ significantly reduce the penalties involved.',
+          answer:   'can',
+          wrong:    ['must', 'has to', 'is'],
+          explain:  '"Can" expresses a realistic, likely benefit — not a guarantee, but not a strict rule either.',
+        },
+        {
+          sentence: 'Anja ___ skip the closing meeting, but she would lose the chance to challenge findings.',
+          answer:   'could',
+          wrong:    ['must', 'has to', "can't"],
+          explain:  '"Could" expresses a technical possibility, even though it is not advisable.',
+        },
+        {
+          sentence: 'An auditor ___ check every single transaction — sampling is far more common.',
+          answer:   "doesn't have to",
+          wrong:    ["mustn't", "can't", 'shouldn\'t'],
+          explain:  '"Doesn\'t have to" means no obligation, not forbidden — "mustn\'t" would be too strong here.',
+        },
+      ],
+    },
+
+    // ── SENTENCE BUILDER ──────────────────────────────────────
+    sentences: [
+      {
+        words:  ['for', 'must', 'kept', 'be', 'records', 'years', 'several'],
+        answer: 'records must be kept for several years',
+        hint:   '🗂️ What does the retention obligation require?',
+      },
+      {
+        words:  ['the', 'the', 'report', 'closing', 'meeting', 'before', 'written', 'is'],
+        answer: 'the report is written before the closing meeting',
+        hint:   '📝 What comes first — the meeting or the report? (careful!)',
+      },
+      {
+        words:  ['a', 'method', 'sampling', 'is', 'common', 'very'],
+        answer: 'a sampling method is very common',
+        hint:   '🔍 How do auditors usually review transactions?',
+      },
+      {
+        words:  ['can', 'penalties', 'reduce', 'disclosure', 'a', 'voluntary'],
+        answer: 'a voluntary disclosure can reduce penalties',
+        hint:   '🙋 What is the benefit of coming forward early?',
+      },
+    ],
+
+    // ── WORD BUILDER ──────────────────────────────────────────
+    word_builder: [
+      { word:'retention',   definition:'Keeping something — here, business records' },
+      { word:'disclosure',  definition:'Coming forward and revealing information' },
+      { word:'assessment',  definition:'An official calculation of tax owed' },
+      { word:'plausibility',definition:'Whether figures logically make sense together' },
+      { word:'sampling',    definition:'Checking a representative selection, not everything' },
+      { word:'subsequent',  definition:'Happening after — later in time' },
+    ],
+
+    // ── TRUE / FALSE ───────────────────────────────────────────
+    true_false: [
+      { statement:'Business records only need to be kept for about one year after filing.', correct:false, reveal:'❌ MYTH. The retention obligation typically runs for six to ten years, not one — that\'s exactly why boxes of old receipts matter.' },
+      { statement:'Auditors often check a representative sample of transactions rather than every single one.', correct:true, reveal:'✅ TRUE! Sampling is a normal, efficient way to review records — though anything unusual can still get pulled for closer inspection.' },
+      { statement:'Coming forward with an old mistake before it\'s discovered can reduce the penalties involved.', correct:true, reveal:'✅ TRUE! That\'s a voluntary disclosure — acting first, before the tax office finds it themselves, generally works in your favour.' },
+      { statement:'Extra tax found during an audit is officially called a "related-party transaction."', correct:false, reveal:'❌ MYTH. That extra tax is called an additional assessment. A related-party transaction is something completely different — a deal between connected parties.' },
+      { statement:'A plausibility check compares figures to see if they logically make sense together.', correct:true, reveal:'✅ TRUE! It\'s a common technique — for example, comparing declared income against typical living costs or cash flow.' },
+      { statement:'Deals between family members or connected companies get no extra scrutiny during an audit.', correct:false, reveal:'❌ MYTH. Related-party transactions typically attract closer attention, precisely because the parties involved aren\'t independent of each other.' },
+      { statement:'The audit report is really just a friendly verbal chat, with no written record at all.', correct:false, reveal:'❌ MYTH. The audit report is a formal written document summarising every finding — very much on paper, not just a conversation.' },
+      { statement:'An assessment marked "subject to subsequent review" can still be changed later.', correct:true, reveal:'✅ TRUE! That status means the case isn\'t closed yet — it can still be revisited and adjusted down the line.' },
+    ],
+
+  },
  
    };
 
