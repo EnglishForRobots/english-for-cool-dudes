@@ -3681,6 +3681,135 @@ const LESSON_DATA_REGISTRY = {
       { words:['coalition','wants','The','to','pass','the','pension','reform','by','the','end','of','2026'], answer:'The coalition wants to pass the pension reform by the end of 2026', hint:'🏛️ What is the government\'s timeline?' },
     ],
   },
+
+   'influencer-exodus-tax': {
+
+    id:    'influencer-exodus-tax',
+    title: 'The Influencer Exodus',
+    level: 'Tax English',
+    track: 'tax',
+    emoji: '📱',
+    badge: 'Creator Tax Expert',
+
+    // ── VOCAB ────────────────────────────────────────────────
+    vocab: [
+      {
+        word:        'exit tax',
+        definition:  'A tax charged when someone moves their tax residency abroad, on the unrealised value already built up in their business — even though nothing has actually been sold.',
+        example:     "Nina's manager didn't mention that an ___ ___ could still apply once her tax residency actually changes.",
+        distractors: ['earn-out', 'withholding tax', 'trade tax'],
+      },
+      {
+        word:        'earn-out',
+        definition:  "Part of a sale price that's only paid later, once the business hits agreed targets — often used when a buyer worries the seller's departure could hurt performance.",
+        example:     "The buyer's lawyer wants half of Jonas's €400k paid as an ___ over two years.",
+        distractors: ['exit tax', 'benefit in kind', 'asset deal'],
+      },
+      {
+        word:        'IP licensing structure',
+        definition:  "A separate company set up to hold a brand's trademark or image rights, which can then license them back — making an otherwise personality-tied business easier to sell or pass on.",
+        example:     'Jonas was asked whether he\'d considered moving his brand name into an ___ ___ ___.',
+        distractors: ['trade tax', 'VAT registration threshold', '183-day rule'],
+      },
+      {
+        word:        'benefit in kind',
+        definition:  "The taxable value of something received instead of cash — like a free hotel stay or free products — usually assessed at its normal market price, not what it cost the giver.",
+        example:     "Priya's €900 gifting box counts as a ___ ___ ___, even without an invoice.",
+        distractors: ['earn-out', 'withholding tax', 'exit tax'],
+      },
+      {
+        word:        'trade tax',
+        definition:  'A tax on commercial business activity (in Germany, Gewerbesteuer), separate from income tax — whether a creator owes it often depends on how their activity is classified.',
+        example:     "Felix's accountant warned he might now owe ___ ___ on top of income tax.",
+        distractors: ['exit tax', 'IP licensing structure', 'One-Stop-Shop scheme'],
+      },
+      {
+        word:        'VAT registration threshold',
+        definition:  "The revenue level below which a small business doesn't have to charge VAT at all — useful for creators just starting out, but easy to accidentally cross.",
+        example:     'Below the ___ ___ ___, a small creator business needn\'t charge VAT.',
+        distractors: ['183-day rule', 'benefit in kind', 'asset deal'],
+      },
+      {
+        word:        'withholding tax',
+        definition:  'Tax that a payer deducts and sends directly to the tax office before paying the rest to you — common on cross-border sponsorship and licensing payments.',
+        example:     "Grace's US sponsorship payment arrived with ___ ___ already deducted.",
+        distractors: ['exit tax', 'trade tax', 'earn-out'],
+      },
+      {
+        word:        'One-Stop-Shop scheme',
+        definition:  'An EU system that lets a business report VAT on cross-border digital sales (like online courses) through a single return, instead of registering in every country.',
+        example:     'The ___-___-___ scheme means Tomasz files one VAT return, not one per country.',
+        distractors: ['IP licensing structure', 'VAT registration threshold', 'asset deal'],
+      },
+      {
+        word:        'asset deal',
+        definition:  'A sale structured around specific assets, contracts, and rights — rather than the company itself — often chosen when a buyer wants to leave certain risks or liabilities behind.',
+        example:     "Frida's buyer wants to structure the purchase as an ___ ___, not a share purchase.",
+        distractors: ['earn-out', 'benefit in kind', 'One-Stop-Shop scheme'],
+      },
+      {
+        word:        '183-day rule',
+        definition:  'A common test for tax residency — spend more than 183 days in a country within a year, and you may be treated as tax resident there, regardless of your passport.',
+        example:     "Nina's manager relies on the ___-___ ___, but that's rarely the whole story.",
+        distractors: ['trade tax', 'VAT registration threshold', 'IP licensing structure'],
+      },
+    ],
+
+    // ── GRAMMAR 1 ──────────────────────────────────────────────
+    grammar: {
+      topic: 'Modal verbs of possibility — might / could / can in tax advice',
+      rule:  'CAN expresses a real possibility or established rule. COULD expresses something that\'s possible but not certain. MIGHT expresses a weaker, more tentative possibility. Tax advisors use these constantly when a client\'s situation is genuinely uncertain.',
+      exercises: [
+        { sentence:'An exit tax ___ still apply even if Nina spends fewer than 183 days in Germany.', answer:'can', wrong:['must', 'will always', "can't"], explain:'"Can" expresses a genuine, established possibility — not a certainty, but a real risk worth flagging.' },
+        { sentence:'Hiring staff and scaling up ___ tip a creator\'s activity toward "commercial" for trade tax.', answer:'can', wrong:['must', 'will definitely', 'never'], explain:'"Can" — it\'s a real possibility, not automatic either way.' },
+        { sentence:'Felix ___ owe trade tax purely because of how his activity gets classified.', answer:'might', wrong:['will certainly', "can't possibly", 'must always'], explain:'"Might" signals genuine uncertainty — classification isn\'t automatic.' },
+        { sentence:'Keeping an apartment she regularly returns to ___ complicate Nina\'s residency status.', answer:'could', wrong:['must', "can't", 'will never'], explain:'"Could" expresses a real but not guaranteed complication.' },
+      ],
+    },
+
+    // ── GRAMMAR 2 ──────────────────────────────────────────────
+    grammar2: {
+      topic: 'Passive Voice in tax and deal documentation',
+      rule:  'In tax and deal advice, passive voice (is/are/was/were + past participle) shifts focus onto what happens to the money, asset, or income — rather than who acts. "Tax is deducted." "The price is paid over two years." Very common when describing rules and mechanisms.',
+      exercises: [
+        { sentence:'Withholding tax ___ before the rest of the payment reaches the creator.', answer:'is deducted', wrong:['deducts', 'was deducting', 'has deduct'], explain:'Present passive: is + past participle. The payment receives the action of deduction.' },
+        { sentence:'Under an earn-out, part of the price ___ later, based on performance.', answer:'is paid', wrong:['pays', 'was paying', 'has paid'], explain:'Present passive describing a standard deal mechanism.' },
+        { sentence:'A benefit in kind ___ at its normal market value, not its cost to the brand.', answer:'is taxed', wrong:['taxes', 'was taxing', 'has taxed'], explain:'Present passive for a general tax rule — the gift receives the action of being taxed.' },
+        { sentence:'Under the One-Stop-Shop scheme, VAT ___ through a single EU-wide return.', answer:'is reported', wrong:['reports', 'was reporting', 'has report'], explain:'Present passive: is + past participle, describing how the scheme functions.' },
+      ],
+    },
+
+    // ── SENTENCE BUILDER ──────────────────────────────────────
+    sentences: [
+      { words:['is','value','a','at','its','benefit','kind','taxed','market'], answer:'a benefit in kind is taxed at its market value', hint:'🎁 How is a gifted product taxed?' },
+      { words:['part','later','an','of','the','price','pays','earn-out'], answer:'an earn-out pays part of the price later', hint:'🤝 How does an earn-out structure a sale?' },
+      { words:['can','tax','residency','complicate','ties','strong'], answer:'strong ties can complicate tax residency', hint:'🌍 What can make the 183-day rule not so simple?' },
+      { words:['is','deducted','tax','before','reaches','you','withholding','it'], answer:'withholding tax is deducted before it reaches you', hint:'💶 What happens to cross-border payments?' },
+    ],
+
+    // ── WORD BUILDER ────────────────────────────────────────
+    word_builder: [
+      { word:'residency',   definition:'The country where someone is treated as living for tax purposes' },
+      { word:'withholding', definition:'Deducting tax from a payment before it reaches you' },
+      { word:'licensing',   definition:'Granting the right to use something, like a brand or trademark' },
+      { word:'threshold',   definition:'The level at which a new rule or tax obligation kicks in' },
+      { word:'commercial',  definition:'Related to trade or business activity, not just personal work' },
+      { word:'classification', definition:'How an activity is categorised for tax purposes' },
+    ],
+
+    // ── TRUE / FALSE ─────────────────────────────────────────
+    true_false: [
+      { statement:'An earn-out means the full sale price is always paid immediately.', correct:false, reveal:'❌ FALSE. An earn-out is the opposite — part of the price is deliberately paid later, once the business hits agreed targets, precisely because it isn\'t paid all at once.' },
+      { statement:'Moving a personal brand into its own company can make a personality-tied business easier to sell.', correct:true, reveal:'✅ TRUE. An IP licensing structure separates the brand and its rights from the individual, which reduces a buyer\'s risk if the creator ever leaves.' },
+      { statement:'A benefit in kind is only taxable if the creator receives actual cash.', correct:false, reveal:'❌ FALSE. A benefit in kind is taxed at its normal market value precisely because no cash changed hands — that\'s the whole point of the concept.' },
+      { statement:'Hiring staff or scaling up can sometimes tip a creator\'s activity from freelance into commercial for trade tax purposes.', correct:true, reveal:'✅ TRUE. Classification isn\'t fixed — growth, staff, and how the work is organised can all shift how it\'s treated, and trade tax can follow.' },
+      { statement:'The VAT registration threshold means every business must charge VAT from the very first euro earned.', correct:false, reveal:'❌ FALSE. It\'s the opposite — below the threshold, a small business doesn\'t have to charge VAT at all.' },
+      { statement:'Withholding tax can be deducted from a payment before it even reaches your account.', correct:true, reveal:'✅ TRUE. The payer deducts it and sends it straight to the tax office — you only ever see what\'s left.' },
+      { statement:'The One-Stop-Shop scheme still requires separate VAT registration in every EU country you sell to.', correct:false, reveal:'❌ FALSE. That\'s exactly what it avoids — one single return covers cross-border digital VAT across the EU.' },
+      { statement:'The 183-day rule is one common test used to help decide someone\'s tax residency.', correct:true, reveal:'✅ TRUE. It\'s widely used, though — as Nina found out — it\'s rarely the only factor that matters.' },
+    ],
+
+  },
  
    };
 
