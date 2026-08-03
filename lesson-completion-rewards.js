@@ -707,6 +707,22 @@
       ],
     },
 
+     'weekly-drop-issue-014': {
+      title:   "The Weekly Drop — Issue 014 — Are Germany's Mini-Jobs Being Scrapped?",
+      level:   'All Levels',
+      grammar: 'Number Match (fact recall); True or Myth (timed); Fix the Mistake (word choice in news reporting); Block Builder (sentence reconstruction); The Coalition Vote (mixed-level reading comprehension)',
+      vocab: [
+        { word:'scrap',         definition:'To officially cancel or get rid of a plan or system.' },
+        { word:'threshold',     definition:'The amount or level at which something changes.' },
+        { word:'tax-free',      definition:'Not taxed — you keep the full amount you earn.' },
+        { word:'flat-rate tax', definition:'A fixed tax rate that stays the same no matter how much you earn.' },
+        { word:'staffing gap',  definition:'A shortage of workers, especially during busy periods.' },
+        { word:'bridge',        definition:'Something that helps you move smoothly from one stage to the next.' },
+        { word:'hurdle',        definition:'An obstacle that makes something harder to achieve.' },
+        { word:'coalition',     definition:'A government formed by two or more political parties working together.' },
+      ],
+    },
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
