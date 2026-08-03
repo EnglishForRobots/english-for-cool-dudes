@@ -723,6 +723,24 @@
       ],
     },
 
+     'influencer-exodus-tax': {
+      title:   'The Influencer Exodus',
+      level:   'Tax English',
+      grammar: 'Modal verbs of possibility (might/could/can) in tax advice; Passive Voice in tax and deal documentation',
+      vocab: [
+        { word:'exit tax',                 definition:'A tax charged when someone moves their tax residency abroad, on unrealised value already built up in their business.' },
+        { word:'earn-out',                 definition:"Part of a sale price paid later, once the business hits agreed targets." },
+        { word:'IP licensing structure',   definition:"A separate company holding a brand's trademark or image rights, which can license them back." },
+        { word:'benefit in kind',          definition:'The taxable value of something received instead of cash, usually assessed at market price.' },
+        { word:'trade tax',                definition:'A tax on commercial business activity, separate from income tax.' },
+        { word:'VAT registration threshold', definition:"The revenue level below which a small business doesn't have to charge VAT." },
+        { word:'withholding tax',          definition:'Tax deducted by the payer and sent to the tax office before the rest reaches you.' },
+        { word:'One-Stop-Shop scheme',     definition:'An EU system for reporting cross-border digital VAT through a single return.' },
+        { word:'asset deal',               definition:'A sale structured around specific assets and rights rather than the company itself.' },
+        { word:'183-day rule',             definition:'A common day-count test for determining tax residency.' },
+      ],
+    },
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
