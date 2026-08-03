@@ -3630,6 +3630,57 @@ const LESSON_DATA_REGISTRY = {
     ],
 
   },
+
+   'weekly-drop-issue-014': {
+    id:    'weekly-drop-issue-014',
+    title: "The Weekly Drop — Issue 014 — Are Germany's Mini-Jobs Being Scrapped?",
+    level: 'All Levels',
+    track: 'weekly-drop',
+    emoji: '💼',
+    badge: 'Minijob Insider',
+
+    vocab: [
+      { word:'scrap',         definition:'To officially cancel or get rid of a plan or system.',                          example:'The government wants to ___ the special tax status of mini-jobs.',            distractors:['bridge','threshold','coalition'] },
+      { word:'threshold',     definition:'The amount or level at which something changes.',                                example:'The earnings ___ is set at €603 a month.',                                     distractors:['hurdle','staffing gap','flat-rate tax'] },
+      { word:'tax-free',      definition:'Not taxed — you keep the full amount you earn.',                                 example:'Workers can earn up to €603 a month completely ___.',                          distractors:['flat-rate tax','scrap','coalition'] },
+      { word:'flat-rate tax', definition:'A fixed tax rate that stays the same no matter how much you earn.',              example:'Employers can legally pass a ___ onto the worker\'s pay.',                     distractors:['tax-free','threshold','bridge'] },
+      { word:'staffing gap',  definition:'A shortage of workers, especially during busy periods.',                         example:'Shops use mini-jobbers to cover a ___ during busy hours.',                     distractors:['hurdle','coalition','tax-free'] },
+      { word:'bridge',        definition:'Something that helps you move smoothly from one stage to the next.',             example:'Mini-jobs were meant to be a ___ into full employment.',                       distractors:['hurdle','threshold','flat-rate tax'] },
+      { word:'hurdle',        definition:'An obstacle that makes something harder to achieve.',                            example:'Critics say the system has become a ___ instead.',                            distractors:['bridge','staffing gap','scrap'] },
+      { word:'coalition',     definition:'A government formed by two or more political parties working together.',        example:'Germany\'s governing ___ wants to pass the reform by the end of 2026.',        distractors:['threshold','staffing gap','tax-free'] },
+    ],
+
+    true_false: [
+      { statement:'Mini-jobs let you earn up to €603 a month completely tax-free.',                           correct:true,  reveal:'✅ TRUE! €603 a month is the current tax-free limit — employees pay no tax and no social security contributions on it.' },
+      { statement:'Most mini-jobbers use it as their very first step into a career.',                          correct:false, reveal:'❌ MYTH. Only around 5% use it as a way into the job market — most already have another job or are students, trainees, or retirees.' },
+      { statement:'The government\'s pension reform plan wants to keep mini-jobs exactly as they are.',        correct:false, reveal:'❌ MYTH. The plan is to end the special tax-free status for most workers — the opposite of keeping things the same.' },
+      { statement:'Retail and hospitality businesses rely heavily on mini-jobbers to fill staffing gaps.',     correct:true,  reveal:'✅ TRUE! Most mini-jobs are in shops and cafés/restaurants, covering busy hours like weekends and rushes.' },
+      { statement:'Students are expected to lose their mini-job tax break under the new plan.',                correct:false, reveal:'❌ MYTH. Students are the one group expected to keep their tax-free status — everyone else could see it end.' },
+      { statement:'More than half of mini-jobbers already have another job with full social insurance.',      correct:true,  reveal:'✅ TRUE! Most people use the mini-job as extra tax-free income on top of a regular, insured job.' },
+    ],
+
+    fix_mistakes: [
+      { sentence:'The government wants to <u>build</u> the special tax status of mini-jobs.',                          wrong:'build', correct:'scrap',        explain:'SCRAP — to officially cancel or get rid of a system. "Build" means the opposite: to create something.' },
+      { sentence:'Mini-job workers can earn up to €603 a month completely <u>taxed</u>.',                              wrong:'taxed', correct:'tax-free',     explain:'TAX-FREE — meaning no tax is paid at all. "Taxed" describes the opposite situation.' },
+      { sentence:'Critics say mini-jobs were meant to be a <u>wall</u> into full employment, but instead became a hurdle.', wrong:'wall',  correct:'bridge',       explain:'BRIDGE — something that helps you move smoothly from one stage to the next. A "wall" blocks you — the opposite idea.' },
+      { sentence:'Shops and cafés use mini-jobbers to cover a <u>surplus</u> of staff during busy hours.',              wrong:'surplus', correct:'staffing gap', explain:'STAFFING GAP — a shortage of workers, especially at busy times. "Surplus" means having too many — the opposite.' },
+    ],
+
+    word_match: [
+      { term:'€603',   def:'The monthly tax-free earnings limit for a mini-job' },
+      { term:'6.9m',   def:'People working mini-jobs in Germany' },
+      { term:'1 in 2', def:'German companies that employ mini-jobbers' },
+      { term:'5%',     def:'Mini-jobbers who use it as a first step into the job market' },
+      { term:'2026',   def:'The year the coalition wants to pass the pension reform' },
+      { term:'50%+',   def:'Mini-jobbers who already have another job with full insurance' },
+    ],
+
+    sentences: [
+      { words:['half','of','mini-jobbers','More','than','already','have','another','insured','job'], answer:'More than half of mini-jobbers already have another insured job', hint:'💼 What do most mini-jobbers already have?' },
+      { words:['second','Every','company','in','Germany','employs','workers','a','in','mini-job'],     answer:'Every second company in Germany employs workers in a mini-job',   hint:'🏪 How common is it for firms to hire mini-jobbers?' },
+      { words:['coalition','wants','The','to','pass','the','pension','reform','by','the','end','of','2026'], answer:'The coalition wants to pass the pension reform by the end of 2026', hint:'🏛️ What is the government\'s timeline?' },
+    ],
+  },
  
    };
 
