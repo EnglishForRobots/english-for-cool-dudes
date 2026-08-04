@@ -741,6 +741,24 @@
       ],
     },
 
+     'the-accidental-manager': {
+      title:   'The Accidental Manager',
+      level:   'Intermediate / Upper-Intermediate',
+      grammar: 'Reported speech (backshifting); Past Simple (regular and irregular verbs) in storytelling English',
+      vocab: [
+        { word:'accidental',        definition:'Happening by chance, without being planned' },
+        { word:'wheeler-dealer',    definition:'Someone skilled — often slyly — at making business deals' },
+        { word:'relegation',        definition:'Being moved down to a lower league after poor results' },
+        { word:'storm out',         definition:'To leave a place suddenly, in anger' },
+        { word:'internship',        definition:'A temporary placement where you learn a job' },
+        { word:'elaborate prank',   definition:'A trick that has been carefully, cleverly planned' },
+        { word:'overnight',         definition:'Happening suddenly, from one day to the next' },
+        { word:'sporting director', definition:'The club role in charge of transfers and building the squad' },
+        { word:'a natural',         definition:'Someone who does something with an ease that seems instinctive' },
+        { word:'gamble',            definition:'A risky decision or action with an uncertain outcome' },
+      ],
+    },
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
