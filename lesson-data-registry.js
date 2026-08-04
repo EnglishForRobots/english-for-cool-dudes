@@ -3810,6 +3810,82 @@ const LESSON_DATA_REGISTRY = {
     ],
 
   },
+
+   'the-accidental-manager': {
+
+    id:    'the-accidental-manager',
+    title: 'The Accidental Manager',
+    level: 'Intermediate / Upper-Intermediate',
+    track: 'intermediate',
+    emoji: '🎙️',
+    badge: 'Accidental Gaffer',
+
+    // ── VOCAB ────────────────────────────────────────────────
+    vocab: [
+      { word:'accidental',       definition:'Happening by chance, without being planned',          example:'Klopp\u2019s move into management was completely ___.',                distractors:['overnight','a natural','a gamble'] },
+      { word:'wheeler-dealer',   definition:'Someone skilled — often slyly — at making business deals', example:'Heidel was known as a real ___ who also sold cars.',              distractors:['sporting director','an internship','relegation'] },
+      { word:'relegation',       definition:'Being moved down to a lower league after poor results', example:'Mainz spent years battling ___.',                                    distractors:['a gamble','overnight','wheeler-dealer'] },
+      { word:'storm out',        definition:'To leave a place suddenly, in anger',                 example:'The old manager ___ ___, shouting about training.',                  distractors:['an internship','overnight','a gamble'] },
+      { word:'internship',       definition:'A temporary placement where you learn a job',          example:'Klopp did an ___ in media while still playing.',                     distractors:['a gamble','relegation','a natural'] },
+      { word:'elaborate prank',  definition:'A trick that has been carefully, cleverly planned',    example:'Reporters thought the news was an ___ ___.',                         distractors:['sporting director','wheeler-dealer','overnight'] },
+      { word:'overnight',        definition:'Happening suddenly, from one day to the next',         example:'___, Klopp went from player to manager.',                             distractors:['accidental','a natural','a gamble'] },
+      { word:'sporting director',definition:'The club role in charge of transfers and building the squad', example:'Heidel was Mainz\u2019s ___ ___ for a decade.',                distractors:['wheeler-dealer','internship','relegation'] },
+      { word:'a natural',        definition:'Someone who does something with an ease that seems instinctive', example:'He was ___ ___ in front of the camera.',                distractors:['overnight','a gamble','elaborate prank'] },
+      { word:'gamble',           definition:'A risky decision or action with an uncertain outcome', example:'Appointing him was a huge ___ that paid off.',                       distractors:['relegation','an internship','storm out'] },
+    ],
+
+    // ── GRAMMAR 1: Reported Speech ────────────────────────────
+    grammar: {
+      topic: 'Reported Speech — backshifting tenses',
+      rule:  'When we report what someone said, tenses shift back: present simple → past simple, can → could, will → would. "Can you do it?" → "Heidel asked if he could do it."',
+      exercises: [
+        { sentence:'Heidel asked Klopp if he ___ do it.',            answer:'could',  wrong:['can','would',"can't"],       explain:'"Can" → "could" in reported speech.' },
+        { sentence:'Klopp said he ___ play anymore.',                answer:"didn't", wrong:["doesn't",'wasn\'t',"hasn't"], explain:'"I don\'t play" → "he didn\'t play" — present simple backshifts to past simple.' },
+        { sentence:'The reporters thought it ___ a prank.',          answer:'was',    wrong:['is','has been','were'],       explain:'"is" → "was" — standard backshift.' },
+        { sentence:'Heidel said he ___ find a manager in the magazine.', answer:'would', wrong:['will','shall','can'],     explain:'"will" → "would" — one of the most common backshifts to learn.' },
+      ],
+    },
+
+    // ── GRAMMAR 2: Past Simple ────────────────────────────────
+    grammar2: {
+      topic: 'Past Simple — regular and irregular verbs',
+      rule:  'Regular verbs add -ED: play → played. Irregular verbs must be learned: find → found, lead → led.',
+      exercises: [
+        { sentence:'Klopp ___ for Mainz for over a decade.',        answer:'played',  wrong:['play','plays','has played'],   explain:'Regular past simple: play → played.' },
+        { sentence:'The old manager ___ out of the meeting.',       answer:'stormed', wrong:['storm','storms','has stormed'], explain:'Regular past simple: storm → stormed.' },
+        { sentence:'Heidel ___ Klopp\u2019s name in a magazine.',   answer:'found',   wrong:['finded','find','has found'],   explain:'Irregular: find → FOUND, never "finded".' },
+        { sentence:'Klopp ___ the team to four straight wins.',     answer:'led',     wrong:['leaded','lead','has led'],     explain:'Irregular: lead → LED, never "leaded".' },
+      ],
+    },
+
+    // ── SENTENCE BUILDER ──────────────────────────────────────
+    sentences: [
+      { words:['Klopp','began','wondering','what','to','do','once','his','playing','career','finished'], answer:'Klopp began wondering what to do once his playing career finished', hint:'😅 About the career switch — what was Klopp beginning to wonder?' },
+      { words:['Heidel','ran','a','car','dealership','whenever','he','wasn\u2019t','at','the','football','club'],  answer:'Heidel ran a car dealership whenever he wasn\u2019t at the football club', hint:'🚗 About Heidel\u2019s two jobs...' },
+      { words:['Even','after','four','straight','wins','the','club','kept','searching','for','a','manager'], answer:'Even after four straight wins the club kept searching for a manager', hint:'🏆 About the doubters...' },
+    ],
+
+    // ── WORD BUILDER ──────────────────────────────────────────
+    word_builder: [
+      { word:'accidental', definition:'Happening by chance, not planned' },
+      { word:'internship', definition:'A temporary placement to learn a job' },
+      { word:'relegation',  definition:'Being moved down to a lower league' },
+      { word:'overnight',   definition:'Suddenly, from one day to the next' },
+      { word:'gamble',      definition:'A risky decision with an uncertain outcome' },
+    ],
+
+    // ── TRUE / FALSE ───────────────────────────────────────────
+    true_false: [
+      { statement:'Klopp started thinking about his next career in his early 30s, near the end of his playing days.', correct:true,  reveal:'✅ TRUE! He was 32/33 — near the end of a 10-12 year playing career.' },
+      { statement:'Sporting director Christian Heidel sometimes discussed transfer deals at his own car dealership.',  correct:true,  reveal:'✅ TRUE! Heidel ran a car dealership on the side, and deals were sometimes discussed there.' },
+      { statement:'The Mainz players secretly agreed among themselves that they no longer backed their manager.',     correct:true,  reveal:'✅ TRUE! After a tough loss, the squad quietly agreed — and asked Klopp to deliver the news.' },
+      { statement:'Heidel found Klopp\u2019s name by flicking through a football magazine, looking for candidates.', correct:true,  reveal:'✅ TRUE! He ran out of names in the magazine — and Klopp was standing right there.' },
+      { statement:'When Klopp took the manager job, he continued playing for the team as well.',                     correct:false, reveal:'❌ FALSE! His exact reply was "Yeah, but I don\u2019t play." He stepped away from playing completely.' },
+      { statement:'Journalists immediately believed the appointment and wrote glowing reports the next morning.',    correct:false, reveal:'❌ FALSE! The two or three reporters who showed up thought it was some kind of elaborate prank.' },
+      { statement:'Even after four straight wins, the club kept quietly searching for a "real" manager.',            correct:true,  reveal:'✅ TRUE! Game after game they kept winning — and the club kept looking for someone else anyway.' },
+    ],
+
+  },
  
    };
 
