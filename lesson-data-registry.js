@@ -3886,6 +3886,85 @@ const LESSON_DATA_REGISTRY = {
     ],
 
   },
+
+   /* ═══════════════════════════════════════════════════════════════
+   ADD TO lesson-data-registry.js
+   Key: 'the-odyssey-2026-beginner'
+   Paste this object as a new entry inside LESSON_DATA_REGISTRY,
+   alongside 'the-odyssey-2026-advanced'.
+═══════════════════════════════════════════════════════════════ */
+
+'the-odyssey-2026-beginner': {
+
+  id:    'the-odyssey-2026-beginner',
+  title: 'The Odyssey (2026): A Big New Movie',
+  level: 'Beginner',
+  track: 'beginner',
+  emoji: '🏛️',
+  badge: 'Odyssey Explorer',
+
+  vocab: [
+    { word:'MOVIE',      icon:'🎬', definition:'A film that you watch',                     example:'This movie is very long.' },
+    { word:'STORY',      icon:'📖', definition:'Things that happen in a book or film',       example:'This is a very old Greek story.' },
+    { word:'HERO',       icon:'🦸', definition:'A brave person in a story',                  example:'Odysseus is the hero of the story.' },
+    { word:'JOURNEY',    icon:'🧭', definition:'A long trip',                                 example:'He has a very long journey home.' },
+    { word:'SHIP',       icon:'🚢', definition:'A big boat',                                 example:'The ship sails across the sea.' },
+    { word:'ISLAND',     icon:'🏝️', definition:'Land with water all around it',              example:'They stop at a strange island.' },
+    { word:'MONSTER',    icon:'👹', definition:'A big, scary creature',                       example:'The Cyclops is a huge monster.' },
+    { word:'BRAVE',      icon:'💪', definition:'Not afraid; having courage',                 example:'Odysseus is very brave.' },
+    { word:'FAMOUS',     icon:'⭐', definition:'Known by many people',                        example:'The director is very famous.' },
+    { word:'EXPENSIVE',  icon:'💰', definition:'Costs a lot of money',                        example:'This movie was very expensive to make.' },
+  ],
+
+  grammar: {
+    topic: 'Past Simple — irregular verbs',
+    rule:  'Some verbs are irregular in the past — they do not add -ED. You must learn them. grow → grew, sail → sailed (regular), have → had.',
+    exercises: [
+      { sentence:'The actor ___ a beard for the movie.', answer:'grew', wrong:['growed','grow','has grew'], explain:'Irregular: grow → GREW. Never "growed".' },
+      { sentence:'The director ___ a very famous movie before this one.', answer:'had', wrong:['haved','have','has had'], explain:'Irregular: have → HAD.' },
+      { sentence:'Odysseus ___ home after a long war.', answer:'went', wrong:['goed','go','has gone'], explain:'Irregular: go → WENT. Never "goed".' },
+      { sentence:'The Cyclops ___ very scary in the movie.', answer:'looked', wrong:['look','looking','has looked'], explain:'Regular past simple: look → looked.' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Comparatives and there is / there are',
+    rule:  'Use -ER for short adjectives: long → longer. Always add THAN. Use THERE IS for one thing, THERE ARE for more than one.',
+    exercises: [
+      { sentence:'This movie is ___ than most films.', answer:'longer', wrong:['more long','longest','long'], explain:'Short adjective "long" + ER = longer. Always followed by THAN.' },
+      { sentence:'There ___ a monster in the story.', answer:'is', wrong:['are','has','have'], explain:'"A monster" is singular — one thing — so we use THERE IS.' },
+      { sentence:'There ___ many new words to learn in this lesson.', answer:'are', wrong:['is','has','was'], explain:'"Many new words" is plural — more than one — so we use THERE ARE.' },
+      { sentence:'The hero ___ across the sea.', answer:'sails', wrong:['sail','sailing','is sail'], explain:'Present simple: he/she/it + verb + S. "The hero sails."' },
+    ],
+  },
+
+  sentences: [
+    { words:['long','is','This','very','movie'], answer:'This movie is very long', hint:'🎬 A fact about the movie\'s length' },
+    { words:['is','director','very','The','famous'], answer:'The director is very famous', hint:'⭐ A fact about who made the movie' },
+    { words:['is','brave','very','Odysseus'], answer:'Odysseus is very brave', hint:'💪 A fact about the hero' },
+    { words:['sea','sails','the','across','ship','The'], answer:'The ship sails across the sea', hint:'🚢 What happens to the ship in the story' },
+  ],
+
+  word_builder: [
+    { word:'movie',     definition:'A film that you watch' },
+    { word:'hero',      definition:'A brave person in a story' },
+    { word:'journey',   definition:'A long trip' },
+    { word:'monster',   definition:'A big, scary creature' },
+    { word:'expensive', definition:'Costs a lot of money' },
+    { word:'famous',    definition:'Known by many people' },
+  ],
+
+  true_false: [
+    { statement:'The whole movie was filmed with a special big camera called IMAX.',      correct:true,  reveal:'✅ TRUE! The director used IMAX cameras for every scene — this is very unusual.' },
+    { statement:'The movie was cheap to make — it cost less than $10 million.',           correct:false, reveal:'❌ FALSE! It cost about $250 million — a huge amount of money!' },
+    { statement:'All the actors speak with Greek accents.',                                correct:false, reveal:'❌ FALSE! The actors speak with American accents, and many people talked about this online.' },
+    { statement:'Matt Damon changed his food and grew a beard for his role.',             correct:true,  reveal:'✅ TRUE! He did this for one whole year before filming.' },
+    { statement:'The movie is short — under two hours.',                                  correct:false, reveal:'❌ FALSE! It is almost three hours long.' },
+    { statement:'Zendaya plays a goddess in the movie.',                                  correct:true,  reveal:'✅ TRUE! She plays the goddess Athena.' },
+    { statement:'A singer plays a character who tells stories with music.',               correct:true,  reveal:'✅ TRUE! The singer Travis Scott plays this character.' },
+  ],
+
+},
  
    };
 
