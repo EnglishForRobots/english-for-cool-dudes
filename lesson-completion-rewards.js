@@ -759,6 +759,24 @@
       ],
     },
 
+     'ichigo-ichie-once-in-a-lifetime': {
+      title:   'Ichigo Ichie — The Japanese Secret to Being Calmer and Happier',
+      level:   'Advanced',
+      grammar: 'Passive Voice in ritual/process description; Despite vs Even though for contrast',
+      vocab: [
+        { word:'fleeting',     definition:'Lasting only a very short time' },
+        { word:'encounter',    definition:'A meeting with someone, often brief or unplanned' },
+        { word:'present',      definition:'Fully paying attention to this exact moment' },
+        { word:'appreciation', definition:'A feeling of gratitude for something' },
+        { word:'endurance',    definition:'The ability to keep going through something difficult' },
+        { word:'discipline',   definition:'Controlled behaviour that comes from practice' },
+        { word:'glaze',        definition:'A shiny, sticky coating brushed onto food' },
+        { word:'unique',       definition:'Being the only one of its kind' },
+        { word:'utensil',      definition:'A tool used for eating, drinking, or cooking' },
+        { word:'intention',    definition:'A clear purpose behind what you do' },
+      ],
+    },
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
