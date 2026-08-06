@@ -3965,6 +3965,86 @@ const LESSON_DATA_REGISTRY = {
   ],
 
 },
+
+
+'ichigo-ichie-once-in-a-lifetime': {
+
+    id:    'ichigo-ichie-once-in-a-lifetime',
+    title: 'Ichigo Ichie — The Japanese Secret to Being Calmer and Happier',
+    level: 'Advanced',
+    track: 'intermediate',
+    emoji: '⛩️',
+    badge: 'Ichigo Ichie Sage',
+
+    // ── VOCAB ────────────────────────────────────────────────
+    vocab: [
+      { word:'fleeting',     definition:'Lasting only a very short time',                     example:'The post town was full of ___ encounters and memories.',                distractors:['permanent','unique','present'] },
+      { word:'encounter',    definition:'A meeting with someone, often brief or unplanned',   example:'Every traveller had a unique ___ before moving on the next morning.',    distractors:['discipline','utensil','intention'] },
+      { word:'present',      definition:'Fully paying attention to this exact moment',         example:'A quiet bath is a place to slow down and be fully ___.',                 distractors:['fleeting','glazed','unique'] },
+      { word:'appreciation', definition:'A feeling of gratitude, or recognising the value of something', example:'Turning the bowl before drinking shows ___ for the host.', distractors:['endurance','intention','discipline'] },
+      { word:'endurance',    definition:'The ability to keep going through something difficult', example:'Takigyo is a Buddhist practice of ___ under falling water.',          distractors:['appreciation','glaze','utensil'] },
+      { word:'discipline',   definition:'Controlled behaviour that comes from practice',       example:'Ichigo Ichie is emotional ___, not just a nice idea.',                    distractors:['endurance','fleeting','present'] },
+      { word:'glaze',        definition:'A shiny, sticky coating brushed onto food',            example:'The gohei mochi is finished with a sweet miso ___.',                     distractors:['utensil','intention','unique'] },
+      { word:'unique',       definition:'Being the only one of its kind',                       example:'Each hand-shaped mochi ball is genuinely ___.',                          distractors:['fleeting','present','glaze'] },
+      { word:'utensil',      definition:'A tool used for eating, drinking, or cooking',         example:'Every ___ in the tea ceremony is chosen for a reason.',                  distractors:['encounter','discipline','appreciation'] },
+      { word:'intention',    definition:'A clear purpose behind what you do',                   example:'Every flower and utensil is chosen with ___.',                            distractors:['endurance','glaze','encounter'] },
+    ],
+
+    // ── GRAMMAR 1: Passive Voice ──────────────────────────────
+    grammar: {
+      topic: 'Passive Voice — describing rituals and traditions',
+      rule:  'Present passive: is/are + past participle. Used when the object of the action matters more than who performs it — very common when describing rituals, customs and processes. "The bowl is turned." "The mochi is shaped by hand."',
+      exercises: [
+        { sentence:'The hinoki bathtub ___ without soap — it is purely a place to relax.', answer:'is used',      wrong:['uses','used','has use'],       explain:'Present passive: is + past participle. The bathtub receives the action.' },
+        { sentence:'Each gohei mochi ball ___ by hand, one at a time, over an open grill.', answer:'is shaped',   wrong:['shapes','shaped','has shape'], explain:'Present passive for a standard step in a process — the mochi receives the shaping.' },
+        { sentence:'The tea bowl ___ before drinking, to show appreciation for the host.',  answer:'is turned',   wrong:['turns','turned','has turn'],   explain:'Present passive: is + past participle. A ritual gesture, described objectively.' },
+        { sentence:'Takigyo ___ under two waterfalls, for endurance and quiet focus.',      answer:'is practised',wrong:['practises','practised','has practise'], explain:'Present passive for an ongoing tradition — the practice receives the action.' },
+      ],
+    },
+
+    // ── GRAMMAR 2: Despite / Even though ──────────────────────
+    grammar2: {
+      topic: 'Despite / Even though — expressing contrast',
+      rule:  'DESPITE + noun or gerund (-ing) — no subject or verb follows. EVEN THOUGH + full clause (subject + verb). Common error: "despite being simple" ✅ vs "despite it is simple" ❌.',
+      exercises: [
+        { sentence:'The ceremony feels deeply meaningful ___ being simple.',                     answer:'despite',     wrong:['despite of','although','despite to'],      explain:'"Despite" + gerund (being). No subject needed after "despite".' },
+        { sentence:'___ its simplicity, the tea ceremony carries centuries of meaning.',          answer:'Despite',     wrong:['Despite of','Even though of','Although'], explain:'"Despite" + noun phrase (its simplicity).' },
+        { sentence:'___ he had never sat under a waterfall before, he stayed completely still.',  answer:'Even though', wrong:['Despite','Despite that','Although of'],    explain:'"Even though" + full clause (subject + verb) — "Despite" cannot be followed by a clause like this.' },
+        { sentence:'The mochi looks simple ___ each one actually takes real skill to shape.',     answer:'even though', wrong:['despite','despite of','although of'],      explain:'"Even though" + clause. "Despite" would need a noun/gerund here instead.' },
+      ],
+    },
+
+    // ── SENTENCE BUILDER ──────────────────────────────────────
+    sentences: [
+      { words:['The','phrase','became','well','known','through','the','art','of','Japanese','tea','ceremony'], answer:'The phrase became well known through the art of Japanese tea ceremony', hint:'⛩️ About the meaning of Ichigo Ichie...' },
+      { words:['Travellers','passing','through','these','towns','would','usually','stay','for','only','one','night'], answer:'Travellers passing through these towns would usually stay for only one night', hint:'🏘️ About the post towns...' },
+      { words:['Sitting','under','the','waterfall','is','practised','for','endurance','and','deep','quiet','focus'], answer:'Sitting under the waterfall is practised for endurance and deep quiet focus', hint:'💧 About takigyo...' },
+      { words:['Each','gohei','mochi','ball','is','shaped','by','hand','over','an','open','grill'], answer:'Each gohei mochi ball is shaped by hand over an open grill', hint:'🍡 About how the mochi is made...' },
+    ],
+
+    // ── WORD BUILDER ──────────────────────────────────────────
+    word_builder: [
+      { word:'fleeting',     definition:'Lasting only a very short time' },
+      { word:'endurance',    definition:'The ability to keep going through something hard' },
+      { word:'discipline',   definition:'Controlled behaviour that comes from practice' },
+      { word:'intention',    definition:'A clear purpose behind what you do' },
+      { word:'appreciation', definition:'A feeling of gratitude for something' },
+      { word:'unique',       definition:'Being the only one of its kind' },
+    ],
+
+    // ── TRUE / FALSE ─────────────────────────────────────────
+    true_false: [
+      { statement:'Magome is the 43rd post town on the Nakasendo Trail.',                         correct:true,  reveal:'✅ TRUE! One of over 60 post towns along the old route between Kyoto and Edo (now Tokyo).' },
+      { statement:'Most travellers stayed in a post town like Magome for several weeks.',          correct:false, reveal:'❌ FALSE! Most stayed for exactly one night — the whole idea behind Ichigo Ichie.' },
+      { statement:'The hinoki bathtub is used with plenty of soap to get properly clean.',          correct:false, reveal:'❌ FALSE! No soap — the bath is a place to relax, not a place to wash.' },
+      { statement:'Odaki and Medaki are known as the "male" and "female" waterfalls.',              correct:true,  reveal:'✅ TRUE! Takigyo — sitting under the falling water — is practised there for endurance and focus.' },
+      { statement:'Every gohei mochi ball is shaped by machine, so they all look identical.',       correct:false, reveal:'❌ FALSE! Each ball is shaped entirely by hand, so every single one is genuinely unique.' },
+      { statement:'Guests turn the tea bowl before drinking, to show appreciation for the host.',   correct:true,  reveal:'✅ TRUE! A small ritual gesture — and it\u2019s considered polite to slurp loudly on the last sip.' },
+      { statement:'"Ichigo Ichie" translates roughly as "once in a lifetime, one meeting."',        correct:true,  reveal:'✅ TRUE! It captures the idea that this exact moment will never happen again in quite the same way.' },
+      { statement:'The phrase Ichigo Ichie became widely known through Japanese martial arts, not tea.', correct:false, reveal:'❌ FALSE! It became widely known through the tea ceremony, where every gesture is chosen with intention.' },
+    ],
+
+  },
  
    };
 
