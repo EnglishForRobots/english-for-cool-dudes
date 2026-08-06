@@ -235,6 +235,13 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .reflect-pip{flex:1;height:6px;border-radius:99px;background:var(--border-heavy)}
 .reflect-pip.done{background:var(--show-gold)}
 .reflect-pip.active{background:var(--show-gold-shadow)}
+.reflect-sample-card{background:rgba(43,222,204,.06);border:2px solid rgba(43,222,204,.25);border-radius:var(--rxs);padding:12px 14px;margin-bottom:10px}
+.reflect-sample-label{font-size:11px;font-weight:900;color:#136b62;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.reflect-sample-text{font-size:13px;font-weight:700;color:var(--ink-bold);line-height:1.55;font-style:italic}
+.reflect-selfcheck{display:flex;gap:8px;margin:12px 0}
+.reflect-selfcheck-btn{flex:1;padding:11px 4px;font-size:12px;font-weight:900;border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);cursor:pointer;background:#fff;color:var(--ink-bold);transition:all .12s;text-align:center}
+.reflect-selfcheck-btn:active{border-bottom-width:2px;transform:translateY(2px)}
+.reflect-selfcheck-btn.picked{background:var(--show-gold);color:var(--show-shadow);border-color:var(--show-gold-shadow)}
 
 /* WATERFALL TRIAL (boss) */
 .boss-arena{background:linear-gradient(160deg,#0A121C,var(--show) 60%);border:2px solid rgba(212,175,55,.35);border-radius:var(--rsm);padding:18px;margin-bottom:16px;text-align:center;position:relative;overflow:hidden}
@@ -568,6 +575,7 @@ var REFLECTIONS = [
         context:'🍵 A moment you won\u2019t get back...',
         text:'Think of one small moment from the last few days — a coffee, a walk, a conversation — that you will never get back in exactly that form again.',
         prompt:'Describe it in a few sentences. What made it worth noticing, even if nothing "happened"?',
+        model:'What stood out to me was five minutes waiting for the bus in the rain without checking my phone. Nothing really happened, but I noticed the sound of the rain and the smell of the wet pavement. It won\u2019t happen again because tomorrow I\u2019ll probably just scroll through my phone instead.',
         phrases:[
             { pattern:'What stood out to me was...', example:'What stood out to me was how quiet the street was that morning.' },
             { pattern:'I didn\u2019t think much of it at the time, but...', example:'I didn\u2019t think much of it at the time, but I still remember exactly how the coffee tasted.' },
@@ -578,6 +586,7 @@ var REFLECTIONS = [
         context:'📿 A ritual of your own...',
         text:'Ichigo Ichie is built through small rituals — a bath, a bowl of tea, a walk. Think of one small ritual in your own week, however ordinary.',
         prompt:'Describe it, and say what it gives you that a rushed version wouldn\u2019t.',
+        model:'For me, it\u2019s making coffee slowly before anyone else is awake. The difference is that I\u2019m not doing anything else at the same time — no phone, no plans. If I rushed it, I\u2019d lose the only part of the day that\u2019s actually just mine.',
         phrases:[
             { pattern:'For me, it\u2019s...', example:'For me, it\u2019s the ten minutes with coffee before anyone else wakes up.' },
             { pattern:'The difference is...', example:'The difference is that I\u2019m not doing anything else at the same time.' },
@@ -850,13 +859,13 @@ function buildOrderCard(container, colorClass, contextText, targetArr, onCheck){
         container.querySelector('#ord-check-btn').addEventListener('click',function(){
             var slotsEl=container.querySelectorAll('#ord-slots .ord-slot');
             var built=Array.from(slotsEl).map(function(s){return s.textContent.replace(/^\d+/,'');});
-            var res=$('ord-result')||container.querySelector('#ord-result');
+            var res=container.querySelector('#ord-result');
             if(built.length<targetArr.length){
                 res.className='ord-result show wrong';res.textContent='⚠️ Use every piece first!';return;
             }
             var correct=built.length===targetArr.length&&built.every(function(w,idx){return w===targetArr[idx];});
             container.querySelector('#ord-check-btn').style.display='none';
-            onCheck(correct, res, targetArr);
+            onCheck(correct, res, targetArr, container);
         });
     }
     draw();
@@ -867,7 +876,7 @@ function initRitual(){
     var b=body('sec-ritual');
     b.innerHTML='<div class="tip-box">👉 The tea ceremony is a sequence, not a list — tap the steps below in the order they really happen.</div><div id="ritual-slot"></div>';
     var container=$('ritual-slot');
-    buildOrderCard(container,'',RITUAL_ORDER.context,RITUAL_ORDER.steps,function(correct,res){
+    buildOrderCard(container,'',RITUAL_ORDER.context,RITUAL_ORDER.steps,function(correct,res,targetArr,cont){
         S.totalAnswered++;
         if(correct){
             S.totalRight++;S.combo++;S.bestCombo=Math.max(S.bestCombo,S.combo);
@@ -877,14 +886,14 @@ function initRitual(){
             confettiBurst(window.innerWidth/2,200);
         } else {
             S.combo=0;
-            res.className='ord-result show wrong';res.textContent='📖 Close! The real order is:\n1. '+RITUAL_ORDER.steps.join('\n2. ').replace('\n2. ','\n2. ');
+            res.className='ord-result show wrong';
             res.innerHTML='📖 Close! The real order:<br>'+RITUAL_ORDER.steps.map(function(s,i){return (i+1)+'. '+s;}).join('<br>');
         }
         S.ritualDone=true;
         addXP(5);
         toast('🧱','Ritual rebuilt! +'+(correct?25:5)+' XP');
         updateProgress();
-        $('ord-next-slot').innerHTML='<button class="ord-next" style="display:flex" onclick="revealSection(\'sec-dojo\')">Sentence Dojo 🥋 →</button>';
+        cont.querySelector('#ord-next-slot').innerHTML='<button class="ord-next" style="display:flex" onclick="revealSection(\'sec-dojo\')">Sentence Dojo 🥋 →</button>';
     });
 }
 
@@ -899,7 +908,7 @@ function renderDojo(){
     if(S.dojoDone){doneDojo();return;}
     var q=BUILDER_SENTENCES[S.dojoIdx];
     var container=$('dojo-slot');
-    buildOrderCard(container,'ord-teal',q.context,q.target,function(correct,res){
+    buildOrderCard(container,'ord-teal',q.context,q.target,function(correct,res,targetArr,cont){
         S.totalAnswered++;
         if(correct){
             S.totalRight++;S.combo++;S.bestCombo=Math.max(S.bestCombo,S.combo);
@@ -911,7 +920,7 @@ function renderDojo(){
             S.combo=0;
             res.className='ord-result show wrong';res.textContent='📖 Close! The real line is: "'+q.target.join(' ')+'"';
         }
-        $('ord-next-slot').innerHTML='<button class="ord-next" style="display:flex" onclick="nextDojo()">'+(S.dojoIdx+1<BUILDER_SENTENCES.length?'Next line →':'Nice work! →')+'</button>';
+        cont.querySelector('#ord-next-slot').innerHTML='<button class="ord-next" style="display:flex" onclick="nextDojo()">'+(S.dojoIdx+1<BUILDER_SENTENCES.length?'Next line →':'Nice work! →')+'</button>';
     });
 }
 function nextDojo(){
@@ -931,7 +940,7 @@ function doneDojo(){
 function initReflect(){
     S.reflectIdx=0;
     var b=body('sec-reflect');
-    b.innerHTML='<div class="tip-box">👉 No right answer here — just write a few honest sentences. Skip anytime if you\u2019d rather not.</div><div class="reflect-progress" id="reflect-pips"></div><div id="reflect-slot"></div>';
+    b.innerHTML='<div class="tip-box">👉 No right answer here, and nobody\u2019s marking your English — write a few honest sentences, then compare them to a sample answer yourself. Skip anytime if you\u2019d rather not.</div><div class="reflect-progress" id="reflect-pips"></div><div id="reflect-slot"></div>';
     renderReflect();
 }
 function reflectPips(){
@@ -947,8 +956,11 @@ function renderReflect(){
         '<div class="reflect-timer-row"><div class="reflect-ring"><svg width="46" height="46" viewBox="0 0 46 46"><circle class="reflect-track" cx="23" cy="23" r="20"/><circle class="reflect-fill" id="reflect-ring-fill" cx="23" cy="23" r="20"/></svg><div class="reflect-ring-num" id="reflect-ring-num">30</div></div><span class="reflect-timer-txt">⏱️ Take a slow 30 seconds</span></div>'+
         '<div class="tip-box"><strong>💡 Prompt:</strong> '+q.prompt+'</div>'+
         '<textarea class="reflect-textarea" id="reflect-textarea" placeholder="It was..."></textarea>'+
-        '<div class="reflect-btn-row"><button class="reflect-done-early" onclick="finishReflectWrite()">✅ Done — show me phrases</button><button class="reflect-skip" onclick="skipReflect()">⏭️ Skip this one</button></div>'+
-        '<div class="reflect-reveal" id="reflect-reveal"><div class="reflect-reveal-title">💬 Phrases you could use</div>'+q.phrases.map(function(p){return '<div class="reflect-phrase-card"><div class="reflect-phrase-pattern">'+p.pattern+'</div><div class="reflect-phrase-example">"'+p.example+'"</div></div>';}).join('')+'</div>'+
+        '<div class="reflect-btn-row"><button class="reflect-done-early" onclick="finishReflectWrite()">✅ Done — compare to a sample</button><button class="reflect-skip" onclick="skipReflect()">⏭️ Skip this one</button></div>'+
+        '<div class="reflect-reveal" id="reflect-reveal"><div class="reflect-sample-card"><div class="reflect-sample-label">📝 One way to write this (not the only right way!)</div><div class="reflect-sample-text">'+q.model+'</div></div>'+
+        '<div class="reflect-selfcheck-label" style="font-size:11px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">How close was your version?</div>'+
+        '<div class="reflect-selfcheck"><button class="reflect-selfcheck-btn" onclick="pickSelfCheck(this)">🎯 Pretty close</button><button class="reflect-selfcheck-btn" onclick="pickSelfCheck(this)">🤔 Different angle</button><button class="reflect-selfcheck-btn" onclick="pickSelfCheck(this)">📝 I\u2019ll try again next time</button></div>'+
+        '<div class="reflect-reveal-title">💬 Phrases you could use</div>'+q.phrases.map(function(p){return '<div class="reflect-phrase-card"><div class="reflect-phrase-pattern">'+p.pattern+'</div><div class="reflect-phrase-example">"'+p.example+'"</div></div>';}).join('')+'</div>'+
         '<button class="reflect-next" id="reflect-nxt" onclick="nextReflect()">'+(S.reflectIdx+1<REFLECTIONS.length?'Next moment →':'Finish The Tea Room →')+'</button></div>';
     startReflectTimer();
     setTimeout(function(){var ta=$('reflect-textarea');if(ta)ta.focus();},50);
@@ -977,6 +989,10 @@ window.finishReflectWrite=function(){
     }
     $('reflect-reveal').classList.add('show');
     $('reflect-nxt').style.display='flex';
+};
+window.pickSelfCheck=function(btn){
+    btn.parentElement.querySelectorAll('.reflect-selfcheck-btn').forEach(function(b){b.classList.remove('picked');});
+    btn.classList.add('picked');
 };
 window.skipReflect=function(){
     if(S.reflectTimerInt)clearInterval(S.reflectTimerInt);
