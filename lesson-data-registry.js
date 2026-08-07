@@ -4081,7 +4081,7 @@ const LESSON_DATA_REGISTRY = {
   ],
 
   fix_mistakes: [
-    { sentence:'"Castlelake decided to <u>increase</u> its bid in the race for EasyJet."',                          wrong:'increase', correct:'withdraw',  explain:'WITHDRAW — Castlelake pulled out of the bidding war completely, clearing the way for Apollo\'s takeover.' },
+    { sentence:'"Castlelake decided to <u>increase</u> its bid in the race for EasyJet."',                          wrong:'increase','raise','remain', correct:'withdraw',  explain:'WITHDRAW — Castlelake pulled out of the bidding war completely, clearing the way for Apollo\'s takeover.' },
     { sentence:'"Apollo confirmed plans to <u>cut</u> hundreds of jobs in the first 12 months after the takeover."', wrong:'cut',      correct:'protect',   explain:'PROTECT — Apollo said it does not intend to cut any jobs in the first 12 months after the deal completes.' },
     { sentence:'"EasyJet\'s very first international flights <u>departed</u> in 1996."',                            wrong:'departed', correct:'took off',  explain:'TOOK OFF — planes take off; "departed" is used more for trains and buses in everyday English.' },
     { sentence:'"The Haji-Ioannou family will <u>sell</u> around 15% of the business."',                            wrong:'sell',     correct:'still own', explain:'STILL OWN — the family will keep around 15% of EasyJet and stay on as long-term shareholders.' },
