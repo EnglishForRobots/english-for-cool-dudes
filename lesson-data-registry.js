@@ -4081,34 +4081,6 @@ const LESSON_DATA_REGISTRY = {
   ],
 
 
-    grammar: {
-      topic: 'Fill the gaps by choosing the correct word.',
-      exercises: [
-        {
-          sentence: '"Castlelake decided to ___ its bid in the race for EasyJet."',
-          answer:   'withdraw',
-          wrong:    ['withhold', 'raise', 'remain'],
-          explain:  'WITHDRAW — Castlelake pulled out of the bidding war completely, clearing the way for Apollo\'s takeover.',
-        },
-        {
-          sentence: '"Apollo confirmed plans to ___ hundreds of jobs in the first 12 months after the takeover."',
-          answer:   'protect',
-          wrong:    ['axe', 'promote', 'fire'],
-          explain:  'PROTECT — Apollo said it does not intend to cut any jobs in the first 12 months after the deal completes.',
-        },
-        {
-          sentence: '"EasyJet\'s very first international flights ___ in 1996."',
-          answer:   'took off',
-          wrong:    ['arrived', 'crashed', 'takeaway'],
-          explain:  'TOOK OFF — planes take off; "departed" is used more for trains and buses in everyday English.',
-        },
-        {
-          sentence: '"The Haji-Ioannou family will ___ around 15% of the business."',
-          answer:   'still own',
-          wrong:    ['investing', 'auction', 'donate'],
-          explain:  'STILL OWN — the family will keep around 15% of EasyJet and stay on as long-term shareholders.',
-        },
-      ],
 
 
 
