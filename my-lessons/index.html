@@ -1529,6 +1529,52 @@ function renderWordBuilderPanel(reg){
   window._currentReg=reg; renderW();
 }
 
+  function renderWordMatchPanel(reg){
+  const el=document.getElementById('panel-wordMatch');
+  if(!el||!reg?.word_match?.length||reg.word_match.length<2){ if(el) el.innerHTML=comingSoon('Word matching'); return; }
+  const items=reg.word_match;
+  let idx=0, score=0;
+
+  function renderQ(){
+    const q=items[idx];
+    const others=items.filter((_,i)=>i!==idx).map(o=>o.def).sort(()=>Math.random()-.5).slice(0,3);
+    const allOpts=[q.def,...others].sort(()=>Math.random()-.5);
+    const correctIdx=allOpts.indexOf(q.def);
+    const pips=items.map((_,i)=>`<div class="quiz-pip${i<idx?' right':i===idx?' active':''}" id="wmpip-${i}"></div>`).join('');
+
+    el.innerHTML=`
+      <div class="quiz-progress-row"><div class="quiz-pips">${pips}</div><div class="quiz-score">${score}/${items.length}</div></div>
+      <div class="quiz-word-display"><div class="quiz-word-type" style="margin-bottom:8px">Match the term</div>
+        <div class="quiz-word" style="font-size:22px">${q.term}</div></div>
+      <p style="font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:10px">Which definition matches?</p>
+      <div class="quiz-opts" id="wm-opts-wrap">${allOpts.map((o,i)=>`<button class="quiz-opt" data-idx="${i}">${o}</button>`).join('')}</div>
+      <div class="quiz-feedback" id="wmfb"></div>
+      <button class="quiz-next" id="wmnxt" style="display:none">${idx+1<items.length?'Next →':'See score! 🎉'}</button>`;
+
+    el.querySelectorAll('#wm-opts-wrap .quiz-opt').forEach(btn=>{
+      btn.addEventListener('click',function(){
+        el.querySelectorAll('#wm-opts-wrap .quiz-opt').forEach(b=>b.disabled=true);
+        const ok=parseInt(this.dataset.idx)===correctIdx;
+        this.classList.add(ok?'correct':'wrong');
+        if(!ok) el.querySelectorAll('#wm-opts-wrap .quiz-opt')[correctIdx].classList.add('show-ok');
+        if(ok){score++;burst();}
+        const pip=document.getElementById(`wmpip-${idx}`); if(pip) pip.classList.add(ok?'right':'wrong');
+        document.getElementById('wmnxt').style.display='flex';
+      });
+    });
+
+    document.getElementById('wmnxt').addEventListener('click',function(){
+      idx++;
+      if(idx>=items.length){
+        const perfect=score===items.length; if(perfect) burst();
+        el.innerHTML=`<div class="quiz-done"><span class="quiz-done-icon">${perfect?'🏆':'⭐'}</span><div class="quiz-done-title">${score}/${items.length} correct!</div><div class="quiz-done-sub">${perfect?'Perfect matching!':'Keep practising these terms!'}</div><button class="quiz-done-btn" id="wm-retry">↺ Try Again</button></div>`;
+        document.getElementById('wm-retry').addEventListener('click',()=>renderWordMatchPanel(window._currentReg));
+      } else { renderQ(); }
+    });
+  }
+  window._currentReg=reg; renderQ();
+}
+
 function comingSoon(label){ return `<div class="coming-soon"><span class="coming-soon-icon">🛠️</span><div class="coming-soon-text"><strong>${label}</strong> coming soon!</div></div>`; }
 function escQ(s){ return (s||'').replace(/"/g,'&quot;'); }
 
