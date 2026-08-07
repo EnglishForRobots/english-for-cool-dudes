@@ -3659,21 +3659,10 @@ const LESSON_DATA_REGISTRY = {
       { statement:'More than half of mini-jobbers already have another job with full social insurance.',      correct:true,  reveal:'✅ TRUE! Most people use the mini-job as extra tax-free income on top of a regular, insured job.' },
     ],
 
-    fix_mistakes: [
-      { sentence:'The government wants to <u>build</u> the special tax status of mini-jobs.',                          wrong:'build', correct:'scrap',        explain:'SCRAP — to officially cancel or get rid of a system. "Build" means the opposite: to create something.' },
-      { sentence:'Mini-job workers can earn up to €603 a month completely <u>taxed</u>.',                              wrong:'taxed', correct:'tax-free',     explain:'TAX-FREE — meaning no tax is paid at all. "Taxed" describes the opposite situation.' },
-      { sentence:'Critics say mini-jobs were meant to be a <u>wall</u> into full employment, but instead became a hurdle.', wrong:'wall',  correct:'bridge',       explain:'BRIDGE — something that helps you move smoothly from one stage to the next. A "wall" blocks you — the opposite idea.' },
-      { sentence:'Shops and cafés use mini-jobbers to cover a <u>surplus</u> of staff during busy hours.',              wrong:'surplus', correct:'staffing gap', explain:'STAFFING GAP — a shortage of workers, especially at busy times. "Surplus" means having too many — the opposite.' },
-    ],
+   
 
-    word_match: [
-      { term:'€603',   def:'The monthly tax-free earnings limit for a mini-job' },
-      { term:'6.9m',   def:'People working mini-jobs in Germany' },
-      { term:'1 in 2', def:'German companies that employ mini-jobbers' },
-      { term:'5%',     def:'Mini-jobbers who use it as a first step into the job market' },
-      { term:'2026',   def:'The year the coalition wants to pass the pension reform' },
-      { term:'50%+',   def:'Mini-jobbers who already have another job with full insurance' },
-    ],
+     // ── SENTENCE BUILDER ──────────────────────────────────────
+  
 
     sentences: [
       { words:['half','of','mini-jobbers','More','than','already','have','another','insured','job'], answer:'More than half of mini-jobbers already have another insured job', hint:'💼 What do most mini-jobbers already have?' },
