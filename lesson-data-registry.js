@@ -4080,13 +4080,36 @@ const LESSON_DATA_REGISTRY = {
     { statement:'Rival bidder Castlelake raised its offer and won the bidding war.',                    correct:false, reveal:'❌ FALSE. Castlelake actually withdrew from the bidding war completely — it was Apollo who won with a higher bid.' },
   ],
 
-  fix_mistakes: [
-    { sentence:'"Castlelake decided to <u>increase</u> its bid in the race for EasyJet."',                          wrong:'increase','raise','remain', correct:'withdraw',  explain:'WITHDRAW — Castlelake pulled out of the bidding war completely, clearing the way for Apollo\'s takeover.' },
-    { sentence:'"Apollo confirmed plans to <u>cut</u> hundreds of jobs in the first 12 months after the takeover."', wrong:'cut',      correct:'protect',   explain:'PROTECT — Apollo said it does not intend to cut any jobs in the first 12 months after the deal completes.' },
-    { sentence:'"EasyJet\'s very first international flights <u>departed</u> in 1996."',                            wrong:'departed', correct:'took off',  explain:'TOOK OFF — planes take off; "departed" is used more for trains and buses in everyday English.' },
-    { sentence:'"The Haji-Ioannou family will <u>sell</u> around 15% of the business."',                            wrong:'sell',     correct:'still own', explain:'STILL OWN — the family will keep around 15% of EasyJet and stay on as long-term shareholders.' },
-  ],
-
+ // ── GRAMMAR 1: Passive Voice ─────────────────────────────
+    grammar: {
+      topic: 'Fix the mistake by choosing the correct word.',
+      exercises: [
+        {
+          sentence: '"Castlelake decided to <u>increase</u> its bid in the race for EasyJet."',
+          answer:   'withdraw',
+          wrong:    ['withhold', 'raise', 'remain'],
+          explain:  'WITHDRAW — Castlelake pulled out of the bidding war completely, clearing the way for Apollo\'s takeover.',
+        },
+        {
+          sentence: '"Apollo confirmed plans to <u>cut</u> hundreds of jobs in the first 12 months after the takeover."',
+          answer:   'protect',
+          wrong:    ['axe', 'promote', 'fire'],
+          explain:  'PROTECT — Apollo said it does not intend to cut any jobs in the first 12 months after the deal completes.',
+        },
+        {
+          sentence: '"EasyJet\'s very first international flights <u>departed</u> in 1996."',
+          answer:   'took off',
+          wrong:    ['arrived', 'crashed', 'takeaway'],
+          explain:  'TOOK OFF — planes take off; "departed" is used more for trains and buses in everyday English.',
+        },
+        {
+          sentence: '"The Haji-Ioannou family will <u>sell</u> around 15% of the business."',
+          answer:   'still own',
+          wrong:    ['investing', 'auction', 'donate'],
+          explain:  'STILL OWN — the family will keep around 15% of EasyJet and stay on as long-term shareholders.',
+        },
+      ],
+    },
 
 
   
