@@ -3242,9 +3242,9 @@ const LESSON_DATA_REGISTRY = {
     ],
   },
 
-   'spot-fake-ai-ads-advanced': {
+   'spot-fake-ai-ads-intermediate': {
 
-    id:    'spot-fake-ai-ads-advanced',
+    id:    'spot-fake-ai-ads-intermediate',
     title: 'How to Spot Fake AI Ads',
     level: 'Intermediate',
     track: 'intermediate',
@@ -4087,21 +4087,18 @@ const LESSON_DATA_REGISTRY = {
     { sentence:'"The Haji-Ioannou family will <u>sell</u> around 15% of the business."',                            wrong:'sell',     correct:'still own', explain:'STILL OWN — the family will keep around 15% of EasyJet and stay on as long-term shareholders.' },
   ],
 
-  word_match: [
-    { term:'£5.7bn',  def:'Total value of Apollo\'s takeover deal for EasyJet' },
-    { term:'£7.15',   def:'Price per share EasyJet shareholders will receive' },
-    { term:'1995',    def:'The year Sir Stelios founded EasyJet' },
-    { term:'19,000+', def:'People who work for EasyJet' },
-    { term:'1,200',   def:'Routes EasyJet flies across Europe' },
-    { term:'15%',     def:'Stake the Haji-Ioannou family will keep' },
-  ],
 
-  sentences: [
+
+  
+ // ── SENTENCE BUILDER ──────────────────────────────────────
+    sentences: [
+   
     { words:['EasyJet','shareholders','will','receive','£7.15','per','share.'],                       answer:'EasyJet shareholders will receive £7.15 per share.',                       hint:'💷 What will shareholders get for each share?' },
     { words:['Apollo','does','not','intend','to','cut','jobs','for','the','first','12','months.'],    answer:'Apollo does not intend to cut jobs for the first 12 months.',              hint:'👥 What does Apollo promise about jobs?' },
     { words:['The','deal','still','needs','approval','from','regulators','in','the','EU.'],           answer:'The deal still needs approval from regulators in the EU.',                 hint:'🇪🇺 What still has to happen before the deal is final?' },
   ],
 },
+
  
    };
 
