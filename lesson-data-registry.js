@@ -4045,6 +4045,63 @@ const LESSON_DATA_REGISTRY = {
     ],
 
   },
+
+   /* ═══════════════════════════════════════════════════════════════
+   PASTE THIS ENTRY INTO lesson-data-registry.js
+   Add it inside LESSON_DATA_REGISTRY, alongside the other
+   'weekly-drop-issue-0XX' entries.
+═══════════════════════════════════════════════════════════════ */
+
+'weekly-drop-issue-015': {
+  id:    'weekly-drop-issue-015',
+  title: "The Weekly Drop — Issue 015 — EasyJet's £5.7bn Takeover",
+  level: 'All Levels',
+  track: 'weekly-drop',
+  emoji: '✈️',
+  badge: 'Takeover Tracker',
+
+  vocab: [
+    { word:'takeover',    definition:'When one company buys and takes control of another company.',            example:'Apollo agreed a £5.7bn ___ of EasyJet.',                distractors:['bid','stake','delist'] },
+    { word:'bid',         definition:'A formal offer to buy something, especially a company.',                  example:'Apollo made a higher ___ than Castlelake.',              distractors:['stake','takeover','rebuff'] },
+    { word:'shareholder', definition:'A person or company that owns shares of a company.',                      example:'EasyJet ___s will receive £7.15 per share.',            distractors:['takeover','bid','delist'] },
+    { word:'withdraw',    definition:'To stop being involved in something and pull out.',                       example:'Castlelake ___ from the bidding war.',                  distractors:['rebuff','swoop','delist'] },
+    { word:'rebuff',      definition:'To reject or refuse an offer, often firmly.',                              example:'EasyJet ___ed Castlelake\'s early offers.',             distractors:['withdraw','swoop','stake'] },
+    { word:'swoop in',    definition:'To arrive suddenly and take action to gain an advantage.',                 example:'Apollo ___ ___ with a higher bid.',                     distractors:['withdraw','rebuff','delist'] },
+    { word:'delist',      definition:'When a company stops being traded on the stock exchange.',                 example:'EasyJet could ___ if it becomes a private company.',    distractors:['withdraw','rebuff','bid'] },
+    { word:'stake',       definition:'The percentage of a company that someone owns.',                           example:'The family will keep a 15% ___.',                       distractors:['bid','takeover','delist'] },
+  ],
+
+  true_false: [
+    { statement:'EasyJet was bought by Apollo for £5.7 billion.',                                       correct:true,  reveal:'✅ TRUE! Apollo agreed a £5.7bn takeover of EasyJet after rival bidder Castlelake dropped out of the race.' },
+    { statement:'Stelios founded EasyJet in the 1980s.',                                                correct:false, reveal:'❌ FALSE. EasyJet was founded in 1995 — not the 1980s. Its very first flights took off in November that year.' },
+    { statement:'Apollo won\'t cut any EasyJet jobs in the airline\'s first year of new ownership.',    correct:true,  reveal:'✅ TRUE! Apollo said it does not intend to cut any jobs in the first 12 months after the takeover completes.' },
+    { statement:'EasyJet\'s very first flights took off from Luton to Glasgow and Edinburgh.',          correct:true,  reveal:'✅ TRUE! EasyJet\'s first flights in November 1995 flew from Luton to Glasgow and Edinburgh, with international routes following in 1996.' },
+    { statement:'The Haji-Ioannou family are selling every single share they own in EasyJet.',          correct:false, reveal:'❌ FALSE. The family will keep around 15% of the business and stay on as long-term major shareholders.' },
+    { statement:'Rival bidder Castlelake raised its offer and won the bidding war.',                    correct:false, reveal:'❌ FALSE. Castlelake actually withdrew from the bidding war completely — it was Apollo who won with a higher bid.' },
+  ],
+
+  fix_mistakes: [
+    { sentence:'"Castlelake decided to <u>increase</u> its bid in the race for EasyJet."',                          wrong:'increase', correct:'withdraw',  explain:'WITHDRAW — Castlelake pulled out of the bidding war completely, clearing the way for Apollo\'s takeover.' },
+    { sentence:'"Apollo confirmed plans to <u>cut</u> hundreds of jobs in the first 12 months after the takeover."', wrong:'cut',      correct:'protect',   explain:'PROTECT — Apollo said it does not intend to cut any jobs in the first 12 months after the deal completes.' },
+    { sentence:'"EasyJet\'s very first international flights <u>departed</u> in 1996."',                            wrong:'departed', correct:'took off',  explain:'TOOK OFF — planes take off; "departed" is used more for trains and buses in everyday English.' },
+    { sentence:'"The Haji-Ioannou family will <u>sell</u> around 15% of the business."',                            wrong:'sell',     correct:'still own', explain:'STILL OWN — the family will keep around 15% of EasyJet and stay on as long-term shareholders.' },
+  ],
+
+  word_match: [
+    { term:'£5.7bn',  def:'Total value of Apollo\'s takeover deal for EasyJet' },
+    { term:'£7.15',   def:'Price per share EasyJet shareholders will receive' },
+    { term:'1995',    def:'The year Sir Stelios founded EasyJet' },
+    { term:'19,000+', def:'People who work for EasyJet' },
+    { term:'1,200',   def:'Routes EasyJet flies across Europe' },
+    { term:'15%',     def:'Stake the Haji-Ioannou family will keep' },
+  ],
+
+  sentences: [
+    { words:['EasyJet','shareholders','will','receive','£7.15','per','share.'],                       answer:'EasyJet shareholders will receive £7.15 per share.',                       hint:'💷 What will shareholders get for each share?' },
+    { words:['Apollo','does','not','intend','to','cut','jobs','for','the','first','12','months.'],    answer:'Apollo does not intend to cut jobs for the first 12 months.',              hint:'👥 What does Apollo promise about jobs?' },
+    { words:['The','deal','still','needs','approval','from','regulators','in','the','EU.'],           answer:'The deal still needs approval from regulators in the EU.',                 hint:'🇪🇺 What still has to happen before the deal is final?' },
+  ],
+},
  
    };
 
