@@ -655,7 +655,7 @@
       ],
     },
 
-     'spot-fake-ai-ads': {
+     'spot-fake-ai-ads-intermediate': {
   title:   'How to Spot Fake AI Ads',
   level:   'Intermediate',
   grammar: 'Passive Voice (present and past); Zero Conditional for warnings and red flags',
