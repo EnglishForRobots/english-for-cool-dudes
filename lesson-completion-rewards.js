@@ -777,6 +777,22 @@
       ],
     },
 
+     'weekly-drop-issue-015': {
+  title:   "The Weekly Drop — Issue 015 — EasyJet's £5.7bn Takeover",
+  level:   'All Levels',
+  grammar: 'Number Match (fact recall); True or Myth (timed); Fix the Mistake (word choice in news reporting); Block Builder (sentence reconstruction); Final Boarding Call (mixed-level comprehension)',
+  vocab: [
+    { word:'takeover',    definition:'When one company buys and takes control of another company.' },
+    { word:'bid',         definition:'An offer to buy something, especially a company.' },
+    { word:'shareholder', definition:'A person or company that owns shares of a company.' },
+    { word:'withdraw',    definition:'To stop being involved in something and pull out.' },
+    { word:'rebuff',      definition:'To reject or refuse an offer, often firmly.' },
+    { word:'swoop in',    definition:'To arrive suddenly and take action to gain an advantage.' },
+    { word:'delist',      definition:'When a company stops being traded on the stock exchange.' },
+    { word:'stake',       definition:'The percentage of a company that someone owns.' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
