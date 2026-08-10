@@ -1022,7 +1022,7 @@ function renderGrammarPanel(reg, key){
       <div class="gram-sent-card"><div class="gram-sent-num">Sentence ${gIdx+1} of ${g.exercises.length}</div>
         <div class="gram-sent-text">${sentenceHTML}</div>
         ${q.hint?`<div class="gram-sent-hint">💡 ${q.hint}</div>`:''}</div>
-      <div class="gram-word-btns" id="fmbtns" style="flex-direction:column;align-items:stretch">${(q.opts || []).map((o,i)=>`<button class="gram-word-btn fm-opt" data-idx="${i}" style="text-align:left">${o}</button>`).join('')}</div>
+      <div class="gram-word-btns" id="gbtns-${key}" style="flex-direction:column;align-items:stretch">${opts.map((o,i)=>`<button class="gram-word-btn" data-idx="${i}" style="text-align:left">${o}</button>`).join('')}</div>
       <div class="quiz-feedback" id="gfb-${key}"></div>
       <button class="quiz-next" id="gnxt-${key}" style="display:none">Next →</button>`;
     el.querySelectorAll(`#gbtns-${key} .gram-word-btn`).forEach(btn=>{
@@ -1102,8 +1102,12 @@ function renderFixMistakesPanel(reg){
     const q=items[idx];
 
     if (q && !q.opts && q.wrong && q.correct) {
-      q.opts = [`${q.wrong} → ${q.correct}`, `${q.wrong} → KEEP AS IS`];
-      q.correct = 0;
+      const rawOpts = [
+        { text: `${q.wrong} → ${q.correct}`, isCorrect: true },
+        { text: `${q.wrong} → KEEP AS IS`,   isCorrect: false },
+      ].sort(() => Math.random() - .5);
+      q.opts = rawOpts.map(o => o.text);
+      q.correct = rawOpts.findIndex(o => o.isCorrect);
       q.fb = q.explain || '';
     }
     
