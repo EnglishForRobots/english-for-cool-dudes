@@ -2085,10 +2085,10 @@ const LESSON_DATA_REGISTRY = {
   ],
 
   fix_mistakes: [
-    { sentence:'Frasers Group, which already owns a MAJORITY stake of 26% in Hugo Boss, launched a full takeover bid to acquire the rest.', wrong:'majority', correct:'minority', explain:'Owning 26% is less than half — that\'s a minority stake, not a majority.' },
-    { sentence:'The offer represented a DISCOUNT of 4.3% to Hugo Boss\'s closing price on Wednesday.',                                        wrong:'discount', correct:'premium',  explain:'Frasers offered MORE than the market price — that\'s a premium, not a discount.' },
-    { sentence:'Frasers said the deal was subject to approval from COMPETITORS before it could close.',                                       wrong:'competitors', correct:'regulators', explain:'Government regulators — not other companies — approve big takeover deals.' },
-    { sentence:'The company said it wanted to increase its investment in Hugo Boss to create value for its EMPLOYEES.',                       wrong:'employees', correct:'shareholders', explain:'"Creating value for shareholders" is the standard corporate phrase — employees are workers, not owners.' },
+    { sentence:'Frasers Group, which already owns a <u>MAJORITY</u> stake of 26% in Hugo Boss, launched a full takeover bid to acquire the rest.', hint:'Is 26% more than half, or less than half?', opts:['majority → CONTROLLING','majority → MINORITY','majority → KEEP AS IS'], correct:1, fb:'MINORITY — owning 26% is less than half, so it\'s a minority stake, not a majority.' },
+    { sentence:'The offer represented a <u>DISCOUNT</u> of 4.3% to Hugo Boss\'s closing price on Wednesday.', hint:'Frasers wanted shareholders to accept — would they offer less than the market price?', opts:['discount → REBATE','discount → KEEP AS IS','discount → PREMIUM'], correct:2, fb:'PREMIUM — Frasers offered MORE than the market price to persuade shareholders to sell.' },
+    { sentence:'Frasers said the deal was subject to approval from <u>COMPETITORS</u> before it could close.', hint:'Who actually approves big takeover deals — rival companies, or government bodies?', opts:['competitors → REGULATORS','competitors → SHAREHOLDERS','competitors → KEEP AS IS'], correct:0, fb:'REGULATORS — government bodies, not rival companies, approve major takeover deals.' },
+    { sentence:'The company said it wanted to increase its investment in Hugo Boss to create value for its <u>EMPLOYEES</u>.', hint:'Who actually owns shares in a company — workers, or the people who hold stock?', opts:['employees → KEEP AS IS','employees → REGULATORS','employees → SHAREHOLDERS'], correct:2, fb:'SHAREHOLDERS — "creating value for shareholders" is the standard phrase; employees are workers, not owners.' },
   ],
 
   gap_fill: [
@@ -3204,10 +3204,10 @@ const LESSON_DATA_REGISTRY = {
     ],
 
     fix_mistakes: [
-      { sentence:'"As we get older, the connectivity in our brains often <u>improves</u>, causing memory and speed of thought to decline."', wrong:'improves', correct:'deteriorates', explain:'Brain connectivity gets worse with age, not better — "improves" contradicts the rest of the sentence.' },
-      { sentence:'"Higher language <u>deficiency</u> and earlier acquisition of a second language were linked to slower brain ageing."', wrong:'deficiency', correct:'proficiency', explain:'Proficiency = skill in a language. Deficiency means lacking something — the opposite idea.' },
-      { sentence:'"Multilingual experience matters as a <u>deterioration</u>: depth and duration matter, not simply bilingual or not."', wrong:'deterioration', correct:'gradient', explain:'A gradient is a scale of depth/degree — not a synonym for decline.' },
-      { sentence:'"Researchers could not <u>acquire</u> the possible influence of other factors, such as lifestyle."', wrong:'acquire', correct:'rule out', explain:'"Rule out" means to say something isn\'t a possible cause — "acquire" means to obtain, which doesn\'t fit.' },
+      { sentence:'"As we get older, the connectivity in our brains often <u>improves</u>, causing memory and speed of thought to decline."', hint:'If memory and speed of thought are declining, is connectivity getting better or worse?', opts:['improves → KEEP AS IS','improves → deteriorates','improves → accelerates'], correct:1, fb:'DETERIORATES — brain connectivity gets worse with age, not better.' },
+      { sentence:'"Higher language <u>deficiency</u> and earlier acquisition of a second language were linked to slower brain ageing."', hint:'Proficiency means skill — deficiency means lacking something. Which fits "higher ___ was linked to slower ageing"?', opts:['deficiency → proficiency','deficiency → fluency','deficiency → KEEP AS IS'], correct:0, fb:'PROFICIENCY — skill in a language, the opposite of "deficiency" (lacking something).' },
+      { sentence:'"Multilingual experience matters as a <u>deterioration</u>: depth and duration matter, not simply bilingual or not."', hint:'A gradient is a scale of depth/degree — is "deterioration" a synonym for that?', opts:['deterioration → KEEP AS IS','deterioration → threshold','deterioration → gradient'], correct:2, fb:'GRADIENT — a scale of depth and degree, not a decline. Multilingualism matters as a spectrum, not a strict yes/no.' },
+      { sentence:'"Researchers could not <u>acquire</u> the possible influence of other factors, such as lifestyle."', hint:'"Rule out" means to eliminate a possible cause — does "acquire" mean that?', opts:['acquire → confirm','acquire → rule out','acquire → KEEP AS IS'], correct:1, fb:'RULE OUT — researchers could not eliminate other possible factors like lifestyle; "acquire" means to obtain, which doesn\'t fit.' },
     ],
 
     word_match: [
