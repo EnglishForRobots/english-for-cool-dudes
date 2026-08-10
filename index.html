@@ -176,6 +176,29 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .card-shell{background:var(--navy);border:3px solid var(--ink-bold);border-bottom:6px solid var(--ink-bold);border-radius:var(--r);overflow:hidden}
 .card-accent{height:6px;transition:background .3s}
 .card-head{display:flex;align-items:center;justify-content:space-between;padding:13px 16px 11px;border-bottom:2px solid rgba(255,255,255,.08)}
+.card-head-right{display:flex;align-items:center;gap:10px}
+.card-focus-btn{width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.16);color:rgba(255,255,255,.8);font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .12s}
+.card-focus-btn:hover{background:rgba(255,255,255,.18);color:#fff}
+.card-focus-btn:active{transform:translateY(1px)}
+
+/* ── CATEGORY CHIPS — steer the daily warm-up toward what today's class needs ── */
+.card-chips{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none}
+.card-chips::-webkit-scrollbar{display:none}
+.card-chip{flex-shrink:0;display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:99px;border:2px solid var(--border);background:var(--bg);color:var(--ink);font-size:12px;font-weight:800;cursor:pointer;transition:all .12s;font-family:'Nunito',system-ui,sans-serif}
+.card-chip:hover{border-color:var(--border-heavy)}
+.card-chip.active{background:var(--ink-bold);border-color:var(--ink-bold);color:#fff}
+
+/* ── FOCUS MODE — blow the daily card up for the smartboard ── */
+.focus-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:8000}
+.focus-backdrop.open{display:block}
+body.focus-active{overflow:hidden}
+.card-shell.focus-mode{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:min(94vw,760px);max-height:92vh;overflow-y:auto;z-index:8001;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.card-shell.focus-mode .card-q{font-size:clamp(20px,4.2vw,32px)}
+.card-shell.focus-mode .card-opt{font-size:16px;padding:16px 18px}
+.card-shell.focus-mode .card-opt-big{font-size:19px;padding:22px 14px}
+.focus-exit-btn{display:none;position:fixed;top:20px;right:20px;z-index:8002;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;font-size:18px;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.25);cursor:pointer}
+.focus-exit-btn.show{display:flex}
+.focus-exit-btn:hover{background:rgba(255,255,255,.25)}
 .card-cat-badge{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:5px 13px;font-size:11px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;transition:background .3s;box-shadow:0 2px 0 rgba(0,0,0,.2)}
 .session-dots{display:flex;align-items:center;gap:5px}
 .sdot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.2);transition:all .3s;flex-shrink:0}
@@ -392,6 +415,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
   </div>
 </header>
 
+<div class="focus-backdrop" id="focus-backdrop" onclick="toggleFocusMode()"></div>
+<button class="focus-exit-btn" id="focus-exit-btn" onclick="toggleFocusMode()" aria-label="Exit focus mode">✕</button>
+
 <div class="moti-overlay" id="moti-overlay">
   <div class="moti-card">
     <span class="moti-emoji" id="moti-emoji">🔥</span>
@@ -436,16 +462,20 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
       <span class="daily-label" id="daily-label">Today's English Moment</span>
       <span class="card-mode-label" id="card-mode-label">Loading…</span>
     </div>
+    <div class="card-chips" id="card-chips"></div>
     <div class="card-shell">
       <div class="card-accent" id="card-accent"></div>
       <div class="card-head">
         <div class="card-cat-badge" id="card-cat-badge">Loading…</div>
-        <div class="session-dots">
-          <div class="sdot" id="sd0"></div>
-          <div class="sdot" id="sd1"></div>
-          <div class="sdot" id="sd2"></div>
-          <div class="sdot" id="sd3"></div>
-          <div class="sdot" id="sd4"></div>
+        <div class="card-head-right">
+          <div class="session-dots">
+            <div class="sdot" id="sd0"></div>
+            <div class="sdot" id="sd1"></div>
+            <div class="sdot" id="sd2"></div>
+            <div class="sdot" id="sd3"></div>
+            <div class="sdot" id="sd4"></div>
+          </div>
+          <button class="card-focus-btn" id="card-focus-btn" onclick="toggleFocusMode()" title="Focus mode — put this on the big screen" aria-label="Focus mode">⛶</button>
         </div>
       </div>
       <div class="card-body" id="card-body"></div>
@@ -1125,6 +1155,25 @@ const CARDS = [
 const TOTAL = CARDS.length;
 const MAX_DOTS = 5;
 let _order=[], _idx=0, _done=false, _sessionScore=0, _streak=0, _lastWasWrong=false;
+let _category = 'all';
+
+/* Category chips — grouped from the existing `tag` field on each card.
+   'all' (null tags) means no filter. */
+const CHIP_DEFS = [
+  { id:'all',      label:'All',              emoji:'🎲', tags:null },
+  { id:'idioms',   label:'Idioms',           emoji:'🇬🇧', tags:['Idioms','False Friends'] },
+  { id:'grammar',  label:'Grammar & Vocab',  emoji:'✏️', tags:['Grammar','Vocabulary'] },
+  { id:'tax',      label:'Tax',              emoji:'💰', tags:['Tax & Finance'] },
+  { id:'business', label:'Business & Legal', emoji:'💼', tags:['Professional Language','Business Culture','Legal Language'] },
+  { id:'fun',      label:'Fun & Culture',    emoji:'💡', tags:['Fun Fact','Pronunciation','British Culture','Royal & Crown'] },
+];
+
+function getFilteredIndices(categoryId){
+  const def = CHIP_DEFS.find(c => c.id === categoryId) || CHIP_DEFS[0];
+  if(!def.tags) return CARDS.map((_,i) => i);
+  const filtered = CARDS.map((_,i) => i).filter(i => def.tags.includes(CARDS[i].tag));
+  return filtered.length ? filtered : CARDS.map((_,i) => i); // safety fallback
+}
 
 function seededShuffle(arr,seed){
   let s=seed||42;
@@ -1138,6 +1187,63 @@ function randShuffle(arr){
   return b;
 }
 
+function renderChips(){
+  const wrap = document.getElementById('card-chips');
+  if(!wrap) return;
+  wrap.innerHTML = CHIP_DEFS.map(c =>
+    `<button class="card-chip${c.id===_category?' active':''}" onclick="setCategory('${c.id}')">${c.emoji} ${c.label}</button>`
+  ).join('');
+}
+
+window.setCategory = function(id){
+  if(id === _category) return;
+  _category = id;
+  localStorage.setItem('efcd_card_category', id);
+  _rebuildOrder();
+  renderChips();
+  render();
+};
+
+function _rebuildOrder(){
+  const d       = new Date();
+  const dateStr = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+  const seed    = d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate();
+
+  _order = seededShuffle(getFilteredIndices(_category), seed);
+
+  // Resume today's position for this category across page loads
+  const idxKey  = `efcd_card_idx_${_category}`;
+  const dateKey = `efcd_card_idx_${_category}_date`;
+  const saved     = localStorage.getItem(idxKey);
+  const savedDate = localStorage.getItem(dateKey);
+  if(saved && savedDate === dateStr){
+    _idx = parseInt(saved, 10) % _order.length;
+  } else {
+    _idx = 0;
+    localStorage.setItem(dateKey, dateStr);
+    localStorage.setItem(idxKey, '0');
+  }
+}
+
+function toggleFocusMode(){
+  const shell    = document.querySelector('.card-shell');
+  const backdrop = document.getElementById('focus-backdrop');
+  const exitBtn  = document.getElementById('focus-exit-btn');
+  if(!shell) return;
+  const isOn = shell.classList.toggle('focus-mode');
+  document.body.classList.toggle('focus-active', isOn);
+  if(backdrop) backdrop.classList.toggle('open', isOn);
+  if(exitBtn)  exitBtn.classList.toggle('show', isOn);
+}
+window.toggleFocusMode = toggleFocusMode;
+
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape'){
+    const shell = document.querySelector('.card-shell');
+    if(shell && shell.classList.contains('focus-mode')) toggleFocusMode();
+  }
+});
+
 function boot(){
   const dayVibe = HERO_DAYS[new Date().getDay()];
   const hero    = document.getElementById('hero');
@@ -1145,21 +1251,10 @@ function boot(){
   if(hero)     hero.style.background = dayVibe.bg;
   if(heroDeco) heroDeco.textContent  = dayVibe.deco;
 
-  const d    = new Date();
-  const dateStr = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
-  const seed = d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate();
-  _order = seededShuffle([...Array(TOTAL).keys()], seed);
-
-  // Resume today's position across page loads
-  const saved     = localStorage.getItem('efcd_card_idx');
-  const savedDate = localStorage.getItem('efcd_card_date');
-  if(saved && savedDate === dateStr){
-    _idx = parseInt(saved, 10);
-  } else {
-    _idx = 0;
-    localStorage.setItem('efcd_card_date', dateStr);
-    localStorage.setItem('efcd_card_idx', '0');
-  }
+  const savedCategory = localStorage.getItem('efcd_card_category');
+  _category = (savedCategory && CHIP_DEFS.some(c => c.id === savedCategory)) ? savedCategory : 'all';
+  _rebuildOrder();
+  renderChips();
 
   populateTrackCards();
 
@@ -1410,7 +1505,7 @@ function fireConfetti(){
 
 function render(){
   _done = false;
-  const c     = CARDS[_order[_idx % TOTAL]];
+  const c     = CARDS[_order[_idx % _order.length]];
   const badge = document.getElementById('card-cat-badge');
   const body  = document.getElementById('card-body');
   const after = document.getElementById('card-after-msg');
@@ -1425,7 +1520,7 @@ function render(){
   body.classList.remove('entering'); body.classList.add('leaving');
   setTimeout(() => {
     body.classList.remove('leaving');
-    const ref = _idx % TOTAL;
+    const ref = _idx % _order.length;
     let html = `<div class="card-eyebrow">${c.cat}</div><div class="card-q">${c.q}</div>`;
     if(c.type === 'abcd'){
       const letters = ['A','B','C','D'];
@@ -1482,7 +1577,7 @@ function handleResult(ok, el, explain){
     if(_sessionScore <= MAX_DOTS){
       const dot = document.getElementById('sd' + (_sessionScore - 1));
       if(dot){
-        const cc = CAT_COLORS[getCatKey(CARDS[_order[_idx % TOTAL]].cat)] || CAT_COLORS.idiom;
+        const cc = CAT_COLORS[getCatKey(CARDS[_order[_idx % _order.length]].cat)] || CAT_COLORS.idiom;
         dot.classList.add('lit');
         dot.style.background  = cc.color;
         dot.style.borderColor = cc.shadow;
@@ -1518,7 +1613,7 @@ function showNext(ok){
 
 window.nextCard = function(){
   _idx++;
-  localStorage.setItem('efcd_card_idx', String(_idx));
+  localStorage.setItem(`efcd_card_idx_${_category}`, String(_idx));
   const shell = document.querySelector('.card-shell');
   if(shell){ shell.style.opacity='0'; shell.style.transform='translateY(5px)'; shell.style.transition='opacity .15s,transform .15s'; }
   setTimeout(() => { render(); if(shell){ shell.style.opacity='1'; shell.style.transform='translateY(0)'; } }, 160);
