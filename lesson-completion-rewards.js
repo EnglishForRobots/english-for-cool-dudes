@@ -793,6 +793,24 @@
   ],
 },
 
+     'the-truth-about-travel-blogging-beginner': {
+  title:   "The Truth About Being a Travel Blogger",
+  level:   'Beginner',
+  grammar: 'Past Simple (regular/irregular verbs); Present Simple for facts and routines',
+  vocab: [
+    { word:'camera',    definition:'A machine you use to take photos or videos' },
+    { word:'auction',   definition:'An event where people buy things by offering money' },
+    { word:'followers', definition:'People who follow you on social media' },
+    { word:'book',      definition:'To arrange and pay for something, like a hotel' },
+    { word:'link',      definition:'A connection to a website that you can click' },
+    { word:'honest',    definition:'Telling the truth, not hiding bad things' },
+    { word:'company',   definition:'A business' },
+    { word:'tired',     definition:'Needing rest, with no energy' },
+    { word:'stressed',  definition:'Feeling worried and under pressure' },
+    { word:'dream job', definition:'The perfect job you always wanted' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
