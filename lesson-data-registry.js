@@ -4081,6 +4081,78 @@ const LESSON_DATA_REGISTRY = {
   ],
 },
 
+   'the-truth-about-travel-blogging-beginner': {
+
+  id:    'the-truth-about-travel-blogging-beginner',
+  title: "The Truth About Being a Travel Blogger",
+  level: 'Beginner',
+  track: 'beginner',
+  emoji: '🧳',
+  badge: 'Full-Time Wanderer',
+
+  vocab: [
+    { word:'camera',    definition:'A machine you use to take photos or videos',              example:'They bought a cheap ___ at an auction.',                distractors:['auction','link','company'] },
+    { word:'auction',   definition:'An event where people buy things by offering money',       example:'They bought the camera at an ___.',                     distractors:['camera','followers','link'] },
+    { word:'followers',      definition:'People who follow you on social media',                    example:'They have more than 400,000 ___.',                      distractors:['company','dream job','book'] },
+    { word:'book',      definition:'To arrange and pay for something, like a hotel',           example:'People ___ a hotel through the link.',                  distractors:['honest','company','tired'] },
+    { word:'link',      definition:'A connection to a website that you can click',             example:'There is a ___ in every blog post.',                    distractors:['auction','followers','company'] },
+    { word:'honest',    definition:'Telling the truth, not hiding bad things',                 example:'They try to stay ___ about every place.',               distractors:['tired','stressed','camera'] },
+    { word:'company',   definition:'A business',                                               example:'They work with travel ___s.',                          distractors:['auction','link','dream job'] },
+    { word:'tired',     definition:'Needing rest, with no energy',                             example:'Nick was very ___ in 2019.',                            distractors:['honest','stressed','followers'] },
+    { word:'stressed',  definition:'Feeling worried and under pressure',                       example:'Too much work made him ___.',                          distractors:['tired','honest','book'] },
+    { word:'dream job', definition:'The perfect job you always wanted',                        example:'Is this their ___ ___? 9 out of 10!',                   distractors:['company','camera','link'] },
+  ],
+
+  grammar: {
+    topic: 'Past Simple — regular and irregular verbs',
+    rule:  'Regular verbs: add -ED (visited, earned). Irregular verbs change completely and must be learned: buy → bought, make → made, leave → left, be → was/were.',
+    exercises: [
+      { sentence:'They ___ a cheap camera at an auction in 2016.',   answer:'bought', wrong:['buyed','buy','has bought'],   explain:'Irregular: buy → BOUGHT. Never "buyed".' },
+      { sentence:'One photo ___ them famous overnight.',             answer:'made',   wrong:['maked','make','has made'],   explain:'Irregular: make → MADE. Never "maked".' },
+      { sentence:'They ___ their old jobs in 2017.',                 answer:'left',   wrong:['leaved','leave','has left'], explain:'Irregular: leave → LEFT. Never "leaved".' },
+      { sentence:'Nick ___ very tired in 2019.',                     answer:'was',    wrong:['is','were','has been'],      explain:'Irregular: be → WAS. "Nick" = he → was, not "were".' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Present Simple — facts and routines',
+    rule:  'Use present simple for facts that are always true and things that happen regularly. He/she/it + verb + -s. They/we/I + base form. "They travel." "Hannah stays honest." "The job is hard."',
+    exercises: [
+      { sentence:'They ___ more than 60 countries every year.',      answer:'visit',  wrong:['visits','visited','is visiting'], explain:'"They" = plural → base form, no -s.' },
+      { sentence:'Hannah ___ honest about every place they visit.',  answer:'stays',  wrong:['stay','stayed','is stay'],        explain:'"Hannah" = she → add -s. Present simple for a fact about her.' },
+      { sentence:'They ___ money from links in their blog posts.',   answer:'earn',   wrong:['earns','earned','is earn'],       explain:'"They" = plural → base form, no -s.' },
+      { sentence:'The job ___ not always easy.',                     answer:'is',     wrong:['are','was','has been'],           explain:'"The job" = it → is. Present simple for a general truth.' },
+    ],
+  },
+
+  sentences: [
+    { words:['countries','to','travel','many','They'],        answer:'They travel to many countries',        hint:'🗺️ About their trips...' },
+    { words:['money','earn','from','links','They'],           answer:'They earn money from links',           hint:'💰 About their money...' },
+    { words:['hard','the','is','job','Sometimes'],            answer:'Sometimes the job is hard',            hint:'😴 About the hard days...' },
+    { words:['than','400,000','have','followers','more','They'], answer:'They have more than 400,000 followers', hint:'👥 About their fame...' },
+  ],
+
+  word_builder: [
+    { word:'camera',    definition:'A machine you use to take photos' },
+    { word:'auction',   definition:'An event where people buy things with money' },
+    { word:'followers', definition:'People who follow you on social media' },
+    { word:'honest',    definition:'Telling the truth, not hiding bad things' },
+    { word:'tired',     definition:'Needing rest, with no energy' },
+    { word:'dream job', definition:'The perfect job you always wanted' },
+  ],
+
+  true_false: [
+    { statement:'Hannah and Nick are from Germany.',                                       correct:false, reveal:'❌ FALSE. They are from the Netherlands.' },
+    { statement:'Their first camera cost only 11 euros.',                                  correct:true,  reveal:'✅ TRUE. They bought it at an auction.' },
+    { statement:'Before travel blogging, Nick was a web developer.',                       correct:true,  reveal:'✅ TRUE. Hannah was a graphic designer, Nick was a web developer.' },
+    { statement:'Their famous photo showed a blue lagoon.',                                correct:true,  reveal:'✅ TRUE. It was a heart-shaped blue lagoon in the Philippines.' },
+    { statement:'They quit their jobs in 2016, the same year they bought the camera.',     correct:false, reveal:'❌ FALSE. The camera was 2016 — they quit their jobs in 2017.' },
+    { statement:'They work fewer than 20 hours a week now.',                               correct:false, reveal:'❌ FALSE. They still work about 50 hours a week.' },
+    { statement:'They rate their job 9 out of 10.',                                        correct:true,  reveal:'✅ TRUE. Not perfect, but pretty close!' },
+  ],
+
+},
+
  
    };
 
