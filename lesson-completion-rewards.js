@@ -811,6 +811,22 @@
   ],
 },
 
+     'weekly-drop-issue-016': {
+  title:   "The Weekly Drop — Issue 016 — The CEO Who Built His Own AI \"Whisperer\"",
+  level:   'All Levels',
+  grammar: 'True or Myth (timed); Fix the Mistake (word choice in business reporting); Block Builder (sentence reconstruction); AI Under Pressure (mixed-level comprehension & register)',
+  vocab: [
+    { word: 'nudge',       definition: 'To gently encourage someone to do something.' },
+    { word: 'tailor-made', definition: 'Made specially for one particular person or purpose.' },
+    { word: 'compare',     definition: 'To look at two or more things together to see how they differ.' },
+    { word: 'combine',     definition: 'To join two or more things together to make one.' },
+    { word: 'accelerate',  definition: 'To make something happen faster.' },
+    { word: 'draft',       definition: 'An early, unfinished version of a speech or document.' },
+    { word: 'feedback',    definition: 'Comments about how good, useful, or clear something is.' },
+    { word: 'feasible',    definition: 'Possible to do in a realistic, practical way.' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
