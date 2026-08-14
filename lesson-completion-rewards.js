@@ -827,6 +827,24 @@
   ],
 },
 
+     'the-truth-about-travel-blogging-intermediate': {
+  title:   "The Truth About Being a Travel Blogger - Hannah & Nick's Story",
+  level:   'Intermediate',
+  grammar: 'Present Perfect with since/for; Passive Voice & Relative Clauses',
+  vocab: [
+    { word:'framing',        definition:'How a photo is arranged within the shot' },
+    { word:'scout',          definition:'To explore a place in advance to plan a shoot' },
+    { word:'wow factor',     definition:'A quality that makes people feel amazed' },
+    { word:'trained eye',    definition:'A skill for spotting good shots, built with experience' },
+    { word:'dedication',     definition:'Strong commitment to something long-term' },
+    { word:'affiliate link', definition:'A link that earns a small % when someone books through it' },
+    { word:'collaboration',  definition:'Working together with a brand for mutual benefit' },
+    { word:'unbiased',       definition:'Fair and honest, not one-sided' },
+    { word:'full-time',      definition:'Working at something as your main, complete job' },
+    { word:'burnout',        definition:'Extreme exhaustion from taking on too much' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
