@@ -4195,6 +4195,83 @@ const LESSON_DATA_REGISTRY = {
   ],
 },
 
+   'the-truth-about-travel-blogging-intermediate': {
+
+    id:    'the-truth-about-travel-blogging-intermediate',
+    title: "The Truth About Being a Travel Blogger - Hannah & Nick's Story",
+    level: 'Intermediate',
+    track: 'intermediate',
+    emoji: '🧳',
+    badge: 'Full-Time Wanderer',
+
+    // ── VOCAB ────────────────────────────────────────────────
+    vocab: [
+      { word:'framing',        definition:'How a photo is arranged within the shot',                  example:'We just like the ___ of this street.',                     distractors:['scout','wow factor','trained eye'] },
+      { word:'scout',          definition:'To explore a place in advance to plan a shoot',             example:'They ___ every location before filming.',                  distractors:['framing','dedication','collaboration'] },
+      { word:'wow factor',     definition:'A quality that makes people feel amazed',                    example:'They pick spots with a bit of a ___ ___.',                 distractors:['trained eye','affiliate link','burnout'] },
+      { word:'trained eye',    definition:'A skill for spotting good shots, built with experience',    example:'Years on the road gave them a ___ ___.',                   distractors:['wow factor','unbiased','full-time'] },
+      { word:'dedication',     definition:'Strong commitment to something long-term',                  example:'___ and love for travel are the real skills.',             distractors:['scout','collaboration','burnout'] },
+      { word:'affiliate link', definition:'A link that earns a small % when someone books through it', example:'There are ___ ___s inside every post.',                    distractors:['collaboration','trained eye','framing'] },
+      { word:'collaboration',  definition:'Working together with a brand for mutual benefit',          example:'A lot of income comes from ___ with tourism boards.',      distractors:['affiliate link','dedication','scout'] },
+      { word:'unbiased',       definition:'Fair and honest, not one-sided',                             example:'They try to stay ___, even about popular spots.',          distractors:['full-time','wow factor','framing'] },
+      { word:'full-time',      definition:'Working at something as your main, complete job',            example:'In 2017, they became ___ travel bloggers.',                distractors:['unbiased','dedication','scout'] },
+      { word:'burnout',        definition:'Extreme exhaustion from taking on too much',                 example:'Nick suffered from ___ in 2019.',                          distractors:['wow factor','collaboration','trained eye'] },
+    ],
+
+    // ── GRAMMAR 1: Present Perfect ─────────────────────────────
+    grammar: {
+      topic: 'Present Perfect — unfinished time periods with "since"',
+      rule:  'Present perfect: have/has + past participle. Used for things that started in the past and are still true now. Use SINCE + a specific point in time (a year, a date): "since 2017". Use FOR + a length of time: "for nine years".',
+      exercises: [
+        { sentence:'They ___ more than 60 countries so far.',                answer:'have visited', wrong:['visit','visited','are visiting'],      explain:'Present perfect: have + past participle, for an experience up to now.' },
+        { sentence:'They\u2019ve been full-time bloggers ___ 2017.',          answer:'since',        wrong:['for','from','in'],                       explain:'SINCE + a specific point in time (a year). "For" would need a length of time instead, e.g. "for nine years".' },
+        { sentence:'Nick ___ from burnout once, back in 2019.',              answer:'has suffered', wrong:['suffer','suffered','is suffering'],      explain:'Present perfect for a past experience with present relevance — it still shapes how he works now.' },
+        { sentence:'They ___ never regretted quitting their old jobs.',      answer:'have',         wrong:['has','had','are'],                       explain:'"They" = plural subject → have, not has.' },
+      ],
+    },
+
+    // ── GRAMMAR 2: Passive Voice & Relative Clauses ────────────
+    grammar2: {
+      topic: 'Passive Voice & Relative Clauses',
+      rule:  'Passive voice: is/was + past participle, used when the action matters more than who did it. "Their photo was noticed by GoPro." Relative clauses add extra information about a person or thing: WHO for people, WHICH for things. "Nick, who suffered from burnout in 2019, ..."',
+      exercises: [
+        { sentence:'Their photo ___ by GoPro itself, overnight.',            answer:'was noticed', wrong:['noticed','has notice','is noticing'], explain:'Past passive: was + past participle. The photo received the action of being noticed.' },
+        { sentence:'Nick, ___ suffered from burnout in 2019, now manages his time better.', answer:'who', wrong:['which','that','he'],           explain:'"Who" introduces a relative clause about a person (Nick). "Which" is for things.' },
+        { sentence:'Most of their income ___ from affiliate links.',         answer:'comes',       wrong:['is come','comed','is coming'],          explain:'Not passive here — "comes from" is an active verb phrase describing a source of income.' },
+        { sentence:'The GoPro ___ at an auction for just 11 euros.',         answer:'was bought',  wrong:['bought','has buy','is buying'],         explain:'Past passive: was + past participle. Focus is on the camera, not on who exactly bought it.' },
+      ],
+    },
+
+    // ── SENTENCE BUILDER ──────────────────────────────────────
+    sentences: [
+      { words:['usually','They','the','research','location','beforehand'], answer:'They usually research the location beforehand', hint:'🗺️ About planning a shoot...' },
+      { words:['of','A','income','lot','their','comes','from','affiliate','links'], answer:'A lot of their income comes from affiliate links', hint:'💰 About making money...' },
+      { words:['it','In','the','first','years,','few','was','hard','to','have','a','private','life'], answer:'In the first few years, it was hard to have a private life', hint:'😅 About the early years...' },
+    ],
+
+    // ── WORD BUILDER ────────────────────────────────────────
+    word_builder: [
+      { word:'framing',       definition:'How a photo is arranged within the shot' },
+      { word:'dedication',    definition:'Strong commitment to something long-term' },
+      { word:'collaboration', definition:'Working together with a brand for mutual benefit' },
+      { word:'unbiased',      definition:'Fair and honest, not one-sided' },
+      { word:'full-time',     definition:'Working at something as your main, complete job' },
+      { word:'burnout',       definition:'Extreme exhaustion from taking on too much' },
+    ],
+
+    // ── TRUE / FALSE ─────────────────────────────────────────
+    true_false: [
+      { statement:'Hannah and Nick are from Germany.',                                                  correct:false, reveal:'❌ FALSE. They\u2019re from the Netherlands.' },
+      { statement:'Their whole career started with a GoPro they bought at auction for just 11 euros.',  correct:true,  reveal:'✅ TRUE. That 11-euro GoPro was the very beginning of everything.' },
+      { statement:'Before travel blogging, Hannah worked as a web developer.',                           correct:false, reveal:'❌ FALSE. Hannah was a graphic designer — Nick was the web developer.' },
+      { statement:'Their most famous early photo showed a heart-shaped lagoon in the Philippines.',      correct:true,  reveal:'✅ TRUE. GoPro noticed that exact photo, and followers jumped from 0 to 7,000 overnight.' },
+      { statement:'They quit their day jobs the very same year they bought the GoPro.',                  correct:false, reveal:'❌ FALSE. The GoPro was 2016 — they didn\u2019t quit their jobs until 2017.' },
+      { statement:'A big part of their income comes from collaborating with tourism boards.',            correct:true,  reveal:'✅ TRUE. Alongside affiliate links, tourism board and company collaborations are a major income source.' },
+      { statement:'Now that they have a team, Hannah and Nick work fewer than 30 hours a week.',         correct:false, reveal:'❌ FALSE. They still work around 50 hours a week, including evenings and weekends.' },
+    ],
+
+  },
+
  
    };
 
