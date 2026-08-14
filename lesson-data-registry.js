@@ -4153,6 +4153,48 @@ const LESSON_DATA_REGISTRY = {
 
 },
 
+   /* ═══════════════════════════════════════════════════════════════
+   PASTE THIS ENTRY INTO lesson-data-registry.js
+   Add it inside LESSON_DATA_REGISTRY, alongside the other
+   'weekly-drop-issue-0XX' entries.
+═══════════════════════════════════════════════════════════════ */
+
+'weekly-drop-issue-016': {
+  id:    'weekly-drop-issue-016',
+  title: "The Weekly Drop — Issue 016 — The CEO Who Built His Own AI \"Whisperer\"",
+  level: 'All Levels',
+  track: 'weekly-drop',
+  emoji: '🤖',
+  badge: 'AI Whisperer',
+
+  vocab: [
+    { word:'nudge',       definition:'To gently encourage someone to do something.',                       example:'A colleague ___ him to experiment more with AI.',                distractors:['compare','combine','accelerate'] },
+    { word:'tailor-made', definition:'Made specially for one particular person or purpose.',                example:'His favourite tool is a ___ AI model called "PG\'s Whisperer."',  distractors:['feasible','draft','feedback'] },
+    { word:'compare',     definition:'To look at two or more things together to see how they differ.',      example:'He ___s the information from both of his AI apps.',              distractors:['nudge','combine','accelerate'] },
+    { word:'combine',     definition:'To join two or more things together to make one.',                    example:'He built his tool by ___ing two different AI models.',           distractors:['nudge','tailor-made','feasible'] },
+    { word:'accelerate',  definition:'To make something happen faster.',                                    example:'Griggs says this ___d his own learning.',                        distractors:['compare','feedback','draft'] },
+    { word:'draft',       definition:'An early, unfinished version of a speech or document.',                example:'He feeds the AI ___s of speeches he\'s writing.',                distractors:['feedback','feasible','nudge'] },
+    { word:'feedback',    definition:'Comments about how good, useful, or clear something is.',              example:'He asks the AI for honest ___.',                                 distractors:['draft','tailor-made','combine'] },
+    { word:'feasible',    definition:'Possible to do in a realistic, practical way.',                        example:'He tests whether strategic ideas are ___.',                      distractors:['accelerate','compare','nudge'] },
+  ],
+
+  true_false: [
+    { statement:'Paul Griggs is the CEO of PwC in the US.',                                     correct:true,  reveal:'✅ TRUE! Griggs is the Senior Partner and CEO for PwC\'s US business.' },
+    { statement:'Griggs refused to try new AI tools at work.',                                  correct:false, reveal:'❌ FALSE. He was nudged by a colleague to experiment more with AI — and now uses it all day long.' },
+    { statement:'Griggs built his own custom AI tool called "PG\'s Whisperer".',                correct:true,  reveal:'✅ TRUE! He built it himself, with help from a colleague, and has used it for about a year.' },
+    { statement:'He combined three different AI models to build his tool.',                     correct:false, reveal:'❌ FALSE. He combined just two different AI models — not three.' },
+    { statement:'PwC says it is currently seeing a record number of new clients.',               correct:true,  reveal:'✅ TRUE! Griggs says the firm currently has a record influx of new clients.' },
+    { statement:'Griggs uses AI to get feedback on drafts of his speeches.',                     correct:true,  reveal:'✅ TRUE! He feeds the AI his speech drafts and asks whether his main point actually comes across.' },
+  ],
+
+  // ── SENTENCE BUILDER ──────────────────────────────────────
+  sentences: [
+    { words:['favourite','His','is','custom','tool','a','AI','model','called','"PG\'s','Whisperer."'], answer:'His favourite tool is a custom AI model called "PG\'s Whisperer."', hint:'🧠 About his favourite tool...' },
+    { words:['colleague','him','sent','A','the','steps','build','to','it','by','text','message.'],      answer:'A colleague sent him the steps to build it by text message.',      hint:'🤝 About how he built it...' },
+    { words:['uses','He','AI','to','test','ideas','and','review','long','documents','quickly.'],        answer:'He uses AI to test ideas and review long documents quickly.',      hint:'📄 About his daily use...' },
+  ],
+},
+
  
    };
 
