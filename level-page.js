@@ -183,10 +183,22 @@
     renderGrid(lessons, new Set());
 
     const doneSet = await bootAuthStrip(cfg.eyebrow || '');
-    if (doneSet.size) {
-      renderGrid(lessons, doneSet);
-      const total = lessons.filter(l => l.slug).length;
-      renderProgressBar(total, doneSet.size);
+
+    try {
+      // doneSet from bootAuthStrip is SITE-WIDE (every track, every level) —
+      // it must be intersected with this level's own lesson slugs before
+      // it's used for a per-level "X/Y completed" count.
+      const levelSlugs = new Set(lessons.filter(l => l.slug).map(l => l.slug));
+      const doneInLevel = new Set([...doneSet].filter(slug => levelSlugs.has(slug)));
+
+      if (doneInLevel.size) {
+        renderGrid(lessons, doneInLevel);
+      }
+      renderProgressBar(levelSlugs.size, doneInLevel.size);
+    } catch (e) {
+      // Fail loudly instead of silently — a bad lesson entry or auth hiccup
+      // should never quietly blank the progress bar with no trace.
+      console.error('[level-page] completion/progress render failed:', e);
     }
   }
 
