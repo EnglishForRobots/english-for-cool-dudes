@@ -21,6 +21,10 @@
     green: { c: '#58CC02', shadow: '#58A700', light: 'rgba(88,204,2,.12)',  border: 'rgba(88,204,2,.28)',  text: '#3f8f01' },
     blue:  { c: '#1CB0F6', shadow: '#1899D6', light: 'rgba(28,176,246,.12)', border: 'rgba(28,176,246,.28)', text: '#0e7ab0' },
     punch: { c: '#FF4B4B', shadow: '#EA2B2B', light: 'rgba(255,75,75,.1)',   border: 'rgba(255,75,75,.25)',  text: '#C0392B' },
+    gold:   { c: '#FFC800', shadow: '#E5B400', light: 'rgba(255,200,0,.13)', border: 'rgba(255,200,0,.4)',  text: '#92600A' },
+    purple: { c: '#CE82FF', shadow: '#A559D9', light: 'rgba(206,130,255,.11)', border: 'rgba(206,130,255,.28)', text: '#7D3CB5' },
+    teal:   { c: '#2BDECC', shadow: '#1FB8A8', light: 'rgba(43,222,204,.1)', border: 'rgba(43,222,204,.32)', text: '#0E8A80' },
+    pink:   { c: '#FF6EB4', shadow: '#d94a8a', light: 'rgba(255,110,180,.12)', border: 'rgba(255,110,180,.3)', text: '#a0196a' },
   };
 
   /* ── Card rendering ──────────────────────────────────
@@ -63,15 +67,16 @@
     const badgeClass = lesson.badgeType ? ` ${lesson.badgeType}` : '';
     const isDone = doneSet && doneSet.has(lesson.slug);
     const doneTag = isDone ? `<div class="lcard-done">✅ Completed</div>` : '';
+    const href = lesson.href || `/${lesson.slug}/`;
 
     return `
-      <a href="/${lesson.slug}/" class="lcard${isDone ? ' is-done' : ''}">
+      <a href="${href}" class="lcard${isDone ? ' is-done' : ''}">
         <div class="lcard-body">
           <div class="lcard-icon">${lesson.icon}</div>
           <div class="lcard-badge${badgeClass}">${lesson.badge}</div>
           <div class="lcard-title">${lesson.title}</div>
           <div class="lcard-desc">${lesson.desc}</div>
-          <div class="lcard-meta"><span>⏱️ ${lesson.mins} mins</span><span>📅 ${fmtDate(lesson.date)}</span></div>
+          <div class="lcard-meta"><span>⏱️ ${lesson.mins} mins</span>${lesson.date ? `<span>📅 ${fmtDate(lesson.date)}</span>` : ''}</div>
           ${doneTag}
           <div class="lcard-go">${isDone ? 'Review Again' : 'Start Lesson'} <span class="lcard-go-arrow">→</span></div>
         </div>
