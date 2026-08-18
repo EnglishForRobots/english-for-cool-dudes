@@ -990,33 +990,34 @@ function checkObjection(){
   const { placed, q, lock } = window._objState;
   const res = $('obj-result');
   const built = placed.map(p=>p.w);
-
-  if(built.length<q.target.length){ 
-    res.className='bb-result show wrong'; 
-    res.textContent='\u26a0\ufe0f Use all the blocks first!'; 
-    return; 
-  }
-
+  if(built.length<q.target.length){ res.className='bb-result show wrong'; res.textContent='\u26a0\ufe0f Use all the blocks first!'; return; }
+  
   const correct = built.length===q.target.length && built.every((w,i)=>w===q.target[i]);
   S.totalAnswered++;
-
+  
   if(correct){
     S.totalRight++; S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo);
     addXP(15);
     res.className='bb-result show right'; res.textContent='\u2705 Exactly right!';
-    if(typeof fx === 'function' && fx()) fx().combo(S.combo); // Added safety check
-    if(typeof burst === 'function') burst(); // Added safety check
+    if(typeof fx === 'function' && fx()) fx().combo(S.combo);
+    if(typeof burst === 'function') burst();
   } else {
     S.combo=0;
     res.className='bb-result show wrong'; res.textContent='\ud83d\udcd6 Close! The real line is: "'+q.target.join(' ')+'"';
   }
+  
   lock();
-
-  // FIX: Target only the check button inside the current active card
+  
+  // Hide current check button
   const currentCheckBtn = document.querySelector('#obj-card .bb-check');
   if (currentCheckBtn) currentCheckBtn.style.display = 'none';
-
-  $('obj-next').classList.add('show');
+  
+  // FIX: Force inline display on the Next button in addition to class assignment
+  const nextBtn = $('obj-next');
+  if (nextBtn) {
+    nextBtn.classList.add('show');
+    nextBtn.style.display = 'inline-block';
+  }
 }
 function nextObjection(){
   S.objIdx++;
