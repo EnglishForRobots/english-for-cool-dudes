@@ -845,6 +845,24 @@
   ],
 },
 
+   'the-ledger-files-bookkeeping-intermediate': {
+  title:   'The Ledger Files',
+  level:   'Tax & Bookkeeping English (B1/B2)',
+  grammar: 'Passive Voice in bookkeeping English (is/are/was/were + past participle); Zero Conditional for general bookkeeping rules',
+  vocab: [
+    { word:'asset',               definition:'Something valuable that a business owns — cash, equipment, or money it is owed' },
+    { word:'liability',           definition:'Money or debt that a business owes to someone else' },
+    { word:'invoice',             definition:'A document asking to be paid for goods or services already provided' },
+    { word:'accounts receivable', definition:'Money that customers still owe the business' },
+    { word:'accounts payable',    definition:'Money the business still owes to its own suppliers' },
+    { word:'overdue',             definition:'Past the agreed due date and still not paid' },
+    { word:'ledger',              definition:'The main record where every business transaction is written down' },
+    { word:'bank reconciliation', definition:'Checking that a business\u2019s own records match the bank statement' },
+    { word:'credit note',         definition:'A document that reduces the amount a customer owes' },
+    { word:'accrual',             definition:'Recording income or costs when they happen, not when cash moves' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
