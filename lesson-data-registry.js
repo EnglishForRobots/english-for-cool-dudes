@@ -4272,6 +4272,83 @@ const LESSON_DATA_REGISTRY = {
 
   },
 
+   'the-ledger-files-bookkeeping-intermediate': {
+
+    id:    'the-ledger-files-bookkeeping-intermediate',
+    title: 'The Ledger Files',
+    level: 'Tax & Bookkeeping English (B1/B2)',
+    track: 'tax',
+    emoji: '📒',
+    badge: 'Ledger Legend',
+
+    // ── VOCAB ────────────────────────────────────────────────
+    vocab: [
+      { word:'asset',                definition:'Something valuable that a business owns — cash, equipment, or money it is owed', example:'Cash, equipment, and money owed to a business are all called ___s.', distractors:['liability','invoice','overdue'] },
+      { word:'liability',            definition:'Money or debt that a business owes to someone else', example:'A bank loan is recorded as a ___ because the business must repay it.', distractors:['asset','credit note','ledger'] },
+      { word:'invoice',              definition:'A document asking a customer to pay for goods or services already provided', example:'Send the client an ___ once the work is finished.', distractors:['ledger','credit note','accrual'] },
+      { word:'accounts receivable',  definition:'Money that customers still owe the business', example:'Money customers still owe you sits in ___ ___ until it\u2019s paid.', distractors:['accounts payable','bank reconciliation','liability'] },
+      { word:'accounts payable',     definition:'Money the business still owes to its own suppliers', example:'The unpaid supplier bill goes into ___ ___.', distractors:['accounts receivable','asset','overdue'] },
+      { word:'overdue',              definition:'Past the agreed due date and still not paid', example:'This invoice is two weeks past its due date — it\u2019s officially ___.', distractors:['accrual','ledger','credit note'] },
+      { word:'ledger',               definition:'The main record where every business transaction is written down, in order', example:'Every transaction, big or small, gets written into the ___.', distractors:['invoice','bank reconciliation','asset'] },
+      { word:'bank reconciliation',  definition:'Checking that a business\u2019s own records match what the bank statement shows', example:'A monthly ___ ___ checks that your records match the bank statement.', distractors:['accrual','accounts payable','liability'] },
+      { word:'credit note',          definition:'A document that reduces the amount a customer owes', example:'After the refund, we issued a ___ ___ to reduce what she owed.', distractors:['invoice','asset','overdue'] },
+      { word:'accrual',              definition:'Recording income or costs when they actually happen, not when the cash moves', example:'Recording the sale in December, even though payment arrives in January, is called ___ accounting.', distractors:['bank reconciliation','ledger','liability'] },
+    ],
+
+    // ── GRAMMAR 1: Passive Voice ─────────────────────────────
+    grammar: {
+      topic: 'Passive Voice — present and past passive in bookkeeping English',
+      rule:  'Present passive: is/are + past participle. Past passive: was/were + past participle. Bookkeeping English focuses on what happened to the money or document, not who did it. "The invoice is recorded." "The accounts were reconciled."',
+      exercises: [
+        { sentence:'The invoice ___ in the ledger as soon as it\u2019s issued.',        answer:'is recorded',   wrong:['records','recorded','has record'],        explain:'Present passive: is + past participle. The invoice receives the action of recording.' },
+        { sentence:'The bank statement ___ against the ledger at the end of the month.', answer:'is reconciled', wrong:['reconciles','reconciled','has reconciled'], explain:'Present passive for a standard monthly bookkeeping step.' },
+        { sentence:'The missing invoice ___ last week during the audit.',              answer:'was found',     wrong:['found','finds','has found'],               explain:'Past passive: was + past participle. A completed past discovery.' },
+        { sentence:'A credit note ___ to correct the billing mistake.',                answer:'was issued',    wrong:['issued','issues','has issue'],             explain:'Past passive: was + past participle. The credit note received the action.' },
+      ],
+    },
+
+    // ── GRAMMAR 2: Zero Conditional ───────────────────────────
+    grammar2: {
+      topic: 'Zero Conditional — general bookkeeping rules and truths',
+      rule:  'Zero conditional: If + present simple, present simple. Used for facts and rules that are always true. "If an invoice is unpaid, it stays as accounts receivable."',
+      exercises: [
+        { sentence:'If a client ___ an invoice, the amount ___ as accounts receivable.', answer:'doesn\'t pay / stays', wrong:['didn\'t pay / stayed','won\'t pay / will stay','doesn\'t pay / stayed'], explain:'Zero conditional: present simple in both clauses for a rule that is always true.' },
+        { sentence:'If the bank statement and the ledger ___ , there ___ a reconciliation problem.', answer:'don\'t match / is', wrong:['didn\'t match / was','won\'t match / will be','don\'t match / was'], explain:'Zero conditional: a general, repeatable warning sign.' },
+        { sentence:'If a business ___ money to a supplier, it ___ as accounts payable.', answer:'owes / counts', wrong:['owed / counted','will owe / will count','owes / counted'], explain:'Zero conditional: present simple throughout — a standing rule, not a one-off event.' },
+        { sentence:'If income ___ recorded when it\u2019s earned, not when it\u2019s paid, that ___ accrual accounting.', answer:'is / is', wrong:['was / was','will be / will be','is / was'], explain:'Zero conditional for a definitional truth about how accrual accounting works.' },
+      ],
+    },
+
+    // ── SENTENCE BUILDER ──────────────────────────────────────
+    sentences: [
+      { words:['stays','it','accounts','If','doesn\'t','client','a','receivable','pay','as'], answer:'If a client doesn\'t pay it stays as accounts receivable', hint:'📥 What happens to an unpaid invoice?' },
+      { words:['every','into','gets','written','ledger','the','transaction'],                  answer:'every transaction gets written into the ledger',           hint:'📒 What is the ledger for?' },
+      { words:['statement','the','checks','bank','matches','reconciliation','the','ledger'],   answer:'reconciliation checks the bank statement matches the ledger', hint:'🏦 What does bank reconciliation actually do?' },
+      { words:['a','when','recorded','is','accrual','it\'s','income','earned'],                answer:'accrual is when income is recorded when it\'s earned',     hint:'📅 What is the timing rule in accrual accounting?' },
+    ],
+
+    // ── WORD BUILDER ────────────────────────────────────────
+    word_builder: [
+      { word:'ledger',      definition:'The master record where every transaction is written down' },
+      { word:'invoice',     definition:'A document asking to be paid' },
+      { word:'overdue',     definition:'Past its due date and still unpaid' },
+      { word:'accrual',     definition:'Recording income or costs when they happen' },
+      { word:'liability',   definition:'Money or debt a business owes' },
+      { word:'receivable',  definition:'Money owed TO the business by customers' },
+    ],
+
+    // ── TRUE / FALSE ─────────────────────────────────────────
+    true_false: [
+      { statement:'Accounts receivable is money the business owes to other people.',                 correct:false, reveal:'❌ FALSE. Accounts receivable is money owed TO the business — the opposite direction.' },
+      { statement:'An invoice is a document that asks to be paid.',                                  correct:true,  reveal:'✅ TRUE. That\u2019s exactly its job — listing what was provided and requesting payment.' },
+      { statement:'A credit note increases the amount a customer has to pay.',                        correct:false, reveal:'❌ FALSE. A credit note reduces what\u2019s owed, usually after a refund or a billing mistake.' },
+      { statement:'The ledger is where every transaction in the business gets written down.',        correct:true,  reveal:'✅ TRUE. The ledger is the master record — nothing should happen without landing there.' },
+      { statement:'An overdue invoice has already been paid on time.',                                correct:false, reveal:'❌ FALSE. Overdue means the opposite — past its due date and still unpaid.' },
+      { statement:'Bank reconciliation checks that your own records match the bank statement.',      correct:true,  reveal:'✅ TRUE. It\u2019s how you catch missing entries or mistakes before they cause problems.' },
+    ],
+
+  },
+
  
    };
 
