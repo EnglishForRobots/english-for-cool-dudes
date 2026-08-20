@@ -3893,17 +3893,17 @@ const LESSON_DATA_REGISTRY = {
   badge: 'Odyssey Explorer',
 
   vocab: [
-    { word:'MOVIE',      icon:'🎬', definition:'A film that you watch',                     example:'This movie is very long.' },
-    { word:'STORY',      icon:'📖', definition:'Things that happen in a book or film',       example:'This is a very old Greek story.' },
-    { word:'HERO',       icon:'🦸', definition:'A brave person in a story',                  example:'Odysseus is the hero of the story.' },
-    { word:'JOURNEY',    icon:'🧭', definition:'A long trip',                                 example:'He has a very long journey home.' },
-    { word:'SHIP',       icon:'🚢', definition:'A big boat',                                 example:'The ship sails across the sea.' },
-    { word:'ISLAND',     icon:'🏝️', definition:'Land with water all around it',              example:'They stop at a strange island.' },
-    { word:'MONSTER',    icon:'👹', definition:'A big, scary creature',                       example:'The Cyclops is a huge monster.' },
-    { word:'BRAVE',      icon:'💪', definition:'Not afraid; having courage',                 example:'Odysseus is very brave.' },
-    { word:'FAMOUS',     icon:'⭐', definition:'Known by many people',                        example:'The director is very famous.' },
-    { word:'EXPENSIVE',  icon:'💰', definition:'Costs a lot of money',                        example:'This movie was very expensive to make.' },
-  ],
+  { word:'movie',      definition:'A film that you watch',              example:'This ___ is very long.',                distractors:['story','journey','ship'] },
+  { word:'story',      definition:'Things that happen in a book or film', example:'This is a very old Greek ___.',        distractors:['movie','journey','island'] },
+  { word:'hero',       definition:'A brave person in a story',           example:'Odysseus is the ___ of the story.',     distractors:['monster','director','ship'] },
+  { word:'journey',    definition:'A long trip',                        example:'He has a very long ___ home.',          distractors:['story','island','ship'] },
+  { word:'ship',       definition:'A big boat',                         example:'The ___ sails across the sea.',         distractors:['island','journey','monster'] },
+  { word:'island',     definition:'Land with water all around it',      example:'They stop at a strange ___.',           distractors:['ship','journey','hero'] },
+  { word:'monster',    definition:'A big, scary creature',              example:'The Cyclops is a huge ___.',            distractors:['hero','ship','island'] },
+  { word:'brave',      definition:'Not afraid; having courage',         example:'Odysseus is very ___.',                 distractors:['famous','expensive','brave'] },
+  { word:'famous',     definition:'Known by many people',               example:'The director is very ___.',             distractors:['brave','expensive','story'] },
+  { word:'expensive',  definition:'Costs a lot of money',                example:'This movie was very ___ to make.',      distractors:['famous','brave','journey'] },
+],
 
   grammar: {
     topic: 'Past Simple — irregular verbs',
