@@ -4,7 +4,8 @@ window.LEVEL_CONFIG = {
 };
 
 window.LESSONS = [
-  { slug:'ichigo-ichie', icon:'🧘', badge:'⭐ Culture', badgeType:'new', title:'Ichigo Ichie: The Art of Now', desc:'See why a single Japanese phrase can change how you notice a moment.', mins:7, date:'2026-08-06', tags:['culture'] },
+  { slug:'northernireland', icon:'☘️', badge:'⭐ Culture/Religion', badgeType:'new', title:'Young & Faithful in Northern Ireland', desc:'What is it like to grow up as a Catholic in Northern Ireland?', mins:10, date:'2026-08-20', tags:['culture','religion'] },
+  { slug:'ichigo-ichie', icon:'🧘', badge:'Culture', badgeType:null, title:'Ichigo Ichie: The Art of Now', desc:'See why a single Japanese phrase can change how you notice a moment.', mins:7, date:'2026-08-06', tags:['culture'] },
   { slug:'the-odyssey-2026', icon:'🐴', badge:'Arts', badgeType:null, title:"Nolan's Odyssey: An Epic Homecoming", desc:'Three thousand years of myth — and a very online row about accents.', mins:10, date:'2026-07-16', tags:['culture'] },
   { slug:'china-ai-classrooms', icon:'🎓🤖🧠', badge:'Education/AI', badgeType:null, title:'AI In The Classroom', desc:'Brainwave headbands. Facial recognition. Robots that track every yawn.', mins:8, date:'2026-06-16', tags:['culture'] },
   { slug:'whoownsthemoon', icon:'🌙', badge:'Discovery', badgeType:null, title:'Who Owns The Moon?', desc:'Space law. Lunar real estate. A guy selling Moon plots for $25 an acre.', mins:7, date:'2026-04-14', tags:['culture'] },
