@@ -4349,6 +4349,81 @@ const LESSON_DATA_REGISTRY = {
 
   },
 
+     'young-faithful-northern-ireland-b2': {
+
+    id:    'young-faithful-northern-ireland-b2',
+    title: 'Young & Faithful - Growing Up Catholic in Northern Ireland',
+    level: 'Upper-Intermediate / Advanced (B2-C1)',
+    track: 'intermediate',
+    emoji: '🕊️',
+    badge: 'Northern Ireland',
+
+    vocab: [
+      { word:'sectarian',   definition:'Related to conflict or division between different religious groups', example:'It was a violent ___ conflict known as the Troubles.', distractors:['persecuted','integrated','outnumber'] },
+      { word:'persecuted',  definition:'Treated cruelly, often because of religion, race, or beliefs', example:'Catholics were once a ___ minority in Northern Ireland.', distractors:['sectarian','congregation','legacy'] },
+      { word:'minority',    definition:'A smaller group within a larger population', example:'Catholics used to be a ___ in Northern Ireland.', distractors:['congregation','partition','sacrifice'] },
+      { word:'colony',      definition:'A country or area controlled by another, more powerful country', example:'Ireland was once ruled as a British ___.', distractors:['partition','segregation','legacy'] },
+      { word:'partition',   definition:'The division of a country into separate, independent parts', example:'The ___ of Ireland created two states.', distractors:['colony','segregation','minority'] },
+      { word:'segregation', definition:'The practice of keeping groups of people separate from each other', example:'___ in schools is still visible in some areas today.', distractors:['integrated','partition','unification'] },
+      { word:'integrated',  definition:'Mixed together rather than kept separate', example:'Only 8% of students attend an ___ school.', distractors:['segregation','sectarian','outnumber'] },
+      { word:'congregation',definition:'A group of people gathered together for religious worship', example:'He reads Bible passages to the ___ every week.', distractors:['minority','crucifixion','legacy'] },
+      { word:'outnumber',   definition:'To be greater in number than another group', example:'Catholics now ___ Protestants in Northern Ireland.', distractors:['unification','integrated','persecuted'] },
+      { word:'unification', definition:'The process of joining separate parts into one', example:'Polls show growing support for ___ with the Republic of Ireland.', distractors:['partition','outnumber','sacrifice'] },
+      { word:'legacy',      definition:'Something handed down from the past that still has an effect today', example:'The ___ of colonization can still be seen.', distractors:['colony','sacrifice','congregation'] },
+      { word:'sacrifice',   definition:'Giving something up, often for a greater or higher purpose', example:'Catholics believe Jesus\u2019 ___ led to eternal life.', distractors:['crucifixion','legacy','minority'] },
+    ],
+
+    grammar: {
+      topic: 'Reported Speech — backshifting tenses',
+      rule:  'When we report what someone said, tenses shift back: present simple → past simple, will → would, has → had. "I pray every week" → "He said he prayed every week."',
+      exercises: [
+        { sentence:'Anthony said he ___ mass with his family every week.',        answer:'prayed',      wrong:['prays','has prayed','is praying'],      explain:'"prays" → "prayed" — present simple backshifts to past simple.' },
+        { sentence:'He said his faith ___ shaped his choice of career.',          answer:'had',         wrong:['has','was','have'],                     explain:'"has shaped" → "had shaped" — present perfect backshifts to past perfect.' },
+        { sentence:'Anthony said Catholics ___ once a persecuted minority.',      answer:'had been',    wrong:['are','were','have been'],               explain:'"are/were" → "had been" when reporting a fact about the more distant past.' },
+        { sentence:'The narrator said Northern Ireland ___ a great deal since the Troubles.', answer:'had changed', wrong:['has changed','changed','changes'], explain:'"has changed" → "had changed" — present perfect backshifts to past perfect in reported speech.' },
+      ],
+    },
+
+    grammar2: {
+      topic: 'Present Perfect — describing change over time',
+      rule:  'Present perfect: have/has + past participle. Used to describe a change that started in the past and is still relevant now. "Northern Ireland HAS CHANGED a lot since the Troubles." Often paired with "since" + a point in time.',
+      exercises: [
+        { sentence:'Northern Ireland ___ a great deal since the Troubles ended.',   answer:'has changed', wrong:['changed','changes','was changing'],  explain:'Present perfect: has + past participle, for a change with present relevance.' },
+        { sentence:'Catholics ___ from a persecuted minority to the most popular religion.', answer:'have gone',  wrong:['went','go','were going'],     explain:'Present perfect: have + past participle, describing a long-term shift.' },
+        { sentence:'Support for unification ___ steadily among young people.',     answer:'has grown',   wrong:['grew','grows','was growing'],        explain:'Present perfect for an ongoing trend up to now.' },
+        { sentence:'___ you ever visited Northern Ireland?',                       answer:'Have',        wrong:['Did','Do','Were'],                   explain:'Present perfect question form: Have + subject + past participle, for life experience.' },
+      ],
+    },
+
+    sentences: [
+      { words:['persecuted','minority','a','were','Catholics','once'],                          answer:'Catholics were once a persecuted minority',            hint:'☘️ What has changed for Catholics since the Troubles?' },
+      { words:['stayed','north','the','UK','part','of','the'],                                  answer:'the north stayed part of the UK',                       hint:'📜 What happened after the partition of Ireland?' },
+      { words:['attend','8%','integrated','only','a','school'],                                 answer:'only 8% attend an integrated school',                   hint:'🏫 A fact about schools in Northern Ireland today' },
+      { words:['week','mass','with','family','his','every','attends'],                          answer:'attends mass with his family every week',               hint:'⛪ A fact about Anthony\u2019s faith' },
+      { words:['now','Protestants','Catholics','outnumber'],                                    answer:'Catholics now outnumber Protestants',                   hint:'🌉 A major shift since the Troubles' },
+    ],
+
+    word_builder: [
+      { word:'sectarian',   definition:'Related to conflict between religious groups' },
+      { word:'persecuted',  definition:'Treated cruelly because of religion or beliefs' },
+      { word:'partition',   definition:'The division of a country into separate parts' },
+      { word:'integrated',  definition:'Mixed together rather than kept separate' },
+      { word:'outnumber',   definition:'To be greater in number than another group' },
+      { word:'unification', definition:'The process of joining separate parts into one' },
+    ],
+
+    true_false: [
+      { statement:'Anthony is from County Tyrone.', correct:true,  reveal:'✅ TRUE! Anthony lives in Donaghmore-Dungannon, County Tyrone.' },
+      { statement:'Catholics are now a smaller minority in Northern Ireland than they were during the Troubles.', correct:false, reveal:'❌ FALSE! Catholics now belong to the most popular religion in the region — the opposite of a shrinking minority.' },
+      { statement:'The Good Friday Agreement was signed in 1998.', correct:true,  reveal:'✅ TRUE! It largely ended the period of conflict known as the Troubles.' },
+      { statement:'Only about 8% of students in Northern Ireland attend an integrated school.', correct:true,  reveal:'✅ TRUE! Most students are still educated within a single community.' },
+      { statement:'Anthony wants to study law at university.', correct:false, reveal:'❌ FALSE! He wants to study biomedical science, partly inspired by his faith.' },
+      { statement:'Polls show growing support for unification with the Republic of Ireland among young people.', correct:true, reveal:'✅ TRUE! This is one of the ways Northern Ireland has changed since the Troubles.' },
+      { statement:'Ireland was partitioned as a result of a war of independence between 1919 and 1921.', correct:true, reveal:'✅ TRUE! The mostly Protestant north stayed part of the UK; the south became independent.' },
+    ],
+
+  },
+
  
    };
 
