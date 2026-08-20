@@ -4349,12 +4349,12 @@ const LESSON_DATA_REGISTRY = {
 
   },
 
-     'young-faithful-northern-ireland-b2': {
+     'young-faithful-northern-ireland-advanced': {
 
-    id:    'young-faithful-northern-ireland-b2',
+    id:    'young-faithful-northern-ireland-advanced',
     title: 'Young & Faithful - Growing Up Catholic in Northern Ireland',
     level: 'Upper-Intermediate / Advanced (B2-C1)',
-    track: 'intermediate',
+    track: 'advanced',
     emoji: '🕊️',
     badge: 'Northern Ireland',
 
