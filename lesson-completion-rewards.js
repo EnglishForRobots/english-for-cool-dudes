@@ -863,6 +863,27 @@
   ],
 },
 
+         'young-faithful-northern-ireland-b2': {
+      title:   'Young & Faithful - Growing Up Catholic in Northern Ireland',
+      level:   'Upper-Intermediate / Advanced (B2-C1)',
+      grammar: 'Reported speech (backshifting); Present Perfect for describing change over time',
+      vocab: [
+        { word:'sectarian',    definition:'Related to conflict or division between different religious groups' },
+        { word:'persecuted',   definition:'Treated cruelly, often because of religion, race, or beliefs' },
+        { word:'minority',     definition:'A smaller group within a larger population' },
+        { word:'colony',       definition:'A country or area controlled by another, more powerful country' },
+        { word:'partition',    definition:'The division of a country into separate, independent parts' },
+        { word:'segregation',  definition:'The practice of keeping groups of people separate from each other' },
+        { word:'integrated',   definition:'Mixed together rather than kept separate' },
+        { word:'congregation', definition:'A group of people gathered together for religious worship' },
+        { word:'crucifixion',  definition:'Death by being nailed to a cross — central to Christian belief about Jesus' },
+        { word:'sacrifice',    definition:'Giving something up, often for a greater or higher purpose' },
+        { word:'outnumber',    definition:'To be greater in number than another group' },
+        { word:'unification',  definition:'The process of joining separate parts into one' },
+        { word:'legacy',       definition:'Something handed down from the past that still has an effect today' },
+      ],
+    },
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
