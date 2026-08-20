@@ -863,9 +863,9 @@
   ],
 },
 
-         'young-faithful-northern-ireland-b2': {
+         'young-faithful-northern-ireland-advanced': {
       title:   'Young & Faithful - Growing Up Catholic in Northern Ireland',
-      level:   'Upper-Intermediate / Advanced (B2-C1)',
+      level:   'Advanced',
       grammar: 'Reported speech (backshifting); Present Perfect for describing change over time',
       vocab: [
         { word:'sectarian',    definition:'Related to conflict or division between different religious groups' },
