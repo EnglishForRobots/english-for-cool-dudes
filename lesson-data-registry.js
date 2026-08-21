@@ -4424,6 +4424,49 @@ const LESSON_DATA_REGISTRY = {
 
   },
 
+    'weekly-drop-issue-017': {
+  id:    'weekly-drop-issue-017',
+  title: "The Weekly Drop - Issue 017 - The Premier League: England's Greatest Export?",
+  level: 'All Levels',
+  track: 'weekly-drop',
+  emoji: '⚽',
+  badge: 'Global Game Champion',
+
+  vocab: [
+    { word:'newly-promoted', definition:'Recently moved up into a higher division or league.',                         example:'Arsenal host ___ Coventry City.',                                       distractors:['expansion','lucrative','reach'] },
+    { word:'export',         definition:'A product or service that one country sells to other countries.',            example:'Football is one of the UK\u2019s biggest cultural ___s.',              distractors:['revenue','soft power','broadcast rights'] },
+    { word:'reach',          definition:'The number of people or places something can access or influence.',           example:'The league has a global ___ of 188 countries.',                        distractors:['expansion','export','capitalise on'] },
+    { word:'revenue',        definition:'Money that a business or organisation earns from its activities.',            example:'The league\u2019s global deals bring in enormous ___.',                 distractors:['reach','lucrative','newly-promoted'] },
+    { word:'broadcast rights', definition:'Legal permission to show something on TV or online, usually paid for.',     example:'Broadcasters buy the ___ ___.',                                         distractors:['soft power','expansion','export'] },
+    { word:'capitalise on',  definition:'To take advantage of a situation in order to gain a benefit.',                example:'The league wants to ___ ___ its growth.',                              distractors:['reach','revenue','expansion'] },
+    { word:'lucrative',      definition:'Producing a lot of money; very profitable.',                                  example:'A ___ TV deal worth £12.25 billion.',                                  distractors:['newly-promoted','broadcast rights','soft power'] },
+    { word:'expansion',      definition:'The process of becoming larger or growing into new markets.',                 example:'Masters talks about continuing ___ abroad.',                           distractors:['export','capitalise on','revenue'] },
+    { word:'soft power',     definition:'The influence a country has through culture and reputation, rather than force or money.', example:'Football boosts the UK\u2019s ___ ___.',                    distractors:['lucrative','reach','newly-promoted'] },
+  ],
+
+  true_false: [
+    { statement:'The new Premier League season starts on Friday 21 August 2026.',                 correct:true,  reveal:'✅ TRUE! The season kicks off a week later than usual because of the World Cup.' },
+    { statement:'Arsenal\u2019s opening match is against Manchester City.',                        correct:false, reveal:'❌ FALSE! Arsenal host newly-promoted Coventry City, not Manchester City.' },
+    { statement:'Coventry City were relegated from the Premier League last season.',               correct:false, reveal:'❌ FALSE! Coventry were promoted — they won the Championship to reach the Premier League.' },
+    { statement:'About 3.2 billion people around the world watch the Premier League.',            correct:true,  reveal:'✅ TRUE! The league is watched in 188 countries by roughly 3.2 billion people.' },
+    { statement:'Overseas broadcast deals are worth less money than UK domestic deals.',          correct:false, reveal:'❌ FALSE! Overseas deals are now worth more than UK domestic deals.' },
+    { statement:'The league\u2019s global deals for 2025-2028 are worth over £12 billion.',        correct:true,  reveal:'✅ TRUE! The global broadcast and commercial deals are worth £12.25 billion.' },
+  ],
+
+  fix_mistakes: [
+    { sentence:'"The Premier League is one of the UK\u2019s biggest <u>imports</u>."', hint:'The UK sells this to the world — it doesn\u2019t buy it in from abroad.', opts:['imports → IMPORTERS','imports → EXPORTS','imports → EXPANDS'], correct:1, fb:'✅ EXPORTS — the Premier League is something the UK sells to the rest of the world.' },
+    { sentence:'"Overseas broadcast rights are now worth more than <u>within</u> UK rights."', hint:'Overseas deals overtook broadcasting rights made "within" the UK. What\'s a better way to say "within"?', opts:['within → INTERIOR','within → INSIDE','within → DOMESTIC'], correct:2, fb:'✅ DOMESTIC — broadcast rights made within the UK for UK viewers are called domestic rights.' },
+    { sentence:'"Coventry City were <u>relegated</u> to the Premier League this season."', hint:'They went up the table, not down.', opts:['relegated → PROMOTED','relegated → DEMOTED','relegated → DOWNGRADED'], correct:0, fb:'✅ PROMOTED — Coventry won the Championship and moved up into the Premier League.' },
+    { sentence:'"Richard Masters says the league\u2019s popularity is <u>shrinking</u>."', hint:'Masters said the opposite — it keeps getting bigger.', opts:['shrinking → REDUCING','shrinking → GROWING','shrinking → DECLINING'], correct:1, fb:'✅ GROWING — Masters says football continues to grow in popularity.' },
+  ],
+
+  sentences: [
+    { words:['global','deals','worth','over','are','The','Premier','League\u2019s','£12','billion.'], answer:'The Premier League\u2019s global deals are worth over £12 billion.', hint:'💰 About the business side...' },
+    { words:['fans','watch','Premier','League','Billions','of','football','in','188','countries.'], answer:'Billions of fans watch Premier League football in 188 countries.', hint:'🌍 About its global reach...' },
+    { words:['newly-promoted','Arsenal','host','Coventry','City','at','the','Emirates.'], answer:'Arsenal host newly-promoted Coventry City at the Emirates.', hint:'⚽ About tomorrow\u2019s opener...' },
+  ],
+},
+
  
    };
 
