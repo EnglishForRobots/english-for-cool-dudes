@@ -468,6 +468,7 @@ function fx(){ return window.EFCD_FX || null; }
 
 /* ═══════════ GLOSSARY (tap-to-reveal) ═══════════ */
 var GLOSSARY = {
+    'newly-promoted':  {type:'adjective', def:'Recently moved up into a higher division or league. "Arsenal host newly-promoted Coventry City."'},
     'export':          {type:'noun', def:'A product or service that one country sells to other countries. "Football is one of the UK\u2019s biggest exports."'},
     'reach':           {type:'noun', def:'The number of people or places something can access or influence. "The league has a global reach of 188 countries."'},
     'revenue':         {type:'noun', def:'Money that a business or organisation earns from its activities.'},
@@ -536,7 +537,7 @@ var FIX_MISTAKES = [
     },
     {
         sentence:'"Overseas broadcast rights are now worth more than <u>within</u> UK rights."',
-        hint:'Overseas deals overtook broadcasting rights made "within" the UK. What\s a better way to say "within"?',
+        hint:'Overseas deals overtook broadcasting rights made "within" the UK. What\'s a better way to say "within"?',
         opts:['within → INTERIOR','within → INSIDE','within → DOMESTIC'],
         correct:2,
         fb:'✅ DOMESTIC — broadcast rights made within the UK for UK viewers are called domestic rights.'
@@ -583,7 +584,7 @@ var S = {
     wlIdx:0, wlRight:0, wlDone:false, wlOrder:[], wlTimerInt:null,
     ftmIdx:0, ftmAnswered:false, ftmScore:0, ftmDone:false,
     bbIdx:0, bbDone:false,
-    bossIdx:0, bossRight:0, bossHP:0, bossHearts:3, bossDone:false,
+    bossIdx:0, bossRight:0, bossHP:0, bossHearts:3, bossDone:false, bossFailed:false,
 };
 var SECTION_ORDER = ['stop1','stop2','stop3','sec-wl','sec-ftm','sec-bb','sec-boss'];
 
@@ -1009,7 +1010,7 @@ function doneBB(){
 
 /* ═══════════ ACT 5 — BOARDROOM UNDER PRESSURE (boss) ═══════════ */
 function initBoss(){
-    S.bossHP=0;
+    S.bossHP=0;S.bossFailed=false;
     var b=body('sec-boss');
     b.innerHTML='<div class="tip-box">👉 Answer right and you keep your TV money. Answer wrong and you lose a fortune!</div>'+
         '<div class="boss-arena"><span class="boss-emoji" id="boss-emoji">😰😬🤯</span><div class="boss-name">Boardroom Under Pressure</div>'+
@@ -1056,6 +1057,7 @@ function answerBoss(btn,correct){
         if(S.bossHearts>0){
             S.bossHearts--;
             var h=$('heart-'+heartIdx);if(h)h.classList.add('lost');
+            if(S.bossHearts===0)S.bossFailed=true;
         }
         bossEl.textContent='❌';
         setTimeout(function(){bossEl.textContent='😬';},600);
@@ -1073,7 +1075,11 @@ function nextBoss(){
     var c=$('boss-card');if(c){c.classList.add('exit');setTimeout(renderBoss,220);}else renderBoss();
 }
 function doneBoss(){
-    $('boss-slot').innerHTML='<div class="sec-done"><span class="sec-done-icon">🏆</span><div class="sec-done-title">Focus held — trial complete!</div><div class="sec-done-sub">You just mastered 8 real business-English words. Time for your badge!</div><button class="btn-continue" style="background:var(--hero-gold-shadow);border-color:#0a5c37;color:#fff;font-size:18px" onclick="showCompletion()">⚽ Claim my Global Game Champion Badge!</button></div>';
+    if(S.bossFailed){
+        $('boss-slot').innerHTML='<div class="sec-done"><span class="sec-done-icon">😅</span><div class="sec-done-title">Out of tokens!</div><div class="sec-done-sub">The boardroom got the better of you this time — but you still mastered 8 real business-English words along the way. Time for your badge!</div><button class="btn-continue" style="background:var(--hero-gold-shadow);border-color:#0a5c37;color:#fff;font-size:18px" onclick="showCompletion()">⚽ Claim my Global Game Champion Badge!</button></div>';
+    } else {
+        $('boss-slot').innerHTML='<div class="sec-done"><span class="sec-done-icon">🏆</span><div class="sec-done-title">Focus held — trial complete!</div><div class="sec-done-sub">You just mastered 8 real business-English words. Time for your badge!</div><button class="btn-continue" style="background:var(--hero-gold-shadow);border-color:#0a5c37;color:#fff;font-size:18px" onclick="showCompletion()">⚽ Claim my Global Game Champion Badge!</button></div>';
+    }
 }
 
 /* ═══════════ COMPLETION ═══════════ */
@@ -1106,7 +1112,7 @@ async function showCompletion(){
                 badgeIcon:'⚽',
                 badgeName:'Global Game Champion - Issue 017',
                 vocabulary:[
-                    {word:'newly-promoted',   definition:'To move up in position or rank (recently).'},
+                    {word:'newly-promoted',   definition:'Recently moved up into a higher division or league.'},
                     {word:'export',           definition:'A product or service that one country sells to other countries.'},
                     {word:'reach',            definition:'The number of people or places something can access or influence.'},
                     {word:'revenue',          definition:'Money that a business or organisation earns from its activities.'},
