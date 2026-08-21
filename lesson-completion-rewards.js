@@ -884,6 +884,23 @@
       ],
     },
 
+      'weekly-drop-issue-017': {
+  title:   "The Weekly Drop — Issue 017 — The Premier League: England's Greatest Export?",
+  level:   'All Levels',
+  grammar: 'True or Myth (timed); Fix the Mistake (word choice in business reporting); Block Builder (sentence reconstruction); one-chance reading comprehension per stop',
+  vocab: [
+    { word:'newly-promoted',   definition:'Recently moved up into a higher division or league.' },
+    { word:'export',           definition:'A product or service that one country sells to other countries.' },
+    { word:'reach',            definition:'The number of people or places something can access or influence.' },
+    { word:'revenue',          definition:'Money that a business or organisation earns from its activities.' },
+    { word:'broadcast rights', definition:'Legal permission to show something on TV or online, usually paid for.' },
+    { word:'capitalise on',    definition:'To take advantage of a situation in order to gain a benefit.' },
+    { word:'lucrative',        definition:'Producing a lot of money; very profitable.' },
+    { word:'expansion',        definition:'The process of becoming larger or growing into new markets.' },
+    { word:'soft power',       definition:'The influence a country has through culture and reputation, not force.' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
