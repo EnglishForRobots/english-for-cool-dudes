@@ -50,16 +50,24 @@
   }
 
   function cardHTML(lesson, doneSet) {
-    if (!lesson.slug) {
-      // Coming soon — no link, dimmed
+    if (!lesson.slug && !lesson.href) {
+      // Coming soon — no link, dimmed. Two styles supported:
+      // - no lesson.badge given: generic "🔒 Coming Soon" badge, single "⏱️ Coming soon" meta (Legal-style)
+      // - lesson.badge given: real category badge kept, mins shown plus a "📅 Coming soon" meta (Kids-style)
+      const badge = lesson.badge
+        ? `<div class="lcard-badge${lesson.badgeType ? ' ' + lesson.badgeType : ''}">${lesson.badge}</div>`
+        : `<div class="lcard-badge soon">🔒 Coming Soon</div>`;
+      const meta = lesson.mins
+        ? `<span>⏱️ ${lesson.mins} mins</span><span>📅 Coming soon</span>`
+        : `<span>⏱️ Coming soon</span>`;
       return `
         <div class="lcard coming-soon">
           <div class="lcard-body">
             <div class="lcard-icon">${lesson.icon}</div>
-            <div class="lcard-badge soon">🔒 Coming Soon</div>
+            ${badge}
             <div class="lcard-title">${lesson.title}</div>
             <div class="lcard-desc">${lesson.desc}</div>
-            <div class="lcard-meta"><span>⏱️ ${lesson.mins} mins</span></div>
+            <div class="lcard-meta">${meta}</div>
           </div>
         </div>`;
     }
@@ -87,8 +95,9 @@
     const grid = document.getElementById('lesson-grid');
     if (!grid) return;
     const sorted = lessons.slice().sort((a, b) => {
-      if (!a.slug) return 1;   // coming-soon always last
-      if (!b.slug) return -1;
+      const aSoon = !a.slug && !a.href, bSoon = !b.slug && !b.href;
+      if (aSoon) return 1;   // coming-soon always last
+      if (bSoon) return -1;
       return (b.date || '').localeCompare(a.date || ''); // newest first
     });
     grid.innerHTML = sorted.map(l => cardHTML(l, doneSet)).join('');
