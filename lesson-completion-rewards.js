@@ -938,6 +938,24 @@
       ],
     },
 
+         'benefit-test-intra-group-services-tax': {
+      title:   'The Benefit Test Files',
+      level:   'Tax English (B2/C1)',
+      grammar: 'Passive voice in transfer pricing documentation; modal verbs of possibility (might/could/can) for benefit-test judgement calls',
+      vocab: [
+        { word:'benefit test',            definition:'The test used to decide whether an intra-group charge reflects a genuine, identifiable benefit to the recipient' },
+        { word:'shareholder activity',    definition:'Something a parent does purely because it owns the subsidiary, bringing no separate benefit to the subsidiary' },
+        { word:'duplicate service',       definition:'A centrally-billed service that repeats work the subsidiary already does itself or buys locally' },
+        { word:'cost pool',               definition:'The total costs of a shared function gathered together before being split out and charged to entities' },
+        { word:'allocation key',          definition:'The metric used to divide a cost pool fairly among the entities that actually benefit from it' },
+        { word:'low value-adding intra-group service', definition:'Routine, support-type services that can often use a simplified, lower-scrutiny pricing approach (LVAIS)' },
+        { word:'arm\'s length mark-up',   definition:'The profit margin added on top of costs so a charge reflects what unrelated companies would agree to pay' },
+        { word:'cost-plus method',        definition:'A transfer pricing method that prices a service at its cost, plus an agreed profit margin' },
+        { word:'burden of proof',         definition:'The responsibility to provide evidence supporting a position — often falls on the taxpayer' },
+        { word:'disguised dividend',      definition:'A payment dressed up as a service fee that, in substance, just shifts profit to the parent' },
+      ],
+    },
+
 
   };
 
