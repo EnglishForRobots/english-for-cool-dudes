@@ -4535,6 +4535,75 @@ const LESSON_DATA_REGISTRY = {
     ],
   },
 
+   'the-audit-files-tax-audit-upper-intermediate': {
+    id:    'the-audit-files-tax-audit-upper-intermediate',
+    title: 'The Audit Files',
+    level: 'Tax English (Upper-Intermediate)',
+    track: 'tax',
+    emoji: '🔍',
+    badge: 'Audit Ace',
+
+    vocab: [
+      { word:'invoice',           definition:'A document sent to a client asking them to pay for goods or services already provided.', example:'She sends every client an ___ once the work is finished.', distractors:['assessment notice','provision','audit trail'] },
+      { word:'VAT',               definition:'Value Added Tax — a tax added to the price of most goods and services.',                 example:'Most goods and services include ___ in the price.',        distractors:['liability','deadline','back taxes'] },
+      { word:'deadline',          definition:'The date by which something must be done.',                                              example:'She must reply before the ___.',                           distractors:['liability','provision','VAT'] },
+      { word:'liability',         definition:'Money or debt — including tax — that a person or business legally owes.',                example:'Any unpaid tax owed is a legal ___.',                      distractors:['provision','deadline','VAT'] },
+      { word:'tax audit',         definition:'An official examination of a business\u2019s financial records by the tax authorities.', example:'Anja\u2019s business has been selected for a ___.',        distractors:['audit trail','assessment notice','objection'] },
+      { word:'assessment notice', definition:'The official document from the tax office stating exactly how much tax is owed.',        example:'The inspector will send an ___ stating exactly what she owes.', distractors:['tax audit','objection','back taxes'] },
+      { word:'back taxes',        definition:'Tax from a previous period that was not paid at the time and is now owed.',              example:'An old, undeclared invoice can become ___, owed with interest.', distractors:['penalty interest','liability','provision'] },
+      { word:'provision',         definition:'Money set aside in a company\u2019s accounts for an expected future cost or liability.', example:'Money set aside for a future cost is called a ___.',       distractors:['liability','invoice','audit trail'] },
+      { word:'audit trail',       definition:'A clear, documented record of every step in a transaction, used as proof it was handled correctly.', example:'Clear contracts and records create a documented ___.', distractors:['tax audit','provision','objection'] },
+      { word:'objection',         definition:'A formal, written request asking the tax office to review a decision you disagree with.', example:'If Anja disagrees with the notice, she can file an ___.',  distractors:['assessment notice','audit trail','back taxes'] },
+      { word:'penalty interest',  definition:'Extra money charged on top of a tax bill because it was paid late.',                     example:'Paying late means extra ___ on top of the bill.',          distractors:['back taxes','liability','VAT'] },
+    ],
+
+    grammar: {
+      topic: 'Passive Voice in audit and compliance documentation',
+      rule:  'In audit English, passive voice (is/are/was/were + past participle) focuses on what happened rather than who did it. "The audit is conducted." "The notice is issued." "A provision must be supported."',
+      exercises: [
+        { sentence:'The tax audit ___ by an independent inspector.',              answer:'is conducted',        wrong:['conducts','was conduct','conducting'],       explain:'Present passive: is + past participle. The audit receives the action of being conducted.' },
+        { sentence:'The assessment notice ___ once the review is complete.',      answer:'is issued',           wrong:['issues','was issue','issuing'],              explain:'Present passive: is + past participle, for a standard step in the process.' },
+        { sentence:'Undeclared income ___ as back taxes, with interest added.',   answer:'is treated',          wrong:['treats','was treating','treating'],          explain:'Present passive for a general rule about how undeclared income is handled.' },
+        { sentence:'A large provision ___ by a clear audit trail.',               answer:'must be supported',   wrong:['must support','supporting','supported'],     explain:'Modal passive: must + be + past participle. The provision receives the obligation.' },
+      ],
+    },
+
+    grammar2: {
+      topic: 'First Conditional — predicting audit outcomes',
+      rule:  'First conditional: If + present simple → will + infinitive. Used to warn a client about real, likely consequences. "If you miss the deadline, you will owe penalty interest."',
+      exercises: [
+        { sentence:'If Anja ___ the deadline, she ___ extra penalty interest.',     answer:'misses / will owe',        wrong:['missed / would owe','will miss / owes','misses / would owe'],     explain:'First conditional: if + present simple (misses) → will + infinitive (will owe).' },
+        { sentence:'If a provision ___ no audit trail, the inspector ___ it.',      answer:'has / will reject',        wrong:['had / would reject','will have / rejects','has / would reject'],  explain:'First conditional for a real, predictable outcome of missing documentation.' },
+        { sentence:'If the figures ___ , Ben ___ a formal objection.',             answer:'don\'t match / will file', wrong:['didn\'t match / would file','won\'t match / files','don\'t match / would file'], explain:'First conditional: a real disagreement leads to a real next step.' },
+        { sentence:'If cash payments ___ no receipt, they ___ suspicious.',        answer:'have / will look',         wrong:['had / would look','will have / look','have / would look'],        explain:'First conditional describing a general audit red flag.' },
+      ],
+    },
+
+    sentences: [
+      { words:['are','writing','to','formally','object','to','the','We','assessment','notice.'], answer:'We are writing to formally object to the assessment notice.', hint:'✍️ Opening the objection letter...' },
+      { words:['records','show','different','figure','Our','own','a','for','the','period.'],      answer:'Our own records show a different figure for the period.',     hint:'📊 Explaining the disagreement...' },
+      { words:['will','review','her','records','three','The','inspector','for','years.'],         answer:'The inspector will review her records for three years.',     hint:'🔍 About the scope of the audit...' },
+    ],
+
+    word_builder: [
+      { word:'provision',   definition:'Money set aside for a future cost' },
+      { word:'liability',   definition:'Money or debt legally owed' },
+      { word:'objection',   definition:'A formal request to review a decision' },
+      { word:'deadline',    definition:'The date by which something must be done' },
+      { word:'invoice',     definition:'A document asking to be paid' },
+      { word:'audit',       definition:'An official examination of records' },
+    ],
+
+    true_false: [
+      { statement:'The inspector will review only Anja\u2019s current year of records.',   correct:false, reveal:'❌ FALSE! The letter is specific — three years of records, not just the current year.' },
+      { statement:'An assessment notice states exactly how much tax is owed.',             correct:true,  reveal:'✅ TRUE! It\u2019s the official document confirming the final tax figure.' },
+      { statement:'An undeclared old invoice simply disappears after two years.',          correct:false, reveal:'❌ FALSE! It becomes back taxes — owed with interest, not forgotten.' },
+      { statement:'A large provision needs a clear audit trail to be accepted.',           correct:true,  reveal:'✅ TRUE! Without contracts and records, the inspector can simply reject the deduction.' },
+      { statement:'Cash payments with no receipt are unlikely to attract attention.',      correct:false, reveal:'❌ FALSE! Cash with no receipt is exactly the kind of entry that catches an inspector\u2019s eye.' },
+      { statement:'An objection is a formal written request to review a decision.',        correct:true,  reveal:'✅ TRUE! That\u2019s exactly what Anja files if she disagrees with the notice.' },
+    ],
+  },
+
 
  
    };
