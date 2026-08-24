@@ -4467,6 +4467,75 @@ const LESSON_DATA_REGISTRY = {
   ],
 },
 
+   
+   'ichigo-ichie-once-in-a-lifetime-a2': {
+    id:    'ichigo-ichie-once-in-a-lifetime-a2',
+    title: 'Ichigo Ichie: One Time, One Meeting',
+    level: 'Beginner',
+    track: 'beginner',
+    emoji: '⛩️',
+    badge: 'Ichigo Ichie Explorer',
+
+    vocab: [
+      { word:'town',        definition:'A small place where people live',                          example:'Magome is a small ___ in the mountains of Japan.',            distractors:['waterfall','cup','practice'] },
+      { word:'travellers',  definition:'People who travel, or move from place to place',           example:'Long ago, ___ stopped in Magome for one night.',              distractors:['guests','town','polite'] },
+      { word:'relax',       definition:'To rest and feel calm, not stressed',                       example:'The bath is a quiet place to ___.',                           distractors:['practice','polite','sweet'] },
+      { word:'guests',      definition:'People who visit a place, like a hotel or someone\u2019s home', example:'___ sleep on a soft bed called a futon.',                 distractors:['travellers','waterfall','cup'] },
+      { word:'waterfall',   definition:'Water that falls from a high place, like a small cliff',    example:'There are two ___s near Magome.',                             distractors:['town','guests','hand-made'] },
+      { word:'practice',    definition:'To do something again and again to get better at it',       example:'People ___ sitting under the cold water.',                    distractors:['relax','polite','sweet'] },
+      { word:'sweet',       definition:'Tasting like sugar — the opposite of sour or salty',         example:'The rice cake has a ___ sauce on top.',                       distractors:['hand-made','polite','practice'] },
+      { word:'hand-made',   definition:'Made by a person\u2019s hands, not by a machine',           example:'Every rice cake is ___, one at a time.',                       distractors:['sweet','town','waterfall'] },
+      { word:'cup',         definition:'A small container you drink from',                          example:'The guest turns the ___ before drinking tea.',                distractors:['guests','town','waterfall'] },
+      { word:'polite',      definition:'Having good manners; showing respect to other people',       example:'It is ___ to say thank you this way.',                        distractors:['sweet','relax','hand-made'] },
+    ],
+
+    grammar: {
+      topic: 'Used to — talking about repeated past actions',
+      rule:  'Use USED TO + base verb for things that happened again and again in the past, but not now. "Travellers used to stay one night." Never "use to" or "used to stayed".',
+      exercises: [
+        { sentence:'Travellers ___ stay in Magome for one night.',            answer:'used to', wrong:['use to','using to','uses to'], explain:'USED TO + base verb for a repeated past custom. Never "use to stay" or "uses to".' },
+        { sentence:'People ___ stop in the town on their way to the next one.', answer:'used to', wrong:['use to','using to','uses to'], explain:'USED TO + base verb for a repeated past habit.' },
+        { sentence:'The old inn ___ have guests every night.',                answer:'used to', wrong:['use to','using to','uses to'], explain:'USED TO + base verb — a regular thing that happened in the past.' },
+        { sentence:'Visitors ___ walk between towns for days.',               answer:'used to', wrong:['use to','using to','uses to'], explain:'USED TO + base verb, describing an old routine.' },
+      ],
+    },
+
+    grammar2: {
+      topic: 'Present Simple — facts about places and customs',
+      rule:  'Use present simple for facts that are always true. He/she/it + verb + -s. "Magome IS a small town." "Guests TURN the cup."',
+      exercises: [
+        { sentence:'Magome ___ a small town in the mountains.',   answer:'is',       wrong:['are','have','was'],   explain:'"Magome" = it → IS. A fact that is always true.' },
+        { sentence:'Guests ___ the cup before drinking tea.',     answer:'turn',     wrong:['turns','turned','is turn'], explain:'"Guests" = plural → base form, no -s.' },
+        { sentence:'The bath ___ not for washing.',               answer:'is',       wrong:['are','have','was'],   explain:'"The bath" = it → IS. A general fact about the bath.' },
+        { sentence:'People ___ takigyo to feel calm.',            answer:'practice', wrong:['practices','practiced','is practice'], explain:'"People" = plural → base form, no -s.' },
+      ],
+    },
+
+    sentences: [
+      { words:['stopped','in','Magome','for','one','People','night.'],  answer:'People stopped in Magome for one night.', hint:'🏘️ About the town...' },
+      { words:['turn','say','the','to','cup','thank','Guests','you.'],  answer:'Guests turn the cup to say thank you.',   hint:'🍵 About the tea ceremony...' },
+      { words:['under','sit','water','the','feel','to','People','calm.'], answer:'People sit under the water to feel calm.', hint:'💧 About the waterfall...' },
+    ],
+
+    word_builder: [
+      { word:'town',      definition:'A small place where people live' },
+      { word:'guests',    definition:'People who visit a place' },
+      { word:'waterfall', definition:'Water falling from a high place' },
+      { word:'practice',  definition:'To do something again and again' },
+      { word:'polite',    definition:'Having good manners' },
+    ],
+
+    true_false: [
+      { statement:'Magome is more than 400 years old.',                                    correct:true,  reveal:'✅ TRUE! It\u2019s one of the old towns on the Nakasendo Trail.' },
+      { statement:'Travellers used to stay in Magome for one month.',                       correct:false, reveal:'❌ FALSE! Travellers stayed for just one night — that\u2019s the whole idea of "ichigo ichie".' },
+      { statement:'The wood bath at Tawaraya is used for washing with soap.',                correct:false, reveal:'❌ FALSE! No soap — the bath is just a quiet place to relax.' },
+      { statement:'Takigyo means sitting under cold falling water.',                        correct:true,  reveal:'✅ TRUE! People practice takigyo to feel calm and strong.' },
+      { statement:'Every gohei mochi rice cake is made by a machine.',                      correct:false, reveal:'❌ FALSE! Every rice cake is hand-made, so each one is a little different.' },
+      { statement:'Guests turn the cup before drinking, to say thank you.',                 correct:true,  reveal:'✅ TRUE! It\u2019s a small, polite way to thank the person who made the tea.' },
+    ],
+  },
+
+
  
    };
 
