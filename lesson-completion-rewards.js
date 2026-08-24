@@ -901,6 +901,24 @@
   ],
 },
 
+      'ichigo-ichie-once-in-a-lifetime-a2': {
+      title:   'Ichigo Ichie: One Time, One Meeting',
+      level:   'Beginner',
+      grammar: 'Used to — talking about repeated past actions; Present Simple — facts about places and customs',
+      vocab: [
+        { word:'town',       definition:'A small place where people live' },
+        { word:'travellers', definition:'People who travel, or move from place to place' },
+        { word:'relax',      definition:'To rest and feel calm, not stressed' },
+        { word:'guests',     definition:'People who visit a place, like a hotel or someone\u2019s home' },
+        { word:'waterfall',  definition:'Water that falls from a high place, like a small cliff' },
+        { word:'practice',   definition:'To do something again and again to get better at it' },
+        { word:'sweet',      definition:'Tasting like sugar — the opposite of sour or salty' },
+        { word:'hand-made',  definition:'Made by a person\u2019s hands, not by a machine' },
+        { word:'cup',        definition:'A small container you drink from' },
+        { word:'polite',     definition:'Having good manners; showing respect to other people' },
+      ],
+    },
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
