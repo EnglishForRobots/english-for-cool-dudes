@@ -4604,6 +4604,102 @@ const LESSON_DATA_REGISTRY = {
     ],
   },
 
+    'benefit-test-intra-group-services-tax': {
+
+    // ── IDENTITY ─────────────────────────────────────────────
+    id:    'benefit-test-intra-group-services-tax',
+    title: 'The Benefit Test Files',
+    level: 'Tax English (B2/C1)',
+    track: 'tax',
+    emoji: '⚖️',
+    badge: 'Benefit Test Defender',
+
+    // ── VOCAB ────────────────────────────────────────────────
+    vocab: [
+      { word:'benefit test',            definition:'The test used to decide whether an intra-group charge reflects a genuine, identifiable benefit to the recipient — not just a cost the parent group wanted to share out.', example:'The charge must pass the ___ ___ before it can be billed to the subsidiary.', distractors:['cost pool','allocation key','disguised dividend'] },
+      { word:'shareholder activity',    definition:'Something a parent does purely because it owns the subsidiary — like its own reporting or governance — which brings no separate benefit to the subsidiary and shouldn\'t be charged.', example:'Protecting the parent\'s own regulatory position is a ___ ___, not a chargeable service.', distractors:['duplicate service','cost-plus method','burden of proof'] },
+      { word:'duplicate service',       definition:'A centrally-billed service that repeats work the subsidiary already does itself, or already buys locally, adding no real extra value.', example:'If the local team already does this work, the central charge may be a ___ ___.', distractors:['benefit test','allocation key','arm\'s length mark-up'] },
+      { word:'cost pool',               definition:'The total costs of a shared function — like IT or HR — gathered together before being split out and charged to different group entities.', example:'The IT ___ ___ is split among subsidiaries using an allocation key.', distractors:['shareholder activity','disguised dividend','burden of proof'] },
+      { word:'allocation key',          definition:'The metric — headcount, revenue, users, transactions — used to divide a cost pool fairly among the entities that actually benefit from it.', example:'Headcount is not always a fair ___ ___ for an IT cost pool.', distractors:['cost-plus method','duplicate service','benefit test'] },
+      { word:'low value-adding intra-group service', definition:'Routine, support-type services — payroll, IT helpdesk — that add limited value and can often use a simplified, lower-scrutiny pricing approach (known as LVAIS).', example:'Payroll and helpdesk support are classic examples of a ___ ___-___ ___ ___.', distractors:['shareholder activity','arm\'s length mark-up','cost pool'] },
+      { word:'arm\'s length mark-up',   definition:'The profit margin added on top of costs so an intra-group charge reflects what unrelated companies would genuinely have agreed to pay.', example:'A cost-plus charge needs an ___ ___ ___-___ to be defensible.', distractors:['cost pool','duplicate service','benefit test'] },
+      { word:'cost-plus method',        definition:'A transfer pricing method that prices a service at its cost, plus an agreed profit margin on top.', example:'The LVAIS bundle is priced using the ___-___ ___.', distractors:['allocation key','disguised dividend','burden of proof'] },
+      { word:'burden of proof',         definition:'The responsibility to provide evidence supporting a position — in many countries, it\'s the taxpayer who must justify an intra-group charge, not the authority who must disprove it.', example:'In most jurisdictions, the taxpayer carries the ___ ___ ___.', distractors:['cost pool','shareholder activity','arm\'s length mark-up'] },
+      { word:'disguised dividend',      definition:'A payment dressed up as a service fee that, in substance, just shifts profit to the parent without any real service behind it.', example:'With no real service behind it, the fee looks like a ___ ___.', distractors:['benefit test','allocation key','cost-plus method'] },
+    ],
+
+    // ── GRAMMAR 1: Passive Voice ──────────────────────────────
+    grammar: {
+      topic: 'Passive Voice in transfer pricing documentation',
+      rule:  'In transfer pricing advice, passive voice (is/are/was/were + past participle) focuses on what happened to the charge or the cost pool, rather than who acted. "The cost pool is split." "The charge was challenged." Very common in TP reports and audit correspondence.',
+      exercises: [
+        { sentence:'The IT cost pool ___ among subsidiaries using an allocation key.',           answer:'is split',      wrong:['splits','was splitting','has split'],      explain:'Present passive: is + past participle. The cost pool receives the action of being split.' },
+        { sentence:'The management fee ___ by the Dutch tax authority last year.',               answer:'was challenged',wrong:['challenged','challenges','has challenge'], explain:'Past passive: was + past participle. A completed audit event.' },
+        { sentence:'Routine support services ___ using a simplified LVAIS approach.',            answer:'can be priced', wrong:['can price','are pricing','priced'],         explain:'Modal passive: can + be + past participle. The services receive the possible action.' },
+        { sentence:'A duplicate charge ___ if the local team already performs the same work.',   answer:'is unlikely to be accepted', wrong:['unlikely accepts','is unlikely accepting','unlikely accepted'], explain:'Passive infinitive after "is unlikely to be": be + past participle.' },
+      ],
+    },
+
+    // ── GRAMMAR 2: Modal verbs of possibility ─────────────────
+    grammar2: {
+      topic: 'Modal verbs of possibility — might / could / can in benefit-test judgement calls',
+      rule:  'CAN expresses a real, established possibility. COULD expresses something possible but not certain — useful when a judgement call is genuinely close. MIGHT expresses a weaker, more tentative possibility. TP reviewers use these constantly when a case isn\'t clear-cut.',
+      exercises: [
+        { sentence:'A rebrand imposed with zero local input ___ look more like a shareholder activity.', answer:'can', wrong:['must', 'will always', "can't"], explain:'"Can" — a real, established possibility given the facts described.' },
+        { sentence:'This charge ___ be a duplicate service — it depends on whether real extra value is added.', answer:'could', wrong:['must', 'will certainly', "can't possibly"], explain:'"Could" signals a genuine possibility, not a certainty — the case needs more evidence.' },
+        { sentence:'Even a well-documented LVAIS bundle ___ still be queried by an auditor.', answer:'might', wrong:['must always', "can't", 'will never'], explain:'"Might" — a weaker, tentative possibility, appropriate for a routine but not risk-free charge.' },
+        { sentence:'A cost charged without any allocation key rationale ___ fail on review.', answer:'can', wrong:['must', "can't", 'will never'], explain:'"Can" — a real and fairly likely outcome given poor documentation.' },
+      ],
+    },
+
+    // ── SENTENCE BUILDER ────────────────────────────────────
+    sentences: [
+      {
+        words:  ['pool', 'a', 'allocation', 'is', 'cost', 'key', 'split', 'fair', 'a', 'using'],
+        answer: 'a cost pool is split using a fair allocation key',
+        hint:   '🔑 How should shared costs be divided among subsidiaries?',
+      },
+      {
+        words:  ['charged', 'shareholder', 'activities', 'be', 'to', 'subsidiaries', 'shouldn\'t'],
+        answer: 'shareholder activities shouldn\'t be charged to subsidiaries',
+        hint:   '🏢 What does the parent alone benefit from?',
+      },
+      {
+        words:  ['have', 'would', 'company', 'the', 'benefit', 'test', 'independent', 'an', 'paid', 'asks', 'whether'],
+        answer: 'the benefit test asks whether an independent company would have paid',
+        hint:   '⚖️ What is the core question of the benefit test?',
+      },
+      {
+        words:  ['fail', 'often', 'services', 'duplicate', 'the', 'benefit', 'test'],
+        answer: 'duplicate services often fail the benefit test',
+        hint:   '🔁 What happens when work is billed twice?',
+      },
+    ],
+
+    // ── WORD BUILDER ────────────────────────────────────────
+    word_builder: [
+      { word:'allocation',  definition:'The metric used to fairly split a shared cost' },
+      { word:'shareholder', definition:'Related to owning, not benefiting from, a subsidiary' },
+      { word:'duplicate',   definition:'Repeating work that\'s already being done locally' },
+      { word:'disguised',   definition:'Dressed up to look like something else' },
+      { word:'markup',      definition:'Profit added on top of cost' },
+      { word:'burden',      definition:'A responsibility someone must carry — here, of proof' },
+    ],
+
+    // ── TRUE / FALSE ─────────────────────────────────────────
+    true_false: [
+      { statement:'A shareholder activity can be freely charged to subsidiaries simply because the parent decided to do it.',  correct:false, reveal:'❌ FALSE. The benefit test looks at whether the subsidiary genuinely benefits — a parent\'s own decision doesn\'t, by itself, make it chargeable.' },
+      { statement:'Centralised cybersecurity monitoring that clearly reduces local risk can pass the benefit test.',           correct:true,  reveal:'✅ TRUE. When subsidiaries get a real, identifiable benefit — like reduced risk and lower local spend — the service passes the benefit test.' },
+      { statement:'A good allocation key should reflect how the cost actually relates to the benefit received.',              correct:true,  reveal:'✅ TRUE. A defensible allocation key tracks the real driver of benefit — usage, revenue, headcount — not just what\'s convenient for HQ.' },
+      { statement:'Duplicate services always pass the benefit test, as long as HQ documents them properly.',                  correct:false, reveal:'❌ FALSE. Good documentation doesn\'t fix duplication — if the group service repeats local work with nothing materially different added, it still fails.' },
+      { statement:'Low value-adding intra-group services (LVAIS) can sometimes use a simplified pricing approach.',           correct:true,  reveal:'✅ TRUE. Routine, support-type services can use an agreed, modest mark-up rather than a full benchmarking study each time.' },
+      { statement:'The arm\'s length mark-up concept only matters for goods, never for services.',                            correct:false, reveal:'❌ FALSE. Intra-group services need an arm\'s length mark-up too — the same principle applies to services as to goods.' },
+      { statement:'In many jurisdictions, the taxpayer carries the burden of proof to justify an intra-group charge.',        correct:true,  reveal:'✅ TRUE. It\'s commonly the taxpayer\'s job to show the charge is genuine and properly priced.' },
+      { statement:'A disguised dividend is simply another name for a properly priced management fee.',                       correct:false, reveal:'❌ FALSE. A disguised dividend is the opposite — a payment that looks like a service fee but is really just profit-shifting.' },
+    ],
+
+  },
+
 
  
    };
