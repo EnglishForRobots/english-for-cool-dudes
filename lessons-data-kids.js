@@ -1,0 +1,18 @@
+window.LEVEL_CONFIG = { eyebrow: '🤪 English for Cool Kids', accent: 'pink' };
+window.LESSONS = [
+  { slug:'gaming-english', icon:'🎮', badge:'⭐ Gaming', badgeType:'new', title:'Minecraft, Roblox & the English of Gaming', desc:"Noob, respawn, griefer, speedrun — the world of gaming has its own incredible language. Let's learn it.", mins:6, date:'2026-07-17' },
+  { slug:'worldcup2026-kids', icon:'🦅⚽︎', badge:'World Cup 2026', badgeType:null, title:"It's the 2026 World Cup in the USA, Mexico and Canada!", desc:'Collect 6 country stickers. Learn cool football words. Win the Goal Rush!', mins:5, date:'2026-06-11' },
+  { slug:'world', icon:'🦘', badge:'Around the World', badgeType:null, title:'What Kids Do in Different Countries', desc:'In Japan, kids clean their own classrooms. In Finland, they spend hours playing outside in the snow. What about you?', mins:5, date:'2026-04-27' },
+  { slug:'eggscience', icon:'🔬', badge:'The Science of Eggs', badgeType:null, title:"Welcome to Professor Egg's Lab!", desc:'Does a sunfish really lay 300 million eggs in one go?', mins:5, date:'2026-04-01' },
+  { slug:'mindblown', icon:'🤯', badge:'Funny Facts', badgeType:null, title:'Facts That Will Blow Your Mind', desc:'Did you know a group of flamingos is called a flamboyance? Or that wombats poo in cubes? YES, really.', mins:5, date:'2026-03-27' },
+  { slug:'tiktok', icon:'📱', badge:'⁶🤷‍♂️⁷ Trends', badgeType:null, title:'TikTok, Trends & the English of the Internet', desc:'POV, slay, no cap, lowkey — what does it all mean? Learn the English of the internet.', mins:5, date:'2026-03-18' },
+  { slug:'worldrecords', icon:'🏆', badge:'🥇 World Records', badgeType:null, title:'The Most Incredible World Records Ever', desc:'The longest fingernails. The fastest eater. The tallest man. These records will make you say WOW.', mins:5, date:'2026-03-17' },
+  { slug:'ariana', icon:'🎤', badge:'🎧 Pop Music', badgeType:'pop', title:'Ariana Grande & the Power of Words', desc:'Amazing facts, fun vocab, true or false, and a word match game — all about one of the biggest pop stars on the planet!', mins:6, date:'2026-03-16' },
+
+  { slug:null, icon:'🦕', badge:'💡 History', badgeType:'fact', title:'Dinosaurs — The Coolest Creatures Ever', desc:'T-Rex had arms too short to reach its own mouth. Velociraptors were actually the size of a turkey. Mind = blown.', mins:6, date:null },
+  { slug:null, icon:'🍕', badge:'💡 Food', badgeType:'fact', title:'The Most Disgusting School Lunches Around the World', desc:'Fermented shark in Iceland. Fried insects in Thailand. Mystery meat in the UK. Which is worst?!', mins:6, date:null },
+  { slug:null, icon:'🏰', badge:'💡 History', badgeType:'fact', title:'Kings, Queens & Totally Ridiculous Royal Rules', desc:'In England, the Queen technically owned all the swans. In France, the King had someone whose ONLY job was to hold his towel.', mins:7, date:null },
+  { slug:null, icon:'🚀', badge:'🌍 Science', badgeType:'world', title:'Space: The Wildest Place in the Universe', desc:"A day on Venus is longer than a year on Venus. There's a planet made of diamonds. Space is absolutely insane.", mins:6, date:null },
+  { slug:null, icon:'🐙', badge:'💡 Animals', badgeType:'fact', title:"The Weirdest Animals You've Never Heard Of", desc:'Meet the blobfish, the axolotl, and the star-nosed mole. These creatures make up their own rules.', mins:5, date:null },
+  { slug:null, icon:'⚽', badge:'🌍 Sport', badgeType:'world', title:"The World's Most Bizarre Sports", desc:'Cheese rolling in England. Underwater hockey. Competitive dog grooming. These are actual sports.', mins:6, date:null },
+];
