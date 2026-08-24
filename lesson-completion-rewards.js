@@ -919,6 +919,26 @@
       ],
     },
 
+     'the-audit-files-tax-audit-upper-intermediate': {
+      title:   'The Audit Files',
+      level:   'Tax English (Upper-Intermediate)',
+      grammar: 'Passive Voice in audit and compliance documentation; First Conditional for predicting audit outcomes',
+      vocab: [
+        { word:'invoice',           definition:'A document sent to a client asking them to pay for goods or services already provided.' },
+        { word:'VAT',               definition:'Value Added Tax — a tax added to the price of most goods and services.' },
+        { word:'deadline',          definition:'The date by which something must be done.' },
+        { word:'liability',         definition:'Money or debt — including tax — that a person or business legally owes.' },
+        { word:'tax audit',         definition:'An official examination of a business\u2019s financial records by the tax authorities.' },
+        { word:'assessment notice', definition:'The official document from the tax office stating exactly how much tax is owed.' },
+        { word:'back taxes',        definition:'Tax from a previous period that was not paid at the time and is now owed.' },
+        { word:'provision',         definition:'Money set aside in a company\u2019s accounts for an expected future cost or liability.' },
+        { word:'audit trail',       definition:'A clear, documented record of every step in a transaction, used as proof it was handled correctly.' },
+        { word:'objection',         definition:'A formal, written request asking the tax office to review a decision you disagree with.' },
+        { word:'penalty interest',  definition:'Extra money charged on top of a tax bill because it was paid late.' },
+      ],
+    },
+
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
