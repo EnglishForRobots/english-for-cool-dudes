@@ -132,6 +132,44 @@
   }
 
   /* ── Auth-aware welcome strip (was duplicated 3x, now lives once) ── */
+  // Bridges two ID systems that don't otherwise match: our page slug (used
+  // for personal completion, e.g. 'travel-blogger-life') vs. the classroom
+  // badge system's internal lesson ID (e.g. 'the-truth-about-travel-blogging-
+  // intermediate', used in efcd_badges.badge_key as 'lesson_<id>'). Derived
+  // from the admin panel's LESSON_META registry via each entry's
+  // worksheetLink (e.g. '/travel-blogger-life/print/' -> our slug). Lessons
+  // added before worksheetLink existed aren't bridgeable and simply won't
+  // show a class stamp — same as before this feature existed, not worse.
+  const CLASS_LESSON_IDS = {
+    'corgis': 'royal-corgis-beginner',
+    'travel-blogger-life': 'the-truth-about-travel-blogging-intermediate',
+    'travel-blogger-life-beginner': 'the-truth-about-travel-blogging-beginner',
+    'peptides': 'peptides-intermediate',
+    'phantom-parent': 'phantom-parent-tax',
+    'shepherds-pie': 'shepherds-pie-intermediate',
+    'merger-machine': 'merger-machine-tax',
+    'worldcup2026': 'worldcup2026-intermediate',
+    'worldcup2026-beginner': 'worldcup2026-beginner',
+    'worldcup2026-kids': 'worldcup2026-kids',
+    'china-ai-classrooms': 'china-ai-classrooms-advanced',
+    'e-invoice-era': 'e-invoice-era-tax',
+    'airbnb-problem': 'airbnb-problem-tax',
+    'gut-genug': 'gut-genug-intermediate',
+    'gut-genug-beginner': 'gut-genug-beginner',
+    'the-office-is-back': 'the-office-is-back-business',
+    'hastings-1066': 'hastings-1066-intermediate',
+    'crypto-capital-gains': 'crypto-capital-gains-tax',
+    'deal-breaker-clause': 'deal-breaker-clause-legal',
+    'spot-fake-ai-ads': 'spot-fake-ai-ads-intermediate',
+    'audit-file': 'audit-file-tax',
+    'the-odyssey-2026': 'the-odyssey-2026-advanced',
+    'influencer-exodus': 'influencer-exodus-tax',
+    'the-accidental-manager': 'the-accidental-manager-intermediate',
+    'the-odyssey-2026-beginner': 'the-odyssey-2026-beginner',
+    'ichigo-ichie': 'ichigo-ichie-once-in-a-lifetime-advanced',
+    'ledger-files': 'the-ledger-files-bookkeeping-intermediate',
+  };
+
   async function bootAuthStrip(eyebrowText) {
     const stripWrap = document.getElementById('strip-wrap');
     const secWrap = document.getElementById('section-label-wrap');
@@ -213,7 +251,40 @@
     // Render immediately with no completion data so the page isn't blocked on auth
     renderGrid(lessons, new Set());
 
+    // A live class session sets efcd_class_id in localStorage (see /live/'s
+    // join flow) — completely independent of any personal login. When it's
+    // present, this browser is being used to project a class, not to browse
+    // personally, so we never show the logged-in teacher's own completion
+    // history — that would misrepresent it as the class's progress.
+    const inLiveClassMode = !!localStorage.getItem('efcd_class_id');
+
     const doneSet = await bootAuthStrip(cfg.eyebrow || '');
+
+    if (inLiveClassMode) {
+      const classId = localStorage.getItem('efcd_class_id');
+      try {
+        const { data: badges } = await window.efcdSupabaseClient
+          .from('efcd_badges')
+          .select('badge_key')
+          .eq('class_id', classId)
+          .eq('is_manual', false)
+          .like('badge_key', 'lesson_%');
+
+        const doneLessonIds = new Set((badges || []).map(b => b.badge_key.replace(/^lesson_/, '')));
+        const levelLessons = lessons.filter(l => l.slug);
+        const doneInLevel = new Set(
+          levelLessons
+            .filter(l => CLASS_LESSON_IDS[l.slug] && doneLessonIds.has(CLASS_LESSON_IDS[l.slug]))
+            .map(l => l.slug)
+        );
+
+        if (doneInLevel.size) renderGrid(lessons, doneInLevel);
+        renderProgressBar(levelLessons.length, doneInLevel.size);
+      } catch (e) {
+        console.error('[level-page] class completion fetch failed:', e);
+      }
+      return;
+    }
 
     try {
       // doneSet is null for guests (no bar at all) or a Set (possibly empty)
