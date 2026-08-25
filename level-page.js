@@ -42,6 +42,21 @@
      }
   ──────────────────────────────────────────────────── */
 
+  // Matches DB lesson_link values against our data-file slugs even if they're
+  // stored in a different text shape (leading/trailing slash, full URL,
+  // trailing query string, different casing) — exact-string .has() lookups
+  // fail silently on any of these, with no console error, which is why this
+  // needs to be forgiving rather than assuming one exact format.
+  function normalizeSlug(s) {
+    if (!s) return '';
+    return String(s)
+      .trim()
+      .replace(/^https?:\/\/[^/]+/i, '') // strip protocol+domain if a full URL
+      .split('?')[0]                      // strip query string
+      .replace(/^\/+|\/+$/g, '')          // strip leading/trailing slashes
+      .toLowerCase();
+  }
+
   function fmtDate(iso) {
     if (!iso) return '';
     const d = new Date(iso + 'T00:00:00');
@@ -207,7 +222,10 @@
       // slugs before it's used for a per-level "X/Y completed" count.
       if (doneSet) {
         const levelSlugs = new Set(lessons.filter(l => l.slug).map(l => l.slug));
-        const doneInLevel = new Set([...doneSet].filter(slug => levelSlugs.has(slug)));
+        const normalizedCompleted = new Set([...doneSet].map(normalizeSlug));
+        const doneInLevel = new Set(
+          [...levelSlugs].filter(slug => normalizedCompleted.has(normalizeSlug(slug)))
+        );
 
         if (doneInLevel.size) {
           renderGrid(lessons, doneInLevel);
