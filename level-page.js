@@ -97,9 +97,15 @@
     }
 
     const badgeClass = lesson.badgeType ? ` ${lesson.badgeType}` : '';
-    const isDone = doneSet && doneSet.has(lesson.slug);
+    const isDone = !!(doneSet && doneSet.has(lesson.slug));
+    let stampEmoji = '😎', stampLabel = 'Nailed it!';
+    if (isDone && doneSet instanceof Map) {
+      const info = doneSet.get(lesson.slug);
+      if (info && info.emoji) stampEmoji = info.emoji;
+      if (info && info.label) stampLabel = info.label;
+    }
     const stamp = isDone
-      ? `<div class="completed-stamp" aria-hidden="true"><span>😎</span>Nailed it!</div>`
+      ? `<div class="completed-stamp" aria-hidden="true"><span>${stampEmoji}</span>${stampLabel}</div>`
       : '';
     const href = lesson.href || `/${lesson.slug}/`;
 
