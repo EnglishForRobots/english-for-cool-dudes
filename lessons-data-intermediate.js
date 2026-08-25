@@ -4,8 +4,9 @@ window.LEVEL_CONFIG = {
 };
 
 window.LESSONS = [
-  { slug:'travel-blogger-life', icon:'🧳✍️💻', badge:'⭐ Travel/Business', badgeType:'new', title:'Full-time Travel Blogging', desc:"What's it really like to be a full-time travel blogger? And can anyone earn money from seeing the world?", mins:8, date:'2026-08-10', tags:['culture','business'] },
-  { slug:'the-accidental-manager', icon:'⚽🎙️', badge:'⭐ Leadership', badgeType:'new', title:'The Accidental Manager', desc:"How Jürgen Klopp — one of football's biggest names — got his very first job in management.", mins:9, date:'2026-08-04', tags:['culture','business'] },
+  { slug:'robotgames', icon:'🤖🏃💨', badge:'⭐ Tech', badgeType:'new', title:'Rise of the Robots - The Humanoid Games', desc:'China is currently hosting the 2026 Humanoid Games and robots are breaking human athletic records. Should we be entertained or worried?', mins:7, date:'2026-08-25', tags:['tech','future','vocabulary','grammar'] },
+  { slug:'travel-blogger-life', icon:'🧳✍️💻', badge:'Travel/Business', badgeType:'null', title:'Full-time Travel Blogging', desc:"What's it really like to be a full-time travel blogger? And can anyone earn money from seeing the world?", mins:8, date:'2026-08-10', tags:['culture','business'] },
+  { slug:'the-accidental-manager', icon:'⚽🎙️', badge:'Leadership', badgeType:'null', title:'The Accidental Manager', desc:"How Jürgen Klopp — one of football's biggest names — got his very first job in management.", mins:9, date:'2026-08-04', tags:['culture','business'] },
   { slug:'spot-fake-ai-ads', icon:'🚨', badge:'Fact Check', badgeType:null, title:'How to Spot Fake AI Ads', desc:"A mug that isn't a mug. A model who doesn't exist. Welcome to AI shopping scams.", mins:8, date:'2026-07-14', tags:['culture'] },
   { slug:'hastings-1066', icon:'⚔️', badge:'History', badgeType:null, title:'1066 — The Day England Changed Forever', desc:'One arrow. One crown. A battle that changed England and the English language.', mins:8, date:'2026-06-30', tags:['culture'] },
   { slug:'gut-genug', icon:'🎵', badge:'Music/Social Media', badgeType:null, title:'DU BIST GUT GENUG', desc:'You Are Good Enough! A German song goes viral.', mins:5, date:'2026-06-23', tags:['culture'] },
