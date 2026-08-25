@@ -1,226 +1,127 @@
 /* ════════════════════════════════════════════════════
-   LEVEL PAGE ENGINE — shared by /beginner/, /intermediate/, /advanced/
-   Renders lesson cards from a plain data array (LESSONS, set per page)
-   and handles the auth-aware welcome strip.
-
-   HOW TO USE ON A LEVEL PAGE:
-   1. Include this file + level-page.css
-   2. Before this script, define:
-        window.LEVEL_CONFIG = {
-          eyebrow: '🌱 Beginner English (A1/A2)',
-          accent:  'green'   // 'green' | 'blue' | 'punch'
-        };
-        window.LESSONS = [ ...see lessons-data-beginner.js for shape... ];
-   3. Call LevelPage.boot() on DOMContentLoaded (done automatically below)
+   LEVEL PAGE STYLES — shared by /beginner/, /intermediate/, /advanced/
+   Accent color is set at runtime via level-page.js (applyAccent)
+   using --accent / --accent-shadow / --accent-light / --accent-border / --accent-text
 ════════════════════════════════════════════════════ */
 
-(function () {
-  'use strict';
+:root {
+  --yellow:#FFC800; --yellow-shadow:#E5B400;
+  --bg:#F7F9FA; --ink:#4B4B4B; --ink-bold:#111827; --ink-3:#AFAFAF;
+  --white:#FFFFFF; --border:#E5E5E5; --border-heavy:#CECECE;
+  --r:24px; --rsm:16px;
+  /* accent defaults (overwritten by JS per level) */
+  --accent:#1CB0F6; --accent-shadow:#1899D6; --accent-light:rgba(28,176,246,.12);
+  --accent-border:rgba(28,176,246,.28); --accent-text:#0e7ab0;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Nunito',-apple-system,system-ui,sans-serif;line-height:1.5;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
 
-  const ACCENT_VARS = {
-    green: { c: '#58CC02', shadow: '#58A700', light: 'rgba(88,204,2,.12)',  border: 'rgba(88,204,2,.28)',  text: '#3f8f01' },
-    blue:  { c: '#1CB0F6', shadow: '#1899D6', light: 'rgba(28,176,246,.12)', border: 'rgba(28,176,246,.28)', text: '#0e7ab0' },
-    punch: { c: '#FF4B4B', shadow: '#EA2B2B', light: 'rgba(255,75,75,.1)',   border: 'rgba(255,75,75,.25)',  text: '#C0392B' },
-    gold:   { c: '#FFC800', shadow: '#E5B400', light: 'rgba(255,200,0,.13)', border: 'rgba(255,200,0,.4)',  text: '#92600A' },
-    purple: { c: '#CE82FF', shadow: '#A559D9', light: 'rgba(206,130,255,.11)', border: 'rgba(206,130,255,.28)', text: '#7D3CB5' },
-    teal:   { c: '#2BDECC', shadow: '#1FB8A8', light: 'rgba(43,222,204,.1)', border: 'rgba(43,222,204,.32)', text: '#0E8A80' },
-    pink:   { c: '#FF6EB4', shadow: '#d94a8a', light: 'rgba(255,110,180,.12)', border: 'rgba(255,110,180,.3)', text: '#a0196a' },
-  };
+@keyframes up{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shim{0%{background-position:-400px 0}100%{background-position:400px 0}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.u1{animation:up .44s ease both .04s}
+.u2{animation:up .44s ease both .14s}
+.u3{animation:up .44s ease both .24s}
+@media (prefers-reduced-motion:reduce){.u1,.u2,.u3,.lcard-icon{animation:none}}
 
-  /* ── Card rendering ──────────────────────────────────
-     Lesson shape:
-     {
-       slug: 'travel-blogger-life-beginner' | null (null => coming-soon card),
-       icon: '🧳✈️⛱️',
-       badge: '⭐ Travel/Business',
-       badgeType: 'new' | 'soon' | null,
-       title: 'Meet The Travel Bloggers',
-       desc: 'Can travel blogging really be a job?...',
-       mins: 7,
-       date: '2026-08-12',        // ISO — used for sorting AND display
-       tags: ['culture','business'] // optional, powers future filter chips
-     }
-  ──────────────────────────────────────────────────── */
+/* ── HEADER ── */
+.header{background:var(--white);border-bottom:2px solid var(--border);position:sticky;top:0;z-index:200;padding:0 20px;height:60px;display:flex;align-items:center}
+.hc{max-width:900px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.hl{display:flex;align-items:center;gap:10px}
+.logo{width:40px;height:40px;border-radius:12px;background:var(--yellow);border:2px solid var(--border-heavy);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 3px 0 var(--border-heavy)}
+.site-title{font-size:18px;font-weight:900;color:var(--ink-bold);letter-spacing:-.4px}
+@media(max-width:380px){.site-title{display:none}}
 
-  function fmtDate(iso) {
-    if (!iso) return '';
-    const d = new Date(iso + 'T00:00:00');
-    if (isNaN(d)) return iso; // fallback if already display-formatted
-    return d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  }
+/* ── SKELETON ── */
+.sk{background:linear-gradient(90deg,#EBEBEB 25%,#F5F5F5 50%,#EBEBEB 75%);background-size:400px 100%;animation:shim 1.4s infinite;border-radius:var(--rsm)}
+.sk-strip{height:54px;border-radius:var(--rsm)}
 
-  function cardHTML(lesson, doneSet) {
-    if (!lesson.slug && !lesson.href) {
-      // Coming soon — no link, dimmed. Two styles supported:
-      // - no lesson.badge given: generic "🔒 Coming Soon" badge, single "⏱️ Coming soon" meta (Legal-style)
-      // - lesson.badge given: real category badge kept, mins shown plus a "📅 Coming soon" meta (Kids-style)
-      const badge = lesson.badge
-        ? `<div class="lcard-badge${lesson.badgeType ? ' ' + lesson.badgeType : ''}">${lesson.badge}</div>`
-        : `<div class="lcard-badge soon">🔒 Coming Soon</div>`;
-      const meta = lesson.mins
-        ? `<span>⏱️ ${lesson.mins} mins</span><span>📅 Coming soon</span>`
-        : `<span>⏱️ Coming soon</span>`;
-      return `
-        <div class="lcard coming-soon">
-          <div class="lcard-body">
-            <div class="lcard-icon">${lesson.icon}</div>
-            ${badge}
-            <div class="lcard-title">${lesson.title}</div>
-            <div class="lcard-desc">${lesson.desc}</div>
-            <div class="lcard-meta">${meta}</div>
-          </div>
-        </div>`;
-    }
+/* ── PAGE ── */
+.page{max-width:900px;margin:0 auto;padding:24px 16px 80px;display:flex;flex-direction:column;gap:20px}
 
-    const badgeClass = lesson.badgeType ? ` ${lesson.badgeType}` : '';
-    const isDone = doneSet && doneSet.has(lesson.slug);
-    const doneTag = isDone ? `<div class="lcard-done">✅ Completed</div>` : '';
-    const href = lesson.href || `/${lesson.slug}/`;
+/* ── WELCOME STRIP ── */
+.welcome-strip{background:var(--white);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-left:6px solid var(--accent);border-radius:var(--rsm);padding:13px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ws-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ws-name{font-size:15px;font-weight:900;color:var(--ink-bold);letter-spacing:-.2px}
+.ws-badges{display:inline-flex;align-items:center;gap:5px;background:var(--accent-light);border:2px solid var(--accent-border);border-radius:99px;padding:3px 10px;font-size:12px;font-weight:900;color:var(--accent-text)}
+.ws-streak{display:inline-flex;align-items:center;gap:5px;background:rgba(255,150,0,.1);border:2px solid rgba(255,150,0,.25);border-radius:99px;padding:3px 10px;font-size:12px;font-weight:900;color:#b85c00}
+.ws-link{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--accent);color:var(--white);font-size:13px;font-weight:900;border-radius:var(--rsm);border:2px solid var(--accent-shadow);border-bottom:3px solid var(--accent-shadow);white-space:nowrap;transition:transform .1s,border-bottom-width .1s}
+.ws-link:active{border-bottom-width:2px;transform:translateY(2px)}
 
-    return `
-      <a href="${href}" class="lcard${isDone ? ' is-done' : ''}">
-        <div class="lcard-body">
-          <div class="lcard-icon">${lesson.icon}</div>
-          <div class="lcard-badge${badgeClass}">${lesson.badge}</div>
-          <div class="lcard-title">${lesson.title}</div>
-          <div class="lcard-desc">${lesson.desc}</div>
-          <div class="lcard-meta"><span>⏱️ ${lesson.mins} mins</span>${lesson.date ? `<span>📅 ${fmtDate(lesson.date)}</span>` : ''}</div>
-          ${doneTag}
-          <div class="lcard-go">${isDone ? 'Review Again' : 'Start Lesson'} <span class="lcard-go-arrow">→</span></div>
-        </div>
-      </a>`;
-  }
+/* ── PROGRESS BAR ── */
+.level-progress{background:var(--white);border:2px solid var(--border-heavy);border-radius:var(--rsm);padding:12px 16px;display:flex;align-items:center;gap:12px}
+.level-progress-track{flex:1;height:10px;background:var(--bg);border-radius:99px;overflow:hidden;border:1px solid var(--border)}
+.level-progress-fill{height:100%;background:var(--accent);border-radius:99px;transition:width .4s ease}
+.level-progress-label{font-size:12px;font-weight:900;color:var(--ink-3);white-space:nowrap}
 
-  function renderGrid(lessons, doneSet) {
-    const grid = document.getElementById('lesson-grid');
-    if (!grid) return;
-    const sorted = lessons.slice().sort((a, b) => {
-      const aSoon = !a.slug && !a.href, bSoon = !b.slug && !b.href;
-      if (aSoon) return 1;   // coming-soon always last
-      if (bSoon) return -1;
-      return (b.date || '').localeCompare(a.date || ''); // newest first
-    });
-    grid.innerHTML = sorted.map(l => cardHTML(l, doneSet)).join('');
-  }
+/* ── SECTION LABEL / GUEST LABEL ── */
+.sec-label{font-size:13px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.sec-label::after{content:'';flex:1;height:2px;background:var(--border);border-radius:2px}
+.guest-label{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.guest-eyebrow{font-size:13px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1.5px;display:flex;align-items:center;gap:10px;flex:1}
+.guest-eyebrow::after{content:'';flex:1;height:2px;background:var(--border);border-radius:2px}
+.guest-signup-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:var(--white);color:var(--ink-bold);font-size:12px;font-weight:900;border-radius:99px;border:2px solid var(--border-heavy);white-space:nowrap;transition:border-color .15s}
+.guest-signup-pill:hover{border-color:var(--accent);color:var(--accent-text)}
+.guest-login-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:transparent;color:var(--ink-3);font-size:12px;font-weight:900;border-radius:99px;border:2px solid var(--border);white-space:nowrap;transition:border-color .15s,color .15s}
 
-  function applyAccent(name) {
-    const v = ACCENT_VARS[name] || ACCENT_VARS.blue;
-    const root = document.documentElement.style;
-    root.setProperty('--accent', v.c);
-    root.setProperty('--accent-shadow', v.shadow);
-    root.setProperty('--accent-light', v.light);
-    root.setProperty('--accent-border', v.border);
-    root.setProperty('--accent-text', v.text);
-  }
+/* ── LESSON GRID ── */
+.lesson-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+@media(max-width:600px){.lesson-grid{grid-template-columns:1fr}}
+@media(min-width:601px) and (max-width:860px){.lesson-grid{grid-template-columns:1fr 1fr}}
 
-  /* ── Auth-aware welcome strip (was duplicated 3x, now lives once) ── */
-  async function bootAuthStrip(eyebrowText) {
-    const stripWrap = document.getElementById('strip-wrap');
-    const secWrap = document.getElementById('section-label-wrap');
+/* ── LESSON CARD ── */
+.lcard{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);display:flex;flex-direction:column;overflow:hidden;position:relative;transition:transform .15s,box-shadow .15s;text-decoration:none;color:inherit}
+.lcard:hover{transform:translateY(-3px);box-shadow:0 8px 24px var(--accent-light)}
+.lcard::before{content:'';display:block;height:7px;background:linear-gradient(90deg,var(--accent) 0%,var(--accent) 100%);flex-shrink:0}
+.lcard.coming-soon{opacity:.6;filter:grayscale(.4)}
+.lcard.coming-soon::before{background:var(--border-heavy)}
+.lcard.is-done{border-color:var(--accent-border)}
+.lcard.is-done .lcard-icon{opacity:.45}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
-    const waitReady = () => new Promise(res => {
-      const check = () => window.efcdReady ? res() : setTimeout(check, 50);
-      check();
-    });
+/* ── COMPLETED STAMP — a Cool-Dude-branded "passport stamp" over finished lessons ── */
+@keyframes stampPop{0%{transform:rotate(-16deg) scale(.5);opacity:0}60%{transform:rotate(-11deg) scale(1.08);opacity:1}100%{transform:rotate(-14deg) scale(1)}}
+.completed-stamp{
+  position:absolute; top:12px; right:12px; z-index:3;
+  width:74px; height:74px; border-radius:50%;
+  background:rgba(255,255,255,.94);
+  border:3px dashed var(--accent);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  transform:rotate(-14deg);
+  animation:stampPop .35s cubic-bezier(.34,1.56,.64,1) both;
+  box-shadow:0 3px 10px rgba(0,0,0,.18);
+  pointer-events:none;
+}
+.completed-stamp span{font-size:22px;line-height:1;margin-bottom:1px}
+.completed-stamp{font-size:9px;font-weight:900;letter-spacing:.3px;color:var(--accent-text);text-transform:uppercase;text-align:center;line-height:1.15}
 
-    try {
-      await waitReady();
-      await window.efcdReady;
-      await window.EFCD_Auth.initAuth();
-      const user = window.EFCD_Auth.getCurrentUser();
+.lcard-body{padding:20px;flex:1;display:flex;flex-direction:column;gap:10px}
+.lcard-icon{font-size:42px;line-height:1;animation:float 3s ease-in-out infinite}
+.lcard:nth-child(odd) .lcard-icon{animation-delay:.3s}
+.lcard:nth-child(even) .lcard-icon{animation-delay:.7s}
 
-      if (!user) {
-        if (stripWrap) stripWrap.innerHTML = '';
-        if (secWrap) secWrap.innerHTML = `
-          <div class="guest-label">
-            <div class="guest-eyebrow">${eyebrowText}</div>
-            <a href="/signup/" class="guest-signup-pill">Create free account →</a>
-            <a href="/login/" class="guest-login-pill">Log in →</a>
-          </div>`;
-        return new Set();
-      }
+.lcard-title{font-size:17px;font-weight:900;color:var(--ink-bold);letter-spacing:-.3px;line-height:1.25}
+.lcard-badge{display:inline-flex;align-items:center;background:var(--accent-light);color:var(--accent-text);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;padding:4px 10px;border-radius:99px;border:2px solid var(--accent-border);width:fit-content}
+.lcard-badge.new{background:rgba(255,200,0,.18);color:#92600A;border-color:rgba(255,200,0,.5)}
+.lcard-badge.soon{background:var(--bg);color:var(--ink-3);border-color:var(--border)}
+.lcard-badge.video{background:rgba(206,130,255,.12);color:#A559D9;border-color:rgba(206,130,255,.3)}
+.lcard-badge.fact{background:rgba(43,222,204,.12);color:#0f7a72;border-color:rgba(43,222,204,.3)}
+.lcard-badge.world{background:rgba(88,204,2,.1);color:#3a7a00;border-color:rgba(88,204,2,.25)}
+.lcard-badge.pop{background:rgba(255,110,180,.12);color:#a0196a;border-color:rgba(255,110,180,.3)}
+.lcard-desc{font-size:14px;font-weight:700;color:var(--ink);line-height:1.55;flex:1}
+.lcard-meta{display:flex;align-items:center;gap:14px;padding-top:12px;border-top:2px dashed var(--border);font-size:12px;font-weight:800;color:var(--ink-3)}
+.lcard-go{margin-top:12px;display:flex;align-items:center;justify-content:space-between;padding:11px 16px;background:var(--accent);color:var(--white);font-size:14px;font-weight:900;border-radius:var(--rsm);border:2px solid var(--accent-shadow);border-bottom:4px solid var(--accent-shadow);transition:transform .1s,border-bottom-width .1s;letter-spacing:-.2px}
+.lcard:hover .lcard-go{border-bottom-width:2px;transform:translateY(2px)}
+.lcard-go-arrow{font-size:18px;font-weight:900}
+.lcard:focus-visible, .guest-signup-pill:focus-visible, .ws-link:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 
-      const stats = window.EFCD_Auth.getUserStats();
-      const rawName = user.name || user.email?.split('@')[0] || 'Dude';
-      const firstName = rawName.split(' ')[0].replace(/^\w/, c => c.toUpperCase());
-      const streak = stats?.streak || 0;
+/* ── BACK LINK ── */
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;padding:8px 14px;border-radius:var(--rsm);border:2px solid var(--border);background:var(--white);transition:color .15s,border-color .15s;width:fit-content}
+.back-link:hover{color:var(--ink-bold);border-color:var(--border-heavy)}
 
-      let completedSlugs = new Set();
-      try {
-        const { data: lessons } = await window.efcdSupabaseClient
-          .from('lessons').select('lesson_link').eq('user_id', user.id);
-        if (lessons) completedSlugs = new Set(lessons.map(l => l.lesson_link));
-      } catch (_) {}
-
-      const badgeCount = completedSlugs.size;
-      const badgeLabel = badgeCount > 0 ? `<span class="ws-badges">🏅 ${badgeCount} badge${badgeCount !== 1 ? 's' : ''}</span>` : '';
-      const streakLabel = streak > 0 ? `<span class="ws-streak">🔥 ${streak} day streak</span>` : '';
-
-      if (stripWrap) stripWrap.innerHTML = `
-        <div class="welcome-strip">
-          <div class="ws-left">
-            <span class="ws-name">👋 Welcome back, ${firstName}!</span>
-            ${badgeLabel}
-            ${streakLabel}
-          </div>
-          <a href="/my-lessons/" class="ws-link">📚 My Lessons →</a>
-        </div>`;
-      if (secWrap) secWrap.innerHTML = `<div class="sec-label">${eyebrowText}</div>`;
-
-      if (window.EFCD_UI) window.EFCD_UI.updateHeaderUI();
-      return completedSlugs;
-
-    } catch (e) {
-      if (stripWrap) stripWrap.innerHTML = '';
-      return new Set();
-    }
-  }
-
-  function renderProgressBar(total, doneCount) {
-    const wrap = document.getElementById('progress-wrap');
-    if (!wrap || total === 0) return;
-    if (doneCount === 0) { wrap.innerHTML = ''; return; }
-    const pct = Math.round((doneCount / total) * 100);
-    wrap.innerHTML = `
-      <div class="level-progress">
-        <div class="level-progress-track"><div class="level-progress-fill" style="width:${pct}%"></div></div>
-        <div class="level-progress-label">${doneCount}/${total} lessons completed</div>
-      </div>`;
-  }
-
-  async function boot() {
-    const cfg = window.LEVEL_CONFIG || {};
-    const lessons = window.LESSONS || [];
-    applyAccent(cfg.accent);
-
-    // Render immediately with no completion data so the page isn't blocked on auth
-    renderGrid(lessons, new Set());
-
-    const doneSet = await bootAuthStrip(cfg.eyebrow || '');
-
-    try {
-      // doneSet from bootAuthStrip is SITE-WIDE (every track, every level) —
-      // it must be intersected with this level's own lesson slugs before
-      // it's used for a per-level "X/Y completed" count.
-      const levelSlugs = new Set(lessons.filter(l => l.slug).map(l => l.slug));
-      const doneInLevel = new Set([...doneSet].filter(slug => levelSlugs.has(slug)));
-
-      if (doneInLevel.size) {
-        renderGrid(lessons, doneInLevel);
-      }
-      renderProgressBar(levelSlugs.size, doneInLevel.size);
-    } catch (e) {
-      // Fail loudly instead of silently — a bad lesson entry or auth hiccup
-      // should never quietly blank the progress bar with no trace.
-      console.error('[level-page] completion/progress render failed:', e);
-    }
-  }
-
-  window.LevelPage = { boot, renderGrid, applyAccent };
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
-  } else {
-    boot();
-  }
-})();
+/* ── FOOTER ── */
+.footer{padding:32px 20px;text-align:center}
+.footer-text{font-size:14px;font-weight:800;color:var(--ink-3);margin-bottom:10px}
+.footer a{color:var(--ink-3);font-size:13px;font-weight:800;margin:0 12px;text-decoration:underline}
