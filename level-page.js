@@ -47,6 +47,15 @@
   // trailing query string, different casing) — exact-string .has() lookups
   // fail silently on any of these, with no console error, which is why this
   // needs to be forgiving rather than assuming one exact format.
+  // Joins names naturally for the greeting: 'Tony!', 'Tony and Andreas!',
+  // 'Tony, Andreas and Klaus!'
+  function joinNames(names) {
+    if (names.length === 0) return '';
+    if (names.length === 1) return names[0];
+    if (names.length === 2) return names[0] + ' and ' + names[1];
+    return names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1];
+  }
+
   function normalizeSlug(s) {
     if (!s) return '';
     return String(s)
@@ -201,6 +210,19 @@
       const firstName = rawName.split(' ')[0].replace(/^\w/, c => c.toUpperCase());
       const streak = stats?.streak || 0;
 
+      // Live class session? Pull who's present from the roll call on /live/
+      // (efcd_present_names in localStorage) and greet them by name too,
+      // instead of just the teacher who happens to be logged in.
+      let greetingNames = [firstName];
+      if (localStorage.getItem('efcd_class_id')) {
+        try {
+          const present = JSON.parse(localStorage.getItem('efcd_present_names') || '[]')
+            .filter(n => n && n.trim().toLowerCase() !== 'the class');
+          greetingNames = greetingNames.concat(present);
+        } catch (_) {}
+      }
+      const greetingText = joinNames(greetingNames);
+
       let completedSlugs = new Set();
       try {
         const { data: lessons } = await window.efcdSupabaseClient
@@ -215,7 +237,7 @@
       if (stripWrap) stripWrap.innerHTML = `
         <div class="welcome-strip">
           <div class="ws-left">
-            <span class="ws-name">👋 Welcome back, ${firstName}!</span>
+            <span class="ws-name">👋 Welcome back, ${greetingText}!</span>
             ${badgeLabel}
             ${streakLabel}
           </div>
