@@ -863,41 +863,94 @@ function buildReading(){
 }
 function startReading(){ rdRender(); }
 function rdRender(){
-  const i=S.rdIdx; if(i>=READING_DATA.length) return;
-  const d=READING_DATA[i];
+  const i = S.rdIdx; 
+  if(i >= READING_DATA.length) return;
+  const d = READING_DATA[i];
+  
   $('rd-progress').textContent = `Part ${i+1} of ${READING_DATA.length}`;
-  const opts=d.opts.map((t,oi)=>({text:t,isCorrect:oi===d.correct}));
-  opts.sort(()=>Math.random()-.5);
+  
+  const opts = d.opts.map((t, oi) => ({ text: t, isCorrect: oi === d.correct }));
+  opts.sort(() => Math.random() - .5);
+  
   $('rd-area').innerHTML = `
     <div class="rd-passage" style="animation:up .3s ease both">${d.passage}</div>
-    <p class="rd-q">🧠 ${d.question}</p>
-    <div class="rd-opts">${opts.map(o=>`<button class="rd-opt" data-correct="${o.isCorrect}" onclick="answerRD(this,${o.isCorrect},'${escQ(d.explain)}')">${o.text}</button>`).join('')}</div>
-    <div class="rd-explain" id="rd-explain"></div>
-    <button class="rd-next" id="rd-next" onclick="nextRD()">${i+1<READING_DATA.length?'Continue reading →':'Finish the reading →'}</button>`;
+    
+    <button class="rd-next show" id="rd-show-q" onclick="showRDQuestion()" style="margin-bottom:12px;">
+      I've read this — Show Question 🤔
+    </button>
+
+    <div id="rd-q-wrap" style="display:none; animation:revealUp .3s ease both;">
+      <p class="rd-q">🧠 ${d.question}</p>
+      <div class="rd-opts">
+        ${opts.map(o => `<button class="rd-opt" data-correct="${o.isCorrect}" onclick="answerRD(this,${o.isCorrect},'${escQ(d.explain)}')">${o.text}</button>`).join('')}
+      </div>
+      <div class="rd-explain" id="rd-explain"></div>
+      <button class="rd-next" id="rd-next" onclick="nextRD()">
+        ${i + 1 < READING_DATA.length ? 'Continue reading →' : 'Finish the reading →'}
+      </button>
+    </div>`;
 }
+
+function showRDQuestion(){
+  const showBtn = $('rd-show-q');
+  const qWrap = $('rd-q-wrap');
+  
+  if (showBtn) showBtn.style.display = 'none';
+  if (qWrap) {
+    qWrap.style.display = 'block';
+    qWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
 function answerRD(btn, correct, explain){
-  document.querySelectorAll('.rd-opt').forEach(b=>b.disabled=true);
+  document.querySelectorAll('.rd-opt').forEach(b => b.disabled = true);
   S.totalAnswered++;
+  
   if(correct){
-    S.totalRight++; S.rdRight++; S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo);
-    btn.classList.add('correct'); addXP(12,btn);
+    S.totalRight++; 
+    S.rdRight++; 
+    S.combo++; 
+    S.bestCombo = Math.max(S.bestCombo, S.combo);
+    btn.classList.add('correct'); 
+    addXP(12, btn);
     if(fx()){ fx().correct(btn); fx().combo(S.combo); }
   } else {
-    document.querySelectorAll('.rd-opt').forEach(b=>{ if(b.dataset.correct==='true') b.classList.add('reveal'); });
-    btn.classList.add('wrong'); S.combo=0; addXP(3);
+    document.querySelectorAll('.rd-opt').forEach(b => { 
+      if(b.dataset.correct === 'true') b.classList.add('reveal'); 
+    });
+    btn.classList.add('wrong'); 
+    S.combo = 0; 
+    addXP(3);
     if(fx()) fx().wrong(btn);
   }
-  const ex=$('rd-explain'); if(ex){ ex.textContent=explain.replace(/&quot;/g,'"'); ex.classList.add('show'); }
+  
+  const ex = $('rd-explain'); 
+  if(ex){ 
+    ex.textContent = explain.replace(/&quot;/g, '"'); 
+    ex.classList.add('show'); 
+  }
+  
   $('rd-next').classList.add('show');
 }
+
 function nextRD(){
   S.rdIdx++;
-  if(S.rdIdx>=READING_DATA.length){
-    burst(); showToast('📖',`Reading complete — ${S.rdRight}/${READING_DATA.length} correct!`);
-    S.doneSecs=Math.max(S.doneSecs,2); updateProg();
-    $('rd-area').innerHTML='';
-    $('rd-done-wrap').innerHTML=`<div class="sec-done"><span class="sec-done-icon">☕</span><div class="sec-done-title">${S.rdRight}/${READING_DATA.length} correct!</div><div class="sec-done-sub">You followed the whole meeting. Now let\u2019s match up the key terms.</div><button class="btn-continue" onclick="revealSec(2, startMatch)" style="background:var(--teal);border-color:var(--teal-dark)">🔗 Vocab Match →</button></div>`;
-  } else { rdRender(); }
+  if(S.rdIdx >= READING_DATA.length){
+    burst(); 
+    showToast('📖', `Reading complete — ${S.rdRight}/${READING_DATA.length} correct!`);
+    S.doneSecs = Math.max(S.doneSecs, 2); 
+    updateProg();
+    $('rd-area').innerHTML = '';
+    $('rd-done-wrap').innerHTML = `
+      <div class="sec-done">
+        <span class="sec-done-icon">☕</span>
+        <div class="sec-done-title">${S.rdRight}/${READING_DATA.length} correct!</div>
+        <div class="sec-done-sub">You followed the whole meeting. Now let's match up the key terms.</div>
+        <button class="btn-continue" onclick="revealSec(2, startMatch)" style="background:var(--teal);border-color:var(--teal-dark)">🔗 Vocab Match →</button>
+      </div>`;
+  } else { 
+    rdRender(); 
+  }
 }
 
 /* ── SEC 2: VOCAB MATCH ── */
