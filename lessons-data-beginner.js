@@ -4,7 +4,8 @@ window.LEVEL_CONFIG = {
 };
 
 window.LESSONS = [
-  { slug:'ichigo-ichie-a2', icon:'🧘‍♀️', badge:'⭐ Culture', badgeType:'new', title:'Ichigo Ichie - The Art of Now', desc:'What is it like to live in the moment?', mins:8, date:'2026-08-19', tags:['culture'] },
+  { slug:'robotracedayA2', icon:'🤖🏃💨', badge:'⭐ Tech', badgeType:'new', title:'Robots Race in Beijing - The Art of Now', desc:'Robots ran a race in China. Some robots were fast. Some robots fell down! ', mins:7, date:'2026-08-26', tags:['tech'] },
+  { slug:'ichigo-ichie-a2', icon:'🧘‍♀️', badge:'Culture', badgeType:null, title:'Ichigo Ichie - The Art of Now', desc:'What is it like to live in the moment?', mins:8, date:'2026-08-19', tags:['culture'] },
   { slug:'travel-blogger-life-beginner', icon:'🧳✈️⛱️', badge:'⭐ Travel/Business', badgeType:'new', title:'Meet The Travel Bloggers', desc:'Can travel blogging really be a job? What is it really like to be a travel blogger?', mins:7, date:'2026-08-12', tags:['culture','business'] },
   { slug:'the-odyssey-2026-beginner', icon:'🏛️', badge:'Culture', badgeType:null, title:"Nolan's Odyssey For Beginners", desc:"This Summer's Big Movie Blockbuster 2026 is here - The Odyssey! Find out more about the movie with this fun lesson.", mins:10, date:'2026-08-05', tags:['culture'] },
   { slug:'gut-genug-beginner', icon:'🎵', badge:'Music/Social Media', badgeType:null, title:'DU BIST GUT GENUG', desc:'You Are Good Enough! A German song goes viral.', mins:5, date:'2026-06-24', tags:['culture'] },
