@@ -956,6 +956,28 @@
       ],
     },
 
+         'the-year-end-meeting-reporting-intermediate': {
+      title:   'The Year-End Meeting',
+      level:   'Tax & Financial Reporting English (B1/B2)',
+      grammar: 'Passive Voice in financial reporting English; Zero Conditional for general truths about financial statements',
+      vocab: [
+        { word:'income statement',     definition:'A report that shows a company\'s revenue, costs, and profit or loss over a set period of time.' },
+        { word:'balance sheet',        definition:'A snapshot of what a company owns and owes on one specific date.' },
+        { word:'revenue',              definition:'The total money a business earns from sales, before any costs are taken away.' },
+        { word:'gross profit',         definition:'The profit left after subtracting the direct cost of producing goods or services from revenue.' },
+        { word:'working capital',      definition:'The money a business has available for its day-to-day running, after short-term debts are covered.' },
+        { word:'cash flow statement',  definition:'A report showing the cash that actually moved in and out of a business during a period.' },
+        { word:'liquidity',            definition:'How easily a business can turn its assets into cash to pay short-term bills.' },
+        { word:'forecast',             definition:'An estimate of a company\'s future income and costs, based on current trends.' },
+        { word:'profit margin',        definition:'The percentage of revenue that is left over as profit after all costs.' },
+        { word:'retained earnings',    definition:'Profit from previous years that a business keeps instead of paying out to its owners.' },
+        { word:'shareholder equity',   definition:'The value left for the owners after all liabilities are subtracted from all assets.' },
+        { word:'net income',           definition:'The final profit figure after every expense, tax, and cost has been subtracted from revenue.' },
+        { word:'cost of goods sold',   definition:'The direct costs of producing the goods or services a business sells. Often shortened to COGS.' },
+        { word:'operating activities', definition:'The cash flows that come from a company\'s normal day-to-day business, like sales and paying suppliers.' },
+      ],
+    },
+
 
   };
 
