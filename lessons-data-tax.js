@@ -1,5 +1,6 @@
 window.LEVEL_CONFIG = { eyebrow: '💰 Tax English', accent: 'gold' };
 window.LESSONS = [
+  { slug:'year-end-meeting', icon:'🧾', badge:'⭐ Tax/Bookkeeping', badgeType:'new', title:'The Audit Files (Role Play)', desc:'Your client Anja Voss just opened a letter from the tax office, and now she needs your help!!', mins:8, date:'2026-08-18' },
   { slug:'audit-files', icon:'🧾', badge:'⭐ Tax/Bookkeeping', badgeType:'new', title:'The Audit Files (Role Play)', desc:'Your client Anja Voss just opened a letter from the tax office, and now she needs your help!!', mins:8, date:'2026-08-18' },
   { slug:'ledger-files', icon:'📒', badge:'⭐ Tax/Bookkeeping', badgeType:'new', title:'The Ledger Files', desc:'Can you give advice to some clients using your expert tax and bookkeeper vocabulary.', mins:7, date:'2026-08-17' },
   { slug:'benefit-test-files', icon:'⚖️', badge:'⭐ Intra-Group Services', badgeType:'new', title:'The Benefit Test Files', desc:'Real chargeable services — or disguised dividends? Which services pass the benefit test and which are shareholder activity?', mins:9, date:'2026-08-13' },
