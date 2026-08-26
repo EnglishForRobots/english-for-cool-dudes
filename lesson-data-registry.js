@@ -4700,6 +4700,87 @@ const LESSON_DATA_REGISTRY = {
 
   },
 
+     'the-year-end-meeting-reporting-intermediate': {
+
+    id:    'the-year-end-meeting-reporting-intermediate',
+    title: 'The Year-End Meeting',
+    level: 'Tax & Financial Reporting English (B1/B2)',
+    track: 'tax',
+    emoji: '📊',
+    badge: 'Statement Sleuth',
+
+    // ── VOCAB ────────────────────────────────────────────────
+    vocab: [
+      { word:'income statement',    definition:'A report that shows a company\'s revenue, costs, and profit or loss over a set period of time.', example:'Sabine prepares Frau Keller\'s annual ___ ___ every January.', distractors:['balance sheet','cash flow statement','forecast'] },
+      { word:'balance sheet',       definition:'A snapshot of what a company owns and owes on one specific date.', example:'The ___ ___ shows exactly what the café owns and owes on 31 December.', distractors:['income statement','profit margin','working capital'] },
+      { word:'revenue',             definition:'The total money a business earns from sales, before any costs are taken away.', example:'Frau Keller\'s ___ is up 12% this year.', distractors:['net income','liquidity','retained earnings'] },
+      { word:'gross profit',        definition:'The profit left after subtracting the direct cost of producing goods or services from revenue.', example:'Even though sales rose, her ___ ___ barely grew because ingredient costs rose too.', distractors:['shareholder equity','working capital','forecast'] },
+      { word:'working capital',     definition:'The money a business has available for its day-to-day running, after short-term debts are covered.', example:'Unpaid supplier invoices mean her ___ ___ is tighter than last year.', distractors:['gross profit','cash flow statement','profit margin'] },
+      { word:'cash flow statement', definition:'A report showing the cash that actually moved in and out of a business during a period.', example:'Sabine points to the ___ ___ ___ to explain where the money actually went.', distractors:['income statement','balance sheet','net income'] },
+      { word:'liquidity',           definition:'How easily a business can turn its assets into cash to pay short-term bills.', example:'New equipment and unpaid invoices both affect her ___.', distractors:['revenue','retained earnings','forecast'] },
+      { word:'forecast',            definition:'An estimate of a company\'s future income and costs, based on current trends.', example:'Sabine will prepare a ___ for next year, based on this year\'s trends.', distractors:['balance sheet','shareholder equity','working capital'] },
+      { word:'profit margin',       definition:'The percentage of revenue that is left over as profit after all costs.', example:'Her ___ ___ shrank slightly, even with more customers.', distractors:['gross profit','liquidity','cash flow statement'] },
+      { word:'retained earnings',   definition:'Profit from previous years that a business keeps instead of paying out to its owners.', example:'They discuss reinvesting her ___ ___ into a new espresso machine.', distractors:['net income','revenue','forecast'] },
+      { word:'shareholder equity',  definition:'The value left for the owners after all liabilities are subtracted from all assets.', example:'A stronger balance sheet usually means higher ___ ___.', distractors:['working capital','cost of goods sold','liquidity'] },
+      { word:'net income',          definition:'The final profit figure after every expense, tax, and cost has been subtracted from revenue.', example:'After every cost is subtracted, the ___ ___ figure appears at the bottom of the statement.', distractors:['gross profit','revenue','forecast'] },
+    ],
+
+    // ── GRAMMAR 1: Passive Voice ──────────────────────────────
+    grammar: {
+      topic: 'Passive Voice in financial reporting English',
+      rule:  'Present passive: is/are + past participle. Past passive: was/were + past participle. In financial reporting, passive voice focuses on what the numbers show, not who calculated them. "Profit is shown." "The invoice was paid late."',
+      exercises: [
+        { sentence:'Gross profit ___ by subtracting the cost of goods sold from revenue.', answer:'is calculated', wrong:['calculates','was calculate','has calculate'], explain:'Present passive: is + past participle. A standard, ongoing rule of how the figure is worked out.' },
+        { sentence:'Several supplier invoices ___ unpaid before the year-end review.', answer:'were left', wrong:['left','are leaving','has left'], explain:'Past passive: were + past participle. A completed situation found during the review.' },
+        { sentence:'A forecast ___ every January, based on the previous year\'s trends.', answer:'is prepared', wrong:['prepares','was preparing','has prepare'], explain:'Present passive for a standard yearly step: is + past participle.' },
+        { sentence:'The new espresso machine ___ using this year\'s retained earnings.', answer:'could be financed', wrong:['could finance','financing','finance'], explain:'Modal passive: could + be + past participle. The machine receives the possible action.' },
+      ],
+    },
+
+    // ── GRAMMAR 2: Zero Conditional ───────────────────────────
+    grammar2: {
+      topic: 'Zero Conditional — general truths about financial statements',
+      rule:  'Zero conditional: If + present simple, present simple. Used for facts and rules that are always true about how financial statements work. "If costs rise faster than revenue, profit margin shrinks."',
+      exercises: [
+        { sentence:'If a business ___ more than it spends, it ___ a profit.', answer:'earns / makes', wrong:['earned / made','will earn / will make','earns / made'], explain:'Zero conditional: present simple in both clauses for a rule that is always true.' },
+        { sentence:'If invoices ___ unpaid, working capital ___ tighter.', answer:'stay / gets', wrong:['stayed / got','will stay / will get','stay / got'], explain:'Zero conditional describing a general cause and effect in cash management.' },
+        { sentence:'If costs ___ faster than revenue, the profit margin ___.', answer:'grow / shrinks', wrong:['grew / shrank','will grow / will shrink','grow / shrank'], explain:'Zero conditional: a repeatable financial truth, not a one-off prediction.' },
+        { sentence:'If a company ___ its retained earnings, shareholder equity ___.', answer:'keeps / increases', wrong:['kept / increased','will keep / will increase','keeps / increased'], explain:'Zero conditional for a definitional truth about how equity builds up over time.' },
+      ],
+    },
+
+    // ── SENTENCE BUILDER ────────────────────────────────────
+    sentences: [
+      { words:['profit', 'the', 'thing', 'and', 'same', 'cash', 'flow', 'not', 'are'], answer:'profit and cash flow are not the same thing', hint:'☕ What confuses Frau Keller most?' },
+      { words:['tighter', 'working', 'is', 'capital', 'her'], answer:'her working capital is tighter', hint:'💶 Why is her cash situation getting harder?' },
+      { words:['a', 'is', 'estimate', 'forecast', 'future', 'of', 'costs', 'an'], answer:'a forecast is an estimate of future costs', hint:'📈 What is Sabine preparing for next year?' },
+      { words:['unpaid', 'affect', 'invoices', 'liquidity'], answer:'unpaid invoices affect liquidity', hint:'🧾 What is one reason the bank account is empty?' },
+    ],
+
+    // ── WORD BUILDER ────────────────────────────────────────
+    word_builder: [
+      { word:'revenue',    definition:'Money earned from sales, before costs' },
+      { word:'liquidity',  definition:'How easily assets turn into cash' },
+      { word:'forecast',   definition:'An estimate of future income and costs' },
+      { word:'balance',    definition:'A snapshot of what a company owns and owes' },
+      { word:'retained',   definition:'Kept in the business, not paid out' },
+      { word:'margin',     definition:'The percentage of revenue left as profit' },
+    ],
+
+    // ── TRUE / FALSE ─────────────────────────────────────────
+    true_false: [
+      { statement:'The income statement shows what a company owns and owes on one date.',       correct:false, reveal:'❌ FALSE! That\'s the balance sheet\'s job — the income statement covers a whole period, not a single date.' },
+      { statement:'Frau Keller\'s revenue grew 12% this year.',                                  correct:true,  reveal:'✅ TRUE! But her gross profit barely grew, because her coffee and milk costs rose too.' },
+      { statement:'A profitable business always has plenty of cash sitting in the bank.',        correct:false, reveal:'❌ FALSE! Profit and cash aren\'t the same — unpaid invoices and new equipment can leave a profitable business short on cash.' },
+      { statement:'Working capital measures whether a business can cover its short-term debts.',  correct:true,  reveal:'✅ TRUE! That\'s exactly what working capital shows — day-to-day financial breathing room.' },
+      { statement:'Gross profit is calculated after subtracting every business expense, including rent.', correct:false, reveal:'❌ FALSE! Gross profit only subtracts the direct cost of goods sold — not rent, salaries, or other overheads.' },
+      { statement:'Liquidity describes how easily assets can be turned into cash.',                correct:true,  reveal:'✅ TRUE! That\'s the whole idea of liquidity — speed and ease of converting assets into usable cash.' },
+      { statement:'Sabine suggests reinvesting retained earnings into a new espresso machine.',    correct:true,  reveal:'✅ TRUE! Instead of paying it all out, she suggests putting last year\'s kept profit back into the business.' },
+      { statement:'A forecast is a record of last year\'s completed transactions.',                correct:false, reveal:'❌ FALSE! A forecast looks forward — it estimates future income and costs, not the past.' },
+    ],
+
+  },
+
 
  
    };
