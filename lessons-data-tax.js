@@ -1,6 +1,6 @@
 window.LEVEL_CONFIG = { eyebrow: '💰 Tax English', accent: 'gold' };
 window.LESSONS = [
-  { slug:'merger-files', icon:'📊', badge:'⭐ Accounting', badgeType:'new', title:'The Year-End Meeting', desc:'A café owner is confused: the numbers say "profit," but the bank account says otherwise. Can you provide the answers?!', mins:9, date:'2026-08-26' },
+  { slug:'curevac-countdown', icon:'📊', badge:'⭐ Accounting', badgeType:'new', title:'The Year-End Meeting', desc:'A café owner is confused: the numbers say "profit," but the bank account says otherwise. Can you provide the answers?!', mins:9, date:'2026-08-26' },
   { slug:'year-end-meeting', icon:'📊', badge:'⭐ Accounting', badgeType:'new', title:'The Year-End Meeting', desc:'A café owner is confused: the numbers say "profit," but the bank account says otherwise. Can you provide the answers?!', mins:9, date:'2026-08-26' },
   { slug:'audit-files', icon:'🧾', badge:'⭐ Tax/Bookkeeping', badgeType:'new', title:'The Audit Files (Role Play)', desc:'Your client Anja Voss just opened a letter from the tax office, and now she needs your help!!', mins:8, date:'2026-08-18' },
   { slug:'ledger-files', icon:'📒', badge:'Tax/Bookkeeping', badgeType:null, title:'The Ledger Files', desc:'Can you give advice to some clients using your expert tax and bookkeeper vocabulary.', mins:7, date:'2026-08-17' },
