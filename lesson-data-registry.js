@@ -4842,6 +4842,60 @@ const LESSON_DATA_REGISTRY = {
   ],
 },
 
+   
+
+'china-robot-games-beginner': {
+  id:    'china-robot-games-beginner',
+  title: "Robot Race Day - China's Robot Games",
+  level: 'Beginner',
+  track: 'beginner',
+  emoji: '🤖',
+  badge: 'Robot Race Day',
+
+  vocab: [
+    { word:'robot',     definition:'A machine that can move and do things by itself.',        example:'A ___ is a machine that can move and do things.',        distractors:['job','future','crash'] },
+    { word:'race',      definition:'When people (or robots!) run fast to see who is fastest.', example:'They had a ___ in Beijing.',                              distractors:['job','carry','clever'] },
+    { word:'fall down',  definition:'To go down to the ground suddenly, not on purpose.',       example:'Some robots ___ ___ during the race.',                    distractors:['crash','help','carry'] },
+    { word:'crash',     definition:'To hit something hard, by accident.',                       example:'One robot ran fast and started to ___ into a cushion.',   distractors:['fall down','carry','help'] },
+    { word:'carry',     definition:'To hold something and take it somewhere.',                  example:'People ___ the robots away.',                             distractors:['crash','help','job'] },
+    { word:'job',       definition:'Work that a person (or a robot!) does.',                    example:'Robots can do many ___s in factories.',                   distractors:['race','future','clever'] },
+    { word:'factory',   definition:'A big building where people make things.',                  example:'Robots work in a big ___.',                               distractors:['race','job','future'] },
+    { word:'future',    definition:'The time that comes after now.',                            example:'Robots are important for the ___.',                       distractors:['job','factory','clever'] },
+    { word:'clever',    definition:'Able to learn and think well.',                             example:'Robots are ___, but not perfect.',                        distractors:['future','job','help'] },
+    { word:'help',      definition:'To do something useful for someone.',                       example:'People stay near robots to ___ them.',                    distractors:['carry','crash','race'] },
+  ],
+
+  true_false: [
+    { statement:'The robot race happened in Tokyo, Japan.',                     correct:false, reveal:'❌ FALSE. It happened in Beijing, China.' },
+    { statement:'Some robots crash into soft cushions.',                        correct:true,  reveal:'✅ TRUE! Some robots run too fast and cannot stop.' },
+    { statement:'China Media Group organised the robot games.',                 correct:true,  reveal:'✅ TRUE! They wanted to show new robots to the world.' },
+    { statement:'Robots only run races — they don\'t do any other jobs.',       correct:false, reveal:'❌ FALSE. Robots also work in factories.' },
+    { statement:'Robots sometimes need people to help them.',                   correct:true,  reveal:'✅ TRUE! Robots are clever, but not perfect yet.' },
+    { statement:'Robots are perfect and never make mistakes.',                  correct:false, reveal:'❌ FALSE. Robots are clever, but they are not perfect.' },
+  ],
+
+  sentences: [
+    { words:['Robots','had','a','race','in','Beijing.'],           answer:'Robots had a race in Beijing.',           hint:'🏃 About the race...' },
+    { words:['Robots','also','work','in','big','factories.'],      answer:'Robots also work in big factories.',      hint:'🏭 About the jobs...' },
+    { words:['People','still','need','to','help','robots.'],       answer:'People still need to help robots.',       hint:'🔮 About the future...' },
+  ],
+
+  word_builder: [
+    { word:'robot',   definition:'A machine that can move and do things' },
+    { word:'race',    definition:'When people or robots run fast to see who is fastest' },
+    { word:'factory', definition:'A big building where people make things' },
+    { word:'future',  definition:'The time that comes after now' },
+    { word:'help',    definition:'To do something useful for someone' },
+  ],
+
+  quiz_boss: [
+    { q:'The robot ___ (run) very fast every race.',   opts:['run','runs','running'],  correct:1 },
+    { q:'Yesterday, one robot ___ (fall) down.',       opts:['fall','falls','fell'],   correct:2 },
+    { q:'This robot is ___ than that one. (fast)',     opts:['fast','faster','fastest'], correct:1 },
+    { q:'Robots ___ working in factories now.',        opts:['is','are','am'],         correct:1 },
+    { q:'In the future, robots ___ do more jobs.',     opts:['will','did','was'],      correct:0 },
+  ],
+},
 
  
    };
