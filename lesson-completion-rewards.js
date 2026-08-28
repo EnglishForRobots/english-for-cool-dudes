@@ -995,6 +995,25 @@
   ],
 },
 
+
+'china-robot-games-beginner': {
+  title:   "Robot Race Day - China's Robot Games",
+  level:   'Beginner',
+  grammar: 'Present simple & past simple (fell, ran); comparatives (faster); present continuous (are working); will for the future',
+  vocab: [
+    { word:'robot',     definition:'A machine that can move and do things by itself.' },
+    { word:'race',      definition:'When people (or robots!) run fast to see who is fastest.' },
+    { word:'fall down', definition:'To go down to the ground suddenly, not on purpose.' },
+    { word:'crash',     definition:'To hit something hard, by accident.' },
+    { word:'carry',     definition:'To hold something and take it somewhere.' },
+    { word:'job',       definition:'Work that a person (or a robot!) does.' },
+    { word:'factory',   definition:'A big building where people make things.' },
+    { word:'future',    definition:'The time that comes after now.' },
+    { word:'clever',    definition:'Able to learn and think well.' },
+    { word:'help',      definition:'To do something useful for someone.' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
