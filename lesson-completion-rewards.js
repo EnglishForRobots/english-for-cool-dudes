@@ -978,6 +978,22 @@
       ],
     },
 
+'weekly-drop-issue-018': {
+  title:   "The Weekly Drop — Issue 018 — Volkswagen's Reckoning: Angry Workers, Radical Cuts",
+  level:   'All Levels',
+  grammar: 'Passive voice (are being cut); Reported speech backshift (had been damaged); Relative pronouns (who); Despite for contrast',
+  vocab: [
+    { word:'restructuring',   definition:'The process of reorganising a company, often to cut costs or become more efficient.' },
+    { word:'crunch talks',    definition:'Urgent, high-pressure negotiations that need to reach a decision quickly.' },
+    { word:'workforce',       definition:'All the people who work for a company.' },
+    { word:'tariff',          definition:'A tax added to goods when they cross a border into another country.' },
+    { word:'competitiveness', definition:'The ability of a company to compete successfully against its rivals.' },
+    { word:'overheads',       definition:'The regular costs of running a business, such as rent, energy, and admin.' },
+    { word:'works council',   definition:'A group elected by employees to represent their interests in talks with management.' },
+    { word:'redundancy',      definition:'The loss of a job because a company no longer needs that role.' },
+    { word:'viable',          definition:'Able to work successfully and keep going, especially financially.' },
+  ],
+},
 
   };
 
