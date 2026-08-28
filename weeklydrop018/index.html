@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+<link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+<title>🚗 Issue 018 — Volkswagen's Reckoning · The Weekly Drop</title>
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/session-mode.js"></script>
+<script src="/init-auth.js"></script>
+<style>
+:root{
+  --blue:#1CB0F6;--blue-shadow:#1899D6;--blue-light:rgba(28,176,246,.1);
+  --green:#58CC02;--green-shadow:#58A700;
+  --yellow:#FFC800;--yellow-shadow:#E5B400;
+  --punch:#FF4B4B;--punch-shadow:#EA2B2B;
+  --purple:#CE82FF;--purple-shadow:#A559D9;
+  --teal:#2BDECC;--teal-shadow:#1FBFAF;
+  /* Volkswagen crisis palette: boardroom navy + amber caution accent + alert-red accent */
+  --hero:#0A1E3F;--hero-mid:#123566;--hero-shadow:#050C1A;
+  --hero-gold:#FFB300;--hero-gold-shadow:#CC8A00;
+  --hero-teal:#FF6B6B;--hero-teal-shadow:#C23B3B;
+  --bg:#F7F9FA;--white:#FFFFFF;
+  --ink:#4B4B4B;--ink-bold:#111827;--ink-3:#AFAFAF;
+  --border:#E5E5E5;--border-heavy:#CECECE;
+  --r:24px;--rsm:16px;--rxs:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Nunito',system-ui,sans-serif;line-height:1.5;overflow-x:hidden;padding-bottom:20px;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+
+@keyframes up       {from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popin    {0%{opacity:0;transform:scale(.82)}70%{transform:scale(1.04)}100%{opacity:1;transform:scale(1)}}
+@keyframes nudge    {0%,100%{transform:translateX(0)}30%{transform:translateX(6px)}}
+@keyframes float    {0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes shake    {0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+@keyframes confetti {0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(130px) rotate(400deg)}}
+@keyframes slideLeft{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-32px)}}
+@keyframes heartbeat{0%,100%{transform:scale(1)}14%{transform:scale(1.15)}28%{transform:scale(1)}42%{transform:scale(1.1)}}
+@keyframes xpPop    {0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(1.5)}}
+@keyframes fadeIn   {from{opacity:0}to{opacity:1}}
+@keyframes ticker   {0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes shimmer2 {0%{left:-80%}100%{left:130%}}
+@keyframes glowHero {0%,100%{box-shadow:0 0 24px rgba(255,179,0,.4),0 0 48px rgba(255,107,107,.2),0 8px 32px rgba(0,0,0,.3)}50%{box-shadow:0 0 48px rgba(255,179,0,.75),0 0 90px rgba(255,107,107,.3),0 8px 32px rgba(0,0,0,.3)}}
+@keyframes badgepop {0%{opacity:0;transform:scale(.5) rotate(-10deg)}60%{transform:scale(1.15) rotate(3deg)}80%{transform:scale(.95) rotate(-1deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+@keyframes spin     {from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes pulseDot {0%,100%{opacity:.4;transform:scale(.9)}50%{opacity:1;transform:scale(1.15)}}
+@keyframes zap      {0%,100%{transform:scale(1)}50%{transform:scale(1.14) rotate(-3deg)}}
+@keyframes heartBreak{0%{transform:scale(1) rotate(0)}50%{transform:scale(1.3) rotate(-15deg)}100%{transform:scale(0) rotate(15deg);opacity:0}}
+@keyframes fallIn   {0%{opacity:0;transform:translateY(-24px) rotate(-6deg)}100%{opacity:1;transform:translateY(0) rotate(0)}}
+@keyframes revealUp {0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
+
+.u1{animation:up .44s ease both .04s}
+.u2{animation:up .44s ease both .14s}
+
+/* HEADER */
+.header{background:var(--hero-shadow);border-bottom:3px solid rgba(255,179,0,.3);padding:0 20px;height:60px;position:sticky;top:0;z-index:300;display:flex;align-items:center;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.header-inner{max-width:860px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.logo-link{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-box{width:38px;height:38px;background:var(--hero-gold);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid var(--hero-gold-shadow);box-shadow:0 3px 0 var(--hero-gold-shadow)}
+.site-name{font-size:15px;font-weight:900;color:var(--white);letter-spacing:-.3px}
+@media(max-width:420px){.site-name{display:none}}
+.header-xp{display:flex;align-items:center;gap:8px}
+.streak-mini{display:flex;align-items:center;gap:4px;font-size:14px;font-weight:900;color:var(--hero-gold)}
+.streak-mini span:first-child{animation:pulseDot 2s ease-in-out infinite;display:inline-block}
+.xp-pill{background:rgba(255,179,0,.16);border:2px solid rgba(255,179,0,.32);border-radius:99px;padding:5px 12px;font-size:14px;font-weight:900;color:var(--hero-gold);display:flex;align-items:center;gap:5px}
+.btn-dash{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);border-bottom:4px solid rgba(255,255,255,.15);border-radius:10px;font-size:18px;text-decoration:none;transition:all .15s;flex-shrink:0}
+.btn-dash.hidden{display:none}
+.btn-signout{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:rgba(255,75,75,.15);border:2px solid rgba(255,75,75,.3);border-bottom:4px solid rgba(255,75,75,.3);border-radius:10px;font-size:18px;cursor:pointer;font-family:inherit;transition:all .15s;flex-shrink:0}
+.btn-signout.hidden{display:none}
+
+.page{max-width:860px;margin:0 auto;padding:20px 14px 40px;display:flex;flex-direction:column;gap:14px}
+
+/* HERO */
+.hero-banner{background:linear-gradient(145deg,#050C1A 0%,#0A1E3F 55%,#123566 100%);border:2px solid #123566;border-bottom:6px solid #050C1A;border-radius:var(--r);padding:20px 18px 18px;position:relative;overflow:hidden}
+.hero-banner::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle at 15% 0%,rgba(255,179,0,.08),transparent 55%),radial-gradient(circle at 90% 100%,rgba(255,107,107,.14),transparent 55%);border-radius:var(--r);pointer-events:none}
+.banner-deco{position:absolute;bottom:-12px;right:6px;font-size:110px;opacity:.09;pointer-events:none;transform:rotate(-10deg);animation:float 5s ease-in-out infinite}
+.hero-issue{display:inline-flex;align-items:center;gap:6px;background:rgba(255,179,0,.16);border:2px solid rgba(255,179,0,.38);border-radius:8px;padding:4px 12px;margin-bottom:10px;font-size:11px;font-weight:900;color:var(--hero-gold);text-transform:uppercase;letter-spacing:1.5px;position:relative;z-index:1}
+.hero-title{font-size:clamp(21px,5.6vw,36px);font-weight:900;color:var(--white);letter-spacing:-1.4px;line-height:1.1;margin-bottom:14px;position:relative;z-index:1;text-shadow:0 2px 0 rgba(0,0,0,.5)}
+.hero-title .teal{color:var(--hero-teal);text-shadow:0 2px 0 rgba(70,15,15,.5)}
+.hero-title .gold{color:var(--hero-gold);text-shadow:0 2px 0 var(--hero-gold-shadow)}
+
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;position:relative;z-index:1}
+.hs-pill{background:rgba(255,179,0,.09);border:2px solid rgba(255,179,0,.22);border-radius:var(--rsm);padding:10px 6px;text-align:center}
+.hs-num{display:block;font-size:clamp(13px,3.3vw,18px);font-weight:900;color:var(--hero-gold);line-height:1.15}
+.hs-lbl{font-size:9px;font-weight:900;color:rgba(210,220,230,.7);text-transform:uppercase;letter-spacing:1px;margin-top:3px;display:block}
+
+.expert-quote{background:rgba(0,0,0,.3);border-left:4px solid var(--hero-teal);border-radius:0 var(--rsm) var(--rsm) 0;padding:10px 14px;margin-bottom:14px;position:relative;z-index:1}
+.expert-quote-text{font-size:13px;font-weight:800;color:var(--white);line-height:1.55;font-style:italic;margin-bottom:4px}
+.expert-quote-attr{font-size:10px;font-weight:900;color:rgba(255,107,107,.85);text-transform:uppercase;letter-spacing:1px}
+
+.btn-start{display:flex;align-items:center;justify-content:space-between;width:100%;padding:15px 18px;background:var(--hero-gold);color:var(--hero-shadow);font-size:17px;font-weight:900;border-radius:var(--rsm);border:2px solid var(--hero-gold-shadow);border-bottom:5px solid var(--hero-gold-shadow);cursor:pointer;transition:transform .1s,border-bottom-width .1s;position:relative;z-index:1;letter-spacing:-.3px}
+.btn-start:active{border-bottom-width:2px;transform:translateY(3px)}
+.btn-arrow{font-size:22px;animation:nudge 2s ease-in-out infinite}
+
+.ticker-wrap{overflow:hidden;background:rgba(0,0,0,.25);border-radius:8px;padding:7px 0;margin-bottom:14px;position:relative;z-index:1;mask-image:linear-gradient(to right,transparent,black 8%,black 92%,transparent);-webkit-mask-image:linear-gradient(to right,transparent,black 8%,black 92%,transparent)}
+.ticker-inner{display:inline-flex;gap:0;white-space:nowrap;animation:ticker 34s linear infinite;font-size:11px;font-weight:900;color:var(--hero-gold);letter-spacing:1.5px;text-transform:uppercase}
+.ticker-sep{margin:0 18px;opacity:.35;color:rgba(210,220,230,.4)}
+
+/* VIDEO */
+.video-card{background:var(--white);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--r);overflow:hidden}
+.video-head{padding:13px 18px 11px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:12px}
+.video-head-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;background:var(--bg);border:2px solid var(--border-heavy);border-bottom:3px solid var(--border-heavy)}
+.video-head-title{font-size:15px;font-weight:900;color:var(--ink-bold);letter-spacing:-.3px}
+.video-head-sub{font-size:12px;font-weight:700;color:var(--ink-3);margin-top:1px}
+.video-embed-wrap{position:relative;padding-bottom:56.25%;height:0;overflow:hidden}
+.video-embed-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+.video-caption{padding:12px 18px;font-size:12px;font-weight:700;color:var(--ink-3);background:var(--bg);border-top:2px solid var(--border);line-height:1.5}
+
+/* PROGRESS TRAIL */
+.trail-wrap{background:var(--white);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--r);padding:14px 18px}
+.trail-row{display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:var(--ink-bold);margin-bottom:8px}
+.trail-path{display:flex;align-items:center;gap:2px}
+.trail-node{width:24px;height:24px;border-radius:50%;background:var(--border-heavy);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;transition:background .3s,transform .3s;border:2px solid var(--border-heavy);color:#fff}
+.trail-node.done{background:var(--hero-gold);border-color:var(--hero-gold-shadow)}
+.trail-node.active{background:var(--hero-mid);border-color:var(--hero-shadow);transform:scale(1.15)}
+.trail-line{flex:1;height:3px;background:var(--border-heavy);border-radius:2px}
+.trail-line.done{background:var(--hero-gold)}
+
+/* SECTION CARDS */
+.sec-card{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);overflow:hidden;opacity:0;transform:translateY(16px);transition:opacity .4s ease,transform .4s ease;scroll-margin-top:72px}
+.sec-card.visible{opacity:1;transform:translateY(0)}
+.sec-card::before{content:'';display:block;height:8px;border-radius:var(--r) var(--r) 0 0;margin:-2px -2px 0}
+.strip-hero::before  {background:linear-gradient(90deg,var(--hero-shadow),var(--hero-mid))}
+.strip-blue::before  {background:var(--blue)}
+.strip-purple::before{background:var(--purple)}
+.strip-teal::before  {background:linear-gradient(90deg,var(--hero-teal-shadow),var(--hero-teal))}
+.strip-gold::before  {background:linear-gradient(90deg,var(--hero-gold-shadow),var(--hero-gold))}
+.sec-head{padding:13px 18px 11px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:12px}
+.sec-head-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;background:var(--bg);border:2px solid var(--border-heavy);border-bottom:3px solid var(--border-heavy)}
+.sec-head-title{font-size:15px;font-weight:900;color:var(--ink-bold);letter-spacing:-.3px}
+.sec-head-sub{font-size:12px;font-weight:700;color:var(--ink-3);margin-top:1px}
+.level-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1px;padding:3px 8px;border-radius:6px;border:2px solid;margin-left:8px}
+.lb-beg{background:rgba(88,204,2,.1);color:#3a7a00;border-color:rgba(88,204,2,.3)}
+.lb-adv{background:rgba(255,75,75,.1);color:#c0392b;border-color:rgba(255,75,75,.3)}
+.stop-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1px;padding:3px 8px;border-radius:6px;background:rgba(255,179,0,.12);color:#8a5c00;border:2px solid rgba(255,179,0,.3);margin-left:8px}
+.sec-body{padding:18px}
+@media(min-width:640px){.sec-body{padding:22px}}
+
+/* STOP READING BLOCK */
+.stop-text-card{background:var(--bg);border:2px solid var(--border);border-radius:var(--rsm);padding:16px;margin-bottom:14px}
+.stop-eyebrow{font-size:11px;font-weight:900;color:#8a5c00;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}
+.stop-body-text{font-size:15px;font-weight:700;color:var(--ink);line-height:1.65}
+.ev-voc{background:rgba(255,179,0,.16);border-bottom:2.5px solid var(--hero-gold-shadow);color:#8a5c00;font-weight:900;cursor:pointer;border-radius:3px;padding:0 2px}
+.tip-box{background:rgba(255,179,0,.07);border:2px solid rgba(255,179,0,.28);border-left:5px solid var(--hero-gold-shadow);border-radius:0 var(--rsm) var(--rsm) 0;padding:12px 14px;margin-bottom:14px;font-size:13px;font-weight:700;color:var(--ink-bold);line-height:1.6}
+.tip-box strong{font-weight:900;color:#8a5c00}
+
+.btn-continue{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;margin-top:14px;background:var(--green);color:var(--white);font-size:16px;font-weight:900;border:2px solid var(--green-shadow);border-bottom:5px solid var(--green-shadow);border-radius:var(--rsm);transition:transform .1s,border-bottom-width .1s;font-family:inherit;cursor:pointer}
+.btn-continue:active{border-bottom-width:2px;transform:translateY(3px)}
+.sec-done{text-align:center;padding:28px 18px;animation:popin .4s cubic-bezier(.175,.885,.32,1.275) both}
+.sec-done-icon{font-size:54px;display:block;margin-bottom:10px;animation:float 2.5s ease-in-out infinite}
+.sec-done-title{font-size:22px;font-weight:900;color:var(--ink-bold);margin-bottom:6px}
+.sec-done-sub{font-size:14px;font-weight:700;color:var(--ink-3);margin-bottom:18px;line-height:1.5}
+
+/* ONE CHANCE MCQ (per stop) */
+.oc-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,107,107,.08);border:2px solid rgba(255,107,107,.32);border-radius:99px;padding:6px 14px;margin-bottom:12px;font-size:12px;font-weight:900;color:var(--hero-teal-shadow)}
+.oc-card{background:var(--bg);border:2px solid var(--border);border-radius:var(--rsm);padding:18px;animation:up .28s ease both}
+.oc-q{font-size:clamp(14px,3.8vw,16px);font-weight:900;color:var(--ink-bold);line-height:1.5;margin-bottom:14px}
+.oc-options{display:flex;flex-direction:column;gap:8px}
+.oc-opt{padding:13px 16px;font-size:14px;font-weight:800;background:var(--white);color:var(--ink-bold);text-align:left;border:2px solid var(--border-heavy);border-bottom:5px solid var(--border-heavy);border-radius:var(--rsm);transition:transform .1s,border-bottom-width .1s}
+.oc-opt:active:not(:disabled){border-bottom-width:2px;transform:translateY(3px)}
+.oc-opt.right{background:var(--green)!important;color:var(--white)!important;border-color:var(--green-shadow)!important;animation:heartbeat .55s ease}
+.oc-opt.wrong{background:var(--punch)!important;color:var(--white)!important;border-color:var(--punch-shadow)!important;animation:shake .4s}
+.oc-opt:disabled{cursor:default}
+.oc-feedback{margin-top:12px;padding:12px 14px;border-radius:var(--rsm);font-size:13px;font-weight:800;border:2px solid;display:none;line-height:1.6}
+.oc-feedback.show{display:block;animation:up .2s ease both}
+.oc-feedback.right{background:rgba(88,204,2,.1);color:var(--green-shadow);border-color:rgba(88,204,2,.3)}
+.oc-feedback.wrong{background:rgba(255,75,75,.1);color:var(--punch-shadow);border-color:rgba(255,75,75,.3)}
+
+/* ACT — TRUE OR FALSE (timed) */
+.wl-timer-row{display:flex;align-items:center;gap:12px;background:rgba(255,179,0,.08);border:2px solid rgba(255,179,0,.28);border-radius:var(--rsm);padding:10px 14px;margin-bottom:14px}
+.wl-ring{position:relative;width:44px;height:44px;flex-shrink:0}
+.wl-ring svg{transform:rotate(-90deg)}
+.wl-track{fill:none;stroke:var(--border-heavy);stroke-width:4}
+.wl-fill{fill:none;stroke:var(--hero-gold-shadow);stroke-width:4;stroke-linecap:round;stroke-dasharray:126;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear,stroke .3s}
+.wl-ring-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:var(--ink-bold)}
+.wl-timer-txt{font-size:13px;font-weight:900;color:#8a5c00;flex:1}
+.wl-score-pill{background:rgba(255,179,0,.16);border:2px solid rgba(255,179,0,.36);border-radius:99px;padding:5px 12px;font-size:13px;font-weight:900;color:#8a5c00;flex-shrink:0}
+.wl-progress{display:flex;gap:5px;margin-bottom:14px}
+.wl-pip{flex:1;height:6px;border-radius:99px;background:var(--border-heavy);transition:background .3s}
+.wl-pip.done{background:var(--hero-gold)}
+.wl-pip.active{background:var(--hero-mid)}
+.wl-statement{background:rgba(255,179,0,.05);border:2px solid rgba(255,179,0,.2);border-left:5px solid var(--hero-gold-shadow);border-radius:0 var(--rsm) var(--rsm) 0;padding:16px 18px;margin-bottom:14px}
+.wl-num{font-size:10px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}
+.wl-text{font-size:clamp(14px,3.8vw,17px);font-weight:800;color:var(--ink-bold);line-height:1.5}
+.wl-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.wl-btn{padding:16px 6px;font-size:15px;font-weight:900;border:2px solid var(--border-heavy);border-bottom:5px solid var(--border-heavy);border-radius:var(--rsm);cursor:pointer;transition:all .1s;font-family:inherit;text-align:center;background:#fff;color:var(--ink-bold)}
+.wl-btn:active{border-bottom-width:2px;transform:translateY(3px)}
+.wl-btn.correct{background:var(--green)!important;color:#fff!important;border-color:var(--green-shadow)!important;animation:heartbeat .5s ease}
+.wl-btn.wrong  {background:var(--punch)!important;color:#fff!important;border-color:var(--punch-shadow)!important;animation:shake .4s}
+.wl-btn.show-ok{background:rgba(88,204,2,.1)!important;border-color:var(--green-shadow)!important;color:var(--green-shadow)!important}
+.wl-btn:disabled{cursor:default}
+.wl-reveal{display:none;background:rgba(255,179,0,.06);border:2px solid rgba(255,179,0,.24);border-radius:var(--rsm);padding:12px 14px;font-size:13px;font-weight:700;color:var(--ink-bold);line-height:1.6;animation:revealUp .3s ease both}
+.wl-reveal.show{display:block}
+.wl-card{animation:up .3s ease both}
+.wl-card.exit{animation:slideLeft .2s ease both}
+.wl-next{display:none;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;margin-top:12px;background:var(--hero-gold-shadow);color:#fff;font-size:15px;font-weight:900;border:2px solid #6b4700;border-bottom:5px solid #6b4700;border-radius:var(--rsm);cursor:pointer;font-family:inherit}
+.wl-next:active{border-bottom-width:2px;transform:translateY(3px)}
+
+/* ACT — FIX THE MISTAKE */
+.ftm-progress{display:flex;gap:5px;margin-bottom:14px}
+.ftm-pip{flex:1;height:6px;border-radius:99px;background:var(--border-heavy);transition:background .3s}
+.ftm-pip.done{background:var(--purple)}
+.ftm-pip.active{background:var(--purple-shadow)}
+.ftm-card{background:var(--bg);border:2px solid var(--border);border-radius:var(--rsm);padding:20px;animation:up .28s ease both}
+.ftm-card.exit{animation:slideLeft .2s ease both}
+.ftm-num{font-size:11px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px}
+.ftm-sentence{font-size:clamp(15px,4vw,19px);font-weight:800;color:var(--ink-bold);line-height:1.5;margin-bottom:6px;letter-spacing:-.2px}
+.ftm-hint{font-size:12px;font-weight:700;color:var(--ink-3);font-style:italic;margin-bottom:16px}
+.ftm-options{display:flex;flex-direction:column;gap:8px}
+.ftm-opt{padding:13px 18px;font-size:15px;font-weight:900;background:var(--white);color:var(--ink-bold);text-align:left;border:2px solid var(--border-heavy);border-bottom:5px solid var(--border-heavy);border-radius:var(--rsm);transition:transform .1s,border-bottom-width .1s}
+.ftm-opt:active:not(:disabled){border-bottom-width:2px;transform:translateY(3px)}
+.ftm-opt.right{background:var(--green)!important;color:var(--white)!important;border-color:var(--green-shadow)!important;animation:heartbeat .55s ease}
+.ftm-opt.wrong{background:var(--punch)!important;color:var(--white)!important;border-color:var(--punch-shadow)!important;animation:shake .4s}
+.ftm-opt:disabled{cursor:default}
+.ftm-feedback{margin-top:12px;padding:12px 14px;border-radius:var(--rsm);font-size:13px;font-weight:800;border:2px solid;display:none;line-height:1.6}
+.ftm-feedback.show{display:block;animation:up .2s ease both}
+.ftm-feedback.right{background:rgba(88,204,2,.1);color:var(--green-shadow);border-color:rgba(88,204,2,.3)}
+.ftm-feedback.wrong{background:rgba(255,75,75,.1);color:var(--punch-shadow);border-color:rgba(255,75,75,.3)}
+.ftm-next{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:12px;padding:14px;background:var(--purple);color:var(--white);font-size:15px;font-weight:900;border:2px solid var(--purple-shadow);border-bottom:5px solid var(--purple-shadow);border-radius:var(--rsm);transition:transform .1s,border-bottom-width .1s}
+.ftm-next:active{border-bottom-width:2px;transform:translateY(3px)}
+
+/* ACT — BLOCK BUILDER */
+.bb-progress{display:flex;gap:5px;margin-bottom:14px}
+.bb-pip{flex:1;height:6px;border-radius:99px;background:var(--border-heavy)}
+.bb-pip.done{background:var(--hero-teal-shadow)}
+.bb-pip.active{background:var(--hero-teal)}
+.bb-slots{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;min-height:52px;padding:10px;background:rgba(255,107,107,.06);border:2px dashed rgba(255,107,107,.4);border-radius:var(--rsm)}
+.bb-slot{padding:10px 14px;background:#fff;border:2px solid var(--hero-teal-shadow);border-bottom:3px solid var(--hero-teal-shadow);border-radius:var(--rxs);font-size:14px;font-weight:900;color:var(--ink-bold);cursor:pointer;animation:fallIn .25s ease both}
+.bb-bank{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.bb-block{padding:11px 16px;background:linear-gradient(145deg,#ffd6d6,var(--hero-teal-shadow));border:2px solid #7a1f1f;border-bottom:4px solid #7a1f1f;border-radius:var(--rxs);font-size:14px;font-weight:900;color:#4a1010;cursor:pointer;transition:all .1s}
+.bb-block:active{border-bottom-width:2px;transform:translateY(2px)}
+.bb-block.used{opacity:.2;pointer-events:none}
+.bb-check{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;background:var(--hero-teal-shadow);color:#fff;font-size:15px;font-weight:900;border:2px solid #7a1f1f;border-bottom:5px solid #7a1f1f;border-radius:var(--rsm);cursor:pointer}
+.bb-check:active{border-bottom-width:2px;transform:translateY(3px)}
+.bb-result{display:none;padding:12px 14px;border-radius:var(--rsm);font-size:14px;font-weight:900;border:2px solid;margin-top:10px;text-align:center}
+.bb-result.show.right{display:block;background:rgba(88,204,2,.1);color:var(--green-shadow);border-color:rgba(88,167,0,.3)}
+.bb-result.show.wrong{display:block;background:rgba(255,75,75,.1);color:var(--punch-shadow);border-color:rgba(255,75,75,.3)}
+.bb-next{display:none;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;margin-top:10px;background:var(--hero-teal-shadow);color:#fff;font-size:15px;font-weight:900;border:2px solid #7a1f1f;border-bottom:5px solid #7a1f1f;border-radius:var(--rsm);cursor:pointer}
+.bb-next:active{border-bottom-width:2px;transform:translateY(3px)}
+.bb-card{animation:up .3s ease both}
+.bb-card.exit{animation:slideLeft .2s ease both}
+.bb-context{background:rgba(255,107,107,.06);border:2px solid rgba(255,107,107,.2);border-radius:var(--rsm);padding:10px 14px;margin-bottom:12px;font-size:12.5px;font-weight:700;color:var(--ink-3);font-style:italic;line-height:1.5}
+
+/* ACT — FINAL BOSS: CRUNCH TALKS UNDER PRESSURE */
+.boss-arena{background:linear-gradient(160deg,#050C1A,#0A1E3F 60%);border:2px solid rgba(255,179,0,.32);border-radius:var(--rsm);padding:18px;margin-bottom:16px;text-align:center;position:relative;overflow:hidden}
+.boss-emoji{font-size:56px;display:block;margin-bottom:8px;transition:transform .2s}
+.boss-emoji.hit{animation:zap .4s ease}
+.boss-name{font-size:13px;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px}
+.boss-hp-track{height:18px;background:rgba(0,0,0,.4);border-radius:99px;overflow:hidden;border:2px solid rgba(255,255,255,.15)}
+.boss-hp-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--hero-gold-shadow),var(--hero-gold));border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.hearts-row{display:flex;justify-content:center;gap:8px;margin-bottom:14px}
+.heart{font-size:24px;transition:transform .2s}
+.heart.lost{animation:heartBreak .5s ease forwards}
+.boss-progress{display:flex;gap:5px;margin-bottom:14px}
+.boss-pip{flex:1;height:6px;border-radius:99px;background:var(--border-heavy)}
+.boss-pip.done{background:var(--hero-gold-shadow)}
+.boss-pip.active{background:var(--hero-mid)}
+.boss-q{font-size:clamp(14px,4vw,16px);font-weight:900;color:var(--ink-bold);margin-bottom:14px;text-align:center;line-height:1.45}
+.boss-opts{display:flex;flex-direction:column;gap:8px}
+.boss-opt{padding:14px 16px;font-size:14px;font-weight:800;background:#fff;color:var(--ink-bold);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);cursor:pointer;transition:all .12s;text-align:left;line-height:1.4}
+.boss-opt:active{border-bottom-width:2px;transform:translateY(2px)}
+.boss-opt.correct{background:var(--green)!important;color:#fff!important;border-color:var(--green-shadow)!important;animation:heartbeat .5s ease}
+.boss-opt.wrong  {background:var(--punch)!important;color:#fff!important;border-color:var(--punch-shadow)!important;animation:shake .4s}
+.boss-opt.reveal {background:rgba(88,204,2,.1)!important;border-color:var(--green-shadow)!important;color:var(--green-shadow)!important}
+.boss-opt:disabled{cursor:default}
+.boss-feedback{display:none;background:rgba(255,179,0,.05);border:2px solid rgba(255,179,0,.2);border-radius:var(--rsm);padding:12px 14px;font-size:13px;font-weight:700;color:var(--ink-bold);line-height:1.6;animation:revealUp .3s ease both;margin-top:10px}
+.boss-feedback.show{display:block}
+.boss-next{display:none;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;margin-top:12px;background:var(--hero-gold-shadow);color:#fff;font-size:15px;font-weight:900;border:2px solid #6b4700;border-bottom:5px solid #6b4700;border-radius:var(--rsm);cursor:pointer}
+.boss-next:active{border-bottom-width:2px;transform:translateY(3px)}
+.boss-card{animation:up .3s ease both}
+.boss-card.exit{animation:slideLeft .2s ease both}
+
+/* ═══════════ INTRO TRIVIA ═══════════ */
+.triv-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,179,0,.1);border:2px solid rgba(255,179,0,.32);border-radius:99px;padding:6px 14px;margin-bottom:12px;font-size:12px;font-weight:900;color:var(--hero-gold-shadow)}
+
+/* FX */
+.xp-float{position:fixed;font-size:20px;font-weight:900;color:var(--hero-gold-shadow);text-shadow:0 2px 0 rgba(0,0,0,.12);pointer-events:none;z-index:9998;animation:xpPop .85s ease-out forwards}
+
+#voc-popup{position:fixed;width:260px;max-width:80vw;background:#fff;border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-top:3px solid var(--hero-gold);padding:14px;border-radius:var(--rsm);z-index:700;display:none;box-shadow:0 10px 28px rgba(0,0,0,.2);max-height:60vh;overflow-y:auto}
+#voc-popup.show{display:block;animation:up .18s ease both}
+
+/* COMPLETION */
+#completion-screen{position:fixed;inset:0;background:linear-gradient(135deg,#050C1A,#0A1E3F);z-index:10000;display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+#completion-screen.open{display:flex;animation:fadeIn .4s ease both}
+.completion-card{background:var(--white);border:2px solid rgba(255,179,0,.3);border-bottom:8px solid var(--hero-shadow);border-radius:24px;padding:36px 28px;max-width:480px;width:100%;text-align:center}
+.badge-shine-wrap{position:relative;margin:0 auto 16px;width:170px;height:170px;display:flex;align-items:center;justify-content:center}
+.badge-ring{position:absolute;inset:0;border-radius:50%;background:conic-gradient(#0A1E3F 0deg,#050C1A 60deg,#FFB300 120deg,#0A1E3F 180deg,#FF6B6B 240deg,#0A1E3F 360deg);animation:spin 4s linear infinite}
+.badge-ring-inner{position:absolute;inset:5px;border-radius:50%;background:var(--white)}
+.badge-circle{position:relative;width:132px;height:132px;border-radius:50%;background:linear-gradient(145deg,#123566,#0A1E3F,#050C1A);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:glowHero 2.5s ease-in-out infinite,badgepop .9s cubic-bezier(.175,.885,.32,1.275) both;border:3px solid rgba(255,179,0,.5);overflow:hidden;z-index:1}
+.badge-circle::before{content:'';position:absolute;top:-10%;left:-80%;width:50%;height:120%;background:linear-gradient(to right,transparent,rgba(255,255,255,.3),transparent);transform:skewX(-20deg);animation:shimmer2 2.2s ease-in-out infinite}
+.badge-emoji{font-size:44px;line-height:1;position:relative;z-index:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
+.badge-issue{font-size:12px;font-weight:900;color:rgba(255,179,0,.95);letter-spacing:3px;text-transform:uppercase;position:relative;z-index:1;margin-top:4px;text-shadow:0 1px 3px rgba(0,0,0,.4)}
+.badge-name-big{font-size:22px;font-weight:900;color:var(--hero-gold-shadow);margin-bottom:4px;letter-spacing:-.4px}
+.badge-sub-big{font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:20px}
+.cc-xp-box{background:var(--hero);border:2px solid var(--hero-mid);border-bottom:6px solid var(--hero-shadow);border-radius:var(--r);padding:20px;margin-bottom:16px}
+.cc-xp-num{font-weight:900;font-size:52px;color:var(--hero-gold);line-height:1}
+.cc-xp-label{font-size:13px;font-weight:900;color:rgba(255,179,0,.9);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.cc-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
+.cc-stat{background:rgba(255,179,0,.06);border:2px solid rgba(255,179,0,.18);border-radius:var(--rsm);padding:12px 8px}
+.cc-stat-n{font-size:22px;font-weight:900;color:var(--hero-gold-shadow)}
+.cc-stat-l{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);margin-top:2px}
+.next-week-card{background:linear-gradient(135deg,rgba(28,176,246,.08),rgba(88,204,2,.06));border:2px solid rgba(28,176,246,.25);border-radius:var(--rsm);padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.nw-icon{font-size:28px;flex-shrink:0;animation:float 2s ease-in-out infinite}
+.nw-title{font-size:14px;font-weight:900;color:var(--ink-bold)}
+.nw-sub{font-size:12px;font-weight:700;color:var(--ink-3);margin-top:2px}
+.cc-btns{display:flex;flex-direction:column;gap:10px}
+.cc-btn{width:100%;padding:14px;border-radius:var(--r);font-size:15px;font-weight:900;font-family:inherit;cursor:pointer;border:2px solid;border-bottom:5px solid;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s}
+.cc-btn:active{border-bottom-width:2px;transform:translateY(3px)}
+.cc-btn.print{background:var(--white);color:var(--ink-bold);border-color:var(--border-heavy)}
+.cc-btn.share{background:var(--blue);color:#fff;border-color:var(--blue-shadow)}
+.cc-btn.primary{background:var(--hero-mid);color:var(--hero-gold);border-color:var(--hero-shadow)}
+.cc-btn.secondary{background:var(--white);color:var(--hero-gold-shadow);border-color:var(--hero-gold)}
+.signup-nudge{background:linear-gradient(135deg,var(--hero-gold),#ffe08a);border:2px solid var(--hero-gold-shadow);border-bottom:6px solid var(--hero-gold-shadow);border-radius:var(--r);padding:20px;margin-bottom:14px;text-align:center;display:none}
+.signup-nudge.show{display:block;animation:up .4s ease both}
+.sn-icon{font-size:48px;display:block;margin-bottom:8px;animation:float 2s ease-in-out infinite}
+.sn-title{font-size:20px;font-weight:900;color:var(--hero-shadow);margin-bottom:6px}
+.sn-sub{font-size:14px;font-weight:700;color:rgba(6,6,6,.85);margin-bottom:16px;line-height:1.5;text-align:left}
+.sn-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:var(--hero-shadow);color:var(--hero-gold);font-size:16px;font-weight:900;border:2px solid var(--hero-mid);border-bottom:4px solid var(--hero-mid);border-radius:var(--rsm);cursor:pointer;text-decoration:none;transition:all .1s;width:100%;justify-content:center}
+.sn-btn:active{border-bottom-width:2px;transform:translateY(2px)}
+</style>
+</head>
+<body>
+
+<header class="header">
+    <div class="header-inner">
+        <a href="/weeklydrop/" class="logo-link">
+            <div class="logo-box">🚗</div>
+            <span class="site-name">The Weekly Drop</span>
+        </a>
+        <div class="header-xp">
+            <div class="streak-mini"><span>🔧</span><span id="hdr-streak">0</span></div>
+            <div class="xp-pill">⚡ <span id="hdr-xp">0</span> XP</div>
+            <a href="/my-lessons/" class="btn-dash hidden" id="hdr-dash" title="My Lessons">📚</a>
+            <button class="btn-signout hidden" id="hdr-signout" title="Sign out" onclick="handleSignOut()">👋</button>
+        </div>
+    </div>
+</header>
+
+<div id="voc-popup">
+    <button onclick="closeVoc()" style="position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:8px;background:var(--bg);border:2px solid var(--border-heavy);font-size:15px;font-weight:900;color:var(--ink-3);display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit">&times;</button>
+    <div id="vp-body"></div>
+</div>
+
+<div class="page">
+    <div class="hero-banner u1">
+        <div class="banner-deco">🚗</div>
+        <div class="hero-issue">🔧 The Weekly Drop · Issue 018 · 28 August 2026</div>
+        <div class="hero-title">Angry workers. Radical <span class="gold">cuts</span>. Can VW <span class="teal">survive?</span></div>
+
+        <div class="hero-stats">
+            <div class="hs-pill"><span class="hs-num">Tue 26 Aug</span><span class="hs-lbl">Crunch talks begin</span></div>
+            <div class="hs-pill"><span class="hs-num">50,000</span><span class="hs-lbl">More jobs at risk</span></div>
+            <div class="hs-pill"><span class="hs-num">10,000+</span><span class="hs-lbl">Workers in Wolfsburg</span></div>
+            <div class="hs-pill"><span class="hs-num">20%</span><span class="hs-lbl">Lower Saxony's stake</span></div>
+        </div>
+
+        <div class="expert-quote">
+            <div class="expert-quote-text">&ldquo;Trust has been damaged &mdash; but not yet beyond repair.&rdquo;</div>
+            <div class="expert-quote-attr">&mdash; Daniela Cavallo, Chair of Volkswagen's Works Council</div>
+        </div>
+
+        <div class="ticker-wrap">
+            <div class="ticker-inner">
+                <span>VOLKSWAGEN CEO FACES WORKERS IN WOLFSBURG</span><span class="ticker-sep">·</span>
+                <span>50,000 MORE JOBS COULD BE CUT</span><span class="ticker-sep">·</span>
+                <span>OVER 10,000 WORKERS GATHER AT HQ</span><span class="ticker-sep">·</span>
+                <span>CHINESE COMPETITION HITS VW HARD</span><span class="ticker-sep">·</span>
+                <span>WORKS COUNCIL: TRUST DAMAGED, NOT BROKEN</span><span class="ticker-sep">·</span>
+                <span>LOWER SAXONY OWNS 20% OF VOTING RIGHTS</span><span class="ticker-sep">·</span>
+                <span>VOLKSWAGEN CEO FACES WORKERS IN WOLFSBURG</span><span class="ticker-sep">·</span>
+                <span>50,000 MORE JOBS COULD BE CUT</span><span class="ticker-sep">·</span>
+                <span>OVER 10,000 WORKERS GATHER AT HQ</span><span class="ticker-sep">·</span>
+                <span>CHINESE COMPETITION HITS VW HARD</span><span class="ticker-sep">·</span>
+            </div>
+        </div>
+
+        <button class="btn-start" onclick="startLesson()">
+            <span>🚗&nbsp; Watch it. Read it. Play it. Let&rsquo;s go!</span>
+            <span class="btn-arrow">&rarr;</span>
+        </button>
+    </div>
+
+    <div class="trail-wrap u2" id="trail-wrap" style="display:none;">
+        <div class="trail-row"><span id="trail-label">Not started</span><span id="trail-pct">0%</span></div>
+        <div class="trail-path" id="trail-path"></div>
+    </div>
+
+    <div id="sections"></div>
+</div>
+
+<div id="completion-screen">
+    <div class="completion-card">
+        <div class="badge-shine-wrap">
+            <div class="badge-ring"></div>
+            <div class="badge-ring-inner"></div>
+            <div class="badge-circle">
+                <span class="badge-emoji">🔧</span>
+                <span class="badge-issue">ISSUE 018</span>
+            </div>
+        </div>
+        <div class="badge-name-big">Crunch Talks Champion</div>
+        <div class="badge-sub-big">You completed The Weekly Drop &mdash; Issue 018</div>
+        <div class="cc-xp-box">
+            <div class="cc-xp-num" id="cc-xp">+0</div>
+            <div class="cc-xp-label">XP Earned This Issue</div>
+        </div>
+        <div class="cc-stats">
+            <div class="cc-stat"><div class="cc-stat-n" id="cc-correct">0</div><div class="cc-stat-l">Correct</div></div>
+            <div class="cc-stat"><div class="cc-stat-n" id="cc-combo">0</div><div class="cc-stat-l">Best Combo</div></div>
+            <div class="cc-stat"><div class="cc-stat-n" id="cc-accuracy">0%</div><div class="cc-stat-l">Accuracy</div></div>
+        </div>
+        <div class="next-week-card">
+            <span class="nw-icon">📬</span>
+            <div>
+                <div class="nw-title">Issue 019 drops next week.</div>
+                <div class="nw-sub">New story. New English. New badge. See you then! 😎</div>
+            </div>
+        </div>
+        <div class="signup-nudge" id="signup-nudge">
+            <span class="sn-icon">🚗</span>
+            <div class="sn-title">Don't lose this badge!</div>
+            <div class="sn-sub">
+                You just earned the <strong>Crunch Talks Champion Badge</strong> — but without an account, it disappears when you close this tab.<br><br>
+                <strong>A free account gives you:</strong><br>
+                🏅 Your badge collection — saved forever<br>
+                🔥 Daily streaks to keep you motivated<br>
+                🧠 Spaced repetition — review before you forget<br>
+                🖨️ Printable worksheets for every lesson<br>
+                📬 New issue alerts — Issue 019 drops next week!<br><br>
+                <strong>Takes 30 seconds. Completely free.</strong>
+            </div>
+            <a href="/signup/" class="sn-btn">🚗 Save my badge — FREE →</a>
+            <div style="font-size:11px;font-weight:700;color:rgba(6,6,6,.6);margin-top:10px">No credit card. No spam. Cancel any time.</div>
+        </div>
+        <div class="cc-btns">
+            <button class="cc-btn print" onclick="EFCD_Share.openWorksheet(LESSON_LINK)">🖨️ Print / save worksheet</button>
+            <button class="cc-btn share" onclick="EFCD_Share.open(LESSON_LINK, window.LESSON_TITLE)">🔗 Share this lesson</button>
+            <a href="/weeklydrop/" class="cc-btn primary">🚗 See All Issues &rarr;</a>
+            <a href="/my-lessons/" class="cc-btn secondary hidden" id="cc-mylessons-btn">📚 My Lessons</a>
+            <a href="/signup/" class="cc-btn secondary" id="cc-signup-btn" style="display:none">🌟 Save my progress — FREE!</a>
+            <a href="/" class="cc-btn secondary">🏠 All Courses</a>
+        </div>
+    </div>
+</div>
+
+<script src="/supabase-auth-gamified.js"></script>
+<script src="/srs-engine.js"></script>
+<script src="/xp.js"></script>
+<script src="/lesson-data-registry.js"></script>
+<script src="/lesson-completion-rewards.js"></script>
+<script src="/daily-challenges-system.js"></script>
+<script src="/share-lesson.js"></script>
+<script src="/interactions.js"></script>
+<script>
+'use strict';
+
+window.LESSON_ID    = 'weekly-drop-issue-018';
+window.LESSON_TITLE = 'The Weekly Drop - Issue 018 - Volkswagen\'s Reckoning: Angry Workers, Radical Cuts';
+var LESSON_LINK     = '/weeklydrop018/';
+var LESSON_LEVEL    = 'All Levels';
+var BADGE_ICON      = '🔧';
+var BADGE_NAME      = 'Crunch Talks Champion - Issue 018';
+
+function fx(){ return window.EFCD_FX || null; }
+
+/* ═══════════ GLOSSARY (tap-to-reveal) ═══════════ */
+var GLOSSARY = {
+    'restructuring':  {type:'noun', def:'The process of reorganising a company, often to cut costs or become more efficient. "Blume\u2019s restructuring plan includes 50,000 job cuts."'},
+    'crunch talks':   {type:'noun', def:'Urgent, high-pressure negotiations that need to reach a decision quickly. "Workers and management began crunch talks this week."'},
+    'workforce':      {type:'noun', def:'All the people who work for a company. "Volkswagen has a workforce of around 630,000 people."'},
+    'tariff':         {type:'noun', def:'A tax added to goods when they cross a border into another country. "New tariffs cost Volkswagen billions of euros a year."'},
+    'competitiveness':{type:'noun', def:'The ability of a company to compete successfully against its rivals.'},
+    'overheads':      {type:'noun', def:'The regular costs of running a business, such as rent, energy, and admin.'},
+    'works council':  {type:'noun', def:'A group elected by employees to represent their interests in talks with management.'},
+    'redundancy':     {type:'noun', def:'The loss of a job because a company no longer needs that role. "Labour opposes mandatory redundancies."'},
+    'viable':         {type:'adjective', def:'Able to work successfully and keep going, especially financially. "Some factories may not stay viable after 2030."'},
+};
+
+/* ═══════════ INTRO TRIVIA (quick warm-up before the video) ═══════════ */
+var TRIVIA = [
+    { q:'What does the name "Volkswagen" mean in German?', opts:['Speed Machine','Iron Horse','People\u2019s Car'], correct:2, fact:'✅ "Volkswagen" literally means "people\u2019s car" — it was designed to be affordable for ordinary German families.' },
+    { q:'Which German city is home to Volkswagen\u2019s huge headquarters?', opts:['Frankfurt am Main','Munich','Wolfsburg'], correct:2, fact:'✅ Wolfsburg! The VW factory there is one of the largest car plants in the world.' },
+    { q:'Which of these brands is NOT owned by the Volkswagen Group?', opts:['Ferrari','Škoda','Lamborghini'], correct:0, fact:'✅ Ferrari is independent. But Škoda, Lamborghini, Porsche, Audi, and SEAT all belong to the VW Group.' },
+];
+
+/* ═══════════ THE THREE STOPS ═══════════ */
+var STOPS = [
+    {
+        id:'stop1', icon:'🏭', title:'Anger in Wolfsburg', strip:'strip-hero',
+        eyebrow:'🚗 Reading 1 of 3',
+        html:'Volkswagen workers finally got to question their CEO this week. Oliver Blume is visiting factories across Germany as part of a huge <span data-voc="restructuring" class="ev-voc">restructuring</span> plan. The company wants to cut 50,000 more jobs, and some factories could close. On Tuesday, more than 10,000 workers joined <span data-voc="crunch talks" class="ev-voc">crunch talks</span> at VW\u2019s headquarters in Wolfsburg &mdash; the first big test for Blume in front of his own <span data-voc="workforce" class="ev-voc">workforce</span>.',
+        oc:{
+            q:'How many workers gathered at Volkswagen\u2019s headquarters in Wolfsburg?',
+            opts:['About 1,000 workers','Over 10,000 workers','Nearly 50,000 workers'],
+            correct:1,
+            fb:'✅ More than 10,000 workers gathered in Wolfsburg for the crunch talks.'
+        }
+    },
+    {
+        id:'stop2', icon:'📉', title:'Why Cut So Many Jobs?', strip:'strip-gold',
+        eyebrow:'🚗 Reading 2 of 3',
+        html:'Volkswagen employs about 630,000 people worldwide. CEO Blume says the company has become too big and too slow. Chinese rivals now build cheaper electric cars, and new <span data-voc="tariff" class="ev-voc">tariffs</span> cost Volkswagen billions of euros every year. Demand for cars in Europe is weak too. Blume says the cuts are necessary to protect Volkswagen\u2019s <span data-voc="competitiveness" class="ev-voc">competitiveness</span> and bring its <span data-voc="overheads" class="ev-voc">overheads</span> under control.',
+        oc:{
+            q:'According to the text, what is putting pressure on Volkswagen?',
+            opts:['Weak demand and rising costs','Workers demanded better pay','The company opened new factories'],
+            correct:0,
+            fb:'✅ Chinese competition, new tariffs, and weak demand in Europe are all named as pressures.'
+        }
+    },
+    {
+        id:'stop3', icon:'🔧', title:'The Plan Ahead', strip:'strip-teal',
+        eyebrow:'🚗 Reading 3 of 3',
+        html:'Volkswagen\u2019s <span data-voc="works council" class="ev-voc">works council</span> represents the workers in these talks. Its leader, Daniela Cavallo, says trust in the boardroom has been damaged &mdash; but she believes it can still be repaired. Labour representatives strongly oppose forced <span data-voc="redundancy" class="ev-voc">redundancies</span> and factory closures. Management\u2019s new plan, Target Vision 2030, aims to cut Volkswagen\u2019s model range in half. Blume warns that without big changes, some German factories may not stay <span data-voc="viable" class="ev-voc">viable</span> after 2030.',
+        oc:{
+            q:'What does Daniela Cavallo say about trust between workers and management?',
+            opts:['Completely broken forever','Damaged, but repairable','Stronger than ever before'],
+            correct:1,
+            fb:'✅ Cavallo said trust "has been damaged" but is "not yet beyond repair."'
+        }
+    }
+];
+
+/* ═══════════ ACT 2 — TRUE OR MYTH? (timed) ═══════════ */
+var TRUE_OR_MYTH = [
+    { entity:'🚗 THE MEETING', text:'Volkswagen workers questioned CEO Oliver Blume in Wolfsburg this week.', answer:'TRUE', explain:'✅ TRUE! It was the first chance for workers to grill Blume directly on his restructuring plan.' },
+    { entity:'✂️ THE CUTS', text:'Volkswagen plans to cut 50,000 more jobs.', answer:'TRUE', explain:'✅ TRUE! That\u2019s on top of the 50,000 job cuts workers had already agreed to earlier.' },
+    { entity:'🏭 THE FACTORIES', text:'No German factories are at risk of closing.', answer:'FALSE', explain:'❌ FALSE. Management says some factories may have to close if they can\u2019t stay profitable.' },
+    { entity:'🇨🇳 THE COMPETITION', text:'Chinese carmakers are strong competitors for Volkswagen.', answer:'TRUE', explain:'✅ TRUE! Chinese rivals now build cheaper electric cars, taking sales away from VW.' },
+    { entity:'💶 THE MONEY', text:'New tariffs are saving Volkswagen money.', answer:'FALSE', explain:'❌ FALSE. Tariffs are actually costing Volkswagen billions of euros every year.' },
+    { entity:'🤝 THE TRUST', text:'The works council says trust in Blume is completely destroyed.', answer:'FALSE', explain:'❌ FALSE. Cavallo said trust was damaged, but not yet beyond repair.' },
+];
+
+/* ═══════════ ACT 3 — FIX THE MISTAKE ═══════════ */
+var FIX_MISTAKES = [
+    {
+        sentence:'"Volkswagen wants to <u>hire</u> 50,000 more workers."',
+        hint:'The real plan goes in the opposite direction &mdash; fewer jobs, not more.',
+        opts:['hire → CUT','hire → PROMOTE','hire → TRAIN'],
+        correct:0,
+        fb:'✅ CUT — Volkswagen wants to cut 50,000 more jobs, not hire more.'
+    },
+    {
+        sentence:'"New tariffs are <u>saving</u> Volkswagen billions of euros."',
+        hint:'Tariffs are a tax on trade &mdash; they don\u2019t save companies money.',
+        opts:['saving → EARNING','saving → COSTING','saving → REFUNDING'],
+        correct:1,
+        fb:'✅ COSTING — new tariffs are costing Volkswagen billions of euros a year.'
+    },
+    {
+        sentence:'"Daniela Cavallo leads Volkswagen\u2019s <u>marketing team</u>."',
+        hint:'She actually represents the workers, not the marketing department.',
+        opts:['marketing team → SALES TEAM','marketing team → WORKS COUNCIL','marketing team → BOARD OF DIRECTORS'],
+        correct:1,
+        fb:'✅ WORKS COUNCIL — Daniela Cavallo is the chair of VW\u2019s works council.'
+    },
+    {
+        sentence:'"Volkswagen\u2019s Target Vision 2030 plan wants to <u>double</u> its model lineup."',
+        hint:'The real plan makes the lineup much smaller, not bigger.',
+        opts:['double → EXPAND','double → REBUILD','double → HALVE'],
+        correct:2,
+        fb:'✅ HALVE — the plan aims to cut Volkswagen\u2019s model lineup in half.'
+    },
+];
+
+/* ═══════════ ACT 4 — BLOCK BUILDER ═══════════ */
+var BUILDER_SENTENCES = [
+    { context:'🏭 About the scale of the cuts...', target:['Volkswagen wants','to cut','50,000 more','jobs.'] },
+    { context:'🇨🇳 About the competition...', target:['Chinese rivals now','build cheaper','electric cars','than Volkswagen.'] },
+    { context:'🤝 About the works council...', target:['Trust in Blume','has been damaged,','but not','beyond repair.'] },
+];
+
+/* ═══════════ ACT 5 — FINAL BOSS: CRUNCH TALKS UNDER PRESSURE ═══════════ */
+var BOSS_QUESTIONS = [
+    { q:'Which sentence correctly uses the passive voice to describe the job cuts?', opts:['Volkswagen cuts 50,000 more jobs.','50,000 more jobs are being cut.','50,000 more jobs are cutting themselves.'], correct:1 },
+    { q:'Which sentence correctly reports what Cavallo said, with the right backshift in tense?', opts:['Cavallo said trust has been damaged.','Cavallo said trust had been damaged.','Cavallo say trust was damaged.'], correct:1 },
+    { q:'Which sentence best expresses that, according to Blume, the cuts were absolutely necessary?', opts:['Blume said cuts might help a little.','Blume said cuts could happen someday.','Blume said cuts were necessary.'], correct:2 },
+    { q:'Which sentence uses a natural idiom to describe a very tense meeting?', opts:['The meeting was a walk in the park.','You could cut the tension with a knife.','The whole thing went off without a hitch.'], correct:1 },
+    { q:'Which sentence correctly uses the first conditional to predict the future?', opts:['If VW doesn\u2019t change, factories will close.','If Volkswagen didn\u2019t change, factories would close.','If Volkswagen don\u2019t change, factories will closed.'], correct:0 },
+];
+
+/* ─────────────────────────────────────────
+   STATE
+───────────────────────────────────────── */
+var S = {
+    xp:0, streak:0, combo:0, bestCombo:0,
+    totalRight:0, totalAnswered:0,
+    trivIdx:0, trivDone:false,
+    stopsDone:[false,false,false],
+    wlIdx:0, wlRight:0, wlDone:false, wlOrder:[], wlTimerInt:null,
+    ftmIdx:0, ftmAnswered:false, ftmScore:0, ftmDone:false,
+    bbIdx:0, bbDone:false,
+    bossIdx:0, bossRight:0, bossHP:0, bossHearts:3, bossDone:false, bossFailed:false,
+};
+var SECTION_ORDER = ['sec-trivia','stop1','stop2','stop3','sec-wl','sec-ftm','sec-bb','sec-boss'];
+
+/* ─────────────────────────────────────────
+   UTILS
+───────────────────────────────────────── */
+function $(id){return document.getElementById(id);}
+function shuffle(arr){return arr.map(function(v){return {v:v,r:Math.random()};}).sort(function(a,b){return a.r-b.r;}).map(function(o){return o.v;});}
+
+function confettiBurst(x,y){
+    var colors=['#0A1E3F','#FFB300','#FF6B6B','#58CC02','#1CB0F6','#CE82FF','#FF4B4B'];
+    for(var i=0;i<20;i++){
+        var d=document.createElement('div');
+        d.style.cssText='position:fixed;width:10px;height:10px;border-radius:3px;pointer-events:none;z-index:9099;left:'+(x+Math.random()*60-30)+'px;top:'+(y+Math.random()*30-15)+'px;background:'+colors[i%colors.length]+';animation:confetti '+(0.7+Math.random()*0.5)+'s '+(Math.random()*0.3)+'s ease-out both;transform:rotate('+(Math.random()*360)+'deg)';
+        document.body.appendChild(d);setTimeout(function(){d.remove();},1200);
+    }
+}
+function xpFloat(x,y,amount){
+    var el=document.createElement('div');el.className='xp-float';
+    el.textContent='+'+amount+' XP';el.style.cssText='left:'+x+'px;top:'+y+'px';
+    document.body.appendChild(el);setTimeout(function(){el.remove();},1000);
+}
+function addXP(amount,el){
+    S.xp+=amount;
+    if(el){var r=el.getBoundingClientRect();xpFloat(r.left+r.width/2-24,r.top-10,amount);}
+    var hx=$('hdr-xp');if(hx)hx.textContent=S.xp;
+}
+function toast(icon,text){ if(fx()){fx().toast(icon,text);} }
+
+function sectionDoneFlag(id){
+    if(id==='sec-trivia')return S.trivDone;
+    if(id==='stop1')return S.stopsDone[0];
+    if(id==='stop2')return S.stopsDone[1];
+    if(id==='stop3')return S.stopsDone[2];
+    if(id==='sec-wl')return S.wlDone;
+    if(id==='sec-ftm')return S.ftmDone;
+    if(id==='sec-bb')return S.bbDone;
+    if(id==='sec-boss')return S.bossDone;
+    return false;
+}
+function updateProgress(){
+    var doneCount=SECTION_ORDER.filter(sectionDoneFlag).length;
+    var total=SECTION_ORDER.length;
+    var pct=Math.round((doneCount/total)*100);
+    var lbl=$('trail-label');if(lbl)lbl.textContent=doneCount>=total?'Issue complete!':(doneCount+' / '+total+' sections');
+    var pctEl=$('trail-pct');if(pctEl)pctEl.textContent=pct+'%';
+    var path=$('trail-path');
+    if(path){
+        path.innerHTML=SECTION_ORDER.map(function(id,i){
+            var done=sectionDoneFlag(id);
+            var active=!done && SECTION_ORDER.slice(0,i).every(sectionDoneFlag);
+            var node='<div class="trail-node '+(done?'done':active?'active':'')+'">'+(done?'✓':(i+1))+'</div>';
+            var line=i<SECTION_ORDER.length-1?'<div class="trail-line '+(done?'done':'')+'"></div>':'';
+            return node+line;
+        }).join('');
+    }
+}
+function revealSection(id, preventScroll){
+    var sec=document.getElementById(id);
+    if(!sec||sec.classList.contains('visible'))return;
+    var inits={'sec-trivia':renderTrivia,'sec-wl':initWL,'sec-ftm':renderFTM,'sec-bb':initBB,'sec-boss':initBoss};
+    if(inits[id])inits[id]();
+    sec.classList.add('visible');
+    if (!preventScroll) {
+        setTimeout(function(){sec.scrollIntoView({behavior:'smooth',block:'start'});},80);
+    }
+    updateProgress();
+}
+
+/* ─────────────────────────────────────────
+   START
+───────────────────────────────────────── */
+function startLesson(){
+    buildAll();
+    setTimeout(function(){
+        revealSection('sec-trivia', true);
+    },300);
+    addXP(5);
+    toast('🚗','Issue 018 — kick off! +5 XP');
+    $('trail-wrap').style.display='block';
+    updateProgress();
+    document.querySelector('.btn-start').onclick=null;
+}
+
+function buildAll(){
+    var c=$('sections');
+    c.appendChild(mkSec('sec-trivia','strip-gold','🚗','Quick Quiz: How Well Do You Know VW?','All Levels · Instant facts, no pressure!'));
+    c.appendChild(buildVideoSection());
+    STOPS.forEach(function(stop,i){ c.appendChild(buildStopSection(stop,i)); });
+    c.appendChild(mkSec('sec-wl','strip-gold','⚖️','True or False?','A2 · Beat the clock — 12 sec per round!'));
+    c.appendChild(mkSec('sec-ftm','strip-purple','🔍','Fix the Mistake','Intermediate · One wrong word each time'));
+    c.appendChild(mkSec('sec-bb','strip-teal','🧱','Block Builder','Upper-Intermediate · Rebuild the real line'));
+    c.appendChild(mkSec('sec-boss','strip-hero','🧠','Crunch Talks: Under Pressure','Advanced / Native · Answer right to hold the room!'));
+}
+function mkSec(id,strip,icon,title,sub){
+    var s=document.createElement('div');
+    s.className='sec-card '+strip;s.id=id;
+    s.innerHTML='<div class="sec-head"><div class="sec-head-icon">'+icon+'</div><div><div class="sec-head-title">'+title+'</div><div class="sec-head-sub">'+sub+'</div></div></div><div class="sec-body" id="'+id+'-body"></div>';
+    return s;
+}
+function body(id){return $(id+'-body');}
+
+/* ═══════════ INTRO TRIVIA ═══════════ */
+function renderTrivia(){
+    var b=body('sec-trivia');
+    if(S.trivDone){doneTrivia();return;}
+    var t=TRIVIA[S.trivIdx];
+    b.innerHTML='<div class="triv-badge">🚗 Fun fact hunt — '+(S.trivIdx+1)+' of '+TRIVIA.length+'</div>'+
+        '<div class="oc-card" id="triv-card"><div class="oc-q">'+t.q+'</div><div class="oc-options">'+
+        t.opts.map(function(o,oi){return '<button class="oc-opt" onclick="answerTrivia('+oi+')">'+o+'</button>';}).join('')+
+        '</div><div class="oc-feedback" id="triv-fb"></div></div>';
+}
+function answerTrivia(idx){
+    var t=TRIVIA[S.trivIdx];
+    var card=$('triv-card');
+    var btns=card.querySelectorAll('.oc-opt');
+    btns.forEach(function(b){b.disabled=true;});
+    var correct=idx===t.correct;
+    btns[idx].classList.add(correct?'right':'wrong');
+    if(!correct)btns[t.correct].classList.add('right');
+    if(correct){addXP(5,btns[idx]);if(fx())fx().correct(btns[idx]);}
+    var fb=$('triv-fb');
+    fb.className='oc-feedback show '+(correct?'right':'wrong');
+    fb.innerHTML=t.fact;
+    var nextLabel=(S.trivIdx+1<TRIVIA.length)?'Next fact →':'Let\u2019s watch the video →';
+    fb.innerHTML+='<button class="btn-continue" onclick="nextTrivia()">'+nextLabel+'</button>';
+}
+function nextTrivia(){
+    S.trivIdx++;
+    if(S.trivIdx>=TRIVIA.length){
+        S.trivDone=true;addXP(5);
+        toast('🚗','Quiz done! +5 XP');
+        updateProgress();doneTrivia();return;
+    }
+    renderTrivia();
+}
+function doneTrivia(){
+    body('sec-trivia').innerHTML='<div class="sec-done"><span class="sec-done-icon">🚗</span><div class="sec-done-title">Nice one!</div><div class="sec-done-sub">Now watch the real story unfold.</div></div>';
+    var videoCard=$('sec-video');
+    if(videoCard){
+        videoCard.style.opacity='1';videoCard.style.transform='translateY(0)';
+        setTimeout(function(){ videoCard.scrollIntoView({behavior:'smooth',block:'start'}); }, 80);
+    }
+    revealSection('stop1', true);
+}
+
+/* ═══════════ VIDEO ═══════════ */
+function buildVideoSection(){
+    var sec=document.createElement('div');
+    sec.className='video-card';sec.id='sec-video';
+    sec.style.cssText='opacity:0;transform:translateY(16px);transition:opacity .4s ease,transform .4s ease;';
+    sec.innerHTML=
+        '<div class="video-head">'+
+        '<div class="video-head-icon">📺</div>'+
+        '<div><div class="video-head-title">Watch<span class="level-badge lb-beg">All Levels</span></div>'+
+        '<div class="video-head-sub">Volkswagen CEO faces angry workers in push for radical cuts &mdash; Reuters</div></div></div>'+
+        '<div class="video-embed-wrap">'+
+        '<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/6oNXQdiNIAM" title="Volkswagen CEO faces angry workers in push for radical cuts" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>'+
+        '</div>'+
+        '<div class="video-caption">📌 Listen for how the journalists describe the mood in the room — great real-world listening practice for business English!</div>';
+    return sec;
+}
+
+/* ═══════════ STOPS (reading + one-chance MCQ) ═══════════ */
+function buildStopSection(stop,i){
+    var sec=document.createElement('div');
+    sec.className='sec-card '+stop.strip;sec.id=stop.id;
+    sec.innerHTML='<div class="sec-head"><div class="sec-head-icon">'+stop.icon+'</div><div>'+
+        '<div class="sec-head-title">'+stop.title+'<span class="stop-tag">'+stop.eyebrow+'</span></div>'+
+        '<div class="sec-head-sub">Tap <span style="color:#8a5c00;font-weight:900">gold words</span> for definitions 📖</div>'+
+        '</div></div><div class="sec-body" id="'+stop.id+'-body"></div>';
+    setTimeout(function(){ renderStopReading(stop,i); },0);
+    return sec;
+}
+function renderStopReading(stop,i){
+    var b=body(stop.id);
+    b.innerHTML='<div class="stop-text-card"><div class="stop-eyebrow">'+stop.eyebrow+' — '+stop.title+'</div><div class="stop-body-text">'+stop.html+'</div></div>'+
+        '<button class="btn-continue" onclick="renderStopOneChance(\''+stop.id+'\','+i+')">✅ I\'ve read it — one question →</button>';
+}
+function renderStopOneChance(stopId,i){
+    var stop=STOPS[i];
+    var b=body(stopId);
+    b.innerHTML='<div class="oc-badge">🧠 One chance — think it through!</div>'+
+        '<div class="oc-card" id="oc-card-'+stopId+'"><div class="oc-q">'+stop.oc.q+'</div><div class="oc-options">'+
+        stop.oc.opts.map(function(o,oi){return '<button class="oc-opt" onclick="answerStopOC(\''+stopId+'\','+i+','+oi+')">'+o+'</button>';}).join('')+
+        '</div><div class="oc-feedback" id="oc-fb-'+stopId+'"></div></div>';
+}
+function answerStopOC(stopId,i,chosenIdx){
+    var stop=STOPS[i];
+    var card=$('oc-card-'+stopId);
+    var btns=card.querySelectorAll('.oc-opt');
+    btns.forEach(function(b){b.disabled=true;});
+    var correct=chosenIdx===stop.oc.correct;
+    btns[chosenIdx].classList.add(correct?'right':'wrong');
+    if(!correct)btns[stop.oc.correct].classList.add('right');
+    S.totalAnswered++;
+    if(correct){
+        S.totalRight++;S.combo++;S.bestCombo=Math.max(S.bestCombo,S.combo);
+        addXP(10,btns[chosenIdx]);
+        if(fx()){fx().correct(btns[chosenIdx]);fx().combo(S.combo);}
+        else{var r=btns[chosenIdx].getBoundingClientRect();confettiBurst(r.left+r.width/2,r.top);}
+    } else {
+        S.combo=0;
+        if(fx()){fx().wrong(btns[chosenIdx]);fx().comboBreak(S.combo,S.bestCombo);}
+    }
+    var fb=$('oc-fb-'+stopId);
+    fb.className='oc-feedback show '+(correct?'right':'wrong');
+    fb.innerHTML=stop.oc.fb;
+    S.stopsDone[i]=true;
+    addXP(5);
+    updateProgress();
+    var nextLabel = (i+1<STOPS.length) ? ('Next: '+STOPS[i+1].title+' →') : 'On to the activities →';
+    var nextAction = (i+1<STOPS.length) ? ('revealSection(\''+STOPS[i+1].id+'\')') : 'revealSection(\'sec-wl\')';
+    fb.innerHTML += '<button class="btn-continue" onclick="'+nextAction+'">'+nextLabel+'</button>';
+}
+
+/* ═══════════ VOCAB POPUP ═══════════ */
+function showVoc(word, anchorEl){
+    var w=GLOSSARY[word.toLowerCase()];
+    if(!w)return;
+    $('vp-body').innerHTML='<div style="font-size:17px;font-weight:900;color:#8a5c00;letter-spacing:-.3px;margin-bottom:2px;padding-right:22px;text-transform:capitalize">'+word+'</div><div style="font-size:10px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">'+w.type+'</div><div style="font-size:13px;font-weight:700;color:var(--ink);line-height:1.55;margin-bottom:12px">'+w.def+'</div><button onclick="speakWord(\''+word.replace(/'/g,"\\'")+'\')" style="width:100%;padding:10px;background:var(--hero-mid);color:#fff;border:2px solid var(--hero-shadow);border-bottom:4px solid var(--hero-shadow);border-radius:10px;font-size:13px;font-weight:900;font-family:inherit;cursor:pointer">🔊 Hear It</button>';
+    var popup=$('voc-popup');
+    popup.classList.add('show');
+    positionVocPopup(anchorEl);
+}
+function positionVocPopup(anchorEl){
+    var popup=$('voc-popup');
+    var margin=10, popupWidth=Math.min(260, window.innerWidth*0.8), estHeight=190;
+    if(!anchorEl){
+        popup.style.left=Math.round((window.innerWidth-popupWidth)/2)+'px';
+        popup.style.top=Math.round((window.innerHeight-estHeight)/2)+'px';
+        return;
+    }
+    var r=anchorEl.getBoundingClientRect();
+    var left=r.left+r.width/2-popupWidth/2;
+    left=Math.max(margin,Math.min(left,window.innerWidth-popupWidth-margin));
+    var spaceBelow=window.innerHeight-r.bottom;
+    var top;
+    if(spaceBelow>estHeight+margin){
+        top=r.bottom+8;
+    } else if(r.top>estHeight+margin){
+        top=r.top-estHeight-8;
+    } else {
+        top=Math.max(margin,window.innerHeight-estHeight-margin);
+    }
+    popup.style.left=left+'px';
+    popup.style.top=top+'px';
+}
+function closeVoc(){$('voc-popup').classList.remove('show');}
+function speakWord(word){
+    var u=new SpeechSynthesisUtterance(word);u.lang='en-GB';u.rate=.85;
+    window.speechSynthesis.cancel();window.speechSynthesis.speak(u);
+}
+document.addEventListener('click',function(e){
+    var voc=e.target.closest('[data-voc]');
+    if(voc){e.stopPropagation();showVoc(voc.dataset.voc, voc);return;}
+    if(!e.target.closest('#voc-popup'))closeVoc();
+});
+
+/* ═══════════ ACT 2 — TRUE OR MYTH? (timed) ═══════════ */
+function shuffleOrderIdx(n){
+    var order=[];for(var i=0;i<n;i++)order.push(i);
+    for(var i=order.length-1;i>0;i--){
+        var j=Math.floor(Math.random()*(i+1));
+        var t=order[i];order[i]=order[j];order[j]=t;
+    }
+    return order;
+}
+function initWL(){
+    S.wlOrder=shuffleOrderIdx(TRUE_OR_MYTH.length);
+    var b=body('sec-wl');
+    b.innerHTML='<div class="tip-box">👉 Only use what you\'ve read. Fast but accurate wins the round!</div>'+
+        '<div class="wl-timer-row"><div class="wl-ring"><svg width="44" height="44" viewBox="0 0 44 44"><circle class="wl-track" cx="22" cy="22" r="20"/><circle class="wl-fill" id="wl-ring-fill" cx="22" cy="22" r="20"/></svg><div class="wl-ring-num" id="wl-ring-num">12</div></div><span class="wl-timer-txt">⏱️ 12 seconds per round!</span><span class="wl-score-pill">✅ <span id="wl-score-num">0</span>/'+TRUE_OR_MYTH.length+'</span></div>'+
+        '<div class="wl-progress" id="wl-pips"></div><div id="wl-slot"></div>';
+    renderWL();
+}
+function wlPips(){
+    var el=$('wl-pips');if(!el)return;
+    el.innerHTML=TRUE_OR_MYTH.map(function(_,i){return '<div class="wl-pip '+(i<S.wlIdx?'done':i===S.wlIdx?'active':'')+'"></div>';}).join('');
+}
+function renderWL(){
+    wlPips();
+    if(S.wlDone){doneWL();return;}
+    if(S.wlTimerInt)clearInterval(S.wlTimerInt);
+    var q=TRUE_OR_MYTH[S.wlOrder[S.wlIdx]];
+    $('wl-slot').innerHTML='<div class="wl-card" id="wl-card"><div class="wl-statement"><div class="wl-num">Round '+(S.wlIdx+1)+' of '+TRUE_OR_MYTH.length+' — '+q.entity+'</div><div class="wl-text">"'+q.text+'"</div></div><div class="wl-btns"><button class="wl-btn" onclick="answerWL(\'TRUE\')">✅ TRUE</button><button class="wl-btn" onclick="answerWL(\'FALSE\')">🚫 FALSE</button></div><div class="wl-reveal" id="wl-reveal"></div></div>';
+    var left=12,total=12;
+    var ring=$('wl-ring-fill'),num=$('wl-ring-num');
+    S.wlTimerInt=setInterval(function(){
+        left--;
+        if(num)num.textContent=Math.max(left,0);
+        if(ring){var pct=left/total;ring.style.strokeDashoffset=126*(1-pct);ring.style.stroke=left<=3?'var(--punch)':'var(--hero-gold-shadow)';}
+        if(left<=0){
+            clearInterval(S.wlTimerInt);
+            document.querySelectorAll('.wl-btn').forEach(function(b){b.disabled=true;});
+            S.combo=0;S.totalAnswered++;
+            var rev=$('wl-reveal');
+            rev.innerHTML='⏰ Time\'s up! '+q.explain+'<button class="wl-next" style="display:flex" onclick="nextWL()">'+(S.wlIdx+1<TRUE_OR_MYTH.length?'Next round →':'See results 🏁 →')+'</button>';
+            rev.classList.add('show');
+        }
+    },1000);
+}
+function answerWL(chosen){
+    if(S.wlTimerInt)clearInterval(S.wlTimerInt);
+    document.querySelectorAll('.wl-btn').forEach(function(b){b.disabled=true;});
+    var q=TRUE_OR_MYTH[S.wlOrder[S.wlIdx]];
+    var correct=chosen===q.answer;
+    var btns=document.querySelectorAll('.wl-btn');
+    var chosenBtn=chosen==='TRUE'?btns[0]:btns[1];
+    var correctBtn=q.answer==='TRUE'?btns[0]:btns[1];
+    chosenBtn.classList.add(correct?'correct':'wrong');
+    if(!correct)correctBtn.classList.add('show-ok');
+    S.totalAnswered++;
+    if(correct){
+        S.totalRight++;S.wlRight++;S.combo++;S.bestCombo=Math.max(S.bestCombo,S.combo);
+        addXP(10,chosenBtn);
+        if(fx()){fx().correct(chosenBtn);fx().combo(S.combo);}
+        else{var r=chosenBtn.getBoundingClientRect();confettiBurst(r.left+r.width/2,r.top);}
+    } else {
+        S.combo=0;
+        if(fx()){fx().wrong(chosenBtn);fx().comboBreak(S.combo,S.bestCombo);}
+    }
+    var sn=$('wl-score-num');if(sn)sn.textContent=S.wlRight;
+    var rev=$('wl-reveal');
+    rev.innerHTML=q.explain+'<button class="wl-next" style="display:flex" onclick="nextWL()">'+(S.wlIdx+1<TRUE_OR_MYTH.length?'Next round →':'See results 🏁 →')+'</button>';
+    rev.classList.add('show');
+}
+function nextWL(){
+    S.wlIdx++;
+    if(S.wlIdx>=TRUE_OR_MYTH.length){
+        S.wlDone=true;addXP(15);
+        toast('⚖️',S.wlRight+'/'+TRUE_OR_MYTH.length+' correct! +15 XP');
+        updateProgress();doneWL();return;
+    }
+    var c=$('wl-card');if(c){c.classList.add('exit');setTimeout(renderWL,220);}else renderWL();
+}
+function doneWL(){
+    $('wl-slot').innerHTML='<div class="sec-done"><span class="sec-done-icon">⚖️</span><div class="sec-done-title">Beat the Clock — done!</div><div class="sec-done-sub">'+S.wlRight+'/'+TRUE_OR_MYTH.length+' correct. Now fix some mistakes.</div><button class="btn-continue" style="background:var(--purple);border-color:var(--purple-shadow)" onclick="revealSection(\'sec-ftm\')">Fix the Mistakes 🔍 →</button></div>';
+}
+
+/* ═══════════ ACT 3 — FIX THE MISTAKE ═══════════ */
+function renderFTM(){
+    var b=body('sec-ftm');
+    if(!$('ftm-progress')){
+        b.innerHTML='<div class="tip-box">👉 One word is wrong in each sentence — pick the right replacement!</div><div class="ftm-progress" id="ftm-progress"></div><div id="ftm-slot"></div>';
+    }
+    var prog=$('ftm-progress');
+    if(prog)prog.innerHTML=FIX_MISTAKES.map(function(_,i){return '<div class="ftm-pip '+(i<S.ftmIdx?'done':i===S.ftmIdx?'active':'')+'"></div>';}).join('');
+    if(S.ftmDone){renderFTMDone();return;}
+    var q=FIX_MISTAKES[S.ftmIdx];
+    var slot=$('ftm-slot');
+    slot.innerHTML='<div class="ftm-card" id="ftm-card"><div class="ftm-num">Sentence '+(S.ftmIdx+1)+' of '+FIX_MISTAKES.length+'</div><div class="ftm-sentence">'+q.sentence+'</div><div class="ftm-hint">💡 '+q.hint+'</div><div class="ftm-options">'+q.opts.map(function(o,i){return '<button class="ftm-opt" onclick="answerFTM('+i+')">'+o+'</button>';}).join('')+'</div><div class="ftm-feedback" id="ftm-fb"></div><button class="ftm-next" id="ftm-nxt" style="display:none" onclick="nextFTM()">'+(S.ftmIdx<FIX_MISTAKES.length-1?'Next Sentence →':'Section Complete! →')+'</button></div>';
+    S.ftmAnswered=false;
+}
+function answerFTM(idx){
+    if(S.ftmAnswered)return;S.ftmAnswered=true;
+    var q=FIX_MISTAKES[S.ftmIdx];
+    var correct=idx===q.correct;
+    document.querySelectorAll('.ftm-opt').forEach(function(b){b.disabled=true;});
+    document.querySelectorAll('.ftm-opt')[q.correct].classList.add('right');
+    if(!correct)document.querySelectorAll('.ftm-opt')[idx].classList.add('wrong');
+    var correctBtn=document.querySelectorAll('.ftm-opt')[q.correct];
+    var chosenBtn=document.querySelectorAll('.ftm-opt')[idx];
+    if(correct){
+        S.ftmScore++;S.combo++;S.bestCombo=Math.max(S.bestCombo,S.combo);S.totalRight++;
+        addXP(10,correctBtn);
+        if(fx()){fx().correct(correctBtn);fx().combo(S.combo);}
+    } else {
+        if(fx()){fx().wrong(chosenBtn);fx().comboBreak(S.combo,S.bestCombo);}
+        S.combo=0;
+    }
+    S.totalAnswered++;
+    var fb=$('ftm-fb');
+    fb.className='ftm-feedback show '+(correct?'right':'wrong');
+    fb.innerHTML=correct?q.fb:'❌ Not quite — '+q.fb.replace(/^✅\s*/,'');
+    $('ftm-nxt').style.display='flex';
+}
+function nextFTM(){var card=$('ftm-card');if(card){card.classList.add('exit');setTimeout(advanceFTM,220);}else advanceFTM();}
+function advanceFTM(){
+    S.ftmIdx++;
+    if(S.ftmIdx>=FIX_MISTAKES.length){
+        S.ftmDone=true;addXP(15);
+        toast('🔍','Mistakes fixed! '+S.ftmScore+'/'+FIX_MISTAKES.length+' correct');
+        updateProgress();renderFTMDone();
+    } else renderFTM();
+}
+function renderFTMDone(){
+    $('ftm-slot').innerHTML='<div class="sec-done"><span class="sec-done-icon">'+(S.ftmScore===FIX_MISTAKES.length?'🏆':S.ftmScore>=3?'👍':'📖')+'</span><div class="sec-done-title">'+S.ftmScore+'/'+FIX_MISTAKES.length+' Mistakes Fixed</div><div class="sec-done-sub">Now rebuild some real lines from the story!</div><button class="btn-continue" style="background:var(--hero-teal-shadow);border-color:#7a1f1f" onclick="revealSection(\'sec-bb\')">Block Builder 🧱 →</button></div>';
+}
+
+/* ═══════════ ACT 4 — BLOCK BUILDER ═══════════ */
+function initBB(){
+    var b=body('sec-bb');
+    b.innerHTML='<div class="tip-box">👉 Tap the blocks in the right order to rebuild the line!</div><div class="bb-progress" id="bb-pips"></div><div id="bb-slot"></div>';
+    renderBB();
+}
+function bbPips(){
+    var el=$('bb-pips');if(!el)return;
+    el.innerHTML=BUILDER_SENTENCES.map(function(_,i){return '<div class="bb-pip '+(i<S.bbIdx?'done':i===S.bbIdx?'active':'')+'"></div>';}).join('');
+}
+function renderBB(){
+    bbPips();
+    if(S.bbDone){doneBB();return;}
+    var q=BUILDER_SENTENCES[S.bbIdx];
+    var bank=shuffle(q.target.map(function(w,i){return {w:w,i:i};}));
+    var placed=[];
+    function draw(){
+        $('bb-slot').innerHTML='<div class="bb-card" id="bb-card"><div class="bb-context">'+q.context+'</div><div class="bb-slots" id="bb-slots">'+
+            (placed.length===0?'<span style="color:var(--ink-3);font-weight:700;font-size:13px">Tap blocks below to rebuild the line...</span>':
+            placed.map(function(p,pos){return '<div class="bb-slot" data-pos="'+pos+'">'+p.w+'</div>';}).join(''))+
+            '</div><div class="bb-bank" id="bb-bank">'+
+            bank.map(function(b,bi){return '<div class="bb-block '+(placed.some(function(p){return p.i===b.i;})?'used':'')+'" data-bi="'+bi+'">'+b.w+'</div>';}).join('')+
+            '</div><button class="bb-check" onclick="checkBB()">✅ Check my sentence!</button><div class="bb-result" id="bb-result"></div><button class="bb-next" id="bb-nxt" onclick="nextBB()">'+(S.bbIdx+1<BUILDER_SENTENCES.length?'Next line →':'Nice work! →')+'</button></div>';
+        document.querySelectorAll('#bb-bank .bb-block').forEach(function(el){
+            el.addEventListener('click',function(){
+                var bi=+el.dataset.bi;
+                if(placed.some(function(p){return p.i===bank[bi].i;}))return;
+                placed.push(bank[bi]);draw();
+            });
+        });
+        document.querySelectorAll('#bb-slots .bb-slot').forEach(function(el){
+            el.addEventListener('click',function(){
+                var pos=+el.dataset.pos;
+                placed.splice(pos,1);draw();
+            });
+        });
+    }
+    window._bbState={get placed(){return placed;},get q(){return q;}};
+    draw();
+}
+function checkBB(){
+    var q=window._bbState.q;
+    var slotsEl=document.querySelectorAll('#bb-slots .bb-slot');
+    var built=Array.from(slotsEl).map(function(s){return s.textContent;});
+    var correct=built.length===q.target.length&&built.every(function(w,i){return w===q.target[i];});
+    var res=$('bb-result');
+    if(built.length<q.target.length){res.className='bb-result show wrong';res.textContent='⚠️ Use all the blocks first!';return;}
+    S.totalAnswered++;
+    if(correct){
+        S.totalRight++;S.combo++;S.bestCombo=Math.max(S.bestCombo,S.combo);
+        addXP(15);
+        res.className='bb-result show right';res.textContent='✅ Exactly right!';
+        if(fx())fx().combo(S.combo);
+        confettiBurst(window.innerWidth/2,200);
+    } else {
+        S.combo=0;
+        res.className='bb-result show wrong';res.textContent='📖 Close! The real line is: "'+q.target.join(' ')+'"';
+    }
+    document.querySelector('.bb-check').style.display='none';
+    $('bb-nxt').style.display='flex';
+}
+function nextBB(){
+    S.bbIdx++;
+    if(S.bbIdx>=BUILDER_SENTENCES.length){
+        S.bbDone=true;addXP(10);
+        toast('🧱','Block Builder done! +10 XP');
+        updateProgress();doneBB();return;
+    }
+    var c=$('bb-card');if(c){c.classList.add('exit');setTimeout(renderBB,220);}else renderBB();
+}
+function doneBB(){
+    $('bb-slot').innerHTML='<div class="sec-done"><span class="sec-done-icon">🧱</span><div class="sec-done-title">Block Builder — complete!</div><div class="sec-done-sub">One challenge left — the toughest one yet.</div><button class="btn-continue" style="background:var(--hero-gold-shadow);border-color:#6b4700" onclick="revealSection(\'sec-boss\')">Crunch Talks: Under Pressure 🧠 →</button></div>';
+}
+
+/* ═══════════ ACT 5 — CRUNCH TALKS: UNDER PRESSURE (boss) ═══════════ */
+function initBoss(){
+    S.bossHP=0;S.bossFailed=false;
+    var b=body('sec-boss');
+    b.innerHTML='<div class="tip-box">👉 Answer right and you hold the room. Answer wrong and the talks get tenser!</div>'+
+        '<div class="boss-arena"><span class="boss-emoji" id="boss-emoji">😠😤🔥</span><div class="boss-name">Crunch Talks: Under Pressure</div>'+
+        '<div style="font-size:10px;font-weight:900;color:rgba(255,179,0,.8);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px">Negotiation Meter</div>'+
+        '<div class="boss-hp-track"><div class="boss-hp-fill" id="boss-hp-fill" style="width:0%"></div></div></div>'+
+        '<div class="hearts-row" id="hearts-row"><span class="heart" id="heart-0">🔧💼</span><span class="heart" id="heart-1">🔧💼</span><span class="heart" id="heart-2">🔧💼</span></div>'+
+        '<div class="boss-progress" id="boss-pips"></div><div id="boss-slot"></div>';
+    renderBoss();
+}
+function bossPips(){
+    var el=$('boss-pips');if(!el)return;
+    el.innerHTML=BOSS_QUESTIONS.map(function(_,i){return '<div class="boss-pip '+(i<S.bossIdx?'done':i===S.bossIdx?'active':'')+'"></div>';}).join('');
+}
+function renderBoss(){
+    bossPips();
+    if(S.bossDone){doneBoss();return;}
+    var q=BOSS_QUESTIONS[S.bossIdx];
+    var shuffled=q.opts.map(function(o,i){return {text:o,ok:i===q.correct};}).sort(function(){return Math.random()-.5;});
+    var corIdx=shuffled.findIndex(function(x){return x.ok;});
+    $('boss-slot').innerHTML='<div class="boss-card" id="boss-card"><div class="boss-q">'+q.q+'</div><div class="boss-opts">'+shuffled.map(function(o,i){return '<button class="boss-opt" data-correct="'+(i===corIdx)+'">'+o.text+'</button>';}).join('')+'</div><div class="boss-feedback" id="boss-fb"></div><button class="boss-next" id="boss-nxt" onclick="nextBoss()">'+(S.bossIdx+1<BOSS_QUESTIONS.length?'Next question! →':'Finish it! →')+'</button></div>';
+    document.querySelectorAll('.boss-opt').forEach(function(btn){
+        btn.addEventListener('click',function(){answerBoss(btn,btn.dataset.correct==='true');});
+    });
+}
+function answerBoss(btn,correct){
+    document.querySelectorAll('.boss-opt').forEach(function(b){b.disabled=true;});
+    S.totalAnswered++;
+    var bossEl=$('boss-emoji');
+    if(correct){
+        S.totalRight++;S.bossRight++;S.combo++;S.bestCombo=Math.max(S.bestCombo,S.combo);
+        btn.classList.add('correct');addXP(15,btn);
+        S.bossHP=Math.min(100,S.bossHP+20);
+        $('boss-hp-fill').style.width=S.bossHP+'%';
+        bossEl.classList.remove('hit');void bossEl.offsetWidth;bossEl.classList.add('hit');
+        bossEl.textContent='✅';
+        setTimeout(function(){bossEl.textContent='😤';},600);
+        if(fx()){fx().correct(btn);fx().combo(S.combo);}
+        else{var r=btn.getBoundingClientRect();confettiBurst(r.left+r.width/2,r.top);}
+    } else {
+        btn.classList.add('wrong');
+        document.querySelectorAll('.boss-opt').forEach(function(b){if(b.dataset.correct==='true')b.classList.add('reveal');});
+        S.combo=0;
+        var heartIdx=3-S.bossHearts;
+        if(S.bossHearts>0){
+            S.bossHearts--;
+            var h=$('heart-'+heartIdx);if(h)h.classList.add('lost');
+            if(S.bossHearts===0)S.bossFailed=true;
+        }
+        bossEl.textContent='❌';
+        setTimeout(function(){bossEl.textContent='😤';},600);
+        if(fx()){fx().wrong(btn);fx().comboBreak(S.combo,S.bestCombo);}
+    }
+    $('boss-nxt').style.display='flex';
+}
+function nextBoss(){
+    S.bossIdx++;
+    if(S.bossIdx>=BOSS_QUESTIONS.length){
+        S.bossDone=true;addXP(15);
+        toast('😤','You held the room! +15 XP');
+        updateProgress();doneBoss();return;
+    }
+    var c=$('boss-card');if(c){c.classList.add('exit');setTimeout(renderBoss,220);}else renderBoss();
+}
+function doneBoss(){
+    if(S.bossFailed){
+        $('boss-slot').innerHTML='<div class="sec-done"><span class="sec-done-icon">😅</span><div class="sec-done-title">The room got tense!</div><div class="sec-done-sub">The negotiation got the better of you this time &mdash; but you still mastered 9 real business-English words along the way. Time for your badge!</div><button class="btn-continue" style="background:var(--hero-gold-shadow);border-color:#6b4700;color:#fff;font-size:18px" onclick="showCompletion()">🔧 Claim my Crunch Talks Champion Badge!</button></div>';
+    } else {
+        $('boss-slot').innerHTML='<div class="sec-done"><span class="sec-done-icon">🏆</span><div class="sec-done-title">You held the room — trial complete!</div><div class="sec-done-sub">You just mastered 9 real business-English words. Time for your badge!</div><button class="btn-continue" style="background:var(--hero-gold-shadow);border-color:#6b4700;color:#fff;font-size:18px" onclick="showCompletion()">🔧 Claim my Crunch Talks Champion Badge!</button></div>';
+    }
+}
+
+/* ═══════════ COMPLETION ═══════════ */
+async function showCompletion(){
+    var acc=S.totalAnswered>0?Math.round((S.totalRight/S.totalAnswered)*100):0;
+    $('cc-xp').textContent='+'+S.xp;
+    $('cc-correct').textContent=S.totalRight;
+    $('cc-combo').textContent=S.bestCombo;
+    $('cc-accuracy').textContent=acc+'%';
+    $('completion-screen').classList.add('open');
+    for(var i=0;i<5;i++){(function(j){setTimeout(function(){confettiBurst(Math.random()*window.innerWidth,Math.random()*window.innerHeight*.5);},j*250);})(i);}
+
+    var isLoggedIn=!!(window.EFCD_Auth&&window.EFCD_Auth.getCurrentUser&&window.EFCD_Auth.getCurrentUser());
+    if(isLoggedIn){var mlb=$('cc-mylessons-btn');if(mlb)mlb.classList.remove('hidden');}
+    if(!isLoggedIn){
+        setTimeout(function(){
+            var n=$('signup-nudge');
+            if(n){n.classList.add('show');setTimeout(function(){n.scrollIntoView({behavior:'smooth',block:'start'});},100);}
+            var sb=$('cc-signup-btn');if(sb)sb.style.display='flex';
+        },2000);
+    }
+
+    try{
+        if(window.EFCD_Auth&&window.EFCD_Auth.getCurrentUser&&window.EFCD_Auth.getCurrentUser()){
+            await window.EFCD_Auth.completeLesson({
+                lessonId:window.LESSON_ID,
+                lessonTitle:window.LESSON_TITLE,
+                lessonLevel:LESSON_LEVEL,
+                lessonLink:LESSON_LINK,
+                badgeIcon:'🔧',
+                badgeName:'Crunch Talks Champion - Issue 018',
+                vocabulary:[
+                    {word:'restructuring',   definition:'The process of reorganising a company, often to cut costs or become more efficient.'},
+                    {word:'crunch talks',    definition:'Urgent, high-pressure negotiations that need to reach a decision quickly.'},
+                    {word:'workforce',       definition:'All the people who work for a company.'},
+                    {word:'tariff',          definition:'A tax added to goods when they cross a border into another country.'},
+                    {word:'competitiveness', definition:'The ability of a company to compete successfully against its rivals.'},
+                    {word:'overheads',       definition:'The regular costs of running a business, such as rent, energy, and admin.'},
+                    {word:'works council',   definition:'A group elected by employees to represent their interests in talks with management.'},
+                    {word:'redundancy',      definition:'The loss of a job because a company no longer needs that role.'},
+                    {word:'viable',          definition:'Able to work successfully and keep going, especially financially.'},
+                ],
+                perfectScore:acc>=90,
+            });
+        }
+    } catch(e){}
+    try{
+        if(window.DailyChallenges){
+            var dcResult=await window.DailyChallenges.updateChallengeProgress({perfectScore:acc>=90});
+            if(dcResult&&dcResult.justCompleted)setTimeout(function(){window.DailyChallenges.showChallengeCompletionCelebration(dcResult.challenge);},1800);
+            localStorage.setItem('dc_last_lesson_date',new Date().toDateString());
+            localStorage.setItem('dc_last_lesson_section','weekly-drop');
+        }
+    } catch(e){}
+}
+
+/* ═══════════ INIT ═══════════ */
+document.addEventListener('DOMContentLoaded',async function(){
+    try{
+        if(window.efcdReady)await window.efcdReady;
+        if(window.EFCD_Auth){
+            await window.EFCD_Auth.initAuth();
+            var user=window.EFCD_Auth.getCurrentUser();
+            if(user){
+                var st=window.EFCD_Auth.getUserStats();
+                if(st){S.xp=st.xp||0;S.streak=st.streak||0;}
+                $('hdr-streak').textContent=S.streak;
+                try{if(window.EFCD_XP){var bal=await window.EFCD_XP.getBalance();S.xp=bal.balance||0;}}catch(e){}
+                $('hdr-xp').textContent=S.xp;
+                var sb=$('hdr-signout');if(sb)sb.classList.remove('hidden');
+                var db=$('hdr-dash');if(db)db.classList.remove('hidden');
+            }
+        }
+    } catch(e){}
+});
+
+async function handleSignOut(){
+    if(window.EFCD_Auth&&window.EFCD_Auth.signOut)await window.EFCD_Auth.signOut();
+    else if(window.efcdSupabaseClient){await window.efcdSupabaseClient.auth.signOut();window.location.href='/';}
+}
+</script>
+</body>
+</html>
