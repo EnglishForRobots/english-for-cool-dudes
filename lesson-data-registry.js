@@ -4781,6 +4781,67 @@ const LESSON_DATA_REGISTRY = {
 
   },
 
+  
+
+'weekly-drop-issue-018': {
+  id:    'weekly-drop-issue-018',
+  title: "The Weekly Drop - Issue 018 - Volkswagen's Reckoning: Angry Workers, Radical Cuts",
+  level: 'All Levels',
+  track: 'weekly-drop',
+  emoji: '🚗',
+  badge: 'Crunch Talks Champion',
+
+  vocab: [
+    { word:'restructuring',    definition:'The process of reorganising a company, often to cut costs or become more efficient.', example:"Blume's ___ plan includes 50,000 job cuts.",                  distractors:['workforce','tariff','viable'] },
+    { word:'crunch talks',     definition:'Urgent, high-pressure negotiations that need to reach a decision quickly.',           example:'Workers and management began ___ this week.',                distractors:['overheads','redundancy','competitiveness'] },
+    { word:'workforce',        definition:'All the people who work for a company.',                                             example:'Volkswagen has a ___ of around 630,000 people.',              distractors:['works council','tariff','restructuring'] },
+    { word:'tariff',           definition:'A tax added to goods when they cross a border into another country.',                example:'New ___s cost Volkswagen billions of euros a year.',         distractors:['overheads','viable','redundancy'] },
+    { word:'competitiveness',  definition:'The ability of a company to compete successfully against its rivals.',               example:"The cuts protect Volkswagen's ___.",                          distractors:['workforce','crunch talks','works council'] },
+    { word:'overheads',        definition:'The regular costs of running a business, such as rent, energy, and admin.',          example:'Blume wants to bring ___ under control.',                    distractors:['tariff','viable','restructuring'] },
+    { word:'works council',    definition:'A group elected by employees to represent their interests in talks with management.', example:'The ___ represents the workers in these talks.',             distractors:['competitiveness','crunch talks','overheads'] },
+    { word:'redundancy',       definition:'The loss of a job because a company no longer needs that role.',                     example:'Labour opposes mandatory ___s.',                              distractors:['workforce','tariff','viable'] },
+    { word:'viable',           definition:'Able to work successfully and keep going, especially financially.',                  example:'Some factories may not stay ___ after 2030.',                distractors:['restructuring','works council','overheads'] },
+  ],
+
+  true_false: [
+    { statement:'Volkswagen workers questioned CEO Oliver Blume in Wolfsburg this week.',        correct:true,  reveal:'✅ TRUE! The first chance for workers to grill Blume directly on his restructuring plan.' },
+    { statement:'Volkswagen plans to cut 50,000 more jobs.',                                     correct:true,  reveal:'✅ TRUE! That is on top of the 50,000 job cuts workers had already agreed to earlier.' },
+    { statement:'No German factories are at risk of closing.',                                   correct:false, reveal:'❌ FALSE. Management says some factories may have to close if they cannot stay profitable.' },
+    { statement:'Chinese carmakers are strong competitors for Volkswagen.',                       correct:true,  reveal:'✅ TRUE! Chinese rivals now build cheaper electric cars, taking sales away from VW.' },
+    { statement:'New tariffs are saving Volkswagen money.',                                       correct:false, reveal:'❌ FALSE. Tariffs are actually costing Volkswagen billions of euros every year.' },
+    { statement:'The works council says trust in Blume is completely destroyed.',                correct:false, reveal:'❌ FALSE. Cavallo said trust was damaged, but not yet beyond repair.' },
+  ],
+
+  fix_mistakes: [
+    { sentence:'"Volkswagen wants to <u>hire</u> 50,000 more workers."', hint:'The real plan goes in the opposite direction — fewer jobs, not more.', opts:['hire → CUT','hire → PROMOTE','hire → TRAIN'], correct:0, fb:'✅ CUT — Volkswagen wants to cut 50,000 more jobs, not hire more.' },
+    { sentence:'"New tariffs are <u>saving</u> Volkswagen billions of euros."', hint:'Tariffs are a tax on trade — they don\u2019t save companies money.', opts:['saving → EARNING','saving → COSTING','saving → REFUNDING'], correct:1, fb:'✅ COSTING — new tariffs are costing Volkswagen billions of euros a year.' },
+    { sentence:'"Daniela Cavallo leads Volkswagen\u2019s <u>marketing team</u>."', hint:'She actually represents the workers, not the marketing department.', opts:['marketing team → SALES TEAM','marketing team → WORKS COUNCIL','marketing team → BOARD OF DIRECTORS'], correct:1, fb:'✅ WORKS COUNCIL — Daniela Cavallo is the chair of VW\u2019s works council.' },
+    { sentence:'"Volkswagen\u2019s Target Vision 2030 plan wants to <u>double</u> its model lineup."', hint:'The real plan makes the lineup much smaller, not bigger.', opts:['double → EXPAND','double → REBUILD','double → HALVE'], correct:2, fb:'✅ HALVE — the plan aims to cut Volkswagen\u2019s model lineup in half.' },
+  ],
+
+  sentences: [
+    { words:['Volkswagen','wants','to','cut','50,000','more','jobs.'],                answer:'Volkswagen wants to cut 50,000 more jobs.',                hint:'🏭 About the scale of the cuts...' },
+    { words:['Chinese','rivals','now','build','cheaper','electric','cars.'],           answer:'Chinese rivals now build cheaper electric cars.',           hint:'🇨🇳 About the competition...' },
+    { words:['Trust','in','Blume','has','been','damaged,','but','not','beyond','repair.'], answer:'Trust in Blume has been damaged, but not beyond repair.', hint:'🤝 About the works council...' },
+  ],
+
+  word_builder: [
+    { word:'restructuring', definition:'Reorganising a company to cut costs or improve efficiency' },
+    { word:'workforce',     definition:'All the people who work for a company' },
+    { word:'tariff',        definition:'A tax on goods crossing a border' },
+    { word:'redundancy',    definition:'Losing a job because it is no longer needed' },
+    { word:'viable',        definition:'Able to keep working successfully, especially financially' },
+  ],
+
+  quiz_boss: [
+    { q:'Which sentence correctly uses the passive voice to describe the job cuts?', opts:['Volkswagen cuts 50,000 more jobs.','50,000 more jobs are being cut.','50,000 more jobs are cutting themselves.'], correct:1 },
+    { q:'Which sentence correctly reports what Cavallo said, with the right backshift in tense?', opts:['Cavallo said trust has been damaged.','Cavallo said trust had been damaged.','Cavallo say trust was damaged.'], correct:1 },
+    { q:'Which word best describes the tense negotiations between Blume and workers?', opts:['crunchy','crackle','crunch'], correct:2 },
+    { q:'Which sentence uses a natural idiom to describe a very tense meeting?', opts:['The meeting was a walk in the park.','You could cut the tension with a knife.','The whole thing went off without a hitch.'], correct:1 },
+    { q:'Which sentence uses a relative pronoun correctly?', opts:['Daniela Cavallo, which heads the works council, challenged the decision.','Daniela Cavallo, who heads the works council, challenged the decision.','Daniela Cavallo, whose heads the works council, challenged the decision.'], correct:0 },
+  ],
+},
+
 
  
    };
