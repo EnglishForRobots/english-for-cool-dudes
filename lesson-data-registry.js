@@ -4897,6 +4897,74 @@ const LESSON_DATA_REGISTRY = {
   ],
 },
 
+   'china-robot-games-intermediate': {
+  id:    'china-robot-games-intermediate',
+  title: "Rise of the Robots - China's Humanoid Robot Games",
+  level: 'Intermediate',
+  track: 'intermediate',
+  emoji: '🤖',
+  badge: 'Robot Games',
+
+  vocab: [
+    { word:'humanoid',     definition:'Having a human-like shape or form, especially about a robot',           example:'___ robots competed in the world\u2019s first robot games.',              distractors:['autonomous','showcase','haywire'] },
+    { word:'showcase',     definition:'To display something in order to show off its best qualities',          example:'The event is designed to ___ how far robots have come.',                 distractors:['capability','automation','handler'] },
+    { word:'capabilities', definition:'The abilities or skills something has to perform a task',                example:'The games test robot ___ under real conditions.',                        distractors:['stretcher','cushion','haywire'] },
+    { word:'automation',   definition:'The use of machines or technology to do work without people',            example:'Robotic ___ is already replacing human labour in factories.',            distractors:['handler','showcase','humanoid'] },
+    { word:'autonomous',   definition:'Able to act independently, without human control',                       example:'Fully ___ robots from science fiction are still far off.',              distractors:['humanoid','unsurprising','handler'] },
+    { word:'haywire',      definition:'Behaving in an uncontrolled or malfunctioning way (informal)',           example:'Humans stay close in case the machines go ___.',                         distractors:['autonomous','capable','cushioned'] },
+    { word:'head start',   definition:'An advantage that lets someone begin early or get ahead of others',      example:'China hopes the games show it has a ___ ___ in robotics.',               distractors:['cushioned edge','handler role','autonomous lead'] },
+    { word:'stretcher',    definition:'A flat frame used to carry someone (or something) that cannot walk',     example:'Fallen robots are carried away on a ___.',                                distractors:['cushion','handler','showcase'] },
+  ],
+
+  grammar: {
+    topic: 'Comparatives & "the + comparative..., the + comparative..."',
+    rule:  'Comparative adjectives compare two things: more capable, faster, better. The pattern "THE + comparative, THE + comparative" shows two things changing together: "The more advanced robots become, the more jobs they threaten."',
+    exercises: [
+      { sentence:'Robots are becoming ___ than ever before.',                                  answer:'more capable', wrong:['capable','most capable','capablest'], explain:'"Capable" is a longer adjective, so we add MORE, not -er. "More capable than ever."' },
+      { sentence:'___ advanced robots become, the more jobs they are likely to threaten.',       answer:'The more',      wrong:['So','As more','How more'],           explain:'"The more X, the more Y" shows two things changing together — a very common structure in news English.' },
+      { sentence:'This year\u2019s robots moved ___ than last year\u2019s models.',              answer:'more smoothly', wrong:['smoothlier','most smoothly','smoothly more'], explain:'Adverbs ending in -ly form the comparative with MORE, not -er.' },
+      { sentence:'The race was ___ exciting than anyone expected.',                              answer:'far more',      wrong:['far most','farer','more far'],       explain:'"Far more" intensifies a comparative — much stronger than just "more".' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Modals of Deduction (must have) & First Conditional',
+    rule:  'MUST HAVE + past participle expresses a confident guess about the past, based on evidence: "That robot must have crashed at full speed" (the damage proves it). First conditional: If + present simple → will + infinitive, for a real, likely future outcome.',
+    exercises: [
+      { sentence:'Judging by all the damage, that robot ___ crashed into the cushion at full speed.', answer:'must have', wrong:['can have','would have','should have'], explain:'"Must have" + past participle = a confident deduction about the past, based on clear evidence.' },
+      { sentence:'If robots keep improving, they ___ more human jobs.',                              answer:'will replace', wrong:['would replace','replaced','are replacing'], explain:'First conditional: if + present simple → will + infinitive, for a real, likely outcome.' },
+      { sentence:'Factory workers now risk ___ their jobs to automation.',                            answer:'losing',       wrong:['to lose','lose','lost'],             explain:'"Risk" is followed by a gerund (-ing), not an infinitive: "risk losing", not "risk to lose".' },
+      { sentence:'Given how fast it was moving, the engineers ___ expected it to crash.',              answer:'must have',    wrong:['can have','will have','should'],     explain:'"Must have expected" — a confident guess about what the engineers believed, based on the robot\u2019s design.' },
+    ],
+  },
+
+  sentences: [
+    { words:['Robots','ran','full','speed','into','a','giant','cushion'],                 answer:'Robots ran full speed into a giant cushion',                 hint:'🏃 About the robot race...' },
+    { words:['Robotic','automation','is','increasingly','replacing','human','labour'],     answer:'Robotic automation is increasingly replacing human labour', hint:'🏭 About the factories...' },
+    { words:['Fully','autonomous','robots','are','likely','still','far','off'],            answer:'Fully autonomous robots are likely still far off',          hint:'🔮 About the future...' },
+    { words:['Human','handlers','carry','the','fallen','robots','away','on','stretchers'], answer:'Human handlers carry the fallen robots away on stretchers', hint:'🚑 About what happens after a crash...' },
+  ],
+
+  word_builder: [
+    { word:'humanoid',     definition:'Having a human-like shape or form' },
+    { word:'automation',   definition:'Machines doing work without people' },
+    { word:'autonomous',   definition:'Able to act independently, without control' },
+    { word:'capabilities', definition:'The abilities to perform a task' },
+    { word:'showcase',     definition:'To display something to show it off' },
+    { word:'haywire',      definition:'Behaving in an uncontrolled, malfunctioning way' },
+  ],
+
+  true_false: [
+    { statement:'A robot unsurprisingly beat Usain Bolt\u2019s 100-metre sprint record at the games.',     correct:true,  reveal:'✅ TRUE! At the World Humanoid Robot Games in Beijing, a robot beat the human sprint record.' },
+    { statement:'Every robot finished its race perfectly, with no accidents at all.',                     correct:false, reveal:'❌ FALSE! Many robots crashed into safety cushions and were carried away by handlers on stretchers.' },
+    { statement:'The World Humanoid Robot Games were organised by a private American tech company.',      correct:false, reveal:'❌ FALSE! The event was organised by China Media Group (CMG), not a US company.' },
+    { statement:'Robotic automation is already replacing human labour in factories.',                     correct:true,  reveal:'✅ TRUE! The report says automation is increasingly replacing human workers in manufacturing.' },
+    { statement:'Fully autonomous robots, like those in science fiction, already exist today.',           correct:false, reveal:'❌ FALSE! The report says fully autonomous robots are likely still far off.' },
+    { statement:'Humans still need to stay close to robots in case they malfunction.',                    correct:true,  reveal:'✅ TRUE! Humans are still needed for when the machines "go haywire."' },
+    { statement:'China\u2019s robotics industry hopes the games show it has a "head start" in the future economy.', correct:true, reveal:'✅ TRUE! Organisers said robots represent "the future we will all face together."' },
+    { statement:'"Showcase" means to hide something from public view.',                                   correct:false, reveal:'❌ FALSE! "Showcase" means the opposite — to display something to highlight its best qualities.' },
+  ],
+},
  
    };
 
