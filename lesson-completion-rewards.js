@@ -1014,6 +1014,22 @@
   ],
 },
 
+     'china-robot-games-intermediate': {
+  title:   "Rise of the Robots - China's Humanoid Robot Games",
+  level:   'Intermediate',
+  grammar: 'Comparatives & "the more..., the more..."; Modals of deduction (must have) & First Conditional',
+  vocab: [
+    { word:'humanoid',     definition:'Having a human-like shape or form, especially about a robot' },
+    { word:'showcase',     definition:'To display something in order to show off its best qualities' },
+    { word:'capabilities', definition:'The abilities or skills something has to perform a task' },
+    { word:'automation',   definition:'The use of machines or technology to do work without people' },
+    { word:'autonomous',   definition:'Able to act independently, without human control' },
+    { word:'haywire',      definition:'Behaving in an uncontrolled or malfunctioning way (informal)' },
+    { word:'head start',   definition:'An advantage that lets someone begin early or get ahead of others' },
+    { word:'stretcher',    definition:'A flat frame used to carry someone (or something) that cannot walk' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
