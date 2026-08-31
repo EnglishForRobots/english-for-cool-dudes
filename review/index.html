@@ -328,7 +328,7 @@ body{background:var(--navy);color:#fff;line-height:1.4}
     </div>
 
     <button class="btn-play" id="btn-play" onclick="startGame()" disabled>
-      🚇 Start Review!
+      📖 Start Review!
     </button>
 
     <div style="text-align:center;margin-top:14px">
@@ -472,9 +472,13 @@ function _updatePlayBtn() {
   } else {
     const count = Object.keys(_selectedLessons).length;
     const tag = count > 1 ? ` (${count} lessons)` : '';
+    const lessonList  = Object.values(_selectedLessons);
+    const selEl       = document.getElementById('class-sel');
+    const classEmoji  = selEl?.selectedOptions?.[0]?.dataset.emoji;
+    const icon = count === 1 ? (lessonList[0]?.emoji || classEmoji || '📖') : (classEmoji || '📖');
     btn.textContent = _selectedTimerSecs > 0
       ? `⏱️ ${mins}-min Warm-up — Let's go!${tag}`
-      : `🚇 Start Review!${tag}`;
+      : `${icon} Start Review!${tag}`;
   }
 }
 
@@ -775,6 +779,7 @@ async function boot() {
   (classes||[]).forEach(c => {
     const o = document.createElement('option');
     o.value = c.id;
+    o.dataset.emoji = c.emoji || '📖';
     o.textContent = c.emoji + ' ' + (c.team_name || c.name);
     sel.appendChild(o);
   });
@@ -943,10 +948,12 @@ function buildQuestions() {
 
   for (const ld of lessons) {
 
+  const tag = obj => Object.assign(obj, { _lessonId: ld.id, _lessonTitle: ld.title, _lessonEmoji: ld.emoji || '📖' });
+
   if (_activeRounds.has('blitz') && ld.vocab?.length >= 2) {
     ld.vocab.forEach(item => {
       const wrong = ld.vocab.filter(v=>v.word!==item.word).sort(()=>Math.random()-.5).slice(0,3).map(v=>v.word);
-      q.push({ round:'blitz', word:item.word, def:item.definition, opts:shuffle([item.word,...wrong]), answer:item.word });
+      q.push(tag({ round:'blitz', word:item.word, def:item.definition, opts:shuffle([item.word,...wrong]), answer:item.word }));
     });
   }
 
@@ -957,7 +964,7 @@ function buildQuestions() {
         const rand = ld.vocab.find(v=>v.word!==item.word&&!dis.includes(v.word));
         if (rand) dis.push(rand.word); else break;
       }
-      q.push({ round:'gap', word:item.word, sentence:item.example, opts:shuffle([item.word,...dis]), answer:item.word });
+      q.push(tag({ round:'gap', word:item.word, sentence:item.example, opts:shuffle([item.word,...dis]), answer:item.word }));
     });
   }
 
@@ -965,26 +972,26 @@ function buildQuestions() {
     [ld.grammar, ld.grammar2, ld.grammar3].forEach(g => {
       if (!g?.exercises?.length) return;
       g.exercises.forEach(ex => {
-        q.push({ round:'grammar', topic:g.topic, rule:g.rule, sentence:ex.sentence, opts:shuffle([ex.answer,...ex.wrong]), answer:ex.answer, explain:ex.explain });
+        q.push(tag({ round:'grammar', topic:g.topic, rule:g.rule, sentence:ex.sentence, opts:shuffle([ex.answer,...ex.wrong]), answer:ex.answer, explain:ex.explain }));
       });
     });
   }
 
   if (_activeRounds.has('builder') && ld.word_builder?.length) {
     ld.word_builder.forEach(item => {
-      q.push({ round:'builder', word:item.word, def:item.definition, letters:shuffle([...item.word]) });
+      q.push(tag({ round:'builder', word:item.word, def:item.definition, letters:shuffle([...item.word]) }));
     });
   }
 
   if (_activeRounds.has('tf') && ld.true_false?.length) {
     ld.true_false.forEach(item => {
-      q.push({ round:'tf', statement:item.statement, answer:item.correct, reveal:item.reveal });
+      q.push(tag({ round:'tf', statement:item.statement, answer:item.correct, reveal:item.reveal }));
     });
   }
 
   if (_activeRounds.has('sentence') && ld.sentences?.length) {
     ld.sentences.forEach(item => {
-      q.push({ round:'sentence', words:shuffle([...item.words]), answer:item.answer, altAnswers:item.altAnswers, hint:item.hint });
+      q.push(tag({ round:'sentence', words:shuffle([...item.words]), answer:item.answer, altAnswers:item.altAnswers, hint:item.hint }));
     });
   }
 
@@ -1141,15 +1148,30 @@ function answerBlitz(chosen, btn) {
 
 // ── GAP FILL ──────────────────────────────────────────────────
 function renderGap(q, body) {
-  const sentence = q.sentence.replace('___', '<span class="gap-blank" id="gap-blank">___</span>');
+  let bIdx = 0;
+  const sentence = q.sentence.replace(/_{3,}/g, () => `<span class="gap-blank" id="gap-blank-${bIdx++}">___</span>`);
   body.innerHTML = `
     <div class="gap-wrap">
       <div class="q-counter">Question ${_qIdx+1}</div>
       <div class="gap-sentence">${sentence}</div>
       <div class="opts-grid">
-        ${q.opts.map(o => `<button class="opt" onclick="answerGap('${o}',this)" data-answer="${o}">${o}</button>`).join('')}
+        ${q.opts.map(o => `<button class="opt" onclick="answerGap('${escQ(o)}',this)" data-answer="${escQ(o)}">${o}</button>`).join('')}
       </div>
     </div>`;
+}
+
+function _fillGapBlanks(sentence, answer) {
+  const blankCount = (sentence.match(/_{3,}/g) || []).length;
+  const words = answer.split(' ');
+  let i = 0;
+  return sentence.replace(/_{3,}/g, () => {
+    let w;
+    if (blankCount <= 1) w = answer;
+    else if (i === blankCount - 1) w = words.slice(i).join(' ') || answer;
+    else w = words[i] !== undefined ? words[i] : '';
+    i++;
+    return `"${w}"`;
+  });
 }
 
 function answerGap(chosen, btn) {
@@ -1158,13 +1180,23 @@ function answerGap(chosen, btn) {
   const ok = chosen === q.answer;
   document.querySelectorAll('.opt').forEach(b => b.disabled = true);
   btn.classList.add(ok ? 'correct' : 'wrong');
-  if (!ok) document.querySelector(`.opt[data-answer="${q.answer}"]`)?.classList.add('reveal');
-  const blank = document.getElementById('gap-blank');
-  if (blank) { blank.textContent = q.answer; blank.classList.add('filled'); }
-  if (_srsMode) _recordSRSResult(ok, ok ? 'fast' : 'wrong');
-  handleResult(ok, ok ? '✅ Correct!' : `❌ The answer is: <strong>${q.answer}</strong>`, q.sentence.replace('___', `"${q.answer}"`));
-}
+  if (!ok) document.querySelector(`.opt[data-answer="${escQ(q.answer)}"]`)?.classList.add('reveal');
 
+  const blanks = document.querySelectorAll('[id^="gap-blank-"]');
+  const blankCount = blanks.length;
+  const words = q.answer.split(' ');
+  blanks.forEach((blank, i) => {
+    let w;
+    if (blankCount <= 1) w = q.answer;
+    else if (i === blankCount - 1) w = words.slice(i).join(' ') || q.answer;
+    else w = words[i] !== undefined ? words[i] : '';
+    blank.textContent = w;
+    blank.classList.add('filled');
+  });
+
+  if (_srsMode) _recordSRSResult(ok, ok ? 'fast' : 'wrong');
+  handleResult(ok, ok ? '✅ Correct!' : `❌ The answer is: <strong>${q.answer}</strong>`, _fillGapBlanks(q.sentence, q.answer));
+}
 // ── GRAMMAR FILL ──────────────────────────────────────────────
 function renderGrammar(q, body) {
   let blankIdx = 0;
@@ -1213,6 +1245,7 @@ function renderBuilder(q, body) {
     <div class="wb-wrap">
       <div class="q-counter">Question ${_qIdx+1}</div>
       <div class="wb-def">💡 ${q.def}</div>
+      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.4);text-align:center;margin-bottom:8px">⌨️ Type the word, or tap the letters below</div>
       <div class="wb-slots" id="wb-slots"></div>
       <div class="wb-tiles" id="wb-tiles">
         ${freshLetters.map((l,i) => `<button class="wb-tile" id="wbt-${i}" onclick="tapWBLetter('${l}',${i})">${l.toUpperCase()}</button>`).join('')}
@@ -1248,6 +1281,22 @@ function tapWBLetter(letter, ti) {
   _wbBuilt.push(letter);
   document.getElementById('wbt-'+ti)?.classList.add('used');
   renderWBSlots();
+}
+
+function typeWBLetter(letter) {
+  if (_answered) return;
+  const q = _questions[_qIdx];
+  if (!q || q.round !== 'builder') return;
+  if (_wbBuilt.length >= q.word.length) return;
+  const tiles = document.querySelectorAll('.wb-tile:not(.used)');
+  for (const t of tiles) {
+    if (t.textContent.toLowerCase() === letter.toLowerCase()) { t.click(); return; }
+  }
+}
+
+function backspaceWB() {
+  if (_answered || !_wbBuilt.length) return;
+  removeWBLetter(_wbBuilt.length - 1);
 }
 
 function removeWBLetter(pos) {
@@ -1485,6 +1534,10 @@ function updateHeader() {
   const m = ROUND_META[q.round] || ROUND_META.blitz;
   document.getElementById('g-round-type').textContent = q.round.toUpperCase();
   document.getElementById('g-round-name').innerHTML   = m.title.replace(/<[^>]+>/g,'');
+  const lessonEl = document.getElementById('g-lesson');
+  if (lessonEl && q._lessonTitle) {
+    lessonEl.textContent = `${q._lessonEmoji || '📖'} ${q._lessonTitle}`;
+  }
 }
 
 function updateScore() {
@@ -1639,6 +1692,14 @@ function fireConfettiSmall() {
 document.addEventListener('keydown', e => {
   const gs = document.getElementById('game');
   if (gs.style.display==='none') return;
+  const currentRound = _questions[_qIdx]?.round;
+
+  // Word Builder: type letters directly, Backspace to undo
+  if (currentRound === 'builder' && !_answered) {
+    if (/^[a-zA-Z]$/.test(e.key)) { e.preventDefault(); typeWBLetter(e.key); return; }
+    if (e.key === 'Backspace') { e.preventDefault(); backspaceWB(); return; }
+  }
+
   if (e.key===' '||e.key==='ArrowRight') { e.preventDefault(); if (_answered&&!_timerEnded) advance(); }
   if (e.key==='1'||e.key==='2'||e.key==='3'||e.key==='4') {
     const opts=document.querySelectorAll('.opt:not(:disabled)');
