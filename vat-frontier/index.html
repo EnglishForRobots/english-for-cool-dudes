@@ -188,8 +188,12 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .mm-back{background:#fff;border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);transform:rotateY(180deg);font-size:11.5px;font-weight:700;color:var(--ink1);line-height:1.35}
 .mm-back.mm-term{background:var(--blue-light);border-color:var(--blue-mid);font-size:13.5px;font-weight:900;color:var(--blue-dark)}
 .mm-card.wrong .mm-card-inner{animation:shake .4s ease}
-.mm-hint{display:none;text-align:center;font-size:12.5px;font-weight:900;color:var(--ink3);margin:-4px 0 12px;animation:pulse 1.2s ease-in-out infinite}
-.mm-hint.show{display:block}
+.mm-feedback{display:none;text-align:center;margin-bottom:4px}
+.mm-feedback.show{display:block;animation:revealUp .25s ease both}
+.mm-fb-emoji{font-size:40px;display:block;margin-bottom:6px;animation:popin .35s cubic-bezier(.175,.885,.32,1.275) both}
+.mm-fb-text{font-size:14px;font-weight:900;color:var(--red);margin-bottom:12px}
+.mm-retry-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;background:var(--red);color:#fff;font-size:15px;font-weight:900;font-family:inherit;border:2px solid var(--red-dark);border-bottom:5px solid var(--red-dark);border-radius:var(--rsm);cursor:pointer}
+.mm-retry-btn:active{border-bottom-width:2px;transform:translateY(3px)}
 .mm-card.matched .mm-back{animation:heartbeat .4s ease}
 .mm-card.matched.mm-color-A .mm-back{background:var(--green-light)!important;border-color:var(--green)!important;box-shadow:0 0 0 3px var(--green)!important}
 .mm-card.matched.mm-color-B .mm-back{background:var(--amber-light)!important;border-color:var(--amber-mid)!important;box-shadow:0 0 0 3px var(--amber-mid)!important}
@@ -996,7 +1000,8 @@ function buildVocabMatch(){
       <div class="tip-box">💡 <strong>How to play:</strong> Tap a card to flip it, then tap another. Matching pairs stay revealed in colour — mismatches flip back. Clear the board!</div>
       <div class="mm-stats-row"><span>🔄 Moves: <span id="mm-moves">0</span></span><span>✅ Pairs: <span id="mm-pairs">0</span> / ${MATCH_TOTAL}</span></div>
       <div class="mm-grid" id="mm-grid"></div>
-      <div class="mm-hint" id="mm-hint">👆 Tap any card to continue</div>
+      <div class="mm-grid" id="mm-grid"></div>
+      <div class="mm-feedback" id="mm-feedback"></div>
       <div class="mt-done-wrap" id="mm-done-wrap"></div>
     </div>`;
   return sec;
@@ -1026,8 +1031,9 @@ function mmSetup(){
     grid.appendChild(card);
   });
 }
+const MM_CORRECT_EMOJIS = ['🎉','✅','⭐','🔥'];
+
 function handleMmClick(card){
-  if(S.mmPendingClear){ S.mmPendingClear(); return; } // tap anywhere to clear a shown mismatch
   if(S.mmLock) return;
   if(card.classList.contains('flipped')||card.classList.contains('matched')) return;
   if(S.mmFlipped.length>=2) return;
@@ -1036,33 +1042,45 @@ function handleMmClick(card){
   if(S.mmFlipped.length===2){
     S.mmMoves++; const mv=$('mm-moves'); if(mv) mv.textContent=S.mmMoves;
     S.totalAnswered++;
+    S.mmLock=true;
     const [a,b]=S.mmFlipped;
-    if(a.dataset.key===b.dataset.key && a.dataset.type!==b.dataset.type){
-      S.mmLock=true;
-      setTimeout(()=>{
+    const isMatch = a.dataset.key===b.dataset.key && a.dataset.type!==b.dataset.type;
+    setTimeout(()=>{ // wait for the .5s flip transition to finish before any feedback shows
+      if(isMatch){
         const colorClass=`mm-color-${a.dataset.key}`;
-        [a,b].forEach(el=>{ el.classList.add('matched',colorClass); });
+        [a,b].forEach(el=>el.classList.add('matched',colorClass));
         S.mmMatchedCount++; S.totalRight++; S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo);
-        addXP(12, b);
-        if(fx()){ fx().correct(b); fx().combo(S.combo); }
+        addXP(12,b);
         const mp=$('mm-pairs'); if(mp) mp.textContent=S.mmMatchedCount;
+        showMmFeedback(true);
         S.mmFlipped=[]; S.mmLock=false;
-        if(S.mmMatchedCount===MATCH_TOTAL) mmFinish();
-      },550);
-    } else {
-      S.mmLock=true;
-      setTimeout(()=>{
+        if(S.mmMatchedCount===MATCH_TOTAL) setTimeout(mmFinish,700);
+      } else {
         a.classList.add('wrong'); b.classList.add('wrong');
         S.combo=0; addXP(1);
-        if(fx()) fx().wrong(b);
-        const hint=$('mm-hint'); if(hint) hint.classList.add('show');
-        S.mmPendingClear=()=>{
+        showMmFeedback(false, ()=>{
           a.classList.remove('flipped','wrong'); b.classList.remove('flipped','wrong');
-          S.mmFlipped=[]; S.mmLock=false; S.mmPendingClear=null;
-          const h=$('mm-hint'); if(h) h.classList.remove('show');
-        };
-      },550); // matches the .5s CSS flip transition — feedback only fires once the card has actually turned
-    }
+          S.mmFlipped=[]; S.mmLock=false;
+        });
+      }
+    },550);
+  }
+}
+
+function showMmFeedback(correct, onRetry){
+  const el=$('mm-feedback'); if(!el) return;
+  if(correct){
+    const emoji=MM_CORRECT_EMOJIS[~~(Math.random()*MM_CORRECT_EMOJIS.length)];
+    el.innerHTML=`<span class="mm-fb-emoji">${emoji}</span>`;
+    el.classList.add('show');
+    setTimeout(()=>{ el.classList.remove('show'); el.innerHTML=''; },900);
+  } else {
+    el.innerHTML=`<span class="mm-fb-emoji">😬</span><div class="mm-fb-text">Not quite — take another look!</div><button class="mm-retry-btn" id="mm-retry-btn">🔄 Try Again</button>`;
+    el.classList.add('show');
+    $('mm-retry-btn').onclick=()=>{
+      el.classList.remove('show'); el.innerHTML='';
+      if(onRetry) onRetry();
+    };
   }
 }
 function mmFinish(){
