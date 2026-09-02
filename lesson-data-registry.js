@@ -4965,6 +4965,81 @@ const LESSON_DATA_REGISTRY = {
     { statement:'"Showcase" means to hide something from public view.',                                   correct:false, reveal:'❌ FALSE! "Showcase" means the opposite — to display something to highlight its best qualities.' },
   ],
 },
+
+   'the-vat-frontier-cross-border-intermediate': {
+
+  id:    'the-vat-frontier-cross-border-intermediate',
+  title: 'The VAT Frontier',
+  level: 'Tax English',
+  track: 'tax',
+  emoji: '🧭',
+  badge: 'Frontier Navigator',
+
+  vocab: [
+    { word:'VAT (Value Added Tax)', definition:'A tax added to the price of most goods and services, collected by businesses on behalf of the government.', example:'___ is a tax added to the price of most goods and services.', distractors:['input tax','output tax','customs duty'] },
+    { word:'input tax',             definition:'VAT a business pays on its own purchases, which it can usually reclaim.', example:'MaschinenbauTech can usually reclaim the ___ it pays on its own purchases.', distractors:['output tax','VAT return','exempt'] },
+    { word:'output tax',            definition:'VAT a business charges its customers on sales, which it must pay to the tax office.', example:'Jonas must pay the ___ he charges his customers to the tax office.', distractors:['input tax','zero-rated','place of supply'] },
+    { word:'VAT registration threshold', definition:'The level of annual turnover at which a business must register for VAT.', example:'Once Jonas crossed the ___, he had to register for VAT.', distractors:['PE threshold','VAT return','margin scheme'] },
+    { word:'reverse charge',        definition:'A mechanism where the buyer, not the seller, is responsible for reporting the VAT on a transaction.', example:'Under the ___, the buyer reports and pays the VAT instead of the seller.', distractors:['margin scheme','distance selling','zero-rated'] },
+    { word:'zero-rated',            definition:'Describes goods or services taxable at a VAT rate of 0% — different from being VAT-exempt.', example:'German exports are ___ — taxable, just at 0%.', distractors:['exempt','VAT-free','tax-free'] },
+    { word:'intra-EU supply',       definition:'The sale of goods from a business in one EU country to a business in another EU country.', example:'An ___ is a sale between VAT-registered businesses in two EU countries.', distractors:['distance selling','margin scheme','place of supply'] },
+    { word:'One-Stop-Shop (OSS)',   definition:'A simplified EU system that lets businesses report VAT for several countries through a single return.', example:'The ___ lets Jonas report VAT for several EU countries in one return.', distractors:['VAT return','reverse charge','intra-EU supply'] },
+    { word:'VAT return',            definition:'A regular report a business submits showing the VAT it has charged and paid.', example:'A ___ is filed every quarter, showing VAT charged and paid.', distractors:['assessment notice','audit report','forecast'] },
+    { word:'place of supply',       definition:'The country whose VAT rules apply to a transaction, which determines where tax is due.', example:'___ rules decide which country\'s VAT rate applies.', distractors:['VAT registration threshold','margin scheme','intra-EU supply'] },
+    { word:'distance selling',      definition:'Selling goods directly to consumers in another country, often online, subject to specific VAT rules.', example:'___ describes selling directly to consumers abroad, often online.', distractors:['intra-EU supply','margin scheme','zero-rated'] },
+    { word:'margin scheme',         definition:'A VAT rule allowing certain businesses, like second-hand dealers, to pay tax only on their profit margin.', example:'A ___ lets certain dealers pay VAT only on their profit margin.', distractors:['reverse charge','zero-rated','distance selling'] },
+  ],
+
+  grammar: {
+    topic: 'Passive Voice in tax and compliance English',
+    rule:  'Present passive: is/are + past participle. Past passive: was/were + past participle. In VAT and tax English, passive voice focuses on what happens to the transaction, not who acts. "VAT is charged." "The threshold was crossed."',
+    exercises: [
+      { sentence:'VAT ___ on top of the price for most goods and services.', answer:'is charged', wrong:['charges','was charge','has charge'], explain:'Present passive: is + past participle. A general ongoing rule.' },
+      { sentence:'Once the threshold ___, VAT registration becomes compulsory.', answer:'is crossed', wrong:['crosses','was cross','has cross'], explain:'Present passive for a standard trigger point in the rule.' },
+      { sentence:'Under OSS, VAT for several EU countries ___ through a single return.', answer:'is reported', wrong:['reports','was report','has report'], explain:'Present passive: is + past participle, describing how the scheme works.' },
+      { sentence:'The reverse charge ___ to prevent VAT fraud on cross-border services.', answer:'is used', wrong:['uses','was use','has use'], explain:'Present passive for a general purpose statement about the mechanism.' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Zero Conditional — general VAT rules',
+    rule:  'Zero conditional: If + present simple, present simple. Used for tax rules and facts that are always true. "If turnover crosses the threshold, registration becomes compulsory."',
+    exercises: [
+      { sentence:'If a business\u2019s turnover ___ the threshold, registration ___ compulsory.', answer:'crosses / becomes', wrong:['crossed / became','will cross / will become','crosses / became'], explain:'Zero conditional: present simple in both clauses for an always-true rule.' },
+      { sentence:'If a company ___ services from another EU country, the reverse charge ___.', answer:'buys / applies', wrong:['bought / applied','will buy / will apply','buys / applied'], explain:'Zero conditional describing a standing cross-border VAT rule.' },
+      { sentence:'If goods ___ zero-rated, the seller ___ 0% VAT but can still reclaim input VAT.', answer:'are / charges', wrong:['were / charged','will be / will charge','are / charged'], explain:'Zero conditional for a definitional truth about zero-rating.' },
+      { sentence:'If a business ___ under OSS, it ___ to register separately in each EU country.', answer:'reports / doesn\'t need', wrong:['reported / didn\'t need','will report / won\'t need','reports / didn\'t need'], explain:'Zero conditional: a general, repeatable consequence of using the scheme.' },
+    ],
+  },
+
+  sentences: [
+    { words:['is', 'charged', 'VAT', 'goods', 'on', 'most', 'services', 'and'], answer:'VAT is charged on most goods and services', hint:'🧾 A general fact about VAT' },
+    { words:['buyer', 'the', 'reports', 'the', 'reverse', 'charge', 'Under', 'VAT'], answer:'Under the reverse charge the buyer reports VAT', hint:'🔄 Who reports VAT under the reverse charge?' },
+    { words:['lets', 'OSS', 'report', 'VAT', 'one', 'businesses', 'return', 'in'], answer:'OSS lets businesses report VAT in one return', hint:'🧭 What does the One-Stop-Shop scheme simplify?' },
+    { words:['still', 'zero-rated', 'goods', 'taxable', 'are'], answer:'zero-rated goods are still taxable', hint:'✅ The key difference between zero-rated and exempt' },
+  ],
+
+  word_builder: [
+    { word:'threshold',   definition:'The turnover level at which VAT registration becomes required' },
+    { word:'reverse',     definition:'Charge where the buyer reports the VAT, not the seller' },
+    { word:'zerorated',   definition:'Taxable at 0%, unlike being exempt' },
+    { word:'intraeu',     definition:'A supply of goods between two EU businesses' },
+    { word:'oss',         definition:'One-Stop-Shop — a single EU VAT return scheme' },
+    { word:'exempt',      definition:'No VAT charged on it at all' },
+  ],
+
+  true_false: [
+    { statement:'VAT registration only becomes compulsory once a business crosses a set turnover threshold.', correct:true,  reveal:'✅ TRUE. Below the threshold, registration is often optional — above it, it becomes a legal requirement.' },
+    { statement:'Input tax is VAT a business charges to its own customers.', correct:false, reveal:'❌ FALSE. That\u2019s output tax. Input tax is VAT a business pays on its own purchases.' },
+    { statement:'Under the reverse charge, the buyer — not the seller — reports and pays the VAT.', correct:true,  reveal:'✅ TRUE. The responsibility shifts to the buyer, who often reclaims it as input tax at the same time.' },
+    { statement:'The One-Stop-Shop scheme still requires separate VAT registration in every EU country you sell to.', correct:false, reveal:'❌ FALSE. That\u2019s exactly what OSS avoids — one return covers VAT owed across multiple EU countries.' },
+    { statement:'Zero-rated and VAT-exempt goods are exactly the same thing.', correct:false, reveal:'❌ FALSE. Zero-rated goods are technically still taxable, just at 0% — exempt goods have no VAT rules applied at all.' },
+    { statement:'Distance selling refers to selling goods directly to consumers abroad, often online.', correct:true,  reveal:'✅ TRUE. It\u2019s the direct-to-consumer, cross-border sales pattern that OSS was built to simplify.' },
+    { statement:'Place of supply rules help determine which country\u2019s VAT applies to a transaction.', correct:true,  reveal:'✅ TRUE. Especially important for cross-border and digital sales, where the customer\u2019s location often decides the rate.' },
+    { statement:'A VAT return must always be filed just once a year, regardless of business size.', correct:false, reveal:'❌ FALSE. Most VAT returns are filed quarterly or even monthly, depending on the size and country of the business.' },
+  ],
+
+},
  
    };
 
