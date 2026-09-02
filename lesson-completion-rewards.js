@@ -1030,6 +1030,26 @@
   ],
 },
 
+     'the-vat-frontier-cross-border-intermediate': {
+  title:   'The VAT Frontier',
+  level:   'Tax English',
+  grammar: 'Passive Voice in tax/compliance English; Zero Conditional for general VAT rules',
+  vocab: [
+    { word:'VAT (Value Added Tax)',      definition:'A tax added to the price of most goods and services, collected by businesses on behalf of the government.' },
+    { word:'input tax',                  definition:'VAT a business pays on its own purchases, which it can usually reclaim.' },
+    { word:'output tax',                 definition:'VAT a business charges its customers on sales, which it must pay to the tax office.' },
+    { word:'VAT registration threshold', definition:'The level of annual turnover at which a business must register for VAT.' },
+    { word:'reverse charge',             definition:'A mechanism where the buyer, not the seller, is responsible for reporting the VAT on a transaction.' },
+    { word:'zero-rated',                 definition:'Describes goods or services taxable at a VAT rate of 0% — different from being VAT-exempt.' },
+    { word:'intra-EU supply',            definition:'The sale of goods from a business in one EU country to a business in another EU country.' },
+    { word:'One-Stop-Shop (OSS)',        definition:'A simplified EU system that lets businesses report VAT for several countries through a single return.' },
+    { word:'VAT return',                 definition:'A regular report a business submits showing the VAT it has charged and paid.' },
+    { word:'place of supply',            definition:'The country whose VAT rules apply to a transaction, which determines where tax is due.' },
+    { word:'distance selling',           definition:'Selling goods directly to consumers in another country, often online, subject to specific VAT rules.' },
+    { word:'margin scheme',              definition:'A VAT rule allowing certain businesses, like second-hand dealers, to pay tax only on their profit margin.' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
