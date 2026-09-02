@@ -1,8 +1,9 @@
 window.LEVEL_CONFIG = { eyebrow: '💰 Tax English', accent: 'gold' };
 window.LESSONS = [
-  { slug:'curevac-countdown', icon:'🧬', badge:'⭐ Tax/Biotech', badgeType:'new', title:'The CureVac Deal', desc:'They started as rivals, so what happened when BioNTech acquired CureVac?', mins:6, date:'2026-08-31' },
-  { slug:'year-end-meeting', icon:'📊', badge:'⭐ Accounting', badgeType:'new', title:'The Year-End Meeting', desc:'A café owner is confused: the numbers say "profit," but the bank account says otherwise. Can you provide the answers?!', mins:9, date:'2026-08-26' },
-  { slug:'audit-files', icon:'🧾', badge:'⭐ Tax/Bookkeeping', badgeType:'new', title:'The Audit Files (Role Play)', desc:'Your client Anja Voss just opened a letter from the tax office, and now she needs your help!!', mins:8, date:'2026-08-18' },
+  { slug:'vat-frontier', icon:'🧭', badge:'⭐ VAT', badgeType:'new', title:'The VAT Frontier', desc:'From local VAT registration to selling across the EU, get all the cross-border vocab a tax advisor needs.', mins:7, date:'2026-09-02' },
+  { slug:'curevac-countdown', icon:'🧬', badge:'Tax/Biotech', badgeType:null, title:'The CureVac Deal', desc:'They started as rivals, so what happened when BioNTech acquired CureVac?', mins:6, date:'2026-08-31' },
+  { slug:'year-end-meeting', icon:'📊', badge:'Accounting', badgeType:null, title:'The Year-End Meeting', desc:'A café owner is confused: the numbers say "profit," but the bank account says otherwise. Can you provide the answers?!', mins:9, date:'2026-08-26' },
+  { slug:'audit-files', icon:'🧾', badge:'Tax/Bookkeeping', badgeType:null, title:'The Audit Files (Role Play)', desc:'Your client Anja Voss just opened a letter from the tax office, and now she needs your help!!', mins:8, date:'2026-08-18' },
   { slug:'ledger-files', icon:'📒', badge:'Tax/Bookkeeping', badgeType:null, title:'The Ledger Files', desc:'Can you give advice to some clients using your expert tax and bookkeeper vocabulary.', mins:7, date:'2026-08-17' },
   { slug:'benefit-test-files', icon:'⚖️', badge:'Intra-Group Services', badgeType:null, title:'The Benefit Test Files', desc:'Real chargeable services — or disguised dividends? Which services pass the benefit test and which are shareholder activity?', mins:9, date:'2026-08-13' },
   { slug:'audit-file', icon:'🗂️', badge:'Auditing', badgeType:null, title:'The Audit File', desc:'Your clients have various questions regarding upcoming and current audits. Can you advise them using specialist tax English?', mins:6, date:'2026-08-03' },
