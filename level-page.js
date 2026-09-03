@@ -97,15 +97,9 @@
     }
 
     const badgeClass = lesson.badgeType ? ` ${lesson.badgeType}` : '';
-    const isDone = !!(doneSet && doneSet.has(lesson.slug));
-    let stampEmoji = '😎', stampLabel = 'Nailed it!';
-    if (isDone && doneSet instanceof Map) {
-      const info = doneSet.get(lesson.slug);
-      if (info && info.emoji) stampEmoji = info.emoji;
-      if (info && info.label) stampLabel = info.label;
-    }
+    const isDone = doneSet && doneSet.has(lesson.slug);
     const stamp = isDone
-      ? `<div class="completed-stamp" aria-hidden="true"><span>${stampEmoji}</span>${stampLabel}</div>`
+      ? `<div class="completed-stamp" aria-hidden="true"><span>😎</span>Nailed it!</div>`
       : '';
     const href = lesson.href || `/${lesson.slug}/`;
 
@@ -293,21 +287,32 @@
       try {
         const { data: badges } = await window.efcdSupabaseClient
           .from('efcd_badges')
-          .select('badge_key')
+          .select('badge_key, badge_emoji, badge_label')
           .eq('class_id', classId)
           .eq('is_manual', false)
           .like('badge_key', 'lesson_%');
 
-        const doneLessonIds = new Set((badges || []).map(b => b.badge_key.replace(/^lesson_/, '')));
-        const levelLessons = lessons.filter(l => l.slug);
-        const doneInLevel = new Set(
-          levelLessons
-            .filter(l => CLASS_LESSON_IDS[l.slug] && doneLessonIds.has(CLASS_LESSON_IDS[l.slug]))
-            .map(l => l.slug)
-        );
+        // Keep the first badge seen per lesson (a class only earns each
+        // lesson trophy once in practice, but be defensive about dupes).
+        const badgeByLessonId = {};
+        (badges || []).forEach(b => {
+          const lessonId = b.badge_key.replace(/^lesson_/, '');
+          if (!badgeByLessonId[lessonId]) {
+            badgeByLessonId[lessonId] = { emoji: b.badge_emoji, label: b.badge_label };
+          }
+        });
 
-        if (doneInLevel.size) renderGrid(lessons, doneInLevel);
-        renderProgressBar(levelLessons.length, doneInLevel.size);
+        const levelLessons = lessons.filter(l => l.slug);
+        const doneMap = new Map();
+        levelLessons.forEach(l => {
+          const lessonId = CLASS_LESSON_IDS[l.slug];
+          if (lessonId && badgeByLessonId[lessonId]) {
+            doneMap.set(l.slug, badgeByLessonId[lessonId]);
+          }
+        });
+
+        if (doneMap.size) renderGrid(lessons, doneMap);
+        renderProgressBar(levelLessons.length, doneMap.size);
       } catch (e) {
         console.error('[level-page] class completion fetch failed:', e);
       }
