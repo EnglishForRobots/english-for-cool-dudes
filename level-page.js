@@ -97,9 +97,15 @@
     }
 
     const badgeClass = lesson.badgeType ? ` ${lesson.badgeType}` : '';
-    const isDone = doneSet && doneSet.has(lesson.slug);
+    const isDone = !!(doneSet && doneSet.has(lesson.slug));
+    let stampEmoji = '😎', stampLabel = 'Nailed it!';
+    if (isDone && doneSet instanceof Map) {
+      const info = doneSet.get(lesson.slug);
+      if (info && info.emoji) stampEmoji = info.emoji;
+      if (info && info.label) stampLabel = info.label;
+    }
     const stamp = isDone
-      ? `<div class="completed-stamp" aria-hidden="true"><span>😎</span>Nailed it!</div>`
+      ? `<div class="completed-stamp" aria-hidden="true"><span>${stampEmoji}</span>${stampLabel}</div>`
       : '';
     const href = lesson.href || `/${lesson.slug}/`;
 
@@ -176,7 +182,23 @@
     'the-accidental-manager': 'the-accidental-manager-intermediate',
     'the-odyssey-2026-beginner': 'the-odyssey-2026-beginner',
     'ichigo-ichie': 'ichigo-ichie-once-in-a-lifetime-advanced',
+    'northernireland': 'young-faithful-northern-ireland-advanced',
+    // Matched by title only (no worksheetLink to confirm) — verify these two
+    // stamp correctly and flag if wrong:
+    'ikea': 'ikea-effect-intermediate',
+    'saudimachine': 'saudi-machine-deal-tax',
     'ledger-files': 'the-ledger-files-bookkeeping-intermediate',
+     '/weeklydrop017/':  'weekly-drop-issue-017',
+  'ichigo-ichie-a2':  'ichigo-ichie-once-in-a-lifetime-beginner',
+  'year-end-meeting':  'the-year-end-meeting-reporting-intermediate',
+  'weeklydrop018':  'weekly-drop-issue-018',
+  'robotracedayA2':  'china-robot-games-beginner',
+  'robotgames':  'china-robot-games-intermediate',
+  'vat-frontier':  'the-vat-frontier-cross-border-intermediate',
+  'weeklydrop013':  'weekly-drop-issue-013',
+  'weeklydrop014':  'weekly-drop-issue-014',
+ 'weeklydrop015':  'weekly-drop-issue-015',
+ 'weeklydrop016':  'weekly-drop-issue-016',
   };
 
   async function bootAuthStrip(eyebrowText) {
