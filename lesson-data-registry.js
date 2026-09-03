@@ -3737,9 +3737,9 @@ const LESSON_DATA_REGISTRY = {
         distractors: ['earn-out', 'benefit in kind', 'One-Stop-Shop scheme'],
       },
       {
-        word:        '183-day rule',
+        word:        '183 day rule',
         definition:  'A common test for tax residency — spend too long in a country within a year, and you may be treated as tax resident there, regardless of your passport.',
-        example:     "Nina's manager relies on the ___-___ ___, but that's rarely the whole story.",
+        example:     "Nina's employer thinks they are safe under the ___ ___ ___, but secondary ties can still trigger residency.",
         distractors: ['trade tax', 'VAT registration threshold', 'IP licensing structure'],
       },
     ],
