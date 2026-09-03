@@ -198,7 +198,20 @@
   'weeklydrop013':  'weekly-drop-issue-013',
   'weeklydrop014':  'weekly-drop-issue-014',
  'weeklydrop015':  'weekly-drop-issue-015',
- 'weeklydrop016':  'weekly-drop-issue-016',
+ 'weeklydrop016':  'weekly-drop-issue-016', 
+  'tube':         'london-underground-beginner',
+  'crown-estate': 'crown-estate-intermediate',
+  'peptides': 'peptides-intermediate',
+  'phantom-parent': 'phantom-parent-tax',
+  'weeklydrop006':   'weekly-drop-issue-006',
+  'shepherds-pie':   'shepherds-pie-intermediate',
+  'merger-machine':  'merger-machine-tax',
+  'weeklydrop007':  'weekly-drop-issue-007',
+  'weeklydrop008':    'weekly-drop-issue-008',
+  'weeklydrop009':    'weekly-drop-issue-009',
+  'weeklydrop010':    'weekly-drop-issue-010',
+  'weeklydrop011':    'weekly-drop-issue-011',
+  'weeklydrop012':  'weekly-drop-issue-012',
   };
 
   async function bootAuthStrip(eyebrowText) {
