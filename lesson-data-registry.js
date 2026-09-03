@@ -2629,7 +2629,7 @@ const LESSON_DATA_REGISTRY = {
         {
           sentence: 'If Henrik ___ to declare the Swedish rental income, Germany ___ him interest and penalties.',
           answer:   'fails / will charge',
-          wrong:    ['failures / would charge', 'failed / wouldn't charge', 'will fail / will charge'],
+          wrong:    ['failures / would charge', "failed / wouldn't charge", 'will fail / will charge'],
           explain:  'First conditional for a warning: if + present simple (fails) → will + infinitive (will charge).',
         },
       ],
