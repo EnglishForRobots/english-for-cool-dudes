@@ -2611,7 +2611,7 @@ const LESSON_DATA_REGISTRY = {
         {
           sentence: 'If a host ___ their earnings, the tax office ___ them automatically via DAC7.',
           answer:   'doesn\'t declare / will receive',
-          wrong:    ['didn\'t declare / would receive', 'doesn\'t declare / would receive', 'won\'t declare / will receive'],
+          wrong:    ['didn\'t declare / wouldn't received', 'doesn\'t declared / would receive', 'won\'t declare / has received'],
           explain:  'First conditional: if + present simple (doesn\'t declare) → will + infinitive (will receive). A real, likely outcome.',
         },
         {
@@ -2623,7 +2623,7 @@ const LESSON_DATA_REGISTRY = {
         {
           sentence: 'If Sarah ___ under £1,000 from renting her room, she ___ to file a tax return.',
           answer:   'earns / won\'t need',
-          wrong:    ['earned / wouldn\'t need', 'earns / wouldn\'t need', 'will earn / won\'t need'],
+          wrong:    ['would earn / wouldn\'t need', 'earns / wouldn\'t need', 'will earn / won\'t need'],
           explain:  'First conditional: if + present simple (earns) → won\'t + infinitive. A real, favourable outcome under the UK scheme.',
         },
         {
@@ -2664,7 +2664,7 @@ const LESSON_DATA_REGISTRY = {
       { word:'principal',   definition:'Your main home — the place where you actually live' },
       { word:'residence',   definition:'The country where you live and pay your main taxes' },
       { word:'declaration', definition:'A formal report to the tax office of income earned' },
-      { word:'reporting',   definition:'Automatically sharing host data with tax authorities' },
+      { word:'platform reporting',   definition:'Automatically sharing host data with tax authorities' },
       { word:'allowance',   definition:'A tax-free amount before you owe income tax' },
       { word:'treaty',      definition:'An agreement between two countries on taxing rights' },
     ],
@@ -3751,7 +3751,7 @@ const LESSON_DATA_REGISTRY = {
       exercises: [
         { sentence:'An exit tax ___ still apply even if Nina spends fewer than 183 days in Germany.', answer:'can', wrong:['must', 'will always', "can't"], explain:'"Can" expresses a genuine, established possibility — not a certainty, but a real risk worth flagging.' },
         { sentence:'Hiring staff and scaling up ___ tip a creator\'s activity toward "commercial" for trade tax.', answer:'can', wrong:['must', 'mustn't', 'never'], explain:'"Can" — it\'s a real possibility, not automatic either way.' },
-        { sentence:'Felix ___ owe trade tax purely because of how his activity gets classified.', answer:'might', wrong:['will certainly', "can't possibly", 'must always'], explain:'"Might" signals genuine uncertainty — classification isn\'t automatic.' },
+        { sentence:'Felix ___ owe trade tax depending on how his activity gets classified.', answer:'might', wrong:['will certainly', "can't possibly", 'must always'], explain:'"Might" signals genuine uncertainty — classification isn\'t automatic.' },
         { sentence:'Keeping an apartment she regularly returns to ___ complicate Nina\'s residency status.', answer:'could', wrong:['must', "can't", 'will never'], explain:'"Could" expresses a real but not guaranteed complication.' },
       ],
     },
@@ -3770,7 +3770,7 @@ const LESSON_DATA_REGISTRY = {
 
     // ── SENTENCE BUILDER ──────────────────────────────────────
     sentences: [
-      { words:['is','value','a','at','its','benefit','kind','taxed','market'], answer:'a benefit in kind is taxed at its market value', hint:'🎁 How is a gifted product taxed?' },
+      { words:['is','value','a','at','its','benefit','kind','taxed','in','market'], answer:'a benefit in kind is taxed at its market value', hint:'🎁 How is a gifted product taxed?' },
       { words:['part','later','an','of','the','price','pays','earn-out'], answer:'an earn-out pays part of the price later', hint:'🤝 How does an earn-out structure a sale?' },
       { words:['can','tax','residency','complicate','ties','strong'], answer:'strong ties can complicate tax residency', hint:'🌍 What can make the 183-day rule not so simple?' },
       { words:['is','deducted','tax','before','reaches','you','withholding','it'], answer:'withholding tax is deducted before it reaches you', hint:'💶 What happens to cross-border payments?' },
