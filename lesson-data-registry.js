@@ -2517,7 +2517,7 @@ const LESSON_DATA_REGISTRY = {
       },
       {
         word:        'source country',
-        definition:  'The country where the money is earned — e.g. if you rent out a flat in Italy, Italy is the source country, even if you live in Germany.',
+        definition:  'The country where the money is earned — e.g. if you rent out a flat in Italy, Italy is the ___, even if you live in Germany.',
         example:     'Italy is the ___ because the rented property is located there.',
         distractors: ['residence country', 'tax treaty', 'double taxation'],
       },
@@ -2537,7 +2537,7 @@ const LESSON_DATA_REGISTRY = {
         word:        'tax treaty',
         definition:  'An agreement between two countries that decides which country has the right to tax which income — so the same money is not taxed twice.',
         example:     'The German-Italian ___ gives Italy the primary right to tax rental income.',
-        distractors: ['double taxation', 'source country', 'DAC7'],
+        distractors: ['centre of vital interests', 'source country', 'DAC7'],
       },
       {
         word:        'platform reporting',
@@ -2553,13 +2553,13 @@ const LESSON_DATA_REGISTRY = {
       },
       {
         word:        'short-term rental',
-        definition:  'Renting out a property for a short period — typically less than 30 days at a time. Tax rules for short-term rentals are often stricter.',
+        definition:  'Renting out a property for a short period — typically less than 30 days at a time. Tax rules for these are often stricter.',
         example:     'Airbnb and Booking.com are the main platforms for ___ accommodation.',
         distractors: ['letting allowance', 'residence country', 'principal residence'],
       },
       {
         word:        'principal residence',
-        definition:  'Your main home — the place where you actually live. Renting out your principal residence is treated differently from renting a second property.',
+        definition:  'Your main home — the place where you actually live. Renting this out is treated differently from renting a second property.',
         example:     'Sarah rents a room in her own home, which is her ___ — this qualifies for the UK letting allowance.',
         distractors: ['source country', 'platform reporting', 'rental income'],
       },
@@ -2617,7 +2617,7 @@ const LESSON_DATA_REGISTRY = {
         {
           sentence: 'If Marco ___ tax in Italy, Germany ___ him a credit for the amount paid.',
           answer:   'pays / will give',
-          wrong:    ['paid / would give', 'pays / would give', 'will pay / will give'],
+          wrong:    ['paid / would given', 'pays / would give', 'will pay / will give'],
           explain:  'First conditional for a real scenario. If + present simple (pays) → will + infinitive (will give).',
         },
         {
@@ -2629,7 +2629,7 @@ const LESSON_DATA_REGISTRY = {
         {
           sentence: 'If Henrik ___ to declare the Swedish rental income, Germany ___ him interest and penalties.',
           answer:   'fails / will charge',
-          wrong:    ['failed / would charge', 'fails / would charge', 'will fail / will charge'],
+          wrong:    ['failures / would charge', 'failed / wouldn't charge', 'will fail / will charge'],
           explain:  'First conditional for a warning: if + present simple (fails) → will + infinitive (will charge).',
         },
       ],
@@ -3750,7 +3750,7 @@ const LESSON_DATA_REGISTRY = {
       rule:  'CAN expresses a real possibility or established rule. COULD expresses something that\'s possible but not certain. MIGHT expresses a weaker, more tentative possibility. Tax advisors use these constantly when a client\'s situation is genuinely uncertain.',
       exercises: [
         { sentence:'An exit tax ___ still apply even if Nina spends fewer than 183 days in Germany.', answer:'can', wrong:['must', 'will always', "can't"], explain:'"Can" expresses a genuine, established possibility — not a certainty, but a real risk worth flagging.' },
-        { sentence:'Hiring staff and scaling up ___ tip a creator\'s activity toward "commercial" for trade tax.', answer:'can', wrong:['must', 'will definitely', 'never'], explain:'"Can" — it\'s a real possibility, not automatic either way.' },
+        { sentence:'Hiring staff and scaling up ___ tip a creator\'s activity toward "commercial" for trade tax.', answer:'can', wrong:['must', 'mustn't', 'never'], explain:'"Can" — it\'s a real possibility, not automatic either way.' },
         { sentence:'Felix ___ owe trade tax purely because of how his activity gets classified.', answer:'might', wrong:['will certainly', "can't possibly", 'must always'], explain:'"Might" signals genuine uncertainty — classification isn\'t automatic.' },
         { sentence:'Keeping an apartment she regularly returns to ___ complicate Nina\'s residency status.', answer:'could', wrong:['must', "can't", 'will never'], explain:'"Could" expresses a real but not guaranteed complication.' },
       ],
