@@ -2553,7 +2553,7 @@ const LESSON_DATA_REGISTRY = {
       },
       {
         word:        'short-term rental',
-        definition:  'Renting out a property for a short period — typically less than 30 days at a time. Tax rules for these are often stricter.',
+        definition:  'Renting out a property for a limited period — typically less than 30 days at a time. Tax rules for these are often stricter.',
         example:     'Airbnb and Booking.com are the main platforms for ___ accommodation.',
         distractors: ['letting allowance', 'residence country', 'principal residence'],
       },
@@ -3738,7 +3738,7 @@ const LESSON_DATA_REGISTRY = {
       },
       {
         word:        '183-day rule',
-        definition:  'A common test for tax residency — spend more than 183 days in a country within a year, and you may be treated as tax resident there, regardless of your passport.',
+        definition:  'A common test for tax residency — spend too long in a country within a year, and you may be treated as tax resident there, regardless of your passport.',
         example:     "Nina's manager relies on the ___-___ ___, but that's rarely the whole story.",
         distractors: ['trade tax', 'VAT registration threshold', 'IP licensing structure'],
       },
