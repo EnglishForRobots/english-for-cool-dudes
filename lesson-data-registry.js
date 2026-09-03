@@ -2583,7 +2583,7 @@ const LESSON_DATA_REGISTRY = {
           explain:  'Present passive: are + past participle. The earnings receive the action of reporting — Airbnb is not mentioned as the subject.',
         },
         {
-          sentence: 'In an asset deal — sorry, in a rental deal — the income ___ first in the source country.',
+          sentence: 'If you rent out an apartment on Airbnb, the income ___ first in the country where the property is located.',
           answer:   'is taxed',
           wrong:    ['taxes', 'taxed', 'has taxed'],
           explain:  'Present passive: is + past participle. A general ongoing legal rule — the income receives the action of taxation.',
@@ -2611,7 +2611,7 @@ const LESSON_DATA_REGISTRY = {
         {
           sentence: 'If a host ___ their earnings, the tax office ___ them automatically via DAC7.',
           answer:   'doesn\'t declare / will receive',
-          wrong:    ['didn\'t declare / wouldn't received', 'doesn\'t declared / would receive', 'won\'t declare / has received'],
+          wrong:    ['didn\'t declare / wouldn\'t received', 'doesn\'t declared / would receive', 'won\'t declare / has received'],
           explain:  'First conditional: if + present simple (doesn\'t declare) → will + infinitive (will receive). A real, likely outcome.',
         },
         {
