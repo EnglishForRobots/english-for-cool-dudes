@@ -3750,7 +3750,7 @@ const LESSON_DATA_REGISTRY = {
       rule:  'CAN expresses a real possibility or established rule. COULD expresses something that\'s possible but not certain. MIGHT expresses a weaker, more tentative possibility. Tax advisors use these constantly when a client\'s situation is genuinely uncertain.',
       exercises: [
         { sentence:'An exit tax ___ still apply even if Nina spends fewer than 183 days in Germany.', answer:'can', wrong:['must', 'will always', "can't"], explain:'"Can" expresses a genuine, established possibility — not a certainty, but a real risk worth flagging.' },
-        { sentence:'Hiring staff and scaling up ___ tip a creator\'s activity toward "commercial" for trade tax.', answer:'can', wrong:['must', 'mustn't', 'never'], explain:'"Can" — it\'s a real possibility, not automatic either way.' },
+        { sentence:'Hiring staff and scaling up ___ tip a creator\'s activity toward "commercial" for trade tax.', answer:'can', wrong:['must', "mustn't", 'never'], explain:'"Can" — it\'s a real possibility, not automatic either way.' },
         { sentence:'Felix ___ owe trade tax depending on how his activity gets classified.', answer:'might', wrong:['will certainly', "can't possibly", 'must always'], explain:'"Might" signals genuine uncertainty — classification isn\'t automatic.' },
         { sentence:'Keeping an apartment she regularly returns to ___ complicate Nina\'s residency status.', answer:'could', wrong:['must', "can't", 'will never'], explain:'"Could" expresses a real but not guaranteed complication.' },
       ],
