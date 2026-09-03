@@ -34,16 +34,17 @@
   'use strict';
 
   // ── READ STATE ──────────────────────────────────────────────
-  const _classId   = localStorage.getItem('efcd_class_id')   || null;
-  const _sessionId = localStorage.getItem('efcd_session_id') || null;
-  const _rawNames  = JSON.parse(localStorage.getItem('efcd_present_names') || '[]');
-  const _names     = _rawNames.filter(n => n && n !== 'the class');
-  const _classMode = !!_classId;
+  const _classId    = localStorage.getItem('efcd_class_id')    || null;
+  const _sessionId  = localStorage.getItem('efcd_session_id')  || null;
+  const _classEmoji = localStorage.getItem('efcd_class_emoji') || '📖';
+  const _rawNames   = JSON.parse(localStorage.getItem('efcd_present_names') || '[]');
+  const _names      = _rawNames.filter(n => n && n !== 'the class');
+  const _classMode  = !!_classId;
 
   // ── DISPLAY HELPERS ─────────────────────────────────────────
   function _label() {
-    if (!_names.length) return 'Class session 🚇';
-    return _names.join(', ') + ' 🚇';
+    if (!_names.length) return 'Class session ' + _classEmoji;
+    return _names.join(', ') + ' ' + _classEmoji;
   }
 
   // ── HEADER ──────────────────────────────────────────────────
@@ -84,11 +85,11 @@
       : 'Pick a lesson below and go! 🚀';
 
     containerEl.innerHTML = `
-      <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);
+            <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);
         border:2px solid rgba(255,255,255,.25);border-radius:99px;padding:5px 14px;
         margin-bottom:14px;font-size:12px;font-weight:900;color:#fff;
         text-transform:uppercase;letter-spacing:1.5px">
-        🚇 Class Session · Live Now
+        ${_classEmoji} Class Session · Live Now
       </div>
       <div style="font-size:clamp(26px,6vw,42px);font-weight:900;color:#fff;
         line-height:1.1;letter-spacing:-1px;margin-bottom:10px;font-style:italic">
@@ -242,6 +243,7 @@
     localStorage.removeItem('efcd_class_id');
     localStorage.removeItem('efcd_session_id');
     localStorage.removeItem('efcd_present_names');
+    localStorage.removeItem('efcd_class_emoji');
   }
 
   // ── HELPERS ──────────────────────────────────────────────────
