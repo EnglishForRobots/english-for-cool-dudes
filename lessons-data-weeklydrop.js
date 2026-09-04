@@ -4,7 +4,7 @@ window.LEVEL_CONFIG = {
 };
 
 window.LESSONS = [
-  { slug:'weeklydrop019', icon:'🍊🍹💥', badge:'Issue 019', badgeType:'new', title:'The Aperol Spritz Boom!', desc:"One orange drink took over the world. So what's the secret Aperol ingredient?", mins:5, date:'2026-09-04', tags:['business','culture'] },
+  { slug:'weeklydrop019', icon:'🍊🍹💥', badge:'Issue 019',badge:'ALL LEVELS', badgeType:'new', title:'The Aperol Spritz Boom!', desc:"One orange drink took over the world. So what's the secret Aperol ingredient?", mins:5, date:'2026-09-04', tags:['business','culture'] },
   { slug:'weeklydrop018', icon:'🚗🏭🛠️📢', badge:'Issue 018', badgeType:null, title:'Angry workers. Radical cuts. Can VW survive?', desc:'Volkswagen workers met CEO Oliver Blume this week for crunch talks about the future.', mins:5, date:'2026-08-28', tags:['business'] },
   { slug:'weeklydrop017', icon:'🦁⚽🏆', badge:'Issue 017', badgeType:null, title:'The Business of the Premier League', desc:"It's the UK's greatest export and it kicks off again tonight. But what makes the Premier League so successful?", mins:5, date:'2026-08-21', tags:['business','culture'] },
   { slug:'weeklydrop016', icon:'🤫', badge:'Issue 016', badgeType:null, title:'Meet The AI Whisperer — PwC US CEO Paul Griggs', desc:"PwC's US CEO spends all day whispering to his special self-created AI bot asking it things like, 'Is this rubbish?!'.", mins:5, date:'2026-08-14', tags:['business'] },
