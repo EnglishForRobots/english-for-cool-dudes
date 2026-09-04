@@ -212,6 +212,7 @@
   'weeklydrop010':    'weekly-drop-issue-010',
   'weeklydrop011':    'weekly-drop-issue-011',
   'weeklydrop012':  'weekly-drop-issue-012',
+   'weeklydrop019':  'weekly-drop-issue-019',
   };
 
   async function bootAuthStrip(eyebrowText) {
