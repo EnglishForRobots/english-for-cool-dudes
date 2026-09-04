@@ -1050,6 +1050,23 @@
   ],
 },
 
+
+'weekly-drop-issue-019': {
+  title:   'The Weekly Drop — Issue 019 — The Aperol Spritz Boom',
+  level:   'All Levels',
+  grammar: 'One-chance reading comprehension per stop; timed True/False (Fact or Fizz); Fix the Mistake (word choice in business/lifestyle reporting); Block Builder (sentence reconstruction); Advanced grammar finale (passive voice, comparatives, past perfect, relative clauses, first conditional)',
+  vocab: [
+    { word:'aperitif',         definition:'A small alcoholic drink taken before a meal to open up the appetite.' },
+    { word:'liqueur',          definition:'A strong, sweet alcoholic drink, often flavoured with fruit or herbs.' },
+    { word:'ritual',           definition:'Something people do the same way every time, almost like a tradition.' },
+    { word:'garnish',          definition:'A small piece of food added to decorate a drink or dish.' },
+    { word:'brand ambassador', definition:'Someone whose job is to represent and promote a company\u2019s products.' },
+    { word:'category',         definition:'In business, a whole group of similar products.' },
+    { word:'virality',         definition:'The quality of spreading extremely fast, especially online.' },
+    { word:'portfolio',        definition:'The full range of products a company sells.' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
