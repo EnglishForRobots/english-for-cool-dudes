@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════
-   LEVEL PAGE ENGINE — shared by /beginner/, /intermediate/, /advanced/
+   LEVEL PAGE ENGINE — shared by /beginner/, /intermediate/, /advanced/, /weeklydrop/
    Renders lesson cards from a plain data array (LESSONS, set per page)
    and handles the auth-aware welcome strip.
 
@@ -8,23 +8,27 @@
    2. Before this script, define:
         window.LEVEL_CONFIG = {
           eyebrow: '🌱 Beginner English (A1/A2)',
-          accent:  'green'   // 'green' | 'blue' | 'punch'
+          accent:  'green'   // 'green' | 'blue' | 'punch' | 'gold' | 'purple' | 'teal' | 'pink' | 'orange'
         };
         window.LESSONS = [ ...see lessons-data-beginner.js for shape... ];
    3. Call LevelPage.boot() on DOMContentLoaded (done automatically below)
+
+   CHANGE LOG:
+   - Added 'orange' accent (for /weeklydrop/, matching its existing brand color #FF6B35)
 ════════════════════════════════════════════════════ */
 
 (function () {
   'use strict';
 
   const ACCENT_VARS = {
-    green: { c: '#58CC02', shadow: '#58A700', light: 'rgba(88,204,2,.12)',  border: 'rgba(88,204,2,.28)',  text: '#3f8f01' },
-    blue:  { c: '#1CB0F6', shadow: '#1899D6', light: 'rgba(28,176,246,.12)', border: 'rgba(28,176,246,.28)', text: '#0e7ab0' },
-    punch: { c: '#FF4B4B', shadow: '#EA2B2B', light: 'rgba(255,75,75,.1)',   border: 'rgba(255,75,75,.25)',  text: '#C0392B' },
+    green:  { c: '#58CC02', shadow: '#58A700', light: 'rgba(88,204,2,.12)',  border: 'rgba(88,204,2,.28)',  text: '#3f8f01' },
+    blue:   { c: '#1CB0F6', shadow: '#1899D6', light: 'rgba(28,176,246,.12)', border: 'rgba(28,176,246,.28)', text: '#0e7ab0' },
+    punch:  { c: '#FF4B4B', shadow: '#EA2B2B', light: 'rgba(255,75,75,.1)',   border: 'rgba(255,75,75,.25)',  text: '#C0392B' },
     gold:   { c: '#FFC800', shadow: '#E5B400', light: 'rgba(255,200,0,.13)', border: 'rgba(255,200,0,.4)',  text: '#92600A' },
     purple: { c: '#CE82FF', shadow: '#A559D9', light: 'rgba(206,130,255,.11)', border: 'rgba(206,130,255,.28)', text: '#7D3CB5' },
     teal:   { c: '#2BDECC', shadow: '#1FB8A8', light: 'rgba(43,222,204,.1)', border: 'rgba(43,222,204,.32)', text: '#0E8A80' },
     pink:   { c: '#FF6EB4', shadow: '#d94a8a', light: 'rgba(255,110,180,.12)', border: 'rgba(255,110,180,.3)', text: '#a0196a' },
+    orange: { c: '#FF6B35', shadow: '#d9541e', light: 'rgba(255,107,53,.1)', border: 'rgba(255,107,53,.25)', text: '#b8420a' },
   };
 
   /* ── Card rendering ──────────────────────────────────
@@ -213,6 +217,8 @@
   'weeklydrop011':    'weekly-drop-issue-011',
   'weeklydrop012':  'weekly-drop-issue-012',
    'weeklydrop019':  'weekly-drop-issue-019',
+      'weeklydropoil':  'weekly-drop-issue-oil',
+     'wigtown':  'wigtown-intermediate',
   };
 
   async function bootAuthStrip(eyebrowText) {
