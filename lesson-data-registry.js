@@ -3725,7 +3725,7 @@ const LESSON_DATA_REGISTRY = {
         distractors: ['exit tax', 'trade tax', 'earn-out'],
       },
       {
-        word:        'One Stop Shop scheme',
+        word:        'One Stop Shop',
         definition:  'An EU system that lets a business report VAT on cross-border digital sales (like online courses) through a single return, instead of registering in every country.',
         example:     'The ___ ___ ___ scheme means Tomasz files one VAT return, not one per country.',
         distractors: ['IP licensing structure', 'VAT registration threshold', 'asset deal'],
