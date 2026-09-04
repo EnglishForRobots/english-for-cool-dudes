@@ -5040,6 +5040,48 @@ const LESSON_DATA_REGISTRY = {
   ],
 
 },
+
+'weekly-drop-issue-019': {
+  id:    'weekly-drop-issue-019',
+  title: 'The Weekly Drop — Issue 019 — The Aperol Spritz Boom',
+  level: 'All Levels',
+  track: 'weekly-drop',
+  emoji: '🍹',
+  badge: 'Aperol Ambassador',
+
+  vocab: [
+    { word:'aperitif',        definition:'A small alcoholic drink taken before a meal to open up the appetite.',            example:'In Italy, having an ___ before dinner is a daily ritual.',                distractors:['liqueur','category','portfolio'] },
+    { word:'liqueur',         definition:'A strong, sweet alcoholic drink, often flavoured with fruit or herbs.',            example:'Aperol is a bright orange ___ made from herbs and orange peel.',           distractors:['aperitif','garnish','virality'] },
+    { word:'ritual',          definition:'Something people do the same way every time, almost like a tradition.',            example:'The spritz has become a five o\u2019clock ___ for millions of people.',   distractors:['garnish','category','brand ambassador'] },
+    { word:'garnish',         definition:'A small piece of food added to decorate a drink or dish.',                        example:'A slice of orange is the classic ___ for an Aperol Spritz.',              distractors:['liqueur','ritual','portfolio'] },
+    { word:'brand ambassador',definition:'Someone whose job is to represent and promote a company\u2019s products.',        example:'Campari has 21 ___s working across the US.',                              distractors:['category','virality','aperitif'] },
+    { word:'category',        definition:'In business, a whole group of similar products.',                                example:'Once you create a new drinks ___, competitors will follow.',              distractors:['portfolio','ritual','garnish'] },
+    { word:'virality',        definition:'The quality of spreading extremely fast, especially online.',                    example:'The drink\u2019s bright orange colour gave it real ___ on social media.', distractors:['category','liqueur','brand ambassador'] },
+    { word:'portfolio',       definition:'The full range of products a company sells.',                                    example:'Campari is expanding its spritz ___ with new drinks like Sarti.',         distractors:['aperitif','ritual','virality'] },
+  ],
+
+  true_false: [
+    { statement:'Aperol was created in Northern Italy.',                                              correct:true,  reveal:'✅ TRUE! Brothers Luigi and Silvio Barbieri made it there over 100 years ago.' },
+    { statement:'The classic recipe uses equal parts Aperol and Prosecco.',                             correct:false, reveal:'❌ FALSE. It\u2019s 3 parts Prosecco to 2 parts Aperol, not equal amounts.' },
+    { statement:'Campari has handed out free Aperol Spritz samples at big festivals.',                  correct:true,  reveal:'✅ TRUE! Free sampling at events like Coachella is a key part of the brand\u2019s strategy.' },
+    { statement:'Aperol Spritz has no competitors at all.',                                             correct:false, reveal:'❌ FALSE. The Hugo Spritz and Select Spritz are both chasing Aperol\u2019s success.' },
+    { statement:'Aperol is priced too high for bars to make a decent profit on it.',                    correct:false, reveal:'❌ FALSE. Aperol is actually affordable to mix with — great news for bar margins.' },
+    { statement:'The show \u2018The White Lotus\u2019 helped boost Aperol\u2019s popularity online.',     correct:true,  reveal:'✅ TRUE! Mentions of the brand on social media jumped after it appeared on screen.' },
+  ],
+
+  fix_mistakes: [
+    { sentence:'"Aperol was <u>firstly</u> created in Northern Italy."', hint:'Which adverb describes how the story first began?', opts:['firstly → FORMER','firstly → ORIGINALLY','firstly → USED TO'], correct:1, fb:'✅ ORIGINALLY — Aperol was originally created in Northern Italy before spreading around the world.' },
+    { sentence:'"Campari Group <u>sold</u> Aperol in 2003."', hint:'This is when the bigger company took the brand on, not gave it up.', opts:['sold → BOUGHT','sold → RENAMED','sold → COPIED'], correct:0, fb:'✅ BOUGHT — Campari Group bought Aperol in 2003 and grew it globally.' },
+    { sentence:'"Bartenders pour Aperol <u>before</u> the Prosecco to get the perfect colour."', hint:'The order actually happens the other way round.', opts:['before → INSTEAD OF','before → WITHOUT','before → AFTER'], correct:2, fb:'✅ AFTER — Aperol is poured after the Prosecco to keep the bright orange colour.' },
+    { sentence:'"The Aperol Spritz is famous for being the <u>most expensive</u> drink on the menu."', hint:'Its low price is actually part of the appeal for bars.', opts:['most expensive → EXPENSIVER','most expensive → CHEAPER','most expensive → CHEAPEST'], correct:2, fb:'✅ CHEAP(ish) — Aperol is affordable, which is exactly why bars love mixing with it.' },
+  ],
+
+  sentences: [
+    { words:['Aperol','once','a','small,','regional','Italian','liqueur.','was'],       answer:'Aperol was once a small, regional Italian liqueur.',            hint:'🍊 About Aperol\u2019s history...' },
+    { words:['Bartenders','always','pour','the','Aperol','after','the','Prosecco.'],    answer:'Bartenders always pour the Aperol after the Prosecco.',         hint:'🍾 About the golden rule...' },
+    { words:['New','rivals','like','Hugo','Spritz','are','chasing','Aperol\u2019s','success.'], answer:'New rivals like Hugo Spritz are chasing Aperol\u2019s success.', hint:'🥂 About the competition...' },
+  ],
+},
  
    };
 
