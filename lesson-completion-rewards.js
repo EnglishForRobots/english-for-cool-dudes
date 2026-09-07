@@ -214,7 +214,7 @@
       ],
     },
 
-    'bookshop-intermediate': {
+    'wigtown-intermediate': {
       title: 'Running a Bookshop', level: 'Intermediate',
       grammar: 'Present perfect continuous, passive voice',
       vocab: [
