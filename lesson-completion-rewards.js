@@ -741,9 +741,9 @@
       ],
     },
 
-     'the-accidental-manager': {
+     'the-accidental-manager-intermediate': {
       title:   'The Accidental Manager',
-      level:   'Intermediate / Upper-Intermediate',
+      level:   'Intermediate',
       grammar: 'Reported speech (backshifting); Past Simple (regular and irregular verbs) in storytelling English',
       vocab: [
         { word:'accidental',        definition:'Happening by chance, without being planned' },
