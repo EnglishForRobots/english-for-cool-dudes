@@ -3800,11 +3800,11 @@ const LESSON_DATA_REGISTRY = {
 
   },
 
-   'the-accidental-manager': {
+   'the-accidental-manager-intermediate': {
 
-    id:    'the-accidental-manager',
+    id:    'the-accidental-manager-intermediate',
     title: 'The Accidental Manager',
-    level: 'Intermediate / Upper-Intermediate',
+    level: 'Intermediate',
     track: 'intermediate',
     emoji: '🎙️',
     badge: 'Accidental Gaffer',
