@@ -1067,6 +1067,28 @@
   ],
 },
 
+     'guardian-london-housing-hack-upperint-advanced': {
+  title:   "Key Holders: London's Guardian Housing Hack",
+  level:   'Upper-Intermediate/Advanced',
+  grammar: 'Despite vs Although/Even though (contrast); So vs Such + that; MUST for confident deduction',
+  vocab: [
+    { word:'smack bang',     definition:'Exactly in a particular place — usually right in the middle' },
+    { word:"stone's throw",  definition:'A very short distance away' },
+    { word:'quirk',          definition:'An unusual or unexpected feature' },
+    { word:'fastidious',     definition:'Extremely careful about small details, especially cleanliness' },
+    { word:'trade-off',      definition:'A situation where you give up one thing to gain another' },
+    { word:'cheeky',         definition:'Bold or surprising, often used playfully about a price' },
+    { word:'rota',           definition:'A list showing whose turn it is to do a job' },
+    { word:'loo',            definition:'Toilet (informal British)' },
+    { word:'tannoy',         definition:'A loudspeaker system used for announcements in a building' },
+    { word:'squatters',      definition:'People who live in an empty building without permission' },
+    { word:'vacant',         definition:'Empty; not currently used or lived in' },
+    { word:'modular',        definition:'Made of separate sections that can be arranged flexibly' },
+    { word:'artillery',      definition:'A large ready supply of something (figurative here)' },
+    { word:'privilege',      definition:'A special advantage not everyone has' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
