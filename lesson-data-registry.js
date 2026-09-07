@@ -5083,12 +5083,12 @@ const LESSON_DATA_REGISTRY = {
   ],
 },
 
-   'guardian-london-housing-hack-upperint-advanced': {
+   'guardian-london-housing-hack-advanced': {
 
-  id:    'guardian-london-housing-hack-upperint-advanced',
+  id:    'guardian-london-housing-hack-advanced',
   title: "Key Holders: London's Guardian Housing Hack",
-  level: 'Upper-Intermediate/Advanced',
-  track: 'intermediate',
+  level: 'Advanced',
+  track: 'advanced',
   emoji: '🔑',
   badge: 'Key Holder',
 
