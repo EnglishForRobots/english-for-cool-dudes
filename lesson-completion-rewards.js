@@ -1067,9 +1067,9 @@
   ],
 },
 
-     'guardian-london-housing-hack-upperint-advanced': {
+     'guardian-london-housing-hack-advanced': {
   title:   "Key Holders: London's Guardian Housing Hack",
-  level:   'Upper-Intermediate/Advanced',
+  level:   'Advanced',
   grammar: 'Despite vs Although/Even though (contrast); So vs Such + that; MUST for confident deduction',
   vocab: [
     { word:'smack bang',     definition:'Exactly in a particular place — usually right in the middle' },
