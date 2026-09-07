@@ -5082,6 +5082,186 @@ const LESSON_DATA_REGISTRY = {
     { words:['New','rivals','like','Hugo','Spritz','are','chasing','Aperol\u2019s','success.'], answer:'New rivals like Hugo Spritz are chasing Aperol\u2019s success.', hint:'🥂 About the competition...' },
   ],
 },
+
+   'guardian-london-housing-hack-upperint-advanced': {
+
+  id:    'guardian-london-housing-hack-upperint-advanced',
+  title: "Key Holders: London's Guardian Housing Hack",
+  level: 'Upper-Intermediate/Advanced',
+  track: 'intermediate',
+  emoji: '🔑',
+  badge: 'Key Holder',
+
+  // ── VOCAB ────────────────────────────────────────────────
+  vocab: [
+    {
+      word:        'smack bang',
+      definition:  'Exactly in a particular place — usually right in the middle',
+      example:     "Robyn's building is ___ in the centre of London.",
+      distractors: ["a stone's throw", 'a quirk', 'fastidious'],
+    },
+    {
+      word:        "stone's throw",
+      definition:  'A very short distance away',
+      example:     'The British Museum is just a ___ from her flat.',
+      distractors: ['smack bang', 'trade-off', 'privilege'],
+    },
+    {
+      word:        'quirk',
+      definition:  'An unusual or unexpected feature',
+      example:     'Every old building has a ___ or two.',
+      distractors: ['trade-off', 'rota', 'squatters'],
+    },
+    {
+      word:        'fastidious',
+      definition:  'Extremely careful about small details, especially cleanliness',
+      example:     "Robyn admits she's more ___ than most of the other guardians.",
+      distractors: ['vacant', 'cheeky', 'smack bang'],
+    },
+    {
+      word:        'trade-off',
+      definition:  'A situation where you give up one thing to gain another',
+      example:     'Living with uncertainty is the ___ for such cheap rent.',
+      distractors: ['quirk', 'rota', 'privilege'],
+    },
+    {
+      word:        'cheeky',
+      definition:  'Bold or surprising, often used playfully about a price',
+      example:     'The building is on sale for a ___ seven and a half million pounds.',
+      distractors: ['fastidious', 'vacant', 'squatters'],
+    },
+    {
+      word:        'rota',
+      definition:  'A list showing whose turn it is to do a job',
+      example:     'The guardians share a cleaning ___.',
+      distractors: ['trade-off', 'quirk', 'privilege'],
+    },
+    {
+      word:        'squatters',
+      definition:  'People who live in an empty building without permission',
+      example:     'Guardians are there mainly to keep ___ out.',
+      distractors: ['rota', 'cheeky', 'fastidious'],
+    },
+    {
+      word:        'vacant',
+      definition:  'Empty; not currently used or lived in',
+      example:     "The building stays ___ until it's sold.",
+      distractors: ['smack bang', "stone's throw", 'trade-off'],
+    },
+    {
+      word:        'privilege',
+      definition:  'A special advantage not everyone has',
+      example:     'She calls living in Central London a ___.',
+      distractors: ['quirk', 'rota', 'squatters'],
+    },
+  ],
+
+  // ── GRAMMAR 1: Despite vs Although ────────────────────────
+  grammar: {
+    topic: 'Despite vs Although/Even though — expressing contrast',
+    rule:  'DESPITE + noun or gerund (-ing) — no subject or verb follows. ALTHOUGH / EVEN THOUGH + a full clause (subject + verb). A common error is "despite she lives..." — despite can never be followed by a subject and verb directly.',
+    exercises: [
+      {
+        sentence: '___ living in a huge room, Robyn doesn\'t have running water.',
+        answer:   'Despite',
+        wrong:    ['Although', 'Even though', 'Because'],
+        explain:  '"Despite" + gerund (living). No subject needed after "despite".',
+      },
+      {
+        sentence: '___ she lives in a huge room, Robyn doesn\'t have running water.',
+        answer:   'Although',
+        wrong:    ['Despite', 'Despite of', 'Because of'],
+        explain:  '"Although" + full clause (subject + verb) — "despite" cannot be followed by a clause like this.',
+      },
+      {
+        sentence: 'The building is up ___ sale, so guardians still live there.',
+        answer:   'for',
+        wrong:    ['to', 'of', 'in'],
+        explain:  'Fixed phrase: "up for sale" — never "up to sale".',
+      },
+      {
+        sentence: 'Robyn used to ___ in six other buildings before this one.',
+        answer:   'live',
+        wrong:    ['living', 'lives', 'lived'],
+        explain:  'After "used to", we use the base form of the verb: "used to live", not "used to living".',
+      },
+    ],
+  },
+
+  // ── GRAMMAR 2: So vs Such / must for deduction ────────────
+  grammar2: {
+    topic: 'So vs Such (+ that); MUST for confident deduction',
+    rule:  'SO + adjective (no noun) + THAT. SUCH + (a/an) + adjective + noun + THAT. Use MUST + base verb when you are confidently deducing something is true, based on strong evidence — not guessing.',
+    exercises: [
+      {
+        sentence: 'The room was ___ comfortable that Robyn didn\'t want to leave.',
+        answer:   'so',
+        wrong:    ['such', 'such a', 'too'],
+        explain:  'Before an adjective with no noun, use "so...that", not "such...that".',
+      },
+      {
+        sentence: 'It was ___ a comfortable room that Robyn didn\'t want to leave.',
+        answer:   'such',
+        wrong:    ['so', 'so a', 'too'],
+        explain:  '"Such a + adjective + noun + that" — because a noun (room) follows, we need "such", not "so".',
+      },
+      {
+        sentence: 'Robyn has lived in seven buildings, so she ___ be very used to moving by now.',
+        answer:   'must',
+        wrong:    ['can', 'might not', "mustn't"],
+        explain:  '"Must" for a confident deduction based on strong evidence — not a wild guess.',
+      },
+      {
+        sentence: 'Central London rent ___ usually much higher than Robyn\'s — that\'s the whole appeal of guardianship.',
+        answer:   'is',
+        wrong:    ['are', 'be', 'being'],
+        explain:  '"Rent" is uncountable/singular, so it needs "is", not "are".',
+      },
+    ],
+  },
+
+  // ── SENTENCE BUILDER ──────────────────────────────────────
+  sentences: [
+    {
+      words:  ["Robyn's", 'rent', 'is', 'around', 'a', 'quarter', 'of', 'the', 'average.'],
+      answer: "Robyn's rent is around a quarter of the average.",
+      hint:   '🔑 About Robyn\'s rent...',
+    },
+    {
+      words:  ['Guardians', 'protect', 'empty', 'buildings', 'until', "they're", 'sold', 'or', 'renovated.'],
+      answer: "Guardians protect empty buildings until they're sold or renovated.",
+      hint:   '🏚️ About the building\'s purpose...',
+    },
+    {
+      words:  ['She', 'has', 'to', 'share', 'three', 'bathrooms', 'with', 'eighteen', 'people.'],
+      answer: 'She has to share three bathrooms with eighteen people.',
+      hint:   '🚿 About the trade-off...',
+    },
+  ],
+
+  // ── WORD BUILDER ──────────────────────────────────────────
+  word_builder: [
+    { word:'quirk',      definition:'An unusual or unexpected feature' },
+    { word:'fastidious', definition:'Extremely careful about small details, especially cleanliness' },
+    { word:'privilege',  definition:'A special advantage not everyone has' },
+    { word:'vacant',     definition:'Empty; not currently used or lived in' },
+    { word:'squatters',  definition:'People who live in an empty building without permission' },
+    { word:'rota',       definition:'A list showing whose turn it is to do a job' },
+  ],
+
+  // ── TRUE / FALSE ───────────────────────────────────────────
+  true_false: [
+    { statement:'Robyn pays around a quarter of the typical rent for her area.',            correct:true,  reveal:'✅ TRUE! About €1,700 a month for a space that would usually cost closer to €6,000.' },
+    { statement:'Eighteen guardians share the building Robyn lives in.',                     correct:true,  reveal:'✅ TRUE! And they share just three bathrooms between them.' },
+    { statement:'Property guardianship as a concept began in the UK.',                       correct:false, reveal:'❌ FALSE! The concept arrived in the UK from the Netherlands, back in 2001.' },
+    { statement:'Guardians are free to paint the walls and make structural changes.',        correct:false, reveal:'❌ FALSE! Guardians make no integral changes — no painting, nothing structural.' },
+    { statement:'Robyn\'s building used to be an art school.',                               correct:true,  reveal:'✅ TRUE! It\'s currently for sale for around £7.5 million while guardians protect it.' },
+    { statement:'There are roughly 10,000 property guardians living in London.',             correct:true,  reveal:'✅ TRUE! A surprisingly large, mostly invisible part of the housing market.' },
+    { statement:'Anyone can become a guardian, even people with children.',                  correct:false, reveal:'❌ FALSE! Applicants need a regular income and no children.' },
+    { statement:'Guardians always know exactly how long they\'ll be allowed to stay.',       correct:false, reveal:'❌ FALSE! They can be asked to move out at short notice, at any time.' },
+  ],
+
+},
  
    };
 
