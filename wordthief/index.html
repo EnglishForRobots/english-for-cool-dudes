@@ -485,6 +485,112 @@ const WORD_BANK = [
     {cat:'tech',sentence:'The team is working to ___ out the new security patch.',correct:'push',distractors:['pushing','pushed','pushes'],level:'advanced',explain:"After 'to', a verb needs its base form — 'push', not the -ing form, past tense, or 's' form."},
 ];
 
+
+function itemId(item){
+    let h = 0;
+    const s = item.sentence + '::' + item.correct;
+    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+    return 'w' + Math.abs(h);
+}
+
+/* ── Per-item stats: seen/correct counts, loaded once per game ── */
+let itemStats     = {};   // itemId -> {seen, correct, lastMissedAt}
+let skillScore     = 50;  // 0-100, drives which level band gets served
+let recentResults  = [];  // rolling window of last 5 results, drives timer
+let recentlyShown  = [];  // last few item ids, avoids back-to-back repeats
+
+async function loadItemStats(){
+    const user = window.EFCD_Auth?.getCurrentUser?.();
+    if (user && sb) {
+        try {
+            const { data } = await sb.from('word_thief_item_stats').select('*').eq('user_id', user.id);
+            itemStats = {};
+            (data || []).forEach(r => {
+                itemStats[r.item_id] = { seen: r.seen, correct: r.correct, lastMissedAt: r.last_seen_at };
+            });
+            return;
+        } catch (e) { /* fall through to local */ }
+    }
+    try { itemStats = JSON.parse(localStorage.getItem('wt_item_stats') || '{}'); }
+    catch (e) { itemStats = {}; }
+}
+
+function saveItemStatsLocal(){
+    try { localStorage.setItem('wt_item_stats', JSON.stringify(itemStats)); } catch (e) {}
+}
+
+async function recordItemResult(item, wasCorrect){
+    const id = itemId(item);
+    const s = itemStats[id] || { seen: 0, correct: 0, lastMissedAt: null };
+    s.seen++;
+    if (wasCorrect) s.correct++; else s.lastMissedAt = new Date().toISOString();
+    itemStats[id] = s;
+
+    const user = window.EFCD_Auth?.getCurrentUser?.();
+    if (user && sb) {
+        try {
+            await sb.from('word_thief_item_stats').upsert({
+                user_id: user.id, item_id: id, seen: s.seen, correct: s.correct,
+                last_seen_at: new Date().toISOString(),
+            });
+        } catch (e) { saveItemStatsLocal(); } // fall back so nothing is lost
+    } else {
+        saveItemStatsLocal();
+    }
+}
+
+function masteryOf(item){
+    const s = itemStats[itemId(item)];
+    if (!s || s.seen === 0) return 0.5; // never seen = neutral priority
+    return s.correct / s.seen;
+}
+
+/* ── Skill score: nudges up on correct, down on wrong, clamped 0-100 ── */
+function updateSkillScore(wasCorrect){
+    skillScore = Math.max(0, Math.min(100, skillScore + (wasCorrect ? 4 : -6)));
+}
+
+function targetLevelWeights(){
+    if (skillScore < 35) return { beginner: .6,  intermediate: .3,  advanced: .1  };
+    if (skillScore < 65) return { beginner: .25, intermediate: .55, advanced: .2  };
+    return                      { beginner: .1,  intermediate: .35, advanced: .55 };
+}
+
+/* ── Weighted pick: favours items you've missed before AND items
+   matching your current skill band. Nothing is ever fully excluded —
+   even mastered items keep a small chance of showing up as a refresher. ── */
+function pickAdaptiveItem(pool){
+    const lvlW = targetLevelWeights();
+    let candidates = pool.filter(it => !recentlyShown.includes(itemId(it)));
+    if (candidates.length < 4) candidates = pool; // pool too small, drop the exclusion
+
+    const weighted = candidates.map(item => {
+        const mastery = masteryOf(item);
+        const weaknessBoost = 0.2 + (1 - mastery) * 1.4; // weak items weigh up to ~8x more
+        const levelBoost = lvlW[item.level] ?? 0.33;
+        return { item, weight: weaknessBoost * levelBoost + 0.05 };
+    });
+    const total = weighted.reduce((a, w) => a + w.weight, 0);
+    let r = Math.random() * total;
+    for (const w of weighted) { r -= w.weight; if (r <= 0) return w.item; }
+    return weighted[weighted.length - 1].item;
+}
+
+function markShown(item){
+    recentlyShown.push(itemId(item));
+    if (recentlyShown.length > 4) recentlyShown.shift();
+}
+
+/* ── Called exactly once per round, right when the outcome is known ── */
+function concludeRound(item, wasCorrect){
+    recordItemResult(item, wasCorrect);
+    updateSkillScore(wasCorrect);
+    recentResults.push(wasCorrect);
+    if (recentResults.length > 5) recentResults.shift();
+}
+
+
+
 /* ═══ THIEF PERSONALITY ═══ */
 const THIEF_TAUNTS = [
     "Too slow! That one's <span class='red'>mine</span> now. 😈",
@@ -626,6 +732,10 @@ function selectDiff(btn){
 async function startGame(){
     scoreYou=0; scoreThief=0; sessionXP=0; roundNum=0; correct=0; total=0; roundHistory=[]; streak=0;
     missedItems=[];
+    skillScore = 50;
+          recentResults = [];
+          recentlyShown = [];
+          await loadItemStats();
 
     // Build queue — try Supabase first, fall back to hardcoded
     let bank = [];
@@ -691,11 +801,18 @@ function renderVaultDots(){
    The Shadow speeds up gradually as the game goes on, with a floor per
    difficulty so it never becomes impossible. */
 function computeTimer(){
-    const base = DIFF_SECS[selectedDiff];
-    const floor = DIFF_FLOOR[selectedDiff];
-    const reduction = Math.floor(roundNum/4)*0.5;
-    return Math.max(floor, base - reduction);
-}
+          const base  = DIFF_SECS[selectedDiff];
+          const floor = DIFF_FLOOR[selectedDiff];
+          const ceil  = base + 3;
+          const recentAcc = recentResults.length
+              ? recentResults.filter(Boolean).length / recentResults.length
+              : 0.5;
+          let t = base;
+          if (recentAcc >= 0.8) t = base - 1.5;
+          else if (recentAcc <= 0.4) t = base + 1.5;
+          return Math.max(floor, Math.min(ceil, t));
+      }
+
 
 /* ═══ ROUND ═══ */
 function nextRound(){
@@ -707,7 +824,9 @@ function nextRound(){
     clearInterval(timerInterval);
     showWhy('');
 
-    const item = queue.pop();
+    const pool = selectedCat === 'all' ? WORD_BANK : WORD_BANK.filter(w => w.cat === selectedCat);
+          const item = pickAdaptiveItem(pool);
+          markShown(item);
     currentItem = item;
     const options = shuffle([item.correct, ...item.distractors]);
 
@@ -780,6 +899,7 @@ function handlePick(chosen, item, btn, grid){
 
         scoreYou++;
         addXP(10);
+        concludeRound(item, true);
         renderVaultDots();
         $('score-you').textContent=scoreYou;
 
@@ -791,6 +911,7 @@ function handlePick(chosen, item, btn, grid){
         setTimeout(nextRound, 1200);
     } else {
         btn.classList.add('wrong');
+        concludeRound(item, false);
         // Show correct card
         grid.querySelectorAll('.word-card').forEach(b=>{
             if(b.textContent===item.correct) b.classList.add('correct');
@@ -812,6 +933,7 @@ function thiefSteals(item, grid, afterWrong=false){
     const correctBtn = [...grid.querySelectorAll('.word-card')].find(b=>b.textContent===item.correct);
     if(correctBtn && !afterWrong){
         correctBtn.classList.add('correct');
+        concludeRound(item, false);
     }
 
     if(!afterWrong){
