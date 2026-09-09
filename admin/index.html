@@ -495,7 +495,7 @@ const LESSON_META = {
   'china-robot-games-intermediate':        { emoji:'🤖', title:'Rise of the Robots - China\'s Humanoid Robot Games',     level: 'Intermediate', worksheetLink: '/robotgames/print/'},
   'the-vat-frontier-cross-border-intermediate':        { emoji:'🧭', title:'The VAT Frontier',     level: 'Tax', worksheetLink: '/vat-frontier/print/'},
   'weekly-drop-issue-019':        { emoji:'🍹', title:'The Weekly Drop - Issue 019 - The Aperol Spritz Boom',     level: 'Weekly Drop', worksheetLink: '/weeklydrop019/print/'},
-  'guardian-london':        { emoji:'🔑', title:"Key Holders: London's Guardian Housing Hack",     level: 'Advanced', worksheetLink: '/guardian-london/print/'},
+  'guardian-london-housing-hack-advanced':        { emoji:'🔑', title:"Key Holders: London's Guardian Housing Hack",     level: 'Advanced', worksheetLink: '/guardian-london/print/'},
   
 };
 
@@ -883,6 +883,18 @@ async function moveStudentToClass(studentId, currentClassId){
 }
 
 
+
+// ── LEADERBOARD ────────────────────────────────────────────────
+async function removeLessonBadgeFromClass(classId, lessonId){
+  const cls = _classes.find(c => c.id === classId);
+  showConfirm('🗑️', 'Remove this trophy?', `This will remove the badge from ${cls ? cls.emoji+' '+cls.name : 'this class'}'s Trophy Cabinet. Cannot be undone.`, async () => {
+    const { error } = await sb.from('efcd_badges').delete().eq('class_id', classId).eq('badge_key', 'lesson_'+lessonId).eq('is_manual', false);
+    if(error){ toast('❌', error.message); return; }
+    toast('🗑️', 'Trophy removed');
+    await loadEverything();
+    await _renderManageModal(classId);
+  });
+}
 
 // ── LEADERBOARD ────────────────────────────────────────────────
 async function renderLeaderboard(){
