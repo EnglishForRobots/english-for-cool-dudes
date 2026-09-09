@@ -219,7 +219,7 @@
    'weeklydrop019':  'weekly-drop-issue-019',
       'weeklydropoil':  'weekly-drop-issue-oil',
      'wigtown':  'wigtown-intermediate',
-     'guardian-london':  'guardian-london-advanced',
+     'guardian-london':  'guardian-london-housing-hack-advanced',
   };
 
   async function bootAuthStrip(eyebrowText) {
