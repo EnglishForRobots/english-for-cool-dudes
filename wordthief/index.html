@@ -246,6 +246,36 @@
     /* ── CONFETTI / XP FLOAT ── */
     .confetti-dot{position:fixed;width:11px;height:11px;border-radius:3px;pointer-events:none;z-index:9999;animation:confetti 1.1s ease-out both;}
     .xp-float{position:fixed;font-size:22px;font-weight:900;color:var(--yellow-shadow);text-shadow:0 2px 0 rgba(0,0,0,.15);pointer-events:none;z-index:9998;animation:xpPop .95s ease-out forwards;}
+
+    /* ── PROGRESS PANEL (mastery) ── */
+    .progress-panel{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);padding:22px 24px;animation:up .45s ease both .05s;}
+    .progress-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+    .progress-title{font-size:14px;font-weight:900;color:var(--ink-bold);}
+    .progress-total{font-size:12px;font-weight:800;color:var(--ink-3);}
+    .progress-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+    .progress-row:last-child{margin-bottom:0;}
+    .progress-cat-icon{font-size:16px;width:22px;text-align:center;flex-shrink:0;}
+    .progress-cat-name{font-size:12px;font-weight:800;color:var(--ink);width:66px;flex-shrink:0;}
+    .progress-track{flex:1;height:10px;background:var(--bg);border:2px solid var(--border);border-radius:99px;overflow:hidden;}
+    .progress-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green),var(--teal));transition:width .6s ease;}
+    .progress-pct{font-size:11px;font-weight:900;color:var(--ink-3);width:34px;text-align:right;flex-shrink:0;}
+
+    /* ── CALIBRATION QUIZ ── */
+    .calib-card{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);padding:28px;animation:up .45s ease both;}
+    .calib-eyebrow{font-size:11px;font-weight:900;color:var(--blue-shadow);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;}
+    .calib-title{font-size:22px;font-weight:900;color:var(--ink-bold);letter-spacing:-.5px;margin-bottom:8px;}
+    .calib-sub{font-size:14px;font-weight:700;color:var(--ink-3);line-height:1.5;margin-bottom:22px;}
+    .calib-progress{display:flex;gap:6px;margin-bottom:20px;}
+    .calib-dot{flex:1;height:6px;border-radius:99px;background:var(--border);}
+    .calib-dot.done{background:var(--green);}
+    .calib-dot.active{background:var(--blue);}
+    .calib-q{font-size:17px;font-weight:900;color:var(--ink-bold);line-height:1.5;text-align:center;margin-bottom:18px;}
+    .calib-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+    .calib-opt{background:var(--bg);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);padding:14px 10px;font-size:14px;font-weight:900;color:var(--ink-bold);cursor:pointer;transition:all .15s;font-family:inherit;text-align:center;}
+    .calib-opt:active{border-bottom-width:2px;transform:translateY(2px);}
+    .calib-opt.correct{background:var(--green);color:var(--white);border-color:var(--green-shadow);}
+    .calib-opt.wrong{background:var(--punch);color:var(--white);border-color:var(--punch-shadow);}
+    .calib-skip{display:block;text-align:center;font-size:12px;font-weight:800;color:var(--ink-3);text-decoration:underline;margin-top:4px;}
     </style>
 </head>
 <body>
@@ -259,6 +289,9 @@
 
 <div class="page">
 
+    <!-- ═══ CALIBRATION QUIZ (new users only) ═══ -->
+    <div id="calib-screen" style="display:none;"></div>
+
     <!-- ═══ SETUP ═══ -->
     <div id="setup-screen" style="display:flex;flex-direction:column;gap:16px;">
 
@@ -271,6 +304,7 @@
         </div>
         <div id="rank-badge-wrap"></div>
         <div id="due-nudge-wrap"></div>
+        <div id="progress-panel-wrap"></div>
 
         <div class="setup-panel">
             <div class="setup-section-label">Category</div>
@@ -324,7 +358,8 @@
                     <span class="diff-btn-sub">B2–C1</span>
                 </button>
             </div>
-            <div id="pool-size-hint" style="text-align:center;font-size:12px;font-weight:800;color:var(--ink-3);margin:-14px 0 20px;"></div>
+            <div id="pool-size-hint" style="text-align:center;font-size:12px;font-weight:800;color:var(--ink-3);margin:-14px 0 8px;"></div>
+            <div id="calib-cta-wrap" style="text-align:center;margin:0 0 20px;"></div>
 
             <div class="setup-section-label">Difficulty — how fast is The Shadow?</div>
             <div class="diff-row">
@@ -631,6 +666,52 @@ const WORD_BANK_BATCH_3 = [
 ];
 WORD_BANK.push(...WORD_BANK_BATCH_3);
 
+/* ═══ WORD BANK — BATCH 4 ═══
+   Straight content-volume expansion (no gaps left to patch — batch 3
+   already got every category/level cell to 10+). Weighted toward Tax
+   and Legal since they're the core professional-audience tracks, with
+   a smaller top-up for the others. Same two anti-ambiguity techniques
+   as every batch above. */
+const WORD_BANK_BATCH_4 = [
+    // TAX
+    {cat:'tax',sentence:'The accountant will ___ the figures before submission.',correct:'double-check',distractors:['double-checking','double-checked','double-checks'],level:'beginner',explain:"After 'will', a verb needs its base form — 'double-check', not the -ing form, past tense, or 's' form."},
+    {cat:'tax',sentence:'You ___ eligible for a tax rebate if you overpaid last year.',correct:'may be',distractors:['must be','are being','have been'],level:'intermediate',explain:"'May be' expresses a real possibility, which fits a rebate that depends on circumstances. 'Must be' is too certain, and the other forms don't fit this conditional meaning."},
+    {cat:'tax',sentence:'The firm ___ its clients on the new e-invoicing rules last week.',correct:'briefed',distractors:['brief','briefing','briefs'],level:'intermediate',explain:"'Last week' places this in the past, so the past tense 'briefed' is required."},
+    {cat:'tax',sentence:'Late payment ___ interest at a fixed daily rate.',correct:'accrues',distractors:['accrue','accruing','accrued'],level:'advanced',explain:"'Late payment' is singular and this states a general rule, so the present-tense 's' form 'accrues' is required."},
+    {cat:'tax',sentence:'The threshold for mandatory VAT registration was ___ last year.',correct:'raised',distractors:['raise','raising','raises'],level:'intermediate',explain:"'Was' plus a past participle is needed for this passive construction — 'raised', not the base, -ing, or 's' form."},
+    {cat:'tax',sentence:'She ___ a written explanation from the client before filing.',correct:'requested',distractors:['request','requesting','requests'],level:'beginner',explain:"This describes something already done, so the past tense 'requested' is required."},
+    {cat:'tax',sentence:'Cross-border workers must check which country has ___ rights.',correct:'taxing',distractors:['taxable','taxed','taxation'],level:'advanced',explain:"'Taxing rights' is the fixed international-tax term for a country's authority to tax income. 'Taxable', 'taxed' and 'taxation' don't combine correctly with 'rights' here."},
+    {cat:'tax',sentence:'The firm ___ a second opinion before advising the client further.',correct:'sought',distractors:['seek','seeking','seeks'],level:'advanced',explain:"This describes a completed action, so the past tense 'sought' (from 'seek') is required."},
+    // LEGAL
+    {cat:'legal',sentence:'You should always ___ a contract before signing it.',correct:'read',distractors:['reading','reads','read to'],level:'beginner',explain:"After 'should always', a verb needs its base form — 'read', not the -ing form, 's' form, or an invented phrase."},
+    {cat:'legal',sentence:'The two firms are due to ___ their merger agreement next week.',correct:'sign',distractors:['signing','signed','signs'],level:'beginner',explain:"After 'due to', a verb needs its base form — 'sign', not the -ing form, past tense, or 's' form."},
+    {cat:'legal',sentence:'The company was found to be in ___ of the agreement.',correct:'breach',distractors:['breaking','broken','breached'],level:'intermediate',explain:"'In breach of' is the fixed legal phrase for violating an agreement; 'breach' is the noun this phrase requires."},
+    {cat:'legal',sentence:'The clause was ___ ambiguous and had to be rewritten.',correct:'deemed',distractors:['deem','deeming','deems'],level:'advanced',explain:"This describes a completed judgment, so the past tense 'deemed' is required."},
+    {cat:'legal',sentence:'The parties agreed to ___ confidential terms during the negotiation.',correct:'keep',distractors:['keeping','kept','keeps'],level:'intermediate',explain:"After 'agreed to', a verb needs its base form — 'keep', not the -ing form, past tense, or 's' form."},
+    {cat:'legal',sentence:'The company\'s liability is ___ to the value of the contract.',correct:'limited',distractors:['limit','limiting','limits'],level:'advanced',explain:"'Is' plus a past participle is needed here — 'limited', not the base, -ing, or 's' form."},
+    {cat:'legal',sentence:'The firm was asked to ___ additional documentation for the audit.',correct:'produce',distractors:['producing','produced','produces'],level:'intermediate',explain:"After 'to', a verb needs its base form — 'produce', not the -ing form, past tense, or 's' form."},
+    {cat:'legal',sentence:'The two sides reached a ___ just before the trial began.',correct:'settlement',distractors:['agreement','contract','verdict'],level:'intermediate',explain:"'Settlement' is the precise term for a resolution reached to avoid trial. 'Verdict' is what a court delivers after a trial, and the others are too general for this exact legal context."},
+    {cat:'legal',sentence:'The court has ___ jurisdiction over cross-border disputes of this kind.',correct:'exclusive',distractors:['limited','partial','shared'],level:'advanced',explain:"'Exclusive jurisdiction' is the fixed legal term meaning only that court can hear the case. The other options describe the opposite or a partial version of this authority."},
+    // BUSINESS
+    {cat:'business',sentence:'The company ___ a new logo as part of the rebrand.',correct:'unveiled',distractors:['unveil','unveiling','unveils'],level:'intermediate',explain:"This describes a completed launch event, so the past tense 'unveiled' is required."},
+    {cat:'business',sentence:'We are ___ to announce a new partnership with a major retailer.',correct:'pleased',distractors:['please','pleasing','pleases'],level:'beginner',explain:"'Are pleased to' is the fixed formal phrase for announcing good news — it needs the past-participle/adjective form 'pleased'."},
+    {cat:'business',sentence:'The board ___ to cut the dividend after a difficult quarter.',correct:'voted',distractors:['vote','voting','votes'],level:'intermediate',explain:"'After a difficult quarter' places this in the past, so the past tense 'voted' is required."},
+    {cat:'business',sentence:'The company\'s market share has ___ steadily over the past decade.',correct:'declined',distractors:['decline','declining','declines'],level:'advanced',explain:"After 'has', a verb needs its past participle — 'declined', not the base, -ing, or 's' form."},
+    {cat:'business',sentence:'They ___ up a new subsidiary to handle overseas sales.',correct:'set',distractors:['sat','put','stood'],level:'intermediate',explain:"'Set up a subsidiary' is the fixed collocation for establishing a company. The other verbs don't form this meaning with 'up'."},
+    // SOCIAL
+    {cat:'social',sentence:'He ___ a rain check on dinner because of work.',correct:'took',distractors:['made','gave','had'],level:'advanced',explain:"'Take a rain check' is a fixed idiom meaning to postpone an invitation for another time."},
+    {cat:'social',sentence:'She always ___ the benefit of the doubt to new colleagues.',correct:'gives',distractors:['takes','makes','has'],level:'advanced',explain:"'Give someone the benefit of the doubt' is a fixed idiom meaning to trust them despite some uncertainty."},
+    {cat:'social',sentence:'I ___ forward to seeing you at the conference next month.',correct:'am looking',distractors:['look','am look','looked'],level:'beginner',explain:"'Look forward to' in a current, ongoing sense needs the present continuous — 'am looking', not the base form, an ungrammatical form, or the past tense."},
+    {cat:'social',sentence:'He ___ his opinion, even though everyone disagreed.',correct:'stuck to',distractors:['held on','kept up','stayed at'],level:'advanced',explain:"'Stick to your opinion' is the fixed phrase for not changing your mind under pressure."},
+    {cat:'social',sentence:'Could you ___ me a hand moving these boxes?',correct:'give',distractors:['giving','gave','gives'],level:'beginner',explain:"After 'Could you', a verb needs its base form — 'give', not the -ing form, past tense, or 's' form."},
+    // TECH
+    {cat:'tech',sentence:'The new update ___ several long-standing bugs.',correct:'fixed',distractors:['fix','fixing','fixes'],level:'beginner',explain:"This describes what the update already did, so the past tense 'fixed' is required."},
+    {cat:'tech',sentence:'The company is ___ its infrastructure to the cloud this year.',correct:'migrating',distractors:['migrate','migrated','migrates'],level:'intermediate',explain:"After 'is', a verb needs its -ing form for this ongoing action — 'migrating', not the base, past tense, or 's' form."},
+    {cat:'tech',sentence:'Two-factor authentication adds an extra ___ of security.',correct:'layer',distractors:['level','stage','floor'],level:'intermediate',explain:"'Layer of security' is the standard tech collocation. 'Level' and 'stage' don't pair naturally with 'security' in this way, and 'floor' doesn't fit at all."},
+    {cat:'tech',sentence:'The dashboard ___ real-time data from every store.',correct:'displays',distractors:['display','displaying','displayed'],level:'intermediate',explain:"'The dashboard' is singular and this describes a standing feature, so the present-tense 's' form 'displays' is required."},
+];
+WORD_BANK.push(...WORD_BANK_BATCH_4);
+
 function todayDateStr(){ return new Date().toISOString().split('T')[0]; }
  
 function addDays(dateStr, days){
@@ -789,6 +870,177 @@ function renderDueNudge(containerEl, pool){
             </span>
         </div>`;
 }
+/* ═══════════════════════════════════════════════════
+   WORD THIEF — MASTERY PROGRESS PANEL
+   Turns the itemStats data (already tracked per word for the SRS/
+   adaptive-difficulty engine) into something visible on the setup
+   screen — "N% mastered" per category, with a progress bar. A word
+   counts as mastered once it's been seen at least twice and answered
+   correctly at least 80% of the time; anything unseen just doesn't
+   count toward the denominator yet (no false "0%" shaming on day one).
+═══════════════════════════════════════════════════ */
+const PROGRESS_CAT_ORDER = ['business','legal','tax','social','tech'];
+const PROGRESS_CAT_ICONS = {business:'💼',legal:'⚖️',tax:'🧾',social:'🌍',tech:'🤖'};
+const PROGRESS_CAT_NAMES = {business:'Business',legal:'Legal',tax:'Tax',social:'Social',tech:'Tech'};
+
+function isMastered(item){
+    const s = itemStats[itemId(item)];
+    if (!s || s.seen < 2) return false;
+    return (s.correct / s.seen) >= 0.8;
+}
+
+function categoryMastery(cat){
+    const items = WORD_BANK.filter(w => w.cat === cat);
+    if (items.length === 0) return 0;
+    const masteredCount = items.filter(isMastered).length;
+    return Math.round((masteredCount / items.length) * 100);
+}
+
+function renderProgressPanel(containerEl){
+    // Nothing tracked yet at all (brand-new player) — skip the panel
+    // entirely rather than showing a wall of 0% bars.
+    const hasAnyData = Object.keys(itemStats).length > 0;
+    if (!hasAnyData) { containerEl.innerHTML = ''; return; }
+
+    const rows = PROGRESS_CAT_ORDER.map(cat => {
+        const pct = categoryMastery(cat);
+        return `
+            <div class="progress-row">
+                <span class="progress-cat-icon">${PROGRESS_CAT_ICONS[cat]}</span>
+                <span class="progress-cat-name">${PROGRESS_CAT_NAMES[cat]}</span>
+                <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+                <span class="progress-pct">${pct}%</span>
+            </div>`;
+    }).join('');
+
+    const totalMastered = WORD_BANK.filter(isMastered).length;
+
+    containerEl.innerHTML = `
+        <div class="progress-panel">
+            <div class="progress-head">
+                <span class="progress-title">📚 Word Mastery</span>
+                <span class="progress-total">${totalMastered}/${WORD_BANK.length} words mastered</span>
+            </div>
+            ${rows}
+        </div>`;
+}
+
+/* ═══════════════════════════════════════════════════
+   WORD THIEF — QUICK LEVEL CHECK (calibration quiz)
+   3 fast multiple-choice questions spanning A2 → C1 used to recommend
+   a starting English Level, so a true beginner doesn't accidentally
+   pick "Advanced" and get steamrolled on their very first game. Shown
+   automatically to brand-new players (career.games_played === 0) and
+   always available afterwards via a small link on the setup screen.
+   Skippable at every step — this recommends, it never forces.
+═══════════════════════════════════════════════════ */
+const CALIBRATION_QUESTIONS = [
+    { prompt: "She ___ to work every day by train.", options: ['travel','travels','travelling','travelled'], correct: 'travels', band: 'beginner' },
+    { prompt: "The report ___ several key risks last month.", options: ['identify','identifies','identified','identifying'], correct: 'identified', band: 'intermediate' },
+    { prompt: "The company was fined for ___ health and safety laws.", options: ['breach','breaching','breached','breaches'], correct: 'breaching', band: 'advanced' },
+];
+
+let calibIndex = 0;
+let calibCorrectByBand = { beginner: 0, intermediate: 0, advanced: 0 };
+
+function shouldOfferCalibration(){
+    // Brand-new player: no career record, no item stats yet.
+    return (career.games_played || 0) === 0 && Object.keys(itemStats).length === 0;
+}
+
+function renderCalibCTA(containerEl){
+    containerEl.innerHTML = `<a class="calib-skip" style="text-decoration:none;color:var(--blue-shadow);" onclick="startCalibration()">🎯 Not sure which level? Take a 30-second check</a>`;
+}
+
+function startCalibration(){
+    calibIndex = 0;
+    calibCorrectByBand = { beginner: 0, intermediate: 0, advanced: 0 };
+    $('setup-screen').style.display = 'none';
+    const cs = $('calib-screen');
+    cs.style.display = 'block';
+    renderCalibQuestion();
+}
+
+function renderCalibQuestion(){
+    const cs = $('calib-screen');
+    const q = CALIBRATION_QUESTIONS[calibIndex];
+    const dots = CALIBRATION_QUESTIONS.map((_, i) => {
+        const cls = i < calibIndex ? 'done' : (i === calibIndex ? 'active' : '');
+        return `<div class="calib-dot ${cls}"></div>`;
+    }).join('');
+    const opts = shuffle(q.options).map(opt =>
+        `<button class="calib-opt" onclick="answerCalib(this,'${opt.replace(/'/g,"\\'")}')">${opt}</button>`
+    ).join('');
+
+    cs.innerHTML = `
+        <div class="calib-card">
+            <div class="calib-eyebrow">🎯 Quick Level Check</div>
+            <div class="calib-title">Let's find your level</div>
+            <p class="calib-sub">Three quick questions — just pick the word that fits. This only sets a starting point; the game keeps adapting as you play.</p>
+            <div class="calib-progress">${dots}</div>
+            <div class="calib-q">${q.prompt.replace('___', '<span style="color:var(--shadow-accent)">___</span>')}</div>
+            <div class="calib-grid">${opts}</div>
+            <a class="calib-skip" onclick="skipCalibration()">Skip — I'll pick my level myself</a>
+        </div>`;
+}
+
+function answerCalib(btn, chosen){
+    const q = CALIBRATION_QUESTIONS[calibIndex];
+    const isRight = chosen === q.correct;
+    document.querySelectorAll('.calib-opt').forEach(b => {
+        b.disabled = true;
+        if (b.textContent === q.correct) b.classList.add('correct');
+        else if (b === btn && !isRight) b.classList.add('wrong');
+    });
+    if (isRight) calibCorrectByBand[q.band]++;
+
+    setTimeout(() => {
+        calibIndex++;
+        if (calibIndex < CALIBRATION_QUESTIONS.length) renderCalibQuestion();
+        else finishCalibration();
+    }, 700);
+}
+
+function skipCalibration(){
+    $('calib-screen').style.display = 'none';
+    $('setup-screen').style.display = 'flex';
+}
+
+function finishCalibration(){
+    // Simple scoring: how far up the A2→C1 ladder they got before
+    // missing a question decides the recommended starting level.
+    let recommended = 'beginner';
+    if (calibCorrectByBand.beginner > 0 && calibCorrectByBand.intermediate > 0 && calibCorrectByBand.advanced > 0) {
+        recommended = 'advanced';
+    } else if (calibCorrectByBand.beginner > 0 && calibCorrectByBand.intermediate > 0) {
+        recommended = 'intermediate';
+    } else {
+        recommended = 'beginner';
+    }
+
+    const labelMap = { beginner: '🌱 Beginner', intermediate: '🌿 Intermediate', advanced: '🌳 Advanced' };
+    const cs = $('calib-screen');
+    cs.innerHTML = `
+        <div class="calib-card" style="text-align:center;">
+            <span style="font-size:56px;display:block;margin-bottom:10px;">🎯</span>
+            <div class="calib-title">We'd recommend ${labelMap[recommended]}</div>
+            <p class="calib-sub">You can always change this later — Mixed mode will keep adapting to you round by round either way.</p>
+            <button class="btn-launch" style="justify-content:center;" onclick="applyCalibResult('${recommended}')">
+                <span>Let's go! →</span>
+            </button>
+        </div>`;
+
+    setTimeout(() => {}, 0); // no-op, keeps structure consistent with other async UI updates
+}
+
+function applyCalibResult(level){
+    selectedLevel = level;
+    $('calib-screen').style.display = 'none';
+    $('setup-screen').style.display = 'flex';
+    const btn = document.querySelector(`.diff-btn[data-level="${level}"]`);
+    if (btn) selectLevel(btn);
+}
+
 /* ═══════════════════════════════════════════════════
    WORD THIEF — PROGRESSION & RETENTION
 ═══════════════════════════════════════════════════ */
@@ -1506,6 +1758,12 @@ function quitGame(){
     $('result-screen').style.display='none';
     $('review-screen').style.display='none';
     $('setup-screen').style.display='flex';
+    // Stats may have moved since setup was last shown — refresh the
+    // rank badge, due-review nudge, and mastery panel to match.
+    renderRankBadge($('rank-badge-wrap'));
+    renderDueNudge($('due-nudge-wrap'), WORD_BANK);
+    renderProgressPanel($('progress-panel-wrap'));
+    updatePoolSizeHint();
 }
 
 (async function initSetupScreen(){
@@ -1517,7 +1775,13 @@ function quitGame(){
     renderRankBadge($('rank-badge-wrap'));
     await loadItemStats();
     renderDueNudge($('due-nudge-wrap'), WORD_BANK);
+    renderProgressPanel($('progress-panel-wrap'));
+    renderCalibCTA($('calib-cta-wrap'));
     updatePoolSizeHint();
+
+    // First-ever visit: offer the calibration quiz automatically instead
+    // of just dropping a brand-new player into "Mixed" with no context.
+    if (shouldOfferCalibration()) startCalibration();
 })();
 </script>
 </body>
