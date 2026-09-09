@@ -84,8 +84,8 @@
     .cat-btn-label{font-size:13px;font-weight:900;color:var(--ink-bold);}
     .cat-btn.selected .cat-btn-label{color:var(--shadow-accent);}
 
-    .diff-row{display:flex;gap:10px;margin-bottom:24px;}
-    .diff-btn{flex:1;padding:13px 10px;background:var(--bg);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);cursor:pointer;transition:all .15s;font-family:inherit;text-align:center;}
+    .diff-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px;}
+    .diff-btn{flex:1;min-width:76px;padding:13px 10px;background:var(--bg);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);cursor:pointer;transition:all .15s;font-family:inherit;text-align:center;}
     .diff-btn:active{border-bottom-width:2px;transform:translateY(2px);}
     .diff-btn.selected{border-color:var(--shadow-accent);background:rgba(233,69,96,.06);}
     .diff-btn-icon{font-size:24px;display:block;margin-bottom:4px;}
@@ -300,6 +300,31 @@
                     <span class="cat-btn-label">Tech</span>
                 </button>
             </div>
+
+            <div class="setup-section-label">English Level — which words should show up?</div>
+            <div class="diff-row">
+                <button class="diff-btn selected" data-level="mixed" onclick="selectLevel(this)">
+                    <span class="diff-btn-icon">🎯</span>
+                    <span class="diff-btn-label">Mixed</span>
+                    <span class="diff-btn-sub">Adapts to you</span>
+                </button>
+                <button class="diff-btn" data-level="beginner" onclick="selectLevel(this)">
+                    <span class="diff-btn-icon">🌱</span>
+                    <span class="diff-btn-label">Beginner</span>
+                    <span class="diff-btn-sub">A2–B1</span>
+                </button>
+                <button class="diff-btn" data-level="intermediate" onclick="selectLevel(this)">
+                    <span class="diff-btn-icon">🌿</span>
+                    <span class="diff-btn-label">Intermediate</span>
+                    <span class="diff-btn-sub">B1–B2</span>
+                </button>
+                <button class="diff-btn" data-level="advanced" onclick="selectLevel(this)">
+                    <span class="diff-btn-icon">🌳</span>
+                    <span class="diff-btn-label">Advanced</span>
+                    <span class="diff-btn-sub">B2–C1</span>
+                </button>
+            </div>
+            <div id="pool-size-hint" style="text-align:center;font-size:12px;font-weight:800;color:var(--ink-3);margin:-14px 0 20px;"></div>
 
             <div class="setup-section-label">Difficulty — how fast is The Shadow?</div>
             <div class="diff-row">
@@ -533,6 +558,79 @@ const WORD_BANK_BATCH_2 = [
 ];
 WORD_BANK.push(...WORD_BANK_BATCH_2);
 
+/* ═══ WORD BANK — BATCH 3 ═══
+   Targeted at the gaps a level-by-level audit turned up: Tax had ZERO
+   beginner items and Legal had almost none, which would make picking
+   "Beginner" on those categories return a near-empty (or empty) pool.
+   Every item still follows the two anti-ambiguity rules established
+   above: grammar-form distractors (same word, wrong form) wherever
+   possible, and collocation-breaking distractors elsewhere — never
+   loose synonyms that could arguably also be "correct". */
+const WORD_BANK_BATCH_3 = [
+    // BUSINESS (+5 beginner, +1 advanced)
+    {cat:'business',sentence:'The team will ___ the results tomorrow.',correct:'present',distractors:['presenting','presented','presents'],level:'beginner',explain:"After 'will', a verb needs its base form — 'present', not the -ing form, past tense, or 's' form."},
+    {cat:'business',sentence:'She always ___ to work by bike.',correct:'travels',distractors:['travel','travelling','travelled'],level:'beginner',explain:"'She' is 3rd-person singular and 'always' signals a habit, so the present-tense 's' form 'travels' is required."},
+    {cat:'business',sentence:'Could you ___ me the report by email?',correct:'send',distractors:['sending','sent','sends'],level:'beginner',explain:"After 'Could you', a verb needs its base form — 'send', not the -ing form, past tense, or 's' form."},
+    {cat:'business',sentence:'The company ___ new staff every January.',correct:'hires',distractors:['hire','hiring','hired'],level:'beginner',explain:"'The company' is singular and 'every January' signals a habit, so the present-tense 's' form 'hires' is required."},
+    {cat:'business',sentence:'We ___ the deal after months of talks.',correct:'closed',distractors:['close','closing','closes'],level:'beginner',explain:"'After months of talks' places this in the past, so the past tense 'closed' is required."},
+    {cat:'business',sentence:'The firm\'s profits have ___ threefold since the acquisition.',correct:'grown',distractors:['grow','growing','grows'],level:'advanced',explain:"After 'have', a verb needs its past participle — 'grown', not the base, -ing, or 's' form."},
+    // LEGAL (+8 beginner, +6 intermediate)
+    {cat:'legal',sentence:'You must ___ the form in black ink.',correct:'complete',distractors:['completing','completed','completes'],level:'beginner',explain:"After 'must', a verb needs its base form — 'complete', not the -ing form, past tense, or 's' form."},
+    {cat:'legal',sentence:'The lawyer will ___ the case in court.',correct:'present',distractors:['presenting','presented','presents'],level:'beginner',explain:"After 'will', a verb needs its base form — 'present', not the -ing form, past tense, or 's' form."},
+    {cat:'legal',sentence:'Please ___ your ID before entering the courtroom.',correct:'show',distractors:['showing','showed','shows'],level:'beginner',explain:"After 'Please', a verb needs its base form — 'show', not the -ing form, past tense, or 's' form."},
+    {cat:'legal',sentence:'The judge ___ the trial for two weeks.',correct:'postponed',distractors:['postpone','postponing','postpones'],level:'beginner',explain:"This describes something that already happened, so the past tense 'postponed' is required."},
+    {cat:'legal',sentence:'She ___ a lawyer last week to help with the case.',correct:'hired',distractors:['hire','hiring','hires'],level:'beginner',explain:"'Last week' places this in the past, so the past tense 'hired' is required."},
+    {cat:'legal',sentence:'This is the famous police caution: you have the right to remain ___.',correct:'silent',distractors:['silence','quiet','calm'],level:'beginner',explain:"'Remain silent' is the exact fixed wording of the caution. 'Silence' is a noun and can't follow 'remain' this way, and 'quiet'/'calm', though similar in meaning, aren't the caution's actual wording."},
+    {cat:'legal',sentence:'The company must ___ a copy of the contract to each party.',correct:'provide',distractors:['providing','provided','provides'],level:'beginner',explain:"After 'must', a verb needs its base form — 'provide', not the -ing form, past tense, or 's' form."},
+    {cat:'legal',sentence:'The witness needs to ___ the truth in court.',correct:'tell',distractors:['telling','told','tells'],level:'beginner',explain:"After 'needs to', a verb needs its base form — 'tell', not the -ing form, past tense, or 's' form."},
+    {cat:'legal',sentence:'The claim was ___ due to lack of evidence.',correct:'dismissed',distractors:['dismiss','dismissing','dismisses'],level:'intermediate',explain:"After 'was', a verb needs its past participle — 'dismissed', not the base, -ing, or 's' form."},
+    {cat:'legal',sentence:'The parties are legally ___ to fulfil the terms of the contract.',correct:'obligated',distractors:['obligate','obligating','obligates'],level:'intermediate',explain:"'Are legally obligated to' needs the past-participle form — not the base, -ing, or 's' form."},
+    {cat:'legal',sentence:'The company was ordered to ___ compensation to the victims.',correct:'pay',distractors:['paying','paid','pays'],level:'intermediate',explain:"After 'to', a verb needs its base form — 'pay', not the -ing form, past tense, or 's' form."},
+    {cat:'legal',sentence:'The defendant\'s lawyer plans to ___ an appeal next week.',correct:'file',distractors:['filing','filed','files'],level:'intermediate',explain:"After 'to', a verb needs its base form — 'file', not the -ing form, past tense, or 's' form."},
+    {cat:'legal',sentence:'The regulator has the power to ___ heavy fines for non-compliance.',correct:'impose',distractors:['imposing','imposed','imposes'],level:'intermediate',explain:"After 'to', a verb needs its base form — 'impose', not the -ing form, past tense, or 's' form."},
+    {cat:'legal',sentence:'Under the new rules, firms must ___ any data breaches within 72 hours.',correct:'report',distractors:['reporting','reported','reports'],level:'intermediate',explain:"After 'must', a verb needs its base form — 'report', not the -ing form, past tense, or 's' form."},
+    // SOCIAL (+4 beginner, +4 advanced)
+    {cat:'social',sentence:'Nice to ___ you! I\'ve heard so much about you.',correct:'meet',distractors:['meeting','met','meets'],level:'beginner',explain:"After 'to', a verb needs its base form — 'meet', not the -ing form, past tense, or 's' form."},
+    {cat:'social',sentence:'I really appreciate you ___ time to see me today.',correct:'taking',distractors:['take','took','takes'],level:'beginner',explain:"After 'appreciate you', a verb needs its -ing form — 'taking', not the base, past tense, or 's' form."},
+    {cat:'social',sentence:'She always ___ hello when she sees me.',correct:'says',distractors:['say','saying','said'],level:'beginner',explain:"'She' is 3rd-person singular and 'always' signals a habit, so the present-tense 's' form 'says' is required."},
+    {cat:'social',sentence:'Let\'s ___ in touch after the holidays.',correct:'stay',distractors:['staying','stayed','stays'],level:'beginner',explain:"After 'Let's', a verb needs its base form — 'stay', not the -ing form, past tense, or 's' form."},
+    {cat:'social',sentence:'He ___ the meeting with a joke to lighten the mood.',correct:'opened',distractors:['open','opening','opens'],level:'advanced',explain:"This describes a completed action, so the past tense 'opened' is required."},
+    {cat:'social',sentence:'She has a knack for ___ people feel at ease.',correct:'making',distractors:['make','made','makes'],level:'advanced',explain:"After 'a knack for', a verb needs its -ing form — 'making', not the base, past tense, or 's' form."},
+    {cat:'social',sentence:'He didn\'t want to ___ the awkward silence, so he just smiled.',correct:'address',distractors:['addressing','addressed','addresses'],level:'advanced',explain:"After 'to', a verb needs its base form — 'address', not the -ing form, past tense, or 's' form."},
+    {cat:'social',sentence:'They ___ small talk until the food arrived.',correct:'made',distractors:['make','making','makes'],level:'advanced',explain:"'Until the food arrived' signals this is in the past, so the past tense 'made' is required."},
+    // TAX (+10 beginner, +3 intermediate, +7 advanced) — the biggest gap
+    {cat:'tax',sentence:'You must ___ your tax form by the end of May.',correct:'submit',distractors:['submitting','submitted','submits'],level:'beginner',explain:"After 'must', a verb needs its base form — 'submit', not the -ing form, past tense, or 's' form."},
+    {cat:'tax',sentence:'The tax office will ___ your refund within six weeks.',correct:'process',distractors:['processing','processed','processes'],level:'beginner',explain:"After 'will', a verb needs its base form — 'process', not the -ing form, past tense, or 's' form."},
+    {cat:'tax',sentence:'Please ___ your bank details on the form.',correct:'enter',distractors:['entering','entered','enters'],level:'beginner',explain:"After 'Please', a verb needs its base form — 'enter', not the -ing form, past tense, or 's' form."},
+    {cat:'tax',sentence:'Every employee ___ tax automatically from their salary.',correct:'pays',distractors:['pay','paying','paid'],level:'beginner',explain:"'Every employee' is singular and this describes a general fact, so the present-tense 's' form 'pays' is required."},
+    {cat:'tax',sentence:'You can ___ a tax advisor for help with your return.',correct:'contact',distractors:['contacting','contacted','contacts'],level:'beginner',explain:"After 'can', a verb needs its base form — 'contact', not the -ing form, past tense, or 's' form."},
+    {cat:'tax',sentence:'The deadline to ___ your tax return is the 31st of July.',correct:'file',distractors:['filing','filed','files'],level:'beginner',explain:"After 'to', a verb needs its base form — 'file', not the -ing form, past tense, or 's' form."},
+    {cat:'tax',sentence:'You need to ___ all your receipts for business expenses.',correct:'keep',distractors:['keeping','kept','keeps'],level:'beginner',explain:"After 'to', a verb needs its base form — 'keep', not the -ing form, past tense, or 's' form."},
+    {cat:'tax',sentence:'The accountant will ___ your accounts before the deadline.',correct:'check',distractors:['checking','checked','checks'],level:'beginner',explain:"After 'will', a verb needs its base form — 'check', not the -ing form, past tense, or 's' form."},
+    {cat:'tax',sentence:'New employees must ___ a tax form when they start a job.',correct:'complete',distractors:['completing','completed','completes'],level:'beginner',explain:"After 'must', a verb needs its base form — 'complete', not the -ing form, past tense, or 's' form."},
+    {cat:'tax',sentence:'You should always ___ a copy of your tax return.',correct:'save',distractors:['saving','saved','saves'],level:'beginner',explain:"After 'should', a verb needs its base form — 'save', not the -ing form, past tense, or 's' form."},
+    {cat:'tax',sentence:'Freelancers often need to ___ estimated tax payments each quarter.',correct:'make',distractors:['making','made','makes'],level:'intermediate',explain:"After 'need to', a verb needs its base form — 'make', not the -ing form, past tense, or 's' form."},
+    {cat:'tax',sentence:'The accountant helped her ___ significant tax relief on her donations.',correct:'claim',distractors:['claiming','claimed','claims'],level:'intermediate',explain:"After 'helped her', a verb needs its base form — 'claim', not the -ing form, past tense, or 's' form."},
+    {cat:'tax',sentence:'Company directors must ___ any taxable benefits they receive.',correct:'declare',distractors:['declaring','declared','declares'],level:'intermediate',explain:"After 'must', a verb needs its base form — 'declare', not the -ing form, past tense, or 's' form."},
+    {cat:'tax',sentence:'The company was investigated for allegedly ___ its tax liability through offshore accounts.',correct:'understating',distractors:['understate','understated','understates'],level:'advanced',explain:"After the preposition 'for', a verb needs its -ing form — 'understating', not the base, past tense, or 's' form."},
+    {cat:'tax',sentence:'Under the treaty, income is not ___ twice in both countries.',correct:'taxed',distractors:['tax','taxing','taxes'],level:'advanced',explain:"After 'is not', a verb needs its past participle for this passive construction — 'taxed', not the base, -ing, or 's' form."},
+    {cat:'tax',sentence:'The auditor ___ several irregularities in the company\'s expense claims.',correct:'identified',distractors:['identify','identifying','identifies'],level:'advanced',explain:"This describes a completed finding, so the past tense 'identified' is required."},
+    {cat:'tax',sentence:'The new rules are designed to prevent large companies from ___ profits to low-tax jurisdictions.',correct:'shifting',distractors:['shift','shifted','shifts'],level:'advanced',explain:"After 'from', a verb needs its -ing form — 'shifting', not the base, past tense, or 's' form."},
+    {cat:'tax',sentence:'She was fined for failing to ___ a substantial amount of foreign income.',correct:'declare',distractors:['declaring','declared','declares'],level:'advanced',explain:"After 'failing to', a verb needs its base form — 'declare', not the -ing form, past tense, or 's' form."},
+    {cat:'tax',sentence:'The company\'s tax affairs are currently being ___ by the authorities.',correct:'audited',distractors:['audit','auditing','audits'],level:'advanced',explain:"After 'being', a verb needs its past participle for this passive construction — 'audited', not the base, -ing, or 's' form."},
+    {cat:'tax',sentence:'The ruling clarified how VAT should be ___ on cross-border digital services.',correct:'applied',distractors:['apply','applying','applies'],level:'advanced',explain:"After 'should be', a verb needs its past participle — 'applied', not the base, -ing, or 's' form."},
+    // TECH (+4 beginner, +4 intermediate)
+    {cat:'tech',sentence:'Please ___ the app before using it.',correct:'download',distractors:['downloading','downloaded','downloads'],level:'beginner',explain:"After 'Please', a verb needs its base form — 'download', not the -ing form, past tense, or 's' form."},
+    {cat:'tech',sentence:'You can ___ your settings at any time.',correct:'change',distractors:['changing','changed','changes'],level:'beginner',explain:"After 'can', a verb needs its base form — 'change', not the -ing form, past tense, or 's' form."},
+    {cat:'tech',sentence:'The website ___ every night for maintenance.',correct:'restarts',distractors:['restart','restarting','restarted'],level:'beginner',explain:"'The website' is singular and this describes a routine, so the present-tense 's' form 'restarts' is required."},
+    {cat:'tech',sentence:'Click here to ___ your password.',correct:'update',distractors:['updating','updated','updates'],level:'beginner',explain:"After 'to', a verb needs its base form — 'update', not the -ing form, past tense, or 's' form."},
+    {cat:'tech',sentence:'The company ___ a major cyberattack last spring.',correct:'suffered',distractors:['suffer','suffering','suffers'],level:'intermediate',explain:"'Last spring' places this in the past, so the past tense 'suffered' is required."},
+    {cat:'tech',sentence:'Engineers are working to ___ the root cause of the outage.',correct:'identify',distractors:['identifying','identified','identifies'],level:'intermediate',explain:"After 'to', a verb needs its base form — 'identify', not the -ing form, past tense, or 's' form."},
+    {cat:'tech',sentence:'The platform ___ over a million active users last quarter.',correct:'reached',distractors:['reach','reaching','reaches'],level:'intermediate',explain:"'Last quarter' places this in the past, so the past tense 'reached' is required."},
+    {cat:'tech',sentence:'You must ___ the terms of service before creating an account.',correct:'accept',distractors:['accepting','accepted','accepts'],level:'intermediate',explain:"After 'must', a verb needs its base form — 'accept', not the -ing form, past tense, or 's' form."},
+];
+WORD_BANK.push(...WORD_BANK_BATCH_3);
+
 function todayDateStr(){ return new Date().toISOString().split('T')[0]; }
  
 function addDays(dateStr, days){
@@ -553,6 +651,8 @@ let itemStats     = {};   // itemId -> {seen, correct, lastMissedAt}
 let skillScore     = 50;  // 0-100, drives which level band gets served
 let recentResults  = [];  // rolling window of last 5 results, drives timer
 let recentlyShown  = [];  // last few item ids, avoids back-to-back repeats
+let shownThisGame  = new Set(); // every item id shown THIS game — the real repeat-fix:
+                                 // nothing repeats until the whole pool has been seen once
 
 async function loadItemStats(){
     const user = window.EFCD_Auth?.getCurrentUser?.();
@@ -640,19 +740,30 @@ function targetLevelWeights(){
    matching your current skill band. Nothing is ever fully excluded —
    even mastered items keep a small chance of showing up as a refresher.
    Falls back safely to the FULL word bank if the given pool is empty
-   (e.g. a category filter that happens to match nothing). ── */
+   (e.g. a category filter that happens to match nothing).
+
+   Repeat control has two layers:
+   1. shownThisGame — the real fix: nothing repeats until every item in
+      the pool has appeared once this game. Once the pool is exhausted,
+      it clears and a fresh cycle starts (so long games don't just stop).
+   2. recentlyShown — a short "last 4" buffer on top of that, so right
+      after a cycle-reset you still don't see the exact same item twice
+      in a row. ── */
 function pickAdaptiveItem(pool){
     if (!pool || pool.length === 0) pool = WORD_BANK;
     if (pool.length === 0) return null; // truly nothing to show — caller must handle
 
+    let unseen = pool.filter(it => !shownThisGame.has(itemId(it)));
+    if (unseen.length === 0) { shownThisGame.clear(); unseen = pool; }
+
     const lvlW = targetLevelWeights();
-    let candidates = pool.filter(it => !recentlyShown.includes(itemId(it)));
-    if (candidates.length < 4) candidates = pool;
- 
+    let candidates = unseen.filter(it => !recentlyShown.includes(itemId(it)));
+    if (candidates.length === 0) candidates = unseen;
+
     const weighted = candidates.map(item => {
         const mastery = masteryOf(item);
         const weaknessBoost = 0.2 + (1 - mastery) * 1.4;
-        const levelBoost = lvlW[item.level] ?? 0.33;
+        const levelBoost = selectedLevel === 'mixed' ? (lvlW[item.level] ?? 0.33) : 1;
         const dueBoost = isDue(item) ? 3 : 1;
         return { item, weight: weaknessBoost * levelBoost * dueBoost + 0.05 };
     });
@@ -780,8 +891,10 @@ function renderRankBadge(containerEl){
 }
 
 function markShown(item){
-    recentlyShown.push(itemId(item));
+    const id = itemId(item);
+    recentlyShown.push(id);
     if (recentlyShown.length > 4) recentlyShown.shift();
+    shownThisGame.add(id);
 }
 
 /* ── Called exactly once per round, right when the outcome is known ── */
@@ -838,12 +951,13 @@ const CAT_LABELS = {business:'💼 Business',legal:'⚖️ Legal',tax:'🧾 Tax'
 
 /* ═══ STATE ═══ */
 let selectedCat  = 'all';
+let selectedLevel= 'mixed';
 let selectedDiff = 'medium';
 let scoreYou     = 0;
 let scoreThief   = 0;
 let sessionXP    = 0;
 let roundNum     = 0;
-let queue        = [];
+let sessionBank  = WORD_BANK; // local bank + any live Supabase rows, merged each game
 let roundHistory = [];
 let timerInterval= null;
 let timerSeconds = 5;
@@ -924,12 +1038,41 @@ function selectCat(btn){
     document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('selected'));
     btn.classList.add('selected');
     selectedCat = btn.dataset.cat;
+    updatePoolSizeHint();
 }
 
 function selectDiff(btn){
-    document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('selected'));
+    document.querySelectorAll('.diff-btn[data-diff]').forEach(b=>b.classList.remove('selected'));
     btn.classList.add('selected');
     selectedDiff = btn.dataset.diff;
+}
+
+function selectLevel(btn){
+    document.querySelectorAll('.diff-btn[data-level]').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedLevel = btn.dataset.level;
+    updatePoolSizeHint();
+}
+
+/* Small transparency touch: shows how many words are actually in play
+   for the current Category + Level combo, so repetition within a game
+   is never a mystery. */
+function poolFor(cat, level, bank){
+    let pool = bank || sessionBank;
+    if (cat !== 'all') pool = pool.filter(w => w.cat === cat);
+    if (level !== 'mixed') pool = pool.filter(w => w.level === level);
+    return pool;
+}
+
+function updatePoolSizeHint(){
+    const el = $('pool-size-hint');
+    if (!el) return;
+    const n = poolFor(selectedCat, selectedLevel).length;
+    if (n === 0) {
+        el.textContent = `No words match yet for this combo — we'll use the full bank instead.`;
+    } else {
+        el.textContent = `${n} word${n !== 1 ? 's' : ''} in this mix`;
+    }
 }
 
 /* ═══ START ═══ */
@@ -940,37 +1083,32 @@ async function startGame(){
     skillScore = 50;
     recentResults = [];
     recentlyShown = [];
+    shownThisGame = new Set();
     await loadItemStats();
     await loadCareer();
 
-    // Build queue — try Supabase first, fall back to hardcoded
-    let bank = [];
+    // The local WORD_BANK always ships with the app and works offline.
+    // A live Supabase 'word_thief' table can SUPPLEMENT it with fresh
+    // content with no app update needed — merged in, not swapped in, so
+    // remote rows only need to cover whatever you want to add, not
+    // duplicate the whole local bank.
+    sessionBank = WORD_BANK;
     try{
         if(sb){
-            let q = sb.from('word_thief').select('*');
-            if(selectedCat !== 'all') q = q.eq('cat', selectedCat);
-            const {data} = await q;
-            if(data?.length >= 10) bank = data.map(r=>({
-                cat: r.cat,
-                sentence: r.sentence,
-                correct: r.correct,
-                distractors: r.distractors,
-                level: r.level,
-                explain: r.explain || r.why || ''
-            }));
+            const {data} = await sb.from('word_thief').select('*');
+            if(data?.length){
+                const remote = data.map(r=>({
+                    cat: r.cat,
+                    sentence: r.sentence,
+                    correct: r.correct,
+                    distractors: r.distractors,
+                    level: r.level,
+                    explain: r.explain || r.why || ''
+                }));
+                sessionBank = [...WORD_BANK, ...remote];
+            }
         }
     }catch(e){}
-
-    if(bank.length < 10){
-        bank = selectedCat === 'all'
-            ? [...WORD_BANK]
-            : WORD_BANK.filter(w=>w.cat===selectedCat);
-        // A category with too few items (or none at all) falls back to the
-        // full bank rather than crashing or stalling the game.
-        if(bank.length < 4) bank = [...WORD_BANK];
-    }
-
-    queue = shuffle(bank);
 
     // UI reset
     $('setup-screen').style.display='none';
@@ -1025,15 +1163,17 @@ function computeTimer(){
 /* ═══ ROUND ═══ */
 function nextRound(){
     if(scoreYou >= WIN_TARGET || scoreThief >= WIN_TARGET){ showResult(); return; }
-    if(queue.length===0) queue = shuffle(selectedCat==='all'?[...WORD_BANK]:WORD_BANK.filter(w=>w.cat===selectedCat));
-
     roundNum++;
     roundActive=true;
     clearInterval(timerInterval);
     showWhy('');
 
-    let pool = selectedCat === 'all' ? WORD_BANK : WORD_BANK.filter(w => w.cat === selectedCat);
-    if (pool.length === 0) pool = WORD_BANK; // safety net for an empty category filter
+    // Cat + Level, falling back a step at a time so a thin combo (e.g. an
+    // early-access category with few beginner items) never dead-ends —
+    // it just quietly widens instead of crashing or stalling.
+    let pool = poolFor(selectedCat, selectedLevel);
+    if (pool.length === 0) pool = selectedCat === 'all' ? sessionBank : sessionBank.filter(w => w.cat === selectedCat);
+    if (pool.length === 0) pool = sessionBank;
     const item = pickAdaptiveItem(pool);
     markShown(item);
     currentItem = item;
@@ -1377,6 +1517,7 @@ function quitGame(){
     renderRankBadge($('rank-badge-wrap'));
     await loadItemStats();
     renderDueNudge($('due-nudge-wrap'), WORD_BANK);
+    updatePoolSizeHint();
 })();
 </script>
 </body>
