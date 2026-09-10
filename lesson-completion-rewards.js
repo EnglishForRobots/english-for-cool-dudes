@@ -1089,6 +1089,24 @@
   ],
 },
 
+     'who-sold-it-app-store-vat-tax': {
+  title:   'Who Sold It?',
+  level:   'Tax English',
+  grammar: 'Passive Voice in tax/legal English; First Conditional for predicting VAT outcomes',
+  vocab: [
+    { word:'in-app purchase', definition:'Something a user buys inside an app, such as extra levels or features' },
+    { word:'commission',      definition:'The part of the money a platform keeps for handling a sale' },
+    { word:'VAT',             definition:'A tax added to the price of most goods and services' },
+    { word:'place of supply', definition:'The country whose VAT rules apply to a transaction' },
+    { word:'invoice',         definition:'A document that shows what was sold and its price' },
+    { word:'deemed supplier', definition:'A company the law treats as the seller, even if it did not make the product itself' },
+    { word:'developer',       definition:'A person or company that makes an app' },
+    { word:'consumer',        definition:'A private customer who buys something for personal use, not for a business' },
+    { word:'platform',        definition:'A company, such as an app store, that lets other businesses sell through it' },
+    { word:'ruling',          definition:'An official decision made by a court' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
