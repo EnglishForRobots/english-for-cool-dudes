@@ -777,13 +777,21 @@ function buildStopSection(stop,i){
 function renderStopReading(stop, i){
     var b = body(stop.id);
 
-// State tracker for Stop 1 mining progress
 var stop1Stage = 1;
+
+function renderStopReading(stop, i){
+    if(i === 0){
+        renderStop1Nugget();
+        return;
+    }
+    var b = body(stop.id);
+    b.innerHTML = '<div class="stop-text-card"><div class="stop-eyebrow">'+stop.eyebrow+'</div><div class="stop-body-text">'+stop.html+'</div></div>'+
+        '<button class="btn-continue" onclick="renderStopOneChance(\''+stop.id+'\','+i+')">Continue →</button>';
+}
 
 function renderStop1Nugget() {
     var b = body('stop1');
     
-    // Header banner with animated mining theme
     var html = 
         '<div style="text-align:center; margin-bottom:16px;">' +
             '<div style="font-size:48px; line-height:1; margin-bottom:6px;">🪙</div>' +
@@ -793,7 +801,6 @@ function renderStop1Nugget() {
         '</div>' +
         '<div class="timeline-container" style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">';
 
-    // Timeline Card 1 (Always Visible)
     html += 
         '<div class="tl-card" style="background:#fff; border:2px solid var(--border-heavy); border-left:5px solid #d97706; border-radius:var(--rsm); padding:12px; display:flex; gap:12px; align-items:center;">' +
             '<div style="font-size:22px; flex-shrink:0;">🏛️</div>' +
@@ -803,7 +810,6 @@ function renderStop1Nugget() {
             '</div>' +
         '</div>';
 
-    // Timeline Card 2 (Unlocks in Stage 1)
     html += 
         '<div class="tl-card" style="background:#fff; border:2px solid var(--border-heavy); border-left:5px solid var(--blue); border-radius:var(--rsm); padding:12px; display:flex; gap:12px; align-items:center;">' +
             '<div style="font-size:22px; flex-shrink:0;">📜</div>' +
@@ -813,7 +819,6 @@ function renderStop1Nugget() {
             '</div>' +
         '</div>';
 
-    // Stage 2: Unlock Card 3
     if (stop1Stage >= 2) {
         html += 
             '<div class="tl-card" style="background:#fff; border:2px solid var(--border-heavy); border-left:5px solid var(--purple); border-radius:var(--rsm); padding:12px; display:flex; gap:12px; align-items:center;">' +
@@ -827,7 +832,6 @@ function renderStop1Nugget() {
             '</div>';
     }
 
-    // Stage 3: Unlock Card 4
     if (stop1Stage === 3) {
         html += 
             '<div class="tl-card" style="background:#fff; border:2px solid var(--border-heavy); border-left:5px solid var(--punch); border-radius:var(--rsm); padding:12px; display:flex; gap:12px; align-items:center;">' +
@@ -839,9 +843,8 @@ function renderStop1Nugget() {
             '</div>';
     }
 
-    html += '</div>'; // close timeline-container
+    html += '</div>';
 
-    // Render Question based on Stage
     var qData = getStop1Question(stop1Stage);
     html += 
         '<div style="background:var(--bg-subtle); border:2px solid var(--border-heavy); border-radius:var(--rsm); padding:14px; margin-bottom:12px;">' +
@@ -857,7 +860,6 @@ function renderStop1Nugget() {
     b.innerHTML = html;
 }
 
-// Data for the 3 mini-mining questions
 function getStop1Question(stage) {
     if (stage === 1) {
         return {
@@ -883,7 +885,6 @@ function getStop1Question(stage) {
     }
 }
 
-// Logic for handling each question check and stepping forward
 function checkMineAnswer(chosenIndex) {
     var qData = getStop1Question(stop1Stage);
     var fbEl = document.getElementById('mine-feedback');
@@ -894,17 +895,24 @@ function checkMineAnswer(chosenIndex) {
         setTimeout(function() {
             if (stop1Stage < 3) {
                 stop1Stage++;
-                renderStop1Nugget(); // Reveal next card + next question
+                renderStop1Nugget();
             } else {
-                // Done with all 3 stages of Stop 1 -> Move to Stop 2
-                stop1Stage = 1; // reset
-                nextStop(); 
+                stop1Stage = 1;
+                S.stopsDone[0] = true;
+                addXP(15);
+                updateProgress();
+                nextStop();
             }
         }, 1400);
     } else {
         fbEl.innerHTML = '<div style="color:var(--punch); padding:8px; background:#fce8e6; border-radius:6px;">❌ Not quite! Check the timeline cards above and try again.</div>';
     }
 }
+
+function nextStop(){
+    revealSection('stop2');
+}
+
 function renderStopOneChance(stopId,i){
     var stop=STOPS[i];
     var b=body(stopId);
