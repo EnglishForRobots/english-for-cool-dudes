@@ -143,6 +143,14 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .ev-voc{background:rgba(255,215,0,.22);border-bottom:2.5px solid var(--hero-gold-shadow);color:#8a5c00;font-weight:900;cursor:pointer;border-radius:3px;padding:0 2px}
 .tip-box{background:rgba(255,215,0,.09);border:2px solid rgba(255,215,0,.3);border-left:5px solid var(--hero-gold-shadow);border-radius:0 var(--rsm) var(--rsm) 0;padding:12px 14px;margin-bottom:14px;font-size:13px;font-weight:700;color:var(--ink-bold);line-height:1.6}
 
+.mine-gold-row{display:flex;justify-content:center;gap:10px;margin-bottom:10px}
+.mine-gold-piece{font-size:26px;opacity:.2;filter:grayscale(1);transition:opacity .3s,filter .3s,transform .3s}
+.mine-gold-piece.earned{opacity:1;filter:grayscale(0);animation:badgepop .5s ease both}
+.mine-stage{text-align:center;padding:10px 0 4px}
+.mine-nugget-big{font-size:96px;display:inline-block;cursor:pointer;line-height:1;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 10px 18px rgba(0,0,0,.22));transition:transform .12s;user-select:none}
+.mine-nugget-big:active{transform:scale(.88)}
+.mine-nugget-big.mine-shake{animation:shake .4s ease}
+.mine-tap-label{font-size:13px;font-weight:900;color:var(--hero-gold-shadow);text-transform:uppercase;letter-spacing:1.5px;margin-top:10px;animation:pulseDot 1.6s ease-in-out infinite}
 .btn-continue{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;margin-top:14px;background:var(--green);color:var(--white);font-size:16px;font-weight:900;border:2px solid var(--green-shadow);border-bottom:5px solid var(--green-shadow);border-radius:var(--rsm);transition:transform .1s,border-bottom-width .1s;font-family:inherit;cursor:pointer}
 .btn-continue:active{border-bottom-width:2px;transform:translateY(3px)}
 .sec-done{text-align:center;padding:28px 18px;animation:popin .4s cubic-bezier(.175,.885,.32,1.275) both}
@@ -592,12 +600,13 @@ var S = {
     totalRight:0, totalAnswered:0,
     trivIdx:0, trivDone:false,
     stopsDone:[false,false,false],
+    mineIdx:0, mineDone:false,
     wlIdx:0, wlRight:0, wlDone:false, wlOrder:[], wlTimerInt:null, wlNervousShown:false,
     ftmIdx:0, ftmAnswered:false, ftmScore:0, ftmDone:false,
     bbIdx:0, bbDone:false,
     tfIdx:0, tfRight:0, tfPrice:5000, tfStreak:0, tfDone:false,
 };
-var SECTION_ORDER = ['sec-trivia','stop1','stop2','stop3','sec-wl','sec-ftm','sec-bb','sec-tf'];
+var SECTION_ORDER = ['sec-trivia','sec-mine','sec-wl','sec-ftm','sec-bb','sec-tf'];
 
 /* ═══════════ UTILS ═══════════ */
 function $(id){return document.getElementById(id);}
@@ -635,9 +644,7 @@ function bumpCombo(correct){
 
 function sectionDoneFlag(id){
     if(id==='sec-trivia')return S.trivDone;
-    if(id==='stop1')return S.stopsDone[0];
-    if(id==='stop2')return S.stopsDone[1];
-    if(id==='stop3')return S.stopsDone[2];
+    if(id==='sec-mine')return S.mineDone;
     if(id==='sec-wl')return S.wlDone;
     if(id==='sec-ftm')return S.ftmDone;
     if(id==='sec-bb')return S.bbDone;
@@ -664,7 +671,7 @@ function updateProgress(){
 function revealSection(id, preventScroll){
     var sec=document.getElementById(id);
     if(!sec||sec.classList.contains('visible'))return;
-    var inits={'sec-trivia':renderTrivia,'sec-wl':initWL,'sec-ftm':renderFTM,'sec-bb':initBB,'sec-tf':initTF};
+    var inits={'sec-trivia':renderTrivia,'sec-mine':initMine,'sec-wl':initWL,'sec-ftm':renderFTM,'sec-bb':initBB,'sec-tf':initTF};
     if(inits[id])inits[id]();
     sec.classList.add('visible');
     if (!preventScroll) {
@@ -688,7 +695,7 @@ function buildAll(){
     var c=$('sections');
     c.appendChild(mkSec('sec-trivia','strip-gold','🥇','Quick Quiz: How Well Do You Know Gold?','All Levels · Warm up'));
     c.appendChild(buildVideoSection());
-    STOPS.forEach(function(stop,i){ c.appendChild(buildStopSection(stop,i)); });
+    c.appendChild(mkSec('sec-mine','strip-gold','⛏️','The Gold Mine','Beginner · Mine 3 nuggets'));
     c.appendChild(mkSec('sec-wl','strip-gold','🪙','Fact or Fizz?','A2 · Beat the clock'));
     c.appendChild(mkSec('sec-ftm','strip-purple','🔍','Fix the Mistake','Intermediate · Grammar review'));
     c.appendChild(mkSec('sec-bb','strip-teal','🧱','Block Builder','Upper-Intermediate · Sentence patterns'));
@@ -743,7 +750,7 @@ function doneTrivia(){
         videoCard.style.opacity='1';videoCard.style.transform='translateY(0)';
         setTimeout(function(){ videoCard.scrollIntoView({behavior:'smooth',block:'start'}); }, 80);
     }
-    revealSection('stop1', true);
+    revealSection('sec-mine', true);
 }
 
 function buildVideoSection(){
@@ -763,191 +770,111 @@ function buildVideoSection(){
 }
 
 /* ═══════════ READINGS & VOCAB POPUP ═══════════ */
-function buildStopSection(stop,i){
-    var sec=document.createElement('div');
-    sec.className='sec-card '+stop.strip;sec.id=stop.id;
-    sec.innerHTML='<div class="sec-head"><div class="sec-head-icon">'+stop.icon+'</div><div>'+
-        '<div class="sec-head-title">'+stop.title+'<span class="stop-tag">'+stop.eyebrow+'</span></div>'+
-        '<div class="sec-head-sub">Tap highlighted words for definitions 📖</div>'+
-        '</div></div><div class="sec-body" id="'+stop.id+'-body"></div>';
-    setTimeout(function(){ renderStopReading(stop,i); },0);
-    return sec;
+/* ═══════════ THE GOLD MINE (Readings 1–3) ═══════════ */
+function initMine(){
+    S.mineIdx = 0;
+    renderMineNugget();
 }
 
-var stop1Stage = 1;
-
-function renderStopReading(stop, i){
-    if(i === 0){
-        renderStop1Nugget();
-        return;
+function mineGoldRow(){
+    var pieces = '';
+    for(var k=0; k<3; k++){
+        pieces += '<span class="mine-gold-piece '+(S.stopsDone[k]?'earned':'')+'">🪙</span>';
     }
-    var b = body(stop.id);
-    b.innerHTML = '<div class="stop-text-card"><div class="stop-eyebrow">'+stop.eyebrow+'</div><div class="stop-body-text">'+stop.html+'</div></div>'+
-        '<button class="btn-continue" onclick="renderStopOneChance(\''+stop.id+'\','+i+')">Continue →</button>';
+    return '<div class="mine-gold-row">'+pieces+'</div>';
 }
 
-function renderStop1Nugget() {
-    var b = body('stop1');
-    
-    var html = 
-        '<div style="text-align:center; margin-bottom:16px;">' +
-            '<div style="font-size:48px; line-height:1; margin-bottom:6px;">🪙</div>' +
-            '<div class="stop-eyebrow" style="text-transform:uppercase; font-weight:900; letter-spacing:1px; color:var(--hero-gold);">' +
-                'Gold Mining — Stage ' + stop1Stage + ' of 3' +
-            '</div>' +
-        '</div>' +
-        '<div class="timeline-container" style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">';
-
-    html += 
-        '<div class="tl-card" style="background:#fff; border:2px solid var(--border-heavy); border-left:5px solid #d97706; border-radius:var(--rsm); padding:12px; display:flex; gap:12px; align-items:center;">' +
-            '<div style="font-size:22px; flex-shrink:0;">🏛️</div>' +
-            '<div>' +
-                '<div style="font-size:10px; font-weight:900; color:#b45309; text-transform:uppercase;">2,500 Years Ago · Turkey</div>' +
-                '<div style="font-size:13px; font-weight:700; color:var(--ink-bold);">The first gold coins appear as physical money.</div>' +
-            '</div>' +
+function renderMineNugget(){
+    var stop = STOPS[S.mineIdx];
+    var b = body('sec-mine');
+    b.innerHTML =
+        mineGoldRow() +
+        '<div class="mine-stage">' +
+            '<div class="stop-eyebrow" style="text-align:center;margin-bottom:6px">Nugget '+(S.mineIdx+1)+' of 3</div>' +
+            '<div id="mine-nugget-emoji" class="mine-nugget-big" onclick="mineClick()">'+stop.icon+'</div>' +
+            '<div class="mine-tap-label">⛏️ Tap to mine!</div>' +
         '</div>';
-
-    html += 
-        '<div class="tl-card" style="background:#fff; border:2px solid var(--border-heavy); border-left:5px solid var(--blue); border-radius:var(--rsm); padding:12px; display:flex; gap:12px; align-items:center;">' +
-            '<div style="font-size:22px; flex-shrink:0;">📜</div>' +
-            '<div>' +
-                '<div style="font-size:10px; font-weight:900; color:var(--blue-shadow); text-transform:uppercase;">The Gold Standard Era</div>' +
-                '<div style="font-size:13px; font-weight:700; color:var(--ink-bold);">Countries tie paper bills directly to real gold stored in bank vaults.</div>' +
-            '</div>' +
-        '</div>';
-
-    if (stop1Stage >= 2) {
-        html += 
-            '<div class="tl-card" style="background:#fff; border:2px solid var(--border-heavy); border-left:5px solid var(--purple); border-radius:var(--rsm); padding:12px; display:flex; gap:12px; align-items:center;">' +
-                '<div style="font-size:22px; flex-shrink:0;">🔒</div>' +
-                '<div>' +
-                    '<div style="font-size:10px; font-weight:900; color:var(--purple-shadow); text-transform:uppercase;">The Rule</div>' +
-                    '<div style="font-size:13px; font-weight:700; color:var(--ink-bold);">' +
-                        'Central banks cannot print new <span data-voc="currency" class="ev-voc">currency</span> without adding gold first.' +
-                    '</div>' +
-                '</div>' +
-            '</div>';
-    }
-
-    if (stop1Stage === 3) {
-        html += 
-            '<div class="tl-card" style="background:#fff; border:2px solid var(--border-heavy); border-left:5px solid var(--punch); border-radius:var(--rsm); padding:12px; display:flex; gap:12px; align-items:center;">' +
-                '<div style="font-size:22px; flex-shrink:0;">⚠️</div>' +
-                '<div>' +
-                    '<div style="font-size:10px; font-weight:900; color:var(--punch-shadow); text-transform:uppercase;">The Big Problem</div>' +
-                    '<div style="font-size:13px; font-weight:700; color:var(--ink-bold);">Printing emergency money during financial crises becomes impossible.</div>' +
-                '</div>' +
-            '</div>';
-    }
-
-    html += '</div>';
-
-    var qData = getStop1Question(stop1Stage);
-    html += 
-        '<div style="background:var(--bg-subtle); border:2px solid var(--border-heavy); border-radius:var(--rsm); padding:14px; margin-bottom:12px;">' +
-            '<div style="font-weight:800; font-size:14px; margin-bottom:10px;">⛏️ Mine Question ' + stop1Stage + ': ' + qData.q + '</div>' +
-            '<div style="display:flex; flex-direction:column; gap:8px;">';
-            
-    qData.opts.forEach(function(opt, idx) {
-        html += '<button class="opt-btn" onclick="checkMineAnswer(' + idx + ')">' + opt + '</button>';
-    });
-
-    html += '</div><div id="mine-feedback" style="margin-top:10px; font-weight:700;"></div></div>';
-
-    b.innerHTML = html;
 }
 
-function getStop1Question(stage) {
-    if (stage === 1) {
-        return {
-            q: 'What backed paper bills under the Gold Standard?',
-            opts: ['Real gold stored in bank vaults.', 'Promises made by commercial banks.', 'Government tax collections.'],
-            correct: 0,
-            fb: '✅ Clink! You mined 100g of gold! Paper money had to reflect physical gold.'
-        };
-    } else if (stage === 2) {
-        return {
-            q: 'What were central banks required to do before printing currency?',
-            opts: ['Ask foreign governments for approval.', 'Acquire and vault additional gold.', 'Raise interest rates on loans.'],
-            correct: 1,
-            fb: '✅ Clink! Another 100g mined! Money creation was strictly tied to physical gold reserves.'
-        };
-    } else {
-        return {
-            q: 'Why was the Gold Standard risky during major emergencies?',
-            opts: ['Gold degraded inside damp vaults.', 'Governments could not print quick emergency cash.', 'Citizens refused to use paper bills.'],
-            correct: 1,
-            fb: '✅ Jackpot! Stage 1 complete—you mined the full gold bar! 🪙'
-        };
-    }
+function mineClick(){
+    var emoji = $('mine-nugget-emoji');
+    if(emoji) emoji.classList.add('mine-shake');
+    bigEmoji('⛏️');
+    setTimeout(function(){ renderMineReading(); }, 500);
 }
 
-function checkMineAnswer(chosenIndex) {
-    var qData = getStop1Question(stop1Stage);
-    var fbEl = document.getElementById('mine-feedback');
-    
-    if (chosenIndex === qData.correct) {
-        fbEl.innerHTML = '<div style="color:var(--green-dark); padding:8px; background:#e6f4ea; border-radius:6px;">' + qData.fb + '</div>';
-        
-        setTimeout(function() {
-            if (stop1Stage < 3) {
-                stop1Stage++;
-                renderStop1Nugget();
-            } else {
-                stop1Stage = 1;
-                S.stopsDone[0] = true;
-                addXP(15);
-                updateProgress();
-                nextStop();
-            }
-        }, 1400);
-    } else {
-        fbEl.innerHTML = '<div style="color:var(--punch); padding:8px; background:#fce8e6; border-radius:6px;">❌ Not quite! Check the timeline cards above and try again.</div>';
-    }
+function renderMineReading(){
+    var stop = STOPS[S.mineIdx];
+    var b = body('sec-mine');
+    b.innerHTML =
+        mineGoldRow() +
+        '<div class="stop-text-card"><div class="stop-eyebrow">'+stop.eyebrow+'</div><div class="stop-body-text">'+stop.html+'</div></div>' +
+        '<button class="btn-continue" onclick="renderMineQuestion()">Continue →</button>';
 }
 
-function nextStop(){
-    revealSection('stop2');
+function renderMineQuestion(){
+    var stop = STOPS[S.mineIdx];
+    var b = body('sec-mine');
+    b.innerHTML =
+        mineGoldRow() +
+        '<div class="oc-badge">🧠 Quick check!</div>' +
+        '<div class="oc-card" id="mine-oc-card"><div class="oc-q">'+stop.oc.q+'</div><div class="oc-options">' +
+        stop.oc.opts.map(function(o,oi){ return '<button class="oc-opt" onclick="answerMineQuestion('+oi+')">'+o+'</button>'; }).join('') +
+        '</div><div class="oc-feedback" id="mine-oc-fb"></div></div>';
 }
 
-function renderStopOneChance(stopId,i){
-    var stop=STOPS[i];
-    var b=body(stopId);
-    b.innerHTML='<div class="oc-badge">🧠 Quick check!</div>'+
-        '<div class="oc-card" id="oc-card-'+stopId+'"><div class="oc-q">'+stop.oc.q+'</div><div class="oc-options">'+
-        stop.oc.opts.map(function(o,oi){return '<button class="oc-opt" onclick="answerStopOC(\''+stopId+'\','+i+','+oi+')">'+o+'</button>';}).join('')+
-        '</div><div class="oc-feedback" id="oc-fb-'+stopId+'"></div></div>';
-}
-function answerStopOC(stopId,i,chosenIdx){
-    var stop=STOPS[i];
-    var card=$('oc-card-'+stopId);
-    var btns=card.querySelectorAll('.oc-opt');
-    btns.forEach(function(b){b.disabled=true;});
-    var correct=chosenIdx===stop.oc.correct;
-    btns[chosenIdx].classList.add(correct?'right':'wrong');
-    if(!correct)btns[stop.oc.correct].classList.add('right');
+function answerMineQuestion(chosenIdx){
+    var stop = STOPS[S.mineIdx];
+    var card = $('mine-oc-card');
+    var btns = card.querySelectorAll('.oc-opt');
+    btns.forEach(function(b){ b.disabled = true; });
+    var correct = chosenIdx === stop.oc.correct;
+    btns[chosenIdx].classList.add(correct ? 'right' : 'wrong');
+    if(!correct) btns[stop.oc.correct].classList.add('right');
+
     S.totalAnswered++;
     if(correct){
-        S.totalRight++;bumpCombo(true);
-        addXP(10,btns[chosenIdx]);
-        if(fx()){fx().correct(btns[chosenIdx]);fx().combo(S.combo);}
-        else{var r=btns[chosenIdx].getBoundingClientRect();confettiBurst(r.left+r.width/2,r.top);}
+        S.totalRight++; bumpCombo(true);
+        S.stopsDone[S.mineIdx] = true;
+        addXP(10, btns[chosenIdx]);
+        bigEmoji('🪙');
+        if(fx()){ fx().correct(btns[chosenIdx]); fx().combo(S.combo); }
+        else { var r=btns[chosenIdx].getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top); }
     } else {
         bumpCombo(false);
-        if(fx()){fx().wrong(btns[chosenIdx]);fx().comboBreak(S.combo,S.bestCombo);}
+        bigEmoji('💨');
+        if(fx()) fx().wrong(btns[chosenIdx]);
     }
-    var fb=$('oc-fb-'+stopId);
-    fb.className='oc-feedback show '+(correct?'right':'wrong');
-    fb.innerHTML=stop.oc.fb;
-    S.stopsDone[i]=true;
-    addXP(5);
     updateProgress();
-    if(i===STOPS.length-1)bigEmoji('🎉');
-    var nextLabel = (i+1<STOPS.length) ? ('Next Reading →') : 'On to activities →';
-    var nextAction = (i+1<STOPS.length) ? ('revealSection(\''+STOPS[i+1].id+'\')') : 'revealSection(\'sec-wl\')';
-    fb.innerHTML += '<button class="btn-continue" onclick="'+nextAction+'">'+nextLabel+'</button>';
+
+    var fb = $('mine-oc-fb');
+    fb.className = 'oc-feedback show ' + (correct ? 'right' : 'wrong');
+    fb.innerHTML = stop.oc.fb + (correct ? ' <strong>+10 XP, +1 gold nugget!</strong>' : ' <strong>No gold this time — keep going!</strong>');
+    var isLast = S.mineIdx >= STOPS.length - 1;
+    fb.innerHTML += '<button class="btn-continue" onclick="nextMineStage()">' + (isLast ? 'Finish the mine 🏆 →' : 'Back to the mine ⛏️ →') + '</button>';
 }
 
+function nextMineStage(){
+    S.mineIdx++;
+    if(S.mineIdx >= STOPS.length){
+        S.mineDone = true;
+        addXP(10);
+        bigEmoji('🎉');
+        updateProgress();
+        doneMine();
+        return;
+    }
+    renderMineNugget();
+}
+
+function doneMine(){
+    var goldCount = S.stopsDone.filter(Boolean).length;
+    body('sec-mine').innerHTML =
+        mineGoldRow() +
+        '<div class="sec-done"><span class="sec-done-icon">💰</span><div class="sec-done-title">The mine is empty!</div>' +
+        '<div class="sec-done-sub">You collected '+goldCount+'/3 gold nuggets.</div>' +
+        '<button class="btn-continue" onclick="revealSection(\'sec-wl\')">On to activities 🪙 →</button></div>';
+}
 function showVoc(word, anchorEl){
     var w=GLOSSARY[word.toLowerCase()];
     if(!w)return;
