@@ -5262,6 +5262,84 @@ const LESSON_DATA_REGISTRY = {
   ],
 
 },
+
+   'who-sold-it-app-store-vat-tax': {
+
+  id:    'who-sold-it-app-store-vat-tax',
+  title: 'Who Sold It?',
+  level: 'Tax English',
+  track: 'tax',
+  emoji: '🕵️',
+  badge: 'App Store Detective',
+
+  // ── VOCAB ────────────────────────────────────────────────
+  vocab: [
+    { word:'in-app purchase',  definition:'Something a user buys inside an app, such as extra levels or features', example:'Anna\u2019s game earns money through ___ ___ like extra content.', distractors:['deemed supplier','place of supply','commission'] },
+    { word:'commission',       definition:'The part of the money a platform keeps for handling a sale', example:'The App Store keeps a 30% ___ on every purchase.', distractors:['invoice','ruling','consumer'] },
+    { word:'VAT',              definition:'A tax added to the price of most goods and services', example:'___ is added to the price of the in-app purchase.', distractors:['commission','invoice','ruling'] },
+    { word:'place of supply',  definition:'The country whose VAT rules apply to a transaction', example:'The ___ ___ ___ was found to be Ireland, not Germany.', distractors:['deemed supplier','in-app purchase','consumer'] },
+    { word:'invoice',          definition:'A document that shows what was sold and its price', example:'The court asked whether the ___ met the legal requirements.', distractors:['ruling','commission','platform'] },
+    { word:'deemed supplier',  definition:'A company the law treats as the seller, even if it did not make the product itself', example:'Because it sold in its own name, the App Store became a ___ ___.', distractors:['place of supply','developer','consumer'] },
+    { word:'developer',        definition:'A person or company that makes an app', example:'Anna is the ___ who built the game.', distractors:['consumer','platform','ruling'] },
+    { word:'consumer',         definition:'A private customer who buys something for personal use, not for a business', example:'The players buying in-app purchases are private ___s.', distractors:['developer','deemed supplier','invoice'] },
+    { word:'platform',         definition:'A company, such as an app store, that lets other businesses sell through it', example:'The App Store is the ___ that Anna sells through.', distractors:['consumer','commission','ruling'] },
+    { word:'ruling',           definition:'An official decision made by a court', example:'The court\u2019s ___ said the App Store was the true seller.', distractors:['invoice','platform','in-app purchase'] },
+  ],
+
+  // ── GRAMMAR 1: Passive Voice ──────────────────────────────
+  grammar: {
+    topic: 'Passive Voice in tax and legal English',
+    rule:  'In tax rulings and legal writing, passive voice (is/are/was/were + past participle) focuses on what happened, not who did it. "The App Store was treated as the seller." "VAT is charged on the sale."',
+    exercises: [
+      { sentence:'VAT ___ on top of the price for most in-app purchases.',            answer:'is charged',  wrong:['charges','was charge','has charge'],      explain:'Present passive: is + past participle. A general, ongoing rule.' },
+      { sentence:'The App Store ___ as the deemed supplier by the court.',            answer:'was treated', wrong:['treated','treats','has treated'],          explain:'Past passive: was + past participle. A completed legal finding.' },
+      { sentence:'The case ___ back to the lower court for further checks.',          answer:'was sent',    wrong:['sent','is sending','has sent'],            explain:'Past passive for a completed procedural step.' },
+      { sentence:'Under EU law, the commission ___ before the developer is paid.',    answer:'is deducted', wrong:['deducts','was deduct','has deduct'],       explain:'Present passive for a standard, repeatable rule.' },
+    ],
+  },
+
+  // ── GRAMMAR 2: First Conditional ──────────────────────────
+  grammar2: {
+    topic: 'First Conditional — predicting VAT outcomes',
+    rule:  'First conditional: If + present simple → will + infinitive. Used to predict real, likely tax outcomes. "If a platform sells in its own name, it will be treated as the seller."',
+    exercises: [
+      { sentence:'If a platform ___ in its own name, it ___ treated as the deemed supplier.', answer:'sells / will be', wrong:['sold / would be','sells / would be','will sell / is'], explain:'First conditional: if + present simple (sells) → will + infinitive (will be).' },
+      { sentence:'If the invoices ___ the legal requirements, the case ___ closed immediately.', answer:"don't meet / won't be", wrong:["didn't meet / wouldn't be","don't meet / wouldn't be","won't meet / isn't"], explain:'First conditional negative — a real, predictable outcome.' },
+      { sentence:'If a customer ___ a private consumer, different VAT rules ___.', answer:'is / will apply', wrong:['was / would apply','is / would apply','will be / apply'], explain:'First conditional for a real distinction that changes the tax treatment.' },
+      { sentence:'If the App Store ___ only as an agent, Anna ___ the seller for VAT purposes.', answer:'acts / will be', wrong:['acted / would be','acts / would be','will act / is'], explain:'First conditional describing the alternative outcome if the facts had been different.' },
+    ],
+  },
+
+  // ── SENTENCE BUILDER ──────────────────────────────────────
+  sentences: [
+    { words:['own','its','in','name','sold','purchase','The','App','Store','the'], answer:'The App Store sold the purchase in its own name', hint:'🕵️ Why did the App Store become the deemed supplier?' },
+    { words:['is','supplier','App','The','deemed','Store','a'], answer:'The App Store is a deemed supplier', hint:'⚖️ What does EU VAT law call the App Store?' },
+    { words:['is','Ireland','of','supply','place','The'], answer:'The place of supply is Ireland', hint:'🇮🇪 Which country\u2019s VAT rules apply?' },
+    { words:['back','case','sent','court','lower','the','to','was','The'], answer:'The case was sent back to the lower court', hint:'🗂️ What did the Supreme Tax Court decide to do next?' },
+  ],
+
+  // ── WORD BUILDER ────────────────────────────────────────
+  word_builder: [
+    { word:'invoice',    definition:'A document showing what was sold and its price' },
+    { word:'commission', definition:'The part of the money a platform keeps for a sale' },
+    { word:'consumer',   definition:'A private customer buying for personal use' },
+    { word:'platform',   definition:'A company that lets other businesses sell through it' },
+    { word:'ruling',     definition:'An official decision made by a court' },
+  ],
+
+  // ── TRUE / FALSE ─────────────────────────────────────────
+  true_false: [
+    { statement:'Anna sold the in-app purchases directly to her customers.', correct:false, reveal:'❌ FALSE. The App Store sold them, using its own name — not Anna\u2019s.' },
+    { statement:'The App Store is based in Ireland.', correct:true, reveal:'✅ TRUE. This is exactly why the place of supply became Ireland, not Germany.' },
+    { statement:'The App Store\u2019s commission in this case is 30%.', correct:true, reveal:'✅ TRUE. The App Store keeps 30% and passes the rest to Anna.' },
+    { statement:'A deemed supplier must always be the company that actually made the product.', correct:false, reveal:'❌ FALSE. A deemed supplier can be treated as the seller by law, even if someone else made the product.' },
+    { statement:'The court decided the App Store was the true seller for VAT purposes.', correct:true, reveal:'✅ TRUE. Because it acted in its own name, the App Store was treated as the seller.' },
+    { statement:'After the ruling, the place of supply moved to Germany.', correct:false, reveal:'❌ FALSE. The place of supply stayed in Ireland, where the App Store is based.' },
+    { statement:'The case was sent back for further investigation, not fully closed.', correct:true, reveal:'✅ TRUE. The court sent some questions — like invoice details — back for a second hearing.' },
+    { statement:'Invoices are irrelevant to a customer\u2019s VAT position.', correct:false, reveal:'❌ FALSE. Invoices matter a great deal — the court specifically asked whether the invoices met the legal requirements.' },
+  ],
+
+},
  
    };
 
