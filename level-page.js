@@ -220,6 +220,7 @@
       'weeklydropoil':  'weekly-drop-issue-oil',
      'wigtown':  'wigtown-intermediate',
      'guardian-london':  'guardian-london-housing-hack-advanced',
+     'who-sold-it':  'who-sold-it-app-store-vat-tax',
   };
 
   async function bootAuthStrip(eyebrowText) {
