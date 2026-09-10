@@ -1,5 +1,6 @@
 window.LEVEL_CONFIG = { eyebrow: '⚖️ Legal English', accent: 'teal' };
 window.LESSONS = [
+  { slug:'who-sold-it', icon:'🕵️', badge:'⭐ VAT', badgeType:'new', title:'Who Sold It?', desc:'A German developer. An app store in Ireland. One in-app purchase — and one big VAT question.', mins:6, date:'2026-09-10' },
   { slug:'deal-breaker-clause', icon:'🤝', badge:'⭐ Commercial Law', badgeType:'new', title:'The Deal Breaker Clause', desc:'TechNova AG wants out of a €40M acquisition — right before closing.', mins:6, date:'2026-07-03' },
   { slug:'databreach', icon:'💾', badge:'Real Scenarios', badgeType:null, title:'The Data Breach', desc:'Key vocabulary and what to do when the hackers win.', mins:8, date:'2026-03-13' },
   { slug:'redline', icon:'📝', badge:'Contracts', badgeType:null, title:'The Redline Room', desc:'Contract clauses, negotiations, key terms.', mins:7, date:'2026-02-27' },
