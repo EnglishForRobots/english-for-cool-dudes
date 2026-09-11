@@ -5340,7 +5340,56 @@ const LESSON_DATA_REGISTRY = {
   ],
 
 },
- 
+
+     'weekly-drop-issue-020': {
+    id:    'weekly-drop-issue-020',
+    title: "The Weekly Drop — Issue 020 — Gold's Historic Rise",
+    level: 'All Levels',
+    track: 'weekly-drop',
+    emoji: '🥇',
+    badge: 'Gold Guardian',
+
+    vocab: [
+      { word:'currency',      definition:'The official money used in a country.',                                    example:'Every banknote is a form of ___ that people trust for trade.',                distractors:['reserve','surge','stockpile'] },
+      { word:'safe haven',    definition:'An investment that stays safe during dangerous or shaky economic times.',   example:'During a crisis, investors often move their money into a ___ ___ asset.',      distractors:['tangible asset','neutral asset','geopolitical asset'] },
+      { word:'neutral',       definition:'Not controlled by or loyal to any single country.',                        example:'Gold is popular with central banks partly because it stays politically ___.', distractors:['tangible','surging','stockpiled'] },
+      { word:'surge',         definition:'To rise or jump up very quickly.',                                         example:'Gold prices tend to ___ whenever global tension rises.',                       distractors:['stockpile','reserve','currency'] },
+      { word:'reserve',       definition:'A supply of money or gold saved for future emergency use.',                 example:'Central banks are building bigger gold ___s to protect their wealth.',         distractors:['currency','surge','tangible'] },
+      { word:'tangible',      definition:'Real and physical — something you can actually touch.',                    example:'Unlike a bank balance, gold is a ___ asset you can hold in your hand.',        distractors:['neutral','surging','geopolitical'] },
+      { word:'geopolitical',  definition:'Connected to international politics and relationships between countries.', example:'Rising ___ tension often pushes investors toward gold.',                       distractors:['tangible','neutral','surging'] },
+      { word:'stockpile',     definition:'To buy and store large amounts of something.',                             example:'Countries continue to ___ gold in case of future emergencies.',                distractors:['reserve','currency','surge'] },
+    ],
+
+    true_false: [
+      { statement:'All gold on Earth originally formed deep inside volcanoes.',                          correct:false, reveal:'❌ FALSE! Gold actually arrived on Earth from space, carried by meteorites billions of years ago.' },
+      { statement:'A "safe haven" asset is something investors trust during economic trouble.',          correct:true,  reveal:'✅ TRUE! That\u2019s exactly why gold gets so popular whenever markets feel risky.' },
+      { statement:'US citizens could always freely buy and own physical gold during the 20th century.',  correct:false, reveal:'❌ FALSE! Private gold ownership was actually illegal in the US between 1933 and 1974.' },
+      { statement:'Gold is called "neutral" because no single country controls its value.',              correct:true,  reveal:'✅ TRUE! That neutrality is a big part of why central banks love holding it.' },
+      { statement:'President Nixon said ending the gold standard in 1971 would be permanent.',           correct:false, reveal:'❌ FALSE! Nixon originally described it as temporary — it just never went back.' },
+      { statement:'Gold hit a record price of around $5,500 per ounce.',                                 correct:true,  reveal:'✅ TRUE! An all-time high, driven by central banks and nervous investors alike.' },
+    ],
+
+    fix_mistakes: [
+      { sentence:'"Investors trust gold because it isn\'t <u>depend of</u> any single government."', hint:'Fix the preposition error after "depend".', opts:['depend of → DEPENDENT ON','depend of → DEPENDING WITH','depend of → DEPENDENT WITH'], correct:0, fb:'✅ DEPENDENT ON — something "is dependent on" (or "depends on") something else.' },
+      { sentence:'"When crisis hits, gold prices usually <u>rises</u> very quickly."', hint:'Check subject-verb agreement — "prices" is plural!', opts:['rises → IS RISING','rises → RISE','rises → HAS RISEN'], correct:1, fb:'✅ RISE — "prices" is plural, so it needs the plural verb "rise", not "rises".' },
+      { sentence:'"Central banks hold gold in order to <u>preventing</u> assets from being frozen."', hint:'What form follows "in order to"?', opts:['preventing → PREVENT','preventing → PREVENTION','preventing → PREVENTTING'], correct:0, fb:'✅ PREVENT — use the base verb (infinitive) after "in order to".' },
+      { sentence:'"If inflation increases, investors <u>would have buy</u> more gold."', hint:'Fix the conditional for a real future possibility.', opts:['would have buy → ARE BOUGHT','would have buy → BUYED','would have buy → WILL BUY'], correct:2, fb:'✅ WILL BUY — First Conditional: "If inflation increases, investors will buy more gold."' },
+    ],
+
+    sentences: [
+      { words:['is','Gold','seen','as','a','haven','safe','because','isn\'t','it','tied','to','one','government.'], answer:'Gold is seen as a safe haven because it isn\'t tied to one government.', hint:'🛡️ About gold\'s reputation...' },
+      { words:['announced','Nixon','that','the','dollar','would','no','longer','be','linked','to','gold.'],         answer:'Nixon announced that the dollar would no longer be linked to gold.',          hint:'📜 About the end of the gold standard...' },
+      { words:['Central','banks,','which','want','more','security,','have','been','buying','record','amounts','of','gold.'], answer:'Central banks, which want more security, have been buying record amounts of gold.', hint:'🏦 About central banks...' },
+    ],
+
+    word_builder: [
+      { word:'safe haven',   definition:'An asset investors trust when markets feel risky' },
+      { word:'neutral',      definition:'Not controlled by or loyal to any single country' },
+      { word:'stockpile',    definition:'To buy and store large amounts of something' },
+      { word:'geopolitical', definition:'Connected to international politics between countries' },
+      { word:'tangible',     definition:'Real and physical — something you can touch' },
+    ],
+  },
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
