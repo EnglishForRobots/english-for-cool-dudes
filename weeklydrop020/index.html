@@ -1236,25 +1236,91 @@ function doneTF(){
         '</div>';
 }
 
-/* ═══════════ COMPLETION SCREEN ═══════════ */
-function showCompletionScreen(){
-    $('cc-xp').textContent = '+' + S.xp;
-    $('cc-correct').textContent = S.totalRight;
-    $('cc-combo').textContent = S.bestCombo;
-    
-    var acc = S.totalAnswered > 0 ? Math.round((S.totalRight / S.totalAnswered) * 100) : 100;
-    $('cc-accuracy').textContent = acc + '%';
-    
+/* ═══════════ COMPLETION ═══════════ */
+async function showCompletion(){
+    var acc=S.totalAnswered>0?Math.round((S.totalRight/S.totalAnswered)*100):0;
+    $('cc-xp').textContent='+'+S.xp;
+    $('cc-correct').textContent=S.totalRight;
+    $('cc-combo').textContent=S.bestCombo;
+    $('cc-accuracy').textContent=acc+'%';
     $('completion-screen').classList.add('open');
-    bigEmoji('🥇');
+    for(var i=0;i<5;i++){(function(j){setTimeout(function(){confettiBurst(Math.random()*window.innerWidth,Math.random()*window.innerHeight*.5);},j*250);})(i);}
+
+    var isLoggedIn=!!(window.EFCD_Auth&&window.EFCD_Auth.getCurrentUser&&window.EFCD_Auth.getCurrentUser());
+    if(isLoggedIn){var mlb=$('cc-mylessons-btn');if(mlb)mlb.classList.remove('hidden');}
+    if(!isLoggedIn){
+        setTimeout(function(){
+            var n=$('signup-nudge');
+            if(n){n.classList.add('show');setTimeout(function(){n.scrollIntoView({behavior:'smooth',block:'start'});},100);}
+            var sb=$('cc-signup-btn');if(sb)sb.style.display='flex';
+        },2000);
+    }
+
+  try{
+        if(window.EFCD_Session){
+            await window.EFCD_Session.onLessonComplete({
+                lessonId:window.LESSON_ID,
+                lessonTitle:window.LESSON_TITLE,
+                lessonLevel:LESSON_LEVEL,
+                lessonLink:LESSON_LINK,
+                badgeIcon:'🥇',
+                badgeName:'Gold Guardian - Issue 020',
+                correctAnswers:S.totalRight,
+                totalAnswers:S.totalAnswered,
+                bestCombo:S.bestCombo,
+                perfectScore:acc>=90,
+                xp:S.xp,
+                vocabulary:Object.keys(GLOSSARY).map(function(w){return {word:w,definition:GLOSSARY[w].def};}),
+            });
+        }
+    } catch(e){}
+    try{
+        if(window.EFCD_Auth&&window.EFCD_Auth.getCurrentUser&&window.EFCD_Auth.getCurrentUser()){
+            await window.EFCD_Auth.completeLesson({
+                lessonId:window.LESSON_ID,
+                lessonTitle:window.LESSON_TITLE,
+                lessonLevel:LESSON_LEVEL,
+                lessonLink:LESSON_LINK,
+                badgeIcon:'🥇',
+                badgeName:'Gold Guardian - Issue 020',
+                vocabulary:Object.keys(GLOSSARY).map(function(w){return {word:w,definition:GLOSSARY[w].def};}),
+                perfectScore:acc>=90,
+            });
+        }
+    } catch(e){}
+    try{
+        if(window.DailyChallenges){
+            var dcResult=await window.DailyChallenges.updateChallengeProgress({perfectScore:acc>=90});
+            if(dcResult&&dcResult.justCompleted)setTimeout(function(){window.DailyChallenges.showChallengeCompletionCelebration(dcResult.challenge);},1800);
+            localStorage.setItem('dc_last_lesson_date',new Date().toDateString());
+            localStorage.setItem('dc_last_lesson_section','weekly-drop');
+        }
+    } catch(e){}
 }
 
-function handleSignOut(){
-    if(window.supabaseAuth && window.supabaseAuth.signOut){
-        window.supabaseAuth.signOut().then(function(){
-            window.location.reload();
-        });
-    }
+/* ═══════════ INIT ═══════════ */
+document.addEventListener('DOMContentLoaded',async function(){
+    try{
+        if(window.efcdReady)await window.efcdReady;
+        if(window.EFCD_Auth){
+            await window.EFCD_Auth.initAuth();
+            var user=window.EFCD_Auth.getCurrentUser();
+            if(user){
+                var st=window.EFCD_Auth.getUserStats();
+                if(st){S.xp=st.xp||0;S.streak=st.streak||0;}
+                $('hdr-streak').textContent=S.streak;
+                try{if(window.EFCD_XP){var bal=await window.EFCD_XP.getBalance();S.xp=bal.balance||0;}}catch(e){}
+                $('hdr-xp').textContent=S.xp;
+                var sb=$('hdr-signout');if(sb)sb.classList.remove('hidden');
+                var db=$('hdr-dash');if(db)db.classList.remove('hidden');
+            }
+        }
+    } catch(e){}
+});
+
+async function handleSignOut(){
+    if(window.EFCD_Auth&&window.EFCD_Auth.signOut)await window.EFCD_Auth.signOut();
+    else if(window.efcdSupabaseClient){await window.efcdSupabaseClient.auth.signOut();window.location.href='/';}
 }
 </script>
 </body>
