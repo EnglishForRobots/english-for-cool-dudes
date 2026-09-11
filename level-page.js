@@ -221,6 +221,7 @@
      'wigtown':  'wigtown-intermediate',
      'guardian-london':  'guardian-london-housing-hack-advanced',
      'who-sold-it':  'who-sold-it-app-store-vat-tax',
+     'weeklydrop020':  'weekly-drop-issue-020',
   };
 
   async function bootAuthStrip(eyebrowText) {
