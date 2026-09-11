@@ -1107,6 +1107,22 @@
   ],
 },
 
+         'weekly-drop-issue-020': {
+      title:   "The Weekly Drop — Issue 020 — Gold's Historic Rise",
+      level:   'All Levels',
+      grammar: 'Passive voice (past/present); First Conditional for predictions; subject-verb agreement with plural nouns',
+      vocab: [
+        { word:'currency',     definition:'The official money used in a country.' },
+        { word:'safe haven',   definition:'An investment that stays safe during dangerous or shaky economic times.' },
+        { word:'neutral',      definition:'Not controlled by or loyal to any single country.' },
+        { word:'surge',        definition:'To rise or jump up very quickly.' },
+        { word:'reserve',      definition:'A supply of money or gold saved for future emergency use.' },
+        { word:'tangible',     definition:'Real and physical — something you can actually touch.' },
+        { word:'geopolitical', definition:'Connected to international politics and relationships between countries.' },
+        { word:'stockpile',    definition:'To buy and store large amounts of something.' },
+      ],
+    },
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
