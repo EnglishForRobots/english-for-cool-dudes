@@ -1123,6 +1123,24 @@
       ],
     },
 
+     'ai-surveillance-pricing-advanced': {
+  title:   'The Invisible Price Tag: How AI Charges You More',
+  level:   'Advanced',
+  grammar: 'Passive Voice — present and past passive in business/tech reporting; Despite vs Although for contrast',
+  vocab: [
+    { word:'surveillance',    definition:'The close watching or monitoring of someone\u2019s behaviour or data, often for commercial use' },
+    { word:'affluent',        definition:'Having a lot of money; wealthy' },
+    { word:'deregulation',    definition:'The removal of government rules that used to control an industry' },
+    { word:'occupancy',       definition:'How full a place, like a hotel, is at a given time' },
+    { word:'inflated',        definition:'Made artificially higher than it really should be' },
+    { word:'surge',           definition:'A sudden, powerful increase' },
+    { word:'take rate',       definition:'The percentage or cut a company keeps from each transaction' },
+    { word:'in the spotlight',definition:'Being closely watched or criticised publicly' },
+    { word:'at the push of a button', definition:'Very easily and instantly, with almost no effort' },
+    { word:'shocker',         definition:'Used sarcastically to mean "what a surprise" — usually when something isn\u2019t surprising at all' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
