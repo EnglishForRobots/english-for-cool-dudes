@@ -5390,6 +5390,77 @@ const LESSON_DATA_REGISTRY = {
       { word:'tangible',     definition:'Real and physical — something you can touch' },
     ],
   },
+
+   'ai-surveillance-pricing-advanced': {
+  id:    'ai-surveillance-pricing-advanced',
+  title: 'The Invisible Price Tag: How AI Charges You More',
+  level: 'Advanced',
+  track: 'advanced',
+  emoji: '🏷️',
+  badge: 'Rate Watcher',
+
+  vocab: [
+    { word:'surveillance', definition:'The close watching or monitoring of someone\u2019s behaviour or data, often for commercial use', example:'Welcome to ___ pricing, where your own data can quietly shape what you pay.', distractors:['occupancy','deregulation','surge'] },
+    { word:'affluent', definition:'Having a lot of money; wealthy', example:'The same item can cost more for shoppers seen as more ___ than others.', distractors:['inflated','surge','take rate'] },
+    { word:'deregulation', definition:'The removal of government rules that used to control an industry', example:'Modern surveillance pricing dates back to the 1978 ___ of the US airline industry.', distractors:['occupancy','surge','take rate'] },
+    { word:'occupancy', definition:'How full a place, like a hotel, is at a given time', example:'Hotels began comparing real-time ___ against demand before setting their prices.', distractors:['surveillance','inflated','take rate'] },
+    { word:'inflated', definition:'Made artificially higher than it really should be', example:'Some travellers suspect today\u2019s ___ hotel rates aren\u2019t really about demand at all.', distractors:['affluent','surge','shocker'] },
+    { word:'surge', definition:'A sudden, powerful increase', example:'Uber popularised ___ pricing in 2012, letting fares rise sharply when demand is high.', distractors:['occupancy','deregulation','take rate'] },
+    { word:'take rate', definition:'The percentage or cut a company keeps from each transaction', example:'Uber\u2019s ___ ___ climbed from 32% to 42% between 2022 and 2025.', distractors:['surveillance','affluent','inflated'] },
+    { word:'in the spotlight', definition:'Being closely watched or criticised publicly', example:'A Belgian newspaper put Uber ___ ___ ___ ___ over its battery-level pricing claims.', distractors:['at the push of a button','shocker','surge'] },
+    { word:'at the push of a button', definition:'Very easily and instantly, with almost no effort', example:'___ ___ ___ ___ ___ ___ ___, digital price tags can update instantly across a whole store.', distractors:['in the spotlight','shocker','deregulation'] },
+    { word:'shocker', definition:'Used sarcastically to mean "what a surprise" — usually when something isn\u2019t surprising at all', example:'Prices rise right before a holiday weekend — ___, right?', distractors:['surge','occupancy','affluent'] },
+  ],
+
+  grammar: {
+    topic: 'Passive Voice — present and past passive in business/tech reporting',
+    rule:  'Present passive: is/are + past participle. Past passive: was/were + past participle. In reporting on pricing and technology, passive voice focuses on what happened, not who did it. "The same product is priced differently." "Surge pricing was introduced in 2012."',
+    exercises: [
+      { sentence:'The same product ___ differently depending on a shopper\u2019s zip code.', answer:'is priced', wrong:['prices','was pricing','has price'], explain:'Present passive: is + past participle. The product receives the action of being priced.' },
+      { sentence:'Uber\u2019s surge pricing ___ back in 2012, and fares can still multiply today.', answer:'was introduced', wrong:['introduced','is introduced','has introduce'], explain:'Past passive: was + past participle. A completed historical event.' },
+      { sentence:'Digital price tags ___ across thousands of stores right now.', answer:'are being rolled out', wrong:['roll out','rolled out','has rolled out'], explain:'Present continuous passive: are being + past participle, for a change happening right now.' },
+      { sentence:'Some airlines\u2019 revenue ___ by up to 20% once pricing was handed to AI.', answer:'was boosted', wrong:['boosted','is boosting','has boost'], explain:'Past passive: was + past participle. A completed, measurable result.' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Despite vs Although/Even though — expressing contrast',
+    rule:  'DESPITE + noun or gerund (-ing) — no subject or verb follows. ALTHOUGH / EVEN THOUGH + a full clause (subject + verb). A common error is "despite it is unfair" — despite can never be followed by a subject and verb directly.',
+    exercises: [
+      { sentence:'___ the criticism, companies keep expanding AI pricing systems.', answer:'Despite', wrong:['Although','Even though','Because'], explain:'"Despite" + noun phrase (the criticism). No subject or verb needed after "despite".' },
+      { sentence:'___ these systems are often called efficient, critics call them unfair.', answer:'Although', wrong:['Despite','Despite of','Because of'], explain:'"Although" + full clause (subject + verb) — "despite" cannot be followed by a clause like this.' },
+      { sentence:'Hotel rates stayed high ___ falling demand.', answer:'despite', wrong:['although','even though','because'], explain:'"Despite" + noun phrase (falling demand).' },
+      { sentence:'___ she checked three different apps, the price was still different for the same item.', answer:'Even though', wrong:['Despite','Despite of','Because of'], explain:'"Even though" + full clause (subject + verb).' },
+    ],
+  },
+
+  sentences: [
+    { words:['product','same','can','cost','The','more','depending','your','on','code','zip'], answer:'The same product can cost more depending on your zip code', hint:'🏷️ About zip-code pricing...' },
+    { words:['take','climbed','32%','to','rate','from','42%','Uber\u2019s'], answer:'Uber\u2019s take rate climbed from 32% to 42%', hint:'🚕 About Uber\u2019s growing cut...' },
+    { words:['used','have','since','surveillance','pricing','the','Airlines','late','1970s'], answer:'Airlines have used surveillance pricing since the late 1970s', hint:'✈️ About how long this has been going on...' },
+    { words:['instantly','change','can','tags','Digital','prices','price'], answer:'Digital price tags can change prices instantly', hint:'🛒 About Walmart\u2019s new labels...' },
+  ],
+
+  word_builder: [
+    { word:'surveillance', definition:'The close watching of someone\u2019s behaviour or data' },
+    { word:'affluent',     definition:'Having a lot of money; wealthy' },
+    { word:'deregulation', definition:'The removal of government rules on an industry' },
+    { word:'occupancy',    definition:'How full a place is at a given time' },
+    { word:'inflated',     definition:'Made artificially higher than it should be' },
+    { word:'surge',        definition:'A sudden, powerful increase' },
+  ],
+
+  true_false: [
+    { statement:'AI-based pricing can lift a company\u2019s revenue by up to 15%, according to one study.', correct:true, reveal:'✅ TRUE! A McKinsey study estimated AI-based pricing can boost revenue by up to 15%.' },
+    { statement:'"Surveillance pricing" means every shopper always pays exactly the same price.', correct:false, reveal:'❌ FALSE! It means the opposite — the price is set using data about the individual shopper, so prices can differ from person to person.' },
+    { statement:'Modern surveillance pricing dates back to airline deregulation in the 1970s.', correct:true, reveal:'✅ TRUE! The 1978 deregulation of the US airline industry let carriers set their own fares — and build the first dynamic pricing systems.' },
+    { statement:'Uber\u2019s surge pricing can never multiply a fare by more than 10%.', correct:false, reveal:'❌ FALSE! Surge pricing can multiply fares by up to 200% during high demand.' },
+    { statement:'Uber\u2019s take rate fell from 42% to 32% between 2022 and 2025.', correct:false, reveal:'❌ FALSE! It went the other way — Uber\u2019s take rate climbed from 32% to 42% over that period.' },
+    { statement:'A Belgian newspaper alleged that Uber fares rise slightly when a rider\u2019s phone battery is low.', correct:true, reveal:'✅ TRUE! The claim put Uber in the spotlight, even though the company denies deliberately using battery data this way.' },
+    { statement:'Some grocery apps have shown different prices to different shoppers looking at the same item at the same time.', correct:true, reveal:'✅ TRUE! Research into apps like Instacart found exactly this kind of personalised pricing.' },
+    { statement:'Digital price tags cannot be changed once they are installed in a store.', correct:false, reveal:'❌ FALSE! That\u2019s the whole point — digital labels let stores change prices instantly, at the push of a button.' },
+  ],
+},
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
