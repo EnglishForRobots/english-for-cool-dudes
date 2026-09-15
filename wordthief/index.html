@@ -289,8 +289,6 @@
 
 <div class="page">
 
-    <!-- ═══ CALIBRATION QUIZ (new users only) ═══ -->
-    <div id="calib-screen" style="display:none;"></div>
 
     <!-- ═══ SETUP ═══ -->
     <div id="setup-screen" style="display:flex;flex-direction:column;gap:16px;">
@@ -359,7 +357,6 @@
                 </button>
             </div>
             <div id="pool-size-hint" style="text-align:center;font-size:12px;font-weight:800;color:var(--ink-3);margin:-14px 0 8px;"></div>
-            <div id="calib-cta-wrap" style="text-align:center;margin:0 0 20px;"></div>
 
             <div class="setup-section-label">Difficulty — how fast is The Shadow?</div>
             <div class="diff-row">
@@ -925,8 +922,8 @@ function pickAdaptiveItem(pool){
 function renderDueNudge(containerEl, pool){
     const n = dueCount(pool);
     if (n === 0) { containerEl.innerHTML = ''; return; }
-    containerEl.innerHTML = `
-        <div style="display:flex;align-items:center;gap:10px;background:rgba(28,176,246,.1);
+        containerEl.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;background:var(--shadow);
              border:2px solid rgba(28,176,246,.3);border-radius:var(--rsm);padding:10px 14px;margin-bottom:12px;">
             <span style="font-size:20px">📬</span>
             <span style="font-size:13px;font-weight:800;color:#fff">
@@ -990,121 +987,7 @@ function renderProgressPanel(containerEl){
         </div>`;
 }
 
-/* ═══════════════════════════════════════════════════
-   WORD THIEF — QUICK LEVEL CHECK (calibration quiz)
-   3 fast multiple-choice questions spanning A2 → C1 used to recommend
-   a starting English Level, so a true beginner doesn't accidentally
-   pick "Advanced" and get steamrolled on their very first game. Shown
-   automatically to brand-new players (career.games_played === 0) and
-   always available afterwards via a small link on the setup screen.
-   Skippable at every step — this recommends, it never forces.
-═══════════════════════════════════════════════════ */
-const CALIBRATION_QUESTIONS = [
-    { prompt: "Could you ___ me the report by email?", options: ['send','sending','sent','sends'], correct: 'send', band: 'beginner' },
-    { prompt: "The report ___ several key risks last month.", options: ['identify','identifies','identified','identifying'], correct: 'identified', band: 'intermediate' },
-    { prompt: "The company was fined for ___ health and safety laws.", options: ['breach','breaching','breached','breaches'], correct: 'breaching', band: 'advanced' },
-];
 
-let calibIndex = 0;
-let calibCorrectByBand = { beginner: 0, intermediate: 0, advanced: 0 };
-
-function shouldOfferCalibration(){
-    // Brand-new player: no career record, no item stats yet.
-    return (career.games_played || 0) === 0 && Object.keys(itemStats).length === 0;
-}
-
-function renderCalibCTA(containerEl){
-    containerEl.innerHTML = `<a class="calib-skip" style="text-decoration:none;color:var(--blue-shadow);" onclick="startCalibration()">🎯 Not sure which level? Take a 30-second check</a>`;
-}
-
-function startCalibration(){
-    calibIndex = 0;
-    calibCorrectByBand = { beginner: 0, intermediate: 0, advanced: 0 };
-    $('setup-screen').style.display = 'none';
-    const cs = $('calib-screen');
-    cs.style.display = 'block';
-    renderCalibQuestion();
-}
-
-function renderCalibQuestion(){
-    const cs = $('calib-screen');
-    const q = CALIBRATION_QUESTIONS[calibIndex];
-    const dots = CALIBRATION_QUESTIONS.map((_, i) => {
-        const cls = i < calibIndex ? 'done' : (i === calibIndex ? 'active' : '');
-        return `<div class="calib-dot ${cls}"></div>`;
-    }).join('');
-    const opts = shuffle(q.options).map(opt =>
-        `<button class="calib-opt" onclick="answerCalib(this,'${opt.replace(/'/g,"\\'")}')">${opt}</button>`
-    ).join('');
-
-    cs.innerHTML = `
-        <div class="calib-card">
-            <div class="calib-eyebrow">🎯 Quick Level Check</div>
-            <div class="calib-title">Let's find your level</div>
-            <p class="calib-sub">Three quick questions — just pick the word that fits. This only sets a starting point; the game keeps adapting as you play.</p>
-            <div class="calib-progress">${dots}</div>
-            <div class="calib-q">${q.prompt.replace('___', '<span style="color:var(--shadow-accent)">___</span>')}</div>
-            <div class="calib-grid">${opts}</div>
-            <a class="calib-skip" onclick="skipCalibration()">Skip — I'll pick my level myself</a>
-        </div>`;
-}
-
-function answerCalib(btn, chosen){
-    const q = CALIBRATION_QUESTIONS[calibIndex];
-    const isRight = chosen === q.correct;
-    document.querySelectorAll('.calib-opt').forEach(b => {
-        b.disabled = true;
-        if (b.textContent === q.correct) b.classList.add('correct');
-        else if (b === btn && !isRight) b.classList.add('wrong');
-    });
-    if (isRight) calibCorrectByBand[q.band]++;
-
-    setTimeout(() => {
-        calibIndex++;
-        if (calibIndex < CALIBRATION_QUESTIONS.length) renderCalibQuestion();
-        else finishCalibration();
-    }, 700);
-}
-
-function skipCalibration(){
-    $('calib-screen').style.display = 'none';
-    $('setup-screen').style.display = 'flex';
-}
-
-function finishCalibration(){
-    // Simple scoring: how far up the A2→C1 ladder they got before
-    // missing a question decides the recommended starting level.
-    let recommended = 'beginner';
-    if (calibCorrectByBand.beginner > 0 && calibCorrectByBand.intermediate > 0 && calibCorrectByBand.advanced > 0) {
-        recommended = 'advanced';
-    } else if (calibCorrectByBand.beginner > 0 && calibCorrectByBand.intermediate > 0) {
-        recommended = 'intermediate';
-    } else {
-        recommended = 'beginner';
-    }
-
-    const labelMap = { beginner: '🌱 Beginner', intermediate: '🌿 Intermediate', advanced: '🌳 Advanced' };
-    const cs = $('calib-screen');
-    cs.innerHTML = `
-        <div class="calib-card" style="text-align:center;">
-            <span style="font-size:56px;display:block;margin-bottom:10px;">🎯</span>
-            <div class="calib-title">We'd recommend ${labelMap[recommended]}</div>
-            <p class="calib-sub">You can always change this later — Mixed mode will keep adapting to you round by round either way.</p>
-            <button class="btn-launch" style="justify-content:center;" onclick="applyCalibResult('${recommended}')">
-                <span>Let's go! →</span>
-            </button>
-        </div>`;
-
-    setTimeout(() => {}, 0); // no-op, keeps structure consistent with other async UI updates
-}
-
-function applyCalibResult(level){
-    selectedLevel = level;
-    $('calib-screen').style.display = 'none';
-    $('setup-screen').style.display = 'flex';
-    const btn = document.querySelector(`.diff-btn[data-level="${level}"]`);
-    if (btn) selectLevel(btn);
-}
 
 /* ═══════════════════════════════════════════════════
    WORD THIEF — PROGRESSION & RETENTION
@@ -1194,13 +1077,13 @@ async function recordGameResult(won, wordsStolen){
 function renderRankBadge(containerEl){
     const rank = rankFor(career.total_words_stolen);
     const next = nextRankInfo(career.total_words_stolen);
-    containerEl.innerHTML = `
-        <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.06);
-             border:2px solid rgba(255,255,255,.12);border-radius:var(--rsm);padding:12px 16px;margin-bottom:16px;">
+        containerEl.innerHTML = `
+        <div style="display:flex;align-items:center;gap:12px;background:var(--shadow);
+             border:2px solid rgba(233,69,96,.3);border-radius:var(--rsm);padding:12px 16px;margin-bottom:16px;">
             <span style="font-size:32px;line-height:1">${rank.emoji}</span>
             <div style="flex:1">
                 <div style="font-size:14px;font-weight:900;color:#fff">${rank.name}</div>
-                <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.5)">
+                <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.6)">
                     ${next ? `${next.needed} more word${next.needed !== 1 ? 's' : ''} to ${next.emoji} ${next.name}` : 'Top rank reached — legendary.'}
                 </div>
             </div>
@@ -1841,12 +1724,7 @@ function quitGame(){
     await loadItemStats();
     renderDueNudge($('due-nudge-wrap'), WORD_BANK);
     renderProgressPanel($('progress-panel-wrap'));
-    renderCalibCTA($('calib-cta-wrap'));
     updatePoolSizeHint();
-
-    // First-ever visit: offer the calibration quiz automatically instead
-    // of just dropping a brand-new player into "Mixed" with no context.
-    if (shouldOfferCalibration()) startCalibration();
 })();
 </script>
 </body>
