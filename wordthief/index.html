@@ -302,7 +302,6 @@
         </div>
         <div id="rank-badge-wrap"></div>
         <div id="due-nudge-wrap"></div>
-        <div id="progress-panel-wrap"></div>
 
         <div class="setup-panel">
             <div class="setup-section-label">Category</div>
@@ -931,61 +930,7 @@ function renderDueNudge(containerEl, pool){
             </span>
         </div>`;
 }
-/* ═══════════════════════════════════════════════════
-   WORD THIEF — MASTERY PROGRESS PANEL
-   Turns the itemStats data (already tracked per word for the SRS/
-   adaptive-difficulty engine) into something visible on the setup
-   screen — "N% mastered" per category, with a progress bar. A word
-   counts as mastered once it's been seen at least twice and answered
-   correctly at least 80% of the time; anything unseen just doesn't
-   count toward the denominator yet (no false "0%" shaming on day one).
-═══════════════════════════════════════════════════ */
-const PROGRESS_CAT_ORDER = ['business','legal','tax','social','tech'];
-const PROGRESS_CAT_ICONS = {business:'💼',legal:'⚖️',tax:'🧾',social:'🌍',tech:'🤖'};
-const PROGRESS_CAT_NAMES = {business:'Business',legal:'Legal',tax:'Tax',social:'Social',tech:'Tech'};
 
-// "Mastered" now means the SAME thing it means everywhere else on the
-// site: EFCD_SRS's real 'learned' status (5 reviews, quality >= 3 on
-// the last one) — not a Word-Thief-specific 80% rule anymore.
-function isMastered(item){
-    return isLearned(item);
-}
-
-function categoryMastery(cat){
-    const items = WORD_BANK.filter(w => w.cat === cat);
-    if (items.length === 0) return 0;
-    const masteredCount = items.filter(isMastered).length;
-    return Math.round((masteredCount / items.length) * 100);
-}
-
-function renderProgressPanel(containerEl){
-    // Nothing tracked yet at all (brand-new player) — skip the panel
-    // entirely rather than showing a wall of 0% bars.
-    const hasAnyData = Object.keys(itemStats).length > 0;
-    if (!hasAnyData) { containerEl.innerHTML = ''; return; }
-
-    const rows = PROGRESS_CAT_ORDER.map(cat => {
-        const pct = categoryMastery(cat);
-        return `
-            <div class="progress-row">
-                <span class="progress-cat-icon">${PROGRESS_CAT_ICONS[cat]}</span>
-                <span class="progress-cat-name">${PROGRESS_CAT_NAMES[cat]}</span>
-                <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
-                <span class="progress-pct">${pct}%</span>
-            </div>`;
-    }).join('');
-
-    const totalMastered = WORD_BANK.filter(isMastered).length;
-
-    containerEl.innerHTML = `
-        <div class="progress-panel">
-            <div class="progress-head">
-                <span class="progress-title">📚 Word Mastery</span>
-                <span class="progress-total">${totalMastered}/${WORD_BANK.length} words mastered</span>
-            </div>
-            ${rows}
-        </div>`;
-}
 
 
 
@@ -1710,7 +1655,6 @@ function quitGame(){
     // rank badge, due-review nudge, and mastery panel to match.
     renderRankBadge($('rank-badge-wrap'));
     renderDueNudge($('due-nudge-wrap'), WORD_BANK);
-    renderProgressPanel($('progress-panel-wrap'));
     updatePoolSizeHint();
 }
 
@@ -1723,7 +1667,6 @@ function quitGame(){
     renderRankBadge($('rank-badge-wrap'));
     await loadItemStats();
     renderDueNudge($('due-nudge-wrap'), WORD_BANK);
-    renderProgressPanel($('progress-panel-wrap'));
     updatePoolSizeHint();
 })();
 </script>
