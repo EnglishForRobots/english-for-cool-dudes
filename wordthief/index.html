@@ -456,6 +456,7 @@
 </div>
 
 <script src="/supabase-auth-gamified.js"></script>
+<script src="/srs-engine.js"></script>
 <script>
 'use strict';
 
@@ -604,7 +605,7 @@ WORD_BANK.push(...WORD_BANK_BATCH_2);
 const WORD_BANK_BATCH_3 = [
     // BUSINESS (+5 beginner, +1 advanced)
     {cat:'business',sentence:'The team will ___ the results tomorrow.',correct:'present',distractors:['presenting','presented','presents'],level:'beginner',explain:"After 'will', a verb needs its base form — 'present', not the -ing form, past tense, or 's' form."},
-    {cat:'business',sentence:'She always ___ to work by bike.',correct:'travels',distractors:['travel','travelling','travelled'],level:'beginner',explain:"'She' is 3rd-person singular and 'always' signals a habit, so the present-tense 's' form 'travels' is required."},
+    {cat:'business',sentence:'These days, she always ___ to work by bike.',correct:'travels',distractors:['travel','travelling','travelled'],level:'beginner',explain:"'These days' locks this to the present, and 'she' is 3rd-person singular — so the present-tense 's' form 'travels' is required, not the past tense 'travelled'."},
     {cat:'business',sentence:'Could you ___ me the report by email?',correct:'send',distractors:['sending','sent','sends'],level:'beginner',explain:"After 'Could you', a verb needs its base form — 'send', not the -ing form, past tense, or 's' form."},
     {cat:'business',sentence:'The company ___ new staff every January.',correct:'hires',distractors:['hire','hiring','hired'],level:'beginner',explain:"'The company' is singular and 'every January' signals a habit, so the present-tense 's' form 'hires' is required."},
     {cat:'business',sentence:'We ___ the deal after months of talks.',correct:'closed',distractors:['close','closing','closes'],level:'beginner',explain:"'After months of talks' places this in the past, so the past tense 'closed' is required."},
@@ -627,7 +628,7 @@ const WORD_BANK_BATCH_3 = [
     // SOCIAL (+4 beginner, +4 advanced)
     {cat:'social',sentence:'Nice to ___ you! I\'ve heard so much about you.',correct:'meet',distractors:['meeting','met','meets'],level:'beginner',explain:"After 'to', a verb needs its base form — 'meet', not the -ing form, past tense, or 's' form."},
     {cat:'social',sentence:'I really appreciate you ___ time to see me today.',correct:'taking',distractors:['take','took','takes'],level:'beginner',explain:"After 'appreciate you', a verb needs its -ing form — 'taking', not the base, past tense, or 's' form."},
-    {cat:'social',sentence:'She always ___ hello when she sees me.',correct:'says',distractors:['say','saying','said'],level:'beginner',explain:"'She' is 3rd-person singular and 'always' signals a habit, so the present-tense 's' form 'says' is required."},
+    {cat:'social',sentence:'These days, she always ___ hello when she sees me.',correct:'says',distractors:['say','saying','said'],level:'beginner',explain:"'These days' locks this to the present, and 'she' is 3rd-person singular — so the present-tense 's' form 'says' is required, not the past tense 'said'."},
     {cat:'social',sentence:'Let\'s ___ in touch after the holidays.',correct:'stay',distractors:['staying','stayed','stays'],level:'beginner',explain:"After 'Let's', a verb needs its base form — 'stay', not the -ing form, past tense, or 's' form."},
     {cat:'social',sentence:'He ___ the meeting with a joke to lighten the mood.',correct:'opened',distractors:['open','opening','opens'],level:'advanced',explain:"This describes a completed action, so the past tense 'opened' is required."},
     {cat:'social',sentence:'She has a knack for ___ people feel at ease.',correct:'making',distractors:['make','made','makes'],level:'advanced',explain:"After 'a knack for', a verb needs its -ing form — 'making', not the base, past tense, or 's' form."},
@@ -720,15 +721,42 @@ function addDays(dateStr, days){
     return d.toISOString().split('T')[0];
 }
 
-function itemId(item){
+/* ═══════════════════════════════════════════════════
+   SRS INTEGRATION — Word Thief now runs on the SAME spaced-repetition
+   engine (EFCD_SRS / srs-engine.js) that powers lesson vocab review on
+   /my-lessons/, instead of a separate homegrown ease/interval system.
+   That means a word you struggle with in Word Thief and the same word
+   showing up in a lesson feed the SAME memory — one review queue, not two.
+
+   EFCD_SRS.SM2 does the real scheduling (proper SM-2, capped intervals,
+   no vanishing-for-months bug). We just need a stable per-item key and
+   to feed it a "quality" score (1-5) after every round.
+
+   Fallback: if srs-engine.js fails to load for any reason, Word Thief
+   still works — items just won't get real spaced-repetition scheduling
+   for that session (isDue always false, mastery falls back to accuracy).
+═══════════════════════════════════════════════════ */
+const SRS = window.EFCD_SRS || null;
+
+function srsKeyFor(item){
+    // Anchor on category + the first couple of sentence words + the
+    // correct answer, so near-duplicate correct-words (e.g. 'submitted'
+    // appears twice in the bank) still get distinct, stable keys — same
+    // approach ITEMS.extract() uses for lesson sentence/tf items.
+    const anchor = item.sentence.split(' ').slice(0, 3).join('_').toLowerCase().replace(/[^a-z0-9_]/g, '');
+    if (SRS) return SRS.ITEMS.keyFor('wordthief', item.cat, anchor, item.correct);
+    // Fallback key (only used if the shared engine didn't load)
     let h = 0;
     const s = item.sentence + '::' + item.correct;
     for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
-    return 'w' + Math.abs(h);
+    return 'wordthief_fallback_' + Math.abs(h);
 }
 
-/* ── Per-item stats: seen/correct counts, loaded once per game ── */
-let itemStats     = {};   // itemId -> {seen, correct, lastMissedAt}
+/* ── Per-item stats, loaded once per game. Keyed by srsKeyFor(item).
+   Each row mirrors an EFCD_SRS item shape (ease_factor, interval_days,
+   review_count, next_review_at, status) PLUS our own seen/correct tally
+   for the accuracy-based "Word Mastery" display. ── */
+let itemStats     = {};
 let skillScore     = 50;  // 0-100, drives which level band gets served
 let recentResults  = [];  // rolling window of last 5 results, drives timer
 let recentlyShown  = [];  // last few item ids, avoids back-to-back repeats
@@ -742,7 +770,14 @@ async function loadItemStats(){
             const { data } = await sb.from('word_thief_item_stats').select('*').eq('user_id', user.id);
             itemStats = {};
             (data || []).forEach(r => {
-                itemStats[r.item_id] = { seen: r.seen, correct: r.correct, lastMissedAt: r.last_seen_at };
+                itemStats[r.item_id] = {
+                    seen: r.seen || 0, correct: r.correct || 0,
+                    ease_factor: r.ease ?? 2.5, interval_days: r.interval_days ?? 1,
+                    review_count: r.seen || 0, next_review_at: r.next_review_at || todayDateStr(),
+                    // Status isn't in this table yet, so it's approximated from
+                    // review_count on load — see recordItemResult() for why.
+                    status: (r.seen || 0) >= 5 ? 'learned' : 'active',
+                };
             });
             return;
         } catch (e) { /* fall through to local */ }
@@ -756,54 +791,80 @@ function saveItemStatsLocal(){
 }
 
 async function recordItemResult(item, wasCorrect){
-    const id = itemId(item);
-    const today = todayDateStr();
-    const s = itemStats[id] || {
-        seen: 0, correct: 0, lastMissedAt: null,
-        intervalDays: 1, ease: 2.5, nextReviewAt: today,
+    const key = srsKeyFor(item);
+    const existing = itemStats[key] || {
+        seen: 0, correct: 0, ease_factor: 2.5, interval_days: 1,
+        review_count: 0, next_review_at: todayDateStr(), status: 'active',
     };
- 
-    s.seen++;
-    if (wasCorrect) {
-        s.correct++;
-        s.intervalDays = Math.max(1, Math.round(s.intervalDays * s.ease));
-        s.ease = Math.min(3.0, s.ease + 0.1);
+
+    let merged;
+    if (SRS) {
+        // Real SM-2: quality 5 for a correct pick (no hints — Word Thief
+        // has none), quality 1 for a miss or a timeout steal.
+        const quality = SRS.QUALITY.fromResult('grammar', { correct: wasCorrect });
+        const update = SRS.SM2.calculate(existing, quality);
+        merged = {
+            ...existing, ...update,
+            seen: existing.seen + 1,
+            correct: existing.correct + (wasCorrect ? 1 : 0),
+        };
     } else {
-        s.lastMissedAt = today;
-        s.intervalDays = 1;
-        s.ease = Math.max(1.3, s.ease - 0.2);
+        // Fallback if the shared engine didn't load — same shape, simpler math.
+        merged = { ...existing, seen: existing.seen + 1, correct: existing.correct + (wasCorrect ? 1 : 0) };
+        merged.interval_days = wasCorrect ? Math.max(1, Math.round(existing.interval_days * existing.ease_factor)) : 1;
+        merged.ease_factor = wasCorrect ? Math.min(3.0, existing.ease_factor + 0.1) : Math.max(1.3, existing.ease_factor - 0.2);
+        merged.next_review_at = addDays(todayDateStr(), merged.interval_days);
+        merged.status = merged.seen >= 5 ? 'learned' : 'active';
     }
-    s.nextReviewAt = addDays(today, s.intervalDays);
-    itemStats[id] = s;
- 
+    itemStats[key] = merged;
+
     const user = window.EFCD_Auth?.getCurrentUser?.();
     if (user && sb) {
         try {
+            // Writes to the existing word_thief_item_stats columns — 'status'
+            // and 'learned_at' aren't persisted yet (would need new columns),
+            // so they're reconstructed from review_count on the next load.
+            // Exact during a live session either way, since itemStats holds
+            // the freshly-calculated object in memory.
             await sb.from('word_thief_item_stats').upsert({
-                user_id: user.id, item_id: id, seen: s.seen, correct: s.correct,
+                user_id: user.id, item_id: key, seen: merged.seen, correct: merged.correct,
                 last_seen_at: new Date().toISOString(),
-                interval_days: s.intervalDays, ease: s.ease, next_review_at: s.nextReviewAt,
+                interval_days: merged.interval_days, ease: merged.ease_factor,
+                next_review_at: merged.next_review_at,
             });
         } catch (e) { saveItemStatsLocal(); }
     } else {
         saveItemStatsLocal();
     }
 }
- 
+
 function isDue(item){
-    const s = itemStats[itemId(item)];
-    if (!s || !s.nextReviewAt) return false; // never seen = new content, not "due"
-    return s.nextReviewAt <= todayDateStr();
+    const s = itemStats[srsKeyFor(item)];
+    if (!s) return false; // never seen = new content, not "due"
+    if (SRS) return SRS.SM2.isDue(s);
+    return s.status === 'active' && s.next_review_at <= todayDateStr();
 }
- 
+
 function dueCount(pool){
     return pool.filter(isDue).length;
 }
 
+function isLearned(item){
+    const s = itemStats[srsKeyFor(item)];
+    if (!s) return false;
+    return SRS ? SRS.SM2.isLearned(s) : s.status === 'learned';
+}
+
 function masteryOf(item){
-    const s = itemStats[itemId(item)];
+    // Used to WEIGHT which items get picked (not the mastery panel's
+    // "learned" definition). Blends raw accuracy with SM-2's ease factor
+    // so genuinely-struggled-with items (low ease) surface more, even if
+    // this session's accuracy on them looks OK so far.
+    const s = itemStats[srsKeyFor(item)];
     if (!s || s.seen === 0) return 0.5; // never seen = neutral priority
-    return s.correct / s.seen;
+    const accuracy = s.correct / s.seen;
+    const easeSignal = s.ease_factor != null ? Math.max(0, Math.min(1, (s.ease_factor - 1.3) / 1.7)) : accuracy;
+    return (accuracy + easeSignal) / 2;
 }
 
 /* ── Skill score: nudges up on correct, down on wrong, clamped 0-100 ── */
@@ -834,11 +895,11 @@ function pickAdaptiveItem(pool){
     if (!pool || pool.length === 0) pool = WORD_BANK;
     if (pool.length === 0) return null; // truly nothing to show — caller must handle
 
-    let unseen = pool.filter(it => !shownThisGame.has(itemId(it)));
+    let unseen = pool.filter(it => !shownThisGame.has(srsKeyFor(it)));
     if (unseen.length === 0) { shownThisGame.clear(); unseen = pool; }
 
     const lvlW = targetLevelWeights();
-    let candidates = unseen.filter(it => !recentlyShown.includes(itemId(it)));
+    let candidates = unseen.filter(it => !recentlyShown.includes(srsKeyFor(it)));
     if (candidates.length === 0) candidates = unseen;
 
     const weighted = candidates.map(item => {
@@ -846,7 +907,10 @@ function pickAdaptiveItem(pool){
         const weaknessBoost = 0.2 + (1 - mastery) * 1.4;
         const levelBoost = selectedLevel === 'mixed' ? (lvlW[item.level] ?? 0.33) : 1;
         const dueBoost = isDue(item) ? 3 : 1;
-        return { item, weight: weaknessBoost * levelBoost * dueBoost + 0.05 };
+        // Genuinely learned words (real SM-2 'learned' status) mostly step
+        // aside so the round goes to words that still need the work.
+        const learnedPenalty = isLearned(item) ? 0.15 : 1;
+        return { item, weight: weaknessBoost * levelBoost * dueBoost * learnedPenalty + 0.05 };
     });
     if (weighted.length === 0) return pool[Math.floor(Math.random() * pool.length)];
 
@@ -883,10 +947,11 @@ const PROGRESS_CAT_ORDER = ['business','legal','tax','social','tech'];
 const PROGRESS_CAT_ICONS = {business:'💼',legal:'⚖️',tax:'🧾',social:'🌍',tech:'🤖'};
 const PROGRESS_CAT_NAMES = {business:'Business',legal:'Legal',tax:'Tax',social:'Social',tech:'Tech'};
 
+// "Mastered" now means the SAME thing it means everywhere else on the
+// site: EFCD_SRS's real 'learned' status (5 reviews, quality >= 3 on
+// the last one) — not a Word-Thief-specific 80% rule anymore.
 function isMastered(item){
-    const s = itemStats[itemId(item)];
-    if (!s || s.seen < 2) return false;
-    return (s.correct / s.seen) >= 0.8;
+    return isLearned(item);
 }
 
 function categoryMastery(cat){
@@ -935,7 +1000,7 @@ function renderProgressPanel(containerEl){
    Skippable at every step — this recommends, it never forces.
 ═══════════════════════════════════════════════════ */
 const CALIBRATION_QUESTIONS = [
-    { prompt: "She ___ to work every day by train.", options: ['travel','travels','travelling','travelled'], correct: 'travels', band: 'beginner' },
+    { prompt: "Could you ___ me the report by email?", options: ['send','sending','sent','sends'], correct: 'send', band: 'beginner' },
     { prompt: "The report ___ several key risks last month.", options: ['identify','identifies','identified','identifying'], correct: 'identified', band: 'intermediate' },
     { prompt: "The company was fined for ___ health and safety laws.", options: ['breach','breaching','breached','breaches'], correct: 'breaching', band: 'advanced' },
 ];
@@ -1143,7 +1208,7 @@ function renderRankBadge(containerEl){
 }
 
 function markShown(item){
-    const id = itemId(item);
+    const id = srsKeyFor(item);
     recentlyShown.push(id);
     if (recentlyShown.length > 4) recentlyShown.shift();
     shownThisGame.add(id);
