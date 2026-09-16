@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+    <title>💥 Collocation Crash — The Break Room · English For Cool Dudes</title>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/init-auth.js"></script>
+    <style>
+    :root {
+        --blue:#1CB0F6;       --blue-shadow:#1899D6;
+        --yellow:#FFC800;     --yellow-shadow:#E5B400;
+        --green:#58CC02;      --green-shadow:#58A700;
+        --punch:#FF4B4B;      --punch-shadow:#EA2B2B;
+        --purple:#CE82FF;     --purple-shadow:#A559D9;
+        --bg:#F7F9FA;         --white:#FFFFFF;
+        --ink:#4B4B4B;        --ink-bold:#111827; --ink-3:#AFAFAF;
+        --border:#E5E5E5;     --border-heavy:#CECECE;
+        --r:24px; --rsm:16px; --rxs:10px;
+
+        /* Crash palette — asphalt + hazard orange, distinct from Word Thief's noir palette */
+        --asphalt:#1E2530;    --asphalt-2:#2A3341;
+        --hazard:#FF6B00;     --hazard-shadow:#C95700;
+        --tape:#FFD500;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{-webkit-text-size-adjust:100%;}
+    body{background:var(--bg);color:var(--ink);font-family:'Nunito',system-ui,sans-serif;line-height:1.5;overflow-x:hidden;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;}
+    a{color:inherit;text-decoration:none;}
+    button{font-family:inherit;cursor:pointer;border:none;background:none;}
+
+    @keyframes up      {from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes float   {0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    @keyframes nudge   {0%,100%{transform:translateX(0)}35%{transform:translateX(7px)}}
+    @keyframes popIn   {0%{opacity:0;transform:scale(.6) rotate(-8deg)}60%{transform:scale(1.1) rotate(2deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+    @keyframes slideDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes confetti{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(180px) rotate(520deg)}}
+    @keyframes xpPop   {0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-70px) scale(1.6)}}
+    @keyframes comboPop{0%{opacity:0;transform:translate(-50%,10px) scale(.7)}25%{opacity:1;transform:translate(-50%,0) scale(1.15)}80%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-30px) scale(1.05)}}
+    @keyframes shake   {0%,100%{transform:translateX(0)}20%{transform:translateX(-12px)}40%{transform:translateX(12px)}60%{transform:translateX(-7px)}80%{transform:translateX(7px)}}
+    @keyframes crackOut{0%{opacity:1;transform:scale(1) rotate(0)}50%{transform:scale(1.3) rotate(-10deg)}100%{opacity:0;transform:scale(0.3) rotate(25deg)}}
+    @keyframes bank    {0%{opacity:1;transform:scale(1)}40%{transform:scale(1.25)}100%{opacity:0;transform:scale(0.2) translateY(-40px)}}
+    @keyframes wordIn  {0%{opacity:0;transform:translateY(24px) scale(.85)}100%{opacity:1;transform:translateY(0) scale(1)}}
+    @keyframes revealFlip{0%{transform:rotateX(90deg);opacity:0}100%{transform:rotateX(0deg);opacity:1}}
+    @keyframes dashScroll{0%{background-position:0 0}100%{background-position:-40px 0}}
+
+    /* ── HEADER ── */
+    .header{background:var(--white);border-bottom:3px solid var(--hazard);padding:0 20px;height:60px;position:sticky;top:0;z-index:300;display:flex;align-items:center;box-shadow:0 4px 12px rgba(255,107,0,.12);}
+    .hc{max-width:860px;width:100%;margin:0 auto;display:flex;align-items:center;}
+    .logo-box{width:38px;height:38px;background:var(--yellow);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid var(--yellow-shadow);box-shadow:0 3px 0 var(--yellow-shadow);flex-shrink:0;}
+    .site-title{font-size:17px;font-weight:900;color:var(--ink-bold);letter-spacing:-.3px;margin-left:10px;}
+    @media(max-width:400px){.site-title{display:none}}
+
+    /* ── PAGE ── */
+    .page{max-width:860px;margin:0 auto;padding:24px 16px 80px;display:flex;flex-direction:column;gap:16px;}
+
+    /* ── SETUP SCREEN ── */
+    .setup-hero{background:var(--asphalt);border:2px solid #111;border-bottom:6px solid #000;border-radius:var(--r);padding:32px 28px;position:relative;overflow:hidden;animation:up .45s ease both;}
+    .setup-hero::before{content:'';position:absolute;left:0;right:0;bottom:34px;height:6px;background:repeating-linear-gradient(90deg,var(--tape) 0 24px,transparent 24px 44px);opacity:.5;animation:dashScroll 1.2s linear infinite;}
+    .setup-hero::after{content:'🏎️';position:absolute;bottom:-14px;right:8px;font-size:130px;opacity:.14;pointer-events:none;transform:rotate(-8deg);animation:float 4s ease-in-out infinite;}
+    .setup-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(255,107,0,.2);border:2px solid rgba(255,107,0,.4);border-radius:8px;padding:4px 14px;font-size:11px;font-weight:900;color:rgba(255,255,255,.9);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;position:relative;z-index:1;}
+    .setup-title{font-size:clamp(30px,7vw,52px);font-weight:900;color:var(--white);letter-spacing:-2px;line-height:1;margin-bottom:10px;text-shadow:0 3px 0 #000;position:relative;z-index:1;}
+    .setup-title .orange{color:var(--hazard);}
+    .setup-sub{font-size:15px;font-weight:700;color:rgba(255,255,255,.8);max-width:460px;line-height:1.6;position:relative;z-index:1;}
+
+    .setup-panel{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);padding:28px;animation:up .45s ease both .1s;}
+    .setup-section-label{font-size:11px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;}
+
+    .cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:24px;}
+    .cat-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 12px;background:var(--bg);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);cursor:pointer;transition:all .15s;font-family:inherit;text-align:center;}
+    .cat-btn:active{border-bottom-width:2px;transform:translateY(2px);}
+    .cat-btn.selected{border-color:var(--hazard);border-bottom-color:var(--hazard-shadow);background:rgba(255,107,0,.06);}
+    .cat-btn-icon{font-size:28px;line-height:1;}
+    .cat-btn-label{font-size:13px;font-weight:900;color:var(--ink-bold);}
+    .cat-btn.selected .cat-btn-label{color:var(--hazard);}
+
+    .diff-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px;}
+    .diff-btn{flex:1;min-width:76px;padding:13px 10px;background:var(--bg);border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);cursor:pointer;transition:all .15s;font-family:inherit;text-align:center;}
+    .diff-btn:active{border-bottom-width:2px;transform:translateY(2px);}
+    .diff-btn.selected{border-color:var(--hazard);background:rgba(255,107,0,.06);}
+    .diff-btn-icon{font-size:24px;display:block;margin-bottom:4px;}
+    .diff-btn-label{font-size:13px;font-weight:900;color:var(--ink-bold);}
+    .diff-btn-sub{font-size:11px;font-weight:700;color:var(--ink-3);margin-top:2px;}
+    .diff-btn.selected .diff-btn-label{color:var(--hazard);}
+
+    .btn-launch{display:flex;align-items:center;justify-content:space-between;width:100%;padding:18px 24px;background:var(--hazard);color:var(--white);font-size:18px;font-weight:900;border-radius:var(--rsm);border:2px solid var(--hazard-shadow);border-bottom:6px solid var(--hazard-shadow);cursor:pointer;transition:transform .1s,border-bottom-width .1s;letter-spacing:-.3px;}
+    .btn-launch:active{border-bottom-width:2px;transform:translateY(4px);}
+
+    .back-link{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;padding:10px 18px;border-radius:var(--rsm);border:2px solid var(--border);background:var(--white);transition:all .15s;}
+    .back-link:hover{color:var(--ink-bold);border-color:var(--border-heavy);}
+
+    /* ── HUD (replaces Word Thief's dueling scoreboard — this is a
+       solo survival run: lives + distance + combo, not vs-opponent) ── */
+    .hud{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;background:var(--asphalt);border:2px solid #111;border-bottom:4px solid #000;border-radius:var(--r);padding:16px 20px;}
+    .hud-lives{display:flex; gap:8px;}
+    .life-icon{font-size:26px;line-height:1;transition:all .3s;}
+    .life-icon.lost{animation:crackOut .5s ease both;}
+    .hud-mid{display:flex;flex-direction:column;align-items:center;gap:2px;}
+    .hud-distance{font-size:30px;font-weight:900;color:var(--white);line-height:1;}
+    .hud-distance-label{font-size:10px;font-weight:900;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1.5px;}
+    .hud-combo{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
+    .hud-combo-num{font-size:20px;font-weight:900;color:var(--tape);}
+    .hud-combo-label{font-size:10px;font-weight:900;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;}
+
+    .combo-badge{position:fixed;left:50%;top:110px;background:var(--tape);color:#3d2c00;font-weight:900;font-size:16px;padding:8px 18px;border-radius:99px;border:2px solid #cca300;box-shadow:0 4px 0 #cca300;z-index:9999;pointer-events:none;animation:comboPop 1.4s ease-out both;white-space:nowrap;}
+
+    /* ── GAUGE ROW — circular countdown replaces Word Thief's linear bar ── */
+    .gauge-row{display:flex;align-items:center;gap:14px;background:var(--white);border:2px solid var(--border-heavy);border-radius:var(--rsm);padding:12px 16px;}
+    .gauge{width:56px;height:56px;border-radius:50%;flex-shrink:0;background:conic-gradient(var(--green) 0deg, var(--border) 0deg);display:flex;align-items:center;justify-content:center;position:relative;transition:background .1s linear;}
+    .gauge::before{content:'';position:absolute;inset:6px;background:var(--white);border-radius:50%;}
+    .gauge-num{position:relative;z-index:1;font-size:15px;font-weight:900;color:var(--ink-bold);}
+    .gauge.warn{}
+    .rival-message{font-size:13.5px;font-weight:800;color:var(--ink);line-height:1.4;flex:1;animation:slideDown .3s ease both;}
+    .rival-message .orange{color:var(--hazard-shadow);}
+
+    /* ── PROMPT CARD ── */
+    .prompt-card{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);overflow:hidden;}
+    .prompt-card::before{content:'';display:block;height:8px;background:repeating-linear-gradient(90deg,var(--hazard) 0 16px,var(--asphalt) 16px 32px);}
+    .prompt-body{padding:clamp(20px,4vw,32px);text-align:center;}
+    .prompt-round{font-size:11px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;}
+    .prompt-cat{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;padding:3px 10px;border-radius:6px;border:2px solid var(--border);background:var(--bg);color:var(--ink-3);margin-bottom:10px;}
+    .prompt-hint{font-size:12px;font-weight:800;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+    .prompt-phrase{font-size:clamp(24px,6vw,38px);font-weight:900;color:var(--ink-bold);letter-spacing:-1px;line-height:1.3;}
+    .phrase-gap{display:inline-block;min-width:90px;border-bottom:4px dashed var(--hazard);color:var(--hazard);padding:0 6px;font-weight:900;transition:all .3s;}
+    .phrase-gap.filled{border-bottom:4px solid var(--green);color:var(--green-shadow);background:rgba(88,204,2,.08);border-radius:6px;animation:popIn .3s ease both;}
+    .phrase-gap.crashed{border-bottom:4px solid var(--punch);color:var(--punch-shadow);background:rgba(255,75,75,.08);border-radius:6px;}
+
+    .explain-strip{display:none;margin:0 clamp(12px,3vw,24px) 14px;background:rgba(28,176,246,.08);border:2px solid rgba(28,176,246,.25);border-radius:var(--rsm);padding:10px 14px;font-size:12.5px;font-weight:700;color:var(--ink);line-height:1.5;animation:slideDown .25s ease both;}
+    .explain-strip b{color:var(--blue-shadow);}
+
+    /* ── WORD CARDS ── */
+    .word-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 clamp(12px,3vw,24px) clamp(16px,3vw,24px);}
+    .word-card{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--rsm);padding:16px 12px;font-size:clamp(14px,3vw,18px);font-weight:900;color:var(--ink-bold);cursor:pointer;transition:all .15s;text-align:center;font-family:inherit;animation:wordIn .35s ease both;position:relative;overflow:hidden;}
+    .word-card:nth-child(1){animation-delay:.05s;}
+    .word-card:nth-child(2){animation-delay:.1s;}
+    .word-card:nth-child(3){animation-delay:.15s;}
+    .word-card:nth-child(4){animation-delay:.2s;}
+    .word-card:hover:not(:disabled){transform:translateY(-4px);box-shadow:0 8px 20px rgba(0,0,0,.12);border-color:var(--hazard);color:var(--hazard-shadow);}
+    .word-card:active:not(:disabled){border-bottom-width:2px;transform:translateY(2px);}
+    .word-card:disabled{cursor:default;}
+    .word-card.correct{background:var(--green);color:var(--white);border-color:var(--green-shadow);animation:popIn .35s cubic-bezier(.175,.885,.32,1.275) both;}
+    .word-card.wrong{background:var(--punch);color:var(--white);border-color:var(--punch-shadow);animation:shake .4s ease both;}
+    .word-card.banked-away{animation:bank .5s ease both;pointer-events:none;}
+
+    /* ── RESULT SCREEN ── */
+    #result-screen, #review-screen{display:none;}
+    .result-card{background:var(--white);border:2px solid var(--border-heavy);border-bottom:6px solid var(--border-heavy);border-radius:var(--r);padding:36px 28px;text-align:center;animation:popIn .5s cubic-bezier(.175,.885,.32,1.275) both;}
+    .result-card::before{content:'';display:block;height:10px;border-radius:var(--r) var(--r) 0 0;margin:-36px -28px 28px;}
+    .result-win::before{background:linear-gradient(90deg,var(--green),var(--blue));}
+    .result-lose::before{background:linear-gradient(90deg,var(--hazard),var(--purple));}
+    .result-icon{font-size:80px;display:block;margin-bottom:12px;animation:float 3s ease-in-out infinite;}
+    .result-title{font-size:28px;font-weight:900;letter-spacing:-1px;margin-bottom:6px;}
+    .result-title.win{color:var(--green-shadow);}
+    .result-title.lose{color:var(--hazard-shadow);}
+    .result-sub{font-size:15px;font-weight:700;color:var(--ink-3);margin-bottom:22px;line-height:1.6;}
+    .result-xp{background:var(--asphalt);border:2px solid #111;border-bottom:6px solid #000;border-radius:var(--r);padding:20px;margin-bottom:16px;}
+    .result-xp-num{font-size:52px;font-weight:900;color:var(--white);line-height:1;}
+    .result-xp-label{font-size:12px;font-weight:900;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+    .result-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;}
+    .rs{background:var(--bg);border:2px solid var(--border-heavy);border-radius:var(--rsm);padding:12px 8px;}
+    .rs-n{font-size:22px;font-weight:900;color:var(--ink-bold);}
+    .rs-l{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);margin-top:2px;}
+    .result-btns{display:flex;flex-direction:column;gap:10px;}
+    .btn-play-again{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;background:var(--hazard);color:var(--white);font-size:17px;font-weight:900;border:2px solid var(--hazard-shadow);border-bottom:5px solid var(--hazard-shadow);border-radius:var(--rsm);transition:all .1s;font-family:inherit;}
+    .btn-play-again:active{border-bottom-width:2px;transform:translateY(3px);}
+    .btn-review{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;background:var(--blue);color:var(--white);font-size:17px;font-weight:900;border:2px solid var(--blue-shadow);border-bottom:5px solid var(--blue-shadow);border-radius:var(--rsm);transition:all .1s;font-family:inherit;}
+    .btn-review:active{border-bottom-width:2px;transform:translateY(3px);}
+    .btn-secondary{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;background:var(--white);color:var(--ink-bold);font-size:15px;font-weight:900;border:2px solid var(--border-heavy);border-bottom:4px solid var(--border-heavy);border-radius:var(--rsm);transition:all .1s;font-family:inherit;}
+    .btn-secondary:active{border-bottom-width:2px;transform:translateY(2px);}
+
+    .review-tabs{display:flex;gap:8px;margin-bottom:16px;}
+    .review-tab{flex:1;padding:10px;background:var(--bg);border:2px solid var(--border-heavy);border-radius:var(--rsm);font-size:13px;font-weight:900;color:var(--ink-3);transition:all .15s;font-family:inherit;}
+    .review-tab.active{background:var(--hazard);border-color:var(--hazard-shadow);color:var(--white);}
+    .review-list{display:flex;flex-direction:column;gap:10px;text-align:left;max-height:420px;overflow-y:auto;padding-right:4px;margin-bottom:20px;}
+    .review-item{background:var(--bg);border:2px solid var(--border-heavy);border-radius:var(--rsm);padding:14px 16px;}
+    .review-item.correct{border-color:var(--green-shadow);background:rgba(88,204,2,.06);}
+    .review-item.wrong{border-color:var(--punch-shadow);background:rgba(255,75,75,.06);}
+    .review-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1px;padding:3px 8px;border-radius:6px;margin-bottom:8px;}
+    .review-badge.correct{background:var(--green);color:var(--white);}
+    .review-badge.wrong{background:var(--punch);color:var(--white);}
+    .review-phrase{font-size:14px;font-weight:800;color:var(--ink-bold);line-height:1.5;margin-bottom:6px;}
+    .review-phrase .fill{font-weight:900;border-bottom:3px solid var(--green-shadow);color:var(--green-shadow);}
+    .review-phrase .fill.wrong-fill{border-bottom-color:var(--punch-shadow);color:var(--punch-shadow);}
+    .review-wrong-word{font-size:12px;font-weight:700;color:var(--punch-shadow);margin-bottom:6px;}
+    .review-wrong-word s{color:var(--ink-3);}
+    .review-explain{font-size:12px;font-weight:700;color:var(--ink-3);line-height:1.5;border-top:1px dashed var(--border-heavy);padding-top:8px;margin-top:8px;}
+
+    /* ── GARAGE REVIEW (relearn — restored from Word Thief's Vault
+       Review, reskinned) ── */
+    .review-header{text-align:center;padding:6px 8px 4px;animation:up .4s ease both;}
+    .review-title{font-size:26px;font-weight:900;color:var(--ink-bold);letter-spacing:-.5px;margin-bottom:6px;}
+    .review-sub{font-size:14px;font-weight:700;color:var(--ink-3);line-height:1.5;max-width:440px;margin:0 auto;}
+    .garage-list{display:flex;flex-direction:column;gap:12px;margin-top:18px;}
+    .garage-card{background:var(--white);border:2px solid var(--border-heavy);border-bottom:5px solid var(--border-heavy);border-radius:var(--rsm);padding:18px 20px;transition:all .15s;animation:wordIn .3s ease both;}
+    .garage-card.opened{border-color:var(--green);background:rgba(88,204,2,.04);}
+    .garage-cat{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-3);margin-bottom:8px;}
+    .garage-phrase{font-size:16px;font-weight:800;color:var(--ink-bold);line-height:1.5;}
+    .garage-blank{color:var(--blue);font-weight:900;border-bottom:3px dashed var(--blue);padding:0 4px;}
+    .garage-blank.revealed{color:var(--green-shadow);border-bottom:3px solid var(--green);background:rgba(88,204,2,.08);border-radius:5px;animation:revealFlip .35s ease both;}
+    .garage-why{margin-top:10px;font-size:13px;font-weight:700;color:var(--ink);background:rgba(28,176,246,.08);border:2px solid rgba(28,176,246,.2);border-radius:10px;padding:8px 12px;line-height:1.5;animation:slideDown .25s ease both;}
+    .garage-drill{display:flex;gap:8px;margin-top:12px;align-items:center;}
+    .garage-input{flex:1;padding:12px 14px;border:2px solid var(--border-heavy);border-radius:var(--rsm);font-family:inherit;font-size:14px;font-weight:800;color:var(--ink-bold);background:var(--bg);transition:all .15s;}
+    .garage-input:focus{outline:none;border-color:var(--blue);background:var(--white);}
+    .garage-input.wrong{border-color:var(--punch-shadow);animation:shake .4s ease both;}
+    .garage-input.correct{border-color:var(--green-shadow);background:rgba(88,204,2,.08);color:var(--green-shadow);}
+    .garage-input:disabled{opacity:1;cursor:default;}
+    .btn-check{padding:12px 18px;background:var(--blue);color:var(--white);font-size:13px;font-weight:900;border:2px solid var(--blue-shadow);border-bottom:4px solid var(--blue-shadow);border-radius:var(--rsm);transition:all .1s;font-family:inherit;flex-shrink:0;}
+    .btn-check:active{border-bottom-width:2px;transform:translateY(2px);}
+    .btn-check:disabled{opacity:.5;cursor:default;}
+    .garage-attempts{margin-top:6px;font-size:11px;font-weight:800;color:var(--punch-shadow);}
+
+    .game-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+    .btn-quit{display:flex;align-items:center;gap:6px;padding:10px 16px;background:var(--white);color:var(--ink-3);font-size:13px;font-weight:900;border-radius:var(--rsm);border:2px solid var(--border-heavy);border-bottom:3px solid var(--border-heavy);transition:all .1s;font-family:inherit;}
+    .btn-quit:active{border-bottom-width:2px;transform:translateY(1px);}
+    .session-xp{font-size:14px;font-weight:900;color:var(--hazard-shadow);display:flex;align-items:center;gap:5px;}
+
+    .confetti-dot{position:fixed;width:11px;height:11px;border-radius:3px;pointer-events:none;z-index:9999;animation:confetti 1.1s ease-out both;}
+    .xp-float{position:fixed;font-size:22px;font-weight:900;color:var(--yellow-shadow);text-shadow:0 2px 0 rgba(0,0,0,.15);pointer-events:none;z-index:9998;animation:xpPop .95s ease-out forwards;}
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="hc">
+        <a href="/breakroom/" class="logo-box">😎</a>
+        <a href="/breakroom/" class="site-title">English For Cool Dudes</a>
+    </div>
+</header>
+
+<div class="page">
+
+    <!-- ═══ SETUP ═══ -->
+    <div id="setup-screen" style="display:flex;flex-direction:column;gap:16px;">
+
+        <div class="setup-hero">
+            <div style="position:relative;z-index:1;">
+                <div class="setup-eyebrow">💥 The Break Room · Collocation Crash</div>
+                <div class="setup-title">Survive the<br><span class="orange">word run.</span></div>
+                <p class="setup-sub">Every phrase only has one word that fits. Pick wrong or freeze and you lose a life — 3 crashes and it's over. How far can you get?</p>
+            </div>
+        </div>
+        <div id="rank-badge-wrap"></div>
+
+        <div class="setup-panel">
+            <div class="setup-section-label">Category</div>
+            <div class="cat-grid">
+                <button class="cat-btn selected" data-cat="all" onclick="selectCat(this)">
+                    <span class="cat-btn-icon">🎲</span>
+                    <span class="cat-btn-label">All Topics</span>
+                </button>
+                <button class="cat-btn" data-cat="business" onclick="selectCat(this)">
+                    <span class="cat-btn-icon">💼</span>
+                    <span class="cat-btn-label">Business</span>
+                </button>
+                <button class="cat-btn" data-cat="legal" onclick="selectCat(this)">
+                    <span class="cat-btn-icon">⚖️</span>
+                    <span class="cat-btn-label">Legal</span>
+                </button>
+                <button class="cat-btn" data-cat="tax" onclick="selectCat(this)">
+                    <span class="cat-btn-icon">🧾</span>
+                    <span class="cat-btn-label">Tax</span>
+                </button>
+                <button class="cat-btn" data-cat="social" onclick="selectCat(this)">
+                    <span class="cat-btn-icon">🌍</span>
+                    <span class="cat-btn-label">Social</span>
+                </button>
+                <button class="cat-btn" data-cat="tech" onclick="selectCat(this)">
+                    <span class="cat-btn-icon">🤖</span>
+                    <span class="cat-btn-label">Tech</span>
+                </button>
+            </div>
+
+            <div class="setup-section-label">English Level — which phrases should show up?</div>
+            <div class="diff-row">
+                <button class="diff-btn selected" data-level="mixed" onclick="selectLevel(this)">
+                    <span class="diff-btn-icon">🎯</span>
+                    <span class="diff-btn-label">Mixed</span>
+                    <span class="diff-btn-sub">Adapts to you</span>
+                </button>
+                <button class="diff-btn" data-level="beginner" onclick="selectLevel(this)">
+                    <span class="diff-btn-icon">🌱</span>
+                    <span class="diff-btn-label">Beginner</span>
+                    <span class="diff-btn-sub">A2–B1</span>
+                </button>
+                <button class="diff-btn" data-level="intermediate" onclick="selectLevel(this)">
+                    <span class="diff-btn-icon">🌿</span>
+                    <span class="diff-btn-label">Intermediate</span>
+                    <span class="diff-btn-sub">B1–B2</span>
+                </button>
+                <button class="diff-btn" data-level="advanced" onclick="selectLevel(this)">
+                    <span class="diff-btn-icon">🌳</span>
+                    <span class="diff-btn-label">Advanced</span>
+                    <span class="diff-btn-sub">B2–C1</span>
+                </button>
+            </div>
+            <div id="pool-size-hint" style="text-align:center;font-size:12px;font-weight:800;color:var(--ink-3);margin:-14px 0 8px;"></div>
+
+            <div class="setup-section-label">Track — how much time per phrase?</div>
+            <div class="diff-row">
+                <button class="diff-btn" data-diff="easy" onclick="selectDiff(this)">
+                    <span class="diff-btn-icon">🛣️</span>
+                    <span class="diff-btn-label">Local Road</span>
+                    <span class="diff-btn-sub">8 seconds</span>
+                </button>
+                <button class="diff-btn selected" data-diff="medium" onclick="selectDiff(this)">
+                    <span class="diff-btn-icon">🛤️</span>
+                    <span class="diff-btn-label">Highway</span>
+                    <span class="diff-btn-sub">5 seconds</span>
+                </button>
+                <button class="diff-btn" data-diff="hard" onclick="selectDiff(this)">
+                    <span class="diff-btn-icon">🏁</span>
+                    <span class="diff-btn-label">Autobahn</span>
+                    <span class="diff-btn-sub">3 seconds</span>
+                </button>
+            </div>
+
+            <button class="btn-launch" onclick="startGame()">
+                <span>💥 &nbsp;Start the Run!</span>
+                <span style="font-size:22px;animation:nudge 2s ease-in-out infinite">→</span>
+            </button>
+        </div>
+
+        <a href="/breakroom/" class="back-link">← Back to Break Room</a>
+    </div>
+
+    <!-- ═══ GAME SCREEN ═══ -->
+    <div id="game-screen" style="display:none;flex-direction:column;gap:10px;">
+
+        <div class="hud">
+            <div class="hud-lives" id="hud-lives"></div>
+            <div class="hud-mid">
+                <div class="hud-distance" id="hud-distance">0</div>
+                <div class="hud-distance-label">Banked</div>
+            </div>
+            <div class="hud-combo">
+                <div class="hud-combo-num" id="hud-combo">x1</div>
+                <div class="hud-combo-label">Combo</div>
+            </div>
+        </div>
+
+        <div class="gauge-row">
+            <div class="gauge" id="gauge"><span class="gauge-num" id="gauge-num">5</span></div>
+            <div class="rival-message" id="rival-msg">Eyes on the road... pick fast. 😈</div>
+        </div>
+
+        <div class="prompt-card" id="prompt-card">
+            <div class="prompt-body">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                    <div class="prompt-round" id="round-label">Phrase 1</div>
+                    <div class="prompt-cat" id="cat-label">💼 Business</div>
+                </div>
+                <div class="prompt-hint">Which word completes the phrase?</div>
+                <div class="prompt-phrase" id="prompt-phrase">Loading...</div>
+            </div>
+            <div class="word-grid" id="word-grid"></div>
+            <div class="explain-strip" id="explain-strip"></div>
+        </div>
+
+        <div class="game-bar">
+            <button class="btn-quit" onclick="quitGame()">✕ Quit</button>
+            <div class="session-xp">⚡ <span id="session-xp">0</span> XP</div>
+        </div>
+
+    </div>
+
+    <!-- ═══ RESULT SCREEN ═══ -->
+    <div id="result-screen"></div>
+
+    <!-- ═══ GARAGE REVIEW SCREEN ═══ -->
+    <div id="review-screen"></div>
+
+</div>
+
+<script src="/supabase-auth-gamified.js"></script>
+<script>
+'use strict';
+
+/* ═══ COLLOCATION BANK ═══
+   Each item uses a `template` string with ONE "___" placeholder,
+   already in correct word order (fixes the old "expenses incur"
+   bug — there's no reassembly logic left to get wrong).
+
+   Distractor rule for THIS bank: every distractor must be a real
+   word that is CLEARLY wrong for this exact phrase — not a looser
+   synonym that could also arguably be correct (that was the "send
+   a tax return / file a tax return" problem). Where a common
+   near-synonym exists (e.g. 'submit'/'send' for tax returns), it's
+   deliberately left OUT of the options rather than used as a
+   "wrong" distractor. */
+const WORD_BANK = [
+    // BUSINESS
+    {cat:'business',template:'___ a profit',correct:'make',distractors:['earn','do','win'],level:'beginner',explain:"'Make a profit' is the fixed collocation. 'Earn' pairs with a salary or wages, not a company's profit, and 'do/win a profit' aren't used at all."},
+    {cat:'business',template:'___ a deal',correct:'close',distractors:['open','break','hold'],level:'beginner',explain:"'Close a deal' means to finalise it. 'Open/hold a deal' aren't standard phrases, and 'break a deal' means the opposite — to violate it."},
+    {cat:'business',template:'___ a target',correct:'hit',distractors:['catch','win','take'],level:'intermediate',explain:"'Hit a target' is the fixed collocation for reaching a goal. 'Catch/win/take a target' aren't used this way."},
+    {cat:'business',template:'___ a deadline',correct:'meet',distractors:['catch','hold','win'],level:'intermediate',explain:"'Meet a deadline' is the fixed collocation. 'Catch' fits a train or flight, not a deadline."},
+    {cat:'business',template:'___ costs',correct:'cut',distractors:['break','stop','cancel'],level:'intermediate',explain:"'Cut costs' is the standard business collocation for reducing spending."},
+    {cat:'business',template:'___ an agreement',correct:'reach',distractors:['catch','hold','take'],level:'intermediate',explain:"'Reach an agreement' is the fixed collocation for two sides finally agreeing."},
+    {cat:'business',template:'___ a product',correct:'launch',distractors:['raise','grow','hold'],level:'beginner',explain:"'Launch a product' is the fixed collocation for releasing it to the market."},
+    {cat:'business',template:'___ capital',correct:'raise',distractors:['lift','grow','catch'],level:'advanced',explain:"'Raise capital' is the fixed collocation for gathering investment money."},
+    {cat:'business',template:'___ a proposal',correct:'draft',distractors:['cut','break','hold'],level:'advanced',explain:"'Draft a proposal' means to write an early version of it."},
+    {cat:'business',template:'___ a budget',correct:'approve',distractors:['open','close','hold'],level:'intermediate',explain:"'Approve a budget' is the fixed collocation for officially accepting it."},
+    {cat:'business',template:'___ funding',correct:'secure',distractors:['catch','hold','win'],level:'advanced',explain:"'Secure funding' is the fixed collocation for successfully obtaining investment."},
+    {cat:'business',template:'___ investors',correct:'attract',distractors:['catch','hold','carry'],level:'advanced',explain:"'Attract investors' is the fixed collocation for drawing their interest."},
+    {cat:'business',template:'___ expectations',correct:'exceed',distractors:['catch','hold','carry'],level:'advanced',explain:"'Exceed expectations' is the fixed collocation for performing better than expected."},
+    {cat:'business',template:'___ a report',correct:'submit',distractors:['open','close','carry'],level:'beginner',explain:"'Submit a report' is the standard collocation for formally handing it in."},
+    {cat:'business',template:'___ a business',correct:'run',distractors:['walk','drive','carry'],level:'beginner',explain:"'Run a business' is the fixed collocation for operating it day to day."},
+    {cat:'business',template:'___ a loss',correct:'suffer',distractors:['catch','earn','win'],level:'intermediate',explain:"'Suffer a loss' is the fixed collocation for experiencing a financial loss."},
+    {cat:'business',template:'___ shares',correct:'issue',distractors:['post','send','give'],level:'advanced',explain:"'Issue shares' is the fixed collocation for a company creating new stock to sell."},
+    {cat:'business',template:'___ a takeover bid',correct:'launch',distractors:['throw','send','post'],level:'advanced',explain:"'Launch a takeover bid' is the fixed collocation for formally starting one."},
+    {cat:'business',template:'___ staff',correct:'lay off',distractors:['cut off','send off','take off'],level:'advanced',explain:"'Lay off staff' is the fixed phrasal collocation for dismissing employees due to cost-cutting."},
+    {cat:'business',template:'___ a strategy',correct:'implement',distractors:['cook','build','draw'],level:'advanced',explain:"'Implement a strategy' is the fixed formal collocation for putting a plan into action."},
+    {cat:'business',template:'___ risk',correct:'assess',distractors:['guess','tell','catch'],level:'advanced',explain:"'Assess risk' is the fixed formal collocation for evaluating potential danger."},
+    {cat:'business',template:'___ a niche',correct:'fill',distractors:['catch','hold','carry'],level:'advanced',explain:"'Fill a niche' is the fixed idiom for meeting an unmet market need."},
+    {cat:'business',template:'___ competitors',correct:'outperform',distractors:['outrun','outwalk','outsit'],level:'advanced',explain:"'Outperform competitors' is the fixed business collocation for doing better than them."},
+    {cat:'business',template:'___ a client',correct:'retain',distractors:['catch','earn','win'],level:'intermediate',explain:"'Retain a client' is the standard formal collocation for keeping their business."},
+    {cat:'business',template:'___ a partnership',correct:'form',distractors:['cook','draw','post'],level:'intermediate',explain:"'Form a partnership' is the standard collocation for creating a business alliance."},
+    {cat:'business',template:'___ overheads',correct:'reduce',distractors:['break','catch','hold'],level:'intermediate',explain:"'Reduce overheads' is the fixed collocation for lowering a business's running costs."},
+    {cat:'business',template:'___ market share',correct:'gain',distractors:['catch','earn','hold'],level:'advanced',explain:"'Gain market share' is the fixed collocation for increasing your portion of the market."},
+    {cat:'business',template:'___ an order',correct:'place',distractors:['put','give','throw'],level:'beginner',explain:"'Place an order' is the fixed everyday collocation for making a purchase request."},
+    {cat:'business',template:'___ operations',correct:'streamline',distractors:['straighten','flatten','smooth'],level:'advanced',explain:"'Streamline operations' is the fixed collocation for making processes more efficient."},
+    {cat:'business',template:'___ a portfolio',correct:'diversify',distractors:['spread','widen','stretch'],level:'advanced',explain:"'Diversify a portfolio' is the fixed collocation for spreading investment across different assets."},
+    {cat:'business',template:'___ the market',correct:'corner',distractors:['catch','hold','own'],level:'advanced',explain:"'Corner the market' is the fixed idiom for gaining near-total control of it."},
+    {cat:'business',template:'___ a deal',correct:'seal',distractors:['open','break','hold'],level:'intermediate',explain:"'Seal a deal' is a fixed idiom for finalising it. 'Open/break/hold a deal' aren't standard."},
+    {cat:'business',template:'___ numbers',correct:'crunch',distractors:['cook','burn','boil'],level:'intermediate',explain:"'Crunch numbers' is the fixed idiom for doing detailed calculations."},
+    {cat:'business',template:'___ an idea',correct:'pitch',distractors:['throw','send','post'],level:'intermediate',explain:"'Pitch an idea' is the fixed collocation for presenting it to persuade someone."},
+    {cat:'business',template:'___ an appointment',correct:'reschedule',distractors:['recall','rebuild','rewrite'],level:'beginner',explain:"'Reschedule an appointment' is the fixed collocation for moving it to a new time."},
+    {cat:'business',template:'___ an employee',correct:'fire',distractors:['burn','cook','break'],level:'beginner',explain:"'Fire an employee' is the fixed everyday collocation for dismissing them."},
+    {cat:'business',template:'___ for a job',correct:'apply',distractors:['ask','wish','wait'],level:'beginner',explain:"'Apply for a job' is the fixed everyday collocation for formally requesting one."},
+    {cat:'business',template:'___ a salary',correct:'earn',distractors:['win','catch','do'],level:'beginner',explain:"'Earn a salary' is the fixed everyday collocation for money you're paid for work."},
+    {cat:'business',template:'___ an invoice',correct:'send',distractors:['throw','carry','catch'],level:'beginner',explain:"'Send an invoice' is the fixed everyday collocation for delivering a bill to a client."},
+    {cat:'business',template:'___ a meeting',correct:'attend',distractors:['catch','carry','win'],level:'beginner',explain:"'Attend a meeting' is the fixed everyday collocation for being present at one."},
+    {cat:'business',template:'___ a presentation',correct:'give',distractors:['do','take','throw'],level:'beginner',explain:"'Give a presentation' is the fixed everyday collocation."},
+    {cat:'business',template:'___ overtime',correct:'work',distractors:['make','give','take'],level:'beginner',explain:"'Work overtime' is the fixed everyday collocation for working extra hours."},
+    {cat:'business',template:'___ a raise',correct:'get',distractors:['catch','win','make'],level:'beginner',explain:"'Get a raise' is the fixed everyday collocation for receiving a salary increase."},
+    {cat:'business',template:'___ a survey',correct:'conduct',distractors:['cook','build','carry'],level:'intermediate',explain:"'Conduct a survey' is the fixed formal collocation for carrying it out."},
+    {cat:'business',template:'___ feedback',correct:'gather',distractors:['catch','hold','carry'],level:'intermediate',explain:"'Gather feedback' is the fixed collocation for collecting people's opinions."},
+    {cat:'business',template:'___ a pitch',correct:'deliver',distractors:['throw','send','post'],level:'intermediate',explain:"'Deliver a pitch' is the fixed collocation for presenting it persuasively."},
+    // LEGAL
+    {cat:'legal',template:'___ a lawsuit',correct:'file',distractors:['write','open','post'],level:'intermediate',explain:"'File a lawsuit' is the fixed legal collocation for formally starting one."},
+    {cat:'legal',template:'___ a contract',correct:'sign',distractors:['write','open','hold'],level:'beginner',explain:"'Sign a contract' is the fixed collocation for the act of agreeing to it. 'Write' fits drafting one, not agreeing to it."},
+    {cat:'legal',template:'___ the law',correct:'break',distractors:['cut','open','hold'],level:'beginner',explain:"'Break the law' is the fixed collocation. The others aren't used this way at all."},
+    {cat:'legal',template:'___ a witness',correct:'call',distractors:['catch','hold','carry'],level:'intermediate',explain:"'Call a witness' is the fixed legal collocation for asking them to testify."},
+    {cat:'legal',template:'___ an oath',correct:'take',distractors:['give','make','do'],level:'advanced',explain:"'Take an oath' is the fixed legal collocation. 'Give/make/do an oath' aren't standard English."},
+    {cat:'legal',template:'___ a verdict',correct:'reach',distractors:['catch','hold','take'],level:'advanced',explain:"'Reach a verdict' is the fixed collocation for a jury arriving at a decision."},
+    {cat:'legal',template:'___ bail',correct:'grant',distractors:['give','make','do'],level:'advanced',explain:"'Grant bail' is the precise legal term for a court allowing it. 'Give/make/do bail' aren't standard legal English."},
+    {cat:'legal',template:'___ a case',correct:'dismiss',distractors:['break','cut','open'],level:'intermediate',explain:"'Dismiss a case' is the fixed legal collocation for a court rejecting it."},
+    {cat:'legal',template:'___ a subpoena',correct:'serve',distractors:['give','post','write'],level:'advanced',explain:"'Serve a subpoena' is the fixed legal collocation for officially delivering it."},
+    {cat:'legal',template:'___ guilty',correct:'plead',distractors:['say','tell','give'],level:'intermediate',explain:"'Plead guilty' is the fixed legal collocation used in court."},
+    {cat:'legal',template:'___ a sentence',correct:'impose',distractors:['put','carry','send'],level:'advanced',explain:"'Impose a sentence' is the fixed formal collocation for a judge handing one down."},
+    {cat:'legal',template:'___ an appeal',correct:'lodge',distractors:['throw','send','write'],level:'advanced',explain:"'Lodge an appeal' is the formal legal collocation for submitting one officially."},
+    {cat:'legal',template:'___ evidence',correct:'obtain',distractors:['catch','hold','carry'],level:'intermediate',explain:"'Obtain evidence' is the standard collocation for gathering it."},
+    {cat:'legal',template:'___ a right',correct:'waive',distractors:['break','cut','post'],level:'advanced',explain:"'Waive a right' is the fixed legal collocation for voluntarily giving it up."},
+    {cat:'legal',template:'___ a claim',correct:'file',distractors:['post','write','send'],level:'intermediate',explain:"'File a claim' is the fixed legal collocation for officially submitting it."},
+    {cat:'legal',template:'___ a settlement',correct:'reach',distractors:['catch','hold','take'],level:'advanced',explain:"'Reach a settlement' is the fixed collocation for both sides agreeing to resolve a dispute."},
+    {cat:'legal',template:'___ a crime',correct:'commit',distractors:['do','make','give'],level:'beginner',explain:"'Commit a crime' is the fixed everyday legal collocation."},
+    {cat:'legal',template:'___ a contract',correct:'breach',distractors:['bend','crack','tear'],level:'advanced',explain:"'Breach a contract' is the formal legal term for violating its terms."},
+    {cat:'legal',template:'___ a decision',correct:'uphold',distractors:['carry','hold','push'],level:'advanced',explain:"'Uphold a decision' is the fixed legal collocation for a higher court confirming it."},
+    {cat:'legal',template:'___ a verdict',correct:'overturn',distractors:['flip','tip','roll'],level:'advanced',explain:"'Overturn a verdict' is the fixed legal collocation for a higher court reversing it."},
+    {cat:'legal',template:'___ charges',correct:'press',distractors:['push','give','make'],level:'intermediate',explain:"'Press charges' is the fixed idiom for formally accusing someone of a crime."},
+    {cat:'legal',template:'___ charges',correct:'drop',distractors:['fall','lose','throw'],level:'intermediate',explain:"'Drop charges' is the fixed collocation for officially withdrawing them."},
+    {cat:'legal',template:'___ a witness',correct:'cross-examine',distractors:['double-check','re-ask','over-question'],level:'advanced',explain:"'Cross-examine a witness' is the fixed legal term for questioning them on behalf of the opposing side."},
+    {cat:'legal',template:'___ a will',correct:'draw up',distractors:['cook up','build up','put up'],level:'advanced',explain:"'Draw up a will' is the standard legal collocation for formally preparing it."},
+    {cat:'legal',template:'___ a license',correct:'revoke',distractors:['delete','erase','remove'],level:'advanced',explain:"'Revoke a license' is the fixed formal collocation for officially cancelling it."},
+    {cat:'legal',template:'___ custody',correct:'grant',distractors:['lend','post','throw'],level:'advanced',explain:"'Grant custody' is the fixed legal collocation for a court awarding parental rights."},
+    {cat:'legal',template:'___ a law',correct:'enforce',distractors:['push','hold','carry'],level:'intermediate',explain:"'Enforce a law' is the fixed collocation for ensuring it's obeyed."},
+    {cat:'legal',template:'___ a right',correct:'violate',distractors:['cut','tear','snap'],level:'advanced',explain:"'Violate a right' is the fixed formal collocation for infringing on it."},
+    {cat:'legal',template:'___ a sentence',correct:'serve',distractors:['eat','drink','wear'],level:'intermediate',explain:"'Serve a sentence' is the fixed collocation for carrying out a prison term."},
+    {cat:'legal',template:'___ bail',correct:'post',distractors:['send','give','lend'],level:'advanced',explain:"'Post bail' is the fixed legal term for paying money to be released before trial."},
+    {cat:'legal',template:'___ a warrant',correct:'issue',distractors:['post','send','write'],level:'advanced',explain:"'Issue a warrant' is the fixed legal collocation for a court officially authorising one."},
+    {cat:'legal',template:'___ a client',correct:'represent',distractors:['carry','hold','drive'],level:'beginner',explain:"'Represent a client' is the fixed collocation for acting on their behalf legally."},
+    {cat:'legal',template:'___ a lawyer',correct:'hire',distractors:['rent','borrow','lend'],level:'beginner',explain:"'Hire a lawyer' is the fixed everyday collocation for engaging legal representation."},
+    {cat:'legal',template:'___ a dispute',correct:'settle',distractors:['cook','mend','sew'],level:'intermediate',explain:"'Settle a dispute' is the fixed collocation for resolving it."},
+    {cat:'legal',template:'___ legislation',correct:'draft',distractors:['cook','build','paint'],level:'advanced',explain:"'Draft legislation' is the fixed formal collocation for preparing a law."},
+    // TAX
+    {cat:'tax',template:'___ a tax return',correct:'file',distractors:['open','read','save'],level:'beginner',explain:"'File a tax return' is the fixed collocation for officially submitting it. 'Open/read/save' aren't the action of completing it."},
+    {cat:'tax',template:'___ tax',correct:'pay',distractors:['do','make','give'],level:'beginner',explain:"'Pay tax' is the fixed everyday collocation."},
+    {cat:'tax',template:'___ a deduction',correct:'claim',distractors:['catch','hold','carry'],level:'intermediate',explain:"'Claim a deduction' is the standard tax collocation for officially requesting it."},
+    {cat:'tax',template:'___ income',correct:'declare',distractors:['tell','give','show'],level:'intermediate',explain:"'Declare income' is the fixed formal collocation for officially reporting it."},
+    {cat:'tax',template:'___ VAT',correct:'reclaim',distractors:['return','send','give'],level:'advanced',explain:"'Reclaim VAT' is the fixed collocation for getting previously paid VAT back."},
+    {cat:'tax',template:'___ accounts',correct:'audit',distractors:['read','write','open'],level:'advanced',explain:"'Audit accounts' is the formal collocation for professionally examining them."},
+    {cat:'tax',template:'___ a penalty',correct:'incur',distractors:['earn','win','catch'],level:'advanced',explain:"'Incur a penalty' is the fixed formal collocation for a penalty arising as a result of an action."},
+    {cat:'tax',template:'___ receipts',correct:'keep',distractors:['cook','burn','lend'],level:'beginner',explain:"'Keep receipts' is the fixed everyday collocation for holding onto them as proof."},
+    {cat:'tax',template:'___ a tax deadline',correct:'meet',distractors:['catch','hold','win'],level:'intermediate',explain:"'Meet a tax deadline' follows the same fixed collocation as any deadline."},
+    {cat:'tax',template:'___ an extension',correct:'request',distractors:['give','send','throw'],level:'intermediate',explain:"'Request an extension' is the standard collocation for formally asking for more time."},
+    {cat:'tax',template:'___ liability',correct:'calculate',distractors:['guess','tell','carry'],level:'advanced',explain:"'Calculate liability' is the fixed formal collocation for working out how much tax is owed."},
+    {cat:'tax',template:'___ expenses',correct:'incur',distractors:['earn','save','lend'],level:'advanced',explain:"'Incur expenses' is the standard formal collocation for costs arising from an action."},
+    {cat:'tax',template:'___ for VAT',correct:'register',distractors:['join','enter','open'],level:'intermediate',explain:"'Register for VAT' is the fixed collocation for officially signing up with the tax authority."},
+    {cat:'tax',template:'___ assets',correct:'disclose',distractors:['sell','lend','carry'],level:'advanced',explain:"'Disclose assets' is the fixed formal collocation for officially reporting what you own."},
+    {cat:'tax',template:'___ tax',correct:'owe',distractors:['hold','carry','keep'],level:'beginner',explain:"'Owe tax' is the fixed everyday collocation for having a tax debt."},
+    {cat:'tax',template:'___ tax illegally',correct:'evade',distractors:['escape','run','jump'],level:'advanced',explain:"'Evade tax' is the fixed formal collocation for illegally avoiding payment."},
+    {cat:'tax',template:'___ losses',correct:'offset',distractors:['cancel','cover','hide'],level:'advanced',explain:"'Offset losses' is the fixed collocation for using them to reduce taxable income."},
+    {cat:'tax',template:'___ deductions',correct:'itemize',distractors:['number','count','sort'],level:'advanced',explain:"'Itemize deductions' is the fixed formal collocation for listing them individually on a return."},
+    {cat:'tax',template:'___ tax at source',correct:'withhold',distractors:['keep','save','store'],level:'advanced',explain:"'Withhold tax' is the fixed collocation for deducting it before payment reaches the recipient."},
+    {cat:'tax',template:'___ a tax return',correct:'amend',distractors:['bend','mend','sew'],level:'advanced',explain:"'Amend a tax return' is the fixed formal collocation for correcting it after submission."},
+    {cat:'tax',template:'___ an assessment',correct:'appeal',distractors:['throw','send','post'],level:'advanced',explain:"'Appeal an assessment' is the fixed collocation for formally challenging it."},
+    {cat:'tax',template:'___ a tax bill',correct:'settle',distractors:['cook','mend','sew'],level:'intermediate',explain:"'Settle a tax bill' is the fixed collocation for paying what is owed."},
+    {cat:'tax',template:'___ for a rebate',correct:'qualify',distractors:['catch','win','hold'],level:'intermediate',explain:"'Qualify for a rebate' is the fixed collocation for meeting the conditions to receive one."},
+    {cat:'tax',template:'___ a refund',correct:'process',distractors:['cook','build','carry'],level:'beginner',explain:"'Process a refund' is the fixed collocation for handling the paperwork to issue it."},
+    {cat:'tax',template:'___ tax fraud',correct:'commit',distractors:['do','make','give'],level:'advanced',explain:"'Commit tax fraud' is the fixed legal-tax collocation."},
+    {cat:'tax',template:'___ a tax',correct:'levy',distractors:['throw','post','give'],level:'advanced',explain:"'Levy a tax' is the fixed formal collocation for imposing it officially."},
+    {cat:'tax',template:'___ income from tax',correct:'exempt',distractors:['save','hold','clear'],level:'advanced',explain:"'Exempt income' from tax is the fixed formal collocation for excluding it from taxation."},
+    {cat:'tax',template:'___ losses forward',correct:'carry',distractors:['take','bring','send'],level:'advanced',explain:"'Carry losses forward' is the fixed tax collocation for applying them to a future year."},
+    {cat:'tax',template:'___ tax payment',correct:'defer',distractors:['skip','drop','cancel'],level:'advanced',explain:"'Defer tax payment' is the fixed formal collocation for postponing it to a later date."},
+    // SOCIAL
+    {cat:'social',template:'___ friends',correct:'make',distractors:['do','have','get'],level:'beginner',explain:"'Make friends' is the fixed collocation for forming new friendships."},
+    {cat:'social',template:'___ a promise',correct:'keep',distractors:['hold','carry','win'],level:'beginner',explain:"'Keep a promise' means to honour it. The others aren't used this way."},
+    {cat:'social',template:'___ your temper',correct:'lose',distractors:['break','drop','catch'],level:'intermediate',explain:"'Lose your temper' is the fixed idiom for becoming angry."},
+    {cat:'social',template:'___ attention',correct:'pay',distractors:['do','make','take'],level:'beginner',explain:"'Pay attention' is the fixed everyday collocation."},
+    {cat:'social',template:'___ a favour',correct:'do',distractors:['make','give','take'],level:'beginner',explain:"'Do someone a favour' is the fixed everyday collocation."},
+    {cat:'social',template:'___ an effort',correct:'make',distractors:['do','give','take'],level:'beginner',explain:"'Make an effort' is the fixed collocation."},
+    {cat:'social',template:'___ the ice',correct:'break',distractors:['crack','open','melt'],level:'intermediate',explain:"'Break the ice' is the fixed idiom for easing tension in a new social situation."},
+    {cat:'social',template:'___ trust',correct:'build',distractors:['catch','hold','carry'],level:'intermediate',explain:"'Build trust' is the fixed collocation for developing it gradually over time."},
+    {cat:'social',template:'___ a grudge',correct:'hold',distractors:['catch','throw','give'],level:'advanced',explain:"'Hold a grudge' is the fixed idiom for staying resentful about something."},
+    {cat:'social',template:'___ face',correct:'save',distractors:['catch','hold','earn'],level:'advanced',explain:"'Save face' is the fixed idiom for avoiding embarrassment or humiliation."},
+    {cat:'social',template:'___ a hand',correct:'lend',distractors:['take','borrow','carry'],level:'intermediate',explain:"'Lend a hand' is the fixed idiom meaning to help someone."},
+    {cat:'social',template:'___ in touch',correct:'stay',distractors:['stand','sit','run'],level:'beginner',explain:"'Stay in touch' is the fixed collocation for maintaining contact with someone."},
+    {cat:'social',template:'___ along',correct:'get',distractors:['go','come','walk'],level:'beginner',explain:"'Get along' is the fixed phrasal verb for having a good relationship with someone."},
+    {cat:'social',template:'___ a good impression',correct:'make',distractors:['do','have','take'],level:'intermediate',explain:"'Make a good impression' is the fixed collocation."},
+    {cat:'social',template:'___ advice',correct:'give',distractors:['do','make','take'],level:'beginner',explain:"'Give advice' is the fixed everyday collocation."},
+    {cat:'social',template:'___ offence',correct:'take',distractors:['give','make','do'],level:'intermediate',explain:"'Take offence' is the fixed idiom for feeling insulted by something."},
+    {cat:'social',template:'___ a joke',correct:'crack',distractors:['break','cut','hit'],level:'intermediate',explain:"'Crack a joke' is a fixed informal idiom meaning to make a joke."},
+    {cat:'social',template:'___ rumours',correct:'spread',distractors:['throw','post','send'],level:'intermediate',explain:"'Spread rumours' is the fixed collocation for circulating gossip."},
+    {cat:'social',template:'___ an apology',correct:'offer',distractors:['throw','send','post'],level:'intermediate',explain:"'Offer an apology' is a fixed formal collocation for saying sorry."},
+    {cat:'social',template:'___ an invitation',correct:'extend',distractors:['stretch','throw','send'],level:'advanced',explain:"'Extend an invitation' is the fixed formal collocation for inviting someone."},
+    {cat:'social',template:'___ a conversation',correct:'strike up',distractors:['light up','break up','wake up'],level:'advanced',explain:"'Strike up a conversation' is the fixed idiom for starting one, often with a stranger."},
+    {cat:'social',template:'___ small talk',correct:'make',distractors:['do','give','take'],level:'intermediate',explain:"'Make small talk' is the fixed collocation for casual, polite conversation."},
+    {cat:'social',template:'___ your tongue',correct:'hold',distractors:['catch','save','keep'],level:'advanced',explain:"'Hold your tongue' is the fixed idiom for staying silent to avoid saying something regrettable."},
+    {cat:'social',template:'___ a secret',correct:'keep',distractors:['hold','save','catch'],level:'beginner',explain:"'Keep a secret' is the fixed everyday collocation."},
+    {cat:'social',template:'___ a promise',correct:'break',distractors:['cut','tear','snap'],level:'beginner',explain:"'Break a promise' is the fixed collocation for failing to keep it — the opposite of 'keep a promise'."},
+    {cat:'social',template:'___ criticism',correct:'take',distractors:['catch','hold','give'],level:'advanced',explain:"'Take criticism' is the fixed collocation for receiving and accepting it."},
+    {cat:'social',template:'___ into tears',correct:'burst',distractors:['break','crack','snap'],level:'advanced',explain:"'Burst into tears' is the fixed idiom for suddenly starting to cry."},
+    {cat:'social',template:'___ a family',correct:'raise',distractors:['grow','build','lift'],level:'intermediate',explain:"'Raise a family' is the fixed collocation for bringing up children."},
+    {cat:'social',template:'___ a friendship',correct:'mend',distractors:['sew','glue','tape'],level:'advanced',explain:"'Mend a friendship' is a fixed idiom for repairing it after a conflict."},
+    {cat:'social',template:'___ the blame',correct:'take',distractors:['catch','hold','give'],level:'intermediate',explain:"'Take the blame' is the fixed collocation for accepting responsibility for something bad."},
+    {cat:'social',template:'___ someone space',correct:'give',distractors:['throw','send','lend'],level:'intermediate',explain:"'Give someone space' is the fixed idiom for letting them be alone."},
+    // TECH
+    {cat:'tech',template:'___ a bug',correct:'fix',distractors:['mend','repair','heal'],level:'beginner',explain:"'Fix a bug' is the standard tech collocation. 'Mend/repair/heal' fit physical or medical objects, not software."},
+    {cat:'tech',template:'___ an update',correct:'install',distractors:['build','set','make'],level:'beginner',explain:"'Install an update' is the fixed tech collocation."},
+    {cat:'tech',template:'___ a backup',correct:'run',distractors:['do','build','draw'],level:'intermediate',explain:"'Run a backup' is the standard collocation for the process happening."},
+    {cat:'tech',template:'___ a password',correct:'reset',distractors:['restart','refresh','reload'],level:'beginner',explain:"'Reset a password' is the fixed collocation. 'Restart/refresh/reload' are used for systems and pages, not passwords."},
+    {cat:'tech',template:'___ a server',correct:'restart',distractors:['reset','refresh','rebuild'],level:'intermediate',explain:"'Restart a server' is the standard collocation. 'Reset' fits settings or a password, not the server itself."},
+    {cat:'tech',template:'___ a feature',correct:'roll out',distractors:['bring out','send out','put out'],level:'advanced',explain:"'Roll out a feature' is the fixed phrasal collocation for releasing it gradually."},
+    {cat:'tech',template:'___ data',correct:'encrypt',distractors:['translate','convert','copy'],level:'advanced',explain:"'Encrypt data' is the precise security term for scrambling it for protection."},
+    {cat:'tech',template:'___ a vulnerability',correct:'patch',distractors:['sew','glue','tape'],level:'advanced',explain:"'Patch a vulnerability' is the fixed technical collocation for closing a security hole."},
+    {cat:'tech',template:'___ performance',correct:'optimize',distractors:['grow','lift','carry'],level:'advanced',explain:"'Optimize performance' is the fixed technical collocation for making something run better."},
+    {cat:'tech',template:'___ a platform',correct:'scale',distractors:['lift','climb','carry'],level:'advanced',explain:"'Scale a platform' is the fixed technical collocation for expanding it to handle more load."},
+    {cat:'tech',template:'___ data',correct:'migrate',distractors:['walk','drive','carry'],level:'advanced',explain:"'Migrate data' is the fixed technical collocation for moving it to a new system."},
+    {cat:'tech',template:'___ an API',correct:'integrate',distractors:['sew','glue','tie'],level:'advanced',explain:"'Integrate an API' is the fixed technical collocation for connecting two systems together."},
+    {cat:'tech',template:'___ a task',correct:'automate',distractors:['cook','paint','carry'],level:'intermediate',explain:"'Automate a task' is the fixed technical collocation for making it happen without manual effort."},
+    {cat:'tech',template:'___ traffic',correct:'monitor',distractors:['catch','hold','carry'],level:'intermediate',explain:"'Monitor traffic' is the fixed technical collocation for tracking it over time."},
+    {cat:'tech',template:'___ code',correct:'compile',distractors:['cook','bake','boil'],level:'intermediate',explain:"'Compile code' is the fixed technical collocation for converting it into an executable program."},
+    {cat:'tech',template:'___ a program',correct:'debug',distractors:['unwind','unpack','untangle'],level:'intermediate',explain:"'Debug a program' is the fixed technical collocation for finding and fixing errors in it."},
+    {cat:'tech',template:'___ an application',correct:'deploy',distractors:['post','send','throw'],level:'advanced',explain:"'Deploy an application' is the fixed technical collocation for releasing it to a live environment."},
+    {cat:'tech',template:'___ a system',correct:'crash',distractors:['fall','drop','tip'],level:'intermediate',explain:"'Crash a system' is the fixed technical collocation for causing it to fail suddenly."},
+    {cat:'tech',template:'___ a system',correct:'hack',distractors:['open','cut','tear'],level:'advanced',explain:"'Hack a system' is the fixed technical collocation for gaining unauthorized access to it."},
+    {cat:'tech',template:'___ a file',correct:'compress',distractors:['crush','flatten','melt'],level:'advanced',explain:"'Compress a file' is the fixed technical collocation for reducing its size."},
+    {cat:'tech',template:'___ a file',correct:'upload',distractors:['lift','carry','push'],level:'beginner',explain:"'Upload a file' is the fixed everyday tech collocation for sending it to a server."},
+    {cat:'tech',template:'___ a file',correct:'download',distractors:['lift','carry','push'],level:'beginner',explain:"'Download a file' is the fixed everyday tech collocation for saving it from a server."},
+    {cat:'tech',template:'___ settings',correct:'configure',distractors:['cook','build','sew'],level:'advanced',explain:"'Configure settings' is the fixed technical collocation for adjusting them."},
+    {cat:'tech',template:'___ a pipeline',correct:'build',distractors:['cook','grow','draw'],level:'advanced',explain:"'Build a pipeline' is the fixed technical collocation for creating an automated workflow."},
+    {cat:'tech',template:'___ a database',correct:'index',distractors:['shelve','stack','sort'],level:'advanced',explain:"'Index a database' is the fixed technical collocation for organizing it for faster search."},
+    {cat:'tech',template:'___ a database',correct:'query',distractors:['tell','speak','talk'],level:'intermediate',explain:"'Query a database' is the fixed technical collocation for requesting data from it."},
+    {cat:'tech',template:'___ traffic',correct:'throttle',distractors:['cook','paint','sew'],level:'advanced',explain:"'Throttle traffic' is the fixed technical collocation for deliberately limiting its rate."},
+    {cat:'tech',template:'___ data',correct:'cache',distractors:['bury','hide','lock'],level:'advanced',explain:"'Cache data' is the fixed technical collocation for temporarily storing it for faster access."},
+    {cat:'tech',template:'___ code',correct:'refactor',distractors:['repaint','resew','reglue'],level:'advanced',explain:"'Refactor code' is the fixed technical collocation for restructuring it without changing its behaviour."},
+    {cat:'tech',template:'___ a server',correct:'spin up',distractors:['wind up','wind down','spin down'],level:'advanced',explain:"'Spin up a server' is the fixed tech idiom for quickly starting a new instance."},
+    {cat:'tech',template:'___ data',correct:'parse',distractors:['chop','peel','slice'],level:'advanced',explain:"'Parse data' is the fixed technical collocation for analyzing and interpreting its structure."},
+    {cat:'tech',template:'___ a function',correct:'mock',distractors:['copy','clone','paint'],level:'advanced',explain:"'Mock a function' is the fixed testing collocation for creating a fake version for tests."},
+    {cat:'tech',template:'___ a feature',correct:'deprecate',distractors:['bury','sink','drown'],level:'advanced',explain:"'Deprecate a feature' is the fixed technical collocation for marking it as outdated and discouraged from use."},
+];
+
+function todayStr(){ return new Date().toISOString().split('T')[0]; }
+
+/* ═══ FLAVOUR LINES ═══ */
+const WATCHING_LINES = [
+    "Eyes on the road... pick fast. 😈",
+    "Four words. <span class='orange'>One fits.</span> Choose wisely.",
+    "Don't freeze at the wheel. <span class='orange'>Go.</span>",
+    "Tick tock. The road doesn't wait.",
+];
+const CRASH_LINES = [
+    "<span class='orange'>CRASH!</span> That one wasn't it.",
+    "Ouch. <span class='orange'>Lost a life</span> on that corner.",
+    "Wrong turn. <span class='orange'>Watch that pairing</span> next time.",
+];
+const RECOVER_LINES = [
+    "Nice recovery. <span class='orange'>Keep it steady.</span>",
+    "Back on track. <span class='orange'>Good instinct.</span>",
+];
+const WIN_LINES = ["<span class='orange'>Finish line!</span> You made it through clean. 🏁"];
+const LOSE_LINES = ["<span class='orange'>Out of lives.</span> The run ends here — but every mile counted."];
+const CAT_LABELS = {business:'💼 Business',legal:'⚖️ Legal',tax:'🧾 Tax',social:'🌍 Social',tech:'🤖 Tech'};
+
+/* ═══ LOCAL PROGRESSION ═══
+   localStorage only for this build — same shape as Word Thief's
+   career/rank system, easy to point at a real Supabase table
+   (mirroring word_thief_career) once you're happy with the game. */
+const RANKS = [
+    { min: 0,   emoji: '🔧', name: 'Learner Driver' },
+    { min: 25,  emoji: '🚙', name: 'Road Runner'     },
+    { min: 75,  emoji: '🏎️', name: 'Collocation Ace' },
+    { min: 150, emoji: '👑', name: 'Crash Champion'  },
+    { min: 300, emoji: '🌟', name: 'Track Legend'    },
+];
+function rankFor(total){ let r=RANKS[0]; for(const c of RANKS) if(total>=c.min) r=c; return r; }
+function nextRankInfo(total){
+    const idx = RANKS.findIndex(r=>r===rankFor(total));
+    if (idx>=RANKS.length-1) return null;
+    return { ...RANKS[idx+1], needed: RANKS[idx+1].min-total };
+}
+let career = { games_played:0, games_finished:0, total_words_banked:0, best_combo:0, last_played_date:null };
+function loadCareer(){ try{ const s=JSON.parse(localStorage.getItem('cc_career')||'null'); if(s) career=s; }catch(e){} }
+function saveCareer(){ try{ localStorage.setItem('cc_career', JSON.stringify(career)); }catch(e){} }
+function recordGameResult(finished, banked, bestComboThisRun){
+    const rankBefore = rankFor(career.total_words_banked);
+    career.games_played++;
+    if(finished) career.games_finished++;
+    career.total_words_banked += banked;
+    career.best_combo = Math.max(career.best_combo, bestComboThisRun);
+    career.last_played_date = todayStr();
+    saveCareer();
+    try{ if(window.EFCD_XP?.checkAndAwardStreak) window.EFCD_XP.checkAndAwardStreak(); }catch(e){}
+    const rankAfter = rankFor(career.total_words_banked);
+    return { rankBefore, rankAfter, rankedUp: rankAfter.name!==rankBefore.name };
+}
+function renderRankBadge(el){
+    const rank = rankFor(career.total_words_banked);
+    const next = nextRankInfo(career.total_words_banked);
+    el.innerHTML = `
+        <div style="display:flex;align-items:center;gap:12px;background:var(--asphalt);
+             border:2px solid rgba(255,107,0,.3);border-radius:var(--rsm);padding:12px 16px;margin-bottom:16px;">
+            <span style="font-size:32px;line-height:1">${rank.emoji}</span>
+            <div style="flex:1">
+                <div style="font-size:14px;font-weight:900;color:#fff">${rank.name}</div>
+                <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.6)">
+                    ${next ? `${next.needed} more word${next.needed!==1?'s':''} to ${next.emoji} ${next.name}` : 'Top rank reached — legendary.'}
+                </div>
+            </div>
+        </div>`;
+}
+
+/* ═══ PER-ITEM STATS (accuracy-based weighting, persisted locally) ═══ */
+let itemStats = {};
+function itemKey(it){ return it.cat+'::'+it.template+'::'+it.correct; }
+function loadItemStats(){ try{ itemStats = JSON.parse(localStorage.getItem('cc_item_stats')||'{}'); }catch(e){ itemStats={}; } }
+function saveItemStats(){ try{ localStorage.setItem('cc_item_stats', JSON.stringify(itemStats)); }catch(e){} }
+function recordItemResult(item, ok){
+    const k = itemKey(item);
+    const s = itemStats[k] || { seen:0, correct:0 };
+    s.seen++; if(ok) s.correct++;
+    itemStats[k] = s;
+    saveItemStats();
+}
+function masteryOf(item){
+    const s = itemStats[itemKey(item)];
+    if(!s || s.seen===0) return 0.5;
+    return s.correct / s.seen;
+}
+
+/* ═══ STATE ═══ */
+let selectedCat='all', selectedLevel='mixed', selectedDiff='medium';
+let lives=3, banked=0, combo=0, bestComboThisRun=0, sessionXP=0, roundNum=0;
+let roundHistory=[], missedItems=[], reviewAttempts={};
+let timerInterval=null, timerSeconds=5, roundActive=false;
+let correct=0, total=0;
+let recentResults=[], recentlyShown=[], shownThisGame=new Set();
+let currentItem=null, skillScore=50;
+const FINISH_ROUNDS = 15;
+const START_LIVES = 3;
+const CONF_COLS=['#FF6B00','#FFC800','#1CB0F6','#58CC02','#CE82FF'];
+const DIFF_SECS={easy:8,medium:5,hard:3};
+const DIFF_FLOOR={easy:5,medium:3,hard:2};
+
+function $(id){return document.getElementById(id);}
+function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function randFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+function confettiBurst(x,y){
+    for(let i=0;i<28;i++){
+        const d=document.createElement('div'); d.className='confetti-dot';
+        d.style.cssText=`left:${x+Math.random()*100-50}px;top:${y+Math.random()*30-15}px;background:${CONF_COLS[i%CONF_COLS.length]};animation-delay:${Math.random()*.4}s;animation-duration:${.9+Math.random()*.7}s;transform:rotate(${Math.random()*360}deg)`;
+        document.body.appendChild(d); setTimeout(()=>d.remove(),1700);
+    }
+}
+function xpFloat(amount){
+    const el=document.createElement('div'); el.className='xp-float'; el.textContent=`+${amount} XP`;
+    el.style.cssText='right:20px;top:72px'; document.body.appendChild(el); setTimeout(()=>el.remove(),1100);
+}
+function addXP(amount){ sessionXP+=amount; $('session-xp').textContent=sessionXP; if(amount>0) xpFloat(amount); }
+function comboBadge(n){
+    const el=document.createElement('div'); el.className='combo-badge'; el.textContent=`🔥 Combo x${n}!`;
+    document.body.appendChild(el); setTimeout(()=>el.remove(),1450);
+}
+function setRivalMsg(html){ $('rival-msg').innerHTML = html; }
+function showWhy(text){
+    const strip=$('explain-strip');
+    if(!text){ strip.style.display='none'; return; }
+    strip.innerHTML=`<b>Why:</b> ${text}`; strip.style.display='block';
+}
+
+/* ═══ SETUP ═══ */
+function selectCat(btn){
+    document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected'); selectedCat=btn.dataset.cat; updatePoolSizeHint();
+}
+function selectDiff(btn){
+    document.querySelectorAll('.diff-btn[data-diff]').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected'); selectedDiff=btn.dataset.diff;
+}
+function selectLevel(btn){
+    document.querySelectorAll('.diff-btn[data-level]').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected'); selectedLevel=btn.dataset.level; updatePoolSizeHint();
+}
+function poolFor(cat, level){
+    let pool = WORD_BANK;
+    if(cat!=='all') pool = pool.filter(w=>w.cat===cat);
+    if(level!=='mixed') pool = pool.filter(w=>w.level===level);
+    return pool;
+}
+function updatePoolSizeHint(){
+    const el=$('pool-size-hint'); if(!el) return;
+    const n = poolFor(selectedCat, selectedLevel).length;
+    el.textContent = n===0
+        ? `No phrases match yet for this combo — we'll use the full bank instead.`
+        : `${n} phrase${n!==1?'s':''} in this mix`;
+}
+
+/* ═══ ADAPTIVE PICK — weighted toward weak items + current level
+   band, nothing repeats until the whole pool has cycled once. ═══ */
+function targetLevelWeights(){
+    if(skillScore<35) return {beginner:.6, intermediate:.3, advanced:.1};
+    if(skillScore<65) return {beginner:.25, intermediate:.55, advanced:.2};
+    return {beginner:.1, intermediate:.35, advanced:.55};
+}
+function pickItem(pool){
+    if(!pool || pool.length===0) pool=WORD_BANK;
+    let unseen = pool.filter(it=>!shownThisGame.has(itemKey(it)));
+    if(unseen.length===0){ shownThisGame.clear(); unseen=pool; }
+    let candidates = unseen.filter(it=>!recentlyShown.includes(itemKey(it)));
+    if(candidates.length===0) candidates=unseen;
+    const lvlW = targetLevelWeights();
+    const weighted = candidates.map(item=>{
+        const mastery = masteryOf(item);
+        const weaknessBoost = 0.2 + (1-mastery)*1.4;
+        const levelBoost = selectedLevel==='mixed' ? (lvlW[item.level]??0.33) : 1;
+        return { item, weight: weaknessBoost*levelBoost + 0.05 };
+    });
+    const totalW = weighted.reduce((a,w)=>a+w.weight,0);
+    let r = Math.random()*totalW;
+    for(const w of weighted){ r-=w.weight; if(r<=0) return w.item; }
+    return weighted[weighted.length-1].item;
+}
+function markShown(item){
+    const k=itemKey(item);
+    recentlyShown.push(k); if(recentlyShown.length>4) recentlyShown.shift();
+    shownThisGame.add(k);
+}
+function updateSkillScore(ok){ skillScore=Math.max(0,Math.min(100, skillScore+(ok?4:-6))); }
+function computeTimer(){
+    const base=DIFF_SECS[selectedDiff], floor=DIFF_FLOOR[selectedDiff], ceil=base+3;
+    const acc = recentResults.length ? recentResults.filter(Boolean).length/recentResults.length : 0.5;
+    let t=base;
+    if(acc>=0.8) t=base-1.5; else if(acc<=0.4) t=base+1.5;
+    return Math.max(floor, Math.min(ceil, t));
+}
+
+/* ═══ HUD ═══ */
+function renderLives(){
+    const el=$('hud-lives'); el.innerHTML='';
+    for(let i=0;i<START_LIVES;i++){
+        const s=document.createElement('span');
+        s.className='life-icon';
+        s.id=`life-${i}`;
+        s.textContent = i<lives ? '🚗' : '💨';
+        el.appendChild(s);
+    }
+}
+function loseLife(){
+    const idx = lives-1;
+    const el = $(`life-${idx}`);
+    if(el){ el.classList.add('lost'); setTimeout(()=>{ el.textContent='💨'; el.classList.remove('lost'); },500); }
+    lives--;
+}
+function updateHUD(){
+    $('hud-distance').textContent = banked;
+    $('hud-combo').textContent = `x${Math.max(1, combo)}`;
+}
+
+/* ═══ START ═══ */
+function startGame(){
+    lives=START_LIVES; banked=0; combo=0; bestComboThisRun=0; sessionXP=0; roundNum=0; correct=0; total=0;
+    roundHistory=[]; missedItems=[]; reviewAttempts={};
+    skillScore=50; recentResults=[]; recentlyShown=[]; shownThisGame=new Set();
+    loadItemStats(); loadCareer();
+
+    $('setup-screen').style.display='none';
+    $('result-screen').style.display='none';
+    $('review-screen').style.display='none';
+    const gs=$('game-screen'); gs.style.display='flex'; gs.style.flexDirection='column'; gs.style.gap='10px';
+
+    $('session-xp').textContent='0';
+    renderLives(); updateHUD(); showWhy('');
+    setRivalMsg("Eyes on the road... pick fast. 😈");
+
+    addXP(5);
+    setTimeout(nextRound, 500);
+}
+
+/* ═══ ROUND ═══ */
+function nextRound(){
+    if(lives<=0){ showResult(false); return; }
+    if(roundNum>=FINISH_ROUNDS){ showResult(true); return; }
+    roundNum++; roundActive=true; clearInterval(timerInterval); showWhy('');
+
+    let pool = poolFor(selectedCat, selectedLevel);
+    if(pool.length===0) pool = selectedCat==='all' ? WORD_BANK : WORD_BANK.filter(w=>w.cat===selectedCat);
+    if(pool.length===0) pool = WORD_BANK;
+    const item = pickItem(pool);
+    markShown(item); currentItem=item;
+    const options = shuffle([item.correct, ...item.distractors]);
+
+    $('round-label').textContent=`Phrase ${roundNum} / ${FINISH_ROUNDS}`;
+    $('cat-label').textContent=CAT_LABELS[item.cat]||'📚';
+    $('prompt-phrase').innerHTML = item.template.replace('___', `<span class="phrase-gap" id="gap-span">___</span>`);
+
+    const grid=$('word-grid'); grid.innerHTML='';
+    options.forEach(opt=>{
+        const btn=document.createElement('button');
+        btn.className='word-card'; btn.textContent=opt;
+        btn.onclick=()=>handlePick(opt, item, btn, grid);
+        grid.appendChild(btn);
+    });
+
+    setRivalMsg(randFrom(WATCHING_LINES));
+
+    timerSeconds = computeTimer();
+    let timeLeft = timerSeconds;
+    const gauge=$('gauge'), num=$('gauge-num');
+    num.textContent = Math.ceil(timeLeft);
+
+    timerInterval = setInterval(()=>{
+        timeLeft-=.1;
+        const pct = Math.max(0, timeLeft/timerSeconds);
+        const deg = pct*360;
+        const col = pct<=0.3 ? 'var(--punch)' : pct<=0.55 ? 'var(--yellow)' : 'var(--green)';
+        gauge.style.background = `conic-gradient(${col} ${deg}deg, var(--border) ${deg}deg)`;
+        num.textContent = Math.max(0, Math.ceil(timeLeft));
+        if(timeLeft<=0){
+            clearInterval(timerInterval);
+            if(roundActive) crashOut(item, grid);
+        }
+    },100);
+}
+
+function handlePick(chosen, item, btn, grid){
+    if(!roundActive) return;
+    clearInterval(timerInterval); roundActive=false; total++;
+    grid.querySelectorAll('.word-card').forEach(b=>b.disabled=true);
+
+    if(chosen===item.correct){
+        correct++; btn.classList.add('correct');
+        setTimeout(()=>{
+            const gap=$('gap-span');
+            if(gap){ gap.textContent=item.correct; gap.className='phrase-gap filled'; }
+            btn.classList.add('banked-away');
+        },300);
+
+        banked++; combo++; bestComboThisRun=Math.max(bestComboThisRun, combo);
+        const bonus = 10 + Math.min(20, (combo-1)*2);
+        addXP(bonus);
+        if(combo>=3 && combo%3===0) comboBadge(combo);
+        recordItemResult(item, true); updateSkillScore(true);
+        recentResults.push(true); if(recentResults.length>5) recentResults.shift();
+        updateHUD();
+
+        roundHistory.push({template:item.template, correctWord:item.correct, chosen:chosen, result:'correct', cat:item.cat, explain:item.explain});
+        setRivalMsg(combo>1 ? randFrom(RECOVER_LINES) : randFrom(WATCHING_LINES));
+
+        setTimeout(nextRound, 1100);
+    } else {
+        btn.classList.add('wrong');
+        combo=0; updateHUD();
+        recordItemResult(item, false); updateSkillScore(false);
+        recentResults.push(false); if(recentResults.length>5) recentResults.shift();
+        grid.querySelectorAll('.word-card').forEach(b=>{ if(b.textContent===item.correct) b.classList.add('correct'); });
+
+        roundHistory.push({template:item.template, correctWord:item.correct, chosen:chosen, result:'wrong', cat:item.cat, explain:item.explain});
+        addMissed(item);
+        setTimeout(()=>crashOut(item, grid, true), 500);
+    }
+}
+
+function addMissed(item){
+    if(!missedItems.some(m=>m.template===item.template && m.correct===item.correct)) missedItems.push(item);
+}
+
+function crashOut(item, grid, afterWrong=false){
+    if(!afterWrong) roundActive=false;
+    grid.querySelectorAll('.word-card').forEach(b=>b.disabled=true);
+
+    const correctBtn = [...grid.querySelectorAll('.word-card')].find(b=>b.textContent===item.correct);
+    if(correctBtn && !afterWrong){
+        correctBtn.classList.add('correct');
+        combo=0; updateHUD();
+        recordItemResult(item, false); updateSkillScore(false);
+        recentResults.push(false); if(recentResults.length>5) recentResults.shift();
+    }
+    if(!afterWrong){
+        roundHistory.push({template:item.template, correctWord:item.correct, chosen:null, result:'timeout', cat:item.cat, explain:item.explain});
+        addMissed(item);
+    }
+
+    setTimeout(()=>{
+        const gap=$('gap-span');
+        if(gap){ gap.textContent=item.correct; gap.className='phrase-gap crashed'; }
+        loseLife(); renderLives(); updateHUD();
+        setRivalMsg(randFrom(CRASH_LINES));
+
+        if(lives<=0){ setTimeout(()=>showResult(false),900); return; }
+        setTimeout(nextRound, 1300);
+    }, afterWrong ? 600 : 400);
+}
+
+/* ═══ RESULT ═══ */
+function showResult(finished){
+    clearInterval(timerInterval);
+    $('game-screen').style.display='none';
+    const rs=$('result-screen'); rs.style.display='block';
+
+    const { rankAfter, rankedUp } = recordGameResult(finished, banked, bestComboThisRun);
+    const acc = total>0 ? Math.round((correct/total)*100) : 0;
+    addXP(finished?30:10);
+
+    const line = finished ? randFrom(WIN_LINES) : randFrom(LOSE_LINES);
+    const missedCount = roundHistory.filter(h=>h.result!=='correct').length;
+    const correctCount = roundHistory.filter(h=>h.result==='correct').length;
+
+    const reviewBtn = missedItems.length>0
+        ? `<button class="btn-review" onclick="startReview()">🔧 Garage Review: ${missedItems.length} Missed Phrase${missedItems.length>1?'s':''}</button>`
+        : '';
+
+    rs.innerHTML=`
+        <div class="result-card ${finished?'result-win':'result-lose'}">
+            <span class="result-icon">${finished?'🏁':'💥'}</span>
+            <div class="result-title ${finished?'win':'lose'}">${finished?'Run Complete!':'Crashed Out.'}</div>
+            ${rankedUp ? `<div style="background:linear-gradient(135deg,var(--yellow),#ffd966);border:2px solid var(--yellow-shadow);border-radius:var(--rsm);padding:14px 16px;margin-bottom:16px;text-align:center;font-weight:900;color:#3d2c00;">🎉 RANK UP! You're now a <span style="font-size:18px">${rankAfter.emoji} ${rankAfter.name}</span></div>` : ''}
+            <div class="result-sub">${line}</div>
+            <div class="result-xp">
+                <div class="result-xp-num">+${sessionXP}</div>
+                <div class="result-xp-label">XP Earned</div>
+            </div>
+            <div class="result-stats">
+                <div class="rs"><div class="rs-n">${banked}</div><div class="rs-l">Banked</div></div>
+                <div class="rs"><div class="rs-n">x${bestComboThisRun}</div><div class="rs-l">Best combo</div></div>
+                <div class="rs"><div class="rs-n">${acc}%</div><div class="rs-l">Accuracy</div></div>
+            </div>
+
+            <div class="review-tabs">
+                <button class="review-tab active" id="tab-all" onclick="setReviewTab('all')">All (${roundHistory.length})</button>
+                <button class="review-tab" id="tab-missed" onclick="setReviewTab('missed')">Missed (${missedCount})</button>
+                <button class="review-tab" id="tab-correct" onclick="setReviewTab('correct')">Correct (${correctCount})</button>
+            </div>
+            <div class="review-list" id="review-list"></div>
+
+            <div class="result-btns">
+                ${reviewBtn}
+                <button class="btn-play-again" onclick="startGame()">💥 Play Again</button>
+                <button class="btn-secondary" onclick="quitGame()">⚙️ Change Settings</button>
+                <a href="/breakroom/" class="btn-secondary">← Back to Break Room</a>
+            </div>
+        </div>`;
+
+    setReviewTab('all');
+    if(finished){ for(let i=0;i<5;i++) setTimeout(()=>confettiBurst(Math.random()*window.innerWidth, Math.random()*window.innerHeight*.5),i*200); }
+}
+
+function setReviewTab(which){
+    document.querySelectorAll('.review-tab').forEach(b=>b.classList.remove('active'));
+    $(`tab-${which}`).classList.add('active');
+    const list = roundHistory.filter(h=>{
+        if(which==='missed') return h.result!=='correct';
+        if(which==='correct') return h.result==='correct';
+        return true;
+    });
+    const container = $('review-list');
+    if(list.length===0){
+        container.innerHTML = `<div style="text-align:center;padding:20px;font-size:13px;font-weight:700;color:var(--ink-3);">Nothing here yet.</div>`;
+        return;
+    }
+    container.innerHTML = list.map(h=>{
+        const isCorrect = h.result==='correct';
+        const filled = h.template.replace('___', `<span class="fill${isCorrect?'':' wrong-fill'}">${h.correctWord}</span>`);
+        const badge = isCorrect
+            ? `<span class="review-badge correct">✓ You got it</span>`
+            : h.result==='timeout'
+                ? `<span class="review-badge wrong">⏱ Time ran out</span>`
+                : `<span class="review-badge wrong">✗ Missed it</span>`;
+        const wrongLine = (!isCorrect && h.chosen) ? `<div class="review-wrong-word">You picked: <s>${h.chosen}</s></div>` : '';
+        return `
+            <div class="review-item ${isCorrect?'correct':'wrong'}">
+                ${badge}
+                <div class="review-phrase">${filled}</div>
+                ${wrongLine}
+                <div class="review-explain">💡 ${h.explain}</div>
+            </div>`;
+    }).join('');
+}
+
+/* ═══ GARAGE REVIEW (relearn) — restored from Word Thief's Vault
+   Review: type each missed word from memory, two tries, then reveal. ═══ */
+function startReview(){
+    $('result-screen').style.display='none';
+    const rv=$('review-screen');
+    rv.style.display='block';
+    rv.innerHTML = buildReviewHTML();
+}
+function buildReviewHTML(){
+    const cards = missedItems.map((it,i)=>`
+        <div class="garage-card" id="garage-card-${i}">
+            <div class="garage-cat">${CAT_LABELS[it.cat]||'📚'}</div>
+            <div class="garage-phrase">${it.template.replace('___', `<span class="garage-blank" id="garage-blank-${i}">?</span>`)}</div>
+            <div class="garage-drill">
+                <input type="text" class="garage-input" id="garage-input-${i}"
+                       placeholder="Type the missing word..." autocomplete="off" autocapitalize="off"
+                       onkeydown="if(event.key==='Enter'){event.preventDefault();checkReview(${i});}">
+                <button class="btn-check" id="garage-check-${i}" onclick="checkReview(${i})">Check</button>
+            </div>
+            <div class="garage-attempts" id="garage-attempts-${i}" style="display:none;"></div>
+            <div class="garage-why" id="garage-why-${i}" style="display:none;">${it.explain}</div>
+        </div>`).join('');
+
+    return `
+        <div class="review-header">
+            <div class="review-title">🔧 Garage Review</div>
+            <p class="review-sub">${missedItems.length} phrase${missedItems.length>1?'s':''} that crashed you out. Type each missing word from memory — two tries before we show you the answer.</p>
+        </div>
+        <div class="garage-list">${cards}</div>
+        <div class="result-btns" style="margin-top:18px;">
+            <button class="btn-play-again" onclick="startGame()">💥 Play Again</button>
+            <a href="/breakroom/" class="btn-secondary">← Back to Break Room</a>
+        </div>`;
+}
+function normaliseAnswer(s){ return s.trim().toLowerCase().replace(/\s+/g,' '); }
+function checkReview(i){
+    const input = $(`garage-input-${i}`);
+    if(!input || input.disabled) return;
+    const item = missedItems[i];
+    const isRight = normaliseAnswer(input.value) === normaliseAnswer(item.correct);
+    if(isRight){ revealSolved(i, true); return; }
+
+    reviewAttempts[i] = (reviewAttempts[i]||0) + 1;
+    input.classList.remove('correct'); input.classList.add('wrong');
+    setTimeout(()=>input.classList.remove('wrong'),450);
+
+    if(reviewAttempts[i] >= 2){
+        input.value = item.correct;
+        revealSolved(i, false);
+    } else {
+        const attemptsEl = $(`garage-attempts-${i}`);
+        attemptsEl.textContent = `Not quite — one more try before we show you.`;
+        attemptsEl.style.display = 'block';
+    }
+}
+function revealSolved(i, gotItRight){
+    const input = $(`garage-input-${i}`), check=$(`garage-check-${i}`), blank=$(`garage-blank-${i}`);
+    const card=$(`garage-card-${i}`), attemptsEl=$(`garage-attempts-${i}`);
+    input.disabled=true; input.classList.remove('wrong'); input.classList.add('correct');
+    check.disabled=true; blank.textContent=missedItems[i].correct; blank.classList.add('revealed');
+    card.classList.add('opened'); attemptsEl.style.display='none';
+    $(`garage-why-${i}`).style.display='block';
+    if(gotItRight) addXP(3);
+}
+
+function quitGame(){
+    clearInterval(timerInterval);
+    $('game-screen').style.display='none';
+    $('result-screen').style.display='none';
+    $('review-screen').style.display='none';
+    $('setup-screen').style.display='flex';
+    renderRankBadge($('rank-badge-wrap'));
+    updatePoolSizeHint();
+}
+
+(function initSetupScreen(){
+    loadCareer();
+    renderRankBadge($('rank-badge-wrap'));
+    loadItemStats();
+    updatePoolSizeHint();
+})();
+</script>
+</body>
+</html>
