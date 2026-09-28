@@ -223,6 +223,7 @@
      'who-sold-it':  'who-sold-it-app-store-vat-tax',
      'weeklydrop020':  'weekly-drop-issue-020',
      'marked-up':  'ai-surveillance-pricing-advanced',
+     'exittax':  'exit-tax-file-tax',
   };
 
   async function bootAuthStrip(eyebrowText) {
