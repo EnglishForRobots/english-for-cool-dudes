@@ -4,7 +4,8 @@ window.LEVEL_CONFIG = {
 };
 
 window.LESSONS = [
-  { slug:'robotgames', icon:'🤖🏃💨', badge:'⭐ Tech', badgeType:'new', title:'Rise of the Robots - The Humanoid Games', desc:'China is currently hosting the 2026 Humanoid Games and robots are breaking human athletic records. Should we be entertained or worried?', mins:7, date:'2026-08-25', tags:['tech','future','vocabulary','grammar'] },
+  { slug:'the-midnight-chase', icon:'🚤🚤🚤', badge:'⭐ Crime', badgeType:'new', title:"The Midnight Chase: Europe's Cocaine Gateway", desc:'Ride along with Spanish customs agents hunting cocaine speedboats in the Strait of Gibraltar, because crime is exciting.', mins:8, date:'2026-09-28', tags:['crime','police','boats'] },
+  { slug:'robotgames', icon:'🤖🏃💨', badge:'Tech', badgeType:'null', title:'Rise of the Robots - The Humanoid Games', desc:'China is currently hosting the 2026 Humanoid Games and robots are breaking human athletic records. Should we be entertained or worried?', mins:7, date:'2026-08-25', tags:['tech','future','vocabulary','grammar'] },
   { slug:'travel-blogger-life', icon:'🧳✍️💻', badge:'Travel/Business', badgeType:'null', title:'Full-time Travel Blogging', desc:"What's it really like to be a full-time travel blogger? And can anyone earn money from seeing the world?", mins:8, date:'2026-08-10', tags:['culture','business'] },
   { slug:'the-accidental-manager', icon:'⚽🎙️', badge:'Leadership', badgeType:'null', title:'The Accidental Manager', desc:"How Jürgen Klopp — one of football's biggest names — got his very first job in management.", mins:9, date:'2026-08-04', tags:['culture','business'] },
   { slug:'spot-fake-ai-ads', icon:'🚨', badge:'Fact Check', badgeType:null, title:'How to Spot Fake AI Ads', desc:"A mug that isn't a mug. A model who doesn't exist. Welcome to AI shopping scams.", mins:8, date:'2026-07-14', tags:['culture'] },
