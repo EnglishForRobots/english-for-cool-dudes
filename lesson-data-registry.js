@@ -5583,6 +5583,56 @@ const LESSON_DATA_REGISTRY = {
     { word:'crystallise', definition:'To turn from a vague idea into a clear plan' },
   ],
 },
+
+   'the-midnight-chase-cocaine-speedboats': {
+
+  id:    'the-midnight-chase-cocaine-speedboats',
+  title: 'The Midnight Chase: Europe\'s Cocaine Gateway',
+  level: 'Intermediate–Advanced',
+  track: 'intermediate',
+  emoji: '🚤',
+  badge: 'Radar Runner',
+
+  // ── VOCAB ────────────────────────────────────────────────
+  vocab: [
+    {
+      word:        'vessel',
+      definition:  'A formal word for a ship or boat — not a blood vessel',
+      example:     'This ___ can carry three tons of cargo.',
+      distractors: ['gateway', 'authorities', 'tarpaulin'],
+    },
+    {
+      word:        'authorities',
+      definition:  'Officials with legal power to enforce the law',
+      example:     '___ seized 51 tons in 2024.',
+      distractors: ['vessel', 'tarpaulin', 'gateway'],
+    },
+    {
+      word:        'disrupt',
+      definition:  'To interrupt something and stop it working normally',
+      example:     'Police have ___ed parts of the supply chain.',
+      distractors: ['flooded', 'seized', 'become'],
+    },
+    {
+      word:        'tarpaulin',
+      definition:  'A large waterproof sheet used as a cover or shelter',
+      example:     'The crew shelters under a ___.',
+      distractors: ['vessel', 'gateway', 'authorities'],
+    },
+    {
+      word:        'keep up with',
+      definition:  'To move at the same speed as someone or something',
+      example:     'Patrol boats can\'t ___ ___ ___ narcolanchas.',
+      distractors: ['disrupt', 'become', 'flooded with'],
+    },
+    {
+      word:        'gateway',
+      definition:  'A route or place that gives access to somewhere else',
+      example:     'The Strait has become a ___ into Europe.',
+      distractors: ['vessel', 'tarpaulin', 'authorities'],
+    },
+    {
+      word:
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
