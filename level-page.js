@@ -224,6 +224,7 @@
      'weeklydrop020':  'weekly-drop-issue-020',
      'marked-up':  'ai-surveillance-pricing-advanced',
      'exittax':  'exit-tax-file-tax',
+     'weeklydrop021':  'weekly-drop-issue-021',
   };
 
   async function bootAuthStrip(eyebrowText) {
