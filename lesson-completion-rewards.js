@@ -1175,6 +1175,22 @@
   ],
 },
 
+     'the-midnight-chase-cocaine-speedboats': {
+  title:   'The Midnight Chase: Europe\'s Cocaine Gateway',
+  level:   'Intermediate–Advanced',
+  grammar: 'Present Perfect for trends up to now; Subject-Verb Agreement in news English',
+  vocab: [
+    { word:'vessel',        definition:'A formal word for a ship or boat — not a blood vessel' },
+    { word:'authorities',   definition:'Officials with legal power to enforce the law' },
+    { word:'disrupt',       definition:'To interrupt something and stop it working normally' },
+    { word:'tarpaulin',     definition:'A large waterproof sheet used as a cover or shelter' },
+    { word:'keep up with',  definition:'To move at the same speed as someone or something' },
+    { word:'gateway',       definition:'A route or place that gives access to somewhere else' },
+    { word:'become',        definition:'To start being something — a false friend with German "bekommen"' },
+    { word:'flooded with',  definition:'Overwhelmed by a huge amount of something' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
