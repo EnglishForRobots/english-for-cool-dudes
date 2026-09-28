@@ -1159,6 +1159,22 @@
   ],
 },
 
+     'weekly-drop-issue-021': {
+  title:   'The Weekly Drop — Issue 021 — The Domicile Trial',
+  level:   'All Levels',
+  grammar: 'Subject-verb agreement with plural nouns; reported speech (backshift); preposition after "accused"; Third Conditional',
+  vocab: [
+    { word:'domicile',         definition:'The one country a person treats, in law, as their permanent home — even if they live somewhere else.' },
+    { word:'non-dom',          definition:'Short for "non-domiciled": someone who lives in the UK but whose legal home (domicile) is another country.' },
+    { word:'tribunal',         definition:'A special court that decides disputes, often between a person or company and a government body.' },
+    { word:'self-assessment',  definition:'The UK system where you calculate and report your own tax, instead of your employer doing it.' },
+    { word:'worldwide income', definition:'All the money a person earns anywhere in the world, not just in the country they live in.' },
+    { word:'besotted',         definition:'Extremely fond of someone or something — almost like being in love with it.' },
+    { word:'crystallise',      definition:'To become clear and definite, like a vague idea finally turning into a real, solid plan.' },
+    { word:'settled',          definition:'(legally) Properly established somewhere as your permanent home, with no real plan to leave.' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
