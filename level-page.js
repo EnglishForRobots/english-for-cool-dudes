@@ -222,6 +222,7 @@
      'guardian-london':  'guardian-london-housing-hack-advanced',
      'who-sold-it':  'who-sold-it-app-store-vat-tax',
      'weeklydrop020':  'weekly-drop-issue-020',
+     'marked-up':  'ai-surveillance-pricing-advanced',
   };
 
   async function bootAuthStrip(eyebrowText) {
