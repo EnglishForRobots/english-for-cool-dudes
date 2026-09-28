@@ -1141,6 +1141,24 @@
   ],
 },
 
+     'exit-tax-file-tax': {
+  title:   'The Exit Tax File',
+  level:   'Tax English',
+  grammar: 'Passive Voice in exit tax and relocation advice; First Conditional for predicting exit tax outcomes',
+  vocab: [
+    { word:'exit tax',                 definition:'A tax charged on unrealized gains when a taxpayer ceases tax residence in a country, before any actual sale of the asset' },
+    { word:'deemed disposal',          definition:'The legal fiction that an asset was sold at market value on a certain date, even though no real sale took place' },
+    { word:'unrealized gains',         definition:'An increase in the value of an asset that has not yet been cashed in through an actual sale' },
+    { word:'substantial shareholding', definition:'An ownership stake in a company (in Germany, generally 1% or more) large enough to trigger special tax rules on relocation' },
+    { word:'deferral',                 definition:'Postponing the payment of a tax bill to a later date, sometimes on request and sometimes under conditions' },
+    { word:'installment payment',      definition:'Paying a tax bill in a series of smaller payments over time rather than as one lump sum' },
+    { word:'step-up in basis',         definition:'Adjusting an asset\'s recorded cost upward to its current market value, so future gains are calculated from that new figure' },
+    { word:'latent capital gain',      definition:'A gain that exists on paper because an asset has increased in value, but has not yet been realized through a sale' },
+    { word:'trailing tax liability',   definition:'A tax obligation from a previous period or event that continues to follow a taxpayer even after they have left the country' },
+    { word:'place of effective management', definition:'The location where the key management and commercial decisions of a company are actually made' },
+  ],
+},
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
