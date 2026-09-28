@@ -5461,6 +5461,79 @@ const LESSON_DATA_REGISTRY = {
     { statement:'Digital price tags cannot be changed once they are installed in a store.', correct:false, reveal:'❌ FALSE! That\u2019s the whole point — digital labels let stores change prices instantly, at the push of a button.' },
   ],
 },
+
+   'exit-tax-file-tax': {
+ 
+  id:    'exit-tax-file-tax',
+  title: 'The Exit Tax File',
+  level: 'Tax English',
+  track: 'tax',
+  emoji: '🛂',
+  badge: 'Border Crosser',
+ 
+  vocab: [
+    { word:'exit tax',                 definition:'A tax charged on unrealized gains when a taxpayer ceases tax residence in a country, before any actual sale',            example:'Mira thought that selling nothing meant there was no ___ ___ to pay.',                          distractors:['trailing tax liability','deferral','installment payment'] },
+    { word:'deemed disposal',          definition:'The legal fiction that an asset was sold at market value on a certain date, even though no real sale took place',        example:'Tax law treats the shares as sold — a so-called ___ ___.',                                       distractors:['step-up in basis','latent capital gain','deferral'] },
+    { word:'unrealized gains',         definition:'An increase in the value of an asset that has not yet been cashed in through an actual sale',                             example:'Exit tax is charged on ___ ___, sale or no sale.',                                               distractors:['installment payment','trailing tax liability','deferral'] },
+    { word:'substantial shareholding', definition:'An ownership stake large enough to trigger special tax rules on relocation (in Germany, generally 1% or more)',          example:'Mira\'s 35% stake is clearly a ___ ___.',                                                       distractors:['latent capital gain','deemed disposal','exit tax'] },
+    { word:'deferral',                 definition:'Postponing the payment of a tax bill to a later date, sometimes on request and sometimes under conditions',              example:'Tobias asked whether ___ would apply to a move to Switzerland.',                                distractors:['installment payment','step-up in basis','exit tax'] },
+    { word:'installment payment',      definition:'Paying a tax bill in a series of smaller payments over time rather than as one lump sum',                                 example:'Since 2022, ___ ___ over several years is generally possible.',                                   distractors:['deferral','deemed disposal','trailing tax liability'] },
+    { word:'step-up in basis',         definition:'Adjusting an asset\'s recorded cost upward to its current market value, so future gains are calculated from the new figure', example:'The exit value should become Mira\'s ___-___ ___ ___ abroad.',                                distractors:['latent capital gain','deemed disposal','deferral'] },
+    { word:'latent capital gain',      definition:'A gain that exists on paper because an asset has increased in value, but has not yet been realized through a sale',      example:'A ___ ___ ___ is a paper profit that nobody has cashed in yet.',                                 distractors:['unrealized loss','trailing tax liability','installment payment'] },
+    { word:'trailing tax liability',   definition:'A tax obligation from a previous period or event that continues to follow a taxpayer even after they have left the country', example:'An old assessment can become a ___ ___ ___ that follows her to Zurich.',                       distractors:['exit tax','deferral','step-up in basis'] },
+    { word:'place of effective management', definition:'The location where the key management and commercial decisions of a company are actually made',                     example:'The ___ ___ ___ ___ decides which country treats a company as tax resident.',                   distractors:['substantial shareholding','deemed disposal','latent capital gain'] },
+  ],
+ 
+  grammar: {
+    topic: 'Passive Voice in exit tax and relocation advice',
+    rule:  'Present passive: is/are + past participle. Past passive: was/were + past participle. In tax advice, passive voice focuses on what happens to the shares, the gain or the bill — not who acts. "The shares are treated as sold." "The bill was calculated."',
+    exercises: [
+      { sentence:'On the day she leaves, Mira\'s shares ___ as sold at market value.',          answer:'are treated',    wrong:['treat','was treating','have treat'],       explain:'Present passive: are + past participle. The shares receive the action of being treated as sold.' },
+      { sentence:'The tax on unrealized gains ___ even though no shares were sold.',            answer:'is charged',     wrong:['charges','was charge','has charge'],       explain:'Present passive for a general rule: is + past participle.' },
+      { sentence:'Mira\'s old valuation ___ by the tax office last month.',                     answer:'was rejected',   wrong:['rejected','is reject','has rejecting'],    explain:'Past passive: was + past participle. A completed event.' },
+      { sentence:'Under the 2022 reform, the bill can generally ___ in installments.',          answer:'be paid',        wrong:['pay','be paying','been paid'],             explain:'Modal passive: can + be + past participle.' },
+    ],
+  },
+ 
+  grammar2: {
+    topic: 'First Conditional — predicting exit tax outcomes for clients',
+    rule:  'First conditional: If + present simple → will + infinitive. Used to advise clients about real, likely outcomes. "If you sell the shares, you will lose the option to reverse the assessment."',
+    exercises: [
+      { sentence:'If Mira ___ to Germany in time, the assessment ___ potentially be reversed.',  answer:'returns / will', wrong:['returned / would','will return / will','returns / would'],            explain:'First conditional: if + present simple (returns) → will + infinitive.' },
+      { sentence:'If she ___ her shares abroad, the option to reverse ___ disappear.',           answer:'sells / will',   wrong:['sold / would','will sell / will','sells / would'],                    explain:'First conditional for a real, likely consequence.' },
+      { sentence:'If the valuation ___ unsupported, the tax office ___ a higher figure.',        answer:'is / will use',  wrong:['was / would use','will be / will use','is / would use'],              explain:'First conditional: a real risk with a predictable outcome.' },
+      { sentence:'If Tobias ___ the exit value properly, Mira ___ double taxation later.',       answer:'documents / will avoid', wrong:['documented / would avoid','will document / avoids','documents / would avoid'], explain:'First conditional describing a beneficial outcome of good planning.' },
+    ],
+  },
+ 
+  sentences: [
+    { words:['exit','tax','applies','even','without','a','real','sale'],                          answer:'exit tax applies even without a real sale',                      hint:'🛂 What surprises Mira most?' },
+    { words:['the','shares','are','treated','as','sold','at','market','value'],                   answer:'the shares are treated as sold at market value',                 hint:'⚖️ What does deemed disposal mean in practice?' },
+    { words:['a','proper','valuation','protects','against','a','higher','assessment'],            answer:'a proper valuation protects against a higher assessment',        hint:'📊 Why should Mira hire an independent valuer?' },
+    { words:['the','exit','value','becomes','the','new','cost','basis'],                          answer:'the exit value becomes the new cost basis',                      hint:'🔁 How is double taxation avoided?' },
+  ],
+ 
+  word_builder: [
+    { word:'deferral',    definition:'Postponing a tax payment to a later date' },
+    { word:'disposal',    definition:'Selling or otherwise getting rid of an asset' },
+    { word:'installment', definition:'One of several smaller payments that make up a larger bill' },
+    { word:'unrealized',  definition:'Existing only on paper — not yet sold' },
+    { word:'latent',      definition:'Present but not yet visible or realized' },
+    { word:'trailing',    definition:'Following behind, continuing after the event' },
+  ],
+ 
+  true_false: [
+    { statement:'Exit tax can only apply if a shareholder actually sells the shares before leaving.',                 correct:false, reveal:'❌ FALSE! It applies to a deemed disposal — the shares are treated as sold at market value on the departure date.' },
+    { statement:'In Germany, a stake of around 1% or more can already bring a relocating shareholder into scope.',   correct:true,  reveal:'✅ TRUE! The substantial-shareholding threshold is low, so even modest stakes can trigger the rules.' },
+    { statement:'Mira\'s own two-year-old estimate of the company\'s value is a safe basis for the tax office.',      correct:false, reveal:'❌ FALSE! Without a market price, an unsupported guess will likely be replaced by a higher official figure.' },
+    { statement:'The 2022 reform generally opened the door to paying exit tax in installments over several years.',  correct:true,  reveal:'✅ TRUE! Conditions, including collateral, can still differ for destinations outside the EU/EEA.' },
+    { statement:'A move to Switzerland automatically gets exactly the same deferral terms as a move within the EU.',  correct:false, reveal:'❌ FALSE! Switzerland is not in the EU/EEA — conditions need a proper check, not an assumption.' },
+    { statement:'If Mira returns within the statutory window without touching her shares, the assessment can potentially be reversed.', correct:true, reveal:'✅ TRUE! That is the return clause. Selling or pledging the shares removes the option.' },
+    { statement:'Using her original purchase price for a later sale in Zurich is always safe.',                       correct:false, reveal:'❌ FALSE! It ignores the value already taxed at exit and risks double taxation.' },
+    { statement:'Exit tax rules mainly exist to stop shareholders from avoiding tax by moving abroad before selling.', correct:true, reveal:'✅ TRUE! That is the anti-avoidance logic behind the whole regime.' },
+  ],
+ 
+},
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
