@@ -5534,6 +5534,55 @@ const LESSON_DATA_REGISTRY = {
   ],
  
 },
+
+   'weekly-drop-issue-021': {
+  id:    'weekly-drop-issue-021',
+  title: 'The Weekly Drop - Issue 021 - The Domicile Trial',
+  level: 'All Levels',
+  track: 'weekly-drop',
+  emoji: '🛂',
+  badge: 'Domicile Detective',
+
+  vocab: [
+    { word:'domicile',        definition:'The one country a person treats, in law, as their permanent home — even if they live somewhere else.', example:'Griffin claimed that Ireland, not England, was his ___.',                    distractors:['tribunal','worldwide income','self-assessment'] },
+    { word:'non-dom',         definition:'Short for "non-domiciled": someone who lives in the UK but whose legal home (domicile) is another country.', example:'As a ___, he said he did not have to pay UK tax on foreign income.',  distractors:['settled','besotted','tribunal'] },
+    { word:'tribunal',        definition:'A special court that decides disputes, often between a person or company and a government body.', example:'A ___ ruled that Griffin owes £20.5m in extra tax.',                         distractors:['domicile','self-assessment','crystallise'] },
+    { word:'self-assessment', definition:'The UK system where you calculate and report your own tax, instead of your employer doing it.', example:'Griffin\'s tax returns were filed through ___.',                                 distractors:['domicile','worldwide income','non-dom'] },
+    { word:'worldwide income',definition:'All the money a person earns anywhere in the world, not just in the country they live in.', example:'Non-dom status meant no UK tax on his ___ ___.',                                distractors:['self-assessment','tribunal','domicile'] },
+    { word:'besotted',        definition:'Extremely fond of someone or something — almost like being in love with it.', example:'He told the judges: "I was and am ___ with Ireland."',                              distractors:['settled','crystallised','assessed'] },
+    { word:'crystallise',     definition:'To become clear and definite, like a vague idea finally turning into a real, solid plan.', example:'His hopes about Ireland never ___ into a real plan to move.',                 distractors:['settle','assess','dissolve'] },
+    { word:'settled',         definition:'(legally) Properly established somewhere as your permanent home, with no real plan to leave.', example:'The tribunal said he had ___ in England in every meaningful sense.',            distractors:['besotted','crystallised','domiciled'] },
+  ],
+
+  true_false: [
+    { statement:'Griffin lived in Ireland until he was nine years old.',                          correct:true,  reveal:'✅ TRUE! His parents were Irish, and he moved to London at age nine.' },
+    { statement:'The tribunal ruled in Griffin\u2019s favour and confirmed his non-dom status.',   correct:false, reveal:'❌ FALSE! The tribunal ruled against him, in HMRC\u2019s favour.' },
+    { statement:'Non-dom status is still available to claim in the UK today.',                    correct:false, reveal:'❌ FALSE! Non-dom status was scrapped by the UK government in April 2025.' },
+    { statement:'Griffin spent just 8 nights in Ireland in 2015, a year he claimed as "Irish".',  correct:true,  reveal:'✅ TRUE! The tribunal said that was far too little to count as living there.' },
+    { statement:'HMRC challenged Griffin\u2019s tax returns from 2013 to 2020.',                  correct:true,  reveal:'✅ TRUE! That seven-year window is what the £20.5m bill covers.' },
+  ],
+
+  fix_mistakes: [
+    { sentence:'"The tribunal judges <u>says</u> the ruling is final."', hint:'"Judges" is plural — check the verb form.', opts:['says → SAY','says → SAYING','says → HAS SAID'], correct:0, fb:'✅ SAY — "Judges" is plural, so the verb must be plural too.' },
+    { sentence:'"Griffin claimed that he <u>lived</u> in Ireland for most of his life."', hint:'Reported speech about the past — shift the tense back.', opts:['lived → is living','lived → have lived','lived → had lived'], correct:2, fb:'✅ HAD LIVED — reported speech shifts a past claim back to the past perfect.' },
+    { sentence:'"Griffin was <u>accused for</u> hiding his true tax home."', hint:'Check the preposition after "accused".', opts:['accused for → ACCUSED WITH','accused for → ACCUSED OF','accused for → ACCUSED BY'], correct:1, fb:'✅ ACCUSED OF — we say someone is "accused of" doing something.' },
+    { sentence:'"If Griffin <u>spent</u> more time in Ireland, he would have won the case."', hint:'An unreal past situation — use the Third Conditional.', opts:['spent → would spend','spent → will spend','spent → had spent'], correct:2, fb:'✅ HAD SPENT — Third Conditional: "If he had spent more time there, he would have won."' },
+  ],
+
+  sentences: [
+    { words:['HMRC','won','the','case','because','Griffin','had','settled','in','England.'],                 answer:'HMRC won the case because Griffin had settled in England.',              hint:'⚖️ About the tribunal\u2019s decision...' },
+    { words:['A','person\u2019s','domicile,','which','can','follow','their','father\u2019s,','can','still','change','over','time.'], answer:'A person\u2019s domicile, which can follow their father\u2019s, can still change over time.', hint:'📜 About UK domicile law...' },
+    { words:['Non-dom','status,','which','once','allowed','tax-free','foreign','income,','was','abolished','in','2025.'], answer:'Non-dom status, which once allowed tax-free foreign income, was abolished in 2025.', hint:'📬 About the end of non-dom status...' },
+  ],
+
+  word_builder: [
+    { word:'domicile',  definition:'The country you treat in law as your permanent home' },
+    { word:'tribunal',  definition:'A special court that decides disputes' },
+    { word:'besotted',  definition:'Extremely fond of someone or something' },
+    { word:'settled',   definition:'Properly established somewhere as your permanent home' },
+    { word:'crystallise', definition:'To turn from a vague idea into a clear plan' },
+  ],
+},
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
