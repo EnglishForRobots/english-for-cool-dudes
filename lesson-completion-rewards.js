@@ -1175,9 +1175,9 @@
   ],
 },
 
-     'the-midnight-chase-cocaine-speedboats': {
+     'the-midnight-chase-cocaine-speedboats-intermediate': {
   title:   'The Midnight Chase: Europe\'s Cocaine Gateway',
-  level:   'Intermediate–Advanced',
+  level:   'Intermediate',
   grammar: 'Present Perfect for trends up to now; Subject-Verb Agreement in news English',
   vocab: [
     { word:'vessel',        definition:'A formal word for a ship or boat — not a blood vessel' },
