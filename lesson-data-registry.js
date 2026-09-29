@@ -5631,8 +5631,71 @@ const LESSON_DATA_REGISTRY = {
       example:     'The Strait has become a ___ into Europe.',
       distractors: ['vessel', 'tarpaulin', 'authorities'],
     },
+   {
+     word:        'become',
+      definition:  'To start being something — NOT the same as German "bekommen" (to get)',
+      example:     'It has ___ one of the busiest routes.',
+      distractors: ['keep up with', 'disrupt', 'seized'],
+    },
     {
-      word:
+      word:        'flooded with',
+      definition:  'Overwhelmed by a huge amount of something',
+      example:     'Europe has been ___ ___ record amounts of cocaine.',
+      distractors: ['become', 'gateway', 'disrupt'],
+    },
+  ],
+
+  // ── GRAMMAR 1: Present Perfect ────────────────────────────
+  grammar: {
+    topic: 'Present Perfect — describing trends up to now',
+    rule:  'Present perfect: have/has + past participle. Used for something that started in the past and is still relevant now. "Seizures HAVE GROWN seven-fold." Often paired with "since" + a point in time.',
+    exercises: [
+      { sentence:'EU authorities ___ seven times more cocaine since 2013.', answer:'have seized', wrong:['seize','seized','are seizing'], explain:'Present perfect: have + past participle, for a trend up to now.' },
+      { sentence:'The Strait ___ one of the busiest gateways into Europe.', answer:'has become',   wrong:['become','was becoming','becomes'], explain:'"The Strait" = it → has + past participle.' },
+      { sentence:'Traffickers ___ from containers to speedboats in recent years.', answer:'have shifted', wrong:['shift','shifted','are shifting'], explain:'Present perfect for a change that is still ongoing.' },
+      { sentence:'Police ___ parts of the supply chain, but traffickers adapt.', answer:'have disrupted', wrong:['disrupt','disrupted','are disrupting'], explain:'Present perfect: have + past participle, for a result still relevant now.' },
+    ],
+  },
+
+  // ── GRAMMAR 2: Subject-Verb Agreement ─────────────────────
+  grammar2: {
+    topic: 'Subject-Verb Agreement — plural and singular nouns in news English',
+    rule:  'Plural subjects (agents, seizures) take plural verbs: have/are. Singular/uncountable subjects (consumption, a vessel) take singular verbs: has/is. Easy to trip up on in fast-moving news writing.',
+    exercises: [
+      { sentence:'Spanish customs agents ___ confiscated dozens of boats this year.', answer:'have', wrong:['has','is','was'], explain:'"Agents" is plural, so it takes "have", not "has".' },
+      { sentence:'Cocaine consumption ___ booming across Europe.', answer:'is', wrong:['are','have','were'], explain:'"Consumption" is singular/uncountable, so it takes "is", not "are".' },
+      { sentence:'If customs officers ___ a narcolancha, they board it at once.', answer:'catch', wrong:['catches','caught','catching'], explain:'Zero conditional: both clauses use the base form.' },
+      { sentence:'Since 2013, EU seizures ___ risen sharply.', answer:'have', wrong:['has','is','was'], explain:'"Seizures" is plural, so it takes "have risen", not "has risen".' },
+    ],
+  },
+
+  // ── SENTENCE BUILDER ──────────────────────────────────────
+  sentences: [
+    { words:['Most','narcolanchas','are','too','fast','for','patrol','boats','to','catch.'], answer:'Most narcolanchas are too fast for patrol boats to catch', hint:'🚤 Why can\'t patrol boats catch them?' },
+    { words:['Traffickers','have','shifted','from','big','containers','to','fast,','powerful','speedboats.'], answer:'Traffickers have shifted from big containers to fast, powerful speedboats', hint:'📦 How have smuggling tactics changed?' },
+    { words:['EU','cocaine','seizures','have','grown','seven','times','over','in','a','decade.'], answer:'EU cocaine seizures have grown seven times over in a decade', hint:'📈 What has happened to EU seizure numbers?' },
+  ],
+
+  // ── WORD BUILDER ──────────────────────────────────────────
+  word_builder: [
+    { word:'vessel',      definition:'A formal word for a ship or boat' },
+    { word:'authorities', definition:'Officials with power to enforce the law' },
+    { word:'disrupt',     definition:'To interrupt and stop something working' },
+    { word:'tarpaulin',   definition:'A large waterproof sheet used as shelter' },
+    { word:'gateway',     definition:'A route that gives access to somewhere' },
+  ],
+
+  // ── TRUE / FALSE ───────────────────────────────────────────
+  true_false: [
+    { statement:'One single seizure near the Canary Islands topped 30 tons of cocaine.', correct:true,  reveal:'✅ TRUE! It was the largest single shipment ever confiscated anywhere.' },
+    { statement:'Narcolanchas can reach around 60 knots, or roughly 70 mph.',              correct:true,  reveal:'✅ TRUE! That speed is exactly why patrol boats struggle to keep up.' },
+    { statement:'Every narcolancha is caught within its first week at sea.',               correct:false, reveal:'❌ FALSE! Many run undetected for weeks, sometimes up to a month.' },
+    { statement:'A fully loaded boat can carry cocaine worth about $200 million.',         correct:true,  reveal:'✅ TRUE! That\'s the estimated street value once it reaches northern Europe.' },
+    { statement:'Customs agents always know exactly where a boat will land.',              correct:false, reveal:'❌ FALSE! That unpredictability is exactly what makes these boats so hard to stop.' },
+    { statement:'Crews sometimes live on top of the cargo for up to a month.',             correct:true,  reveal:'✅ TRUE! They shelter under tarpaulins while waiting to unload.' },
+  ],
+
+},
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
