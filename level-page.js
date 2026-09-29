@@ -225,7 +225,7 @@
      'marked-up':  'ai-surveillance-pricing-advanced',
      'exittax':  'exit-tax-file-tax',
      'weeklydrop021':  'weekly-drop-issue-021',
-     'the-midnight-chase':  'the-midnight-chase-cocaine-speedboats',
+     'the-midnight-chase-intermediate':  'the-midnight-chase-cocaine-speedboats',
   };
 
   async function bootAuthStrip(eyebrowText) {
