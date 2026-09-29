@@ -5584,11 +5584,11 @@ const LESSON_DATA_REGISTRY = {
   ],
 },
 
-   'the-midnight-chase-cocaine-speedboats': {
+   'the-midnight-chase-cocaine-speedboats-intermediate': {
 
-  id:    'the-midnight-chase-cocaine-speedboats',
+  id:    'the-midnight-chase-cocaine-speedboats-intermediate',
   title: 'The Midnight Chase: Europe\'s Cocaine Gateway',
-  level: 'Intermediate–Advanced',
+  level: 'Intermediate',
   track: 'intermediate',
   emoji: '🚤',
   badge: 'Radar Runner',
