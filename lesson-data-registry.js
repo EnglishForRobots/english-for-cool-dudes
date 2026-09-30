@@ -5696,6 +5696,59 @@ const LESSON_DATA_REGISTRY = {
   ],
 
 },
+      'weekly-drop-issue-022': {
+    id:    'weekly-drop-issue-022',
+    title: 'The Weekly Drop - Issue 022 - Red Card for the Books',
+    level: 'All Levels',
+    track: 'weekly-drop',
+    emoji: '🟥',
+    badge: 'Rule Referee',
+
+    vocab: [
+      { word:'sham',       definition:'Fake. It looks real, but it is not.',                       example:'The Commission called the sponsor contracts a ___ — they looked real, but were fake.', distractors:['sanction','loophole','turnover'] },
+      { word:'breach',     definition:'Breaking a rule or a law.',                                 example:'It was a serious ___ of the financial rules.',                                          distractors:['sham','sanction','auditor'] },
+      { word:'inflate',    definition:'Make a number bigger than it really is.',                   example:'The deals were designed to ___ the club\u2019s income.',                                distractors:['conceal','circumvent','vindicate'] },
+      { word:'conceal',    definition:'Hide something on purpose.',                                example:'The club tried to ___ the real numbers from its auditors.',                             distractors:['inflate','appeal','vindicate'] },
+      { word:'circumvent', definition:'Find a way around a rule instead of following it.',         example:'The Commission said City clearly meant to ___ the rules.',                              distractors:['appeal','conceal','frustrate'] },
+      { word:'frustrate',  definition:'Stop something from working.',                              example:'The Commission also said City tried to ___ the investigation.',                         distractors:['vindicate','inflate','sanction'] },
+      { word:'vindicate',  definition:'Show that someone was right.',                              example:'Masters said the ruling would ___ the League\u2019s decision to bring the case.',       distractors:['frustrate','circumvent','appeal'] },
+      { word:'sanction',   definition:'A punishment for breaking rules.',                          example:'The ___ will be decided later, in a private hearing.',                                  distractors:['appeal','breach','loophole'] },
+    ],
+
+    true_false: [
+      { statement:'The Commission checked City\u2019s finances for nine seasons.',                          correct:true,  reveal:'✅ TRUE! Nine seasons, from 2009/10 to 2017/18.' },
+      { statement:'The sponsors paid the full fee themselves in every deal.',                                correct:false, reveal:'❌ FALSE! The sponsors paid only part of the fee. The owner\u2019s company paid the rest — in secret.' },
+      { statement:'City can no longer appeal the ruling.',                                                   correct:false, reveal:'❌ FALSE! The club can still appeal until Friday 2 October.' },
+      { statement:'The punishment (sanction) was announced together with the verdict.',                      correct:false, reveal:'❌ FALSE! The sanction will be decided later, in a private hearing.' },
+      { statement:'The Premier League investigated the case for four years.',                                correct:true,  reveal:'✅ TRUE! Four years of investigation before the ruling.' },
+      { statement:'League boss Richard Masters said the ruling vindicates the League\u2019s decision to bring the case.', correct:true, reveal:'✅ TRUE! "Vindicate" = show that someone was right.' },
+      { statement:'The Commission said City tried to frustrate the investigation.',                          correct:true,  reveal:'✅ TRUE! "Frustrate" here means stop it from working properly — not just "make angry".' },
+      { statement:'In English, "sanction" can only mean a punishment.',                                      correct:false, reveal:'❌ FALSE! It can also mean official approval. Always check the context!' },
+    ],
+
+    fix_mistakes: [
+      { sentence:'"The Commission said City signed <u>genuine</u> sponsorship contracts."', hint:'The deals only looked real. They were fake.', opts:['genuine → LEGAL','genuine → ANNUAL','genuine → SHAM'], correct:2, fb:'✅ SHAM — the contracts looked real, but they were fake.' },
+      { sentence:'"City <u>revealed</u> the real numbers from its auditors."', hint:'The club did not want the auditors to see the real numbers.', opts:['revealed → CONFIRMED','revealed → CONCEALED','revealed → ANNOUNCED'], correct:1, fb:'✅ CONCEALED — City hid the real numbers on purpose.' },
+      { sentence:'"The club has the right to <u>ignore</u> the ruling until Friday 2 October."', hint:'Which word means: ask a higher body to change a decision?', opts:['ignore → APPEAL','ignore → SIGN','ignore → DELAY'], correct:0, fb:'✅ APPEAL — the club has until Friday 2 October to appeal.' },
+      { sentence:'"Wenger said sport means winning by <u>ignoring</u> the rules."', hint:'His message in the video: respect the rules.', opts:['ignoring → SKIPPING','ignoring → BREAKING','ignoring → OBEYING'], correct:2, fb:'✅ OBEYING — Wenger\u2019s point is to respect the rules, not get around them.' },
+    ],
+
+    sentences: [
+      { words:['guilty','City','of','The','all','found','Commission','charges'],                answer:'The Commission found City guilty of all charges',        hint:'⚖️ What was the verdict?' },
+      { words:['only','The','part','sponsors','fee','paid','of','the'],                          answer:'The sponsors paid only part of the fee',                 hint:'💷 About the sham deals...' },
+      { words:['has','until','City','appeal','to','Friday','2','October'],                       answer:'City has until Friday 2 October to appeal',              hint:'📅 What can City still do?' },
+      { words:['sanction','private','will','The','hearing','decided','in','a','be','later'],     answer:'The sanction will be decided later in a private hearing', altAnswers:['The sanction will be decided in a private hearing later'], hint:'🔒 What happens next?' },
+    ],
+
+    word_builder: [
+      { word:'sham',     definition:'Fake — it looks real, but it is not' },
+      { word:'breach',   definition:'Breaking a rule or a law' },
+      { word:'inflate',  definition:'Make a number bigger than it really is' },
+      { word:'conceal',  definition:'Hide something on purpose' },
+      { word:'sanction', definition:'A punishment for breaking rules' },
+      { word:'auditor',  definition:'A person who checks a company\u2019s accounts' },
+    ],
+  },
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
