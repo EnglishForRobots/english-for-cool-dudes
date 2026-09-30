@@ -82,6 +82,19 @@ body{background:var(--navy);color:#fff;line-height:1.4}
 .l-meta{font-size:11px;font-weight:700;color:var(--ink3);margin-top:2px}
 .l-count{font-size:11px;font-weight:900;color:var(--blue);background:rgba(28,176,246,.1);border:2px solid rgba(28,176,246,.2);border-radius:99px;padding:2px 10px;flex-shrink:0}
 
+/* Library management */
+.manage-row{display:flex;justify-content:space-between;align-items:center;margin:-10px 0 16px}
+.manage-link{font-size:12px;font-weight:900;color:var(--ink3);background:none;border:none;cursor:pointer;font-family:inherit;padding:4px 0}
+.manage-link:hover{color:var(--blue)}
+.l-retire{display:none;font-size:11px;font-weight:900;color:#EA2B2B;background:#FFF0F0;border:2px solid #FFC9C9;border-radius:99px;padding:3px 10px;flex-shrink:0;cursor:pointer}
+.lesson-list.managing .l-retire{display:inline-block}
+.lesson-list.managing .l-count{display:none}
+.archived-box{display:none;margin-bottom:20px;border:2px dashed #CECECE;border-radius:12px;padding:6px 12px}
+.archived-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #EEE;font-size:13px;font-weight:800;color:var(--ink)}
+.archived-item:last-child{border-bottom:none}
+.archived-item .name{flex:1}
+.l-restore{font-size:11px;font-weight:900;color:#58A700;background:#F0FFE0;border:2px solid #BDEB8A;border-radius:99px;padding:3px 12px;cursor:pointer;font-family:inherit}
+  
 /* Round toggles */
 .round-toggles{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
 .round-toggle{padding:7px 14px;border:2px solid #CECECE;border-radius:99px;font-size:12px;font-weight:900;color:var(--ink3);cursor:pointer;font-family:inherit;transition:all .12s;background:#fff}
@@ -308,6 +321,12 @@ body{background:var(--navy);color:#fff;line-height:1.4}
     <div class="lesson-list" id="lesson-list">
       <div class="loading-msg" style="color:#AFAFAF">← Pick a class first</div>
     </div>
+
+    <div class="manage-row">
+  <button class="manage-link" id="manage-toggle" onclick="toggleManage()">⚙️ Manage library</button>
+  <button class="manage-link" id="archived-toggle" onclick="toggleArchivedBox()" style="display:none"></button>
+</div>
+<div class="archived-box" id="archived-box"></div>
 
     <div class="lbl">Rounds to include</div>
     <div class="round-toggles" id="round-toggles">
@@ -593,7 +612,9 @@ async function bootSRSMode(classId) {
     const allItems = await sbFetch(
       `efcd_srs_class_items?class_id=eq.${classId}&status=eq.active&next_review_at=lte.${today}&order=ease_factor.asc`
     );
-    _srsItems = allItems || [];
+    const arch = await sbFetch(`efcd_lesson_vocab?class_id=eq.${classId}&archived=eq.true&select=lesson_id`);
+const archIds = new Set((Array.isArray(arch) ? arch : []).map(a => a.lesson_id));
+_srsItems = (Array.isArray(allItems) ? allItems : []).filter(i => !archIds.has(i.lesson_id));
 
     if (!_srsItems.length) {
       document.getElementById('srs-load-sub').textContent = 'No items due for review today. All caught up! 🎉';
@@ -801,20 +822,36 @@ async function loadLessons(autoSelectLesson) {
   if (!classId) {
     list.innerHTML = '<div class="loading-msg" style="color:#AFAFAF">← Pick a class first</div>';
     if (srsModeWrap) srsModeWrap.style.display = 'none';
+    _archivedLessons = []; renderArchivedBox();
     return;
   }
   list.innerHTML = '<div class="loading-msg"><div class="spinner"></div>Loading…</div>';
 
   const today = new Date().toISOString().split('T')[0];
-  const [lessonData, srsData] = await Promise.all([
-    sbFetch(`efcd_lesson_vocab?class_id=eq.${classId}&order=completed_at.desc&limit=20`),
+  const [lessonData, srsAll, archivedRows] = await Promise.all([
+    sbFetch(`efcd_lesson_vocab?class_id=eq.${classId}&archived=eq.false&order=completed_at.desc&limit=20`),
     sbFetch(`efcd_srs_class_items?select=id,lesson_id&class_id=eq.${classId}&status=eq.active&next_review_at=lte.${today}`),
+    sbFetch(`efcd_lesson_vocab?class_id=eq.${classId}&archived=eq.true&order=completed_at.desc&select=id,lesson_id,lesson_title`),
   ]);
+
+  if (!Array.isArray(lessonData)) {
+    console.error('loadLessons failed:', lessonData);
+    list.innerHTML = '<div class="loading-msg" style="color:#EA2B2B">Could not load lessons — has the "archived" column been added?</div>';
+    return;
+  }
+
+  // Retired lessons (one entry per lesson) + hide their SRS items
+  const seenA = new Set();
+  _archivedLessons = (Array.isArray(archivedRows) ? archivedRows : [])
+    .filter(a => { if (seenA.has(a.lesson_id)) return false; seenA.add(a.lesson_id); return true; });
+  const archivedIds = new Set(_archivedLessons.map(a => a.lesson_id));
+  const srsData = (Array.isArray(srsAll) ? srsAll : []).filter(i => !archivedIds.has(i.lesson_id));
+  renderArchivedBox();
 
   const srsBtn   = document.getElementById('srs-mode-btn');
   const srsSub   = document.getElementById('srs-mode-sub');
   const srsBadge = document.getElementById('srs-due-badge');
-  const dueCount = (srsData || []).length;
+  const dueCount = srsData.length;
 
   if (srsModeWrap) srsModeWrap.style.display = 'block';
 
@@ -830,8 +867,8 @@ async function loadLessons(autoSelectLesson) {
     srsBtn.classList.remove('active');
   }
 
-  if (!lessonData?.length) {
-    list.innerHTML = '<div class="loading-msg" style="color:#AFAFAF">No lessons saved yet for this class.</div>';
+  if (!lessonData.length) {
+    list.innerHTML = '<div class="loading-msg" style="color:#AFAFAF">No lessons in the library for this class.</div>';
     return;
   }
 
@@ -844,7 +881,7 @@ async function loadLessons(autoSelectLesson) {
     const date   = new Date(v.completed_at).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
     const vocab  = Array.isArray(v.vocab) ? v.vocab : JSON.parse(v.vocab||'[]');
     const rounds = reg ? _availableRounds(reg).join(', ') : 'vocab';
-    const lessonDue = (srsData || []).some(i => i.lesson_id === v.lesson_id);
+    const lessonDue = srsData.some(i => i.lesson_id === v.lesson_id);
     return `<button class="l-btn" id="lbtn-${v.lesson_id}" onclick="selectLesson(this,'${v.lesson_id}','${v.id}')">
       <span class="l-icon">${emoji}</span>
       <div class="l-info">
@@ -852,10 +889,10 @@ async function loadLessons(autoSelectLesson) {
         <div class="l-meta">${v.lesson_level||''} · ${date} · ${rounds}</div>
       </div>
       <span class="l-count">${vocab.length} words</span>
+      <span class="l-retire" onclick="event.stopPropagation();archiveLesson('${v.lesson_id}')">🗄️ Retire</span>
     </button>`;
   }).join('');
 
-  // Auto-select lesson from URL param if provided
   if (autoSelectLesson) {
     const match = unique.find(v => v.lesson_id === autoSelectLesson);
     if (match) {
@@ -863,6 +900,54 @@ async function loadLessons(autoSelectLesson) {
       if (btn) await selectLesson(btn, match.lesson_id, match.id);
     }
   }
+}
+
+function toggleManage() {
+  _managing = !_managing;
+  document.getElementById('lesson-list').classList.toggle('managing', _managing);
+  document.getElementById('manage-toggle').textContent = _managing ? '✅ Done managing' : '⚙️ Manage library';
+}
+
+function toggleArchivedBox() {
+  const box = document.getElementById('archived-box');
+  box.style.display = box.style.display === 'block' ? 'none' : 'block';
+}
+
+function renderArchivedBox() {
+  const box = document.getElementById('archived-box');
+  const tgl = document.getElementById('archived-toggle');
+  if (!_archivedLessons.length) { box.style.display = 'none'; tgl.style.display = 'none'; return; }
+  tgl.style.display = 'inline';
+  tgl.textContent = `🗄️ Retired (${_archivedLessons.length})`;
+  box.innerHTML = _archivedLessons.map(a => `
+    <div class="archived-item">
+      <span class="name">${a.lesson_title || a.lesson_id}</span>
+      <button class="l-restore" onclick="restoreLesson('${a.lesson_id}')">↩ Restore</button>
+    </div>`).join('');
+}
+
+async function archiveLesson(lessonId) {
+  const name = document.querySelector(`#lbtn-${lessonId} .l-name`)?.textContent.trim() || lessonId;
+  if (!confirm(`Retire "${name}"?\n\nIt leaves the review list and its SRS items stop appearing. You can restore it any time.`)) return;
+  await _setArchived(lessonId, true);
+}
+
+async function restoreLesson(lessonId) {
+  await _setArchived(lessonId, false);
+}
+
+async function _setArchived(lessonId, flag) {
+  const classId = document.getElementById('class-sel').value;
+  const { data, error } = await sb.from('efcd_lesson_vocab')
+    .update({ archived: flag })
+    .eq('class_id', classId).eq('lesson_id', lessonId)
+    .select('id');
+  if (error || !data?.length) {
+    console.error('Archive update failed:', error || 'no rows changed (RLS?)');
+    alert('Could not update the library. Check the Supabase update policy on efcd_lesson_vocab.');
+    return;
+  }
+  await loadLessons();
 }
 
 function selectSRSMode() {
@@ -895,6 +980,9 @@ function _availableRounds(reg) {
 }
 
 let _selectedLessons = {};  // lessonId -> lessonData object
+
+let _managing = false;
+let _archivedLessons = [];
 
 async function selectLesson(btn, lessonId, vocabId) {
   document.getElementById('srs-mode-btn')?.classList.remove('active');
