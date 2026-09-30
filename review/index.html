@@ -95,10 +95,20 @@ body{background:var(--navy);color:#fff;line-height:1.4}
 .archived-item .name{flex:1}
 .l-restore{font-size:11px;font-weight:900;color:#58A700;background:#F0FFE0;border:2px solid #BDEB8A;border-radius:99px;padding:3px 12px;cursor:pointer;font-family:inherit}
   
+/* Branded confirm modal */
+.efcd-modal-bg{position:fixed;inset:0;background:rgba(0,10,30,.7);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;animation:up .2s ease both}
+.efcd-modal{background:var(--white);color:var(--ink);border:3px solid var(--ink);border-bottom:7px solid var(--ink);border-radius:var(--r);max-width:400px;width:100%;padding:28px 24px;text-align:center;animation:pop .3s ease both}
+.efcd-modal-icon{font-size:48px;margin-bottom:10px}
+.efcd-modal-title{font-size:20px;font-weight:900;font-style:italic;margin-bottom:8px;line-height:1.25}
+.efcd-modal-msg{font-size:14px;font-weight:700;color:var(--ink3);line-height:1.55;margin-bottom:22px}
+.efcd-modal-btns{display:flex;gap:10px}
+.efcd-modal-btn{flex:1;padding:13px;font-size:15px;font-weight:900;border-radius:99px;border:2px solid;border-bottom:5px solid;cursor:pointer;font-family:inherit;transition:all .1s}
+.efcd-modal-btn:active{transform:translateY(3px);border-bottom-width:2px}
+.efcd-modal-btn.ghost{background:#F4F6F8;color:var(--ink);border-color:#CECECE}
+.efcd-modal-btn.ok{background:var(--navy);color:#fff;border-color:var(--navy);border-bottom-color:#0d1f3c}
+.efcd-modal-btn.danger{background:var(--punch);color:#fff;border-color:var(--ps)}
+
 /* Round toggles */
-.round-toggles{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
-.round-toggle{padding:7px 14px;border:2px solid #CECECE;border-radius:99px;font-size:12px;font-weight:900;color:var(--ink3);cursor:pointer;font-family:inherit;transition:all .12s;background:#fff}
-.round-toggle.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 
 /* ── TIMER OPTIONS ── */
 .timer-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
@@ -926,9 +936,56 @@ function renderArchivedBox() {
     </div>`).join('');
 }
 
+function efcdConfirm({ icon = '❓', title, message, okLabel = 'OK', cancelLabel = 'Cancel', danger = false }) {
+  return new Promise(resolve => {
+    const el = document.createElement('div');
+    el.className = 'efcd-modal-bg';
+    el.innerHTML = `
+      <div class="efcd-modal">
+        <div class="efcd-modal-icon"></div>
+        <div class="efcd-modal-title"></div>
+        <div class="efcd-modal-msg"></div>
+        <div class="efcd-modal-btns">
+          <button class="efcd-modal-btn ghost"></button>
+          <button class="efcd-modal-btn ${danger ? 'danger' : 'ok'}"></button>
+        </div>
+      </div>`;
+    el.querySelector('.efcd-modal-icon').textContent  = icon;
+    el.querySelector('.efcd-modal-title').textContent = title;
+    el.querySelector('.efcd-modal-msg').textContent   = message;
+    const [cancelBtn, okBtn] = el.querySelectorAll('.efcd-modal-btn');
+    cancelBtn.textContent = cancelLabel;
+    okBtn.textContent     = okLabel;
+
+    const done = result => {
+      document.removeEventListener('keydown', onKey, true);
+      el.remove();
+      resolve(result);
+    };
+    const onKey = e => {
+      if (e.key === 'Escape') { e.preventDefault(); done(false); }
+      if (e.key === 'Enter')  { e.preventDefault(); done(true); }
+    };
+    cancelBtn.onclick = () => done(false);
+    okBtn.onclick     = () => done(true);
+    el.addEventListener('click', e => { if (e.target === el) done(false); });
+    document.addEventListener('keydown', onKey, true);
+    document.body.appendChild(el);
+    okBtn.focus();
+  });
+}
+
 async function archiveLesson(lessonId) {
   const name = document.querySelector(`#lbtn-${lessonId} .l-name`)?.textContent.trim() || lessonId;
-  if (!confirm(`Retire "${name}"?\n\nIt leaves the review list and its SRS items stop appearing. You can restore it any time.`)) return;
+  const ok = await efcdConfirm({
+    icon: '🗄️',
+    title: `Retire "${name}"?`,
+    message: 'It leaves the review list and its SRS items stop appearing. You can restore it any time.',
+    okLabel: 'Retire it',
+    cancelLabel: 'Keep it',
+    danger: true
+  });
+  if (!ok) return;
   await _setArchived(lessonId, true);
 }
 
