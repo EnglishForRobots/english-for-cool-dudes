@@ -777,7 +777,7 @@ async function _updateSRSIntervals() {
     const quality   = SRS.toQuality(result.correct > 0, result.responseType);
     const newFields = SRS.update(srsItem, quality);
     try {
-      await sb.from('efcd_srs_class_items').update({
+        const { data, error } = await sb.from('efcd_srs_class_items').update({
         interval_days:    newFields.interval_days,
         ease_factor:      newFields.ease_factor,
         review_count:     newFields.review_count,
@@ -785,9 +785,10 @@ async function _updateSRSIntervals() {
         last_reviewed_at: new Date().toISOString(),
         status:           newFields.status,
         ...(newFields.learned_at ? { learned_at: newFields.learned_at } : {})
-      }).eq('id', itemId);
+            }).eq('id', itemId).select('id');
+      if (error || !data?.length) throw error || new Error('no rows updated (RLS?)');
 
-      updates.push({ word:result.word, learned:newFields.status==='learned', nextDate:newFields.next_review_at, quality });
+      updates.push(({ word:result.word, learned:newFields.status==='learned', nextDate:newFields.next_review_at, quality });
     } catch(e) {
       console.warn('SRS update failed for', itemId, e.message);
     }
