@@ -1191,6 +1191,30 @@
   ],
 },
 
+         'weekly-drop-issue-022': {
+      title:   'The Weekly Drop — Issue 022 — Red Card for the Books',
+      level:   'All Levels',
+      grammar: 'Prepositions after verbs and adjectives (comply with, guilty of); uncountable nouns (information); present perfect continuous with since; inversion in the third conditional (Had the deals been…)',
+      vocab: [
+        { word:'sham',                definition:'Fake. It looks real, but it is not.' },
+        { word:'breach',              definition:'Breaking a rule or a law.' },
+        { word:'inflate',             definition:'Make a number bigger than it really is.' },
+        { word:'conceal',             definition:'Hide something on purpose.' },
+        { word:'circumvent',          definition:'Find a way around a rule instead of following it.' },
+        { word:'frustrate',           definition:'Stop something from working.' },
+        { word:'vindicate',           definition:'Show that someone was right.' },
+        { word:'sanction',            definition:'A punishment for breaking rules. (Careful: it can also mean official approval!)' },
+        { word:'turnover',            definition:'All the money a business earns from sales.' },
+        { word:'loophole',            definition:'A gap in a rule that lets people avoid it.' },
+        { word:'auditor',             definition:'A person who checks a company\u2019s accounts.' },
+        { word:'misstated',           definition:'Shown wrongly, with false numbers.' },
+        { word:'appeal',              definition:'Ask a higher body to change a decision.' },
+        { word:'cook the books',      definition:'Change the accounts to look better than they are.' },
+        { word:'level playing field', definition:'A fair situation where everyone has the same chances.' },
+        { word:'slap on the wrist',   definition:'A very small punishment.' },
+      ],
+    },
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
