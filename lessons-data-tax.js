@@ -1,8 +1,9 @@
 window.LEVEL_CONFIG = { eyebrow: '💰 Tax English', accent: 'gold' };
 window.LESSONS = [
-  { slug:'exittax', icon:'🛂', badge:'⭐ Exit Tax/Relocation', badgeType:'new', title:'The Exit Tax', desc:'A founder wants to relocate to Zurich for a fresh start and the tax office is already calculating her bill.', mins:7, date:'2026-09-17' },
-  { slug:'who-sold-it', icon:'🕵️', badge:'⭐ VAT', badgeType:'new', title:'Who Sold It?', desc:'A German developer. An app store in Ireland. One in-app purchase — and one big VAT question.', mins:6, date:'2026-09-10' },
-  { slug:'vat-frontier', icon:'🧭', badge:'⭐ VAT', badgeType:'new', title:'The VAT Frontier', desc:'From local VAT registration to selling across the EU, get all the cross-border vocab a tax advisor needs.', mins:7, date:'2026-09-02' },
+  { slug:'taxpassport', icon:'🎫✈️💸', badge:'⭐ International Tax', badgeType:'new', title:'The Tax Passport', desc:"Money crosses the border in seconds. So does your client’s data. Welcome to passport control for tax.", mins:8, date:'2026-10-01' },
+  { slug:'exittax', icon:'🛂', badge:'Exit Tax/Relocation', badgeType:null, title:'The Exit Tax', desc:'A founder wants to relocate to Zurich for a fresh start and the tax office is already calculating her bill.', mins:7, date:'2026-09-17' },
+  { slug:'who-sold-it', icon:'🕵️', badge:'VAT', badgeType:null, title:'Who Sold It?', desc:'A German developer. An app store in Ireland. One in-app purchase — and one big VAT question.', mins:6, date:'2026-09-10' },
+  { slug:'vat-frontier', icon:'🧭', badge:'VAT', badgeType:null, title:'The VAT Frontier', desc:'From local VAT registration to selling across the EU, get all the cross-border vocab a tax advisor needs.', mins:7, date:'2026-09-02' },
   { slug:'curevac-countdown', icon:'🧬', badge:'Tax/Biotech', badgeType:null, title:'The CureVac Deal', desc:'They started as rivals, so what happened when BioNTech acquired CureVac?', mins:6, date:'2026-08-31' },
   { slug:'year-end-meeting', icon:'📊', badge:'Accounting', badgeType:null, title:'The Year-End Meeting', desc:'A café owner is confused: the numbers say "profit," but the bank account says otherwise. Can you provide the answers?!', mins:9, date:'2026-08-26' },
   { slug:'audit-files', icon:'🧾', badge:'Tax/Bookkeeping', badgeType:null, title:'The Audit Files (Role Play)', desc:'Your client Anja Voss just opened a letter from the tax office, and now she needs your help!!', mins:8, date:'2026-08-18' },
