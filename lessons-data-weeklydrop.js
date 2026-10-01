@@ -25,5 +25,5 @@ window.LESSONS = [
   { slug:'weeklydrop003', icon:'✂️🍫', badge:'Issue 003', badgeType:null, title:'Shrinkflation — Why Chocolate Is Getting Smaller!', desc:"Your Easter egg shrank — but the price didn't. Welcome to shrinkflation.", mins:5, date:'2026-04-17', tags:['business'] },
   { slug:'weeklydrop002', icon:'📉', badge:'Issue 002', badgeType:null, title:"Germany's Insolvency Wave", desc:'24,064 companies filed for insolvency in Germany in 2025. Your clients may be suffering.', mins:5, date:'2026-03-26', tags:['business'] },
   { slug:'weeklydropoil', icon:'🛢️', badge:'Issue 001', badgeType:null, title:"Iran, Oil & Prof Jiang's Predictions", desc:"The Strait of Hormuz is blocked. Brent Crude hit $120. One professor saw it all coming. Can you crack the activities?", mins:5, date:'2026-03-16', tags:['business'] },
-  { slug:null, icon:'🔒', badge:null, badgeType:'soon', title:'Issue 020 — Coming Soon', desc:'A new issue drops every week — check back soon!', mins:null, date:null },
+  { slug:null, icon:'🔒', badge:null, badgeType:'soon', title:'Issue 022 — Coming Soon', desc:'A new issue drops every week — check back soon!', mins:null, date:null },
 ];
