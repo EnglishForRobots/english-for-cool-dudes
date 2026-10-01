@@ -5749,6 +5749,97 @@ const LESSON_DATA_REGISTRY = {
       { word:'auditor',  definition:'A person who checks a company\u2019s accounts' },
     ],
   },
+
+   /* ═══════════════════════════════════════════════════════════════
+   PASTE INTO lesson-data-registry.js
+   Place it inside LESSON_DATA_REGISTRY, directly after the
+   'weekly-drop-issue-022' entry (which already ends with a comma).
+═══════════════════════════════════════════════════════════════ */
+
+'tax-passport-control-information-exchange': {
+
+  id:    'tax-passport-control-information-exchange',
+  title: 'Passport Control for Tax Data',
+  level: 'Tax English',
+  track: 'tax',
+  emoji: '🛂',
+  badge: 'Data Diplomat',
+
+  // ── VOCAB ────────────────────────────────────────────────
+  vocab: [
+    { word:'exchange of information', definition:'Tax offices in different countries share data about taxpayers', example:'Automatic ___ between tax offices is now standard practice.', distractors:['double taxation','paper trail','arbitration'] },
+    { word:'on request',              definition:'Only when another country asks for details about one case',     example:'Germany asked Spain for details about one client, so the data was sent ___.', distractors:['spontaneous','automatic','in advance'] },
+    { word:'spontaneous',             definition:'Done without being asked',                                       example:'A ___ exchange happens when a country shares useful news without a request.', distractors:['on request','compulsory','annual'] },
+    { word:'disclose',                definition:'To tell the authorities something that was hidden or private',  example:'Clients must ___ their foreign income to the tax office.', distractors:['comply','assess','impose'] },
+    { word:'taxpayer',                definition:'A person or company that pays tax',                              example:'The ___ filed an objection against the assessment.', distractors:['intermediary','auditor','competent authority'] },
+    { word:'double taxation',         definition:'The same income is taxed in two countries',                      example:'The treaty is designed to prevent ___ of the same income.', distractors:['penalty','audit','deadline'] },
+    { word:'mutual agreement procedure', definition:'Two countries talk to solve a tax dispute (MAP)',             example:'A ___ helps two countries to solve a tax dispute.', distractors:['arbitration','audit','exchange on request'] },
+    { word:'competent authority',     definition:'The office with official power to decide a treaty case',         example:'The request goes to the ___ of the home country.', distractors:['intermediary','taxpayer','auditor'] },
+    { word:'arbitration',             definition:'An independent panel decides when two sides cannot agree',       example:'If the countries cannot agree, the case may go to ___.', distractors:['penalty','disclosure','deadline'] },
+    { word:'intermediary',            definition:'An advisor, bank or lawyer who designs or sells a tax arrangement', example:'Under DAC6, an ___ must report certain cross-border arrangements.', distractors:['taxpayer','competent authority','auditor'] },
+    { word:'reportable arrangement',  definition:'A cross-border structure that must be reported to the tax office (DAC6)', example:'The structure counted as a ___ and had to be reported.', distractors:['paper trail','double taxation','audit'] },
+    { word:'deadline',                definition:'The last day you can do something',                              example:'The reporting ___ is 30 days after the arrangement is made available.', distractors:['penalty','audit','treaty'] },
+    { word:'penalty',                 definition:'Money you pay for breaking a rule',                              example:'A late report can lead to a ___.', distractors:['deadline','refund','allowance'] },
+    { word:'comply with',             definition:'To follow a rule or law',                                        example:'Advisors must ___ the reporting rules.', distractors:['disclose','impose','assess'] },
+    { word:'paper trail',             definition:'Documents that show what happened and when',                     example:'In an audit, a clear ___ is your best friend.', distractors:['red tape','loophole','deadline'] },
+    { word:'audit',                   definition:'An official check of accounts or tax returns',                   example:'The tax office announced an ___ of the company\'s accounts.', distractors:['penalty','arbitration','refund'] },
+  ],
+
+  // ── GRAMMAR 1: Prepositions ───────────────────────────────
+  grammar: {
+    topic: 'Prepositions after verbs, adjectives and with deadlines',
+    rule:  'Learn prepositions together with the word they follow: comply WITH, responsible FOR, subject TO. For deadlines use BY (not later than): "by Friday". UNTIL means for the whole time up to that moment. German "bis" can mean both, so be careful.',
+    exercises: [
+      { sentence:'We must report the income ___ Friday.',          answer:'by',   wrong:['until','on','at'],  explain:'A deadline = BY Friday (not later than). "Until" means for the whole time up to Friday.' },
+      { sentence:'She is responsible ___ the filing.',             answer:'for',  wrong:['of','to','with'],   explain:'responsible FOR something. "Responsible of" is a common slip.' },
+      { sentence:'Our client is subject ___ a tax audit.',         answer:'to',   wrong:['of','at','by'],     explain:'subject TO an audit.' },
+      { sentence:'Advisors must comply ___ the reporting rules.',  answer:'with', wrong:['to','of','at'],     explain:'comply WITH a rule. "Comply to" is a common slip.' },
+    ],
+  },
+
+  // ── GRAMMAR 2: Tenses, uncountable nouns, inversion ───────
+  grammar2: {
+    topic: 'Past simple, uncountable nouns and formal inversion',
+    rule:  'With a finished time word (yesterday, last month) use the past simple, not the present perfect. "Information" is uncountable: no plural, no "an". In formal English, "Should + subject + verb" can replace "If": "Should the client fail to file, a penalty applies."',
+    exercises: [
+      { sentence:'The tax office ___ the letter yesterday.',                 answer:'sent',         wrong:['has sent','is sending','sends'],            explain:'"Yesterday" is a finished time, so we use the past simple: sent.' },
+      { sentence:'The authority needs more ___.',                            answer:'information',  wrong:['informations','an information','informative'], explain:'"Information" is uncountable: no plural form.' },
+      { sentence:'___ the client fail to file, a penalty applies.',          answer:'Should',       wrong:['Would','Did','Were'],                       explain:'Formal inversion: "Should the client fail…" = "If the client fails…".' },
+      { sentence:'Germany ___ Spain for details last month.',                answer:'asked',        wrong:['has asked','asks','is asking'],             explain:'"Last month" is a finished time, so we use the past simple: asked.' },
+    ],
+  },
+
+  // ── SENTENCE BUILDER ──────────────────────────────────────
+  sentences: [
+    { words:['banks','report','foreign','accounts','automatically','under','the','CRS'], answer:'banks report foreign accounts automatically under the CRS', hint:'🏦 What happens to foreign accounts under the CRS?' },
+    { words:['two','countries','talk','to','solve','a','tax','dispute'],                  answer:'two countries talk to solve a tax dispute',                 hint:'🤝 What happens in a mutual agreement procedure?' },
+    { words:['advisors','must','comply','with','the','reporting','rules'],               answer:'advisors must comply with the reporting rules',             hint:'📋 What must advisors do under DAC6?' },
+    { words:['a','late','report','may','lead','to','a','penalty'],                       answer:'a late report may lead to a penalty',                       hint:'⏰ What is the risk of missing a deadline?' },
+  ],
+
+  // ── WORD BUILDER ──────────────────────────────────────────
+  word_builder: [
+    { word:'disclose',     definition:'To tell the authorities something that was hidden' },
+    { word:'deadline',     definition:'The last day you can do something' },
+    { word:'penalty',      definition:'Money you pay for breaking a rule' },
+    { word:'intermediary', definition:'An advisor or bank who designs a tax arrangement' },
+    { word:'arbitration',  definition:'An independent panel decides a dispute' },
+    { word:'taxpayer',     definition:'A person or company that pays tax' },
+  ],
+
+  // ── TRUE / FALSE ──────────────────────────────────────────
+  true_false: [
+    { statement:'Under the CRS, a bank reports foreign clients\' accounts to the local tax office.', correct:true,  reveal:'✅ TRUE! The local tax office then passes the data on to the client\'s home country, automatically.' },
+    { statement:'Bank secrecy still protects foreign accounts from automatic exchange.',           correct:false, reveal:'❌ FALSE! Bank secrecy no longer blocks automatic exchange of information between participating countries.' },
+    { statement:'A spontaneous exchange of information happens only when another country asks for it.', correct:false, reveal:'❌ FALSE! That describes exchange ON REQUEST. Spontaneous means a country shares useful information without being asked.' },
+    { statement:'A mutual agreement procedure is meant to remove double taxation.',                correct:true,  reveal:'✅ TRUE! Two countries talk to agree which one taxes the income, so the taxpayer is not taxed twice.' },
+    { statement:'In arbitration, an independent panel makes the decision.',                         correct:true,  reveal:'✅ TRUE! Some treaties allow arbitration when the two authorities cannot agree.' },
+    { statement:'Under DAC6, an intermediary may have to report a cross-border arrangement.',      correct:true,  reveal:'✅ TRUE! Advisors and banks who design or sell reportable arrangements can have their own reporting duty.' },
+    { statement:'"Tax avoidance" and "tax evasion" mean exactly the same thing.',                   correct:false, reveal:'❌ FALSE! Avoidance is legal tax planning. Evasion is illegal: hiding income or facts from the tax office.' },
+    { statement:'A good paper trail can help you in a tax audit.',                                  correct:true,  reveal:'✅ TRUE! Clear documents show what happened and when, which makes an audit much easier.' },
+  ],
+
+},
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
