@@ -1215,6 +1215,28 @@
       ],
     },
 
+      'tax-passport-control-information-exchange-tax': {
+      title:   'Passport Control for Tax Data',
+      level:   'Tax English (Intermediate)',
+      grammar: 'Prepositions after verbs and adjectives (responsible for, subject to, by + deadline); uncountable nouns (information); past simple vs present perfect; inversion in conditionals (Should the client fail…)',
+      vocab: [
+        { word:'exchange of information',   definition:'Tax offices in different countries share data about taxpayers.' },
+        { word:'on request',                definition:'Only when another country asks for details about one case.' },
+        { word:'spontaneous',               definition:'Done without being asked.' },
+        { word:'disclose',                  definition:'Tell the authorities something that was hidden or private.' },
+        { word:'taxpayer',                  definition:'A person or company that pays tax.' },
+        { word:'double taxation',           definition:'The same income is taxed in two countries.' },
+        { word:'mutual agreement procedure',definition:'Two countries talk to solve a tax dispute (MAP).' },
+        { word:'competent authority',       definition:'The office with the official power to decide a treaty case.' },
+        { word:'arbitration',               definition:'An independent panel decides when two sides cannot agree.' },
+        { word:'intermediary',              definition:'An advisor, bank or lawyer who designs or sells a tax arrangement.' },
+        { word:'reportable arrangement',    definition:'A cross-border structure that must be reported to the tax office (DAC6).' },
+        { word:'deadline',                  definition:'The last day you can do something.' },
+        { word:'penalty',                   definition:'Money you pay for breaking a rule.' },
+        { word:'comply with',               definition:'Follow a rule or law.' },
+        { word:'paper trail',               definition:'Documents that show what happened and when.' },
+        { word:'audit',                     definition:'An official check of accounts or tax returns.' },
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
