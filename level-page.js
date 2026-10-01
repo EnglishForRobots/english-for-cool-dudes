@@ -227,6 +227,7 @@
      'weeklydrop021':  'weekly-drop-issue-021',
      'the-midnight-chase':  'the-midnight-chase-cocaine-speedboats-intermediate',
      'weeklydrop022':  'weekly-drop-issue-022',
+     'taxpassport':  'tax-passport-control-information-exchange-tax',
   };
 
   async function bootAuthStrip(eyebrowText) {
