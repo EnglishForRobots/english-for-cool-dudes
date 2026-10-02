@@ -1604,10 +1604,14 @@ function renderTyped(q, body) {
       ${prompt ? `<div class="gap-sentence" style="font-size:clamp(14px,2.8vw,20px);padding:16px 22px">${prompt}</div>` : ''}
       <input id="typed-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type the word…"
         style="width:100%;padding:16px 18px;font:inherit;font-size:22px;font-weight:900;text-align:center;border-radius:var(--r);border:3px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;outline:none">
+      <div id="typed-letters" style="display:none;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px"></div>
+      <div id="typed-pick" class="opts-grid" style="display:none;margin-top:14px"></div>
       <div id="typed-hint" style="min-height:24px;margin-top:10px;text-align:center;font-weight:900;color:var(--yellow);letter-spacing:3px"></div>
       <div id="typed-btns" style="display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap">
         <button class="sb-check" onclick="checkTyped()">✓ Check!</button>
         <button class="wb-hint" id="typed-hint-btn" onclick="hintTyped()">💡 First letter</button>
+        <button class="wb-hint" id="typed-letters-btn" onclick="lettersTyped()">🔤 Letters</button>
+        <button class="wb-hint" id="typed-pick-btn" onclick="pickTyped()">🎯 Pick it</button>
         <button class="wb-reveal" onclick="revealTyped()">👁️ Reveal</button>
       </div>
     </div>`;
@@ -1622,6 +1626,86 @@ function hintTyped() {
     q.word.split('').map((c, x) => x === 0 ? c.toUpperCase() : (c === ' ' || c === '-' ? c : '_')).join(' ');
   document.getElementById('typed-hint-btn').disabled = true;
   document.getElementById('typed-input')?.focus();
+}
+
+// ── TYPED RECALL: EXTRA HELP ───────────────────────────────────
+function _typedChoices(q) {
+  const pool = window.LESSON_DATA_REGISTRY?.[q._lessonId]?.vocab
+    || _selectedLessons[q._lessonId]?.vocab
+    || Object.values(_selectedLessons).flatMap(l => l.vocab || []);
+  const me = pool.find(v => v.word === q.word);
+  const wrong = (me?.distractors || []).filter(w => w !== q.word).slice(0, 3);
+  pool.forEach(v => { if (wrong.length < 3 && v.word !== q.word && !wrong.includes(v.word)) wrong.push(v.word); });
+  return wrong.length ? shuffle([q.word, ...wrong]) : null;
+}
+
+function lettersTyped() {
+  if (_answered) return;
+  const q = _questions[_qIdx];
+  _typedHinted = true;
+  const target = _typedNorm(q.word);
+  const extra = shuffle('abcdefghijklmnopqrstuvwxyz'.split('').filter(c => !target.includes(c))).slice(0, 3);
+  const tiles = shuffle([...target.split(''), ...extra]);
+  const input = document.getElementById('typed-input');
+  input.value = ''; input.readOnly = true;
+  input.style.textTransform = 'uppercase'; input.style.letterSpacing = '4px';
+  const box = document.getElementById('typed-letters');
+  box.style.display = 'flex'; box.innerHTML = ''; box._stack = [];
+  tiles.forEach(l => {
+    const b = document.createElement('button');
+    b.className = 'wb-tile'; b.textContent = l.toUpperCase();
+    b.onclick = () => {
+      if (_answered) return;
+      input.value += l; b.disabled = true; b.classList.add('used'); box._stack.push(b);
+      input.focus({ preventScroll: true });
+    };
+    box.appendChild(b);
+  });
+  const undo = document.createElement('button');
+  undo.className = 'wb-clear'; undo.textContent = '⌫';
+  undo.onclick = () => {
+    if (_answered) return;
+    const last = box._stack.pop(); if (!last) return;
+    input.value = input.value.slice(0, -1);
+    last.disabled = false; last.classList.remove('used');
+  };
+  box.appendChild(undo);
+  document.getElementById('typed-letters-btn').disabled = true;
+  input.focus({ preventScroll: true });
+}
+
+function pickTyped() {
+  if (_answered) return;
+  const q = _questions[_qIdx];
+  const choices = _typedChoices(q);
+  if (!choices) { document.getElementById('typed-pick-btn').disabled = true; return; }
+  _typedHinted = true;
+  document.getElementById('typed-input').style.display = 'none';
+  document.getElementById('typed-letters').style.display = 'none';
+  document.getElementById('typed-hint').textContent = '';
+  document.getElementById('typed-btns').style.display = 'none';
+  const box = document.getElementById('typed-pick');
+  box.style.display = 'grid'; box.innerHTML = '';
+  choices.forEach((w, k) => {
+    const b = document.createElement('button');
+    b.className = 'opt'; b.dataset.word = w;
+    b.innerHTML = `<span style="font-size:13px;opacity:.5;margin-right:4px">${k+1}</span> `;
+    b.appendChild(document.createTextNode(w));
+    b.onclick = () => answerTypedPick(w, b);
+    box.appendChild(b);
+  });
+}
+
+function answerTypedPick(chosen, btn) {
+  if (_answered) return;
+  _answered = true; _total++;
+  const q = _questions[_qIdx];
+  const ok = chosen === q.word;
+  document.querySelectorAll('#typed-pick .opt').forEach(b => b.disabled = true);
+  btn.classList.add(ok ? 'correct' : 'wrong');
+  if (!ok) document.querySelectorAll('#typed-pick .opt').forEach(b => { if (b.dataset.word === q.word) b.classList.add('reveal'); });
+  if (_srsMode) _recordSRSResult(ok, ok ? 'hint' : 'wrong');
+  handleResult(ok, ok ? '✅ Got it! Next time, try typing it.' : `❌ The word is: <strong>${q.word}</strong>`, q.def);
 }
 
 function checkTyped() {
@@ -1989,6 +2073,10 @@ document.addEventListener('keydown', e => {
   const currentRound = _questions[_qIdx]?.round;
 
   if (currentRound === 'typed') {
+    if (!_answered && /^[1-4]$/.test(e.key)) {
+      const o = document.querySelectorAll('#typed-pick .opt:not(:disabled)')[parseInt(e.key) - 1];
+      if (o) { o.click(); return; }
+    }
     if (e.target && e.target.id === 'typed-input') {
       if (e.key === 'Enter') { e.preventDefault(); checkTyped(); }
       return;
