@@ -2108,11 +2108,11 @@ const LESSON_DATA_REGISTRY = {
 },
 
 
-'china-ai-classrooms': {
-  id:    'china-ai-classrooms',
+'china-ai-classrooms-advanced': {
+  id:    'china-ai-classrooms-advanced',
   title: 'AI in the Classroom: Smart Schools or Surveillance?',
-  level: 'Upper-Intermediate',
-  track: 'intermediate',
+  level: 'Advanced',
+  track: 'advanced',
   emoji: '🧠',
   badge: 'AI Classroom Analyst',
 
@@ -2424,8 +2424,8 @@ const LESSON_DATA_REGISTRY = {
   ],
 },
 
-   'gut-genug': {
-  id:    'gut-genug',
+   'gut-genug-intermediate': {
+  id:    'gut-genug-intermediate',
   title: 'Du bist gut genug — You Are Good Enough! (Intermediate)',
   level: 'Intermediate',
   track: 'intermediate',
