@@ -847,7 +847,7 @@
 
    'the-ledger-files-bookkeeping-tax': {
   title:   'The Ledger Files',
-  level:   'Tax English',
+  level:   'Tax',
   grammar: 'Passive Voice in bookkeeping English (is/are/was/were + past participle); Zero Conditional for general bookkeeping rules',
   vocab: [
     { word:'asset',               definition:'Something valuable that a business owns — cash, equipment, or money it is owed' },
