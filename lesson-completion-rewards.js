@@ -457,9 +457,9 @@
   ],
 },
 
-     'china-ai-classrooms': {
+     'china-ai-classrooms-advanced': {
   title:   'AI in the Classroom: Smart Schools or Surveillance?',
-  level:   'Upper-Intermediate',
+  level:   'Advanced',
   grammar: 'Reported speech (backshift); modal verbs of speculation (might/could/may)',
   vocab: [
     { word:'surveillance',   definition:'The close watching of someone\u2019s behaviour, often without them having much say in it' },
@@ -523,7 +523,7 @@
   ],
 },
 
-     'gut-genug': {
+     'gut-genug-intermediate': {
   title:   'Du bist gut genug — You Are Good Enough! (Intermediate)',
   level:   'Intermediate',
   grammar: 'Present simple vs past simple vs present perfect; contrast connectors (despite / even though / without)',
@@ -845,9 +845,9 @@
   ],
 },
 
-   'the-ledger-files-bookkeeping-intermediate': {
+   'the-ledger-files-bookkeeping-tax': {
   title:   'The Ledger Files',
-  level:   'Tax & Bookkeeping English (B1/B2)',
+  level:   'Tax English',
   grammar: 'Passive Voice in bookkeeping English (is/are/was/were + past participle); Zero Conditional for general bookkeeping rules',
   vocab: [
     { word:'asset',               definition:'Something valuable that a business owns — cash, equipment, or money it is owed' },
