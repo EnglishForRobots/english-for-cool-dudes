@@ -126,13 +126,30 @@ h1{font-size:clamp(22px,6vw,30px);font-weight:900;color:var(--bold);letter-spaci
     });
     var seen = {};
     var w = pref((r.word_builder || []).filter(function (e) {
-      var k = e.word.toLowerCase(); if (seen[k]) return false; seen[k] = 1; return true;
-    }), function (e) { return e.word.replace(/[^a-z0-9]/gi, '').length <= 11; }).map(function (e) {
-      var letters = norm(e.word).replace(/ /g, '');
-      return bd('Spell the word', e.definition, 'Tap the letters to spell the word.', shuf(letters.split('')), e.word, [letters], '');
-    });
-    return shuf([].concat(take(v, 3), take(g, 2), take(t, 2), take(f, 2), take(x, 1), take(s, 2), take(w, 2))).slice(0, 12);
+  var k = e.word.toLowerCase(); if (seen[k]) return false; seen[k] = 1; return true;
+}), function (e) { return e.word.replace(/[^a-z0-9]/gi, '').length <= 11; }).map(function (e) {
+  var letters = norm(e.word).replace(/ /g, '');
+  var items = [], groups = [], cur = [], grp = null;
+  function flush() {
+    if (!cur.length) return;
+    if (!grp) { grp = []; groups.push(grp); }
+    shuf(cur).forEach(function (l) { grp.push(items.length); items.push(l); });
+    cur = [];
   }
+  e.word.toLowerCase().split('').forEach(function (ch) {
+    if (/[a-z0-9]/.test(ch)) cur.push(ch);
+    else if (ch !== "'" && ch !== '’') {          // space or hyphen becomes its own tile
+      flush();
+      if (!grp) { grp = []; groups.push(grp); }
+      grp.push(items.length); items.push(ch);
+      grp = null;
+    }
+  });
+  flush();
+  var q = bd('Spell the word', e.definition, 'Tap the letters to spell the word.', items, e.word, [letters], '');
+  q.groups = groups;
+  return q;
+});
 
   /* ---------- screens ---------- */
   function msg(icon, title, sub, btn) {
@@ -208,18 +225,31 @@ h1{font-size:clamp(22px,6vw,30px);font-weight:900;color:var(--bold);letter-spaci
   function initBd(q) {
     var placed = [], fin = false, tray = $('tray'), bank = $('bank');
     var cls = q.join ? '' : ' l';
-    q.items.forEach(function (t, k) {
-      var b = document.createElement('button');
-      b.className = 'tile' + cls; b.id = 't' + k; b.textContent = t;
-      b.onclick = function () { if (!fin) { placed.push(k); draw(); } };
-      bank.appendChild(b);
+    var disp = function (t) { return t === ' ' ? '␣' : t; };
+function mk(t, k) {
+  var b = document.createElement('button');
+  b.className = 'tile' + cls; b.id = 't' + k; b.textContent = disp(t);
+  b.onclick = function () { if (!fin) { placed.push(k); draw(); } };
+  return b;
+}
+if (q.groups) {
+  bank.style.gap = '10px 24px';
+  q.groups.forEach(function (g) {
+    var d = document.createElement('div');
+    d.style.cssText = 'display:flex;gap:8px';
+    g.forEach(function (k) { d.appendChild(mk(q.items[k], k)); });
+    bank.appendChild(d);
+  });
+} else {
+  q.items.forEach(function (t, k) { bank.appendChild(mk(t, k)); });
+}
     });
     function draw() {
       $('fb').className = 'fb';
       tray.innerHTML = placed.length ? '' : '<span class="empty">Your answer appears here</span>';
       placed.forEach(function (k, p) {
         var c = document.createElement('button');
-        c.className = 'chip' + cls; c.textContent = q.items[k];
+        c.className = 'chip' + cls; c.textContent = q.items[k] === ' ' ? '␣' : q.items[k];
         c.onclick = function () { if (!fin) { placed.splice(p, 1); draw(); } };
         tray.appendChild(c);
       });
@@ -234,17 +264,19 @@ h1{font-size:clamp(22px,6vw,30px);font-weight:900;color:var(--bold);letter-spaci
     $('chk').onclick = function () {
       if (fin || !placed.length) return;
       var built = placed.map(function (k) { return q.items[k]; }).join(q.join);
-      end(q.accepts.indexOf(norm(built)) > -1);
+      var key = q.join ? norm(built) : norm(built).replace(/ /g, '');
+      end(q.accepts.indexOf(key) > -1);
     };
     $('clr').onclick = function () { if (!fin) { placed = []; draw(); } };
     $('rev').onclick = function () { if (!fin) { placed = []; end(false); } };
     $('hnt').onclick = function () {
       if (fin) return;
       var units = q.join ? q.accepts[0].split(' ') : q.accepts[0].split('');
-      var okSoFar = placed.every(function (k, p) { return norm(q.items[k]) === units[p]; });
+      var real = placed.filter(function (k) { return norm(q.items[k]).trim() !== ''; });
+var okSoFar = real.every(function (k, p) { return norm(q.items[k]) === units[p]; });
       if (!okSoFar) { var f = $('fb'); f.className = 'fb x'; f.textContent = 'Something is out of place. Tap a placed item to take it back.'; return; }
       for (var k = 0; k < q.items.length; k++) {
-        if (placed.indexOf(k) < 0 && norm(q.items[k]) === units[placed.length]) {
+        if (placed.indexOf(k) < 0 && norm(q.items[k]) === units[real.length]) {
           var b = $('t' + k); b.classList.add('flash');
           setTimeout(function () { b.classList.remove('flash'); }, 1500);
           return;
