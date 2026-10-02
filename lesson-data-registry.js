@@ -5756,9 +5756,9 @@ const LESSON_DATA_REGISTRY = {
    'weekly-drop-issue-022' entry (which already ends with a comma).
 ═══════════════════════════════════════════════════════════════ */
 
-'tax-passport-control-information-exchange': {
+'tax-passport-control-information-exchange-tax': {
 
-  id:    'tax-passport-control-information-exchange',
+  id:    'tax-passport-control-information-exchange-tax',
   title: 'Passport Control for Tax Data',
   level: 'Tax English',
   track: 'tax',
