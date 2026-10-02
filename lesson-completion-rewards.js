@@ -1217,7 +1217,7 @@
 
       'tax-passport-control-information-exchange-tax': {
       title:   'Passport Control for Tax Data',
-      level:   'Tax English (Intermediate)',
+      level:   'Tax',
       grammar: 'Prepositions after verbs and adjectives (responsible for, subject to, by + deadline); uncountable nouns (information); past simple vs present perfect; inversion in conditionals (Should the client fail…)',
       vocab: [
         { word:'exchange of information',   definition:'Tax offices in different countries share data about taxpayers.' },
