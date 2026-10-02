@@ -1628,27 +1628,84 @@ function hintTyped() {
   document.getElementById('typed-input')?.focus();
 }
 
-// ── TYPED RECALL: EXTRA HELP ───────────────────────────────────
-function _typedChoices(q) {
-  const pool = window.LESSON_DATA_REGISTRY?.[q._lessonId]?.vocab
-    || _selectedLessons[q._lessonId]?.vocab
-    || Object.values(_selectedLessons).flatMap(l => l.vocab || []);
-  const me = pool.find(v => v.word === q.word);
-  const wrong = (me?.distractors || []).filter(w => w !== q.word).slice(0, 3);
-  pool.forEach(v => { if (wrong.length < 3 && v.word !== q.word && !wrong.includes(v.word)) wrong.push(v.word); });
-  return wrong.length ? shuffle([q.word, ...wrong]) : null;
+// ── TYPED RECALL ───────────────────────────────────────────────
+// Help ladder: Letters → Shuffle → Pick it → Reveal
+let _typedHinted = false;
+let _typedRevealCount = 0;
+
+function _typedNorm(s) { return (s || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
+
+function _lev(a, b) {
+  const d = Array.from({ length: a.length + 1 }, (_, x) => [x]);
+  for (let y = 1; y <= b.length; y++) d[0][y] = y;
+  for (let x = 1; x <= a.length; x++)
+    for (let y = 1; y <= b.length; y++)
+      d[x][y] = Math.min(d[x-1][y] + 1, d[x][y-1] + 1, d[x-1][y-1] + (a[x-1] === b[y-1] ? 0 : 1));
+  return d[a.length][b.length];
 }
 
-function lettersTyped() {
+// e.g. word "platform", n = 2  →  "P L _ _ _ _ _ _"
+function _typedPattern(word, n) {
+  let k = 0;
+  return word.split('').map(c => {
+    if (!/[a-z0-9]/i.test(c)) return c === ' ' ? '\u2003' : c;
+    return k++ < n ? c.toUpperCase() : '_';
+  }).join(' ');
+}
+
+function renderTyped(q, body) {
+  _typedHinted = false; _typedRevealCount = 0;
+  const prompt = q.sentence ? q.sentence.replace(/_{3,}/g, '<span class="gap-blank">___</span>') : '';
+  body.innerHTML = `
+    <div class="blitz-wrap">
+      <div class="q-counter">Question ${_qIdx+1} · type it from memory</div>
+      <div class="blitz-def">${q.def}</div>
+      ${prompt ? `<div class="gap-sentence" style="font-size:clamp(14px,2.8vw,20px);padding:16px 22px">${prompt}</div>` : ''}
+      <input id="typed-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type the word…"
+        style="width:100%;padding:16px 18px;font:inherit;font-size:22px;font-weight:900;text-align:center;border-radius:var(--r);border:3px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;outline:none">
+      <div id="typed-hint" style="min-height:24px;margin-top:10px;text-align:center;font-weight:900;color:var(--yellow);letter-spacing:3px"></div>
+      <div id="typed-nudge" style="min-height:20px;margin-top:2px;text-align:center;font-size:13px;font-weight:800;color:rgba(255,255,255,.65)"></div>
+      <div id="typed-letters" style="display:none;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px"></div>
+      <div id="typed-btns" style="display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap">
+        <button class="sb-check" onclick="checkTyped()">✓ Check!</button>
+        <button class="wb-hint" id="typed-hint-btn" onclick="hintTyped()">💡 Letters</button>
+        <button class="wb-hint" id="typed-shuffle-btn" onclick="shuffleTyped()">🔀 Shuffle</button>
+        <button class="wb-hint" id="typed-pick-btn" onclick="pickTyped()">🎯 Pick it</button>
+        <button class="wb-reveal" onclick="revealTyped()">👁️ Reveal</button>
+      </div>
+      <div id="typed-pick" class="opts-grid" style="display:none;margin-top:14px"></div>
+    </div>`;
+  setTimeout(() => document.getElementById('typed-input')?.focus(), 50);
+}
+
+// Step 1: each click reveals the next letter in its right place
+function hintTyped() {
+  if (_answered) return;
+  const q = _questions[_qIdx];
+  const total = _typedNorm(q.word).length;
+  if (_typedRevealCount >= total) return;
+  _typedRevealCount++;
+  _typedHinted = true;
+  document.getElementById('typed-hint').textContent = _typedPattern(q.word, _typedRevealCount);
+  if (_typedRevealCount >= total) {
+    document.getElementById('typed-hint-btn').disabled = true;
+    document.getElementById('typed-nudge').textContent = 'Every letter is showing. Now type it, you’ve got this!';
+  }
+  document.getElementById('typed-input')?.focus();
+}
+
+// Step 2: anagram — the word's own letters, shuffled; tap them into order
+function shuffleTyped() {
   if (_answered) return;
   const q = _questions[_qIdx];
   _typedHinted = true;
-  const target = _typedNorm(q.word);
-  const extra = shuffle('abcdefghijklmnopqrstuvwxyz'.split('').filter(c => !target.includes(c))).slice(0, 3);
-  const tiles = shuffle([...target.split(''), ...extra]);
+  const target = _typedNorm(q.word).split('');
+  let tiles = shuffle(target);
+  for (let t = 0; t < 5 && target.length > 1 && tiles.join('') === target.join(''); t++) tiles = shuffle(target);
   const input = document.getElementById('typed-input');
   input.value = ''; input.readOnly = true;
   input.style.textTransform = 'uppercase'; input.style.letterSpacing = '4px';
+  document.getElementById('typed-nudge').textContent = 'Tap the letters in the right order.';
   const box = document.getElementById('typed-letters');
   box.style.display = 'flex'; box.innerHTML = ''; box._stack = [];
   tiles.forEach(l => {
@@ -1670,8 +1727,19 @@ function lettersTyped() {
     last.disabled = false; last.classList.remove('used');
   };
   box.appendChild(undo);
-  document.getElementById('typed-letters-btn').disabled = true;
+  document.getElementById('typed-shuffle-btn').disabled = true;
   input.focus({ preventScroll: true });
+}
+
+// Step 3: four choices
+function _typedChoices(q) {
+  const pool = window.LESSON_DATA_REGISTRY?.[q._lessonId]?.vocab
+    || _selectedLessons[q._lessonId]?.vocab
+    || Object.values(_selectedLessons).flatMap(l => l.vocab || []);
+  const me = pool.find(v => v.word === q.word);
+  const wrong = (me?.distractors || []).filter(w => w !== q.word).slice(0, 3);
+  pool.forEach(v => { if (wrong.length < 3 && v.word !== q.word && !wrong.includes(v.word)) wrong.push(v.word); });
+  return wrong.length ? shuffle([q.word, ...wrong]) : null;
 }
 
 function pickTyped() {
@@ -1680,10 +1748,9 @@ function pickTyped() {
   const choices = _typedChoices(q);
   if (!choices) { document.getElementById('typed-pick-btn').disabled = true; return; }
   _typedHinted = true;
-  document.getElementById('typed-input').style.display = 'none';
-  document.getElementById('typed-letters').style.display = 'none';
-  document.getElementById('typed-hint').textContent = '';
-  document.getElementById('typed-btns').style.display = 'none';
+  ['typed-input', 'typed-letters', 'typed-hint', 'typed-nudge', 'typed-btns'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.style.display = 'none';
+  });
   const box = document.getElementById('typed-pick');
   box.style.display = 'grid'; box.innerHTML = '';
   choices.forEach((w, k) => {
@@ -1705,7 +1772,9 @@ function answerTypedPick(chosen, btn) {
   btn.classList.add(ok ? 'correct' : 'wrong');
   if (!ok) document.querySelectorAll('#typed-pick .opt').forEach(b => { if (b.dataset.word === q.word) b.classList.add('reveal'); });
   if (_srsMode) _recordSRSResult(ok, ok ? 'hint' : 'wrong');
-  handleResult(ok, ok ? '✅ Got it! Next time, try typing it.' : `❌ The word is: <strong>${q.word}</strong>`, q.def);
+  handleResult(ok,
+    ok ? '✅ Got it! Next time, try typing it.' : `💪 Not this time. The word is <strong>${q.word}</strong>`,
+    q.def);
 }
 
 function checkTyped() {
@@ -1723,20 +1792,24 @@ function checkTyped() {
   input.style.borderColor = ok ? 'var(--green)' : 'var(--punch)';
   document.getElementById('typed-btns').style.display = 'none';
   if (_srsMode) _recordSRSResult(ok, ok ? (_typedHinted ? 'hint' : 'fast') : 'wrong');
-  handleResult(ok,
-    ok ? (close ? `✅ Nearly! The spelling is <strong>${q.word}</strong>` : '✅ Correct!') : `❌ The word is: <strong>${q.word}</strong>`,
-    q.def);
+  let msg;
+  if (!ok) msg = `💪 Not this time. The word is <strong>${q.word}</strong>. You’ll get it next round!`;
+  else if (close) msg = `✅ Nearly! The spelling is <strong>${q.word}</strong>`;
+  else if (_typedHinted) msg = '✅ You got it! A little help is how words stick.';
+  else msg = '✅ Correct, straight from memory!';
+  handleResult(ok, msg, q.def);
 }
 
+// Step 4: last resort
 function revealTyped() {
   if (_answered) return;
   const q = _questions[_qIdx];
   _answered = true; _total++;
   const input = document.getElementById('typed-input');
-  input.value = q.word; input.disabled = true; input.style.borderColor = 'var(--punch)';
+  input.value = q.word; input.readOnly = false; input.disabled = true; input.style.borderColor = 'var(--punch)';
   document.getElementById('typed-btns').style.display = 'none';
   if (_srsMode) _recordSRSResult(false, 'reveal');
-  handleResult(false, `👁️ The word is <strong>${q.word}</strong>`, q.def);
+  handleResult(false, `👁️ The word is <strong>${q.word}</strong>. See it again, then you’ll know it next time.`, q.def);
 }
 
 function renderTF(q, body) {
