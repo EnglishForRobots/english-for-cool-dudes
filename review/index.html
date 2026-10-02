@@ -353,6 +353,7 @@ body{background:var(--navy);color:#fff;line-height:1.4}
       <button class="round-toggle" data-round="grammar"  onclick="toggleRound(this)">📖 Grammar</button>
       <button class="round-toggle" data-round="builder"  onclick="toggleRound(this)">🧱 Word Builder</button>
       <button class="round-toggle" data-round="tf"       onclick="toggleRound(this)">✅ True/False</button>
+      <button class="round-toggle" data-round="typed"    onclick="toggleRound(this)">⌨️ Type It</button>
       <button class="round-toggle" data-round="sentence" onclick="toggleRound(this)">🔤 Sentences</button>
     </div>
 
@@ -717,6 +718,9 @@ function _buildQuestionFromSRSItem(srsItem, reg) {
     const word = parts.slice(1).join(':');
     const item = reg.vocab?.find(v => v.word.toLowerCase() === word.toLowerCase());
     if (!item) return null;
+    if (_selectedTimerSecs === 0 && parseFloat(srsItem.interval_days) >= 7) {
+      return { round:'typed', word:item.word, def:item.definition, sentence:item.example || '' };
+    }
     const wrong = (reg.vocab || []).filter(v => v.word !== item.word).sort(() => Math.random()-.5).slice(0,3).map(v => v.word);
     if (wrong.length < 1) return null;
     if (item.example) {
@@ -1168,6 +1172,12 @@ function buildQuestions() {
     });
   }
 
+  if (_activeRounds.has('typed') && ld.vocab?.length) {
+    ld.vocab.forEach(item => {
+      q.push(tag({ round:'typed', word:item.word, def:item.definition, sentence:item.example || '' }));
+    });
+  }
+
   if (_activeRounds.has('sentence') && ld.sentences?.length) {
     ld.sentences.forEach(item => {
       q.push(tag({ round:'sentence', words:shuffle([...item.words]), answer:item.answer, altAnswers:item.altAnswers, hint:item.hint }));
@@ -1254,6 +1264,8 @@ const ROUND_META = {
   sentence:{ icon:'🔤',  title:'Sentence <span class="acc">Builder!</span>', desc:'The words are in the wrong order — tap them to build the sentence.' },
 };
 
+ROUND_META.typed = { icon:'⌨️', title:'Type <span class="acc">It!</span>', desc:'No options this time — type the word from memory, then press ENTER.' };
+
 let _lastRound = null;
 function renderRoundIntro(round, force) {
   if (round === _lastRound && !force) { renderQuestion(); return; }
@@ -1316,6 +1328,7 @@ function renderQuestion() {
     case 'builder':  renderBuilder(q, body);  break;
     case 'tf':       renderTF(q, body);       break;
     case 'sentence': renderSentence(q, body); break;
+    case 'typed':    renderTyped(q, body);    break;
     default:         renderBlitz(q, body);
   }
 }
@@ -1567,6 +1580,81 @@ function checkWB() {
 }
 
 // ── TRUE / FALSE ──────────────────────────────────────────────
+// ── TYPED RECALL ───────────────────────────────────────────────
+let _typedHinted = false;
+
+function _typedNorm(s) { return (s || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
+
+function _lev(a, b) {
+  const d = Array.from({ length: a.length + 1 }, (_, x) => [x]);
+  for (let y = 1; y <= b.length; y++) d[0][y] = y;
+  for (let x = 1; x <= a.length; x++)
+    for (let y = 1; y <= b.length; y++)
+      d[x][y] = Math.min(d[x-1][y] + 1, d[x][y-1] + 1, d[x-1][y-1] + (a[x-1] === b[y-1] ? 0 : 1));
+  return d[a.length][b.length];
+}
+
+function renderTyped(q, body) {
+  _typedHinted = false;
+  const prompt = q.sentence ? q.sentence.replace(/_{3,}/g, '<span class="gap-blank">___</span>') : '';
+  body.innerHTML = `
+    <div class="blitz-wrap">
+      <div class="q-counter">Question ${_qIdx+1} · type it from memory</div>
+      <div class="blitz-def">${q.def}</div>
+      ${prompt ? `<div class="gap-sentence" style="font-size:clamp(14px,2.8vw,20px);padding:16px 22px">${prompt}</div>` : ''}
+      <input id="typed-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type the word…"
+        style="width:100%;padding:16px 18px;font:inherit;font-size:22px;font-weight:900;text-align:center;border-radius:var(--r);border:3px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;outline:none">
+      <div id="typed-hint" style="min-height:24px;margin-top:10px;text-align:center;font-weight:900;color:var(--yellow);letter-spacing:3px"></div>
+      <div id="typed-btns" style="display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap">
+        <button class="sb-check" onclick="checkTyped()">✓ Check!</button>
+        <button class="wb-hint" id="typed-hint-btn" onclick="hintTyped()">💡 First letter</button>
+        <button class="wb-reveal" onclick="revealTyped()">👁️ Reveal</button>
+      </div>
+    </div>`;
+  setTimeout(() => document.getElementById('typed-input')?.focus(), 50);
+}
+
+function hintTyped() {
+  if (_answered) return;
+  const q = _questions[_qIdx];
+  _typedHinted = true;
+  document.getElementById('typed-hint').textContent =
+    q.word.split('').map((c, x) => x === 0 ? c.toUpperCase() : (c === ' ' || c === '-' ? c : '_')).join(' ');
+  document.getElementById('typed-hint-btn').disabled = true;
+  document.getElementById('typed-input')?.focus();
+}
+
+function checkTyped() {
+  if (_answered) return;
+  const q = _questions[_qIdx];
+  const input = document.getElementById('typed-input');
+  const typed = _typedNorm(input.value);
+  if (!typed) return;
+  const target = _typedNorm(q.word);
+  const exact = typed === target;
+  const close = !exact && target.length >= 7 && _lev(typed, target) <= 1;
+  const ok = exact || close;
+  _answered = true; _total++;
+  input.disabled = true;
+  input.style.borderColor = ok ? 'var(--green)' : 'var(--punch)';
+  document.getElementById('typed-btns').style.display = 'none';
+  if (_srsMode) _recordSRSResult(ok, ok ? (_typedHinted ? 'hint' : 'fast') : 'wrong');
+  handleResult(ok,
+    ok ? (close ? `✅ Nearly! The spelling is <strong>${q.word}</strong>` : '✅ Correct!') : `❌ The word is: <strong>${q.word}</strong>`,
+    q.def);
+}
+
+function revealTyped() {
+  if (_answered) return;
+  const q = _questions[_qIdx];
+  _answered = true; _total++;
+  const input = document.getElementById('typed-input');
+  input.value = q.word; input.disabled = true; input.style.borderColor = 'var(--punch)';
+  document.getElementById('typed-btns').style.display = 'none';
+  if (_srsMode) _recordSRSResult(false, 'reveal');
+  handleResult(false, `👁️ The word is <strong>${q.word}</strong>`, q.def);
+}
+
 function renderTF(q, body) {
   const stmt = q.statement.replace(/\b([A-Z]{2,})\b/g, '<span class="hl">$1</span>');
   body.innerHTML = `
@@ -1899,6 +1987,15 @@ document.addEventListener('keydown', e => {
   const gs = document.getElementById('game');
   if (gs.style.display==='none') return;
   const currentRound = _questions[_qIdx]?.round;
+
+  if (currentRound === 'typed') {
+    if (e.target && e.target.id === 'typed-input') {
+      if (e.key === 'Enter') { e.preventDefault(); checkTyped(); }
+      return;
+    }
+    if ((e.key === ' ' || e.key === 'ArrowRight' || e.key === 'Enter') && _answered && !_timerEnded) { e.preventDefault(); advance(); }
+    return;
+  }
 
   // Word Builder: type letters directly, Backspace to undo
   if (currentRound === 'builder' && !_answered) {
