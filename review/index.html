@@ -1665,59 +1665,100 @@ function hintTyped() {
   document.getElementById('typed-input')?.focus();
 }
 
-// Step 2: anagram. Click a tile and its letter goes into the box; click a greyed
-// tile to take that letter back out. Typing on the keyboard greys tiles too.
+// Step 2: anagram. Tiles are grouped per word; separators (space, hyphen...) are tiles too.
 function shuffleTyped() {
   if (_answered) return;
   const q = _questions[_qIdx];
   _typedHinted = true;
-  const target = _typedNorm(q.word).split('');
-  let tiles = shuffle(target);
-  for (let t = 0; t < 5 && target.length > 1 && tiles.join('') === target.join(''); t++) tiles = shuffle(target);
   const input = document.getElementById('typed-input');
   input.style.textTransform = 'uppercase'; input.style.letterSpacing = '4px';
   document.getElementById('typed-nudge').textContent = 'Click the letters to put them in the box, or just type. Click a greyed letter to remove it.';
-  const box = document.getElementById('typed-letters');
-  box.style.display = 'flex'; box.innerHTML = '';
-  tiles.forEach(l => {
+
+  const sh = arr => {
+    let t = shuffle(arr);
+    for (let i = 0; i < 5 && arr.length > 1 && t.join('') === arr.join(''); i++) t = shuffle(arr);
+    return t;
+  };
+
+  const mkTile = (ch, isSep) => {
     const b = document.createElement('button');
-    b.className = 'wb-tile'; b.textContent = l.toUpperCase(); b.dataset.l = l;
+    b.className = 'wb-tile';
+    b.textContent = ch === ' ' ? '␣' : ch.toUpperCase();
+    b.dataset.l = ch.toLowerCase();
+    b._used = false;
+    if (isSep) b.style.cssText = 'width:34px;background:#EEF3FB';
     b.onclick = () => {
       if (_answered) return;
-      if (b.classList.contains('used')) {
-        // remove the last copy of this letter from the box
-        const i = input.value.toLowerCase().lastIndexOf(l);
+      const key = b.dataset.l;
+      if (b._used) {
+        const i = input.value.toLowerCase().lastIndexOf(key);
         if (i > -1) input.value = input.value.slice(0, i) + input.value.slice(i + 1);
+        b._used = false;
         _syncTypedTiles();
       } else {
-        input.value += l;
+        input.value += ch;
+        b._used = true;
         _syncTypedTiles();
         _typedTilesFullCheck();
       }
       input.focus({ preventScroll: true });
     };
-    box.appendChild(b);
-  });
+    return b;
+  };
+
+  const box = document.getElementById('typed-letters');
+  box.style.cssText = 'display:flex;flex-wrap:wrap;gap:10px 18px;justify-content:center;margin-top:10px';
+  box.innerHTML = '';
+
+  let grp = null, cur = [];
+  const newGroup = () => {
+    const g = document.createElement('div');
+    g.style.cssText = 'display:flex;gap:6px;flex-wrap:nowrap';
+    box.appendChild(g);
+    return g;
+  };
+  const flushLetters = () => {
+    if (!grp) grp = newGroup();
+    sh(cur).forEach(l => grp.appendChild(mkTile(l, false)));
+    cur = [];
+  };
+  for (const ch of q.word) {
+    if (/[a-z0-9]/i.test(ch)) { cur.push(ch.toLowerCase()); }
+    else {
+      flushLetters();
+      grp.appendChild(mkTile(ch, true));
+      grp = null;
+    }
+  }
+  if (cur.length) flushLetters();
+
   _syncTypedTiles();
   document.getElementById('typed-shuffle-btn').disabled = true;
   input.focus({ preventScroll: true });
 }
 
-// Grey out one tile per letter currently in the box
+// Keep the number of greyed tiles per character equal to the number of that character in the box.
+// Clicked tiles keep their own state; typing greys the first free tile / un-greys the last used one.
 function _syncTypedTiles() {
   const box = document.getElementById('typed-letters');
   const input = document.getElementById('typed-input');
   if (!box || !input) return;
   const pool = {};
-  for (const c of _typedNorm(input.value)) pool[c] = (pool[c] || 0) + 1;
-  box.querySelectorAll('.wb-tile').forEach(t => {
-    const l = t.dataset.l;
-    if (pool[l] > 0) { pool[l]--; t.classList.add('used'); }
-    else t.classList.remove('used');
-  });
+  for (const c of input.value.toLowerCase()) pool[c] = (pool[c] || 0) + 1;
+  const byKey = {};
+  box.querySelectorAll('.wb-tile').forEach(t => { (byKey[t.dataset.l] = byKey[t.dataset.l] || []).push(t); });
+  for (const key in byKey) {
+    const tiles  = byKey[key];
+    const used   = tiles.filter(t => t._used);
+    const unused = tiles.filter(t => !t._used);
+    const n = pool[key] || 0;
+    while (used.length > n)                { const t = used.pop();    t._used = false; unused.unshift(t); }
+    while (used.length < n && unused.length) { const t = unused.shift(); t._used = true;  used.push(t); }
+    tiles.forEach(t => t.classList.toggle('used', t._used));
+  }
 }
 
-// All tiles used: clear the box, put the tiles away, show the word like "Letters" does
+// All letters placed: clear the box, put the tiles away, show the word like "Letters" does
 function _typedTilesFullCheck() {
   const q = _questions[_qIdx];
   const total = _typedNorm(q.word).length;
