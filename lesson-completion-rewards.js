@@ -1381,9 +1381,9 @@
       // ── VOCAB SAVE ────────────────────────────────────────────
       const lessonId      = lessonData.lessonId || '';
       const registryEntry = LESSON_VOCAB_REGISTRY[lessonId] || null;
-      const vocabToSave   = lessonData.vocabulary?.length
-        ? lessonData.vocabulary
-        : registryEntry?.vocab || [];
+      const vocabToSave = registryEntry?.vocab?.length
+        ? registryEntry.vocab
+        : (lessonData.vocabulary || []);
 
       if (vocabToSave.length > 0) {
         await fetch(SUPABASE_URL + '/rest/v1/efcd_lesson_vocab', {
