@@ -1601,7 +1601,7 @@ function checkWB() {
 // ── TRUE / FALSE ──────────────────────────────────────────────
 // ── TYPED RECALL ───────────────────────────────────────────────
 // Help ladder: Letters → Shuffle → Pick it → Reveal
-let _typedHinted = false;
+let _typedHinted = false; let _typedRevealed = false;
 let _typedRevealCount = 0;
 
 function _typedNorm(s) { return (s || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
@@ -1625,7 +1625,7 @@ function _typedPattern(word, n) {
 }
 
 function renderTyped(q, body) {
-  _typedHinted = false; _typedRevealCount = 0;
+  _typedHinted = false; _typedRevealCount = 0; _typedRevealed = false;
   const prompt = q.sentence ? q.sentence.replace(/_{3,}/g, '<span class="gap-blank">___</span>') : '';
   body.innerHTML = `
     <div class="blitz-wrap">
@@ -1820,6 +1820,16 @@ function checkTyped() {
   input.disabled = true;
   input.style.borderColor = ok ? 'var(--green)' : 'var(--punch)';
   document.getElementById('typed-btns').style.display = 'none';
+
+  if (ok && _typedRevealed) {
+    // Typed it after seeing it: green for the student, but no points,
+    // SRS records a reveal, and it comes back in Second Chance.
+    if (_srsMode) _recordSRSResult(false, 'reveal');
+    handleResult(false, '', q.def);
+    showFeedback(true, `✅ Well done, typing it is how it sticks! <strong>${q.word}</strong>`, q.def);
+    return;
+  }
+
   if (_srsMode) _recordSRSResult(ok, ok ? (_typedHinted ? 'hint' : 'fast') : 'wrong');
   let msg;
   if (!ok) msg = `💪 Not this time. The word is <strong>${q.word}</strong>. You’ll get it next round!`;
@@ -1828,19 +1838,24 @@ function checkTyped() {
   else msg = '✅ Correct, straight from memory!';
   handleResult(ok, msg, q.def);
 }
-
-// Step 4: last resort
+// Step 4: show the whole word, then the student still has to type it
 function revealTyped() {
   if (_answered) return;
   const q = _questions[_qIdx];
-  _answered = true; _total++;
+  _typedRevealed = true; _typedHinted = true;
   const input = document.getElementById('typed-input');
-  input.value = q.word; input.readOnly = false; input.disabled = true; input.style.borderColor = 'var(--punch)';
-  document.getElementById('typed-btns').style.display = 'none';
-  if (_srsMode) _recordSRSResult(false, 'reveal');
-  handleResult(false, `👁️ The word is <strong>${q.word}</strong>. See it again, then you’ll know it next time.`, q.def);
+  input.value = ''; input.readOnly = false; input.disabled = false;
+  input.style.textTransform = ''; input.style.letterSpacing = '';
+  _typedRevealCount = _typedNorm(q.word).length;
+  document.getElementById('typed-hint').textContent = _typedPattern(q.word, _typedRevealCount);
+  document.getElementById('typed-nudge').textContent = 'Here is the word. Now type it in the box!';
+  const box = document.getElementById('typed-letters'); if (box) box.style.display = 'none';
+  ['typed-hint-btn', 'typed-shuffle-btn', 'typed-pick-btn'].forEach(id => {
+    const b = document.getElementById(id); if (b) b.disabled = true;
+  });
+  document.querySelector('#typed-btns .wb-reveal').disabled = true;
+  input.focus();
 }
-
 function renderTF(q, body) {
   const stmt = q.statement.replace(/\b([A-Z]{2,})\b/g, '<span class="hl">$1</span>');
   body.innerHTML = `
