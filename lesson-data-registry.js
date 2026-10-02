@@ -4276,7 +4276,7 @@ const LESSON_DATA_REGISTRY = {
 
     id:    'the-ledger-files-bookkeeping-tax',
     title: 'The Ledger Files',
-    level: 'Tax English',
+    level: 'Tax',
     track: 'tax',
     emoji: '📒',
     badge: 'Ledger Legend',
