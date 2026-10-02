@@ -4272,11 +4272,11 @@ const LESSON_DATA_REGISTRY = {
 
   },
 
-   'the-ledger-files-bookkeeping-intermediate': {
+   'the-ledger-files-bookkeeping-tax': {
 
-    id:    'the-ledger-files-bookkeeping-intermediate',
+    id:    'the-ledger-files-bookkeeping-tax',
     title: 'The Ledger Files',
-    level: 'Tax & Bookkeeping English (B1/B2)',
+    level: 'Tax English',
     track: 'tax',
     emoji: '📒',
     badge: 'Ledger Legend',
