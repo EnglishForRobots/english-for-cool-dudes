@@ -1080,6 +1080,24 @@ let _selectedLessons = {};  // lessonId -> lessonData object
 let _managing = false;
 let _archivedLessons = [];
 
+// Removes a quoted example sentence from the end of a definition.
+// The example goes into `example` (with the word blanked) if there isn't one already.
+function _cleanVocab(list) {
+  return (list || []).map(v => {
+    let def = v.definition || '', ex = v.example || '';
+    const m = def.match(/\s*["“]([^"”]{8,})["”]\s*$/);
+    if (m) {
+      def = def.slice(0, m.index).trim();
+      if (!ex) {
+        const esc = (v.word || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const blanked = m[1].replace(new RegExp('\\b' + esc + '\\w*', 'gi'), '___');
+        if (blanked.includes('___')) ex = blanked;
+      }
+    }
+    return { ...v, definition: def, example: ex };
+  });
+}
+
 async function selectLesson(btn, lessonId, vocabId) {
   document.getElementById('srs-mode-btn')?.classList.remove('active');
   _pendingSRSMode = false;
@@ -1096,7 +1114,7 @@ async function selectLesson(btn, lessonId, vocabId) {
       const meta = data?.[0];
       if (meta) {
         const vocab = Array.isArray(meta.vocab) ? meta.vocab : JSON.parse(meta.vocab||'[]');
-        ld = { id:lessonId, title:meta.lesson_title, level:meta.lesson_level, emoji:'📖', vocab };
+        ld = { id:lessonId, title:meta.lesson_title, level:meta.lesson_level, emoji:'📖', vocab: _cleanVocab(vocab) };
       }
     }
     if (ld) {
