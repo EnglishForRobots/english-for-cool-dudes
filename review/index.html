@@ -1647,8 +1647,8 @@ function hintTyped() {
   document.getElementById('typed-input')?.focus();
 }
 
-// Step 2: anagram — scrambled letters are a reference; student still types.
-// Typed letters grey out their tile; click a greyed tile to remove that letter.
+// Step 2: anagram. Click a tile and its letter goes into the box; click a greyed
+// tile to take that letter back out. Typing on the keyboard greys tiles too.
 function shuffleTyped() {
   if (_answered) return;
   const q = _questions[_qIdx];
@@ -1658,17 +1658,24 @@ function shuffleTyped() {
   for (let t = 0; t < 5 && target.length > 1 && tiles.join('') === target.join(''); t++) tiles = shuffle(target);
   const input = document.getElementById('typed-input');
   input.style.textTransform = 'uppercase'; input.style.letterSpacing = '4px';
-  document.getElementById('typed-nudge').textContent = 'Type the word. Click a greyed letter to remove it.';
+  document.getElementById('typed-nudge').textContent = 'Click the letters to put them in the box, or just type. Click a greyed letter to remove it.';
   const box = document.getElementById('typed-letters');
   box.style.display = 'flex'; box.innerHTML = '';
   tiles.forEach(l => {
     const b = document.createElement('button');
     b.className = 'wb-tile'; b.textContent = l.toUpperCase(); b.dataset.l = l;
     b.onclick = () => {
-      if (_answered || !b.classList.contains('used')) return;
-      const i = input.value.toLowerCase().lastIndexOf(l);
-      if (i > -1) input.value = input.value.slice(0, i) + input.value.slice(i + 1);
-      _syncTypedTiles();
+      if (_answered) return;
+      if (b.classList.contains('used')) {
+        // remove the last copy of this letter from the box
+        const i = input.value.toLowerCase().lastIndexOf(l);
+        if (i > -1) input.value = input.value.slice(0, i) + input.value.slice(i + 1);
+        _syncTypedTiles();
+      } else {
+        input.value += l;
+        _syncTypedTiles();
+        _typedTilesFullCheck();
+      }
       input.focus({ preventScroll: true });
     };
     box.appendChild(b);
@@ -1678,6 +1685,7 @@ function shuffleTyped() {
   input.focus({ preventScroll: true });
 }
 
+// Grey out one tile per letter currently in the box
 function _syncTypedTiles() {
   const box = document.getElementById('typed-letters');
   const input = document.getElementById('typed-input');
@@ -1691,6 +1699,20 @@ function _syncTypedTiles() {
   });
 }
 
+// All tiles used: clear the box, put the tiles away, show the word like "Letters" does
+function _typedTilesFullCheck() {
+  const q = _questions[_qIdx];
+  const total = _typedNorm(q.word).length;
+  const input = document.getElementById('typed-input');
+  if (_typedNorm(input.value).length < total) return;
+  input.value = '';
+  _syncTypedTiles();
+  document.getElementById('typed-letters').style.display = 'none';
+  _typedRevealCount = total;
+  document.getElementById('typed-hint').textContent = _typedPattern(q.word, total);
+  document.getElementById('typed-hint-btn').disabled = true;
+  document.getElementById('typed-nudge').textContent = 'Every letter is showing. Now type it, you’ve got this!';
+}
 // Step 3: four choices
 function _typedChoices(q) {
   const pool = window.LESSON_DATA_REGISTRY?.[q._lessonId]?.vocab
