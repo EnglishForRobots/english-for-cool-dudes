@@ -4,7 +4,7 @@ window.LEVEL_CONFIG = {
 };
 
 window.LESSONS = [
-  { slug:'young-sikh-britain', icon:'❤️👳‍♂️⚔️', badge:'⭐ Culture/Religion', badgeType:'new', title:'A Young Sikh in Britain', desc:'Spend a day with Damandeep, a 23-year old female Sikh from Reading. Free meals for everyone!', mins:1, date:'2026-10-05', tags:['culture','religion'] },
+  { slug:'young-sikh-britain', icon:'❤️👳‍♂️⚔️', badge:'⭐ Culture/Religion', badgeType:'new', title:'A Young Sikh in Britain', desc:'Spend a day with Damandeep, a 23-year old female Sikh from Reading. Free meals for everyone!', min:1, date:'2026-10-05', tags:['culture','religion'] },
   { slug:'marked-up', icon:'🛒💲', badge:'AI/Finances', badgeType:null, title:"The Invisible Price Tag", desc:'Depending on who you are and what level of English you have, this lesson will change and cost more or less...', mins:9, date:'2026-09-14', tags:['ai','finances'] },
   { slug:'guardian-london', icon:'🔑', badge:'Housing', badgeType:null, title:"London's Guardian Loophole", desc:'Meet Robyn, a property guardian living in a former art school in the middle of London. Cheap rent but tomorrow she may have to leave.', mins:9, date:'2026-09-07', tags:['culture','housing'] },
   { slug:'northernireland', icon:'☘️', badge:'Culture/Religion', badgeType:null, title:'Young & Faithful in Northern Ireland', desc:'What is it like to grow up as a Catholic in Northern Ireland?', mins:10, date:'2026-08-20', tags:['culture','religion'] },
