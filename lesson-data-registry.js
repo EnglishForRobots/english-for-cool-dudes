@@ -4377,7 +4377,7 @@ const LESSON_DATA_REGISTRY = {
       topic: 'Reported Speech — backshifting tenses',
       rule:  'When we report what someone said, tenses shift back: present simple → past simple, will → would, has → had. "I pray every week" → "He said he prayed every week."',
       exercises: [
-        { sentence:'Anthony said he ___ mass with his family every week.',        answer:'prayed',      wrong:['prays','has prayed','is praying'],      explain:'"prays" → "prayed" — present simple backshifts to past simple.' },
+        { sentence:'Anthony said that he ___ with his family every week.',        answer:'prays',      wrong:['prayed','has prayed','is praying'],      explain:'"prays" → general fact - keep the tense in the present.' },
         { sentence:'He said his faith ___ shaped his choice of career.',          answer:'had',         wrong:['has','was','have'],                     explain:'"has shaped" → "had shaped" — present perfect backshifts to past perfect.' },
         { sentence:'Anthony said Catholics ___ once a persecuted minority.',      answer:'had been',    wrong:['are','were','have been'],               explain:'"are/were" → "had been" when reporting a fact about the more distant past.' },
         { sentence:'The narrator said Northern Ireland ___ a great deal since the Troubles.', answer:'had changed', wrong:['has changed','changed','changes'], explain:'"has changed" → "had changed" — present perfect backshifts to past perfect in reported speech.' },
@@ -4398,7 +4398,7 @@ const LESSON_DATA_REGISTRY = {
     sentences: [
       { words:['persecuted','minority','a','were','Catholics','once'],                          answer:'Catholics were once a persecuted minority',            hint:'☘️ What has changed for Catholics since the Troubles?' },
       { words:['stayed','north','the','UK','part','of','the'],                                  answer:'the north stayed part of the UK',                       hint:'📜 What happened after the partition of Ireland?' },
-      { words:['attend','8%','integrated','only','a','school'],                                 answer:'only 8% attend an integrated school',                   hint:'🏫 A fact about schools in Northern Ireland today' },
+      { words:['attend','8%','integrated','only','an','school'],                                 answer:'only 8% attend an integrated school',                   hint:'🏫 A fact about schools in Northern Ireland today' },
       { words:['week','mass','with','family','his','every','attends'],                          answer:'attends mass with his family every week',               hint:'⛪ A fact about Anthony\u2019s faith' },
       { words:['now','Protestants','Catholics','outnumber'],                                    answer:'Catholics now outnumber Protestants',                   hint:'🌉 A major shift since the Troubles' },
     ],
