@@ -320,6 +320,8 @@ body{background:var(--navy);color:#fff;line-height:1.4}
 .tricky-item:last-child{border-bottom:none}
 .tricky-head{font-size:14px;font-weight:900;color:#fff}
 .tricky-note{font-size:12px;font-weight:700;color:rgba(255,255,255,.6);margin-top:1px}
+  /* Mastered lessons: retire nudge always visible */
+.l-retire.mastered{display:inline-block;background:#FFF9DB;border-color:var(--yellow);color:#8a6800}
 </style>
 </head>
 <body>
@@ -917,11 +919,12 @@ async function loadLessons(autoSelectLesson) {
   list.innerHTML = '<div class="loading-msg"><div class="spinner"></div>Loading…</div>';
 
   const today = new Date().toISOString().split('T')[0];
-    const [lessonData, srsAll, archivedRows, trickyAll] = await Promise.all([
+    const [lessonData, srsAll, archivedRows, trickyAll, allSrs] = await Promise.all([
     sbFetch(`efcd_lesson_vocab?class_id=eq.${classId}&archived=eq.false&order=completed_at.desc&limit=20`),
     sbFetch(`efcd_srs_class_items?select=id,lesson_id&class_id=eq.${classId}&status=eq.active&next_review_at=lte.${today}`),
     sbFetch(`efcd_lesson_vocab?class_id=eq.${classId}&archived=eq.true&order=completed_at.desc&select=id,lesson_id,lesson_title`),
     sbFetch(`efcd_srs_class_items?select=id,lesson_id&class_id=eq.${classId}&status=eq.active&review_count=gt.0&ease_factor=lt.2.5`),
+    sbFetch(`efcd_srs_class_items?select=lesson_id,status&class_id=eq.${classId}`),
   ]);
 
   if (!Array.isArray(lessonData)) {
@@ -936,6 +939,9 @@ async function loadLessons(autoSelectLesson) {
     .filter(a => { if (seenA.has(a.lesson_id)) return false; seenA.add(a.lesson_id); return true; });
   const archivedIds = new Set(_archivedLessons.map(a => a.lesson_id));
   const srsData = (Array.isArray(srsAll) ? srsAll : []).filter(i => !archivedIds.has(i.lesson_id));
+    const _statusByLesson = {};
+  (Array.isArray(allSrs) ? allSrs : []).forEach(i => { (_statusByLesson[i.lesson_id] = _statusByLesson[i.lesson_id] || []).push(i.status); });
+  const masteredIds = new Set(Object.keys(_statusByLesson).filter(id => _statusByLesson[id].every(s => s === 'learned')));
   renderArchivedBox();
     const trickyCount = Math.min((Array.isArray(trickyAll) ? trickyAll : []).filter(i => !archivedIds.has(i.lesson_id)).length, 20);
   const trBtn = document.getElementById('tricky-mode-btn');
@@ -987,14 +993,15 @@ async function loadLessons(autoSelectLesson) {
     const vocab  = Array.isArray(v.vocab) ? v.vocab : JSON.parse(v.vocab||'[]');
     const rounds = reg ? _availableRounds(reg).join(', ') : 'vocab';
     const lessonDue = srsData.some(i => i.lesson_id === v.lesson_id);
+    const mastered = masteredIds.has(v.lesson_id);
     return `<button class="l-btn" id="lbtn-${v.lesson_id}" onclick="selectLesson(this,'${v.lesson_id}','${v.id}')">
       <span class="l-icon">${emoji}</span>
       <div class="l-info">
-        <div class="l-name">${v.lesson_title||v.lesson_id}${lessonDue ? ' <span style="font-size:12px">📬</span>' : ''}</div>
+                <div class="l-name">${v.lesson_title||v.lesson_id}${lessonDue ? ' <span style="font-size:12px">📬</span>' : ''}${mastered ? ' <span style="font-size:12px" title="Every word learned">🏆</span>' : ''}</div>
         <div class="l-meta">${v.lesson_level||''} · ${date} · ${rounds}</div>
       </div>
       <span class="l-count">${vocab.length} words</span>
-      <span class="l-retire" onclick="event.stopPropagation();archiveLesson('${v.lesson_id}')">🗄️ Retire</span>
+            <span class="l-retire${mastered ? ' mastered' : ''}" onclick="event.stopPropagation();archiveLesson('${v.lesson_id}')">${mastered ? '🏆 Retire?' : '🗄️ Retire'}</span>
     </button>`;
   }).join('');
 
