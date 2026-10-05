@@ -1236,6 +1236,32 @@
         { word:'comply with',               definition:'Follow a rule or law.' },
         { word:'paper trail',               definition:'Documents that show what happened and when.' },
         { word:'audit',                     definition:'An official check of accounts or tax returns.' },
+      ],
+    },
+
+             'young-faithful-sikh-britain-advanced': {
+      title:   'Young & Faithful: A Young Sikh in Britain',
+      level:   'Advanced',
+      grammar: 'Subject-verb agreement (Everybody is); prepositions (present in, for/since); be used to + -ing; wish + past simple',
+      vocab: [
+        { word:'grounded',      definition:'Calm, stable and sensible; with your feet on the earth.' },
+        { word:'melt away',     definition:'To slowly disappear, like ice in the sun.' },
+        { word:'devout',        definition:'Very religious; takes faith seriously.' },
+        { word:'scripture',     definition:'The holy writings of a religion.' },
+        { word:'hymn',          definition:'A religious song or poem of praise.' },
+        { word:'transcend',     definition:'To go beyond a limit, like the ego or everyday life.' },
+        { word:'omnipresent',   definition:'Present everywhere at the same time.' },
+        { word:'communal',      definition:'Shared by a whole group or community.' },
+        { word:'selfless',      definition:'Putting other people first, without wanting a reward.' },
+        { word:'pilgrimage',    definition:'A journey to a holy place for religious reasons.' },
+        { word:'monumental',    definition:'Hugely important or impressive.' },
+        { word:'observant',     definition:'Following the rules of your religion carefully.' },
+        { word:'asceticism',    definition:'A strict life without pleasure or comfort, for religious reasons.' },
+        { word:'chaste',        definition:'Not having sex before marriage; pure (a formal word).' },
+        { word:'reincarnation', definition:'The belief that a soul is born again in a new body.' },
+        { word:'in tune with',  definition:'Aware of, and connected to, something or someone.' },
+      ],
+    },
 
   };
 
