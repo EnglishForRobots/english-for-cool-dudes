@@ -299,6 +299,27 @@ body{background:var(--navy);color:#fff;line-height:1.4}
 .buzzer-emoji{font-size:42px;display:block;margin-bottom:6px}
 .buzzer-title{font-size:22px;font-weight:900;font-style:italic;color:var(--ink)}
 .buzzer-sub{font-size:13px;font-weight:700;color:rgba(0,0,0,.6);margin-top:3px}
+
+/* Tricky Words card */
+.srs-mode-card.tricky{background:#FFFBEA;border-color:var(--yellow);border-bottom-color:var(--ys)}
+.srs-mode-card.tricky:hover{background:#FFF5CC}
+.srs-mode-card.tricky.active{background:var(--yellow);border-color:var(--ys)}
+.srs-mode-card.tricky.active .srs-mode-name{color:var(--ink)}
+.srs-mode-card.tricky.active .srs-mode-sub{color:rgba(0,0,0,.6)}
+.srs-mode-card.tricky .srs-due-badge{background:var(--yellow);color:var(--ink)}
+.srs-mode-card.tricky.active .srs-due-badge{background:rgba(0,0,0,.12)}
+.srs-mode-card.tricky.no-due{background:#F4F6F8;border-color:#CECECE}
+
+/* Still-tricky list on the finish screen */
+#finish{overflow-y:auto;align-items:flex-start}
+.fin-card{margin:auto}
+.tricky-fin{display:none;background:rgba(255,200,0,.08);border:2px solid rgba(255,200,0,.25);border-radius:var(--r);padding:16px 20px;margin-bottom:18px;text-align:left}
+.tricky-fin-title{font-size:12px;font-weight:900;color:var(--yellow);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;text-align:center}
+.tricky-fin-list{max-height:26vh;overflow-y:auto}
+.tricky-item{padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.tricky-item:last-child{border-bottom:none}
+.tricky-head{font-size:14px;font-weight:900;color:#fff}
+.tricky-note{font-size:12px;font-weight:700;color:rgba(255,255,255,.6);margin-top:1px}
 </style>
 </head>
 <body>
@@ -332,6 +353,14 @@ body{background:var(--navy);color:#fff;line-height:1.4}
           <div class="srs-mode-sub" id="srs-mode-sub">Loading…</div>
         </div>
         <span class="srs-due-badge" id="srs-due-badge" style="display:none"></span>
+      </button>
+            <button class="srs-mode-card tricky no-due" id="tricky-mode-btn" onclick="selectTrickyMode()">
+        <span class="srs-mode-icon">🎯</span>
+        <div>
+          <div class="srs-mode-name">Tricky Words</div>
+          <div class="srs-mode-sub" id="tricky-mode-sub">Loading…</div>
+        </div>
+        <span class="srs-due-badge" id="tricky-badge" style="display:none"></span>
       </button>
       <div class="srs-divider">or pick a lesson</div>
     </div>
@@ -436,6 +465,11 @@ body{background:var(--navy);color:#fff;line-height:1.4}
       <div id="srs-interval-list"></div>
     </div>
     <div class="fin-msg" id="fin-msg"></div>
+        <div class="tricky-fin" id="tricky-fin">
+      <div class="tricky-fin-title">🎯 Still tricky — worth another look</div>
+      <div class="tricky-fin-list" id="tricky-fin-list"></div>
+      <button class="fin-btn fin-ghost" id="tricky-copy" onclick="copyTrickyList()" style="display:flex;margin:12px auto 0;padding:8px 20px;font-size:12px">📋 Copy list</button>
+    </div>
     <div class="fin-btns" id="fin-btns">
       <button class="fin-btn fin-yellow" onclick="restartGame()">🔄 Play Again</button>
       <button class="fin-btn fin-ghost"  onclick="backToSetup()">← New Lesson</button>
@@ -483,6 +517,9 @@ let _srsItems        = [];
 let _srsItemResults  = {};
 let _srsTricky       = false;   // Tricky Words drill (doesn't touch SRS schedule)
 let _missed          = [];      // questions answered wrong this game
+let _pendingTricky = false;
+let _trickyList    = [];   // what the finish screen is showing
+let _stillTricky   = [];   // wrong again during Second Chance
 let _retryPass       = false;   // true while replaying the misses
 let _totalBeforeRetry = 0;
 
@@ -508,10 +545,10 @@ function _updatePlayBtn() {
   const btn = document.getElementById('btn-play');
   if (!btn || btn.disabled) return;
   const mins = _selectedTimerSecs / 60;
-  if (_pendingSRSMode) {
-    btn.textContent = _selectedTimerSecs > 0
-      ? `⏱️ Start ${mins}-min SRS Warm-up!`
-      : '🧠 Start SRS Review!';
+    if (_pendingSRSMode) {
+    btn.textContent = _pendingTricky
+      ? (_selectedTimerSecs > 0 ? `⏱️ Start ${mins}-min Tricky Words!` : '🎯 Start Tricky Words!')
+      : (_selectedTimerSecs > 0 ? `⏱️ Start ${mins}-min SRS Warm-up!` : '🧠 Start SRS Review!');
   } else {
     const count = Object.keys(_selectedLessons).length;
     const tag = count > 1 ? ` (${count} lessons)` : '';
@@ -865,6 +902,9 @@ async function loadLessons(autoSelectLesson) {
   const list        = document.getElementById('lesson-list');
   const srsModeWrap = document.getElementById('srs-mode-wrap');
   _lessonData = null; _vocabMeta = null; _srsMode = false; _selectedLessons = {};
+    _pendingSRSMode = false; _pendingTricky = false;
+  document.getElementById('srs-mode-btn')?.classList.remove('active');
+  document.getElementById('tricky-mode-btn')?.classList.remove('active');
   document.getElementById('btn-play').disabled = true;
   document.querySelectorAll('.l-btn').forEach(b => b.classList.remove('active'));
 
@@ -877,10 +917,11 @@ async function loadLessons(autoSelectLesson) {
   list.innerHTML = '<div class="loading-msg"><div class="spinner"></div>Loading…</div>';
 
   const today = new Date().toISOString().split('T')[0];
-  const [lessonData, srsAll, archivedRows] = await Promise.all([
+    const [lessonData, srsAll, archivedRows, trickyAll] = await Promise.all([
     sbFetch(`efcd_lesson_vocab?class_id=eq.${classId}&archived=eq.false&order=completed_at.desc&limit=20`),
     sbFetch(`efcd_srs_class_items?select=id,lesson_id&class_id=eq.${classId}&status=eq.active&next_review_at=lte.${today}`),
     sbFetch(`efcd_lesson_vocab?class_id=eq.${classId}&archived=eq.true&order=completed_at.desc&select=id,lesson_id,lesson_title`),
+    sbFetch(`efcd_srs_class_items?select=id,lesson_id&class_id=eq.${classId}&status=eq.active&review_count=gt.0&ease_factor=lt.2.5`),
   ]);
 
   if (!Array.isArray(lessonData)) {
@@ -896,6 +937,21 @@ async function loadLessons(autoSelectLesson) {
   const archivedIds = new Set(_archivedLessons.map(a => a.lesson_id));
   const srsData = (Array.isArray(srsAll) ? srsAll : []).filter(i => !archivedIds.has(i.lesson_id));
   renderArchivedBox();
+    const trickyCount = Math.min((Array.isArray(trickyAll) ? trickyAll : []).filter(i => !archivedIds.has(i.lesson_id)).length, 20);
+  const trBtn = document.getElementById('tricky-mode-btn');
+  if (trBtn) {
+    const trSub = document.getElementById('tricky-mode-sub');
+    const trBadge = document.getElementById('tricky-badge');
+    if (trickyCount > 0) {
+      trBtn.classList.remove('no-due');
+      trSub.textContent = `${trickyCount} word${trickyCount !== 1 ? 's' : ''} your class finds tricky`;
+      trBadge.textContent = trickyCount; trBadge.style.display = 'inline-block';
+    } else {
+      trBtn.classList.add('no-due');
+      trSub.textContent = 'Nothing tricky yet. The class is flying!';
+      trBadge.style.display = 'none';
+    }
+  }
 
   const srsBtn   = document.getElementById('srs-mode-btn');
   const srsSub   = document.getElementById('srs-mode-sub');
@@ -1049,6 +1105,8 @@ async function _setArchived(lessonId, flag) {
 function selectSRSMode() {
   const btn = document.getElementById('srs-mode-btn');
   if (btn.classList.contains('no-due')) return;
+  document.getElementById('tricky-mode-btn')?.classList.remove('active');
+  _pendingTricky = false;
   if (btn.classList.contains('active')) {
     btn.classList.remove('active');
     _lessonData = null; _vocabMeta = null; _pendingSRSMode = false;
@@ -1060,6 +1118,26 @@ function selectSRSMode() {
   btn.classList.add('active');
   _pendingSRSMode = true;
   _lessonData = null;
+  document.getElementById('btn-play').disabled = false;
+  _updatePlayBtn();
+}
+
+function selectTrickyMode() {
+  const btn = document.getElementById('tricky-mode-btn');
+  if (btn.classList.contains('no-due')) return;
+  document.getElementById('srs-mode-btn')?.classList.remove('active');
+  if (btn.classList.contains('active')) {
+    btn.classList.remove('active');
+    _pendingSRSMode = false; _pendingTricky = false;
+    document.getElementById('btn-play').disabled = true;
+    _updatePlayBtn();
+    return;
+  }
+  document.querySelectorAll('.l-btn').forEach(b => b.classList.remove('active'));
+  _selectedLessons = {};
+  _lessonData = null;
+  btn.classList.add('active');
+  _pendingSRSMode = true; _pendingTricky = true;
   document.getElementById('btn-play').disabled = false;
   _updatePlayBtn();
 }
@@ -1099,8 +1177,9 @@ function _cleanVocab(list) {
 }
 
 async function selectLesson(btn, lessonId, vocabId) {
-  document.getElementById('srs-mode-btn')?.classList.remove('active');
-  _pendingSRSMode = false;
+    document.getElementById('srs-mode-btn')?.classList.remove('active');
+  document.getElementById('tricky-mode-btn')?.classList.remove('active');
+  _pendingSRSMode = false; _pendingTricky = false;
 
   if (_selectedLessons[lessonId]) {
     // Deselect
@@ -1230,14 +1309,25 @@ function startRetry() {
     </div>`;
 }
 
+  function resetGameState() {
+  _stopCountdown();
+  _timerMode = false; _timerEnded = false;
+  _retryPass = false; _missed = []; _stillTricky = []; _lastRound = null;
+  const pill = document.getElementById('timer-pill');
+  if (pill) { pill.style.display = 'none'; pill.classList.remove('urgent'); }
+  hideFeedback();
+}
+
 // ══════════════════════════════════════════════════════════════
 // START GAME
 // ══════════════════════════════════════════════════════════════
 function startGame() {
+  resetGameState();
+  if (_pendingSRSMode) {
   if (_pendingSRSMode) {
     const classId = document.getElementById('class-sel').value;
     if (!classId) return;
-    bootSRSMode(classId);
+    bootSRSMode(classId, _pendingTricky);
     return;
   }
   if (!Object.keys(_selectedLessons).length && !_lessonData) return;
@@ -1360,7 +1450,7 @@ function renderBlitz(q, body) {
       <div class="q-counter">Question ${_qIdx+1}</div>
       <div class="blitz-def">${q.def}</div>
       <div class="opts-grid">
-        ${q.opts.map((o,i) => `<button class="opt" onclick="answerBlitz('${o}',this)" data-answer="${o}">
+                ${q.opts.map((o,i) => `<button class="opt" onclick="answerBlitz('${escQ(o)}',this)" data-answer="${escA(o)}">
           <span style="font-size:13px;opacity:.5;margin-right:4px">${nums[i]}</span> ${o}
         </button>`).join('')}
       </div>
@@ -1373,7 +1463,7 @@ function answerBlitz(chosen, btn) {
   document.querySelectorAll('.opt').forEach(b => b.disabled = true);
   const ok = chosen === q.answer;
   btn.classList.add(ok ? 'correct' : 'wrong');
-  if (!ok) document.querySelector(`.opt[data-answer="${q.answer}"]`)?.classList.add('reveal');
+  if (!ok) revealCorrect(q.answer);
   if (_srsMode) _recordSRSResult(ok, ok ? 'fast' : 'wrong');
   handleResult(ok, `${ok ? '✅ Correct!' : '❌ Wrong!'} The answer is: <strong>${q.answer}</strong>`, `"${q.answer}" = ${q.def}`);
 }
@@ -1387,7 +1477,7 @@ function renderGap(q, body) {
       <div class="q-counter">Question ${_qIdx+1}</div>
       <div class="gap-sentence">${sentence}</div>
       <div class="opts-grid">
-        ${q.opts.map(o => `<button class="opt" onclick="answerGap('${escQ(o)}',this)" data-answer="${escQ(o)}">${o}</button>`).join('')}
+        ${q.opts.map(o => `<button class="opt" onclick="answerGap('${escQ(o)}',this)" data-answer="${escA(o)}">${o}</button>`).join('')}
       </div>
     </div>`;
 }
@@ -1412,7 +1502,7 @@ function answerGap(chosen, btn) {
   const ok = chosen === q.answer;
   document.querySelectorAll('.opt').forEach(b => b.disabled = true);
   btn.classList.add(ok ? 'correct' : 'wrong');
-  if (!ok) document.querySelector(`.opt[data-answer="${escQ(q.answer)}"]`)?.classList.add('reveal');
+  if (!ok) revealCorrect(q.answer);
 
   const blanks = document.querySelectorAll('[id^="gap-blank-"]');
   const blankCount = blanks.length;
@@ -1439,7 +1529,7 @@ function renderGrammar(q, body) {
       <div class="q-counter">Question ${_qIdx+1}</div>
       <div class="grammar-sentence">${sentence}</div>
       <div class="opts-grid">
-        ${q.opts.map(o => `<button class="opt" onclick="answerGrammar('${escQ(o)}',this)" data-answer="${escQ(o)}">${o}</button>`).join('')}
+        ${q.opts.map(o => `<button class="opt" onclick="answerGrammar('${escQ(o)}',this)" data-answer="${escA(o)}">${o}</button>`).join('')}
       </div>
     </div>`;
 }
@@ -1450,7 +1540,7 @@ function answerGrammar(chosen, btn) {
   const ok = chosen === q.answer;
   document.querySelectorAll('.opt').forEach(b => b.disabled = true);
   btn.classList.add(ok ? 'correct' : 'wrong');
-  if (!ok) document.querySelector(`.opt[data-answer="${escQ(q.answer)}"]`)?.classList.add('reveal');
+  if (!ok) revealCorrect(q.answer);
   const parts = chosen.split(' / ');
   parts.forEach((part, i) => {
     const blank = document.getElementById(`g-blank-${i}`);
@@ -1469,6 +1559,11 @@ function answerGrammar(chosen, btn) {
 
 function escQ(s) { return (s||'').replace(/'/g,"\\'"); }
 
+function escA(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function revealCorrect(answer) {
+  [...document.querySelectorAll('.opt')].find(b => b.dataset.answer === answer)?.classList.add('reveal');
+}  
+
 // ── WORD BUILDER ──────────────────────────────────────────────
 function renderBuilder(q, body) {
   _wbBuilt = []; _wbWrong = 0;
@@ -1480,7 +1575,7 @@ function renderBuilder(q, body) {
       <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.4);text-align:center;margin-bottom:8px">⌨️ Type the word, or tap the letters below</div>
       <div class="wb-slots" id="wb-slots"></div>
       <div class="wb-tiles" id="wb-tiles">
-        ${freshLetters.map((l,i) => `<button class="wb-tile" id="wbt-${i}" onclick="tapWBLetter('${l}',${i})">${l.toUpperCase()}</button>`).join('')}
+        ${freshLetters.map((l,i) => `<button class="wb-tile" id="wbt-${i}" onclick="tapWBLetter('${escQ(l)}',${i})">${l.toUpperCase()}</button>`).join('')}
       </div>
       <div class="wb-actions">
         <button class="wb-clear"  onclick="clearWB()">🗑️ Clear</button>
@@ -1981,9 +2076,11 @@ function skipSB() {
 // RESULT HANDLER
 // ══════════════════════════════════════════════════════════════
 function handleResult(ok, msg, explain) {
-    if (!_retryPass) {
+      if (!_retryPass) {
     if (ok) { _correct++; _score += 10; showScorePop(); }
     else _missed.push(_questions[_qIdx]);
+  } else if (!ok) {
+    _stillTricky.push(_questions[_qIdx]);
   }
   updateScore();
   showFeedback(ok, msg, explain);
@@ -2044,6 +2141,49 @@ function updateProgress() {
   document.getElementById('prog').style.width = pct + '%';
 }
 
+  function escH(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function _trickyEntry(q) {
+  const fill = (s, a) => { const p = (a || '').split(' / '); let i = 0; return (s || '').replace(/_{3,}/g, () => p[i++] ?? p[p.length - 1]); };
+  if (q.round === 'grammar')  return { head: fill(q.sentence, q.answer), note: q.explain || '' };
+  if (q.round === 'tf')       return { head: q.statement, note: `${q.answer ? 'TRUE' : 'FALSE'}${q.reveal ? ' — ' + q.reveal : ''}` };
+  if (q.round === 'sentence') return { head: q.answer, note: q.hint || '' };
+  if (q.round === 'gap')      return { head: q.word, note: q.def || fill(q.sentence, q.word) };
+  return { head: q.word || q.answer || '', note: q.def || '' };
+}
+
+function renderTrickyFinish() {
+  const src  = _retryPass ? _stillTricky : _missed;
+  const seen = new Set();
+  _trickyList = src.map(_trickyEntry).filter(t => t.head && !seen.has(t.head) && seen.add(t.head));
+  const box = document.getElementById('tricky-fin');
+  if (!box) return;
+  if (!_trickyList.length) { box.style.display = 'none'; return; }
+  document.getElementById('tricky-fin-list').innerHTML = _trickyList.map(t => `
+    <div class="tricky-item">
+      <div class="tricky-head">${escH(t.head)}</div>
+      ${t.note ? `<div class="tricky-note">${escH(t.note)}</div>` : ''}
+    </div>`).join('');
+  box.style.display = 'block';
+}
+
+function copyTrickyList() {
+  const text = _trickyList.map(t => `• ${t.head}${t.note ? ' — ' + t.note : ''}`).join('\n');
+  const done = () => {
+    const b = document.getElementById('tricky-copy');
+    if (b) { b.textContent = '✅ Copied!'; setTimeout(() => { b.textContent = '📋 Copy list'; }, 1800); }
+  };
+  const fallback = () => {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) { console.error('Copy failed:', e); }
+    ta.remove();
+  };
+  if (navigator.clipboard?.writeText) navigator.clipboard.writeText(text).then(done).catch(fallback);
+  else fallback();
+}
+
 // ══════════════════════════════════════════════════════════════
 // FINISH SCREEN
 // ══════════════════════════════════════════════════════════════
@@ -2081,10 +2221,10 @@ async function showFinish(buzzerFired = false) {
   const finTitle = lessonCount > 1
     ? `${lessonCount} lessons mixed`
     : `${_lessonData?.title || 'Review'} — ${_lessonData?.level || ''}`;
-  document.getElementById('fin-sub').textContent    = buzzerFired
+    document.getElementById('fin-sub').textContent    = buzzerFired
     ? `${_selectedTimerSecs/60}-min warm-up complete!`
     : _srsMode
-      ? `SRS Review — ${_srsItems.length} items`
+      ? (_srsTricky ? 'Tricky Words drill' : `SRS Review — ${_srsItems.length} items`)
       : finTitle;
   document.getElementById('fin-score').textContent  = _score;
   document.getElementById('fin-correct').textContent = _correct;
@@ -2117,10 +2257,11 @@ async function showFinish(buzzerFired = false) {
 
   if (window.EFCD_XP) window.EFCD_XP.onReviewComplete(_correct, _total).catch(()=>{});
 
+  renderTrickyFinish();
   show('finish');
   fireConfetti();
     if (!_srsMode) submitReviewScore();
-  _retryPass = false; _missed = []; _timerMode = false;
+    _retryPass = false; _missed = []; _stillTricky = []; _timerMode = false;
 }
 
 // ── SUBMIT REVIEW SCORE ────────────────────────────────────────
@@ -2145,8 +2286,8 @@ async function submitReviewScore() {
 }
 
 function restartGame() { _srsMode ? location.reload() : startGame(); }
-function backToSetup()  { _srsMode ? location.href='/admin/' : show('setup'); }
-function backToReview() { _srsMode ? location.href='/admin/' : show('setup'); }
+function backToSetup()  { resetGameState(); _srsMode ? location.href='/admin/' : show('setup'); }
+function backToReview() { resetGameState(); _srsMode ? location.href='/admin/' : show('setup'); }
 
 function show(id) {
   ['srs-loading','setup','game','finish'].forEach(s => {
