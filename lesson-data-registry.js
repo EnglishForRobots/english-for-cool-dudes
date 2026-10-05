@@ -5840,6 +5840,85 @@ const LESSON_DATA_REGISTRY = {
   ],
 
 },
+
+   'young-faithful-sikh-britain-advanced': {
+
+  id:    'young-faithful-sikh-britain-advanced',
+  title: 'Young & Faithful: A Young Sikh in Britain',
+  level: 'Advanced',
+  track: 'advanced',
+  emoji: '🧡',
+  badge: 'Seva Spirit',
+
+  vocab: [
+    { word:'grounded',      definition:'Calm, stable and sensible; with your feet on the earth.',          example:'Prayer keeps her calm and ___.',                              distractors:['devout','chaste','selfless'] },
+    { word:'melt away',     definition:'To slowly disappear, like ice in the sun.',                        example:'When the music starts, my worries ___ ___.',                  distractors:['transcend','observe','hold on'] },
+    { word:'devout',        definition:'Very religious; takes faith seriously.',                           example:'Her grandmother is a very ___ woman who prays daily.',        distractors:['observant','chaste','communal'] },
+    { word:'scripture',     definition:'The holy writings of a religion.',                                 example:'The ___ is recited aloud during the service.',                distractors:['hymn','pilgrimage','reincarnation'] },
+    { word:'hymn',          definition:'A religious song or poem of praise.',                              example:'The whole congregation sang a ___ together.',                 distractors:['scripture','pilgrimage','asceticism'] },
+    { word:'transcend',     definition:'To go beyond a limit, like the ego or everyday life.',             example:'To sense God, you must ___ your ego.',                        distractors:['observe','recite','melt away'] },
+    { word:'omnipresent',   definition:'Present everywhere at the same time.',                             example:'Sikhs believe in an ___ God who is in everything.',           distractors:['monumental','observant','communal'] },
+    { word:'communal',      definition:'Shared by a whole group or community.',                            example:'After the service, a free ___ meal is served to everyone.',   distractors:['selfless','devout','chaste'] },
+    { word:'selfless',      definition:'Putting other people first, without wanting a reward.',            example:'Seva means ___ service, with no reward expected.',            distractors:['devout','communal','omnipresent'] },
+    { word:'pilgrimage',    definition:'A journey to a holy place for religious reasons.',                 example:'Her family makes a ___ to the Golden Temple.',                distractors:['scripture','hymn','reincarnation'] },
+    { word:'monumental',    definition:'Hugely important or impressive.',                                  example:'The Golden Temple is a ___ place in Sikh history.',           distractors:['omnipresent','observant','chaste'] },
+    { word:'observant',     definition:'Following the rules of your religion carefully.',                  example:'An ___ Sikh may wear a turban over uncut hair.',              distractors:['communal','monumental','chaste'] },
+    { word:'asceticism',    definition:'A strict life without pleasure or comfort, for religious reasons.', example:'There is no ___ in Sikhism: believers can enjoy life.',      distractors:['reincarnation','pilgrimage','scripture'] },
+    { word:'chaste',        definition:'Not having sex before marriage; pure (a formal word).',            example:'She wants to stay ___ until she meets the right partner.',    distractors:['devout','observant','selfless'] },
+    { word:'reincarnation', definition:'The belief that a soul is born again in a new body.',              example:'Sikhs believe in ___: souls are born again and again.',       distractors:['pilgrimage','asceticism','scripture'] },
+    { word:'in tune with',  definition:'Aware of, and connected to, something or someone.',                example:'I feel ___ ___ my emotions after prayer.',                    distractors:['grounded in','devout to','selfless of'] },
+  ],
+
+  grammar: {
+    topic: 'Subject-verb agreement and prepositions',
+    rule:  'Everybody, everyone and nobody are singular: "Everybody IS welcome." Learn prepositions with their words: present IN something. Use FOR + a period of time (for three years) and SINCE + a starting point (since 2019). After "be used to", use the -ing form.',
+    exercises: [
+      { sentence:'Everybody ___ welcome at the table.',               answer:'is',      wrong:['are','be','were'],              explain:'"Everybody" is singular, so we use "is".' },
+      { sentence:'God is present ___ everything and everyone.',       answer:'in',      wrong:['on','at','by'],                 explain:'present IN something.' },
+      { sentence:'She has lived in Reading ___ three years.',         answer:'for',     wrong:['since','from','during'],        explain:'FOR + a period of time. German "seit" covers both for and since!' },
+      { sentence:'He is used to ___ every morning.',                  answer:'praying', wrong:['pray','prayed','prays'],        explain:'be used to + -ing form.' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Wishes about the present; since vs for',
+    rule:  'A wish about the present uses the past simple: "I wish I HAD more time." For a formal or unreal "be", use "were": "I wish he WERE calmer." SINCE + a point in time, FOR + a length of time.',
+    exercises: [
+      { sentence:'I wish I ___ more time to pray.',                   answer:'had',     wrong:['have','will have','having'],    explain:'wish + past simple for an unreal present situation.' },
+      { sentence:'She has worked at the bank ___ 2025.',              answer:'since',   wrong:['for','from','during'],          explain:'SINCE + a starting point in time.' },
+      { sentence:'I wish my brother ___ calmer.',                     answer:'were',    wrong:['is','would','will be'],         explain:'After "wish", we use "were" for an unreal present state.' },
+      { sentence:'Everybody ___ the right to feel calm.',             answer:'has',     wrong:['have','having','are'],          explain:'"Everybody" is singular, so "has", not "have".' },
+    ],
+  },
+
+  sentences: [
+    { words:['Everybody','is','welcome','at','the','table'],                       answer:'Everybody is welcome at the table',                  hint:'🍛 About the free meal...' },
+    { words:['Sikhism','is','the','youngest','of','the','major','religions'],       answer:'Sikhism is the youngest of the major religions',     hint:'📅 About its age...' },
+    { words:['Her','worries','melt','away','when','she','prays'],                  answer:'Her worries melt away when she prays',               hint:'🫧 About how she feels...' },
+    { words:['Volunteers','do','selfless','service','called','seva'],              answer:'Volunteers do selfless service called seva',         hint:'🤲 About the volunteers...' },
+  ],
+
+  word_builder: [
+    { word:'grounded',   definition:'Calm and stable' },
+    { word:'devout',     definition:'Very religious' },
+    { word:'hymn',       definition:'A religious song of praise' },
+    { word:'scripture',  definition:'The holy writings of a religion' },
+    { word:'pilgrimage', definition:'A journey to a holy place' },
+    { word:'selfless',   definition:'Putting others first' },
+  ],
+
+  true_false: [
+    { statement:'Damandeep visits the gurdwara once a week.',                                       correct:true,  reveal:'✅ TRUE! She goes at least once a week to de-stress and feel connected.' },
+    { statement:'Sikhism is the oldest of the major world religions.',                               correct:false, reveal:'❌ FALSE! It is the YOUNGEST, emerging in the 15th century.' },
+    { statement:'The communal meal after the service is vegetarian and free of charge.',            correct:true,  reveal:'✅ TRUE! Everyone is welcome, whatever their religion or background.' },
+    { statement:'Britain has the largest Sikh community in Europe.',                                correct:true,  reveal:'✅ TRUE! About 550,000 Sikhs live in Britain.' },
+    { statement:'Most of the 25–30 million Sikhs in the world live in Britain.',                    correct:false, reveal:'❌ FALSE! The overwhelming majority live in India.' },
+    { statement:'Sikhism teaches that believers must give up all pleasure and comfort.',            correct:false, reveal:'❌ FALSE! There is no asceticism in Sikhism. Believers are free to enjoy life.' },
+    { statement:'"Devout" means the same as the German word "devot" (submissive).',                correct:false, reveal:'❌ FALSE! "Devout" means deeply religious. German "devot" means unterwürfig. A false friend!' },
+    { statement:'In Sikh belief, a human life is the highest form of life.',                        correct:true,  reveal:'✅ TRUE! The goal is to leave the cycle of rebirth and become one with God.' },
+  ],
+
+},
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
