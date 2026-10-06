@@ -322,6 +322,12 @@ body{background:var(--navy);color:#fff;line-height:1.4}
 .tricky-note{font-size:12px;font-weight:700;color:rgba(255,255,255,.6);margin-top:1px}
 /* Student homework mode: no admin exits */
 body.student a[href^="/admin"], body.student .btn-quit { display:none !important; }
+@media (max-width:600px){
+  body.student .round-badge{display:none}
+  body.student .g-hdr{padding:0 12px;gap:8px}
+  body.student .score-pill{padding:6px 12px}
+  body.student .timer-pill{padding:6px 12px}
+}
   /* Mastered lessons: retire nudge always visible */
 .l-retire.mastered{display:inline-block;background:#FFF9DB;border-color:var(--yellow);color:#8a6800}
 </style>
@@ -681,16 +687,17 @@ async function bootSRSMode(classId, tricky = false) {
       :       tricky
         ? `efcd_srs_class_items?class_id=eq.${classId}&status=eq.active&review_count=gt.0&ease_factor=lt.2.5&order=ease_factor.asc&limit=20`
         : `efcd_srs_class_items?class_id=eq.${classId}&status=eq.active&next_review_at=lte.${today}&order=ease_factor.asc`
-    const studentQuery = `efcd_srs_class_items?class_id=eq.${classId}&status=eq.active&order=ease_factor.asc&limit=40`;
+    const studentQuery = `efcd_srs_class_items?class_id=eq.${classId}&status=eq.active&order=ease_factor.asc&limit=300`;
     const allItems = await sbFetch(_studentMode ? studentQuery : allItemsQuery);
     const arch = await sbFetch(`efcd_lesson_vocab?class_id=eq.${classId}&archived=eq.true&select=lesson_id`);
 const archIds = new Set((Array.isArray(arch) ? arch : []).map(a => a.lesson_id));
 _srsItems = (Array.isArray(allItems) ? allItems : []).filter(i => !archIds.has(i.lesson_id));
+if (_studentMode) _srsItems = _pickStudentWords(_srsItems);
 
     if (!_srsItems.length) {
             document.getElementById('srs-load-sub').textContent = tricky
         ? 'No tricky words yet: nothing has been answered wrong enough. Nice! 🎉'
-        : 'No items due for review today. All caught up! 🎉';
+        : (_studentMode ? 'No words to review yet. They will appear after your next lesson! 😎' : 'No items due for review today. All caught up! 🎉');
       document.getElementById('srs-load-spinner').style.display = 'none';
       document.getElementById('srs-loading').innerHTML += `
         <a href="/admin/#srs" class="fin-btn fin-ghost" style="margin-top:12px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:12px 24px;background:rgba(255,255,255,.1);color:#fff;border:2px solid rgba(255,255,255,.2);border-radius:99px;font-size:14px;font-weight:900">
@@ -810,6 +817,25 @@ function _buildQuestionFromSRSItem(srsItem, reg) {
   return null;
 }
 
+// Student homework: a fresh mix every time. Hard words first, then due, then random.
+function _pickStudentWords(items, n = 40) {
+  const today = new Date().toISOString().split('T')[0];
+  const isHard = i => i.review_count > 0 && parseFloat(i.ease_factor) < 2.5;
+  const isDue  = i => (i.next_review_at || '') <= today;
+  const pool = shuffle(items);
+  const pick = [];
+  const take = (arr, k) => {
+    for (const i of arr) {
+      if (pick.length >= n || k <= 0) break;
+      if (!pick.includes(i)) { pick.push(i); k--; }
+    }
+  };
+  take(pool.filter(isHard), 15);
+  take(pool.filter(isDue), 15);
+  take(pool, n);
+  return pick;
+}
+  
 function _lightShuffle(arr) {
   const hard = arr.slice(0, Math.ceil(arr.length * 0.3));
   const rest = arr.slice(Math.ceil(arr.length * 0.3)).sort(() => Math.random()-.5);
