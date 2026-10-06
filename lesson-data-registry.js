@@ -540,7 +540,7 @@ const LESSON_DATA_REGISTRY = {
       { word:'palace',    definition:'A very large grand house where a king or queen lives', example:'The corgis slept inside Buckingham ___ — not outside in kennels.', distractors:['kennel','garden','cottage'] },
       { word:'inherit',   definition:'To receive something from someone after they die', example:"Many of the Queen's later corgis ___ their looks from Susan, her first dog.", distractors:['breed','pamper','retire'] },
       { word:'pampered',  definition:'Given too much care and comfort', example:'The royal corgis were completely ___ — silver bowls, royal chefs, their own room!', distractors:['retired','loyal','trained'] },
-      { word:'royal',     definition:'Connected to a king or queen and their family', example:'The corgis had a very ___ life — better than most people in Britain!', distractors:['normal','simple','boring'] },
+      { word:'royal',     definition:'Connected to a king or queen and their family', example:'The corgis had a very ___ life — they lived just like the Queen!', distractors:['normal','simple','boring'] },
       { word:'retired',   definition:'Stopped working — usually because of old age', example:'When the corgis got old, they ___ and lived a quiet comfortable life.', distractors:['inherited','pampered','escaped'] },
     ],
  
