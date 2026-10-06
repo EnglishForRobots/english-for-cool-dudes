@@ -320,6 +320,8 @@ body{background:var(--navy);color:#fff;line-height:1.4}
 .tricky-item:last-child{border-bottom:none}
 .tricky-head{font-size:14px;font-weight:900;color:#fff}
 .tricky-note{font-size:12px;font-weight:700;color:rgba(255,255,255,.6);margin-top:1px}
+/* Student homework mode: no admin exits */
+body.student a[href^="/admin"], body.student .btn-quit { display:none !important; }
   /* Mastered lessons: retire nudge always visible */
 .l-retire.mastered{display:inline-block;background:#FFF9DB;border-color:var(--yellow);color:#8a6800}
 </style>
@@ -524,6 +526,7 @@ let _trickyList    = [];   // what the finish screen is showing
 let _stillTricky   = [];   // wrong again during Second Chance
 let _retryPass       = false;   // true while replaying the misses
 let _totalBeforeRetry = 0;
+let _studentMode      = false;  // homework link: ?student=1&class=...
 
 // ── SUPABASE FETCH ─────────────────────────────────────────────
 async function sbFetch(path) {
@@ -666,7 +669,7 @@ async function bootSRSMode(classId, tricky = false) {
   show('srs-loading');
   _srsMode    = true;
   _srsClassId = classId;
-  _srsTricky  = tricky;
+  _srsTricky  = tricky || _studentMode;   // student mode never changes SRS intervals
 
   try {
     const classes = await sbFetch(`efcd_classes?id=eq.${classId}&select=id,name,emoji,team_name`);
@@ -678,7 +681,8 @@ async function bootSRSMode(classId, tricky = false) {
       :       tricky
         ? `efcd_srs_class_items?class_id=eq.${classId}&status=eq.active&review_count=gt.0&ease_factor=lt.2.5&order=ease_factor.asc&limit=20`
         : `efcd_srs_class_items?class_id=eq.${classId}&status=eq.active&next_review_at=lte.${today}&order=ease_factor.asc`
-    const allItems = await sbFetch(allItemsQuery);
+    const studentQuery = `efcd_srs_class_items?class_id=eq.${classId}&status=eq.active&order=ease_factor.asc&limit=40`;
+    const allItems = await sbFetch(_studentMode ? studentQuery : allItemsQuery);
     const arch = await sbFetch(`efcd_lesson_vocab?class_id=eq.${classId}&archived=eq.true&select=lesson_id`);
 const archIds = new Set((Array.isArray(arch) ? arch : []).map(a => a.lesson_id));
 _srsItems = (Array.isArray(allItems) ? allItems : []).filter(i => !archIds.has(i.lesson_id));
@@ -736,7 +740,7 @@ _srsItems = (Array.isArray(allItems) ? allItems : []).filter(i => !archIds.has(i
     document.getElementById('g-lesson').textContent =
       `SRS Review — ${Object.keys(lessonGroups).length} lesson${Object.keys(lessonGroups).length > 1 ? 's' : ''}`;
         const badge = document.getElementById('srs-mode-badge');
-    badge.textContent = tricky ? '🎯 Tricky Words' : '🧠 SRS Review';
+    badge.textContent = _studentMode ? '🧠 Quick Review' : (tricky ? '🎯 Tricky Words' : '🧠 SRS Review');
     badge.style.display = 'inline-flex';
 
     show('game');
@@ -871,6 +875,14 @@ async function boot() {
     _selectedTimerSecs = timerParam;
     document.querySelectorAll('.timer-opt').forEach(b =>
       b.classList.toggle('on', parseInt(b.dataset.secs, 10) === timerParam));
+  }
+
+   if (p.get('student') === '1' && classId) {
+    _studentMode = true;
+    document.body.classList.add('student');
+    _selectedTimerSecs = timerParam > 0 ? timerParam : 180;   // 3 min default
+    await bootSRSMode(classId);
+    return;
   }
 
   if (p.get('tricky') === '1' && classId) {
@@ -2221,6 +2233,11 @@ async function showFinish(buzzerFired = false) {
   document.getElementById('fin-total').textContent   = _total;
   document.getElementById('fin-pct').textContent     = pct + '%';
   document.getElementById('fin-msg').textContent     = r.msg;
+
+   if (_studentMode) {
+    document.getElementById('fin-sub').textContent = 'Quick review done';
+    document.getElementById('fin-msg').textContent = 'Nice one! Every round makes the words stick a bit more. See you in class 😎';
+  }
 
   // SRS interval updates — always run regardless of whether buzzer fired
   if (_srsMode) {
