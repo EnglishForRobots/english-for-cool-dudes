@@ -5602,10 +5602,10 @@ const LESSON_DATA_REGISTRY = {
       distractors: ['gateway', 'authorities', 'tarpaulin'],
     },
     {
-      word:        'authorities',
+      word:        'Authorities',
       definition:  'Officials with legal power to enforce the law',
       example:     '___ seized 51 tons in 2024.',
-      distractors: ['vessel', 'tarpaulin', 'gateway'],
+      distractors: ['Vessel', 'Tarpaulin', 'Gateway'],
     },
     {
       word:        'disrupt',
