@@ -228,6 +228,8 @@
      'the-midnight-chase':  'the-midnight-chase-cocaine-speedboats-intermediate',
      'weeklydrop022':  'weekly-drop-issue-022',
      'taxpassport':  'tax-passport-control-information-exchange-tax',
+     'young-sikh-britain':  'young-faithful-sikh-britain-advanced',
+     'invoiceinspector':  'tax-invoice-inspector-tax',
   };
 
   async function bootAuthStrip(eyebrowText) {
