@@ -5127,7 +5127,7 @@ const LESSON_DATA_REGISTRY = {
     {
       word:        'cheeky',
       definition:  'Bold or surprising, often used playfully about a price',
-      example:     'The building is on sale for a ___ seven and a half million pounds.',
+      example:     'The building is for sale for a ___ seven and a half million pounds.',
       distractors: ['fastidious', 'vacant', 'squatters'],
     },
     {
