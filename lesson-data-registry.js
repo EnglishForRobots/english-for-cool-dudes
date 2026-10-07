@@ -5408,7 +5408,7 @@ const LESSON_DATA_REGISTRY = {
     { word:'surge', definition:'A sudden, powerful increase', example:'Uber popularised ___ pricing in 2012, letting fares rise sharply when demand is high.', distractors:['occupancy','deregulation','take rate'] },
     { word:'take rate', definition:'The percentage or cut a company keeps from each transaction', example:'Uber\u2019s ___ ___ climbed from 32% to 42% between 2022 and 2025.', distractors:['surveillance','affluent','inflated'] },
     { word:'in the spotlight', definition:'Being closely watched or criticised publicly', example:'A Belgian newspaper put Uber ___ ___ ___ over its battery-level pricing claims.', distractors:['at the push of a button','shocker','surge'] },
-    { word:'at the push of a button', definition:'Very easily and instantly, with almost no effort', example:'___ ___ ___ ___ ___ ___ ___, digital price tags can update instantly across a whole store.', distractors:['in the spotlight','shocker','deregulation'] },
+    { word:'at the push of a button', definition:'Very easily and instantly, with almost no effort', example:'___ ___ ___ ___ ___ ___, digital price tags can update instantly across a whole store.', distractors:['in the spotlight','shocker','deregulation'] },
     { word:'shocker', definition:'Used sarcastically to mean "what a surprise" — usually when something isn\u2019t surprising at all', example:'Prices rise right before a holiday weekend — ___, right?', distractors:['surge','occupancy','affluent'] },
   ],
 
