@@ -3967,7 +3967,7 @@ const LESSON_DATA_REGISTRY = {
 
     // ── VOCAB ────────────────────────────────────────────────
     vocab: [
-      { word:'fleeting',     definition:'Lasting only a very short time',                     example:'The post town was full of ___ encounters and memories.',                distractors:['permanent','unique','present'] },
+      { word:'fleeting',     definition:'Lasting only a very short time',                     example:'The post town was full of ___ encounters and memories.',                distractors:['permanent','uniquely','present'] },
       { word:'encounter',    definition:'A meeting with someone, often brief or unplanned',   example:'Every traveller had a unique ___ before moving on the next morning.',    distractors:['discipline','utensil','intention'] },
       { word:'present',      definition:'Fully paying attention to this exact moment',         example:'A quiet bath is a place to slow down and be fully ___.',                 distractors:['fleeting','glazed','unique'] },
       { word:'appreciation', definition:'A feeling of gratitude, or recognising the value of something', example:'Turning the bowl before drinking shows ___ for the host.', distractors:['endurance','intention','discipline'] },
