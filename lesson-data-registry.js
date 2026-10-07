@@ -5919,6 +5919,85 @@ const LESSON_DATA_REGISTRY = {
   ],
 
 },
+
+    'tax-invoice-inspector-tax': {
+
+  id:    'tax-invoice-inspector-tax',
+  title: 'The Invoice Inspector',
+  level: 'Tax',
+  track: 'tax',
+  emoji: '🧾',
+  badge: 'Invoice Inspector',
+
+  vocab: [
+    { word:'purchase order',      definition:'A document from the buyer that says what to buy and at what price.', example:'No ___ ___, no payment: that is our rule.',                 distractors:['payment terms','credit note','remittance'] },
+    { word:'payment terms',       definition:'The rules for when and how an invoice must be paid.',               example:'Our ___ ___ say you must pay within 30 days.',              distractors:['purchase order','reminder','receipt'] },
+    { word:'receipt',             definition:'A paper that shows you have paid.',                                 example:'Keep the ___ for the tax office.',                          distractors:['reminder','remittance','duplicate'] },
+    { word:'supporting document', definition:'A paper that proves a booking, like an invoice, a contract or a receipt.', example:'Every booking needs a ___ ___.',                      distractors:['payment terms','reminder','remittance'] },
+    { word:'duplicate',           definition:'An exact second copy of something.',                                example:'We found a ___ invoice and paid it only once.',             distractors:['reminder','overdue','outstanding'] },
+    { word:'overdue',             definition:'Not paid, and the due date has passed.',                            example:'The invoice is two weeks ___.',                             distractors:['deductible','spoofed','duplicate'] },
+    { word:'outstanding',         definition:'Not paid yet. (In daily English it can also mean "excellent".)',    example:'The ___ amount is €480.',                                   distractors:['spoofed','deductible','duplicate'] },
+    { word:'reminder',            definition:'A polite letter or email that says: "Please pay."',                 example:'We sent a ___ because the invoice was not paid.',           distractors:['receipt','credit note','remittance'] },
+    { word:'spoofed',             definition:'Faked to look real, for example an email with a false sender.',     example:'It was a ___ email with a false sender.',                   distractors:['duplicate','overdue','deductible'] },
+    { word:'remittance',          definition:'Money you send to pay someone.',                                    example:'We sent the ___ to the supplier’s bank on Friday.',         distractors:['deductible','overdue','spoofed'] },
+    { word:'reconcile',           definition:'Check that two sets of numbers match.',                             example:'Please ___ the bank account every month.',                  distractors:['chase','write off','receipt'] },
+    { word:'settle',              definition:'Pay a bill completely.',                                            example:'Please ___ the invoice by Friday.',                         distractors:['chase','write off','duplicate'] },
+    { word:'chase',               definition:'Contact someone again and again to get a payment.',                 example:'We ___ late payers every week.',                            distractors:['settle','reconcile','deductible'] },
+    { word:'credit note',         definition:'A document that cancels all or part of an invoice.',                example:'The goods were broken, so the supplier sent a ___ ___.',    distractors:['purchase order','reminder','remittance'] },
+    { word:'write off',           definition:'Remove a debt from the books because it will not be paid.',         example:'After two years we had to ___ ___ the debt.',               distractors:['reconcile','receipt','overdue'] },
+    { word:'deductible',          definition:'Allowed to be taken off your taxable income.',                      example:'Travel costs are ___ if they are for work.',                distractors:['outstanding','overdue','spoofed'] },
+  ],
+
+  grammar: {
+    topic: 'must, mustn’t and don’t have to',
+    rule:  'MUST = a strong rule: "You must keep the receipt." MUSTN’T = it is forbidden. DON’T HAVE TO = it is not necessary (German "nicht müssen"). Must has no past form: use HAD TO.',
+    exercises: [
+      { sentence:'You ___ show the original. A scan is enough.',                      answer:'don’t have to', wrong:['mustn’t','must','can’t'],              explain:'Not necessary = don’t have to. "Mustn’t" would mean forbidden.' },
+      { sentence:'You ___ copy client files to a private USB stick. It is forbidden.', answer:'mustn’t',       wrong:['don’t have to','needn’t to','have to'], explain:'Forbidden = mustn’t.' },
+      { sentence:'Last year we ___ send every credit note by post.',                  answer:'had to',        wrong:['must','musted','have to'],             explain:'Must has no past form. Use had to.' },
+      { sentence:'Bookkeepers ___ keep a receipt for every payment.',                 answer:'must',          wrong:['mustn’t','don’t must','are must'],     explain:'A strong rule = must.' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Time prepositions for deadlines',
+    rule:  'ON + a date: due on 30 June. BY + a deadline: by Friday = on or before Friday. WITHIN + a period: within 14 days. FOR + a length of time: overdue for three weeks.',
+    exercises: [
+      { sentence:'The invoice is due ___ 30 June.',                       answer:'on',     wrong:['in','at','to'],              explain:'due ON + a date.' },
+      { sentence:'Please pay ___ 14 days of the invoice date.',           answer:'within', wrong:['until','during','since'],    explain:'WITHIN + a period of time.' },
+      { sentence:'Payment is due ___ Friday at the latest.',              answer:'by',     wrong:['within','since','for'],      explain:'BY + a deadline = on or before.' },
+      { sentence:'The invoice has been overdue ___ three weeks.',         answer:'for',    wrong:['since','by','on'],           explain:'FOR + a length of time. German "seit" covers both for and since!' },
+    ],
+  },
+
+  sentences: [
+    { words:['Please','settle','the','invoice','within','14','days'],                         answer:'Please settle the invoice within 14 days',                 hint:'💶 About paying on time...' },
+    { words:['Ben','checks','every','purchase','order','before','paying'],                    answer:'Ben checks every purchase order before paying',            hint:'🔍 About a careful bookkeeper...' },
+    { words:['The','spoofed','email','had','a','false','sender'],                             answer:'The spoofed email had a false sender',                     hint:'🎭 About a fake message...' },
+    { words:['Sabine','issued','a','credit','note','for','the','broken','goods'],             answer:'Sabine issued a credit note for the broken goods',         hint:'📦 About returned goods...' },
+  ],
+
+  word_builder: [
+    { word:'receipt',     definition:'A paper that shows you paid' },
+    { word:'overdue',     definition:'Not paid after the due date' },
+    { word:'spoofed',     definition:'Faked to look real' },
+    { word:'reconcile',   definition:'Check that two sets of numbers match' },
+    { word:'remittance',  definition:'Money you send to pay someone' },
+    { word:'deductible',  definition:'Allowed to be taken off your taxable income' },
+  ],
+
+  true_false: [
+    { statement:'A credit note reduces or cancels an invoice.',                                                  correct:true,  reveal:'✅ TRUE! A credit note cancels all or part of an invoice (Gutschrift).' },
+    { statement:'When we talk about invoices, "outstanding" always means "excellent".',                          correct:false, reveal:'❌ FALSE! An outstanding invoice is not paid yet.' },
+    { statement:'"Receipt" is the English word for a cooking recipe.',                                           correct:false, reveal:'❌ FALSE! A receipt shows you paid. A cooking recipe is "recipe", a doctor’s note is "prescription".' },
+    { statement:'A spoofed email pretends to come from a real sender.',                                          correct:true,  reveal:'✅ TRUE! The sender is not who he says he is.' },
+    { statement:'If a supplier emails "our bank details have changed", call them on a number you already know.', correct:true,  reveal:'✅ TRUE! Never trust the email alone.' },
+    { statement:'Payment terms of 30 days mean you must pay within 30 days.',                                    correct:true,  reveal:'✅ TRUE! Counted from the invoice date.' },
+    { statement:'To "write off" a debt means to chase it every week.',                                           correct:false, reveal:'❌ FALSE! Write off = remove the debt from the books because it will not be paid. Chase = ask again and again.' },
+    { statement:'English "You mustn’t" means the same as German "Du musst nicht".',                              correct:false, reveal:'❌ FALSE! "Mustn’t" = forbidden. For "nicht müssen" say "don’t have to".' },
+  ],
+
+},
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
