@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>😎 Weekly Quest — EFCD</title>
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css2?family=Nunito:ital,wght@0,700;0,800;0,900;1,900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/lesson-data-registry.js"></script>
+<style>
+:root{--navy:#1a2e5a;--yellow:#FFC800;--ys:#E5B400;--green:#58CC02;--gs:#58A700;--punch:#FF4B4B;--teal:#2BDECC;--blue:#1CB0F6;--orange:#FF9600}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:linear-gradient(170deg,#001433,var(--navy));color:#fff;min-height:100vh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+#app{max-width:520px;margin:0 auto;padding:18px 16px 40px}
+@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.6)}65%{transform:scale(1.12)}100%{transform:scale(1)}}
+@keyframes float{50%{transform:translateY(-6px)}}
+@keyframes shake{20%{transform:translateX(-8px)}60%{transform:translateX(8px)}}
+.u{animation:up .3s ease both}
+h1{font-size:26px;font-style:italic;font-weight:900;text-align:center;margin:6px 0}
+.sub{font-size:13px;font-weight:700;color:rgba(255,255,255,.55);text-align:center;margin-bottom:18px}
+.big{font-size:60px;text-align:center;animation:float 2.5s ease-in-out infinite}
+.names{display:flex;flex-direction:column;gap:10px}
+.btn{width:100%;padding:15px;border-radius:99px;font:inherit;font-size:16px;font-weight:900;border:2px solid var(--ys);border-bottom:5px solid var(--ys);background:var(--yellow);color:#111827;cursor:pointer}
+.btn:active{transform:translateY(3px);border-bottom-width:2px}
+.btn.ghost{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.2)}
+.name{padding:15px;border-radius:16px;font:inherit;font-size:17px;font-weight:900;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);border-bottom:4px solid rgba(0,0,0,.25);color:#fff;cursor:pointer;text-align:left}
+.top{display:flex;gap:8px;justify-content:center;margin-bottom:14px;flex-wrap:wrap}
+.pill{padding:6px 14px;border-radius:99px;background:rgba(255,200,0,.12);border:2px solid rgba(255,200,0,.25);font-weight:900;font-size:13px;color:var(--yellow)}
+.pill.t{background:rgba(43,222,204,.12);border-color:rgba(43,222,204,.3);color:var(--teal)}
+.path{display:flex;flex-direction:column;gap:6px;margin:10px 0 18px}
+.node{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;border:3px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);width:86%}
+.node:nth-child(even){align-self:flex-end}
+.node .ic{font-size:30px;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.1);flex-shrink:0}
+.node .tt{font-size:14px;font-weight:900;line-height:1.2}
+.node .ss{font-size:11px;font-weight:800;color:rgba(255,255,255,.5);margin-top:2px}
+.node.done{border-color:var(--gs);background:rgba(88,204,2,.14)}
+.node.done .ic{background:var(--green)}
+.node.cur{border-color:var(--yellow);background:rgba(255,200,0,.12);cursor:pointer;animation:pop .4s ease}
+.node.cur .ic{background:var(--yellow)}
+.node.lock{opacity:.4}
+.node.boss{border-color:var(--punch)}
+.team{background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.1);border-radius:18px;padding:14px 16px;margin-bottom:16px}
+.team h3{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:8px}
+.tm{display:flex;justify-content:space-between;padding:5px 0;font-weight:800;font-size:14px}
+.bar{height:8px;border-radius:9px;background:rgba(255,255,255,.1);overflow:hidden;margin:6px 0 10px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--green));transition:width .5s}
+.card{background:rgba(255,255,255,.07);border:3px solid rgba(255,255,255,.1);border-radius:20px;padding:26px 20px;text-align:center;font-size:clamp(18px,4.5vw,24px);font-weight:800;line-height:1.5;margin:10px 0 16px}
+.blank{display:inline-block;min-width:90px;border-bottom:4px solid var(--yellow);color:var(--yellow)}
+.opts{display:grid;gap:10px}
+.opt{padding:16px;border-radius:18px;font:inherit;font-size:19px;font-weight:900;font-style:italic;color:#fff;background:rgba(255,255,255,.07);border:3px solid rgba(255,255,255,.12);border-bottom:5px solid rgba(0,0,0,.25);cursor:pointer}
+.opt.ok{background:var(--green);border-color:var(--gs);animation:pop .3s}
+.opt.no{background:var(--punch);border-color:#EA2B2B;animation:shake .3s}
+.opt.rev{background:rgba(88,204,2,.2);border-color:var(--gs)}
+.prog{height:8px;background:rgba(255,255,255,.1);border-radius:9px;overflow:hidden}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--yellow),var(--green));transition:width .4s}
+.hd{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:900;color:rgba(255,255,255,.5);margin:8px 0 6px}
+.fb{margin-top:14px;text-align:center;font-weight:800;font-size:14px;min-height:22px}
+.stars{font-size:44px;text-align:center;letter-spacing:6px}
+</style></head><body><div id="app"><div class="big">🧭</div><div class="sub">Loading your quest…</div></div>
+<script>
+'use strict';
+const SB='https://knwgmrgwbpchqyqxbxea.supabase.co';
+const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtud2dtcmd3YnBjaHF5cXhieGVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkyODgsImV4cCI6MjA3ODA4NTI4OH0.qnp2ScwSE77_idmPhpLE98sr46WvLpKtg6refFfC7s8';
+const sb=supabase.createClient(SB,KEY,{global:{headers:{apikey:KEY,Authorization:'Bearer '+KEY}}});
+const $=id=>document.getElementById(id), app=$('app');
+const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const shuf=a=>[...a].sort(()=>Math.random()-.5);
+const nk=s=>(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+const ymd=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const weekStart=(d=new Date())=>{const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x};
+const WEEK=ymd(weekStart()), TODAY=ymd(new Date()), GAPS=[1,2,4,8,16,30];
+const classId=new URLSearchParams(location.search).get('class');
+let S={cls:null,students:[],me:null,lessons:[],all:[],stops:[],cur:0,done:0,correct:0,total:0,xp:0,missed:[],lb:{},practice:false,streak:0,team:[],allRuns:[]};
+
+async function get(path){const r=await fetch(SB+'/rest/v1/'+path,{headers:{apikey:KEY,Authorization:'Bearer '+KEY}});return r.json()}
+
+async function boot(){
+  if(!classId){app.innerHTML='<div class="big">🤔</div><h1>Missing class link</h1>';return}
+  const [c,st,lv]=await Promise.all([
+    get(`efcd_classes?id=eq.${classId}&select=id,name,emoji,team_name`),
+    get(`efcd_students?class_id=eq.${classId}&select=id,name,avatar_emoji&order=name`),
+    get(`efcd_lesson_vocab?class_id=eq.${classId}&archived=eq.false&order=completed_at.desc&limit=50`)]);
+  S.cls=c?.[0]||{name:classId,emoji:'🏫'};
+  S.students=Array.isArray(st)?st:[];
+  const seen=new Set();
+  (Array.isArray(lv)?lv:[]).forEach(r=>{
+    if(seen.has(r.lesson_id))return; seen.add(r.lesson_id);
+    const reg=window.LESSON_DATA_REGISTRY?.[r.lesson_id];
+    let v=reg?.vocab; if(!v?.length){try{v=Array.isArray(r.vocab)?r.vocab:JSON.parse(r.vocab||'[]')}catch(e){v=[]}}
+    v=(v||[]).filter(x=>x.word&&x.definition);
+    if(v.length<2)return;
+    const L={id:r.lesson_id,title:reg?.title||r.lesson_title||r.lesson_id,emoji:reg?.emoji||'📖',words:[]};
+    L.words=v.map(x=>({key:r.lesson_id+':'+nk(x.word),word:x.word,definition:x.definition,example:x.example||'',dis:x.distractors||[],lesson:L}));
+    S.lessons.push(L);
+  });
+  S.all=S.lessons.flatMap(l=>l.words);
+  if(!S.all.length){app.innerHTML='<div class="big">📭</div><h1>No lessons yet</h1><div class="sub">Your quest appears after your next lesson.</div>';return}
+  const saved=localStorage.getItem('efcd_q_me_'+classId);
+  const me=S.students.find(s=>s.id===saved);
+  me?pick(me):pickScreen();
+}
+
+function pickScreen(){
+  app.innerHTML=`<div class="u"><div class="big">${esc(S.cls.emoji||'😎')}</div><h1>${esc(S.cls.team_name||S.cls.name)}</h1><div class="sub">Who's questing today?</div><div class="names" id="nm"></div></div>`;
+  if(!S.students.length){$('nm').innerHTML='<div class="sub">Names could not be loaded. Please tell your teacher.</div>';return}
+  S.students.forEach(s=>{const b=document.createElement('button');b.className='name';b.textContent=(s.avatar_emoji||'😊')+'  '+s.name;b.onclick=()=>pick(s);$('nm').appendChild(b)});
+}
+
+async function pick(me){
+  S.me=me; localStorage.setItem('efcd_q_me_'+classId,me.id);
+  try{S.lb=JSON.parse(localStorage.getItem(`efcd_q_lb_${classId}_${me.id}`)||'{}')}catch(e){S.lb={}}
+  const {data}=await sb.from('efcd_quest_runs').select('*').eq('class_id',classId);
+  S.allRuns=data||[];
+  const mine=S.allRuns.filter(r=>r.student_id===me.id);
+  const run=mine.find(r=>r.week===WEEK);
+  S.done=run?.stops||0; S.correct=run?.correct||0; S.total=run?.total||0; S.xp=run?.xp||0;
+  const weeks=new Set(mine.filter(r=>r.done).map(r=>r.week));
+  let w=weekStart(); if(!weeks.has(ymd(w)))w.setDate(w.getDate()-7);
+  let n=0; while(weeks.has(ymd(w))){n++;w.setDate(w.getDate()-7)} S.streak=n;
+  buildStops(); if(run?.done)S.done=S.stops.length;
+  mapScreen();
+}
+
+function wrongFor(w){
+  const w2=w.dis.filter(d=>d&&d!==w.word).slice(0,3);
+  const pool=shuf([...w.lesson.words,...S.all]).map(x=>x.word);
+  for(const p of pool){if(w2.length>=3)break;if(p!==w.word&&!w2.includes(p))w2.push(p)}
+  return w2;
+}
+const pri=w=>S.lb[w.key]?S.lb[w.key].box:-1;
+const best=(ws,n)=>shuf(ws).sort((a,b)=>pri(a)-pri(b)).slice(0,n);
+const mkQ=ws=>shuf(ws).map(w=>({w,wrong:wrongFor(w)}));
+
+function buildStops(){
+  const recent=S.lessons.slice(0,3), older=S.lessons.slice(3);
+  S.stops=recent.map(l=>({ic:l.emoji,title:l.title,sub:'New lesson',q:mkQ(best(l.words,6))}));
+  const due=w=>!S.lb[w.key]||S.lb[w.key].due<=TODAY;
+  let vw=older.flatMap(l=>l.words).filter(due);
+  if(vw.length<4)vw=S.lessons.flatMap(l=>l.words).filter(w=>S.lb[w.key]&&due(w));
+  if(vw.length>=4)S.stops.push({ic:'🏛️',title:'From the Vault',sub:'Older words, back again',q:mkQ(best(vw,8)),vault:true});
+  S.stops.push({ic:'🐉',title:'Boss Round',sub:'Your trickiest words',boss:true,q:null});
+}
+
+function team(){
+  const runs=S.allRuns.filter(r=>r.week===WEEK);
+  return S.students.map(s=>{const r=runs.find(x=>x.student_id===s.id);return{s,stops:r?.stops||0,done:!!r?.done}});
+}
+function teamHtml(){
+  const t=team(), n=t.filter(x=>x.done).length;
+  return `<div class="team"><h3>🏆 Team goal — everyone finishes by Friday</h3><div class="bar"><i style="width:${t.length?n/t.length*100:0}%"></i></div>
+  ${t.map(x=>`<div class="tm"><span>${esc(x.s.avatar_emoji||'😊')} ${esc(x.s.name)}</span><span>${x.done?'✅ done':x.stops?`🚶 ${x.stops}/${S.stops.length}`:'⏳'}</span></div>`).join('')}
+  ${n===t.length&&t.length?'<div class="tm" style="color:var(--yellow)">🎉 Team badge unlocked!</div>':''}</div>`;
+}
+
+function mapScreen(){
+  const all=S.done>=S.stops.length;
+  app.innerHTML=`<div class="u"><h1>${esc(S.me.avatar_emoji||'😊')} ${esc(S.me.name)}'s Quest</h1>
+  <div class="top"><span class="pill">🔥 ${S.streak} week streak</span><span class="pill">⚡ ${S.xp} XP</span><span class="pill t">${esc(S.cls.team_name||S.cls.name)}</span></div>
+  <div class="path">${S.stops.map((s,i)=>{const st=i<S.done?'done':i===S.done?'cur':'lock';
+    return `<div class="node ${st} ${s.boss?'boss':''}" data-i="${i}"><div class="ic">${st==='done'?'✓':s.ic}</div><div><div class="tt">${esc(s.title)}</div><div class="ss">${st==='done'?'Complete':esc(s.sub)}</div></div></div>`}).join('')}</div>
+  ${all?'<div class="stars">🏅</div><div class="sub" style="margin-top:6px">Quest complete this week! Well done.</div>':'<button class="btn" id="go">▶ Continue quest</button>'}
+  ${teamHtml()}
+  ${all?'<button class="btn ghost" id="rep">🔁 Play again for fun</button>':''}
+  <button class="btn ghost" id="sw" style="margin-top:10px;font-size:13px">Not ${esc(S.me.name)}? Switch</button></div>`;
+  $('go')?.addEventListener('click',()=>startStop(S.done));
+  document.querySelector('.node.cur')?.addEventListener('click',()=>startStop(S.done));
+  $('rep')?.addEventListener('click',()=>{S.practice=true;S.done=0;buildStops();mapScreen()});
+  $('sw').onclick=()=>{localStorage.removeItem('efcd_q_me_'+classId);pickScreen()};
+}
+
+function startStop(i){
+  const st=S.stops[i]; S.cur=i;
+  if(st.boss){
+    const seen=new Set(), m=S.missed.filter(w=>!seen.has(w.key)&&seen.add(w.key)).slice(0,8);
+    const fill=best(S.all.filter(w=>!seen.has(w.key)),8-m.length);
+    const ws=[...m,...fill]; st.q=mkQ(ws); st.sub=m.length?'Your trickiest words':'Mixed challenge';
+  }
+  st.i=0;st.ok=0;st.n=0;
+  showQ();
+}
+
+function showQ(){
+  const st=S.stops[S.cur], q=st.q[st.i];
+  if(!q)return endStop();
+  const w=q.w, gap=/_{3,}/.test(w.example);
+  app.innerHTML=`<div class="u"><div class="hd"><span>${st.ic} ${esc(st.title)}</span><span>${Math.min(st.i+1,st.q.length)} / ${st.q.length}</span></div>
+  <div class="prog"><i style="width:${st.i/st.q.length*100}%"></i></div>
+  <div class="card">${gap?esc(w.example).replace(/_{3,}/g,'<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>'):esc(w.definition)}</div>
+  <div class="opts" id="o"></div><div class="fb" id="fb"></div></div>`;
+  shuf([w.word,...q.wrong]).forEach(o=>{const b=document.createElement('button');b.className='opt';b.textContent=o;b.onclick=()=>answer(b,o===w.word,q);$('o').appendChild(b)});
+}
+
+function answer(btn,ok,q){
+  const st=S.stops[S.cur], w=q.w;
+  document.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(b.textContent===w.word&&!ok)b.classList.add('rev')});
+  btn.classList.add(ok?'ok':'no');
+  const r=S.lb[w.key]||{box:0,due:TODAY};
+  if(ok){r.box=Math.min(r.box+1,5)}else{r.box=0}
+  const d=new Date();d.setDate(d.getDate()+(ok?GAPS[r.box]:1));r.due=ymd(d);S.lb[w.key]=r;
+  if(!q.retry){st.n++;S.total++;if(ok){st.ok++;S.correct++;S.xp+=10}}
+  if(!ok&&!q.retry){S.missed.push(w);st.q.push({w,wrong:q.wrong,retry:true})}
+  $('fb').innerHTML=(ok?'✅ Nice!':`❌ It's <b>${esc(w.word)}</b>`)+'<br><br><button class="btn" id="nx">Next →</button>';
+  $('nx').onclick=()=>{st.i++;showQ()};
+  if(ok)setTimeout(()=>{if($('nx'))$('nx').click()},900);
+}
+
+async function endStop(){
+  const st=S.stops[S.cur], acc=st.n?st.ok/st.n:1, stars=acc>=.85?3:acc>=.6?2:1;
+  if(S.cur>=S.done)S.done=S.cur+1;
+  const fin=S.done>=S.stops.length;
+  try{localStorage.setItem(`efcd_q_lb_${classId}_${S.me.id}`,JSON.stringify(S.lb))}catch(e){}
+  if(!S.practice){
+    const row={class_id:classId,student_id:S.me.id,week:WEEK,stops:S.done,correct:S.correct,total:S.total,xp:S.xp,done:fin,updated_at:new Date().toISOString()};
+    await sb.from('efcd_quest_runs').upsert(row,{onConflict:'class_id,student_id,week'});
+    const i=S.allRuns.findIndex(r=>r.student_id===S.me.id&&r.week===WEEK);
+    if(i>=0)S.allRuns[i]=row;else S.allRuns.push(row);
+    if(fin&&S.streak===0)S.streak=1;
+  }
+  app.innerHTML=`<div class="u"><div class="big">${fin?'🏅':'🎉'}</div><h1>${fin?'Quest complete!':esc(st.title)+' cleared!'}</h1>
+  <div class="stars">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
+  <div class="sub" style="margin-top:8px">${st.ok} of ${st.n} right first time${fin?` · 🔥 ${S.streak} week streak`:''}</div>
+  <button class="btn" id="mp">${fin?'See the team 🏆':'Back to the map'}</button></div>`;
+  $('mp').onclick=()=>{if(fin)S.practice=false;mapScreen()};
+}
+boot();
+</script></body></html>
