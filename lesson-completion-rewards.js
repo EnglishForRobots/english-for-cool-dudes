@@ -1263,6 +1263,30 @@
       ],
     },
 
+                  'tax-invoice-inspector-tax': {
+      title:   'The Invoice Inspector',
+      level:   'Tax',
+      grammar: 'must / mustn’t / don’t have to (and had to); time prepositions for deadlines (on, by, within, for)',
+      vocab: [
+        { word:'purchase order',      definition:'A document from the buyer that says what to buy and at what price.' },
+        { word:'payment terms',       definition:'The rules for when and how an invoice must be paid.' },
+        { word:'receipt',             definition:'A paper that shows you have paid.' },
+        { word:'supporting document', definition:'A paper that proves a booking, like an invoice, a contract or a receipt.' },
+        { word:'duplicate',           definition:'An exact second copy of something.' },
+        { word:'overdue',             definition:'Not paid, and the due date has passed.' },
+        { word:'outstanding',         definition:'Not paid yet. (In daily English it can also mean "excellent".)' },
+        { word:'reminder',            definition:'A polite letter or email that says: "Please pay."' },
+        { word:'spoofed',             definition:'Faked to look real, for example an email with a false sender.' },
+        { word:'remittance',          definition:'Money you send to pay someone.' },
+        { word:'reconcile',           definition:'Check that two sets of numbers match.' },
+        { word:'settle',              definition:'Pay a bill completely.' },
+        { word:'chase',               definition:'Contact someone again and again to get a payment.' },
+        { word:'credit note',         definition:'A document that cancels all or part of an invoice.' },
+        { word:'write off',           definition:'Remove a debt from the books because it will not be paid.' },
+        { word:'deductible',          definition:'Allowed to be taken off your taxable income.' },
+      ],
+    },
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
