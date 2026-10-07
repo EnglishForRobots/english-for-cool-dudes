@@ -687,12 +687,15 @@ async function bootSRSMode(classId, tricky = false) {
       :       tricky
         ? `efcd_srs_class_items?class_id=eq.${classId}&status=eq.active&review_count=gt.0&ease_factor=lt.2.5&order=ease_factor.asc&limit=20`
         : `efcd_srs_class_items?class_id=eq.${classId}&status=eq.active&next_review_at=lte.${today}&order=ease_factor.asc`
-    const studentQuery = `efcd_srs_class_items?class_id=eq.${classId}&status=eq.active&order=ease_factor.asc&limit=300`;
+    const studentQuery = `efcd_srs_class_items?class_id=eq.${classId}&status=eq.active&limit=1000`;
     const allItems = await sbFetch(_studentMode ? studentQuery : allItemsQuery);
     const arch = await sbFetch(`efcd_lesson_vocab?class_id=eq.${classId}&archived=eq.true&select=lesson_id`);
 const archIds = new Set((Array.isArray(arch) ? arch : []).map(a => a.lesson_id));
 _srsItems = (Array.isArray(allItems) ? allItems : []).filter(i => !archIds.has(i.lesson_id));
-if (_studentMode) _srsItems = _pickStudentWords(_srsItems);
+if (_studentMode) {
+  const lessonRows = await sbFetch(`efcd_lesson_vocab?class_id=eq.${classId}&archived=eq.false&select=lesson_id,completed_at&order=completed_at.desc&limit=50`);
+  _srsItems = _pickStudentWords(_srsItems, Array.isArray(lessonRows) ? lessonRows : []);
+}
 
     if (!_srsItems.length) {
             document.getElementById('srs-load-sub').textContent = tricky
@@ -817,22 +820,42 @@ function _buildQuestionFromSRSItem(srsItem, reg) {
   return null;
 }
 
-// Student homework: a fresh mix every time. Hard words first, then due, then random.
-function _pickStudentWords(items, n = 40) {
-  const today = new Date().toISOString().split('T')[0];
+// Student homework: recent lessons first, then SRS-style recall of older lessons.
+// ~20 from the 2 newest lessons, 8 hard, 8 due, 8 random older (capped per lesson).
+function _pickStudentWords(items, lessonRows = [], n = 40) {
+  const today  = new Date().toISOString().split('T')[0];
+  const usable = items.filter(i => window.LESSON_DATA_REGISTRY?.[i.lesson_id]);
+  const pool   = usable.length ? usable : items;
+
+  // lessons newest → oldest (deduped), only those that have items
+  const order = [];
+  lessonRows.forEach(r => { if (!order.includes(r.lesson_id)) order.push(r.lesson_id); });
+  const recentIds = new Set(order.filter(id => pool.some(i => i.lesson_id === id)).slice(0, 2));
+
   const isHard = i => i.review_count > 0 && parseFloat(i.ease_factor) < 2.5;
   const isDue  = i => (i.next_review_at || '') <= today;
-  const pool = shuffle(items);
+
   const pick = [];
-  const take = (arr, k) => {
-    for (const i of arr) {
-      if (pick.length >= n || k <= 0) break;
-      if (!pick.includes(i)) { pick.push(i); k--; }
+  const perLesson = {};
+  const take = (arr, k, cap) => {
+    for (const i of shuffle(arr)) {
+      if (k <= 0 || pick.length >= n) break;
+      if (pick.includes(i)) continue;
+      if ((perLesson[i.lesson_id] || 0) >= cap) continue;
+      pick.push(i);
+      perLesson[i.lesson_id] = (perLesson[i.lesson_id] || 0) + 1;
+      k--;
     }
   };
-  take(pool.filter(isHard), 15);
-  take(pool.filter(isDue), 15);
-  take(pool, n);
+
+  const recent = pool.filter(i => recentIds.has(i.lesson_id));
+  const older  = pool.filter(i => !recentIds.has(i.lesson_id));
+
+  take(recent, 20, 12);                // fresh material
+  take(older.filter(isHard), 8, 3);    // words the class struggled with
+  take(older.filter(isDue), 8, 3);     // SRS-due older words
+  take(older, 8, 2);                   // random older, spread across lessons
+  take(pool, n, 99);                   // top up if any bucket was short
   return pick;
 }
   
