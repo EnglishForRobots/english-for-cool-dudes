@@ -1,5 +1,6 @@
 window.LEVEL_CONFIG = { eyebrow: '💰 Tax English', accent: 'gold' };
 window.LESSONS = [
+  { slug:'invoiceinspector', icon:'🧾', badge:'⭐ Bookkeeping/Invoices', badgeType:'new', title:'The Invoice Inspector', desc:'40 invoices in the inbox. One of them is a fake. Which is it?!?!', mins:7, date:'2026-10-07' },
   { slug:'taxpassport', icon:'🎫✈️💸', badge:'⭐ International Tax', badgeType:'new', title:'The Tax Passport', desc:"Money crosses the border in seconds. So does your client’s data. Welcome to passport control for tax.", mins:8, date:'2026-10-01' },
   { slug:'exittax', icon:'🛂', badge:'Exit Tax/Relocation', badgeType:null, title:'The Exit Tax', desc:'A founder wants to relocate to Zurich for a fresh start and the tax office is already calculating her bill.', mins:7, date:'2026-09-17' },
   { slug:'who-sold-it', icon:'🕵️', badge:'VAT', badgeType:null, title:'Who Sold It?', desc:'A German developer. An app store in Ireland. One in-app purchase — and one big VAT question.', mins:6, date:'2026-09-10' },
