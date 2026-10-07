@@ -533,6 +533,7 @@ let _stillTricky   = [];   // wrong again during Second Chance
 let _retryPass       = false;   // true while replaying the misses
 let _totalBeforeRetry = 0;
 let _studentMode      = false;  // homework link: ?student=1&class=...
+let _studentFallbackReg = {};   // lessonId -> {emoji,title,vocab} built from efcd_lesson_vocab
 
 // ── SUPABASE FETCH ─────────────────────────────────────────────
 async function sbFetch(path) {
@@ -693,8 +694,24 @@ async function bootSRSMode(classId, tricky = false) {
 const archIds = new Set((Array.isArray(arch) ? arch : []).map(a => a.lesson_id));
 _srsItems = (Array.isArray(allItems) ? allItems : []).filter(i => !archIds.has(i.lesson_id));
 if (_studentMode) {
-  const lessonRows = await sbFetch(`efcd_lesson_vocab?class_id=eq.${classId}&archived=eq.false&select=lesson_id,completed_at&order=completed_at.desc&limit=50`);
-  _srsItems = _pickStudentWords(_srsItems, Array.isArray(lessonRows) ? lessonRows : []);
+  const lvRows = await sbFetch(`efcd_lesson_vocab?class_id=eq.${classId}&archived=eq.false&order=completed_at.desc&limit=50`);
+  const rows = Array.isArray(lvRows) ? lvRows : [];
+  _studentFallbackReg = {};
+  const todayStr = new Date().toISOString().split('T')[0];
+  const haveSrs  = new Set(_srsItems.map(i => i.lesson_id));
+  rows.forEach(r => {
+    if (_studentFallbackReg[r.lesson_id]) return;
+    let vocab = [];
+    try { vocab = _cleanVocab(Array.isArray(r.vocab) ? r.vocab : JSON.parse(r.vocab || '[]')); } catch (e) {}
+    _studentFallbackReg[r.lesson_id] = { emoji: '📖', title: r.lesson_title, vocab };
+    if (haveSrs.has(r.lesson_id)) return;            // already has real SRS rows
+    vocab.forEach(v => _srsItems.push({
+      id: 'syn-' + r.lesson_id + '-' + v.word, class_id: classId, lesson_id: r.lesson_id,
+      item_type: 'vocab', item_key: 'vocab:' + v.word, status: 'active',
+      interval_days: 1, ease_factor: 2.5, review_count: 0, next_review_at: todayStr
+    }));
+  });
+  _srsItems = _pickStudentWords(_srsItems, rows);
 }
 
     if (!_srsItems.length) {
@@ -717,7 +734,7 @@ if (_studentMode) {
 
     _questions = [];
     for (const [lessonId, items] of Object.entries(lessonGroups)) {
-      const reg = window.LESSON_DATA_REGISTRY?.[lessonId];
+      const reg = window.LESSON_DATA_REGISTRY?.[lessonId] || _studentFallbackReg[lessonId];
       if (!reg) continue;
       items.forEach(srsItem => {
         const q = _buildQuestionFromSRSItem(srsItem, reg);
@@ -824,7 +841,7 @@ function _buildQuestionFromSRSItem(srsItem, reg) {
 // ~20 from the 2 newest lessons, 8 hard, 8 due, 8 random older (capped per lesson).
 function _pickStudentWords(items, lessonRows = [], n = 40) {
   const today  = new Date().toISOString().split('T')[0];
-  const usable = items.filter(i => window.LESSON_DATA_REGISTRY?.[i.lesson_id]);
+  const usable = items.filter(i => window.LESSON_DATA_REGISTRY?.[i.lesson_id] || _studentFallbackReg[i.lesson_id]);
   const pool   = usable.length ? usable : items;
 
   // lessons newest → oldest (deduped), only those that have items
