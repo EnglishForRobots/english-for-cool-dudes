@@ -2902,7 +2902,7 @@ const LESSON_DATA_REGISTRY = {
       {
         word:        'gain the upper hand',
         definition:  'To get an advantage over your opponent',
-        example:     'Gradually, the Normans ___ ___ ___ ___ as the day went on.',
+        example:     'Gradually, the Normans ___ ___ ___ ___ as the day goes on.',
         distractors: ['lose all hope', 'call a truce', 'change sides'],
       },
       {
