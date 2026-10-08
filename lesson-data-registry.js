@@ -2894,10 +2894,10 @@ const LESSON_DATA_REGISTRY = {
         distractors: ['infantry', 'navy', 'garrison'],
       },
       {
-        word:        'strengthen',
+        word:        'strengthened',
         definition:  'To make something stronger or more powerful',
         example:     'The English defence was ___ by the fearsome Housecarls.',
-        distractors: ['replace', 'delay', 'design'],
+        distractors: ['replaced', 'delayed', 'designed'],
       },
       {
         word:        'gain the upper hand',
