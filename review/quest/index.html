@@ -57,6 +57,18 @@ h1{font-size:26px;font-style:italic;font-weight:900;text-align:center;margin:6px
 .hd{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:900;color:rgba(255,255,255,.5);margin:8px 0 6px}
 .fb{margin-top:14px;text-align:center;font-weight:800;font-size:14px;min-height:22px}
 .stars{font-size:44px;text-align:center;letter-spacing:6px}
+input#ti{width:100%;padding:15px;border-radius:16px;border:3px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:22px;font-weight:900;text-align:center;outline:none}
+.hint{min-height:26px;margin:10px 0;text-align:center;font-weight:900;color:var(--yellow);letter-spacing:3px}
+.chip{display:inline-block;padding:7px 14px;margin:3px;border-radius:99px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);font-weight:900;font-style:italic;letter-spacing:0;font-size:15px;color:#fff}
+.chip.on{background:rgba(28,176,246,.22);border-color:var(--blue);font-style:normal;cursor:pointer}
+.chip.empty{width:38px;height:44px;padding:0;border-radius:6px;border:0;border-bottom:4px solid var(--teal);background:rgba(43,222,204,.07)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.row .btn{flex:1;min-width:100px;padding:11px;font-size:13px}
+.ans{min-height:58px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;padding:10px;border:3px dashed rgba(255,255,255,.18);border-radius:18px;margin-bottom:14px}
+.tiles{display:flex;flex-wrap:wrap;gap:7px;justify-content:center}
+.tile{padding:10px 14px;min-width:42px;border-radius:12px;border:2px solid #CECECE;border-bottom:4px solid #CECECE;background:#fff;color:#111827;font:inherit;font-size:17px;font-weight:900;cursor:pointer}
+.tile.used{opacity:.15;pointer-events:none}
+.topic{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);margin-bottom:8px}
 </style></head><body><div id="app"><div class="big">🧭</div><div class="sub">Loading your quest…</div></div>
 <script>
 'use strict';
@@ -90,7 +102,7 @@ async function boot(){
     let v=reg?.vocab; if(!v?.length){try{v=Array.isArray(r.vocab)?r.vocab:JSON.parse(r.vocab||'[]')}catch(e){v=[]}}
     v=(v||[]).filter(x=>x.word&&x.definition);
     if(v.length<2)return;
-    const L={id:r.lesson_id,title:reg?.title||r.lesson_title||r.lesson_id,emoji:reg?.emoji||'📖',words:[]};
+    const L={id:r.lesson_id,title:reg?.title||r.lesson_title||r.lesson_id,emoji:reg?.emoji||'📖',words:[],reg};
     L.words=v.map(x=>({key:r.lesson_id+':'+nk(x.word),word:x.word,definition:x.definition,example:x.example||'',dis:x.distractors||[],lesson:L}));
     S.lessons.push(L);
   });
@@ -130,15 +142,38 @@ function wrongFor(w){
 }
 const pri=w=>S.lb[w.key]?S.lb[w.key].box:-1;
 const best=(ws,n)=>shuf(ws).sort((a,b)=>pri(a)-pri(b)).slice(0,n);
-const mkQ=ws=>shuf(ws).map(w=>({w,wrong:wrongFor(w)}));
+const BL='<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+const nz=s=>(s||'').toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
+function lev(a,b){const d=Array.from({length:a.length+1},(_,i)=>[i]);for(let j=1;j<=b.length;j++)d[0][j]=j;for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[a.length][b.length]}
+function vq(w,k){
+  if(k==='type')return{kind:'type',w};
+  if(k==='build'&&nk(w.word).length<=10)return{kind:'build',w};
+  const gap=/_{3,}/.test(w.example);
+  return{kind:'mc',w,prompt:gap?esc(w.example).replace(/_{3,}/g,BL):esc(w.definition),opts:[w.word,...wrongFor(w)],ans:w.word};
+}
+function gq(ex,g){return{kind:'mc',prompt:`<div class="topic">✏️ ${esc(g.topic)}</div>`+esc(ex.sentence).replace(/___/g,BL),opts:[ex.answer,...ex.wrong],ans:ex.answer,explain:ex.explain}}
+function lessonQs(l){
+  const reg=l.reg||{},ws=best(l.words,5),q=[];
+  ws.slice(0,3).forEach(w=>q.push(vq(w,'mc')));
+  if(ws[3])q.push(vq(ws[3],'type'));
+  if(ws[4])q.push(vq(ws[4],'build'));
+  const gs=[reg.grammar,reg.grammar2,reg.grammar3].filter(g=>g?.exercises?.length);
+  if(gs.length){const g=shuf(gs)[0];q.push(gq(shuf(g.exercises)[0],g))}
+  if(reg.sentences?.length){const s=shuf(reg.sentences)[0];q.push({kind:'sent',words:s.words,answer:s.answer,alt:s.altAnswers,hint:s.hint})}
+  if(reg.true_false?.length){const t=shuf(reg.true_false)[0];q.push({kind:'mc',prompt:esc(t.statement),opts:['TRUE','FALSE'],ans:t.correct?'TRUE':'FALSE',explain:t.reveal})}
+  return shuf(q);
+}
+const vaultQs=ws=>shuf(ws).map((w,i)=>vq(w,['mc','type','mc','build'][i%4]));
+const bossQs=ws=>shuf(ws).map((w,i)=>vq(w,['type','mc','build','mc'][i%4]));
+
 
 function buildStops(){
   const recent=S.lessons.slice(0,3), older=S.lessons.slice(3);
-  S.stops=recent.map(l=>({ic:l.emoji,title:l.title,sub:'New lesson',q:mkQ(best(l.words,6))}));
+  S.stops=recent.map(l=>({ic:l.emoji,title:l.title,sub:'New lesson',q:lessonQs(l)}));
   const due=w=>!S.lb[w.key]||S.lb[w.key].due<=TODAY;
   let vw=older.flatMap(l=>l.words).filter(due);
   if(vw.length<4)vw=S.lessons.flatMap(l=>l.words).filter(w=>S.lb[w.key]&&due(w));
-  if(vw.length>=4)S.stops.push({ic:'🏛️',title:'From the Vault',sub:'Older words, back again',q:mkQ(best(vw,8)),vault:true});
+  if(vw.length>=4)S.stops.push({ic:'🏛️',title:'From the Vault',sub:'Older words, back again',q:vaultQs(best(vw,8)),vault:true});
   S.stops.push({ic:'🐉',title:'Boss Round',sub:'Your trickiest words',boss:true,q:null});
 }
 
@@ -174,35 +209,86 @@ function startStop(i){
   if(st.boss){
     const seen=new Set(), m=S.missed.filter(w=>!seen.has(w.key)&&seen.add(w.key)).slice(0,8);
     const fill=best(S.all.filter(w=>!seen.has(w.key)),8-m.length);
-    const ws=[...m,...fill]; st.q=mkQ(ws); st.sub=m.length?'Your trickiest words':'Mixed challenge';
+    const ws=[...m,...fill]; st.q=bossQs(ws); st.sub=m.length?'Your trickiest words':'Mixed challenge';
   }
   st.i=0;st.ok=0;st.n=0;
   showQ();
 }
 
+function next(){S.stops[S.cur].i++;showQ()}
+let H={};
 function showQ(){
-  const st=S.stops[S.cur], q=st.q[st.i];
+  const st=S.stops[S.cur],q=st.q[st.i];
   if(!q)return endStop();
-  const w=q.w, gap=/_{3,}/.test(w.example);
-  app.innerHTML=`<div class="u"><div class="hd"><span>${st.ic} ${esc(st.title)}</span><span>${Math.min(st.i+1,st.q.length)} / ${st.q.length}</span></div>
-  <div class="prog"><i style="width:${st.i/st.q.length*100}%"></i></div>
-  <div class="card">${gap?esc(w.example).replace(/_{3,}/g,'<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>'):esc(w.definition)}</div>
-  <div class="opts" id="o"></div><div class="fb" id="fb"></div></div>`;
-  shuf([w.word,...q.wrong]).forEach(o=>{const b=document.createElement('button');b.className='opt';b.textContent=o;b.onclick=()=>answer(b,o===w.word,q);$('o').appendChild(b)});
+  H={};
+  app.innerHTML=`<div class="u"><div class="hd"><span>${st.ic} ${esc(st.title)}</span><span>${st.i+1} / ${st.q.length}</span></div><div class="prog"><i style="width:${st.i/st.q.length*100}%"></i></div><div id="qb"></div><div class="fb" id="fb"></div></div>`;
+  const b=$('qb');
+  if(q.kind==='mc')rMC(q,b);
+  else if(q.kind==='type')rType(q,b);
+  else if(q.kind==='build'){const wd=q.w.word.replace(/[^a-z0-9]/gi,'');
+    rTiles(q,b,{top:`<div class="card" style="font-size:17px">💡 ${esc(q.w.definition)}</div>`,units:[...wd],ans:[...wd],slots:true,tries:2,show:wd.toUpperCase(),ok:j=>nk(j)===nk(wd)});}
+  else rTiles(q,b,{top:q.hint?`<div class="sub">💡 ${esc(q.hint)}</div>`:'',units:q.words,ans:q.answer.split(' '),sep:' ',show:q.answer,ok:j=>[q.answer,...(q.alt||[])].map(nz).includes(nz(j))});
 }
-
-function answer(btn,ok,q){
-  const st=S.stops[S.cur], w=q.w;
-  document.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(b.textContent===w.word&&!ok)b.classList.add('rev')});
-  btn.classList.add(ok?'ok':'no');
-  const r=S.lb[w.key]||{box:0,due:TODAY};
-  if(ok){r.box=Math.min(r.box+1,5)}else{r.box=0}
-  const d=new Date();d.setDate(d.getDate()+(ok?GAPS[r.box]:1));r.due=ymd(d);S.lb[w.key]=r;
-  if(!q.retry){st.n++;S.total++;if(ok){st.ok++;S.correct++;S.xp+=10}}
-  if(!ok&&!q.retry){S.missed.push(w);st.q.push({w,wrong:q.wrong,retry:true})}
-  $('fb').innerHTML=(ok?'✅ Nice!':`❌ It's <b>${esc(w.word)}</b>`)+'<br><br><button class="btn" id="nx">Next →</button>';
-  $('nx').onclick=()=>{st.i++;showQ()};
-  if(ok)setTimeout(()=>{if($('nx'))$('nx').click()},900);
+function finish(ok,q,msg){
+  const st=S.stops[S.cur],h=H.help;
+  if(q.w){const r=S.lb[q.w.key]||{box:0,due:TODAY};r.box=ok?(h?r.box:Math.min(r.box+1,5)):0;
+    const d=new Date();d.setDate(d.getDate()+(ok?GAPS[r.box]:1));r.due=ymd(d);S.lb[q.w.key]=r}
+  if(!q.retry){st.n++;S.total++;if(ok){st.ok++;S.correct++;S.xp+=h?5:10}}
+  if(!ok&&!q.retry){if(q.w)S.missed.push(q.w);st.q.push({...q,retry:true})}
+  $('fb').innerHTML=msg+'<br><br><button class="btn" id="nx">Next →</button>';
+  $('nx').onclick=next;$('nx').focus();
+}
+function rMC(q,b){
+  b.innerHTML=`<div class="card">${q.prompt}</div><div class="opts"></div>`;
+  const o=b.querySelector('.opts');
+  shuf(q.opts).forEach(x=>{const e=document.createElement('button');e.className='opt';e.textContent=x;
+    e.onclick=()=>{const ok=x===q.ans;
+      o.querySelectorAll('button').forEach(z=>{z.disabled=true;if(!ok&&z.textContent===q.ans)z.classList.add('rev')});
+      e.classList.add(ok?'ok':'no');
+      const ex=q.explain?`<div style="font-size:12px;opacity:.75;margin-top:4px">${esc(q.explain)}</div>`:'';
+      finish(ok,q,(ok?'✅ Nice!':`❌ It's <b>${esc(q.ans)}</b>`)+ex)};
+    o.appendChild(e)});
+}
+function rType(q,b){
+  const w=q.w,tgt=nk(w.word),gap=/_{3,}/.test(w.example);let n=0;
+  b.innerHTML=`<div class="card">${esc(w.definition)}${gap?`<div style="font-size:15px;opacity:.7;margin-top:10px">${esc(w.example).replace(/_{3,}/g,BL)}</div>`:''}</div>
+  <input id="ti" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type the word…"><div class="hint" id="th"></div>
+  <div class="row"><button class="btn" id="chk">✓ Check</button><button class="btn ghost" id="b1">💡 Letters</button><button class="btn ghost" id="b2">🎯 Pick it</button><button class="btn ghost" id="b3">👁️ Reveal</button></div>`;
+  const ti=$('ti');ti.focus();
+  const pat=k=>{let c=0;return w.word.split('').map(ch=>/[a-z0-9]/i.test(ch)?(c++<k?ch.toUpperCase():'_'):(ch===' '?'\u2003':ch)).join(' ')};
+  $('b1').onclick=()=>{H.help=true;if(n<tgt.length)n++;$('th').textContent=pat(n);ti.focus()};
+  $('b2').onclick=()=>{H.help=true;$('th').innerHTML=shuf([w.word,...wrongFor(w)]).map(x=>`<span class="chip">${esc(x)}</span>`).join('');$('b2').disabled=true;ti.focus()};
+  $('b3').onclick=()=>{H.help=true;H.rev=true;n=tgt.length;$('th').textContent=pat(n);['b1','b2','b3'].forEach(i=>$(i).disabled=true);ti.value='';ti.focus()};
+  $('chk').onclick=()=>{const t=nk(ti.value);if(!t)return;ti.disabled=true;document.querySelector('.row').style.display='none';
+    const ok=t===tgt||(tgt.length>=7&&lev(t,tgt)<=1);
+    if(ok&&H.rev)return finish(false,q,`✅ Well done, typing it is how it sticks! <b>${esc(w.word)}</b>`);
+    finish(ok,q,ok?'✅ Correct!':`❌ The word is <b>${esc(w.word)}</b>`)};
+}
+function rTiles(q,b,o){
+  const U=shuf(o.units),sep=o.sep||'';let got=[];
+  b.innerHTML=`${o.top}<div class="ans" id="sl"></div><div class="tiles" id="tl"></div>
+  <div class="row"><button class="btn" id="chk">✓ Check</button><button class="btn ghost" id="cl">🗑️ Clear</button><button class="btn ghost" id="b1">💡 Hint</button><button class="btn ghost" id="b3">👁️ Reveal</button></div>`;
+  const show=u=>esc(o.slots?u.toUpperCase():u);
+  const draw=()=>{
+    $('sl').innerHTML=(o.slots?o.units.map((_,i)=>got[i]!==undefined?`<span class="chip on" data-p="${i}">${show(U[got[i]])}</span>`:'<span class="chip empty"></span>'):got.map((g,i)=>`<span class="chip on" data-p="${i}">${show(U[g])}</span>`)).join('');
+    $('tl').innerHTML=U.map((u,i)=>`<button class="tile${got.includes(i)?' used':''}" data-i="${i}">${show(u)}</button>`).join('');
+    $('tl').querySelectorAll('.tile').forEach(t=>t.onclick=()=>{const i=+t.dataset.i;if(got.length<U.length&&!got.includes(i)){got.push(i);draw()}});
+    $('sl').querySelectorAll('.chip.on').forEach(c=>c.onclick=()=>{got.splice(+c.dataset.p,1);draw()});
+  };
+  H.press=l=>{const t=[...document.querySelectorAll('.tile:not(.used)')].find(x=>x.textContent.toLowerCase()===l.toLowerCase());t&&t.click()};
+  H.back=()=>{got.pop();draw()};
+  $('cl').onclick=()=>{got=[];draw()};
+  $('b1').onclick=()=>{H.help=true;H.h=(H.h||0)+1;got=[];
+    for(let k=0;k<H.h&&k<o.ans.length;k++){const i=U.findIndex((u,x)=>!got.includes(x)&&nz(u)===nz(o.ans[k]));if(i>-1)got.push(i)}
+    draw();if(H.h>=2)$('b1').disabled=true};
+  $('b3').onclick=()=>{H.help=true;if($('nx'))return;ev('b1','b3');finish(false,q,`👁️ <b>${esc(o.show)}</b>`)};
+  const ev=(...ids)=>ids.forEach(i=>$(i).disabled=true);
+  $('chk').onclick=()=>{if(got.length<U.length)return;
+    const ok=o.ok(got.map(i=>U[i]).join(sep));
+    if(!ok&&(H.t=(H.t||0)+1)<(o.tries||1)){got=[];draw();$('fb').textContent='Not quite. Try once more!';return}
+    ev('chk','cl','b1','b3');document.querySelector('.row').style.display='none';
+    finish(ok,q,ok?'✅ Perfect!':`❌ Correct: <b>${esc(o.show)}</b>`)};
+  draw();
 }
 
 async function endStop(){
@@ -223,5 +309,16 @@ async function endStop(){
   <button class="btn" id="mp">${fin?'See the team 🏆':'Back to the map'}</button></div>`;
   $('mp').onclick=()=>{if(fin)S.practice=false;mapScreen()};
 }
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'||(e.key===' '&&document.activeElement?.tagName!=='INPUT')){
+    if($('nx')){e.preventDefault();$('nx').click();return}
+    if(e.key==='Enter'&&$('chk')&&$('chk').offsetParent){e.preventDefault();$('chk').click();return}
+  }
+  const st=S.stops[S.cur],q=st&&st.q&&st.q[st.i];
+  if(q&&q.kind==='build'&&!$('nx')){
+    if(/^[a-z]$/i.test(e.key)&&H.press){e.preventDefault();H.press(e.key)}
+    if(e.key==='Backspace'&&H.back){e.preventDefault();H.back()}
+  }
+});
 boot();
 </script></body></html>
