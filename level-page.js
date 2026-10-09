@@ -230,6 +230,7 @@
      'taxpassport':  'tax-passport-control-information-exchange-tax',
      'young-sikh-britain':  'young-faithful-sikh-britain-advanced',
      'invoiceinspector':  'tax-invoice-inspector-tax',
+     'weeklydrop023':  'weekly-drop-issue-023',
   };
 
   async function bootAuthStrip(eyebrowText) {
