@@ -1287,6 +1287,30 @@
       ],
     },
 
+                 'weekly-drop-issue-023': {
+      title:   'The Weekly Drop - Issue 023 - Home-Made Money',
+      level:   'All Levels',
+      grammar: 'Countable/uncountable nouns (much/many, less/fewer); relative clauses (who, which, whose)',
+      vocab: [
+        { word:'legal tender',  definition:'Money that the law says everybody must accept.' },
+        { word:'currency',      definition:'The money system of a country or a region.' },
+        { word:'complementary', definition:'Added to something, so the two work together.' },
+        { word:'authorise',     definition:'To give official permission.' },
+        { word:'regulate',      definition:'To control something with rules.' },
+        { word:'deduction',     definition:'An amount that is taken away from a total.' },
+        { word:'expire',        definition:'To end, because the time is over.' },
+        { word:'valid',         definition:'Accepted by the rules, so you can use it.' },
+        { word:'voucher',       definition:'A paper or code you can use instead of money in a shop.' },
+        { word:'incentive',     definition:'Something that gives you a reason to do something.' },
+        { word:'offset',        definition:'To balance something bad with something good.' },
+        { word:'supplier',      definition:'A company that sells goods to another company.' },
+        { word:'supply chain',  definition:'All the steps from making a product to selling it.' },
+        { word:'reward',        definition:'Something you get for good behaviour.' },
+        { word:'counterfeit',   definition:'Fake money, made to look real.' },
+        { word:'circulate',     definition:'To move around from person to person.' },
+      ],
+    },
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
