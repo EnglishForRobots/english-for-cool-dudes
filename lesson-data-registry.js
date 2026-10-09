@@ -5998,6 +5998,85 @@ const LESSON_DATA_REGISTRY = {
   ],
 
 },
+
+    'weekly-drop-issue-023': {
+
+  id:    'weekly-drop-issue-023',
+  title: 'The Weekly Drop - Issue 023 - Home-Made Money',
+  level: 'Weekly Drop',
+  track: 'weeklydrop',
+  emoji: '💶',
+  badge: 'Money Maker',
+
+  vocab: [
+    { word:'legal tender',  definition:'Money that the law says everybody must accept.',          example:'Only the euro is ___ ___ in Germany.',                  distractors:['tax return','bank loan','voucher'] },
+    { word:'currency',      definition:'The money system of a country or a region.',              example:'The euro is the official ___ of Germany.',              distractors:['voucher','deduction','reward'] },
+    { word:'complementary', definition:'Added to something, so the two work together.',           example:'A ___ currency lives next to the euro.',                distractors:['counterfeit','valid','complimentary'] },
+    { word:'authorise',     definition:'To give official permission.',                            example:'Only the central bank can ___ new banknotes.',          distractors:['expire','circulate','offset'] },
+    { word:'regulate',      definition:'To control something with rules.',                        example:'The state can ___ the banks with new rules.',           distractors:['expire','offset','reward'] },
+    { word:'deduction',     definition:'An amount that is taken away from a total.',              example:'Shops pay a 5% ___ when they swap notes for euros.',    distractors:['voucher','incentive','supplier'] },
+    { word:'expire',        definition:'To end, because the time is over.',                       example:'After three years, the old notes ___.',                distractors:['circulate','regulate','authorise'] },
+    { word:'valid',         definition:'Accepted by the rules, so you can use it.',               example:'The note is only ___ in this region.',                  distractors:['counterfeit','complementary','authorised'] },
+    { word:'voucher',       definition:'A paper or code you can use instead of money in a shop.', example:'I paid for the cinema with a ___.',                     distractors:['deduction','supplier','currency'] },
+    { word:'incentive',     definition:'Something that gives you a reason to do something.',      example:'A 5% discount is a good ___ to shop locally.',          distractors:['deduction','supplier','voucher'] },
+    { word:'offset',        definition:'To balance something bad with something good.',           example:'Local firms pay into a fund to ___ their CO2.',         distractors:['expire','regulate','circulate'] },
+    { word:'supplier',      definition:'A company that sells goods to another company.',          example:'My ___ brings fresh flour every Monday.',               distractors:['voucher','incentive','currency'] },
+    { word:'supply chain',  definition:'All the steps from making a product to selling it.',      example:'Local shopping makes the ___ ___ shorter.',             distractors:['legal tender','deduction','reward'] },
+    { word:'reward',        definition:'Something you get for good behaviour.',                   example:'You get a small ___ for sharing a car.',                distractors:['deduction','supplier','currency'] },
+    { word:'counterfeit',   definition:'Fake money, made to look real.',                          example:'Watermarks make it hard to ___ banknotes.',             distractors:['circulate','authorise','expire'] },
+    { word:'circulate',     definition:'To move around from person to person.',                   example:'Money must ___ from hand to hand.',                     distractors:['expire','offset','regulate'] },
+  ],
+
+  grammar: {
+    topic: 'Countable and uncountable nouns: much/many, less/fewer',
+    rule:  'Money, cash and income are uncountable: use MUCH and LESS ("not much money", "less cash"). Coins, euros and businesses are countable: use MANY and FEWER ("many coins", "fewer businesses").',
+    exercises: [
+      { sentence:'There is not ___ money in my wallet.',        answer:'much',  wrong:['many','few','a few'],     explain:'Money is uncountable, so we use "much".' },
+      { sentence:'How ___ coins do you have?',                  answer:'many',  wrong:['much','less','little'],   explain:'Coins are countable, so we use "many".' },
+      { sentence:'Today people carry ___ coins than before.',   answer:'fewer', wrong:['less','lesser','little'], explain:'Countable nouns take "fewer".' },
+      { sentence:'I have ___ cash than my brother.',            answer:'less',  wrong:['fewer','many','few'],     explain:'Cash is uncountable, so we use "less".' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Relative clauses: who, which, whose',
+    rule:  'Use WHO for people, WHICH or THAT for things, and WHOSE to show belonging: "the teacher who invented it", "the note which is valid here", "Gelleri, whose students helped him".',
+    exercises: [
+      { sentence:'The teacher ___ invented the Chiemgauer lives in Bavaria.', answer:'who',   wrong:['which','whose','what'], explain:'WHO for people.' },
+      { sentence:'The note, ___ is only valid here, has a watermark.',        answer:'which', wrong:['who','whose','what'],   explain:'WHICH for things.' },
+      { sentence:'Gelleri, ___ students helped him, taught economics.',       answer:'whose', wrong:['who','which','that'],   explain:'WHOSE shows belonging: his students.' },
+      { sentence:'The shop ___ accepts Chiemgauers is next door.',            answer:'that',  wrong:['who','whose','what'],   explain:'THAT (or which) for things.' },
+    ],
+  },
+
+  sentences: [
+    { words:['Money','must','circulate','from','hand','to','hand'],             answer:'Money must circulate from hand to hand',        hint:'🔄 About the cash...' },
+    { words:['The','notes','expire','after','three','years'],                   answer:'The notes expire after three years',            hint:'⏳ About time...' },
+    { words:['Local','shopping','shortens','the','supply','chain'],             answer:'Local shopping shortens the supply chain',      hint:'🚚 About the shops...' },
+    { words:['The','Chiemgauer','is','a','complementary','currency'],           answer:'The Chiemgauer is a complementary currency',    hint:'💶 About the money...' },
+  ],
+
+  word_builder: [
+    { word:'voucher',   definition:'A paper to use instead of money' },
+    { word:'currency',  definition:'The money system of a country' },
+    { word:'expire',    definition:'To end, because time is over' },
+    { word:'reward',    definition:'Something you get for good behaviour' },
+    { word:'supplier',  definition:'A company that sells to a business' },
+    { word:'circulate', definition:'To move around from person to person' },
+  ],
+
+  true_false: [
+    { statement:'The Chiemgauer is legal tender in Germany.',                          correct:false, reveal:'❌ FALSE! Only the euro is legal tender.' },
+    { statement:'One Chiemgauer is worth one euro.',                                   correct:true,  reveal:'✅ TRUE! They have the same value.' },
+    { statement:'Chiemgauer notes expire after three years.',                          correct:true,  reveal:'✅ TRUE! You also buy a sticker every six months to keep a note valid.' },
+    { statement:'Ordinary customers can swap Chiemgauers for euros.',                  correct:false, reveal:'❌ FALSE! Only businesses can, and they pay a 5% deduction.' },
+    { statement:'The Chiemgauer started as a school experiment.',                      correct:true,  reveal:'✅ TRUE! A teacher and his students invented it 24 years ago.' },
+    { statement:'More than half of the local people use the Chiemgauer.',              correct:false, reveal:'❌ FALSE! Fewer than 1% of locals use it.' },
+    { statement:'"Complementary" means the same as "complimentary" (free).',           correct:false, reveal:'❌ FALSE! Complementary = ergänzend. Complimentary = gratis. A false friend!' },
+    { statement:'The climate bonus rewards people for green behaviour.',               correct:true,  reveal:'✅ TRUE! For example solar panels, shared cars and repaired jeans.' },
+  ],
+
+},
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
