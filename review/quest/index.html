@@ -88,6 +88,8 @@ input#ti.attn{border-color:var(--yellow);animation:attn 1.2s ease-in-out infinit
 .words{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0 14px}
 .wd{padding:4px 12px;border-radius:99px;background:rgba(43,222,204,.1);border:2px solid rgba(43,222,204,.25);color:var(--teal);font-weight:900;font-size:12px}
 .bigxp{font-size:44px;font-weight:900;color:var(--yellow);text-shadow:0 3px 0 var(--ys)}
+.wd.h{background:rgba(255,200,0,.1);border-color:rgba(255,200,0,.3);color:var(--yellow)}
+.wd.m{background:rgba(255,75,75,.1);border-color:rgba(255,75,75,.3);color:#ff8a8a}
 </style></head><body><div id="app"><div class="big">🧭</div><div class="sub">Loading your quest…</div></div>
 <script>
 'use strict';
@@ -246,7 +248,7 @@ function startStop(i){
     const fill=best(S.all.filter(w=>!seen.has(w.key)),8-m.length);
     const ws=[...m,...fill]; st.q=bossQs(ws); st.sub=m.length?'Your trickiest words':'Mixed challenge';
   }
-  st.i=0;st.ok=0;st.n=0;st.nl=[];st.x0=S.xp;
+  st.i=0;st.ok=0;st.n=0;st.nl=[];st.hp=[];st.ms=[];st.x0=S.xp;
   showQ();
 }
 
@@ -268,7 +270,7 @@ function finish(ok,q,msg){
   const st=S.stops[S.cur],h=H.help;
   if(q.w){const r=S.lb[q.w.key]||{box:0,due:TODAY};r.box=ok?(h?r.box:Math.min(r.box+1,5)):0;
     const d=new Date();d.setDate(d.getDate()+(ok?GAPS[r.box]:1));r.due=ymd(d);S.lb[q.w.key]=r}
-  if(!q.retry){st.n++;S.total++;if(ok){st.ok++;S.correct++;S.xp+=h?5:10;if(q.w&&!h)st.nl.push(q.w.word)}}
+  if(!q.retry){st.n++;S.total++;if(ok){S.correct++;S.xp+=h?5:10;if(h)q.w&&st.hp.push(q.w.word);else{st.ok++;q.w&&st.nl.push(q.w.word)}}else q.w&&st.ms.push(q.w.word)}
   if(!ok&&!q.retry){if(q.w)S.missed.push(q.w);st.q.push({...q,retry:true})}
   $('fb').innerHTML=msg+'<br><br><button class="btn" id="nx">Next →</button>';
   $('nx').onclick=next;$('nx').focus();
@@ -343,8 +345,11 @@ async function endStop(){
     if(i>=0)S.allRuns[i]=row;else S.allRuns.push(row);
     if(fin&&!S.thisDone){S.streak++;S.thisDone=true}
   }
-  const gain=S.xp-(st.x0||0), nextS=S.stops[S.done], nl=[...new Set(fin?S.stops.flatMap(x=>x.nl||[]):st.nl||[])].slice(0,14);
-  const wordsHtml=nl.length?`<div class="sub" style="margin:12px 0 4px">${fin?'Words you nailed this week':'Words you nailed'}</div><div class="words">${nl.map(w=>`<span class="wd">✓ ${esc(w)}</span>`).join('')}</div>`:'';
+  const gain=S.xp-(st.x0||0), nextS=S.stops[S.done], src=fin?S.stops:[st];
+  const U=k=>[...new Set(src.flatMap(x=>x[k]||[]))];
+  const ms=U('ms'), hp=U('hp').filter(w=>!ms.includes(w)), nl=U('nl').filter(w=>!ms.includes(w)&&!hp.includes(w));
+  const grp=(t,a,ic,cl)=>a.length?`<div class="sub" style="margin:12px 0 4px">${t}</div><div class="words">${a.slice(0,14).map(w=>`<span class="wd ${cl}">${ic} ${esc(w)}</span>`).join('')}</div>`:'';
+  const wordsHtml=grp(fin?'Words you nailed this week':'Words you nailed',nl,'✓','')+grp('Learned with a little help',hp,'💡','h')+grp('Worth another look',ms,'🔁','m');
   if(fin){
     const pct=S.total?Math.round(S.correct/S.total*100):0;
     app.innerHTML=`<div class="u" style="text-align:center"><div class="badge">🏅</div><h1 style="font-size:32px">QUEST COMPLETE!</h1>
@@ -355,7 +360,7 @@ async function endStop(){
   }else{
     app.innerHTML=`<div class="u" style="text-align:center"><div class="big">${esc(st.ic)}</div><h1>${esc(st.title)} cleared!</h1>${starsHtml(stars)}
     <div class="bigxp">+<span id="cx">0</span> XP</div>
-    <div class="sub" style="margin-top:6px">${['','Good start, the words are warming up.','Strong work!','Flawless! Those words are yours.'][stars]}<br>${st.ok} of ${st.n} right first time</div>
+    <div class="sub" style="margin-top:6px">${['','Good start, the words are warming up.','Strong work!','Flawless! Those words are yours.'][stars]}<br>${st.ok} of ${st.n} right first time${st.hp.length?` · ${st.hp.length} with a hint`:''}</div>
     ${wordsHtml}<div class="team" style="margin-top:14px"><h3>Up next</h3><div class="tm"><span>${nextS.ic} ${esc(nextS.title)}</span><span>${S.done+1} / ${S.stops.length}</span></div></div>
     <button class="btn" id="go2">Next stop →</button><button class="btn ghost" id="mp" style="margin-top:10px">Back to the map</button></div>`;
     confetti(stars*20+20);countUp($('cx'),gain,900);$('go2').onclick=()=>startStop(S.done);
