@@ -90,6 +90,10 @@ input#ti.attn{border-color:var(--yellow);animation:attn 1.2s ease-in-out infinit
 .bigxp{font-size:44px;font-weight:900;color:var(--yellow);text-shadow:0 3px 0 var(--ys)}
 .wd.h{background:rgba(255,200,0,.1);border-color:rgba(255,200,0,.3);color:var(--yellow)}
 .wd.m{background:rgba(255,75,75,.1);border-color:rgba(255,75,75,.3);color:#ff8a8a}
+.wg{display:inline-flex;flex-wrap:nowrap;gap:5px;margin:0 10px}
+.bld .chip{width:var(--cs);height:var(--cs);padding:0;margin:0;display:inline-flex;align-items:center;justify-content:center;font-size:calc(var(--cs)*.48);border-radius:50%}
+.bld .chip.empty{border-radius:6px;height:calc(var(--cs)*1.1)}
+.bld .fix{font-size:calc(var(--cs)*.7);display:inline-flex;align-items:center;height:var(--cs)}
 </style></head><body><div id="app"><div class="big">🧭</div><div class="sub">Loading your quest…</div></div>
 <script>
 'use strict';
@@ -310,7 +314,8 @@ function rTiles(q,b,o){
   b.innerHTML=`${o.top}<div class="ans" id="sl"></div><div class="tiles" id="tl"></div>
   <div class="row"><button class="btn" id="chk">✓ Check</button><button class="btn ghost" id="cl">🗑️ Clear</button><button class="btn ghost" id="b1">💡 Hint</button><button class="btn ghost" id="b3">👁️ Reveal</button></div>`;
   const show=u=>esc(o.slots?u.toUpperCase():u);
-  const slotHtml=()=>{let j=0;return [...(o.mask||o.units.join(''))].map(ch=>{if(/[a-z0-9]/i.test(ch)){const i=j++;return got[i]!==undefined?`<span class="chip on" data-p="${i}">${show(U[got[i]])}</span>`:'<span class="chip empty"></span>'}return /\s/.test(ch)?'<span class="gapw"></span>':`<span class="fix">${esc(ch)}</span>`}).join('')};
+  const slotHtml=()=>{let j=0;return (o.mask||o.units.join('')).trim().split(/\s+/).map(wd=>`<span class="wg">${[...wd].map(ch=>{if(/[a-z0-9]/i.test(ch)){const i=j++;return got[i]!==undefined?`<span class="chip on" data-p="${i}">${show(U[got[i]])}</span>`:'<span class="chip empty"></span>'}return `<span class="fix">${esc(ch)}</span>`}).join('')}</span>`).join('')};
+  if(o.slots){const ws=(o.mask||'').trim().split(/\s+/),L=Math.max(...ws.map(x=>x.length)),av=Math.min(innerWidth,520)-58,cs=Math.max(20,Math.min(40,Math.floor((av-(L-1)*5)/L)));$('sl').classList.add('bld');$('sl').style.setProperty('--cs',cs+'px')}
   const draw=()=>{
     $('sl').innerHTML=o.slots?slotHtml():got.map((g,i)=>`<span class="chip on" data-p="${i}">${show(U[g])}</span>`).join('');
     $('tl').innerHTML=U.map((u,i)=>`<button class="tile${got.includes(i)?' used':''}" data-i="${i}">${show(u)}</button>`).join('');
