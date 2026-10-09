@@ -74,6 +74,20 @@ input#ti{width:100%;padding:15px;border-radius:16px;border:3px solid rgba(255,25
 .pk{font-size:18px;letter-spacing:0;font-style:italic}
 @keyframes attn{0%,100%{box-shadow:0 0 0 0 rgba(255,200,0,0)}50%{box-shadow:0 0 0 7px rgba(255,200,0,.35)}}
 input#ti.attn{border-color:var(--yellow);animation:attn 1.2s ease-in-out infinite}
+.gapw{width:20px}
+.fix{font-size:26px;font-weight:900;color:var(--yellow);padding:0 2px}
+@keyframes cf{0%{opacity:1;transform:translateY(-10px) rotate(0)}100%{opacity:0;transform:translateY(105vh) rotate(720deg)}}
+.cf{position:fixed;top:0;pointer-events:none;z-index:99;animation:cf linear both}
+@keyframes starpop{0%{transform:scale(0) rotate(-40deg);opacity:0}60%{transform:scale(1.5) rotate(8deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
+.st{display:inline-block;opacity:0;animation:starpop .5s cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes ring{0%,100%{box-shadow:0 0 25px rgba(255,200,0,.4)}50%{box-shadow:0 0 70px rgba(255,200,0,.95)}}
+.badge{width:150px;height:150px;border-radius:50%;margin:6px auto 12px;background:linear-gradient(135deg,#001f52,#243f73);border:5px solid var(--yellow);display:flex;align-items:center;justify-content:center;font-size:76px;animation:pop .7s ease both,ring 2.5s ease-in-out .7s infinite}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
+.stat{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.1);border-radius:16px;padding:12px 4px;text-align:center}
+.stat b{display:block;font-size:24px}.stat span{font-size:9px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.45)}
+.words{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0 14px}
+.wd{padding:4px 12px;border-radius:99px;background:rgba(43,222,204,.1);border:2px solid rgba(43,222,204,.25);color:var(--teal);font-weight:900;font-size:12px}
+.bigxp{font-size:44px;font-weight:900;color:var(--yellow);text-shadow:0 3px 0 var(--ys)}
 </style></head><body><div id="app"><div class="big">🧭</div><div class="sub">Loading your quest…</div></div>
 <script>
 'use strict';
@@ -126,6 +140,12 @@ async function boot(){
   (me&&!TEST)?pick(me):pickScreen();
 }
 
+function confetti(n){const c=['#FFC800','#58CC02','#2BDECC','#1CB0F6','#CE82FF','#FF4B4B','#fff'];
+  for(let i=0;i<n;i++){const d=document.createElement('div');d.className='cf';const z=6+Math.random()*9;
+    d.style.cssText=`left:${Math.random()*100}vw;width:${z}px;height:${z*(Math.random()>.5?1:.5)}px;background:${c[i%c.length]};animation-duration:${1.6+Math.random()*1.4}s;animation-delay:${Math.random()*.6}s;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(d);setTimeout(()=>d.remove(),3600)}}
+function countUp(el,to,ms){const t0=performance.now();const f=t=>{const p=Math.min((t-t0)/ms,1);el.textContent=Math.round(to*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(f)};requestAnimationFrame(f)}
+const starsHtml=n=>`<div class="stars">${[1,2,3].map(i=>`<span class="st" style="animation-delay:${.25+i*.25}s">${i<=n?'⭐':'☆'}</span>`).join('')}</div>`;
 function testBar(){
   if(!TEST)return '';
   const sh=S.lessons.slice(0,3).map(l=>`${l.emoji} ${esc(l.title)} (${l.words.length} words)`);
@@ -147,7 +167,7 @@ async function pick(me){
   S.allRuns=data||[];
   const mine=S.allRuns.filter(r=>r.student_id===me.id);
   const run=mine.find(r=>r.week===WEEK);
-  S.done=run?.stops||0; S.correct=run?.correct||0; S.total=run?.total||0; S.xp=run?.xp||0;
+  S.thisDone=!!run?.done;S.done=run?.stops||0; S.correct=run?.correct||0; S.total=run?.total||0; S.xp=run?.xp||0;
   const weeks=new Set(mine.filter(r=>r.done).map(r=>r.week));
   let w=weekStart(); if(!weeks.has(ymd(w)))w.setDate(w.getDate()-7);
   let n=0; while(weeks.has(ymd(w))){n++;w.setDate(w.getDate()-7)} S.streak=n;
@@ -226,7 +246,7 @@ function startStop(i){
     const fill=best(S.all.filter(w=>!seen.has(w.key)),8-m.length);
     const ws=[...m,...fill]; st.q=bossQs(ws); st.sub=m.length?'Your trickiest words':'Mixed challenge';
   }
-  st.i=0;st.ok=0;st.n=0;
+  st.i=0;st.ok=0;st.n=0;st.nl=[];st.x0=S.xp;
   showQ();
 }
 
@@ -241,14 +261,14 @@ function showQ(){
   if(q.kind==='mc')rMC(q,b);
   else if(q.kind==='type')rType(q,b);
   else if(q.kind==='build'){const wd=q.w.word.replace(/[^a-z0-9]/gi,'');
-    rTiles(q,b,{top:`<div class="card" style="font-size:17px">💡 ${esc(q.w.definition)}</div>`,units:[...wd],ans:[...wd],slots:true,tries:2,show:wd.toUpperCase(),ok:j=>nk(j)===nk(wd)});}
+    rTiles(q,b,{top:`<div class="card" style="font-size:17px">💡 ${esc(q.w.definition)}</div>`,units:[...wd],ans:[...wd],slots:true,tries:2,mask:q.w.word.trim(),show:q.w.word.trim().toUpperCase(),ok:j=>nk(j)===nk(wd)});}
   else rTiles(q,b,{top:q.hint?`<div class="sub">💡 ${esc(q.hint)}</div>`:'',units:q.words,ans:q.answer.split(' '),sep:' ',show:q.answer,ok:j=>[q.answer,...(q.alt||[])].map(nz).includes(nz(j))});
 }
 function finish(ok,q,msg){
   const st=S.stops[S.cur],h=H.help;
   if(q.w){const r=S.lb[q.w.key]||{box:0,due:TODAY};r.box=ok?(h?r.box:Math.min(r.box+1,5)):0;
     const d=new Date();d.setDate(d.getDate()+(ok?GAPS[r.box]:1));r.due=ymd(d);S.lb[q.w.key]=r}
-  if(!q.retry){st.n++;S.total++;if(ok){st.ok++;S.correct++;S.xp+=h?5:10}}
+  if(!q.retry){st.n++;S.total++;if(ok){st.ok++;S.correct++;S.xp+=h?5:10;if(q.w&&!h)st.nl.push(q.w.word)}}
   if(!ok&&!q.retry){if(q.w)S.missed.push(q.w);st.q.push({...q,retry:true})}
   $('fb').innerHTML=msg+'<br><br><button class="btn" id="nx">Next →</button>';
   $('nx').onclick=next;$('nx').focus();
@@ -288,8 +308,9 @@ function rTiles(q,b,o){
   b.innerHTML=`${o.top}<div class="ans" id="sl"></div><div class="tiles" id="tl"></div>
   <div class="row"><button class="btn" id="chk">✓ Check</button><button class="btn ghost" id="cl">🗑️ Clear</button><button class="btn ghost" id="b1">💡 Hint</button><button class="btn ghost" id="b3">👁️ Reveal</button></div>`;
   const show=u=>esc(o.slots?u.toUpperCase():u);
+  const slotHtml=()=>{let j=0;return [...(o.mask||o.units.join(''))].map(ch=>{if(/[a-z0-9]/i.test(ch)){const i=j++;return got[i]!==undefined?`<span class="chip on" data-p="${i}">${show(U[got[i]])}</span>`:'<span class="chip empty"></span>'}return /\s/.test(ch)?'<span class="gapw"></span>':`<span class="fix">${esc(ch)}</span>`}).join('')};
   const draw=()=>{
-    $('sl').innerHTML=(o.slots?o.units.map((_,i)=>got[i]!==undefined?`<span class="chip on" data-p="${i}">${show(U[got[i]])}</span>`:'<span class="chip empty"></span>'):got.map((g,i)=>`<span class="chip on" data-p="${i}">${show(U[g])}</span>`)).join('');
+    $('sl').innerHTML=o.slots?slotHtml():got.map((g,i)=>`<span class="chip on" data-p="${i}">${show(U[g])}</span>`).join('');
     $('tl').innerHTML=U.map((u,i)=>`<button class="tile${got.includes(i)?' used':''}" data-i="${i}">${show(u)}</button>`).join('');
     $('tl').querySelectorAll('.tile').forEach(t=>t.onclick=()=>{const i=+t.dataset.i;if(got.length<U.length&&!got.includes(i)){got.push(i);draw()}});
     $('sl').querySelectorAll('.chip.on').forEach(c=>c.onclick=()=>{got.splice(+c.dataset.p,1);draw()});
@@ -320,12 +341,26 @@ async function endStop(){
     await sb.from('efcd_quest_runs').upsert(row,{onConflict:'class_id,student_id,week'});
     const i=S.allRuns.findIndex(r=>r.student_id===S.me.id&&r.week===WEEK);
     if(i>=0)S.allRuns[i]=row;else S.allRuns.push(row);
-    if(fin&&S.streak===0)S.streak=1;
+    if(fin&&!S.thisDone){S.streak++;S.thisDone=true}
   }
-  app.innerHTML=`<div class="u"><div class="big">${fin?'🏅':'🎉'}</div><h1>${fin?'Quest complete!':esc(st.title)+' cleared!'}</h1>
-  <div class="stars">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
-  <div class="sub" style="margin-top:8px">${st.ok} of ${st.n} right first time${fin?` · 🔥 ${S.streak} week streak`:''}</div>
-  <button class="btn" id="mp">${fin?'See the team 🏆':'Back to the map'}</button></div>`;
+  const gain=S.xp-(st.x0||0), nextS=S.stops[S.done], nl=[...new Set(fin?S.stops.flatMap(x=>x.nl||[]):st.nl||[])].slice(0,14);
+  const wordsHtml=nl.length?`<div class="sub" style="margin:12px 0 4px">${fin?'Words you nailed this week':'Words you nailed'}</div><div class="words">${nl.map(w=>`<span class="wd">✓ ${esc(w)}</span>`).join('')}</div>`:'';
+  if(fin){
+    const pct=S.total?Math.round(S.correct/S.total*100):0;
+    app.innerHTML=`<div class="u" style="text-align:center"><div class="badge">🏅</div><h1 style="font-size:32px">QUEST COMPLETE!</h1>
+    <div class="sub">Week of ${weekStart().toLocaleDateString('en-GB',{day:'numeric',month:'long'})} · ${esc(S.me.name)}</div>${starsHtml(stars)}
+    <div class="stats"><div class="stat"><b id="cx">0</b><span>XP</span></div><div class="stat"><b>${pct}%</b><span>Accuracy</span></div><div class="stat"><b>🔥 ${S.streak}</b><span>Week streak</span></div></div>
+    ${wordsHtml}${teamHtml()}<button class="btn" id="mp">See the map</button></div>`;
+    confetti(90);setTimeout(()=>confetti(70),900);setTimeout(()=>confetti(60),1900);countUp($('cx'),S.xp,1400);
+  }else{
+    app.innerHTML=`<div class="u" style="text-align:center"><div class="big">${esc(st.ic)}</div><h1>${esc(st.title)} cleared!</h1>${starsHtml(stars)}
+    <div class="bigxp">+<span id="cx">0</span> XP</div>
+    <div class="sub" style="margin-top:6px">${['','Good start, the words are warming up.','Strong work!','Flawless! Those words are yours.'][stars]}<br>${st.ok} of ${st.n} right first time</div>
+    ${wordsHtml}<div class="team" style="margin-top:14px"><h3>Up next</h3><div class="tm"><span>${nextS.ic} ${esc(nextS.title)}</span><span>${S.done+1} / ${S.stops.length}</span></div></div>
+    <button class="btn" id="go2">Next stop →</button><button class="btn ghost" id="mp" style="margin-top:10px">Back to the map</button></div>`;
+    confetti(stars*20+20);countUp($('cx'),gain,900);$('go2').onclick=()=>startStop(S.done);
+  }
+  if(navigator.vibrate)navigator.vibrate(fin?[80,40,80,40,160]:[60]);
   $('mp').onclick=()=>{if(fin&&!TEST)S.practice=false;mapScreen()};
 }
 document.addEventListener('keydown',e=>{
