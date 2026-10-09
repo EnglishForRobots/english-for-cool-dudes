@@ -94,6 +94,7 @@ input#ti.attn{border-color:var(--yellow);animation:attn 1.2s ease-in-out infinit
 .bld .chip{width:var(--cs);height:var(--cs);padding:0;margin:0;display:inline-flex;align-items:center;justify-content:center;font-size:calc(var(--cs)*.48);border-radius:50%}
 .bld .chip.empty{border-radius:6px;height:calc(var(--cs)*1.1)}
 .bld .fix{font-size:calc(var(--cs)*.7);display:inline-flex;align-items:center;height:var(--cs)}
+.hw{display:inline-block;white-space:nowrap;margin:0 14px}
 </style></head><body><div id="app"><div class="big">🧭</div><div class="sub">Loading your quest…</div></div>
 <script>
 'use strict';
@@ -267,7 +268,7 @@ function showQ(){
   if(q.kind==='mc')rMC(q,b);
   else if(q.kind==='type')rType(q,b);
   else if(q.kind==='build'){const wd=q.w.word.replace(/[^a-z0-9]/gi,'');
-    rTiles(q,b,{top:`<div class="card" style="font-size:17px">💡 ${esc(q.w.definition)}</div>`,units:[...wd],ans:[...wd],slots:true,tries:2,mask:q.w.word.trim(),show:q.w.word.trim().toUpperCase(),ok:j=>nk(j)===nk(wd)});}
+    rTiles(q,b,{top:`<div class="card" style="font-size:17px">💡 ${esc(q.w.definition)}</div>`,units:[...wd],ans:[...wd],slots:true,tries:2,mask:q.w.word.trim(),show:q.w.word.trim(),ok:j=>nk(j)===nk(wd)});}
   else rTiles(q,b,{top:q.hint?`<div class="sub">💡 ${esc(q.hint)}</div>`:'',units:q.words,ans:q.answer.split(' '),sep:' ',show:q.answer,ok:j=>[q.answer,...(q.alt||[])].map(nz).includes(nz(j))});
 }
 function finish(ok,q,msg){
@@ -300,14 +301,15 @@ function rType(q,b){
   const ti=$('ti');ti.focus();
   ti.addEventListener('input',()=>ti.classList.remove('attn'));
   const nudge=t=>{$('tn').textContent=t;ti.classList.add('attn');ti.placeholder='⌨️ Now type it here…';ti.focus()};
-  const pat=k=>{let c=0;return w.word.trim().split(/\s+/).map(wd=>wd.split('').map(ch=>/[a-z0-9]/i.test(ch)?(c++<k?ch.toUpperCase():'_'):ch).join(' ')).join('     /     ')};
-  $('b1').onclick=()=>{H.help=true;if(n<tgt.length)n++;$('th').textContent=pat(n);if(n>=tgt.length)nudge('All the letters are showing. Now type the word! ⌨️');ti.focus()};
+  const pat=k=>{let c=0;return w.word.trim().split(/\s+/).map(wd=>`<span class="hw">${wd.split('').map(ch=>/[a-z0-9]/i.test(ch)?(c++<k?esc(ch):'_'):esc(ch)).join(' ')}</span>`).join('')};
+  $('b1').onclick=()=>{H.help=true;if(n<tgt.length)n++;$('th').innerHTML=pat(n);if(n>=tgt.length)nudge('All the letters are showing. Now type the word! ⌨️');ti.focus()};
   $('b2').onclick=()=>{H.help=true;$('th').innerHTML=shuf([w.word,...wrongFor(w)]).map(x=>`<span class="pk">${esc(x)}</span>`).join('<span style="opacity:.4"> | </span>');$('b2').disabled=true;nudge('The answer is one of these words. Type it in the box ⌨️')};
-  $('b3').onclick=()=>{H.help=true;H.rev=true;n=tgt.length;$('th').textContent=pat(n);['b1','b2','b3'].forEach(i=>$(i).disabled=true);ti.value='';nudge('Here is the word. Now type it yourself ⌨️')};
+  $('b3').onclick=()=>{H.help=true;H.rev=true;n=tgt.length;$('th').innerHTML=pat(n);['b1','b2','b3'].forEach(i=>$(i).disabled=true);ti.value='';nudge('Here is the word. Now type it yourself ⌨️')};
   $('chk').onclick=()=>{const t=nk(ti.value);if(!t)return;ti.disabled=true;document.querySelector('.row').style.display='none';
     const ok=t===tgt||(tgt.length>=7&&lev(t,tgt)<=1);
     if(ok&&H.rev)return finish(false,q,`✅ Well done, typing it is how it sticks! <b>${esc(w.word)}</b>`);
-    finish(ok,q,ok?'✅ Correct!':`❌ The word is <b>${esc(w.word)}</b>`)};
+    const cs=x=>x.replace(/[^a-zA-Z0-9]/g,''),w2=esc(w.word);
+    finish(ok,q,!ok?`❌ The word is <b>${w2}</b>`:t!==tgt?`✅ Nearly! The spelling is <b>${w2}</b>`:(/[A-Z]/.test(w.word)&&cs(ti.value)!==cs(w.word))?`✅ Correct! Mind the capitals: <b>${w2}</b>`:'✅ Correct!')};
 }
 function rTiles(q,b,o){
   const U=shuf(o.units),sep=o.sep||'';let got=[];
