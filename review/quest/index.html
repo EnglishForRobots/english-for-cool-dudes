@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>😎 Weekly Quest — EFCD</title>
+<title>😎 Word Quest — EFCD</title>
 <link rel="preconnect" href="https://fonts.bunny.net">
 <link href="https://fonts.bunny.net/css2?family=Nunito:ital,wght@0,700;0,800;0,900;1,900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -69,6 +69,11 @@ input#ti{width:100%;padding:15px;border-radius:16px;border:3px solid rgba(255,25
 .tile{padding:10px 14px;min-width:42px;border-radius:12px;border:2px solid #CECECE;border-bottom:4px solid #CECECE;background:#fff;color:#111827;font:inherit;font-size:17px;font-weight:900;cursor:pointer}
 .tile.used{opacity:.15;pointer-events:none}
 .topic{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);margin-bottom:8px}
+.tlabel{font-size:12px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);text-align:center;margin-bottom:6px}
+.tnudge{min-height:20px;text-align:center;font-size:14px;font-weight:800;color:#fff;margin-bottom:4px}
+.pk{font-size:18px;letter-spacing:0;font-style:italic}
+@keyframes attn{0%,100%{box-shadow:0 0 0 0 rgba(255,200,0,0)}50%{box-shadow:0 0 0 7px rgba(255,200,0,.35)}}
+input#ti.attn{border-color:var(--yellow);animation:attn 1.2s ease-in-out infinite}
 </style></head><body><div id="app"><div class="big">🧭</div><div class="sub">Loading your quest…</div></div>
 <script>
 'use strict';
@@ -82,21 +87,29 @@ const nk=s=>(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
 const ymd=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const weekStart=(d=new Date())=>{const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x};
 const WEEK=ymd(weekStart()), TODAY=ymd(new Date()), GAPS=[1,2,4,8,16,30];
-const classId=new URLSearchParams(location.search).get('class');
+const rawClass=new URLSearchParams(location.search).get('class')||'';
+let TEST=/-test$/.test(rawClass),classId=TEST?rawClass.replace(/-test$/,''):rawClass;
 let S={cls:null,students:[],me:null,lessons:[],all:[],stops:[],cur:0,done:0,correct:0,total:0,xp:0,missed:[],lb:{},practice:false,streak:0,team:[],allRuns:[]};
 
 async function get(path){const r=await fetch(SB+'/rest/v1/'+path,{headers:{apikey:KEY,Authorization:'Bearer '+KEY}});return r.json()}
 
 async function boot(){
   if(!classId){app.innerHTML='<div class="big">🤔</div><h1>Missing class link</h1>';return}
-  const [c,st,lv]=await Promise.all([
+  if(TEST){const x=await get(`efcd_classes?id=eq.${rawClass}&select=id`);if(Array.isArray(x)&&x.length){TEST=false;classId=rawClass}}
+  const [c,st,lv,bd]=await Promise.all([
     get(`efcd_classes?id=eq.${classId}&select=id,name,emoji,team_name`),
     get(`efcd_students?class_id=eq.${classId}&select=id,name,avatar_emoji&order=name`),
-    get(`efcd_lesson_vocab?class_id=eq.${classId}&archived=eq.false&order=completed_at.desc&limit=50`)]);
+    get(`efcd_lesson_vocab?class_id=eq.${classId}&archived=eq.false&order=completed_at.desc&limit=50`),
+    get(`efcd_badges?class_id=eq.${classId}&badge_key=like.lesson_*&is_manual=eq.false&select=badge_key,awarded_at`)]);
   S.cls=c?.[0]||{name:classId,emoji:'🏫'};
   S.students=Array.isArray(st)?st:[];
   const seen=new Set();
-  (Array.isArray(lv)?lv:[]).forEach(r=>{
+  const bdate={};(Array.isArray(bd)?bd:[]).forEach(x=>{const id=x.badge_key.replace('lesson_','');if(!bdate[id]||x.awarded_at>bdate[id])bdate[id]=x.awarded_at});
+  let rows=Array.isArray(lv)?lv:[];
+  S.gate=Array.isArray(bd);S.hidden=S.gate?[...new Set(rows.filter(r=>!bdate[r.lesson_id]).map(r=>r.lesson_title||r.lesson_id))]:[];
+  if(Array.isArray(bd))rows=rows.filter(r=>bdate[r.lesson_id]).sort((a,b)=>bdate[b.lesson_id].localeCompare(bdate[a.lesson_id]));
+  else console.warn('efcd_badges not readable: trophy gate skipped',bd);
+  rows.forEach(r=>{
     if(seen.has(r.lesson_id))return; seen.add(r.lesson_id);
     const reg=window.LESSON_DATA_REGISTRY?.[r.lesson_id];
     let v=reg?.vocab; if(!v?.length){try{v=Array.isArray(r.vocab)?r.vocab:JSON.parse(r.vocab||'[]')}catch(e){v=[]}}
@@ -110,17 +123,25 @@ async function boot(){
   if(!S.all.length){app.innerHTML='<div class="big">📭</div><h1>No lessons yet</h1><div class="sub">Your quest appears after your next lesson.</div>';return}
   const saved=localStorage.getItem('efcd_q_me_'+classId);
   const me=S.students.find(s=>s.id===saved);
-  me?pick(me):pickScreen();
+  (me&&!TEST)?pick(me):pickScreen();
 }
 
+function testBar(){
+  if(!TEST)return '';
+  const sh=S.lessons.slice(0,3).map(l=>`${l.emoji} ${esc(l.title)} (${l.words.length} words)`);
+  return `<div style="background:rgba(255,200,0,.12);border:2px solid var(--yellow);border-radius:14px;padding:10px 14px;margin-bottom:12px;font-size:12px;font-weight:800;line-height:1.6"><b style="color:var(--yellow)">🧪 TEST MODE · ${esc(S.cls.name)}</b><br>Nothing is saved. Tap any stop to jump to it.<br>Newest stops: ${sh.join(' · ')||'none'}<br>${S.lessons.length>3?`Vault pool: ${S.lessons.length-3} older lessons<br>`:''}${S.gate?'':'⚠️ Trophy check is off (badges not readable)<br>'}${S.hidden.length?`Hidden, no trophy: ${S.hidden.map(esc).join(', ')}`:'No hidden lessons'}</div>`;
+}
 function pickScreen(){
-  app.innerHTML=`<div class="u"><div class="big">${esc(S.cls.emoji||'😎')}</div><h1>${esc(S.cls.team_name||S.cls.name)}</h1><div class="sub">Who's questing today?</div><div class="names" id="nm"></div></div>`;
-  if(!S.students.length){$('nm').innerHTML='<div class="sub">Names could not be loaded. Please tell your teacher.</div>';return}
+  app.innerHTML=`<div class="u">${testBar()}<div class="big">${esc(S.cls.emoji||'😎')}</div><h1>${esc(S.cls.team_name||S.cls.name)}</h1><div class="sub">Who's questing today?</div><div class="names" id="nm"></div></div>`;
+  if(TEST){const t=document.createElement('button');t.className='btn';t.textContent='🧪 Preview as teacher';t.onclick=()=>pick({id:'__test__',name:'Teacher',avatar_emoji:'🧪'});$('nm').appendChild(t)}
+  if(!S.students.length){$('nm').insertAdjacentHTML('beforeend','<div class="sub">Names could not be loaded. Please tell your teacher.</div>');return}
   S.students.forEach(s=>{const b=document.createElement('button');b.className='name';b.textContent=(s.avatar_emoji||'😊')+'  '+s.name;b.onclick=()=>pick(s);$('nm').appendChild(b)});
 }
 
 async function pick(me){
-  S.me=me; localStorage.setItem('efcd_q_me_'+classId,me.id);
+  S.me=me;
+  if(TEST){S.lb={};S.allRuns=[];S.practice=true;S.streak=0;S.done=0;S.correct=0;S.total=0;S.xp=0;buildStops();return mapScreen()}
+  localStorage.setItem('efcd_q_me_'+classId,me.id);
   try{S.lb=JSON.parse(localStorage.getItem(`efcd_q_lb_${classId}_${me.id}`)||'{}')}catch(e){S.lb={}}
   const {data}=await sb.from('efcd_quest_runs').select('*').eq('class_id',classId);
   S.allRuns=data||[];
@@ -153,15 +174,8 @@ function vq(w,k){
 }
 function gq(ex,g){return{kind:'mc',prompt:`<div class="topic">✏️ ${esc(g.topic)}</div>`+esc(ex.sentence).replace(/___/g,BL),opts:[ex.answer,...ex.wrong],ans:ex.answer,explain:ex.explain}}
 function lessonQs(l){
-  const reg=l.reg||{},ws=best(l.words,5),q=[];
-  ws.slice(0,3).forEach(w=>q.push(vq(w,'mc')));
-  if(ws[3])q.push(vq(ws[3],'type'));
-  if(ws[4])q.push(vq(ws[4],'build'));
-  const gs=[reg.grammar,reg.grammar2,reg.grammar3].filter(g=>g?.exercises?.length);
-  if(gs.length){const g=shuf(gs)[0];q.push(gq(shuf(g.exercises)[0],g))}
-  if(reg.sentences?.length){const s=shuf(reg.sentences)[0];q.push({kind:'sent',words:s.words,answer:s.answer,alt:s.altAnswers,hint:s.hint})}
-  if(reg.true_false?.length){const t=shuf(reg.true_false)[0];q.push({kind:'mc',prompt:esc(t.statement),opts:['TRUE','FALSE'],ans:t.correct?'TRUE':'FALSE',explain:t.reveal})}
-  return shuf(q);
+  const ws=best(l.words,6);
+  return shuf(ws).map((w,i)=>vq(w,['mc','build','mc','type','mc','type'][i]));
 }
 const vaultQs=ws=>shuf(ws).map((w,i)=>vq(w,['mc','type','mc','build'][i%4]));
 const bossQs=ws=>shuf(ws).map((w,i)=>vq(w,['type','mc','build','mc'][i%4]));
@@ -190,7 +204,7 @@ function teamHtml(){
 
 function mapScreen(){
   const all=S.done>=S.stops.length;
-  app.innerHTML=`<div class="u"><h1>${esc(S.me.avatar_emoji||'😊')} ${esc(S.me.name)}'s Quest</h1>
+  app.innerHTML=`<div class="u">${testBar()}<h1>${esc(S.me.avatar_emoji||'😊')} ${esc(S.me.name)}'s Word Quest</h1><div class="sub" style="margin-top:-2px;margin-bottom:12px">Your 3-minute word workout</div>
   <div class="top"><span class="pill">🔥 ${S.streak} week streak</span><span class="pill">⚡ ${S.xp} XP</span><span class="pill t">${esc(S.cls.team_name||S.cls.name)}</span></div>
   <div class="path">${S.stops.map((s,i)=>{const st=i<S.done?'done':i===S.done?'cur':'lock';
     return `<div class="node ${st} ${s.boss?'boss':''}" data-i="${i}"><div class="ic">${st==='done'?'✓':s.ic}</div><div><div class="tt">${esc(s.title)}</div><div class="ss">${st==='done'?'Complete':esc(s.sub)}</div></div></div>`}).join('')}</div>
@@ -201,7 +215,8 @@ function mapScreen(){
   $('go')?.addEventListener('click',()=>startStop(S.done));
   document.querySelector('.node.cur')?.addEventListener('click',()=>startStop(S.done));
   $('rep')?.addEventListener('click',()=>{S.practice=true;S.done=0;buildStops();mapScreen()});
-  $('sw').onclick=()=>{localStorage.removeItem('efcd_q_me_'+classId);pickScreen()};
+  $('sw').onclick=()=>{if(!TEST)localStorage.removeItem('efcd_q_me_'+classId);pickScreen()};
+  if(TEST)document.querySelectorAll('.node').forEach(n=>{n.classList.remove('lock');n.classList.add('cur');n.onclick=()=>startStop(+n.dataset.i)});
 }
 
 function startStop(i){
@@ -252,13 +267,17 @@ function rMC(q,b){
 function rType(q,b){
   const w=q.w,tgt=nk(w.word),gap=/_{3,}/.test(w.example);let n=0;
   b.innerHTML=`<div class="card">${esc(w.definition)}${gap?`<div style="font-size:15px;opacity:.7;margin-top:10px">${esc(w.example).replace(/_{3,}/g,BL)}</div>`:''}</div>
-  <input id="ti" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type the word…"><div class="hint" id="th"></div>
+  <div class="tlabel">⌨️ Type the word</div>
+  <input id="ti" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type your answer here…">
+  <div class="hint" id="th"></div><div class="tnudge" id="tn"></div>
   <div class="row"><button class="btn" id="chk">✓ Check</button><button class="btn ghost" id="b1">💡 Letters</button><button class="btn ghost" id="b2">🎯 Pick it</button><button class="btn ghost" id="b3">👁️ Reveal</button></div>`;
   const ti=$('ti');ti.focus();
-  const pat=k=>{let c=0;return w.word.split('').map(ch=>/[a-z0-9]/i.test(ch)?(c++<k?ch.toUpperCase():'_'):(ch===' '?'\u2003':ch)).join(' ')};
-  $('b1').onclick=()=>{H.help=true;if(n<tgt.length)n++;$('th').textContent=pat(n);ti.focus()};
-  $('b2').onclick=()=>{H.help=true;$('th').innerHTML=shuf([w.word,...wrongFor(w)]).map(x=>`<span class="chip">${esc(x)}</span>`).join('');$('b2').disabled=true;ti.focus()};
-  $('b3').onclick=()=>{H.help=true;H.rev=true;n=tgt.length;$('th').textContent=pat(n);['b1','b2','b3'].forEach(i=>$(i).disabled=true);ti.value='';ti.focus()};
+  ti.addEventListener('input',()=>ti.classList.remove('attn'));
+  const nudge=t=>{$('tn').textContent=t;ti.classList.add('attn');ti.placeholder='⌨️ Now type it here…';ti.focus()};
+  const pat=k=>{let c=0;return w.word.trim().split(/\s+/).map(wd=>wd.split('').map(ch=>/[a-z0-9]/i.test(ch)?(c++<k?ch.toUpperCase():'_'):ch).join(' ')).join('     /     ')};
+  $('b1').onclick=()=>{H.help=true;if(n<tgt.length)n++;$('th').textContent=pat(n);if(n>=tgt.length)nudge('All the letters are showing. Now type the word! ⌨️');ti.focus()};
+  $('b2').onclick=()=>{H.help=true;$('th').innerHTML=shuf([w.word,...wrongFor(w)]).map(x=>`<span class="pk">${esc(x)}</span>`).join('<span style="opacity:.4"> | </span>');$('b2').disabled=true;nudge('The answer is one of these words. Type it in the box ⌨️')};
+  $('b3').onclick=()=>{H.help=true;H.rev=true;n=tgt.length;$('th').textContent=pat(n);['b1','b2','b3'].forEach(i=>$(i).disabled=true);ti.value='';nudge('Here is the word. Now type it yourself ⌨️')};
   $('chk').onclick=()=>{const t=nk(ti.value);if(!t)return;ti.disabled=true;document.querySelector('.row').style.display='none';
     const ok=t===tgt||(tgt.length>=7&&lev(t,tgt)<=1);
     if(ok&&H.rev)return finish(false,q,`✅ Well done, typing it is how it sticks! <b>${esc(w.word)}</b>`);
@@ -295,7 +314,7 @@ async function endStop(){
   const st=S.stops[S.cur], acc=st.n?st.ok/st.n:1, stars=acc>=.85?3:acc>=.6?2:1;
   if(S.cur>=S.done)S.done=S.cur+1;
   const fin=S.done>=S.stops.length;
-  try{localStorage.setItem(`efcd_q_lb_${classId}_${S.me.id}`,JSON.stringify(S.lb))}catch(e){}
+  if(!TEST)try{localStorage.setItem(`efcd_q_lb_${classId}_${S.me.id}`,JSON.stringify(S.lb))}catch(e){}
   if(!S.practice){
     const row={class_id:classId,student_id:S.me.id,week:WEEK,stops:S.done,correct:S.correct,total:S.total,xp:S.xp,done:fin,updated_at:new Date().toISOString()};
     await sb.from('efcd_quest_runs').upsert(row,{onConflict:'class_id,student_id,week'});
@@ -307,7 +326,7 @@ async function endStop(){
   <div class="stars">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
   <div class="sub" style="margin-top:8px">${st.ok} of ${st.n} right first time${fin?` · 🔥 ${S.streak} week streak`:''}</div>
   <button class="btn" id="mp">${fin?'See the team 🏆':'Back to the map'}</button></div>`;
-  $('mp').onclick=()=>{if(fin)S.practice=false;mapScreen()};
+  $('mp').onclick=()=>{if(fin&&!TEST)S.practice=false;mapScreen()};
 }
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter'||(e.key===' '&&document.activeElement?.tagName!=='INPUT')){
