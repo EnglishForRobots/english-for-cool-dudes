@@ -1311,6 +1311,28 @@
       ],
     },
 
+                 'weekly-drop-issue-024': {
+      title:   'The Weekly Drop - Issue 024 - Robot Trainers',
+      level:   'All Levels',
+      grammar: 'Present continuous (now and changing trends); comparatives (-er than, more than, as … as)',
+      vocab: [
+        { word:'gig worker',      definition:'Someone who takes short, separate jobs and has no fixed contract.' },
+        { word:'footage',         definition:'Video that a camera has recorded.' },
+        { word:'incentive',       definition:'A reason or reward that makes you want to do something.' },
+        { word:'gung ho',         definition:'Very excited and eager, sometimes without thinking enough.' },
+        { word:'get left behind', definition:'Fail to keep up while everybody else moves forward.' },
+        { word:'rig',             definition:'A set of equipment for a special job.' },
+        { word:'nimble',          definition:'Quick and flexible in your movements.' },
+        { word:'bottleneck',      definition:'The one slow point that holds up the whole process.' },
+        { word:'annotate',        definition:'Add notes or labels to data, so a computer can learn from it.' },
+        { word:'minimum wage',    definition:'The lowest hourly pay that the law allows.' },
+        { word:'deploy',          definition:'Put something into use, ready for work.' },
+        { word:'stick around',    definition:'Stay for a long time; not go away.' },
+        { word:'supervision',     definition:'Watching and controlling work to keep it safe and correct.' },
+        { word:'wrangle',         definition:'Look after and control animals or difficult things.' },
+      ],
+    },
+
   };
 
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
