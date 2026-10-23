@@ -6077,6 +6077,83 @@ const LESSON_DATA_REGISTRY = {
   ],
 
 },
+
+    'weekly-drop-issue-024': {
+
+  id:    'weekly-drop-issue-024',
+  title: 'The Weekly Drop - Issue 024 - Robot Trainers',
+  level: 'All Levels',
+  track: 'weekly-drop',
+  emoji: '🤖',
+  badge: 'Robot Wrangler',
+
+  vocab: [
+    { word:'gig worker',      definition:'Someone who takes short, separate jobs and has no fixed contract.', example:'A ___ ___ chooses when to work.',                       distractors:['footage','incentive','supervision'] },
+    { word:'footage',         definition:'Video that a camera has recorded.',                                 example:'The ___ goes to a tech company.',                        distractors:['incentive','bottleneck','supervision'] },
+    { word:'incentive',       definition:'A reason or reward that makes you want to do something.',           example:'Double pay was a big ___.',                              distractors:['footage','bottleneck','supervision'] },
+    { word:'gung ho',         definition:'Very excited and eager, sometimes without thinking enough.',        example:'Dre was ___ ___ about the cameras.',                     distractors:['nimble','get left behind','stick around'] },
+    { word:'get left behind', definition:'Fail to keep up while everybody else moves forward.',               example:'I do not want to ___ ___ ___.',                          distractors:['gung ho','stick around','deploy'] },
+    { word:'rig',             definition:'A set of equipment for a special job.',                             example:'Ed wears a camera ___ with five lenses.',                distractors:['footage','incentive','bottleneck'] },
+    { word:'nimble',          definition:'Quick and flexible in your movements.',                             example:'Robots are getting more ___ than ever.',                 distractors:['gung ho','annotate','deploy'] },
+    { word:'bottleneck',      definition:'The one slow point that holds up the whole process.',               example:'Good data is the ___ for robots.',                       distractors:['incentive','supervision','footage'] },
+    { word:'annotate',        definition:'Add notes or labels to data, so a computer can learn from it.',     example:'Workers ___ the video with labels.',                     distractors:['deploy','wrangle','stick around'] },
+    { word:'minimum wage',    definition:'The lowest hourly pay that the law allows.',                        example:'The job pays above ___ ___.',                            distractors:['incentive','supervision','gig worker'] },
+    { word:'deploy',          definition:'Put something into use, ready for work.',                           example:'Companies can ___ robots for every job.',                distractors:['annotate','wrangle','stick around'] },
+    { word:'stick around',    definition:'Stay for a long time; not go away.',                                example:'The robots will ___ ___ forever.',                       distractors:['deploy','annotate','get left behind'] },
+    { word:'supervision',     definition:'Watching and controlling work to keep it safe and correct.',        example:'Robots still need human ___.',                           distractors:['incentive','footage','bottleneck'] },
+    { word:'wrangle',         definition:'Look after and control animals or difficult things.',               example:'A new job: to ___ robots for a living.',                 distractors:['deploy','annotate','stick around'] },
+  ],
+
+  grammar: {
+    topic: 'Present continuous: now and changing trends',
+    rule:  'Use the present continuous (am/is/are + verb-ing) for things happening right now and for changes around us: "Dre IS WEARING a vest right now." "Robots ARE GETTING smarter." Use the simple present for habits: "Dre CUTS hair every day."',
+    exercises: [
+      { sentence:'Look! Dre ___ a vest right now.',                   answer:'is wearing',  wrong:['wears','wear','is wear'],          explain:'Right now = present continuous: is wearing.' },
+      { sentence:'Today, robots ___ smarter and smarter.',            answer:'are getting', wrong:['gets','is getting','got'],         explain:'A change that is happening now: are getting.' },
+      { sentence:'Virginia ___ her work at the moment.',              answer:'is recording',wrong:['records','record','recorded'],     explain:'At the moment = present continuous: is recording.' },
+      { sentence:'Dre ___ hair every day.',                           answer:'cuts',        wrong:['is cutting','cutting','cut'],      explain:'A habit (every day) = simple present: cuts.' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Comparatives: -er than, more than, as … as',
+    rule:  'Short adjectives take -er + than: "cheaper than". Use "more" + longer adjectives: "more nimble than". Always say THAN after a comparative (German "als"). For "equally", use as … as: "as hard AS coding" (German "wie").',
+    exercises: [
+      { sentence:'Robots are ___ than people at some jobs.',          answer:'cheaper', wrong:['more cheap','cheap','cheapest'],      explain:'Short adjective + -er + than.' },
+      { sentence:'She earns more ___ minimum wage.',                  answer:'than',    wrong:['as','then','that'],                   explain:'more … THAN. German "als" = than.' },
+      { sentence:'Cutting hair is as hard ___ coding.',               answer:'as',      wrong:['than','that','like'],                 explain:'as … AS for "equally".' },
+      { sentence:'The new robot is ___ than the old one.',            answer:'faster',  wrong:['more fast','fastest','fast'],         explain:'Short adjective + -er + than.' },
+    ],
+  },
+
+  sentences: [
+    { words:['Dre','is','wearing','a','vest','with','five','cameras'],        answer:'Dre is wearing a vest with five cameras',      hint:'🎥 About the barber...' },
+    { words:['Robots','are','getting','more','nimble','than','ever'],         answer:'Robots are getting more nimble than ever',     hint:'🤖 About the machines...' },
+    { words:['Virginia','earns','more','than','minimum','wage'],              answer:'Virginia earns more than minimum wage',        hint:'💰 About the pay...' },
+    { words:['Robots','still','need','human','supervision'],                  answer:'Robots still need human supervision',          hint:'👀 About the future...' },
+  ],
+
+  word_builder: [
+    { word:'nimble',     definition:'Quick and flexible' },
+    { word:'footage',    definition:'Video from a camera' },
+    { word:'deploy',     definition:'Put into use' },
+    { word:'annotate',   definition:'Add labels to data' },
+    { word:'incentive',  definition:'A reason to act' },
+    { word:'bottleneck', definition:'The slow point' },
+  ],
+
+  true_false: [
+    { statement:'Dre is a barber near Dallas.',                                          correct:true,  reveal:'✅ TRUE! He cuts hair and records himself at the same time.' },
+    { statement:'Dre wears a vest with three cameras.',                                  correct:false, reveal:'❌ FALSE! The vest has FIVE cameras.' },
+    { statement:'Dre was worried about the cameras, but Ed was gung ho.',                correct:false, reveal:'❌ FALSE! Dre was gung ho. Ed was worried at first.' },
+    { statement:'Virginia is a nail tech.',                                              correct:true,  reveal:'✅ TRUE! She recorded about 10 hours of footage.' },
+    { statement:'The money paid for two weeks of groceries.',                            correct:true,  reveal:'✅ TRUE! It also helped with back-to-school shopping.' },
+    { statement:'Instawork says it pays below minimum wage.',                            correct:false, reveal:'❌ FALSE! It says it pays well ABOVE minimum wage.' },
+    { statement:'A critic says the pay is close to the real value of the data.',         correct:false, reveal:'❌ FALSE! He says it is not close to the real value.' },
+    { statement:'"Supervision" in English means coaching, like German "Supervision".',   correct:false, reveal:'❌ FALSE! It means Aufsicht: watching and controlling work. A false friend!' },
+  ],
+
+},
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
