@@ -4,7 +4,8 @@ window.LEVEL_CONFIG = {
 };
 
 window.LESSONS = [
-  { slug:'weeklydrop023', icon:'💶🏦🖨️', badge:'Issue 023', badgeType:'new', title:'The German Town That Prints Its Own Money', desc:"A Bavarian town has its own banknotes that expire. Is it legal, and does it actually work?", mins:12, date:'2026-10-09', tags:['business','tax','finance','legal'] },
+  { slug:'weeklydrop024', icon:'🤖🎥💼', badge:'Issue 024', badgeType:'new', title:'Are These Workers Training Robots to Replace Them?', desc:"A barber in Texas wears five cameras to teach robots his job. Is he helping the future, or training his own replacement?", mins:6, date:'2026-10-23', tags:['business','tech','future','jobs'] },
+  { slug:'weeklydrop023', icon:'💶🏦🖨️', badge:'Issue 023', badgeType:null, title:'The German Town That Prints Its Own Money', desc:"A Bavarian town has its own banknotes that expire. Is it legal, and does it actually work?", mins:12, date:'2026-10-09', tags:['business','tax','finance','legal'] },
   { slug:'weeklydrop022', icon:'🟥⚽💰', badge:'Issue 022', badgeType:null, title:'Manchester City Guilty Guilty Guilty', desc:"The English Premier League finds Manchester City guilty of 114 out of 115 serious financial breaches.", mins:5, date:'2026-10-02', tags:['business','tax','finance','sport'] },
   { slug:'weeklydrop021', icon:'🧾🏛️', badge:'Issue 021', badgeType:null, title:'English Taxi Boss Faces £20m Tax Bill', desc:"John Griffin the boss of UK minicab firm Addison Lee said he was Irish. The court said No. Result - £20m.", mins:5, date:'2026-09-18', tags:['business','tax'] },
   { slug:'weeklydrop020', icon:'🧈💰🏆', badge:'Issue 020', badgeType:null, title:'Why Is Gold Breaking Records?!', desc:"It's the precious metal literally worth its weight in gold, but what's the real story behind the shiny space rock?", mins:5, date:'2026-09-11', tags:['business','finance'] },
@@ -27,5 +28,5 @@ window.LESSONS = [
   { slug:'weeklydrop003', icon:'✂️🍫', badge:'Issue 003', badgeType:null, title:'Shrinkflation — Why Chocolate Is Getting Smaller!', desc:"Your Easter egg shrank — but the price didn't. Welcome to shrinkflation.", mins:5, date:'2026-04-17', tags:['business'] },
   { slug:'weeklydrop002', icon:'📉', badge:'Issue 002', badgeType:null, title:"Germany's Insolvency Wave", desc:'24,064 companies filed for insolvency in Germany in 2025. Your clients may be suffering.', mins:5, date:'2026-03-26', tags:['business'] },
   { slug:'weeklydropoil', icon:'🛢️', badge:'Issue 001', badgeType:null, title:"Iran, Oil & Prof Jiang's Predictions", desc:"The Strait of Hormuz is blocked. Brent Crude hit $120. One professor saw it all coming. Can you crack the activities?", mins:5, date:'2026-03-16', tags:['business'] },
-  { slug:null, icon:'🔒', badge:null, badgeType:'soon', title:'Issue 023 — Coming Soon', desc:'A new issue drops every week — check back soon!', mins:null, date:null },
+  { slug:null, icon:'🔒', badge:null, badgeType:'soon', title:'Issue 025 — Coming Soon', desc:'A new issue drops every week — check back soon!', mins:null, date:null },
 ];
