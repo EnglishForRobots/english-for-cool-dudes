@@ -231,6 +231,7 @@
      'young-sikh-britain':  'young-faithful-sikh-britain-advanced',
      'invoiceinspector':  'tax-invoice-inspector-tax',
      'weeklydrop023':  'weekly-drop-issue-023',
+     'weeklydrop024':  'weekly-drop-issue-024',
   };
 
   async function bootAuthStrip(eyebrowText) {
