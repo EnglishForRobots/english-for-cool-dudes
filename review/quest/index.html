@@ -127,9 +127,10 @@ async function boot(){
   const seen=new Set();
   const bdate={};(Array.isArray(bd)?bd:[]).forEach(x=>{const id=x.badge_key.replace('lesson_','');if(!bdate[id]||x.awarded_at>bdate[id])bdate[id]=x.awarded_at});
   let rows=Array.isArray(lv)?lv:[];
-  S.gate=Array.isArray(bd);S.hidden=S.gate?[...new Set(rows.filter(r=>!bdate[r.lesson_id]).map(r=>r.lesson_title||r.lesson_id))]:[];
-  if(Array.isArray(bd))rows=rows.filter(r=>bdate[r.lesson_id]).sort((a,b)=>bdate[b.lesson_id].localeCompare(bdate[a.lesson_id]));
-  else console.warn('efcd_badges not readable: trophy gate skipped',bd);
+  S.gate=Array.isArray(bd);
+  const wdOf=r=>new Date(r.completed_at).toLocaleDateString('en-GB',{weekday:'short',timeZone:'Europe/Berlin'}).toLowerCase().slice(0,3);
+  const pre=classId.split('-')[0],hasDay=['mon','tue','wed','thu','fri'].includes(pre);
+  S.flags=[...new Map(rows.map(r=>{const f=[];if(S.gate&&!bdate[r.lesson_id])f.push('no trophy');if(hasDay&&wdOf(r)!==pre)f.push('saved on '+wdOf(r).toUpperCase());return [r.lesson_id,f.length?(r.lesson_title||r.lesson_id)+' ('+f.join(', ')+')':null]})).values()].filter(Boolean);
   rows.forEach(r=>{
     if(seen.has(r.lesson_id))return; seen.add(r.lesson_id);
     const reg=window.LESSON_DATA_REGISTRY?.[r.lesson_id];
@@ -156,7 +157,7 @@ const starsHtml=n=>`<div class="stars">${[1,2,3].map(i=>`<span class="st" style=
 function testBar(){
   if(!TEST)return '';
   const sh=S.lessons.slice(0,3).map(l=>`${l.emoji} ${esc(l.title)} (${l.words.length} words)`);
-  return `<div style="background:rgba(255,200,0,.12);border:2px solid var(--yellow);border-radius:14px;padding:10px 14px;margin-bottom:12px;font-size:12px;font-weight:800;line-height:1.6"><b style="color:var(--yellow)">🧪 TEST MODE · ${esc(S.cls.name)}</b><br>Nothing is saved. Tap any stop to jump to it.<br>Newest stops: ${sh.join(' · ')||'none'}<br>${S.lessons.length>3?`Vault pool: ${S.lessons.length-3} older lessons<br>`:''}${S.gate?'':'⚠️ Trophy check is off (badges not readable)<br>'}${S.hidden.length?`Hidden, no trophy: ${S.hidden.map(esc).join(', ')}`:'No hidden lessons'}</div>`;
+  return `<div style="background:rgba(255,200,0,.12);border:2px solid var(--yellow);border-radius:14px;padding:10px 14px;margin-bottom:12px;font-size:12px;font-weight:800;line-height:1.6"><b style="color:var(--yellow)">🧪 TEST MODE · ${esc(S.cls.name)}</b><br>Nothing is saved. Tap any stop to jump to it.<br>Newest stops: ${sh.join(' · ')||'none'}<br>${S.lessons.length>3?`Vault pool: ${S.lessons.length-3} older lessons<br>`:''}${S.gate?'':'⚠️ Trophy check is off (badges not readable)<br>'}${S.flags.length?`⚠️ Check these: ${S.flags.map(esc).join(' · ')}`:'✅ No suspicious lessons'}</div>`;
 }
 function pickScreen(){
   app.innerHTML=`<div class="u">${testBar()}<div class="big">${esc(S.cls.emoji||'😎')}</div><h1>${esc(S.cls.team_name||S.cls.name)}</h1><div class="sub">Who's questing today?</div><div class="names" id="nm"></div></div>`;
@@ -201,11 +202,11 @@ function vq(w,k){
 }
 function gq(ex,g){return{kind:'mc',prompt:`<div class="topic">✏️ ${esc(g.topic)}</div>`+esc(ex.sentence).replace(/___/g,BL),opts:[ex.answer,...ex.wrong],ans:ex.answer,explain:ex.explain}}
 function lessonQs(l){
-  const ws=best(l.words,6);
-  return shuf(ws).map((w,i)=>vq(w,['mc','build','mc','type','mc','type'][i]));
+  const ws=best(l.words,4);
+  return shuf(ws).map((w,i)=>vq(w,['mc','build','mc','type'][i]));
 }
-const vaultQs=ws=>shuf(ws).map((w,i)=>vq(w,['mc','type','mc','build'][i%4]));
-const bossQs=ws=>shuf(ws).map((w,i)=>vq(w,['type','mc','build','mc'][i%4]));
+const vaultQs=ws=>shuf(ws).map((w,i)=>vq(w,['mc','build','mc','type','mc'][i%5]));
+const bossQs=ws=>shuf(ws).map((w,i)=>vq(w,['mc','build','type','mc','type'][i%5]));
 
 
 function buildStops(){
@@ -214,7 +215,7 @@ function buildStops(){
   const due=w=>!S.lb[w.key]||S.lb[w.key].due<=TODAY;
   let vw=older.flatMap(l=>l.words).filter(due);
   if(vw.length<4)vw=S.lessons.flatMap(l=>l.words).filter(w=>S.lb[w.key]&&due(w));
-  if(vw.length>=4)S.stops.push({ic:'🏛️',title:'From the Vault',sub:'Older words, back again',q:vaultQs(best(vw,8)),vault:true});
+  if(vw.length>=4)S.stops.push({ic:'🏛️',title:'From the Vault',sub:'Older words, back again',q:vaultQs(best(vw,5)),vault:true});
   S.stops.push({ic:'🐉',title:'Boss Round',sub:'Your trickiest words',boss:true,q:null});
 }
 
@@ -231,7 +232,7 @@ function teamHtml(){
 
 function mapScreen(){
   const all=S.done>=S.stops.length;
-  app.innerHTML=`<div class="u">${testBar()}<h1>${esc(S.me.avatar_emoji||'😊')} ${esc(S.me.name)}'s Word Quest</h1><div class="sub" style="margin-top:-2px;margin-bottom:12px">Your 3-minute word workout</div>
+  app.innerHTML=`<div class="u">${testBar()}<h1>${esc(S.me.avatar_emoji||'😊')} ${esc(S.me.name)}'s Word Quest</h1><div class="sub" style="margin-top:-2px;margin-bottom:12px">Your 5-minute word workout</div>
   <div class="top"><span class="pill">🔥 ${S.streak} week streak</span><span class="pill">⚡ ${S.xp} XP</span><span class="pill t">${esc(S.cls.team_name||S.cls.name)}</span></div>
   <div class="path">${S.stops.map((s,i)=>{const st=i<S.done?'done':i===S.done?'cur':'lock';
     return `<div class="node ${st} ${s.boss?'boss':''}" data-i="${i}"><div class="ic">${st==='done'?'✓':s.ic}</div><div><div class="tt">${esc(s.title)}</div><div class="ss">${st==='done'?'Complete':esc(s.sub)}</div></div></div>`}).join('')}</div>
@@ -249,8 +250,8 @@ function mapScreen(){
 function startStop(i){
   const st=S.stops[i]; S.cur=i;
   if(st.boss){
-    const seen=new Set(), m=S.missed.filter(w=>!seen.has(w.key)&&seen.add(w.key)).slice(0,8);
-    const fill=best(S.all.filter(w=>!seen.has(w.key)),8-m.length);
+    const seen=new Set(), m=S.missed.filter(w=>!seen.has(w.key)&&seen.add(w.key)).slice(0,5);
+    const fill=best(S.all.filter(w=>!seen.has(w.key)),5-m.length);
     const ws=[...m,...fill]; st.q=bossQs(ws); st.sub=m.length?'Your trickiest words':'Mixed challenge';
   }
   st.i=0;st.ok=0;st.n=0;st.nl=[];st.hp=[];st.ms=[];st.x0=S.xp;
