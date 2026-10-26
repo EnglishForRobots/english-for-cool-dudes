@@ -1412,19 +1412,25 @@
     if (!client) return null;
 
     try {
-      // Get session ID
-      let sessionId = localStorage.getItem('efcd_session_id');
-      if (!sessionId) {
-        const { data: sessions } = await client
-          .from('efcd_sessions')
-          .select('id')
-          .eq('class_id', classId)
-          .is('ended_at', null)
-          .order('started_at', { ascending: false })
-          .limit(1);
-        sessionId = sessions?.[0]?.id;
+            // Always use this class's CURRENT open session (never a stale stored id)
+      const { data: sessions } = await client
+        .from('efcd_sessions')
+        .select('id, started_at')
+        .eq('class_id', classId)
+        .is('ended_at', null)
+        .order('started_at', { ascending: false })
+        .limit(1);
+      const sessionId = sessions?.[0]?.id;
+      const startedAt = sessions?.[0]?.started_at;
+      const ageHours  = startedAt ? (Date.now() - new Date(startedAt).getTime()) / 3600000 : 999;
+      if (!sessionId || ageHours > 14) {
+        console.warn('EFCD: no fresh open session for', classId, '- nothing saved');
+        localStorage.removeItem('efcd_class_id');
+        localStorage.removeItem('efcd_session_id');
+        localStorage.removeItem('efcd_present_names');
+        return null;
       }
-      if (!sessionId) return null;
+      localStorage.setItem('efcd_session_id', sessionId);
 
       // Get class details
       const { data: classes } = await client
@@ -1451,27 +1457,35 @@
         date:         new Date().toISOString().split('T')[0],
       });
 
-      // Award lesson badge to all present students
-      if (presentNames.length > 0) {
-        const { data: students } = await client
-          .from('efcd_students')
-          .select('id, name')
-          .eq('class_id', classId);
-        const present = (students || []).filter(s => presentNames.includes(s.name));
-        if (present.length > 0) {
-          await client.from('efcd_badges').insert(
-            present.map(s => ({
-              student_id:   s.id,
-              student_name: s.name,
-              class_id:     classId,
-              badge_key:    'lesson_' + (lessonData.lessonId || 'complete'),
-              badge_emoji:  lessonData.badgeIcon || '🏅',
-              badge_label:  lessonData.badgeName || 'Lesson Complete',
-              is_manual:    false,
-              session_id:   sessionId,
-            }))
-          );
-        }
+           // Award lesson badge (present students; falls back to the whole class so the trophy is never lost)
+      const badgeKey = 'lesson_' + (lessonData.lessonId || 'complete');
+      const { data: students } = await client
+        .from('efcd_students')
+        .select('id, name')
+        .eq('class_id', classId);
+      let present = (students || []).filter(s => presentNames.includes(s.name));
+      if (!present.length) present = students || [];
+      const { data: haveBadge } = await client
+        .from('efcd_badges')
+        .select('student_id')
+        .eq('class_id', classId)
+        .eq('badge_key', badgeKey);
+      const hasIt   = new Set((haveBadge || []).map(b => b.student_id));
+      const toAward = present.filter(s => !hasIt.has(s.id));
+      if (toAward.length) {
+        const { error: badgeErr } = await client.from('efcd_badges').insert(
+          toAward.map(s => ({
+            student_id:   s.id,
+            student_name: s.name,
+            class_id:     classId,
+            badge_key:    badgeKey,
+            badge_emoji:  lessonData.badgeIcon || '🏅',
+            badge_label:  lessonData.badgeName || 'Lesson Complete',
+            is_manual:    false,
+            session_id:   sessionId,
+          }))
+        );
+        if (badgeErr) console.warn('EFCD badge insert failed:', badgeErr.message);
       }
 
       // ── VOCAB SAVE ────────────────────────────────────────────
@@ -1481,16 +1495,15 @@
         ? registryEntry.vocab
         : (lessonData.vocabulary || []);
 
-      if (vocabToSave.length > 0) {
-        await fetch(SUPABASE_URL + '/rest/v1/efcd_lesson_vocab', {
-          method: 'POST',
-          headers: {
-            'Content-Type':  'application/json',
-            'apikey':        SUPABASE_KEY,
-            'Authorization': 'Bearer ' + SUPABASE_KEY,
-            'Prefer':        'return=minimal',
-          },
-          body: JSON.stringify({
+            if (vocabToSave.length > 0) {
+        const { data: haveVocab } = await client
+          .from('efcd_lesson_vocab')
+          .select('id')
+          .eq('class_id', classId)
+          .eq('lesson_id', lessonId)
+          .limit(1);
+        if (!haveVocab?.length) {
+          const { error: vocabErr } = await client.from('efcd_lesson_vocab').insert({
             class_id:      classId,
             session_id:    sessionId,
             lesson_id:     lessonId,
@@ -1499,8 +1512,9 @@
             vocab:         vocabToSave,
             grammar_focus: lessonData.grammarFocus || registryEntry?.grammar || null,
             completed_at:  new Date().toISOString(),
-          }),
-        });
+          });
+          if (vocabErr) console.warn('EFCD vocab save failed:', vocabErr.message);
+        }
       }
 
       // ── AUTO-ACTIVATE CLASS SRS ───────────────────────────────
