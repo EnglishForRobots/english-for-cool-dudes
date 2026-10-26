@@ -1180,7 +1180,7 @@
   level:   'Intermediate',
   grammar: 'Present Perfect for trends up to now; Subject-Verb Agreement in news English',
   vocab: [
-    { word:'vessel',        definition:'A formal word for a ship or boat — not a blood vessel' },
+    { word:'vessel',        definition:'A formal word for a ship or boat — also used with blood' },
     { word:'authorities',   definition:'Officials with legal power to enforce the law' },
     { word:'disrupt',       definition:'To interrupt something and stop it working normally' },
     { word:'tarpaulin',     definition:'A large waterproof sheet used as a cover or shelter' },
