@@ -13,3 +13,5 @@ window.LESSONS = [
   { slug:null, icon:'👨‍⚖️', badge:null, badgeType:'soon', title:'Courtroom and Hearing Talk', desc:'Learn to follow and participate in formal legal proceedings, arguments, and testimonies.', mins:null, date:null },
   { slug:null, icon:'⚖️', badge:null, badgeType:'soon', title:'Civil vs. Criminal Law', desc:'Clear communication of legal concepts across civil disputes, criminal charges, and liabilities.', mins:null, date:null },
 ];
+/* EFCD-AUTO-START */
+/* EFCD-AUTO-END */
