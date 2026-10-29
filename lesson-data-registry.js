@@ -6159,3 +6159,5 @@ const LESSON_DATA_REGISTRY = {
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
 
 if (typeof module !== 'undefined') module.exports = LESSON_DATA_REGISTRY;
+/* EFCD-AUTO-START */
+/* EFCD-AUTO-END */
