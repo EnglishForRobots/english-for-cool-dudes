@@ -233,7 +233,8 @@
      'weeklydrop023':  'weekly-drop-issue-023',
      'weeklydrop024':  'weekly-drop-issue-024',
   };
-
+/* EFCD-AUTO-START */
+/* EFCD-AUTO-END */
   async function bootAuthStrip(eyebrowText) {
     const stripWrap = document.getElementById('strip-wrap');
     const secWrap = document.getElementById('section-label-wrap');
