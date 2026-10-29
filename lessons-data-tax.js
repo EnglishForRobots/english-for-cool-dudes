@@ -48,3 +48,5 @@ window.LESSONS = [
   { slug:'taxavoidance', icon:'✈️', badge:'Specialist', badgeType:null, title:'Tax Avoidance', desc:"There's a BIG difference between avoidance and evasion!", mins:6, date:'2025-09-28' },
   { slug:'selfassessment', icon:'📄', badge:'Key Phrases', badgeType:null, title:'Self Assessment Tax Returns', desc:'How do people in the UK do tax, and what is PAYE?', mins:7, date:'2025-09-20' },
 ];
+/* EFCD-AUTO-START */
+/* EFCD-AUTO-END */
