@@ -192,7 +192,7 @@
     'ikea': 'ikea-effect-intermediate',
     'saudimachine': 'saudi-machine-deal-tax',
     'ledger-files': 'the-ledger-files-bookkeeping-tax',
-     '/weeklydrop017/':  'weekly-drop-issue-017',
+     'weeklydrop017':  'weekly-drop-issue-017',
   'ichigo-ichie-a2':  'ichigo-ichie-once-in-a-lifetime-beginner',
   'year-end-meeting':  'the-year-end-meeting-reporting-intermediate',
   'weeklydrop018':  'weekly-drop-issue-018',
