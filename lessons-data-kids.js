@@ -16,3 +16,5 @@ window.LESSONS = [
   { slug:null, icon:'🐙', badge:'💡 Animals', badgeType:'fact', title:"The Weirdest Animals You've Never Heard Of", desc:'Meet the blobfish, the axolotl, and the star-nosed mole. These creatures make up their own rules.', mins:5, date:null },
   { slug:null, icon:'⚽', badge:'🌍 Sport', badgeType:'world', title:"The World's Most Bizarre Sports", desc:'Cheese rolling in England. Underwater hockey. Competitive dog grooming. These are actual sports.', mins:6, date:null },
 ];
+/* EFCD-AUTO-START */
+/* EFCD-AUTO-END */
