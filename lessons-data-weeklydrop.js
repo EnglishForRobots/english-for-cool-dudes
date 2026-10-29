@@ -30,3 +30,5 @@ window.LESSONS = [
   { slug:'weeklydropoil', icon:'🛢️', badge:'Issue 001', badgeType:null, title:"Iran, Oil & Prof Jiang's Predictions", desc:"The Strait of Hormuz is blocked. Brent Crude hit $120. One professor saw it all coming. Can you crack the activities?", mins:5, date:'2026-03-16', tags:['business'] },
   { slug:null, icon:'🔒', badge:null, badgeType:'soon', title:'Issue 025 — Coming Soon', desc:'A new issue drops every week — check back soon!', mins:null, date:null },
 ];
+/* EFCD-AUTO-START */
+/* EFCD-AUTO-END */
