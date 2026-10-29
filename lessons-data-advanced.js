@@ -41,3 +41,5 @@ window.LESSONS = [
   { slug:null, icon:'🔗', badge:null, badgeType:'soon', title:'Phrasal Verbs: Separable vs. Inseparable', desc:'Deep dive into the subtle rules that confuse even B2 students.', mins:10, date:null },
   { slug:null, icon:'✍️', badge:null, badgeType:'soon', title:'Passive Voice: Advanced Forms and Uses', desc:'Focus on to have something done and the passive in academic writing.', mins:12, date:null },
 ];
+/* EFCD-AUTO-START */
+/* EFCD-AUTO-END */
