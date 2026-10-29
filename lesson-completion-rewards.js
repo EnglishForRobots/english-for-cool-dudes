@@ -1334,7 +1334,8 @@
     },
 
   };
-
+/* EFCD-AUTO-START */
+/* EFCD-AUTO-END */
   /* ─── SUPABASE CLIENT ───────────────────────────────────────── */
   async function getSB () {
     let attempts = 0;
