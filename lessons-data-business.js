@@ -16,3 +16,5 @@ window.LESSONS = [
   { slug:'negotiations', icon:'🗣️', badge:'Deep Dive', badgeType:null, title:'Negotiation Skills', desc:'Before negotiating you really need a BATNA — but what is a BATNA?', mins:7, date:'2025-09-20' },
   { slug:'businessnew', icon:'🤝', badge:'Pro', badgeType:null, title:'Communication Across Cultures', desc:'Do you communicate like a Japanese or German — high or low context?', mins:5, date:'2025-09-15' },
 ];
+/* EFCD-AUTO-START */
+/* EFCD-AUTO-END */
