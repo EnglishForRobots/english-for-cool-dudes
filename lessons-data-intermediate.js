@@ -39,3 +39,5 @@ window.LESSONS = [
   { slug:null, icon:'🗣️', badge:null, badgeType:'soon', title:'Reported Speech', desc:'Master how to tell someone what another person said — he said he was coming…', mins:8, date:null },
   { slug:null, icon:'👔', badge:null, badgeType:'soon', title:'English for Job Interviews', desc:'Key vocabulary and phrases to ace your next English interview.', mins:12, date:null },
 ];
+/* EFCD-AUTO-START */
+/* EFCD-AUTO-END */
