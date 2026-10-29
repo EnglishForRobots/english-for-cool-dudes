@@ -41,3 +41,5 @@ window.LESSONS = [
   { slug:'timeandnumbers', icon:'⏰', badge:'Basics', badgeType:null, title:'Numbers and Telling Time', desc:"It's half past four. Handle numbers and schedules like a native.", mins:9, date:'2025-09-22', tags:['vocabulary'] },
   { slug:'orderingfood', icon:'🍔', badge:'Real Life', badgeType:null, title:'Ordering Food and Drinks', desc:'Useful phrases for restaurants and cafés. Can I have a coffee, please?', mins:4, date:'2025-09-17', tags:['vocabulary'] },
 ];
+/* EFCD-AUTO-START */
+/* EFCD-AUTO-END */
