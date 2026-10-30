@@ -4,6 +4,7 @@ window.LEVEL_CONFIG = {
 };
 
 window.LESSONS = [
+    { slug:'weeklydrop025', icon:'🐄💸🗳️', badge:'Issue 025', badgeType:'new', title:'Why Kansas Ranchers Are Turning on Trump', desc:"A cattle auction, a price nosedive and a Senate race that is now a toss-up. Why are ranchers so angry?", mins:6, date:'2026-10-30', tags:['business','finance','politics'] },
   { slug:'weeklydrop024', icon:'🤖🎥💼', badge:'Issue 024', badgeType:'new', title:'Are These Workers Training Robots to Replace Them?', desc:"A barber in Texas wears five cameras to teach robots his job. Is he helping the future, or training his own replacement?", mins:6, date:'2026-10-23', tags:['business','tech','future','jobs'] },
   { slug:'weeklydrop023', icon:'💶🏦🖨️', badge:'Issue 023', badgeType:null, title:'The German Town That Prints Its Own Money', desc:"A Bavarian town has its own banknotes that expire. Is it legal, and does it actually work?", mins:12, date:'2026-10-09', tags:['business','tax','finance','legal'] },
   { slug:'weeklydrop022', icon:'🟥⚽💰', badge:'Issue 022', badgeType:null, title:'Manchester City Guilty Guilty Guilty', desc:"The English Premier League finds Manchester City guilty of 114 out of 115 serious financial breaches.", mins:5, date:'2026-10-02', tags:['business','tax','finance','sport'] },
