@@ -6150,7 +6150,7 @@ const LESSON_DATA_REGISTRY = {
     { statement:'The money paid for two weeks of groceries.',                            correct:true,  reveal:'✅ TRUE! It also helped with back-to-school shopping.' },
     { statement:'Instawork says it pays below minimum wage.',                            correct:false, reveal:'❌ FALSE! It says it pays well ABOVE minimum wage.' },
     { statement:'A critic says the pay is close to the real value of the data.',         correct:false, reveal:'❌ FALSE! He says it is not close to the real value.' },
-    { statement:'"Supervision" in English means coaching, like German "Supervision".',   correct:false, reveal:'❌ FALSE! It means Aufsicht: watching and controlling work. A false friend!' },
+    { statement:'In everyday English, "Supervision" means coaching.',   correct:false, reveal:'❌ FALSE! It means Aufsicht: watching and controlling work. A false friend!' },
   ],
 
 },
