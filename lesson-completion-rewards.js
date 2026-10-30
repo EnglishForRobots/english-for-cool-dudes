@@ -1333,6 +1333,28 @@
       ],
     },
 
+                 'weekly-drop-issue-025': {
+      title:   'The Weekly Drop - Issue 025 - Cattle Crash',
+      level:   'All Levels',
+      grammar: 'used to / didn’t use to; be used to + -ing; get used to + -ing; be used to vs get used to',
+      vocab: [
+        { word:'rancher',       definition:'A person who owns or runs a cattle farm (a ranch).' },
+        { word:'calf',          definition:'A young cow.' },
+        { word:'head',          definition:'The word for counting cattle. After a number it stays "head".' },
+        { word:'import',        definition:'Bring goods into a country to sell them.' },
+        { word:'ground beef',   definition:'Beef cut into tiny pieces, used for burgers.' },
+        { word:'grocery',       definition:'Food and drink for your home. A grocery store is a food shop.' },
+        { word:'nosedive',      definition:'A sudden, steep fall, like a plane dropping nose-first.' },
+        { word:'steep',         definition:'Very big and sudden (a loss or a price change).' },
+        { word:'betrayal',      definition:'When someone you trusted lets you down.' },
+        { word:'toss-up',       definition:'A situation where either side can win.' },
+        { word:'midterms',      definition:'US elections halfway through a president’s four-year term.' },
+        { word:'garner',        definition:'Gain or collect something, for example votes or praise.' },
+        { word:'at a loss for words', definition:'So surprised that you cannot find anything to say.' },
+        { word:'adding insult to injury', definition:'Adding a second problem to a situation that is already bad.' },
+      ],
+    },
+
   };
 /* EFCD-AUTO-START */
 /* EFCD-AUTO-END */
