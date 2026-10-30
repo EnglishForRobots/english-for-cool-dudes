@@ -6154,6 +6154,83 @@ const LESSON_DATA_REGISTRY = {
   ],
 
 },
+
+    'weekly-drop-issue-025': {
+
+  id:    'weekly-drop-issue-025',
+  title: 'The Weekly Drop - Issue 025 - Cattle Crash',
+  level: 'All Levels',
+  track: 'weeklydrop',
+  emoji: '🐄',
+  badge: 'Auction Ace',
+
+  vocab: [
+    { word:'rancher',     definition:'A person who owns or runs a cattle farm (a ranch).', example:'The ___ sold forty calves at the auction.', distractors:['calf','head','grocery'] },
+    { word:'calf',        definition:'A young cow.', example:'The ___ drinks milk from its mother.', distractors:['rancher','head','grocery'] },
+    { word:'head',        definition:'The word for counting cattle. After a number it stays "head".', example:'He sold 69 ___ of cattle.', distractors:['calf','rancher','nosedive'] },
+    { word:'import',      definition:'Bring goods into a country to sell them.', example:'The US decided to ___ beef from Brazil.', distractors:['garner','nosedive','midterms'] },
+    { word:'ground beef', definition:'Beef cut into tiny pieces, used for burgers.', example:'We cook ___ ___ for dinner.', distractors:['grocery','calf','head'] },
+    { word:'grocery',     definition:'Food and drink for your home. A grocery store is a food shop.', example:'We buy bread at the ___ store.', distractors:['ground beef','rancher','midterms'] },
+    { word:'nosedive',    definition:'A sudden, steep fall, like a plane dropping nose-first.', example:'Prices took a ___ after the news.', distractors:['toss-up','betrayal','garner'] },
+    { word:'steep',       definition:'Very big and sudden (a loss or a price change).', example:'The farmer suffered a ___ loss.', distractors:['toss-up','betrayal','nosedive'] },
+    { word:'betrayal',    definition:'When someone you trusted lets you down.', example:'She felt a sense of ___.', distractors:['toss-up','nosedive','midterms'] },
+    { word:'toss-up',     definition:'A situation where either side can win.', example:'The race is a ___, so nobody knows the winner.', distractors:['betrayal','nosedive','midterms'] },
+    { word:'midterms',    definition:'US elections halfway through a president’s four-year term.', example:'The ___ are on Tuesday 3 November.', distractors:['toss-up','grocery','import'] },
+    { word:'garner',      definition:'Gain or collect something, for example votes or praise.', example:'She hopes to ___ thousands of votes.', distractors:['import','nosedive','steep'] },
+    { word:'at a loss for words', definition:'So surprised that you cannot find anything to say.', example:'I was ___ ___ ___ ___ ___ when I saw the bill.', distractors:['at a lack for words','in a loss for words','at a loss of words'] },
+    { word:'adding insult to injury', definition:'Adding a second problem to a situation that is already bad.', example:'It rained and, ___ ___ ___ ___, the bus was late.', distractors:['adding injury to insult','adding insult for injury','adding salt to injury'] },
+  ],
+
+  grammar: {
+    topic: 'Past habits: used to / didn’t use to',
+    rule:  'Use USED TO + base verb for a past habit: "Ranchers used to sell calves every fall." The negative is DIDN’T USE TO (no -d): "Kansas didn’t use to be a toss-up." BE USED TO + -ing means "familiar with": "He is not used to losing money."',
+    exercises: [
+      { sentence:'Ranchers ___ to sell calves every fall.',          answer:'used',    wrong:['use','is used','using'],   explain:'used to + base verb = a past habit.' },
+      { sentence:'Kansas didn’t ___ to be a toss-up.',               answer:'use',     wrong:['used','using','uses'],     explain:'After didn’t the verb stays in its base form: "didn’t use to".' },
+      { sentence:'He is not used to ___ money at auctions.',         answer:'losing',  wrong:['lose','lost','loses'],     explain:'be used to + -ing form.' },
+      { sentence:'It takes time to get ___ to new prices.',          answer:'used',    wrong:['use','using','uses'],      explain:'get USED to = sich gewöhnen an.' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Be used to vs get used to',
+    rule:  'BE used to = you already know something well. GET used to = you slowly become familiar with it. Both are followed by a noun or the -ing form. German "gewöhnt sein" = be used to, "sich gewöhnen" = get used to.',
+    exercises: [
+      { sentence:'After ten years on the ranch, he ___ used to early mornings.', answer:'is',      wrong:['gets','does','has'],     explain:'Already familiar = BE used to.' },
+      { sentence:'Prices fell, and ranchers must ___ used to it.',               answer:'get',     wrong:['be','are','have'],       explain:'Becoming familiar = GET used to.' },
+      { sentence:'She is used to ___ before sunrise.',                           answer:'working', wrong:['work','worked','works'], explain:'be used to + -ing form.' },
+      { sentence:'I can’t get used to ___ so much for burgers.',                 answer:'paying',  wrong:['pay','paid','pays'],     explain:'get used to + -ing form.' },
+    ],
+  },
+
+  sentences: [
+    { words:['Ranchers','used','to','sell','calves','every','fall'],   answer:'Ranchers used to sell calves every fall',   hint:'🐄 About the old habit...' },
+    { words:['Kansas','didn’t','use','to','be','a','toss-up'],         answer:'Kansas didn’t use to be a toss-up',         hint:'🗳️ About the Senate race...' },
+    { words:['Prices','took','a','nosedive','in','August'],            answer:'Prices took a nosedive in August',          hint:'📉 About the auction...' },
+    { words:['Shoppers','saved','only','thirteen','cents','per','pound'], answer:'Shoppers saved only thirteen cents per pound', hint:'🛒 About the shops...' },
+  ],
+
+  word_builder: [
+    { word:'rancher',  definition:'A person who runs a cattle farm' },
+    { word:'nosedive', definition:'A sudden, steep fall' },
+    { word:'betrayal', definition:'When someone you trusted lets you down' },
+    { word:'midterms', definition:'Elections halfway through a presidency' },
+    { word:'grocery',  definition:'Food for your home' },
+    { word:'garner',   definition:'Gain or collect, like votes' },
+  ],
+
+  true_false: [
+    { statement:'Cattle prices at the auction fell after the import plan.',   correct:true,  reveal:'✅ TRUE! Cattle sold for up to $600 a head below the old price.' },
+    { statement:'One farmer lost $28,047 on 69 head of cattle.',              correct:true,  reveal:'✅ TRUE! That was one single sale.' },
+    { statement:'Shoppers saved a lot of money on ground beef.',              correct:false, reveal:'❌ FALSE! The price fell by only about 13 cents per pound.' },
+    { statement:'The Kansas Senate race is now a toss-up.',                   correct:true,  reveal:'✅ TRUE! For the first time in decades.' },
+    { statement:'Trump promised $8 billion in support for farmers.',          correct:true,  reveal:'✅ TRUE! He said so at a rally in Kansas.' },
+    { statement:'The midterms are the elections for the president.',          correct:false, reveal:'❌ FALSE! They happen halfway through a president’s term.' },
+    { statement:'After a number we say "69 heads of cattle".',                correct:false, reveal:'❌ FALSE! It is "69 head": no -s after a number.' },
+    { statement:'Ranchers bought calves for around $2,800 each in the spring.', correct:true, reveal:'✅ TRUE! They hoped to sell at around $3,300 in the fall.' },
+  ],
+
+},
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
