@@ -4,6 +4,9 @@
 
    Run from the repo root:
      node _factory/efcd-factory.js build    → generate each lesson page + worksheet from its pack
+        extra options:  --file <pack.json>  test one pack anywhere (touches nothing real)
+                        --out <folder>      write the pages there instead of the real site
+                        --base <url>        add <base href> so a downloaded preview loads the live site's scripts
      node _factory/efcd-factory.js check    → test every pack in _factory/packs/
      node _factory/efcd-factory.js merge    → write packs into the shared files
      node _factory/efcd-factory.js audit    → look for ID mismatches in the
@@ -49,6 +52,10 @@ const LEVEL_FILES = {   // shelf name (used in packs) → lessons-data file
    Weekly Drop 024's own grammar items break this (is wearing / wears / wear), so it starts as a warning. */
 const LONGEST_IS_ERROR = false;
 
+const ARGS = process.argv.slice(3);
+const argVal = n => { const i = ARGS.indexOf(n); return i >= 0 ? ARGS[i + 1] : null; };
+const PREVIEW = !!argVal('--file');   // --file <pack.json>: test a single pack anywhere, touch nothing real
+
 const q = JSON.stringify;
 const read = rel => fs.readFileSync(path.join(ROOT, rel), 'utf8');
 const exists = rel => fs.existsSync(path.join(ROOT, rel));
@@ -68,6 +75,11 @@ function withBlock(text, rel, lines) {
 
 /* ── load packs ──────────────────────────────────────────────── */
 function loadPacks() {
+  const one = argVal('--file');
+  if (one) {
+    try { return [{ file: path.basename(one), pack: JSON.parse(fs.readFileSync(path.resolve(ROOT, one), 'utf8')) }]; }
+    catch (e) { return [{ file: path.basename(one), pack: null, parseError: e.message }]; }
+  }
   if (!fs.existsSync(PACK_DIR)) return [];
   return fs.readdirSync(PACK_DIR).filter(f => f.endsWith('.json') && !f.startsWith('_')).sort().map(file => {
     try { return { file, pack: JSON.parse(fs.readFileSync(path.join(PACK_DIR, file), 'utf8')) }; }
@@ -95,7 +107,7 @@ function checkPack({ file, pack, parseError }) {
   if (!Array.isArray(r.true_false) || r.true_false.length < 5) err('registry.true_false needs at least 5 statements');
 
   /* lesson files */
-  if (pack.slug) {
+  if (pack.slug && !PREVIEW) {
     for (const f of [`${pack.slug}/index.html`, `${pack.slug}/print/index.html`])
       if (!exists(f)) err(`lesson file missing: ${f}`);
     if (exists(`${pack.slug}/index.html`) && !read(`${pack.slug}/index.html`).includes(r.id))
@@ -406,7 +418,7 @@ function checkPage(pack, err, warn, E, W, file) {
   if (!Array.isArray(ws.closest) || ws.closest.length !== 6) err('worksheet.closest needs exactly 6 {q, o} items');
   else ws.closest.forEach((c, i) => { if (!/\[\[.+?\]\]/.test(c.q || '')) err(`worksheet.closest[${i}]: q needs [[underlined words]]`); if (!Array.isArray(c.o) || c.o.length !== 3) err(`worksheet.closest[${i}]: o needs 3 options (first = correct)`); else lenCheck(E, W, `${file}: worksheet.closest[${i}]`, c.o[0], c.o.slice(1)); });
   /* freshness: the generated files must equal what the template would produce now */
-  if (E.length === 0) {
+  if (E.length === 0 && !PREVIEW) {
     try {
       const out = render(pack);
       for (const [rel, text] of [[`${pack.slug}/index.html`, out.index], [`${pack.slug}/print/index.html`, out.print]])
@@ -420,16 +432,20 @@ function build() {
   loaded.forEach(l => E.push(...checkPack(l).E));
   const real = E.filter(e => !/lesson file missing|out of date or was edited by hand|never mentions the id/.test(e));
   if (real.length) { console.log('❌ Fix these before building:\n' + real.map(e => '  • ' + e).join('\n')); return 1; }
+  const outDir = argVal('--out') ? path.resolve(ROOT, argVal('--out')) : ROOT;
+  const base = argVal('--base');
   for (const { pack } of loaded) {
     const out = render(pack);
-    for (const [rel, text] of [[`${pack.slug}/index.html`, out.index], [`${pack.slug}/print/index.html`, out.print]]) {
-      fs.mkdirSync(path.dirname(path.join(ROOT, rel)), { recursive: true });
-      const same = exists(rel) && read(rel) === text;
-      if (!same) fs.writeFileSync(path.join(ROOT, rel), text);
-      console.log(`  ${same ? '=' : '✎'} ${rel}`);
+    for (const [rel, text0] of [[`${pack.slug}/index.html`, out.index], [`${pack.slug}/print/index.html`, out.print]]) {
+      const text = base ? text0.replace('<head>', `<head>\n<base href="${base}">`) : text0;
+      const dest = path.join(outDir, rel);
+      fs.mkdirSync(path.dirname(dest), { recursive: true });
+      const same = fs.existsSync(dest) && fs.readFileSync(dest, 'utf8') === text;
+      if (!same) fs.writeFileSync(dest, text);
+      console.log(`  ${same ? '=' : '✎'} ${path.relative(ROOT, dest)}`);
     }
   }
-  console.log(`✅ built ${loaded.length} lesson page(s) + worksheet(s).`);
+  console.log(`✅ built ${loaded.length} lesson page(s) + worksheet(s)${outDir !== ROOT ? ' into ' + path.relative(ROOT, outDir) : ''}.`);
   return 0;
 }
 
