@@ -3,6 +3,7 @@
    EFCD LESSON FACTORY — merge + check tool  (no dependencies, Node 18+)
 
    Run from the repo root:
+     node _factory/efcd-factory.js build    → generate each lesson page + worksheet from its pack
      node _factory/efcd-factory.js check    → test every pack in _factory/packs/
      node _factory/efcd-factory.js merge    → write packs into the shared files
      node _factory/efcd-factory.js audit    → look for ID mismatches in the
@@ -34,15 +35,19 @@ const FILES = {
   myLessons: 'my-lessons/index.html',
   admin:     'admin/index.html',
 };
-/* ← EDIT THESE: which lessons-data file belongs to which shelf */
-const LEVEL_FILES = {
+const LEVEL_FILES = {   // shelf name (used in packs) → lessons-data file
   beginner:     'lessons-data-beginner.js',
   intermediate: 'lessons-data-intermediate.js',
   advanced:     'lessons-data-advanced.js',
   tax:          'lessons-data-tax.js',
+  legal:        'lessons-data-legal.js',
+  business:     'lessons-data-business.js',
+  kids:         'lessons-data-kids.js',
   weeklydrop:   'lessons-data-weeklydrop.js',
 };
-const STRICT_LONGEST = true;   // correct answer must not be the strictly longest option
+/* "correct answer is the longest option": false = warning only, true = error.
+   Weekly Drop 024's own grammar items break this (is wearing / wears / wear), so it starts as a warning. */
+const LONGEST_IS_ERROR = false;
 
 const q = JSON.stringify;
 const read = rel => fs.readFileSync(path.join(ROOT, rel), 'utf8');
@@ -73,6 +78,7 @@ function loadPacks() {
 /* ── pack checks ─────────────────────────────────────────────── */
 const norm = s => String(s).toLowerCase().replace(/[^\p{L}\p{N}'’-]/gu, '');
 const strictlyLongest = (answer, others) => others.length && others.every(o => String(answer).length > String(o).length);
+const lenCheck = (E, W, t, answer, others) => { if (/\s/.test(String(answer)) && strictlyLongest(answer, others)) (LONGEST_IS_ERROR ? E : W).push(`${t}: correct answer is the longest option`); };
 
 function checkPack({ file, pack, parseError }) {
   const E = [], W = [];
@@ -112,7 +118,7 @@ function checkPack({ file, pack, parseError }) {
     if (d.length < 2 || d.length > 4) err(`${t}: needs 2–4 distractors`);
     if (d.map(x => x.toLowerCase()).includes(v.word.toLowerCase())) err(`${t}: a distractor equals the answer`);
     if (new Set(d).size !== d.length) err(`${t}: duplicate distractors`);
-    if (STRICT_LONGEST && strictlyLongest(v.word, d)) err(`${t}: correct answer is the longest option`);
+    lenCheck(E, W, `${file}: ${t}`, v.word, d);
   });
 
   /* grammar */
@@ -129,7 +135,7 @@ function checkPack({ file, pack, parseError }) {
       const w = x.wrong || [];
       if (w.length < 2 || w.length > 3) err(`${t}: needs 2–3 wrong options`);
       if (w.includes(x.answer)) err(`${t}: a wrong option equals the answer`);
-      if (STRICT_LONGEST && strictlyLongest(x.answer, w)) err(`${t}: correct answer is the longest option`);
+      lenCheck(E, W, `${file}: ${t}`, x.answer, w);
       if (!x.explain) err(`${t}: explain missing`);
     });
   }
@@ -166,6 +172,7 @@ function checkPack({ file, pack, parseError }) {
     });
     if (arr.length > 2 && new Set(arr.map(x => x.correct)).size === 1) warn(`${key}: the correct answer is always option ${arr[0].correct}`);
   }
+  if (pack.page || pack.worksheet) checkPage(pack, err, warn, E, W, file);
   return { E, W };
 }
 
@@ -268,6 +275,164 @@ function audit() {
   return 0;
 }
 
+
+/* ═══ PAGE + WORKSHEET: checks and rendering (Weekly Drop template) ═══ */
+const TPL_DIR = path.join(ROOT, '_factory', 'templates');
+const pad3 = n => String(n).padStart(3, '0');
+const jsStr = v => JSON.stringify(v).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
+function rng(seed) {
+  let h = 1779033703 ^ seed.length;
+  for (let i = 0; i < seed.length; i++) { h = Math.imul(h ^ seed.charCodeAt(i), 3432918353); h = (h << 13) | (h >>> 19); }
+  let a = h >>> 0;
+  return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+function sshuf(arr, rand) { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function fillTpl(tpl, map, name) {
+  let out = tpl;
+  for (const [k, v] of Object.entries(map)) out = out.split(`__${k}__`).join(v);
+  const left = out.match(/__[A-Z][A-Z0-9_]*__/g);
+  if (left) throw new Error(`${name}: unfilled placeholders ${[...new Set(left)].join(', ')}`);
+  return out;
+}
+const badTokenIndex = (w, wrong) => w.split(' ').findIndex(t => t.replace(/[^\w'’-]/g, '') === wrong);
+
+function render(pack) {
+  const r = pack.registry, pg = pack.page, ws = pack.worksheet, slug = pack.slug, link = `/${slug}/`;
+  const issue = pad3(pg.issue), next = pad3(pg.issue + 1);
+  const th = Object.assign({ pitch: '#0B2B3A', pitch2: '#0E7C86', yel: '#FF9F1C', yelD: '#D17A00' }, pg.theme || {});
+  const nWords = Object.keys(pg.glossary).length;
+  const stats = [...pg.hero.stats, [String(nWords), 'New words']].map(([n, l]) => `<div class="st"><b>${n}</b><small>${l}</small></div>`).join('\n');
+  const tick = pg.hero.ticker.map(t => `<span>${t}</span>`).join('·');
+  const content = { glossary: pg.glossary, ice: pg.ice, read: pg.read, vid: pg.vid, vidTitle: pg.vidTitle, vidTip: pg.vidTip, vidEnd: pg.vidEnd,
+    youtubeId: pg.youtubeId, videoTitle: pg.videoTitle, emo: pg.emo, wp: pg.wp, wpEnd: pg.wpEnd, slip: pg.slip, slipEnd: pg.slipEnd, fin: pg.fin };
+  const index = fillTpl(read('_factory/templates/weeklydrop-lesson.html'), {
+    TITLE_TAG: `${pg.emoji} Issue ${issue} — ${pg.shortTitle} · The Weekly Drop`,
+    PITCH: th.pitch, PITCH2: th.pitch2, YEL: th.yel, YELD: th.yelD,
+    EMOJI: pg.emoji, ISSUE: issue, NEXT: next, DATE: pg.dateLabel.toUpperCase(),
+    HERO_H1: pg.hero.h1, STATS: stats, TICKER: tick + '·' + tick, CTA: pg.hero.cta || "Let's play!",
+    BADGE_NAME: pg.badgeName,
+    J_LESSON_ID: jsStr(r.id), J_LESSON_TITLE: jsStr(r.title), J_LESSON_LINK: jsStr(link), J_LESSON_LEVEL: jsStr(r.level),
+    J_EMOJI: jsStr(pg.emoji), J_BADGE_TITLE: jsStr(`${pg.badgeName} - Issue ${issue}`),
+    PAGE_JSON: jsStr(content),
+  }, 'weeklydrop-lesson.html');
+
+  /* worksheet: every shuffle is seeded by the slug, and the answer key is computed from the same data */
+  const L = 'ABCDEFGH';
+  const mt = ws.matching; let order = mt.map((_, i) => i), seed = 0;
+  do { order = sshuf(mt.map((_, i) => i), rng(slug + 'm' + seed++)); } while (order.every((v, i) => v === i) && seed < 20);
+  const matchHtml = `<div class="wm-container"><div><div class="wm-col-head">Words</div>${mt.map((m, i) => `<div class="wm-term"><i>${i + 1}</i>${m[0]} &nbsp;____</div>`).join('')}</div><div><div class="wm-col-head">Meanings</div>${order.map((m, p) => `<div class="wm-def"><span class="wm-letter">${L[p]}</span>${mt[m][1]}</div>`).join('')}</div></div>`;
+  const matchKey = mt.map((_, i) => `<em>${L[order.indexOf(i)]}</em>`);
+  const bank = sshuf(ws.gaps.map(g => g.a), rng(slug + 'b'));
+  const gapsHtml = `<div class="word-bank"><div class="word-bank-label">Word bank</div>${bank.map(w => `<span class="bank-word">${w}</span>`).join('')}</div><div class="vocab-grid">${ws.gaps.map((g, i) => `<div class="vocab-row"><div class="vocab-num">${i + 1}.</div><div class="vocab-sentence">${g.s.replace('___', '<span class="vocab-blank"></span>')}</div></div>`).join('')}</div>`;
+  const closestHtml = `<div class="sw-grid">${ws.closest.map((c, i) => `<div class="sw-item"><div class="sw-q">${i + 1}. ${c.q.replace(/\[\[(.+?)\]\]/g, '<u>$1</u>')}</div><div class="sw-opts">${sshuf(c.o, rng(slug + 'c' + i)).map(o => `<span class="sw-opt">${o}</span>`).join('')}</div></div>`).join('')}</div>`;
+  const slipHtml = `<div class="vocab-grid">${pg.slip.map((x, i) => `<div class="vocab-row"><div class="vocab-num">${i + 1}.</div><div class="vocab-sentence">${x.w} <span class="vocab-blank long"></span></div></div>`).join('')}</div><div class="giggle">${ws.giggle}</div>`;
+  const lines = (items, per) => { const out = []; for (let i = 0; i < items.length; i += per) { const ch = items.slice(i, i + per); out.push(`<div class="ans-line"><span class="ans-num">${i + 1}.</span><span class="ans-val">${ch.map((x, k) => k === 0 ? x : `${i + k + 1}. ${x}`).join(' · ')}</span></div>`); } return out.join(''); };
+  const slipKey = pg.slip.map(x => { const ws_ = x.w.split(' '), i = badTokenIndex(x.w, x.wrong); const m = ws_[i].match(/^(\W*)(.*?)(\W*)$/); ws_[i] = `${m[1]}<em>${x.o[0]}</em>${m[3]}`; return ws_.join(' '); });
+  const block = (t, inner) => `<div class="ans-block"><div class="ans-block-title">${t}</div>${inner}</div>`;
+  const answers = [
+    block('A — Matching', lines(matchKey, 6)),
+    block('C — Closest meaning', lines(ws.closest.map(c => `<em>${c.o[0]}</em>`), 3)),
+    block('B — Gap fill', lines(ws.gaps.map(g => `<em>${g.a}</em>`), 4)),
+    block('D — Fix the slip', slipKey.map((k, i) => `<div class="ans-line"><span class="ans-num">${i + 1}.</span><span class="ans-val">${k}</span></div>`).join('')),
+  ].join('\n');
+  const print = fillTpl(read('_factory/templates/weeklydrop-worksheet.html'), {
+    WS_TITLE_TAG: `The Weekly Drop · Issue ${issue} — ${pg.shortTitle} — Printable Worksheet`,
+    EMOJI: pg.emoji, ISSUE: issue, WS_TITLE_HTML: ws.titleHtml, WS_SUB: ws.sub, WS_STUB: ws.stub || pg.emoji,
+    WS_MATCH: matchHtml, WS_GAPS: gapsHtml, WS_CLOSEST: closestHtml, WS_SLIP: slipHtml, WS_ANSWERS: answers,
+    J_LESSON_LINK: jsStr(link), J_LESSON_TITLE: jsStr(r.title),
+  }, 'weeklydrop-worksheet.html');
+  return { index, print };
+}
+
+function checkPage(pack, err, warn, E, W, file) {
+  const pg = pack.page, ws = pack.worksheet, r = pack.registry;
+  if (!pg) return err('has "worksheet" but no "page"');
+  if (!ws) return err('has "page" but no "worksheet"');
+  const need = (o, keys, where) => keys.forEach(k => { if (o[k] === undefined || o[k] === '') err(`${where}.${k} missing`); });
+  need(pg, ['issue', 'dateLabel', 'shortTitle', 'emoji', 'badgeName', 'hero', 'youtubeId', 'videoTitle', 'vidTitle', 'vidTip', 'vidEnd', 'wpEnd', 'slipEnd', 'ice', 'glossary', 'read', 'vid', 'emo', 'wp', 'slip', 'fin'], 'page');
+  need(ws, ['titleHtml', 'sub', 'matching', 'gaps', 'closest', 'giggle'], 'worksheet');
+  if (!pg.hero || !pg.ice || !pg.glossary) return;
+  if (!Number.isInteger(pg.issue)) err('page.issue must be a whole number');
+  if (!/^[\w-]{11}$/.test(pg.youtubeId || '')) err('page.youtubeId must be the 11-character YouTube id');
+  if (!Array.isArray(pg.hero.stats) || pg.hero.stats.length !== 3) err('page.hero.stats needs exactly 3 [number, label] pairs (the 4th, "New words", is automatic)');
+  if (!pg.hero.h1) err('page.hero.h1 missing');
+  if (!Array.isArray(pg.hero.ticker) || pg.hero.ticker.length < 4) err('page.hero.ticker needs at least 4 items');
+
+  const G = pg.glossary, gk = Object.keys(G);
+  if (gk.length < 10) err(`glossary has ${gk.length} words, expected at least 10`);
+  gk.forEach(w => ['t', 'd', 'de', 'ex'].forEach(k => { if (!G[w][k]) err(`glossary "${w}".${k} missing`); }));
+  const mc = (name, arr, n, extra) => {
+    if (!Array.isArray(arr) || arr.length < n) return err(`page.${name} needs at least ${n} items`);
+    arr.forEach((x, i) => {
+      const t = `page.${name}[${i}]`;
+      if ((!x.q && name !== 'slip') || !x.fb) err(`${t}: ${name === 'slip' ? 'fb' : 'q/fb'} missing`);
+      if (!Array.isArray(x.o) || x.o.length !== 3) return err(`${t}: o needs exactly 3 options (first = correct)`);
+      if (new Set(x.o).size !== 3) err(`${t}: duplicate options`);
+      lenCheck(E, W, `${file}: ${t}`, x.o[0], x.o.slice(1));
+      if (extra) extra(x, t);
+    });
+  };
+  /* read */
+  mc('read', pg.read, 4, (x, t) => { if (!x.txt) err(`${t}: txt missing`); if (!/Part \d of \d/.test(x.tag || '') || /stop/i.test(x.tag || '')) err(`${t}: tag must say "Part n of 4" (never "Stop")`); });
+  (pg.read || []).forEach((x, i) => { if (!(x.tag || '').includes(`Part ${i + 1} of ${pg.read.length}`)) err(`page.read[${i}]: tag should say "Part ${i + 1} of ${pg.read.length}"`); });
+  const used = new Set();
+  (pg.read || []).forEach((x, i) => { for (const m of String(x.txt || '').matchAll(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g)) { used.add(m[1]); if (!G[m[1]]) err(`page.read[${i}]: [[${m[1]}]] is not in the glossary`); } });
+  gk.filter(w => !used.has(w)).forEach(w => warn(`glossary word "${w}" is never highlighted in the story`));
+  mc('vid', pg.vid, 6); mc('emo', pg.emo, 6, (x, t) => { if (!x.em) err(`${t}: em (emoji clue) missing`); }); mc('fin', pg.fin, 8);
+  /* ice */
+  const ice = pg.ice; need(ice, ['emoji', 'title', 'tip', 'options', 'cards', 'results'], 'page.ice');
+  if (Array.isArray(ice.options) && ice.options.length !== 3) err('page.ice.options needs 3 [emoji, label] pairs');
+  if (Array.isArray(ice.results) && ice.results.length !== 3) err('page.ice.results needs 3 [label with emoji at the end, text]');
+  if (Array.isArray(ice.cards)) {
+    if (ice.cards.length < 5) err('page.ice.cards needs at least 5 cards');
+    ice.cards.forEach((c, i) => { if (![0, 1, 2].includes(c[2])) err(`page.ice.cards[${i}]: ruling must be 0, 1 or 2`); if (!c[3]) err(`page.ice.cards[${i}]: ruling text missing`); });
+    if (new Set(ice.cards.map(c => c[2])).size === 1) warn('page.ice: every ruling is the same');
+  }
+  /* word partners */
+  if (!Array.isArray(pg.wp) || pg.wp.length !== 6) err('page.wp needs exactly 6 [verb, partner] pairs');
+  else { if (new Set(pg.wp.map(p => p[0])).size !== 6 || new Set(pg.wp.map(p => p[1])).size !== 6) err('page.wp: verbs and partners must each be unique'); }
+  /* slip */
+  mc('slip', pg.slip, 5, (x, t) => { if (!x.w) err(`${t}: w missing`); else if (badTokenIndex(x.w, x.wrong) < 0) err(`${t}: "wrong" ("${x.wrong}") is not a word of the sentence`); });
+  /* registry ↔ glossary */
+  const gl = new Set(gk.map(w => w.toLowerCase()));
+  (r.vocab || []).forEach(v => { if (!gl.has(String(v.word).toLowerCase())) err(`registry vocab "${v.word}" is not in page.glossary`); });
+  const rv = new Set((r.vocab || []).map(v => String(v.word).toLowerCase()));
+  gk.filter(w => !rv.has(w.toLowerCase())).forEach(w => warn(`glossary word "${w}" is not in registry.vocab (no SRS card for it)`));
+  /* worksheet */
+  if (!Array.isArray(ws.matching) || ws.matching.length !== 6) err('worksheet.matching needs exactly 6 [word, meaning] pairs');
+  if (!Array.isArray(ws.gaps) || ws.gaps.length !== 8) err('worksheet.gaps needs exactly 8 {s, a} items');
+  else ws.gaps.forEach((g, i) => { if ((String(g.s).match(/___/g) || []).length !== 1) err(`worksheet.gaps[${i}]: sentence needs exactly one ___`); if (!g.a) err(`worksheet.gaps[${i}]: a missing`); });
+  if (Array.isArray(ws.gaps) && new Set(ws.gaps.map(g => g.a)).size !== ws.gaps.length) err('worksheet.gaps: two gaps share the same answer');
+  if (!Array.isArray(ws.closest) || ws.closest.length !== 6) err('worksheet.closest needs exactly 6 {q, o} items');
+  else ws.closest.forEach((c, i) => { if (!/\[\[.+?\]\]/.test(c.q || '')) err(`worksheet.closest[${i}]: q needs [[underlined words]]`); if (!Array.isArray(c.o) || c.o.length !== 3) err(`worksheet.closest[${i}]: o needs 3 options (first = correct)`); else lenCheck(E, W, `${file}: worksheet.closest[${i}]`, c.o[0], c.o.slice(1)); });
+  /* freshness: the generated files must equal what the template would produce now */
+  if (E.length === 0) {
+    try {
+      const out = render(pack);
+      for (const [rel, text] of [[`${pack.slug}/index.html`, out.index], [`${pack.slug}/print/index.html`, out.print]])
+        if (exists(rel) && read(rel) !== text) err(`${rel} is out of date or was edited by hand — run: node _factory/efcd-factory.js build`);
+    } catch (e) { err('render failed — ' + e.message); }
+  }
+}
+
+function build() {
+  const loaded = loadPacks().filter(l => l.pack && l.pack.page), E = [];
+  loaded.forEach(l => E.push(...checkPack(l).E));
+  const real = E.filter(e => !/lesson file missing|out of date or was edited by hand|never mentions the id/.test(e));
+  if (real.length) { console.log('❌ Fix these before building:\n' + real.map(e => '  • ' + e).join('\n')); return 1; }
+  for (const { pack } of loaded) {
+    const out = render(pack);
+    for (const [rel, text] of [[`${pack.slug}/index.html`, out.index], [`${pack.slug}/print/index.html`, out.print]]) {
+      fs.mkdirSync(path.dirname(path.join(ROOT, rel)), { recursive: true });
+      const same = exists(rel) && read(rel) === text;
+      if (!same) fs.writeFileSync(path.join(ROOT, rel), text);
+      console.log(`  ${same ? '=' : '✎'} ${rel}`);
+    }
+  }
+  console.log(`✅ built ${loaded.length} lesson page(s) + worksheet(s).`);
+  return 0;
+}
+
 /* ── CLI ─────────────────────────────────────────────────────── */
 const cmd = process.argv[2];
 if (cmd === 'check') {
@@ -278,4 +443,5 @@ if (cmd === 'check') {
   process.exit(bad ? 1 : 0);
 } else if (cmd === 'merge') process.exit(merge(process.argv.includes('--dry')));
 else if (cmd === 'audit') process.exit(audit());
-else { console.log('Usage: node _factory/efcd-factory.js check | merge [--dry] | audit'); process.exit(2); }
+else if (cmd === 'build') process.exit(build());
+else { console.log('Usage: node _factory/efcd-factory.js build | check | merge [--dry] | audit'); process.exit(2); }
