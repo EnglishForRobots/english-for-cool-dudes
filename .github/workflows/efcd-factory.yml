@@ -1,0 +1,63 @@
+name: EFCD Factory
+
+# Manual only: you press "Run workflow" on the Actions tab. Nothing here ever edits your site.
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: "What should the factory do?"
+        type: choice
+        default: audit
+        options:
+          - audit            # look for ID mismatches in your hand-written files
+          - check-packs      # test every pack in _factory/packs/
+          - preview-example  # rebuild one pack into a downloadable preview
+      pack:
+        description: "Pack file for preview-example"
+        default: _factory/examples/weekly-drop-issue-024.json
+
+permissions:
+  contents: read
+
+jobs:
+  factory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Audit
+        if: inputs.task == 'audit'
+        run: |
+          node _factory/efcd-factory.js audit | tee audit.txt
+          { echo '### Audit'; echo '```'; cat audit.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Check packs
+        if: inputs.task == 'check-packs'
+        run: |
+          set +e
+          node _factory/efcd-factory.js check | tee check.txt
+          code=${PIPESTATUS[0]}
+          { echo '### Pack check'; echo '```'; cat check.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          exit $code
+
+      - name: Preview example pack
+        if: inputs.task == 'preview-example'
+        env:
+          PACK: ${{ inputs.pack }}
+        run: |
+          set +e
+          node _factory/efcd-factory.js check --file "$PACK" | tee check.txt
+          code=${PIPESTATUS[0]}
+          { echo '### Pack check'; echo '```'; cat check.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          [ $code -eq 0 ] || exit $code
+          node _factory/efcd-factory.js build --file "$PACK" --out preview --base https://www.englishforcooldudes.com/
+
+      - name: Upload preview
+        if: inputs.task == 'preview-example'
+        uses: actions/upload-artifact@v4
+        with:
+          name: lesson-preview
+          path: preview
