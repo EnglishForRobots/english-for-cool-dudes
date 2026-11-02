@@ -337,7 +337,10 @@ function render(pack) {
   const matchKey = mt.map((_, i) => `<em>${L[order.indexOf(i)]}</em>`);
   const bank = sshuf(ws.gaps.map(g => g.a), rng(slug + 'b'));
   const gapsHtml = `<div class="word-bank"><div class="word-bank-label">Word bank</div>${bank.map(w => `<span class="bank-word">${w}</span>`).join('')}</div><div class="vocab-grid">${ws.gaps.map((g, i) => `<div class="vocab-row"><div class="vocab-num">${i + 1}.</div><div class="vocab-sentence">${g.s.replace('___', '<span class="vocab-blank"></span>')}</div></div>`).join('')}</div>`;
-  const closestHtml = `<div class="sw-grid">${ws.closest.map((c, i) => `<div class="sw-item"><div class="sw-q">${i + 1}. ${c.q.replace(/\[\[(.+?)\]\]/g, '<u>$1</u>')}</div><div class="sw-opts">${sshuf(c.o, rng(slug + 'c' + i)).map(o => `<span class="sw-opt">${o}</span>`).join('')}</div></div>`).join('')}</div>`;
+  /* correct answers are spread evenly over A/B/C (each position used equally often, in a seeded random order) */
+  const cpos = sshuf(ws.closest.map((_, i) => i % 3), rng(slug + 'p'));
+  const closestOpts = ws.closest.map((c, i) => { const rest = sshuf(c.o.slice(1), rng(slug + 'c' + i)); rest.splice(cpos[i], 0, c.o[0]); return rest; });
+  const closestHtml = `<div class="sw-grid">${ws.closest.map((c, i) => `<div class="sw-item"><div class="sw-q">${i + 1}. ${c.q.replace(/\[\[(.+?)\]\]/g, '<u>$1</u>')}</div><div class="sw-opts">${closestOpts[i].map(o => `<span class="sw-opt">${o}</span>`).join('')}</div></div>`).join('')}</div>`;
   const slipHtml = `<div class="vocab-grid">${pg.slip.map((x, i) => `<div class="vocab-row"><div class="vocab-num">${i + 1}.</div><div class="vocab-sentence">${x.w} <span class="vocab-blank long"></span></div></div>`).join('')}</div><div class="giggle">${ws.giggle}</div>`;
   const lines = (items, per) => { const out = []; for (let i = 0; i < items.length; i += per) { const ch = items.slice(i, i + per); out.push(`<div class="ans-line"><span class="ans-num">${i + 1}.</span><span class="ans-val">${ch.map((x, k) => k === 0 ? x : `${i + k + 1}. ${x}`).join(' · ')}</span></div>`); } return out.join(''); };
   const slipKey = pg.slip.map(x => { const ws_ = x.w.split(' '), i = badTokenIndex(x.w, x.wrong); const m = ws_[i].match(/^(\W*)(.*?)(\W*)$/); ws_[i] = `${m[1]}<em>${x.o[0]}</em>${m[3]}`; return ws_.join(' '); });
@@ -400,6 +403,8 @@ function checkPage(pack, err, warn, E, W, file) {
     if (ice.cards.length < 5) err('page.ice.cards needs at least 5 cards');
     ice.cards.forEach((c, i) => { if (![0, 1, 2].includes(c[2])) err(`page.ice.cards[${i}]: ruling must be 0, 1 or 2`); if (!c[3]) err(`page.ice.cards[${i}]: ruling text missing`); });
     if (new Set(ice.cards.map(c => c[2])).size === 1) warn('page.ice: every ruling is the same');
+    const cnt = [0, 1, 2].map(k => ice.cards.filter(c => c[2] === k).length), top = Math.max(...cnt);
+    if (top / ice.cards.length > 0.4) warn(`page.ice: one button is the answer for ${top} of ${ice.cards.length} cards (${cnt.join('/')} for buttons 1/2/3). The buttons stay in a fixed order, so players may spot the pattern — balance the rulings`);
   }
   /* word partners */
   if (!Array.isArray(pg.wp) || pg.wp.length !== 6) err('page.wp needs exactly 6 [verb, partner] pairs');
