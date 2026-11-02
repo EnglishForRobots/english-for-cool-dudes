@@ -7,6 +7,7 @@
         extra options:  --file <pack.json>  test one pack anywhere (touches nothing real)
                         --out <folder>      write the pages there instead of the real site
                         --base <url>        add <base href> so a downloaded preview loads the live site's scripts
+                        --noindex           tell search engines to ignore the generated pages (previews)
      node _factory/efcd-factory.js check    → test every pack in _factory/packs/
      node _factory/efcd-factory.js merge    → write packs into the shared files
      node _factory/efcd-factory.js audit    → look for ID mismatches in the
@@ -437,7 +438,8 @@ function build() {
   for (const { pack } of loaded) {
     const out = render(pack);
     for (const [rel, text0] of [[`${pack.slug}/index.html`, out.index], [`${pack.slug}/print/index.html`, out.print]]) {
-      const text = base ? text0.replace('<head>', `<head>\n<base href="${base}">`) : text0;
+      let text = base ? text0.replace('<head>', `<head>\n<base href="${base}">`) : text0;
+      if (ARGS.includes('--noindex')) text = text.replace('<head>', '<head>\n<meta name="robots" content="noindex,nofollow">');
       const dest = path.join(outDir, rel);
       fs.mkdirSync(path.dirname(dest), { recursive: true });
       const same = fs.existsSync(dest) && fs.readFileSync(dest, 'utf8') === text;
