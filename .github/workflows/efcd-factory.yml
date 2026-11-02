@@ -1,6 +1,8 @@
 name: EFCD Factory
 
-# Manual only: you press "Run workflow" on the Actions tab. Nothing here ever edits your site.
+# Manual only: you press "Run workflow" on the Actions tab.
+# audit / check-packs / preview-example never change your site.
+# publish-preview / remove-preview only add or delete the folder zz-preview/.
 on:
   workflow_dispatch:
     inputs:
@@ -11,13 +13,15 @@ on:
         options:
           - audit            # look for ID mismatches in your hand-written files
           - check-packs      # test every pack in _factory/packs/
-          - preview-example  # rebuild one pack into a downloadable preview
+          - preview-example  # rebuild one pack into a downloadable zip
+          - publish-preview  # rebuild one pack into zz-preview/ so you can open it on your own site
+          - remove-preview   # delete zz-preview/ again
       pack:
-        description: "Pack file for preview-example"
+        description: "Pack file for the preview tasks"
         default: _factory/examples/weekly-drop-issue-024.json
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   factory:
@@ -43,7 +47,7 @@ jobs:
           { echo '### Pack check'; echo '```'; cat check.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
           exit $code
 
-      - name: Preview example pack
+      - name: Preview as zip
         if: inputs.task == 'preview-example'
         env:
           PACK: ${{ inputs.pack }}
@@ -55,9 +59,38 @@ jobs:
           [ $code -eq 0 ] || exit $code
           node _factory/efcd-factory.js build --file "$PACK" --out preview --base https://www.englishforcooldudes.com/
 
-      - name: Upload preview
+      - name: Upload zip
         if: inputs.task == 'preview-example'
         uses: actions/upload-artifact@v4
         with:
           name: lesson-preview
           path: preview
+
+      - name: Publish preview to zz-preview/
+        if: inputs.task == 'publish-preview'
+        env:
+          PACK: ${{ inputs.pack }}
+        run: |
+          set +e
+          node _factory/efcd-factory.js check --file "$PACK" | tee check.txt
+          code=${PIPESTATUS[0]}
+          { echo '### Pack check'; echo '```'; cat check.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          [ $code -eq 0 ] || exit $code
+          set -e
+          node _factory/efcd-factory.js build --file "$PACK" --out zz-preview --noindex
+          git config user.name "efcd-factory"
+          git config user.email "efcd-factory@users.noreply.github.com"
+          git add zz-preview
+          git diff --cached --quiet || git commit -m "Factory: publish preview"
+          git push
+          slug=$(ls zz-preview | head -1)
+          { echo '### Preview is publishing'; echo "In 1-3 minutes open: https://www.englishforcooldudes.com/zz-preview/$slug/"; echo "Worksheet: https://www.englishforcooldudes.com/zz-preview/$slug/print/"; } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove preview
+        if: inputs.task == 'remove-preview'
+        run: |
+          git config user.name "efcd-factory"
+          git config user.email "efcd-factory@users.noreply.github.com"
+          git rm -r --ignore-unmatch zz-preview
+          git diff --cached --quiet || git commit -m "Factory: remove preview"
+          git push
