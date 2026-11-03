@@ -759,7 +759,7 @@
       ],
     },
 
-     'ichigo-ichie-once-in-a-lifetime': {
+     'ichigo-ichie-once-in-a-lifetime-advanced': {
       title:   'Ichigo Ichie — The Japanese Secret to Being Calmer and Happier',
       level:   'Advanced',
       grammar: 'Passive Voice in ritual/process description; Despite vs Even though for contrast',
