@@ -4468,8 +4468,8 @@ const LESSON_DATA_REGISTRY = {
 },
 
    
-   'ichigo-ichie-once-in-a-lifetime-a2': {
-    id:    'ichigo-ichie-once-in-a-lifetime-a2',
+   'ichigo-ichie-once-in-a-lifetime-beginner': {
+    id:    'ichigo-ichie-once-in-a-lifetime-beginner',
     title: 'Ichigo Ichie: One Time, One Meeting',
     level: 'Beginner',
     track: 'beginner',
