@@ -281,6 +281,10 @@ function audit() {
     CLASS.filter(([s, id]) => { const hit = L2I.find(([l]) => l === `/${s}/`); return hit && hit[1] !== id; })
       .map(([s, id]) => `'${s}': level-page says ${id}, my-lessons says ${L2I.find(([l]) => l === `/${s}/`)[1]}`));
   sec('level-page: slug looks malformed (slashes/spaces)', CLASS.filter(([s]) => /[\/\s]/.test(s)).map(([s]) => s));
+  const wsLinks = [...blockOf(ad, /const\s+LESSON_META\s*=\s*\{/).matchAll(/^\s*['"]([^'"]+)['"]\s*:\s*\{[^\n]*?worksheetLink\s*:\s*['"]([^'"]+)['"]/gm)].map(m => [m[1], m[2]]);
+  const folderOk = l => exists(l.replace(/^\//, '') + 'index.html');
+  sec('admin: worksheet link points to a folder that does not exist', wsLinks.filter(([, l]) => !folderOk(l)).map(([id, l]) => `${id} → ${l}`));
+  sec('my-lessons: lesson link points to a folder that does not exist', Object.entries(I2L).filter(([, l]) => !folderOk(l)).map(([id, l]) => `${id} → ${l}`));
   sec('lesson folder missing for a slug', CLASS.filter(([s]) => !exists(`${s}/index.html`)).map(([s]) => s));
   sec('in registry but not in lesson-completion-rewards.js', [...reg].filter(id => !RW.has(id)));
   sec('in lesson-completion-rewards.js but not in registry (often fine for older lessons)', [...RW].filter(id => !reg.has(id)));
