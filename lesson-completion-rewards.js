@@ -901,7 +901,7 @@
   ],
 },
 
-      'ichigo-ichie-once-in-a-lifetime-a2': {
+      'ichigo-ichie-once-in-a-lifetime-beginner': {
       title:   'Ichigo Ichie: One Time, One Meeting',
       level:   'Beginner',
       grammar: 'Used to — talking about repeated past actions; Present Simple — facts about places and customs',
