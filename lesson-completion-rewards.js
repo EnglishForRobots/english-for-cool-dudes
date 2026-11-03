@@ -555,7 +555,7 @@
       ],
     },
 
-     'the-office-is-back': {
+     'the-office-is-back-business': {
   title:   'The Office Is Back. Whether You Like It or Not.',
   level:   'Intermediate',
   grammar: 'Reported speech (backshifting); mixed conditionals; inversion after negative adverbials; passive infinitive',
@@ -571,7 +571,7 @@
   ],
 },
 
-     'hastings-1066': {
+     'hastings-1066-intermediate': {
   title:   '1066 — The Day England Changed Forever',
   level:   'Intermediate',
   grammar: 'Past Simple (regular & irregular verbs); Passive Voice — past passive in historical narrative',
