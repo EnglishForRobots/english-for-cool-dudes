@@ -1355,6 +1355,30 @@
       ],
     },
 
+                 'weekly-drop-issue-026': {
+      title:   'The Weekly Drop - Issue 026 - Where Did My Money Go?',
+      level:   'All Levels',
+      grammar: 'Possessive pronouns (mine, yours, hers, ours, theirs); spend ON, uncountable information, the -s ending',
+      vocab: [
+        { word:'transaction',      definition:'One payment or one money move on your account.' },
+        { word:'balance',          definition:'The amount of money in your account right now.' },
+        { word:'read-only',        definition:'You can look, but you cannot change anything.' },
+        { word:'duplicate charge', definition:'The same payment leaves your account twice.' },
+        { word:'fee',              definition:'A small payment to a bank or a company for a service.' },
+        { word:'APR',              definition:'The yearly cost of a loan, shown as a percentage.' },
+        { word:'interest',         definition:'Money you pay for a loan, or earn on savings.' },
+        { word:'credit limit',     definition:'The top amount a card lets you spend.' },
+        { word:'subscription',     definition:'A payment every month or year for a service.' },
+        { word:'overdraft',        definition:'The bank lets you spend below zero.' },
+        { word:'bill',             definition:'A note asking you to pay for something.' },
+        { word:'income',           definition:'The money you earn or receive.' },
+        { word:'expenses',         definition:'The money you spend on things.' },
+        { word:'in the red',       definition:'Your account is below zero.' },
+        { word:'make ends meet',   definition:'Have just enough money to pay for your life.' },
+        { word:'afford',           definition:'Have enough money to buy something.' },
+      ],
+    },
+
   };
 /* EFCD-AUTO-START */
 /* EFCD-AUTO-END */
