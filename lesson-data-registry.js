@@ -6207,7 +6207,7 @@ const LESSON_DATA_REGISTRY = {
     { words:['Ranchers','used','to','sell','calves','every','fall'],   answer:'Ranchers used to sell calves every fall',   hint:'🐄 About the old habit...' },
     { words:['Kansas','didn’t','use','to','be','a','toss-up'],         answer:'Kansas didn’t use to be a toss-up',         hint:'🗳️ About the Senate race...' },
     { words:['Prices','took','a','nosedive','in','August'],            answer:'Prices took a nosedive in August',          hint:'📉 About the auction...' },
-    { words:['Shoppers','saved','only','thirteen','cents','per','pound'], answer:'Shoppers saved only thirteen cents per pound', hint:'🛒 About the shops...' },
+    { words:['Shoppers','saved','only','thirteen','cents','per','pound'], answer:'Shoppers saved only thirteen cents per pound', altAnswers:['Shoppers only saved thirteen cents per pound'], hint:'🛒 About the shops...' },
   ],
 
   word_builder: [
