@@ -6231,6 +6231,85 @@ const LESSON_DATA_REGISTRY = {
   ],
 
 },
+
+    'weekly-drop-issue-026': {
+
+  id:    'weekly-drop-issue-026',
+  title: 'The Weekly Drop - Issue 026 - Where Did My Money Go?',
+  level: 'All Levels',
+  track: 'weeklydrop',
+  emoji: '👛',
+  badge: 'Wallet Wizard - Issue 026',
+
+  vocab: [
+    { word:'transaction',    definition:'One payment or one money move on your account.',        example:'Claude sorts each ___ into a category.',                distractors:['balance','income','bill'] },
+    { word:'balance',        definition:'The amount of money in your account right now.',        example:'I check my ___ every Friday.',                          distractors:['expenses','interest','fee'] },
+    { word:'read-only',      definition:'You can look, but you cannot change anything.',         example:'The access is ___: Claude cannot move your money.',     distractors:['overdraft','in the red','afford'] },
+    { word:'duplicate charge', definition:'The same payment leaves your account twice.',         example:'I found a ___ ___ on my card.',                         distractors:['credit limit','subscription','overdraft'] },
+    { word:'fee',            definition:'A small payment to a bank or company for a service.',   example:'The bank adds a ___ for each transfer.',                distractors:['bill','income','balance'] },
+    { word:'APR',            definition:'The yearly cost of a loan, shown as a percentage.',     example:'The ___ on this credit card is 19%.',                   distractors:['fee','balance','income'] },
+    { word:'interest',       definition:'Money you pay for a loan, or earn on savings.',         example:'The ___ on the loan adds up every month.',              distractors:['income','expenses','fee'] },
+    { word:'credit limit',   definition:'The top amount a card lets you spend.',                 example:'My ___ ___ is 2,000 euros.',                            distractors:['overdraft','balance','APR'] },
+    { word:'subscription',   definition:'A payment every month or year for a service.',          example:'I cancelled my music ___.',                             distractors:['transaction','bill','fee'] },
+    { word:'overdraft',      definition:'The bank lets you spend below zero.',                   example:'She is using her ___ again this month.',                distractors:['credit limit','income','subscription'] },
+    { word:'bill',           definition:'A note asking you to pay for something.',               example:'The phone ___ arrives on Monday.',                      distractors:['fee','transaction','balance'] },
+    { word:'income',         definition:'The money you earn or receive.',                        example:'Her ___ is steady, so she can plan ahead.',             distractors:['expenses','interest','balance'] },
+    { word:'expenses',       definition:'The money you spend on things.',                        example:'Rent is my biggest monthly ___.',                       distractors:['income','interest','fees'] },
+    { word:'in the red',     definition:'Your account is below zero.',                           example:'After the holiday, my account was ___ ___ ___.',        distractors:['make ends meet','read-only','in tune with'] },
+    { word:'make ends meet', definition:'Have just enough money to pay for your life.',          example:'Many families struggle to ___ ___ ___.',                distractors:['in the red','afford','break even'] },
+    { word:'afford',         definition:'Have enough money to buy something.',                   example:'I cannot ___ a new phone right now.',                   distractors:['offer','earn','spend'] },
+  ],
+
+  grammar: {
+    topic: 'Possessive pronouns (mine, yours, hers, ours, theirs)',
+    rule:  'When no noun follows, use the pronoun: mine, yours, his, hers, ours, theirs. Never add an apostrophe: "yours", not "your\'s". Only "it\'s" (= it is) has one.',
+    exercises: [
+      { sentence:'This card is mine and that one is ___.',                  answer:'yours',  wrong:['your','you','yourself'],      explain:'No noun after it, so we use "yours". No apostrophe!' },
+      { sentence:'My bank is in Berlin and ___ is in Vienna.',              answer:'theirs', wrong:['their','they','theirselves'], explain:'"Theirs" replaces "their bank".' },
+      { sentence:'I pay my bills and my sister pays ___.',                  answer:'hers',   wrong:['her','she','herself'],        explain:'"Hers" = her bills. No noun, so no "her".' },
+      { sentence:'Their flat is big, but ___ is tiny.',                     answer:'ours',   wrong:['our','we','ourselves'],       explain:'"Ours" = our flat. Never "our\'s".' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Money verbs: spend ON, uncountable information, the -s ending',
+    rule:  'Say "spend money ON something". "Information" is uncountable: no plural, no "an". With he / she / it, the present simple verb takes -s: "the bill rises", "she checks".',
+    exercises: [
+      { sentence:'I spent too much money ___ coffee.',                      answer:'on',          wrong:['for','at','by'],                         explain:'spend money ON something.' },
+      { sentence:'The bank gave me useful ___.',                            answer:'information', wrong:['informations','an information','informative'], explain:'"Information" is uncountable. No plural!' },
+      { sentence:'The price of coffee ___ up every week.',                  answer:'goes',        wrong:['go','going','gone'],                     explain:'"The price" = it, so the verb takes -s.' },
+      { sentence:'She ___ her balance every Friday.',                       answer:'checks',      wrong:['check','checking','have checked'],       explain:'she + present simple = verb + s.' },
+    ],
+  },
+
+  sentences: [
+    { words:['Claude','cannot','move','a','single','cent'],                          answer:'Claude cannot move a single cent',              hint:'🔒 About read-only access...' },
+    { words:['Cancel','the','subscription','you','never','use'],                     answer:'Cancel the subscription you never use',         hint:'📺 About a money leak...' },
+    { words:['Claude','spots','a','duplicate','charge','on','your','card'],          answer:'Claude spots a duplicate charge on your card',  hint:'🧾 About a red flag...' },
+    { words:['Her','bills','are','high','but','mine','are','low'],                   answer:'Her bills are high but mine are low',           hint:'👛 About two wallets...' },
+  ],
+
+  word_builder: [
+    { word:'balance',   definition:'The money in your account now' },
+    { word:'income',    definition:'Money you earn or receive' },
+    { word:'expenses',  definition:'Money you spend' },
+    { word:'interest',  definition:'The cost of a loan (Zinsen)' },
+    { word:'afford',    definition:'Have enough money to buy it' },
+    { word:'overdraft', definition:'Spending below zero' },
+  ],
+
+  true_false: [
+    { statement:'Claude can move money between your accounts.',                              correct:false, reveal:'❌ FALSE! The access is read-only. Claude cannot move, manage or invest your money.' },
+    { statement:'Claude sees the last four digits of your account number.',                  correct:true,  reveal:'✅ TRUE! Never the full number or your PIN.' },
+    { statement:'Claude can look at up to two years of transactions.',                       correct:true,  reveal:'✅ TRUE! Two years of transactions, plus balances and credit limits.' },
+    { statement:'"Interest" on a loan means the same as German "Interesse".',               correct:false, reveal:'❌ FALSE! In banking, interest = Zinsen. A false friend!' },
+    { statement:'A duplicate charge means the same payment is taken twice.',                 correct:true,  reveal:'✅ TRUE! Doppelte Abbuchung. Claude can spot it.' },
+    { statement:'Chats in the Personal Finance hub are used to train Claude.',               correct:false, reveal:'❌ FALSE! Chats in the hub do not train Claude models.' },
+    { statement:'The beta is open to all users worldwide.',                                  correct:false, reveal:'❌ FALSE! It starts in the US for Pro, Max and Ultra users.' },
+    { statement:'"Read-only" means you can look but you cannot change anything.',            correct:true,  reveal:'✅ TRUE! Nur lesend. Look, but do not touch.' },
+  ],
+
+},
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
