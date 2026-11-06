@@ -4,8 +4,9 @@ window.LEVEL_CONFIG = {
 };
 
 window.LESSONS = [
-    { slug:'weeklydrop025', icon:'🐄💸🗳️', badge:'Issue 025', badgeType:'new', title:'Why Kansas Ranchers Are Turning on Trump', desc:"A cattle auction, a price nosedive and a Senate race that is now a toss-up. Why are ranchers so angry?", mins:6, date:'2026-10-30', tags:['business','finance','politics'] },
-  { slug:'weeklydrop024', icon:'🤖🎥💼', badge:'Issue 024', badgeType:'new', title:'Are These Workers Training Robots to Replace Them?', desc:"A barber in Texas wears five cameras to teach robots his job. Is he helping the future, or training his own replacement?", mins:6, date:'2026-10-23', tags:['business','tech','future','jobs'] },
+    { slug:'weeklydrop026', icon:'👛🔒💳', badge:'Issue 026', badgeType:'new', title:'Where Did My Money Go?', desc:"Claude can now read your bank account, but it cannot move one cent. Meet Personal Finance.", mins:5, date:'2026-11-06', tags:['ai','finance','money','tech'] },
+    { slug:'weeklydrop025', icon:'🐄💸🗳️', badge:'Issue 025', badgeType:null, title:'Why Kansas Ranchers Are Turning on Trump', desc:"A cattle auction, a price nosedive and a Senate race that is now a toss-up. Why are ranchers so angry?", mins:6, date:'2026-10-30', tags:['business','finance','politics'] },
+  { slug:'weeklydrop024', icon:'🤖🎥💼', badge:'Issue 024', badgeType:null, title:'Are These Workers Training Robots to Replace Them?', desc:"A barber in Texas wears five cameras to teach robots his job. Is he helping the future, or training his own replacement?", mins:6, date:'2026-10-23', tags:['business','tech','future','jobs'] },
   { slug:'weeklydrop023', icon:'💶🏦🖨️', badge:'Issue 023', badgeType:null, title:'The German Town That Prints Its Own Money', desc:"A Bavarian town has its own banknotes that expire. Is it legal, and does it actually work?", mins:12, date:'2026-10-09', tags:['business','tax','finance','legal'] },
   { slug:'weeklydrop022', icon:'🟥⚽💰', badge:'Issue 022', badgeType:null, title:'Manchester City Guilty Guilty Guilty', desc:"The English Premier League finds Manchester City guilty of 114 out of 115 serious financial breaches.", mins:5, date:'2026-10-02', tags:['business','tax','finance','sport'] },
   { slug:'weeklydrop021', icon:'🧾🏛️', badge:'Issue 021', badgeType:null, title:'English Taxi Boss Faces £20m Tax Bill', desc:"John Griffin the boss of UK minicab firm Addison Lee said he was Irish. The court said No. Result - £20m.", mins:5, date:'2026-09-18', tags:['business','tax'] },
@@ -29,7 +30,7 @@ window.LESSONS = [
   { slug:'weeklydrop003', icon:'✂️🍫', badge:'Issue 003', badgeType:null, title:'Shrinkflation — Why Chocolate Is Getting Smaller!', desc:"Your Easter egg shrank — but the price didn't. Welcome to shrinkflation.", mins:5, date:'2026-04-17', tags:['business'] },
   { slug:'weeklydrop002', icon:'📉', badge:'Issue 002', badgeType:null, title:"Germany's Insolvency Wave", desc:'24,064 companies filed for insolvency in Germany in 2025. Your clients may be suffering.', mins:5, date:'2026-03-26', tags:['business'] },
   { slug:'weeklydropoil', icon:'🛢️', badge:'Issue 001', badgeType:null, title:"Iran, Oil & Prof Jiang's Predictions", desc:"The Strait of Hormuz is blocked. Brent Crude hit $120. One professor saw it all coming. Can you crack the activities?", mins:5, date:'2026-03-16', tags:['business'] },
-  { slug:null, icon:'🔒', badge:null, badgeType:'soon', title:'Issue 026 — Coming Soon', desc:'A new issue drops every week — check back soon!', mins:null, date:null },
+  { slug:null, icon:'🔒', badge:null, badgeType:'soon', title:'Issue 027 — Coming Soon', desc:'A new issue drops every week — check back soon!', mins:null, date:null },
 ];
 /* EFCD-AUTO-START */
 /* EFCD-AUTO-END */
