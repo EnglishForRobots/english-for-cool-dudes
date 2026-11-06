@@ -233,6 +233,7 @@
      'weeklydrop023':  'weekly-drop-issue-023',
      'weeklydrop024':  'weekly-drop-issue-024',
      'weeklydrop025':  'weekly-drop-issue-025',
+     'weeklydrop026':  'weekly-drop-issue-026',
   };
 /* EFCD-AUTO-START */
 /* EFCD-AUTO-END */
