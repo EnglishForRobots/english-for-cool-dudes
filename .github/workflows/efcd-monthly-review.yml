@@ -1,0 +1,40 @@
+name: EFCD Monthly Review Reminder
+
+# On the 1st of every month this opens an issue reminding you to review the lesson templates.
+# You can also run it by hand: Actions, EFCD Monthly Review Reminder, Run workflow.
+on:
+  schedule:
+    - cron: '0 7 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Open the monthly review issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node _factory/efcd-factory.js coverage > coverage.txt || true
+          {
+            echo "Time for the monthly template review."
+            echo
+            echo "- [ ] Look at last month's lessons for each level (Advanced, Intermediate, Beginner, Tax, Weekly Drop). Anything you would change in the template?"
+            echo "- [ ] Check the grammar coverage below. Is any grammar area missing for a level?"
+            echo "- [ ] Any new activity idea you want to try, or one that should be retired?"
+            echo "- [ ] Tell Claude what to adjust, and it will update the templates."
+            echo
+            echo "### Grammar coverage this month"
+            echo '```'
+            cat coverage.txt
+            echo '```'
+          } > issue-body.md
+          gh issue create --title "Monthly template review $(date +%B\ %Y)" --body-file issue-body.md
