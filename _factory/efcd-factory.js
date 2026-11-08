@@ -10,6 +10,7 @@
                         --noindex           tell search engines to ignore the generated pages (previews)
      node _factory/efcd-factory.js check    → test every pack in _factory/packs/
      node _factory/efcd-factory.js merge    → write packs into the shared files
+     node _factory/efcd-factory.js coverage → which grammar areas each track taught recently
      node _factory/efcd-factory.js audit    → look for ID mismatches in the
                                               hand-written parts of the site
    Add --dry to merge to see what would change without writing anything.
@@ -186,6 +187,7 @@ function checkPack({ file, pack, parseError }) {
     if (arr.length > 2 && new Set(arr.map(x => x.correct)).size === 1) warn(`${key}: the correct answer is always option ${arr[0].correct}`);
   }
   if (pack.page || pack.worksheet) checkPage(pack, err, warn, E, W, file);
+  { const rw = repeatWarning(pack); if (rw) warn(rw); }
   return { E, W };
 }
 
@@ -460,6 +462,73 @@ function build() {
   return 0;
 }
 
+
+/* ═══ GRAMMAR COVERAGE: what has been taught recently, so lessons can vary ═══ */
+const FAMILIES = [
+  ['passive voice',            /passive/i],
+  ['conditionals',             /conditional/i],
+  ['reported speech',          /reported speech|backshift/i],
+  ['present perfect',          /present perfect/i],
+  ['past simple',              /past simple/i],
+  ['present simple',           /present simple|simple present/i],
+  ['present continuous',       /present continuous/i],
+  ['future forms',             /future/i],
+  ['modal verbs',              /modal|obligation|must\b|have to|might|could\b/i],
+  ['comparatives/superlatives',/comparative|superlative/i],
+  ['relative clauses',         /relative/i],
+  ['countable/uncountable',    /countable|much\s*\/\s*many|fewer/i],
+  ['prepositions',             /preposition|in \/ on \/ at|\bsince\b/i],
+  ['contrast connectors',      /despite|although|even though|contrast/i],
+  ['used to / wish / so-such', /used to|\bwish\b|so vs such|so\/such/i],
+  ['inversion / formal',       /inversion|cleft|subjunctive/i],
+  ['agreement / there is-are', /agreement|there is|there are/i],
+];
+const familiesOf = t => FAMILIES.filter(([, re]) => re.test(t)).map(([n]) => n);
+
+function registryLessons() {
+  if (!exists(FILES.registry)) return [];
+  const ctx = { window: {}, module: { exports: {} }, console }; vm.createContext(ctx);
+  vm.runInContext(read(FILES.registry), ctx);
+  return Object.values(ctx.module.exports).map(l => ({
+    id: l.id, track: l.track || l.level || 'other',
+    topics: [l.grammar && l.grammar.topic, l.grammar2 && l.grammar2.topic].filter(Boolean),
+  }));
+}
+function allLessonsForCoverage() {
+  const hand = registryLessons(), ids = new Set(hand.map(l => l.id));
+  const packs = loadPacks().filter(l => l.pack && l.pack.registry && !ids.has(l.pack.registry.id)).map(({ pack }) => ({
+    id: pack.registry.id, track: pack.registry.track || pack.registry.level,
+    topics: [pack.registry.grammar && pack.registry.grammar.topic, pack.registry.grammar2 && pack.registry.grammar2.topic].filter(Boolean),
+  }));
+  return [...hand, ...packs];
+}
+function coverage() {
+  const lessons = allLessonsForCoverage().filter(l => l.topics.length);
+  const byTrack = {};
+  lessons.forEach(l => (byTrack[l.track] = byTrack[l.track] || []).push(l));
+  const WINDOW = 10, out = [];
+  for (const [track, ls] of Object.entries(byTrack)) {
+    const recent = ls.slice(-WINDOW), counts = {};
+    recent.forEach(l => new Set(l.topics.flatMap(familiesOf)).forEach(f => counts[f] = (counts[f] || 0) + 1));
+    const used = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    const unused = FAMILIES.map(([n]) => n).filter(n => !counts[n]);
+    out.push(`\n${track.toUpperCase()}  (last ${recent.length} lessons with a grammar section)\n  most used : ${used.slice(0, 5).map(([n, c]) => `${n} ×${c}`).join(', ') || '—'}\n  not used  : ${unused.join(', ') || '—'}\n  latest    : ${recent.slice(-3).map(l => l.id + ' [' + (l.topics.flatMap(familiesOf).join(', ') || 'other') + ']').join(' | ')}`);
+  }
+  console.log(out.length ? '📊 Grammar coverage by track' + out.join('\n') : 'No grammar data found.');
+  return 0;
+}
+/* warn when a new pack repeats a grammar family used in each of the previous two lessons of its track */
+function repeatWarning(pack) {
+  try {
+    const r = pack.registry, mine = new Set([r.grammar && r.grammar.topic, r.grammar2 && r.grammar2.topic].filter(Boolean).flatMap(familiesOf));
+    const track = r.track || r.level;
+    const prev = allLessonsForCoverage().filter(l => l.track === track && l.id !== r.id && l.topics.length).slice(-2);
+    if (prev.length < 2) return null;
+    const rep = [...mine].filter(f => prev.every(l => l.topics.flatMap(familiesOf).includes(f)));
+    return rep.length ? `grammar "${rep.join('", "')}" was also in each of the last two ${track} lessons (${prev.map(l => l.id).join(', ')}) — consider a different focus` : null;
+  } catch (e) { return null; }
+}
+
 /* ── CLI ─────────────────────────────────────────────────────── */
 const cmd = process.argv[2];
 if (cmd === 'check') {
@@ -471,4 +540,5 @@ if (cmd === 'check') {
 } else if (cmd === 'merge') process.exit(merge(process.argv.includes('--dry')));
 else if (cmd === 'audit') process.exit(audit());
 else if (cmd === 'build') process.exit(build());
-else { console.log('Usage: node _factory/efcd-factory.js build | check | merge [--dry] | audit'); process.exit(2); }
+else if (cmd === 'coverage') process.exit(coverage());
+else { console.log('Usage: node _factory/efcd-factory.js build | check | merge [--dry] | audit | coverage'); process.exit(2); }
