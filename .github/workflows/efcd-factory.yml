@@ -1,8 +1,9 @@
 name: EFCD Factory
 
 # Manual only: you press "Run workflow" on the Actions tab.
-# audit / check-packs / preview-example never change your site.
+# audit / check-packs / coverage / preview-example never change your site.
 # publish-preview / remove-preview only add or delete the folder zz-preview/.
+# propose builds every pack in _factory/packs/ and opens a pull request. Merging that pull request is what makes lessons live.
 on:
   workflow_dispatch:
     inputs:
@@ -16,12 +17,15 @@ on:
           - preview-example  # rebuild one pack into a downloadable zip
           - publish-preview  # rebuild one pack into zz-preview/ so you can open it on your own site
           - remove-preview   # delete zz-preview/ again
+          - coverage         # which grammar areas each track taught recently
+          - propose          # build all packs and open a pull request for you to review
       pack:
         description: "Pack file for the preview tasks"
         default: _factory/examples/weekly-drop-issue-024.json
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   factory:
@@ -94,3 +98,57 @@ jobs:
           git rm -r --ignore-unmatch zz-preview
           git diff --cached --quiet || git commit -m "Factory: remove preview"
           git push
+
+      - name: Grammar coverage
+        if: inputs.task == 'coverage'
+        run: |
+          node _factory/efcd-factory.js coverage | tee coverage.txt
+          { echo '### Grammar coverage'; echo '```'; cat coverage.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Propose lessons as a pull request
+        if: inputs.task == 'propose'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          T="$RUNNER_TEMP"
+          summary() { { echo "### $1"; echo '```'; cat "$2"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"; }
+          node _factory/efcd-factory.js build > "$T/build.txt" 2>&1; code=$?
+          cat "$T/build.txt"
+          if [ $code -ne 0 ]; then summary "Build failed, nothing proposed" "$T/build.txt"; exit 1; fi
+          node _factory/efcd-factory.js merge > "$T/merge.txt" 2>&1; code=$?
+          cat "$T/merge.txt"
+          if [ $code -ne 0 ]; then summary "Merge failed, nothing proposed" "$T/merge.txt"; exit 1; fi
+          node _factory/efcd-factory.js check > "$T/check.txt" 2>&1; code=$?
+          cat "$T/check.txt"
+          if [ $code -ne 0 ]; then summary "Check failed, nothing proposed" "$T/check.txt"; exit 1; fi
+          git config user.name "efcd-factory"
+          git config user.email "efcd-factory@users.noreply.github.com"
+          branch="lessons/$(date +%Y-%m-%d-%H%M)"
+          git checkout -b "$branch"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "### Nothing to propose: everything is already merged." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          {
+            echo "## New lessons"
+            echo
+            echo "Built by the EFCD Factory from the packs in _factory/packs/."
+            echo
+            echo "### Review checklist"
+            echo "- [ ] I played the lesson(s) in a preview and they work"
+            echo "- [ ] The video fits (sound, length, not dry)"
+            echo "- [ ] The grammar focus differs from recent lessons"
+            echo "- [ ] The worksheet answers look right"
+            echo
+            echo "### Checker output"
+            echo '```'
+            cat "$T/check.txt"
+            echo '```'
+            echo
+            echo "**Merging this pull request makes the lessons live.**"
+          } > "$T/pr-body.md"
+          git commit -m "Factory: new lessons"
+          git push origin "$branch"
+          gh pr create --base main --head "$branch" --title "New lessons $(date +%d.%m.%Y)" --body-file "$T/pr-body.md"
+          echo "### Pull request opened. Open the Pull requests tab, review it, then press Merge pull request." >> "$GITHUB_STEP_SUMMARY"
