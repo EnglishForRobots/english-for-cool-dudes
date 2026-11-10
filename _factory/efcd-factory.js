@@ -485,20 +485,30 @@ const FAMILIES = [
 ];
 const familiesOf = t => FAMILIES.filter(([, re]) => re.test(t)).map(([n]) => n);
 
+/* group lessons by the level the learner sees, not by the registry's inconsistent "track" field */
+function groupKey(id, l) {
+  const lv = String(l.level || '').toLowerCase(), tr = String(l.track || '').toLowerCase().replace(/[^a-z]/g, '');
+  if (/^weekly-?drop/.test(String(id))) return 'weekly drop';
+  if (/tax/.test(lv) || tr === 'tax') return 'tax';
+  if (/legal/.test(lv)) return 'legal';
+  if (/business/.test(lv)) return 'business';
+  if (/kids/.test(lv)) return 'kids';
+  if (/beginner|\ba2\b|\ba1\b/.test(lv)) return 'beginner';
+  if (/advanced/.test(lv)) return 'advanced';
+  if (/intermediate/.test(lv)) return 'intermediate';
+  return tr || lv.replace(/[^a-z]/g, '') || 'other';
+}
+const topicsOf = r => [r.grammar && r.grammar.topic, r.grammar2 && r.grammar2.topic].filter(Boolean);
 function registryLessons() {
   if (!exists(FILES.registry)) return [];
   const ctx = { window: {}, module: { exports: {} }, console }; vm.createContext(ctx);
   vm.runInContext(read(FILES.registry), ctx);
-  return Object.values(ctx.module.exports).map(l => ({
-    id: l.id, track: l.track || l.level || 'other',
-    topics: [l.grammar && l.grammar.topic, l.grammar2 && l.grammar2.topic].filter(Boolean),
-  }));
+  return Object.entries(ctx.module.exports).map(([key, l]) => ({ id: l.id || key, track: groupKey(l.id || key, l), topics: topicsOf(l) }));
 }
 function allLessonsForCoverage() {
   const hand = registryLessons(), ids = new Set(hand.map(l => l.id));
   const packs = loadPacks().filter(l => l.pack && l.pack.registry && !ids.has(l.pack.registry.id)).map(({ pack }) => ({
-    id: pack.registry.id, track: pack.registry.track || pack.registry.level,
-    topics: [pack.registry.grammar && pack.registry.grammar.topic, pack.registry.grammar2 && pack.registry.grammar2.topic].filter(Boolean),
+    id: pack.registry.id, track: groupKey(pack.registry.id, pack.registry), topics: topicsOf(pack.registry),
   }));
   return [...hand, ...packs];
 }
@@ -521,7 +531,7 @@ function coverage() {
 function repeatWarning(pack) {
   try {
     const r = pack.registry, mine = new Set([r.grammar && r.grammar.topic, r.grammar2 && r.grammar2.topic].filter(Boolean).flatMap(familiesOf));
-    const track = r.track || r.level;
+    const track = groupKey(r.id, r);
     const prev = allLessonsForCoverage().filter(l => l.track === track && l.id !== r.id && l.topics.length).slice(-2);
     if (prev.length < 2) return null;
     const rep = [...mine].filter(f => prev.every(l => l.topics.flatMap(familiesOf).includes(f)));
