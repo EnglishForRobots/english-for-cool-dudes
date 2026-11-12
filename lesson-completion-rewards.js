@@ -1379,6 +1379,30 @@
       ],
     },
 
+                 'weekly-drop-issue-027': {
+      title:   'The Weekly Drop - Issue 027 - Be Ready',
+      level:   'Weekly Drop',
+      grammar: 'Modal verbs (should, mustn\u2019t vs don\u2019t have to, will be able to); first conditional (if + present simple, will)',
+      vocab: [
+        { word:'stockpile',             definition:'A big store of things you keep for an emergency.' },
+        { word:'stock up on',           definition:'Buy a lot of something so you do not run out.' },
+        { word:'power outage',          definition:'A time with no electricity.' },
+        { word:'torch',                 definition:'A small light you carry in your hand (UK word).' },
+        { word:'resilience',            definition:'The power to cope with trouble and bounce back.' },
+        { word:'vulnerable',            definition:'Easy to hurt; needing extra protection.' },
+        { word:'panic buying',          definition:'Everybody rushes to buy too much, all at once.' },
+        { word:'heatwave',              definition:'Many very hot days in a row.' },
+        { word:'adversary',             definition:'An enemy or opponent.' },
+        { word:'first aid',             definition:'Basic medical help before the doctor arrives.' },
+        { word:'scramble',              definition:'Rush around in a hurry to fix something.' },
+        { word:'situational awareness', definition:'Seeing what is happening around you, and seeing problems early.' },
+        { word:'kept in the dark',      definition:'Nobody tells you what is going on.' },
+        { word:'take the sting out of', definition:'Make a problem hurt less.' },
+        { word:'fluff',                 definition:'Do something badly; make a mess of it.' },
+        { word:'tick off',              definition:'Mark a job on a list as done (UK).' },
+      ],
+    },
+
   };
 /* EFCD-AUTO-START */
 /* EFCD-AUTO-END */
