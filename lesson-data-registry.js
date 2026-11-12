@@ -6310,6 +6310,85 @@ const LESSON_DATA_REGISTRY = {
   ],
 
 },
+
+    'weekly-drop-issue-027': {
+
+  id:    'weekly-drop-issue-027',
+  title: 'The Weekly Drop - Issue 027 - Be Ready',
+  level: 'Weekly Drop',
+  track: 'weeklydrop',
+  emoji: '🔦',
+  badge: 'Torch Bearer',
+
+  vocab: [
+    { word:'stockpile',             definition:'A big store of things you keep for an emergency.',          example:'The family keeps a small ___ of water and tins.',            distractors:['resilience','heatwave','torch'] },
+    { word:'stock up on',           definition:'Buy a lot of something so you do not run out.',             example:'Before the storm, we ___ ___ ___ water.',                    distractors:['tick off','scramble','take the sting out of'] },
+    { word:'power outage',          definition:'A time with no electricity.',                               example:'A long ___ ___ means no lights and no heating.',             distractors:['heatwave','stockpile','panic buying'] },
+    { word:'torch',                 definition:'A small light you carry in your hand (UK word).',           example:'It is dark. Switch on the ___!',                             distractors:['stockpile','adversary','resilience'] },
+    { word:'resilience',            definition:'The power to cope with trouble and bounce back.',           example:'Small daily steps build ___.',                               distractors:['stockpile','heatwave','torch'] },
+    { word:'vulnerable',            definition:'Easy to hurt; needing extra protection.',                   example:'Older people can be very ___ in a power outage.',            distractors:['stockpile','torch','heatwave'] },
+    { word:'panic buying',          definition:'Everybody rushes to buy too much, all at once.',            example:'Shops are empty because of ___ ___.',                        distractors:['first aid','stockpile','heatwave'] },
+    { word:'heatwave',              definition:'Many very hot days in a row.',                              example:'A ___ brings many very hot days in a row.',                  distractors:['power outage','stockpile','resilience'] },
+    { word:'adversary',             definition:'An enemy or opponent.',                                     example:'The security chiefs warn about a foreign ___.',              distractors:['torch','stockpile','heatwave'] },
+    { word:'first aid',             definition:'Basic medical help before the doctor arrives.',             example:'She learns ___ ___ to help in an emergency.',                distractors:['panic buying','resilience','torch'] },
+    { word:'scramble',              definition:'Rush around in a hurry to fix something.',                  example:'When the site breaks, the team must ___ to fix it.',         distractors:['tick off','fluff','stockpile'] },
+    { word:'situational awareness', definition:'Seeing what is happening around you, and seeing problems early.', example:'Good ___ ___ means you see problems early.',           distractors:['first aid','panic buying','resilience'] },
+    { word:'kept in the dark',      definition:'Nobody tells you what is going on.',                        example:'Nobody tells us anything. We are ___ ___ ___ ___.',          distractors:['taken to the sting','stocked up on','ticked off'] },
+    { word:'take the sting out of', definition:'Make a problem hurt less.',                                 example:'A hot tea can ___ ___ ___ ___ ___ a cold night.',            distractors:['stock up on','tick off','scramble'] },
+    { word:'fluff',                 definition:'Do something badly; make a mess of it.',                    example:'Do not ___ your speech!',                                    distractors:['scramble','tick off','stockpile'] },
+    { word:'tick off',              definition:'Mark a job on a list as done (UK).',                        example:'Please ___ ___ each job on the list.',                       distractors:['stock up on','scramble','fluff'] },
+  ],
+
+  grammar: {
+    topic: 'Modal verbs: should, don\u2019t have to, mustn\u2019t',
+    rule:  'After a modal verb, use the base verb with no “to”: “You should keep a torch.” “Mustn’t” means it is forbidden. “Don’t have to” means it is not necessary (German “muss nicht”). There is no “will can”: use “will be able to”.',
+    exercises: [
+      { sentence:'You ___ keep a torch at home.',                         answer:'should',         wrong:['should to','shoulds','to should'],     explain:'should + base verb. No “to”.' },
+      { sentence:'You ___ be an expert to stock up on water.',            answer:'don\u2019t have to', wrong:['mustn\u2019t','can\u2019t to','not must'], explain:'Not necessary = don’t have to. German “muss nicht”.' },
+      { sentence:'Tomorrow we will ___ to tick off the list.',            answer:'be able',        wrong:['can','able','could'],                  explain:'No “will can”. Use “will be able to”.' },
+      { sentence:'You ___ use a camping stove inside the flat. It is dangerous.', answer:'mustn\u2019t', wrong:['don\u2019t have to','needn\u2019t to','not can'], explain:'mustn’t = forbidden.' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'First conditional: if + present simple, will + verb',
+    rule:  'For real, possible future situations, use if + present simple, then will + base verb: “If the power goes out, we will need a torch.” Never use “will” directly after “if”.',
+    exercises: [
+      { sentence:'If the power goes out, we ___ a torch.',                answer:'will need',   wrong:['would need','need to','are needing'], explain:'if + present simple → will + verb.' },
+      { sentence:'If the heatwave ___ this week, we will need more water.', answer:'continues',  wrong:['will continue','would continue','continued'], explain:'After “if”, use the present simple.' },
+      { sentence:'If people start panic buying, shops ___ run out of water.', answer:'will',     wrong:['would','did','are'],                  explain:'“will” in the main clause.' },
+      { sentence:'If the government fluffs its message, people ___ confused.', answer:'will be', wrong:['would be','are being','were'],        explain:'if + present simple → will + verb.' },
+    ],
+  },
+
+  sentences: [
+    { words:['Everybody','should','keep','a','torch','at','home'],                  answer:'Everybody should keep a torch at home',                 hint:'🔦 About the number one tip...' },
+    { words:['If','the','power','goes','out','we','will','need','light'],           answer:'If the power goes out we will need light',             hint:'💡 About a power outage...' },
+    { words:['Ray','says','the','government','keeps','people','in','the','dark'],   answer:'Ray says the government keeps people in the dark',      hint:'🙈 About the survivalist...' },
+    { words:['Small','steps','build','resilience','every','day'],                   answer:'Small steps build resilience every day',                hint:'💪 About being ready...' },
+  ],
+
+  word_builder: [
+    { word:'torch',      definition:'A small light you carry (UK)' },
+    { word:'stockpile',  definition:'A big store for an emergency' },
+    { word:'heatwave',   definition:'Many very hot days in a row' },
+    { word:'vulnerable', definition:'Needing extra protection' },
+    { word:'adversary',  definition:'An enemy or opponent' },
+    { word:'scramble',   definition:'Rush around in a hurry' },
+  ],
+
+  true_false: [
+    { statement:'The Be Ready advice is to keep food and water for three days.',            correct:true,  reveal:'✅ TRUE! Three days = 72 hours.' },
+    { statement:'Ray Mears says the government explains everything very clearly.',          correct:false, reveal:'❌ FALSE! He says people are kept in the dark.' },
+    { statement:'Dr Easthope says research shows lots of panic buying.',                    correct:false, reveal:'❌ FALSE! She says the research does not show panic buying.' },
+    { statement:'Ray also wants more people to learn first aid.',                           correct:true,  reveal:'✅ TRUE! It is something that is always in short supply.' },
+    { statement:'In British English, a “torch” is a flaming stick (German “Fackel”).',      correct:false, reveal:'❌ FALSE! In the UK, a torch is a Taschenlampe. A false friend!' },
+    { statement:'Lucy says the 72 hours give the state time to help the vulnerable first.', correct:true,  reveal:'✅ TRUE! Then help, water and food will come.' },
+    { statement:'To “scramble” can mean to rush around in a hurry.',                        correct:true,  reveal:'✅ TRUE! And scrambled eggs are Rührei!' },
+    { statement:'The Be Ready campaign says to stockpile food for a whole year.',           correct:false, reveal:'❌ FALSE! Three days is the advice, not twelve months.' },
+  ],
+
+},
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
