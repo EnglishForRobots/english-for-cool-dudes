@@ -4,6 +4,7 @@ window.LEVEL_CONFIG = {
 };
 
 window.LESSONS = [
+  { slug:'weeklydrop027', icon:'🔦🥫💧', badge:'Issue 027', badgeType:'new', title:'Be Ready: 72 Hours On Your Own', desc:"The UK government says: stock up for three days. Is it smart planning or scaremongering? Two experts disagree.", mins:5, date:'2026-11-13', tags:['society','safety','news'] },
     { slug:'weeklydrop026', icon:'👛🔒💳', badge:'Issue 026', badgeType:'new', title:'Where Did My Money Go?', desc:"Claude can now read your bank account, but it cannot move one cent. Meet Personal Finance.", mins:5, date:'2026-11-06', tags:['ai','finance','money','tech'] },
     { slug:'weeklydrop025', icon:'🐄💸🗳️', badge:'Issue 025', badgeType:null, title:'Why Kansas Ranchers Are Turning on Trump', desc:"A cattle auction, a price nosedive and a Senate race that is now a toss-up. Why are ranchers so angry?", mins:6, date:'2026-10-30', tags:['business','finance','politics'] },
   { slug:'weeklydrop024', icon:'🤖🎥💼', badge:'Issue 024', badgeType:null, title:'Are These Workers Training Robots to Replace Them?', desc:"A barber in Texas wears five cameras to teach robots his job. Is he helping the future, or training his own replacement?", mins:6, date:'2026-10-23', tags:['business','tech','future','jobs'] },
