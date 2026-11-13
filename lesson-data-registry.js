@@ -6286,7 +6286,7 @@ const LESSON_DATA_REGISTRY = {
     { words:['Claude','cannot','move','a','single','cent'],                          answer:'Claude cannot move a single cent',              hint:'🔒 About read-only access...' },
     { words:['Cancel','the','subscription','you','never','use'],                     answer:'Cancel the subscription you never use',         hint:'📺 About a money leak...' },
     { words:['Claude','spots','a','duplicate','charge','on','your','card'],          answer:'Claude spots a duplicate charge on your card',  hint:'🧾 About a red flag...' },
-    { words:['Her','bills','are','high','but','mine','are','low'],                   answer:'Her bills are high but mine are low', altAnswers:['Her bills are low but mine are high'], hint:'🛒 About the shops...' },           hint:'👛 About two wallets...' },
+    { words:['Her','bills','are','high','but','mine','are','low'], answer:'Her bills are high but mine are low', altAnswers:['Her bills are low but mine are high'], hint:'👛 About two wallets...' },
   ],
 
   word_builder: [
