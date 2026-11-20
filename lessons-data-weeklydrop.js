@@ -4,6 +4,7 @@ window.LEVEL_CONFIG = {
 };
 
 window.LESSONS = [
+    { slug:'weeklydrop028', icon:'🗳️💰', badge:'Issue 028', badgeType:'new', title:'California Says No to the Billionaire Tax', desc:"California voters rejected Prop 40, a one-time 5% tax on billionaires. Supporters say it is only round one.", mins:5, date:'2026-11-20', tags:['business','tax','finance','politics'] },
   { slug:'weeklydrop027', icon:'🔦🥫💧', badge:'Issue 027', badgeType:'new', title:'Be Ready: 72 Hours On Your Own', desc:"The UK government says: stock up for three days. Is it smart planning or scaremongering? Two experts disagree.", mins:5, date:'2026-11-13', tags:['society','safety','news'] },
     { slug:'weeklydrop026', icon:'👛🔒💳', badge:'Issue 026', badgeType:'new', title:'Where Did My Money Go?', desc:"Claude can now read your bank account, but it cannot move one cent. Meet Personal Finance.", mins:5, date:'2026-11-06', tags:['ai','finance','money','tech'] },
     { slug:'weeklydrop025', icon:'🐄💸🗳️', badge:'Issue 025', badgeType:null, title:'Why Kansas Ranchers Are Turning on Trump', desc:"A cattle auction, a price nosedive and a Senate race that is now a toss-up. Why are ranchers so angry?", mins:6, date:'2026-10-30', tags:['business','finance','politics'] },
