@@ -6389,6 +6389,85 @@ const LESSON_DATA_REGISTRY = {
   ],
 
 },
+
+    'weekly-drop-issue-028': {
+
+  id:    'weekly-drop-issue-028',
+  title: 'The Weekly Drop - Issue 028 - The Billionaire Tax',
+  level: 'All Levels',
+  track: 'weeklydrop',
+  emoji: '🗳️',
+  badge: 'Ballot Boss - Issue 028',
+
+  vocab: [
+    { word:'billionaire',       definition:'A person with more than a billion dollars.',                  example:'The ___ gave money to the campaign.',                  distractors:['opponent','ballot','measure'] },
+    { word:'ballot',            definition:'A secret vote, or the paper you vote on.',                    example:'She cast her ___ on Tuesday.',                         distractors:['measure','campaign','wealth'] },
+    { word:'measure',           definition:'A proposed law or plan that people vote on.',                 example:'The ballot ___ failed.',                               distractors:['ballot','campaign','cuts'] },
+    { word:'reject',            definition:'Say no to something.',                                        example:'Voters ___ the plan.',                                 distractors:['impose','put up','drive out'] },
+    { word:'wealth',            definition:'All the money and things a person owns.',                     example:'A tax on ___ hits what you own.',                      distractors:['cuts','campaign','ballot'] },
+    { word:'impose',            definition:'Make people pay or obey by law.',                             example:'The state wants to ___ a new tax.',                    distractors:['reject','put up','drive out'] },
+    { word:'one-time',          definition:'Happening only once.',                                        example:'It was a ___ payment, not a yearly one.',              distractors:['federal','federal','opponent'] },
+    { word:'federal',           definition:'Of the national government of the USA, not of one state.',    example:'The ___ government is in Washington.',                 distractors:['one-time','opponent','billionaire'] },
+    { word:'cuts',              definition:'Less money for something; reductions.',                       example:'Budget ___ in healthcare worry many people.',          distractors:['wealth','measure','ballot'] },
+    { word:'no-brainer',        definition:'A very easy, obvious decision.',                              example:'Taking the free ticket was a ___.',                    distractors:['campaign','measure','one-time'] },
+    { word:'drive out',         definition:'Make people leave a place.',                                  example:'High rents ___ ___ young families.',                   distractors:['put up','call the race','reject'] },
+    { word:'at a disadvantage', definition:'In a worse position than others.',                            example:'Small shops are ___ ___ ___ against big chains.',      distractors:['in a hurry','at a loss','on a budget'] },
+    { word:'campaign',          definition:'Organised activity to win a vote.',                           example:'Both sides ran an expensive ___.',                     distractors:['ballot','measure','opponent'] },
+    { word:'opponent',          definition:'A person or group on the other side.',                        example:'Her ___ spent more money.',                            distractors:['billionaire','ballot','federal'] },
+    { word:'put up',            definition:'Give money for something.',                                   example:'He ___ ___ $1 million.',                               distractors:['drive out','call the race','reject'] },
+    { word:'call the race',     definition:'Announce who has won an election.',                           example:'The news will ___ ___ ___ tonight.',                   distractors:['put up','drive out','impose'] },
+  ],
+
+  grammar: {
+    topic: 'Reported speech',
+    rule:  'In reported speech the verb goes one step back: will becomes would, and the past becomes the past perfect. Use SAY THAT (no person) and TELL SOMEONE THAT: "They said they would try again in 2028."',
+    exercises: [
+      { sentence:'Supporters said they ___ try again in 2028.',                   answer:'would', wrong:['will','are','did'],          explain:'will goes back to would in reported speech.' },
+      { sentence:'The governor ___ reporters that the tax was bad.',              answer:'told',  wrong:['said','spoke','talked'],     explain:'tell + a person; say has no person after it.' },
+      { sentence:'Supporters said that the billionaires ___ bought a victory.',   answer:'had',   wrong:['have','has','would'],        explain:'The present perfect goes back to the past perfect (had bought).' },
+      { sentence:'He ___ that the vote was unfair.',                              answer:'said',  wrong:['told','asked','spoke'],      explain:'say + that, with no person after it.' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Conditionals (2nd and 3rd) and inversion',
+    rule:  'Second conditional: If + past simple, would + verb. Third conditional: If + past perfect, would have + past participle. Never use would after if. Formal: "Had the measure passed, ..." means "If the measure had passed, ...".',
+    exercises: [
+      { sentence:'If the tax ___, billionaires would leave.',                     answer:'passed',            wrong:['would pass','will pass','passes'],     explain:'Second conditional: if + past simple, never would.' },
+      { sentence:'If Prop 40 had passed, millions ___ their care.',               answer:'would have kept',   wrong:['would keep','will keep','had kept'],   explain:'Third conditional: would have + past participle.' },
+      { sentence:'___ the measure passed, billionaires would have paid.',         answer:'Had',               wrong:['Would','Were','Did'],                  explain:'Inversion: Had the measure passed = If the measure had passed.' },
+      { sentence:'If I ___ a billionaire, I would give money to schools.',        answer:'were',              wrong:['am','would be','will be'],             explain:'Unreal present: if I were (not if I am).' },
+    ],
+  },
+
+  sentences: [
+    { words:['Opponents','raised','ten','times','as','much','money'],            answer:'Opponents raised ten times as much money',        hint:'💰 About the campaign...' },
+    { words:['Supporters','said','they','would','try','again','in','2028'],       answer:'Supporters said they would try again in 2028',    hint:'📅 About the future...' },
+    { words:['The','tax','would','have','paid','for','healthcare'],               answer:'The tax would have paid for healthcare',          hint:'🏥 About the plan...' },
+    { words:['California','would','be','at','a','disadvantage'],                  answer:'California would be at a disadvantage',           hint:'⚖️ About the governor...' },
+  ],
+
+  word_builder: [
+    { word:'ballot',     definition:'A secret vote, or the paper you vote on' },
+    { word:'reject',     definition:'Say no to something' },
+    { word:'impose',     definition:'Make people pay or obey by law' },
+    { word:'wealth',     definition:'All the money and things a person owns' },
+    { word:'measure',    definition:'A proposed law that people vote on' },
+    { word:'campaign',   definition:'Organised activity to win a vote' },
+  ],
+
+  true_false: [
+    { statement:'California voters approved Prop 40.',                                          correct:false, reveal:'❌ FALSE! They rejected it. No led with 52%.' },
+    { statement:'The tax would have been a one-time 5% tax.',                                   correct:true,  reveal:'✅ TRUE! A one-time 5% tax on wealth over a billion dollars.' },
+    { statement:'Most of the money would have gone to healthcare.',                             correct:true,  reveal:'✅ TRUE! It was meant to make up for federal cuts.' },
+    { statement:'Governor Newsom supported the tax.',                                           correct:false, reveal:'❌ FALSE! He opposed it and said California would be at a disadvantage.' },
+    { statement:'Opponents raised about the same amount as supporters.',                        correct:false, reveal:'❌ FALSE! Opponents raised 10 times as much.' },
+    { statement:'An AP poll found that most voters under 30 supported the tax.',                correct:true,  reveal:'✅ TRUE! About 70% of people over 65 opposed it.' },
+    { statement:'The English "billion" is the same as the German "Billion".',                   correct:false, reveal:'❌ FALSE! English billion = German Milliarde. A false friend!' },
+    { statement:'Supporters said they could put a new tax on the ballot in 2028.',              correct:true,  reveal:'✅ TRUE! "This is only round one," they said.' },
+  ],
+
+},
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
