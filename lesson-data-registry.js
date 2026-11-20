@@ -6335,7 +6335,7 @@ const LESSON_DATA_REGISTRY = {
     { word:'situational awareness', definition:'Seeing what is happening around you, and seeing problems early.', example:'Good ___ ___ means you see problems early.',           distractors:['first aid','panic buying','resilience'] },
     { word:'kept in the dark',      definition:'Nobody tells you what is going on.',                        example:'Nobody tells us anything. We are ___ ___ ___ ___.',          distractors:['taken to the sting','stocked up on','ticked off'] },
     { word:'take the sting out of', definition:'Make a problem hurt less.',                                 example:'A hot tea can ___ ___ ___ ___ ___ a cold night.',            distractors:['stock up on','tick off','scramble'] },
-    { word:'fluff',                 definition:'Do something badly; make a mess of it.',                    example:'Do not ___ your speech!',                                    distractors:['scramble','tick off','stockpile'] },
+    { word:'fluff',                 definition:'Do something badly; make a mess of it.',                    example:'Do not ___ your message!',                                    distractors:['panic','tick off','stockpile'] },
     { word:'tick off',              definition:'Mark a job on a list as done (UK).',                        example:'Please ___ ___ each job on the list.',                       distractors:['stock up on','scramble','fluff'] },
   ],
 
@@ -6382,7 +6382,7 @@ const LESSON_DATA_REGISTRY = {
     { statement:'Ray Mears says the government explains everything very clearly.',          correct:false, reveal:'❌ FALSE! He says people are kept in the dark.' },
     { statement:'Dr Easthope says research shows lots of panic buying.',                    correct:false, reveal:'❌ FALSE! She says the research does not show panic buying.' },
     { statement:'Ray also wants more people to learn first aid.',                           correct:true,  reveal:'✅ TRUE! It is something that is always in short supply.' },
-    { statement:'In British English, a “torch” is a flaming stick (German “Fackel”).',      correct:false, reveal:'❌ FALSE! In the UK, a torch is a Taschenlampe. A false friend!' },
+    { statement:'In British English, a “torch” is a Taschenlampe.',                         correct:true, reveal:'✅ TRUE! In the UK, a torch is a Taschenlampe. It is also a Fackel.' },
     { statement:'Lucy says the 72 hours give the state time to help the vulnerable first.', correct:true,  reveal:'✅ TRUE! Then help, water and food will come.' },
     { statement:'To “scramble” can mean to rush around in a hurry.',                        correct:true,  reveal:'✅ TRUE! And scrambled eggs are Rührei!' },
     { statement:'The Be Ready campaign says to stockpile food for a whole year.',           correct:false, reveal:'❌ FALSE! Three days is the advice, not twelve months.' },
