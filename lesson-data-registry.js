@@ -6365,7 +6365,7 @@ const LESSON_DATA_REGISTRY = {
     { words:['Everybody','should','keep','a','torch','at','home'],                  answer:'Everybody should keep a torch at home',                 hint:'🔦 About the number one tip...' },
     { words:['If','the','power','goes','out','we','will','need','light'],           answer:'If the power goes out we will need light',             hint:'💡 About a power outage...' },
     { words:['Ray','says','the','government','keeps','people','in','the','dark'],   answer:'Ray says the government keeps people in the dark',      hint:'🙈 About the survivalist...' },
-    { words:['Small','steps','build','resilience','every','day'],                   answer:'Small steps build resilience every day',                hint:'💪 About being ready...' },
+    { words:['Small','steps','build','resilience','every','day'],                   answer:'Small steps build resilience every day', altAnswers:['Small steps every day build resilience'],                hint:'💪 About being ready...' },
   ],
 
   word_builder: [
