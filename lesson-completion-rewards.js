@@ -1403,6 +1403,30 @@
       ],
     },
 
+                 'weekly-drop-issue-028': {
+      title:   'The Weekly Drop - Issue 028 - The Billionaire Tax',
+      level:   'All Levels',
+      grammar: 'Reported speech (said that / told someone that, will → would); conditionals (2nd, 3rd, inversion with Had); at a disadvantage',
+      vocab: [
+        { word:'billionaire',       definition:'A person with more than a billion dollars.' },
+        { word:'ballot',            definition:'A secret vote, or the paper you vote on.' },
+        { word:'measure',           definition:'A proposed law or plan that people vote on.' },
+        { word:'reject',            definition:'Say no to something.' },
+        { word:'wealth',            definition:'All the money and things a person owns.' },
+        { word:'impose',            definition:'Make people pay or obey by law.' },
+        { word:'one-time',          definition:'Happening only once.' },
+        { word:'federal',           definition:'Of the national government of the USA, not of one state.' },
+        { word:'cuts',              definition:'Less money for something; reductions.' },
+        { word:'no-brainer',        definition:'A very easy, obvious decision.' },
+        { word:'drive out',         definition:'Make people leave a place.' },
+        { word:'at a disadvantage', definition:'In a worse position than others.' },
+        { word:'campaign',          definition:'Organised activity to win a vote.' },
+        { word:'opponent',          definition:'A person or group on the other side.' },
+        { word:'put up',            definition:'Give money for something.' },
+        { word:'call the race',     definition:'Announce who has won an election.' },
+      ],
+    },
+
   };
 /* EFCD-AUTO-START */
 /* EFCD-AUTO-END */
