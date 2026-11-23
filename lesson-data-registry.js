@@ -6547,6 +6547,85 @@ const LESSON_DATA_REGISTRY = {
   ],
 
 },
+
+     'language-learning-age-of-ai-upper-intermediate': {
+
+  id:    'language-learning-age-of-ai-upper-intermediate',
+  title: 'Language Learning in the Age of AI',
+  level: 'Upper Intermediate',
+  track: 'intermediate',
+  emoji: '🗣️',
+  badge: 'Human Touch',
+
+  vocab: [
+    { word:'converse',           definition:'To have a conversation; to talk with someone.',                               example:'She can ___ with customers in three languages.',            distractors:['imply','antidote','bond'] },
+    { word:'outdated',           definition:'Too old to be useful or modern.',                                             example:'Paper maps are ___ now that everyone has a phone.',          distractors:['niche','sustainable','transactional'] },
+    { word:'niche',              definition:'A small, special area of interest with few people in it.',                    example:'Horse riding is now a ___ hobby.',                           distractors:['outdated','workforce','transactional'] },
+    { word:'in decline',         definition:'Getting smaller, weaker or less popular.',                                    example:'Newspaper sales have been ___ ___ for years.',               distractors:['in fashion','on holiday','at home'] },
+    { word:'advent',             definition:'The arrival of something important or new.',                                  example:'Before the ___ of the internet, people wrote letters.',      distractors:['bond','niche','workforce'] },
+    { word:'sustainable',        definition:'Able to continue for a long time, with enough money, people or resources.',   example:'A shop that loses money every month is not ___.',            distractors:['outdated','transactional','niche'] },
+    { word:'workforce',          definition:'All the people who work for a company or in a country.',                      example:'The company has a young and skilled ___.',                   distractors:['employer','bond','antidote'] },
+    { word:'employer',           definition:'A person or company that gives people jobs.',                                 example:'My ___ pays me on the 25th of the month.',                   distractors:['workforce','antidote','bond'] },
+    { word:'transactional',      definition:'Only about a simple exchange, with no deeper feelings.',                      example:'AI is useful, but too ___ to build a friendship.',           distractors:['sustainable','outdated','niche'] },
+    { word:'imply',              definition:'To suggest something without saying it directly.',                            example:'Her silence seemed to ___ that she was unhappy.',            distractors:['converse','antidote','bond'] },
+    { word:'shortcoming',        definition:'A weak point or flaw.',                                                       example:'The app has one big ___: it only works online.',             distractors:['niche','advent','bond'] },
+    { word:'bond',               definition:'A strong emotional connection between people.',                               example:'The two friends share a strong ___.',                        distractors:['employer','antidote','workforce'] },
+    { word:'sense of belonging', definition:'The feeling that you are part of a group.',                                   example:'The club gave her a ___ ___ ___.',                           distractors:['sign of loyalty','piece of luck','kind of party'] },
+    { word:'antidote',           definition:'Something that helps fight a problem.',                                       example:'A walk in nature is an ___ to stress.',                      distractors:['advent','employer','imply'] },
+    { word:'get the job done',   definition:'To do the task well enough.',                                                 example:'It is not pretty, but it will ___ ___ ___ ___.',             distractors:['make the job done','do the job finish','get the done job'] },
+    { word:'shut down',          definition:'To close a business or school for good.',                                     example:'Many language departments have ___ ___.',                    distractors:['been outdated','got workforce','made bond'] },
+  ],
+
+  grammar: {
+    topic: 'Indirect questions',
+    rule:  "In an indirect question the subject comes BEFORE the verb, with no do/does: \"I wonder why employers need a workforce.\" Not: \"why do employers need\". Direct: Why do employers need a workforce? Use whether or if for yes/no questions.",
+    exercises: [
+      { sentence:'I wonder why employers ___ a multilingual workforce.',  answer:'need',                      wrong:['do need','does need','needing'],                                         explain:'No do/does in an indirect question: "why employers need".' },
+      { sentence:'Can you tell me ___?',                                  answer:'where the station is',      wrong:['where is the station','where does the station','where the station does'], explain:'Normal word order: where + subject + verb.' },
+      { sentence:'Do you know how many languages Yuji ___?',              answer:'speaks',                    wrong:['does speak','speak','is speaking'],                                      explain:'No "does": "Yuji speaks".' },
+      { sentence:'I wonder ___ AI can build a real bond.',                answer:'whether',                   wrong:['that','what','which'],                                                   explain:'Yes/no question inside a sentence: whether (or if).' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Verb patterns: -ing or to + verb',
+    rule:  "Some verbs take -ing: enjoy, keep, avoid, and \"be worth\". Others take to + verb: decide, hope, want, and \"be afraid\". Learn the verb together with its pattern.",
+    exercises: [
+      { sentence:"Don't be afraid ___ mistakes.",                         answer:'to make',                   wrong:['making','make','for making'],                                            explain:'afraid + to + verb.' },
+      { sentence:'Yuji keeps ___ new languages.',                         answer:'learning',                  wrong:['to learn','learn','for learn'],                                          explain:'keep + -ing.' },
+      { sentence:'Some universities decided ___ their departments.',      answer:'to shut down',              wrong:['shutting down','shut down','for shutting down'],                         explain:'decide + to + verb.' },
+      { sentence:'It is worth ___ a second language.',                    answer:'learning',                  wrong:['to learn','learn','for learning'],                                       explain:'worth + -ing.' },
+    ],
+  },
+
+  sentences: [
+    { words:['I','wonder','why','employers','need','a','multilingual','workforce'],        answer:'I wonder why employers need a multilingual workforce',  hint:'🏢 About jobs...' },
+    { words:['Can','you','tell','me','why','so','many','departments','shut','down'],       answer:'Can you tell me why so many departments shut down',     hint:'🏫 About universities...' },
+    { words:['Do','you','know','how','many','languages','Yuji','speaks'],                  answer:'Do you know how many languages Yuji speaks',            hint:'🌍 About Yuji...' },
+    { words:['AI','is','useful','but','too','transactional'],                              answer:'AI is useful but too transactional',                    hint:'🤖 About AI...' },
+  ],
+
+  word_builder: [
+    { word:'outdated',    definition:'Too old to be useful' },
+    { word:'employer',    definition:'A person or company that gives jobs' },
+    { word:'workforce',   definition:'All the people who work for a company' },
+    { word:'antidote',    definition:'Something that fights a problem' },
+    { word:'shortcoming', definition:'A weak point or flaw' },
+    { word:'sustainable', definition:'Able to continue for a long time' },
+  ],
+
+  true_false: [
+    { statement:'The best AI translation devices have a delay of only one second.',          correct:true,  reveal:'✅ TRUE! They are faster and cheaper than a human interpreter.' },
+    { statement:'Professor Al-Hoorie compares language learning to cycling.',                correct:false, reveal:'❌ FALSE! He compares it to horse riding, which became a niche hobby.' },
+    { statement:'In the US, over 650 language departments have shut down since 2013.',       correct:true,  reveal:'✅ TRUE! Language study was already in decline before AI.' },
+    { statement:'Most people learn a foreign language just for fun.',                        correct:false, reveal:'❌ FALSE! Most learn it for a job.' },
+    { statement:'Dr Ushioda says AI is good at building emotional bonds.',                   correct:false, reveal:'❌ FALSE! AI is transactional. It cannot build a real bond.' },
+    { statement:'In Japanese, a lot of the meaning is left unspoken.',                       correct:true,  reveal:'✅ TRUE! That is why AI often misses the real message.' },
+    { statement:'Yuji says beginners should avoid making mistakes.',                         correct:false, reveal:'❌ FALSE! His advice: make mistakes and have fun!' },
+    { statement:'"Employer" means the same as "employee".',                                  correct:false, reveal:'❌ FALSE! Employer = Arbeitgeber. Employee = Arbeitnehmer.' },
+  ],
+
+},
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
