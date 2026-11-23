@@ -6548,12 +6548,12 @@ const LESSON_DATA_REGISTRY = {
 
 },
 
-     'language-learning-age-of-ai-upper-intermediate': {
+     'language-learning-age-of-ai-advanced': {
 
-  id:    'language-learning-age-of-ai-upper-intermediate',
+  id:    'language-learning-age-of-ai-advanced',
   title: 'Language Learning in the Age of AI',
-  level: 'Upper Intermediate',
-  track: 'intermediate',
+  level: 'Advanced',
+  track: 'Advanced',
   emoji: '🗣️',
   badge: 'Human Touch',
 
