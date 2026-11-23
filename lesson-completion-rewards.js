@@ -1427,6 +1427,30 @@
       ],
     },
 
+                 'gta6-launch-intermediate': {
+      title:   'GTA 6: The Biggest Entertainment Launch Ever',
+      level:   'Intermediate',
+      grammar: 'so / such … that; countable and uncountable nouns (much/many, less/fewer, information, news)',
+      vocab: [
+        { word:'launch',      definition:'The moment a new product goes on sale for the first time.' },
+        { word:'release',     definition:'To make a game, film or product available to the public.' },
+        { word:'revenue',     definition:'All the money a company earns from sales, before costs.' },
+        { word:'gross',       definition:'The total amount before costs. A “highest-grossing” film earns the most money.' },
+        { word:'instalment',  definition:'One part of a series. (Also: one payment in a payment plan.)' },
+        { word:'franchise',   definition:'A big brand with many games, films or products.' },
+        { word:'predecessor', definition:'The person or thing that came before.' },
+        { word:'delay',       definition:'To make something happen later than planned.' },
+        { word:'surge',       definition:'A sudden, big increase.' },
+        { word:'peak',        definition:'To reach the highest point.' },
+        { word:'hail',        definition:'To praise something as great.' },
+        { word:'approve',     definition:'To officially say yes to something.' },
+        { word:'estimate',    definition:'A careful guess about a number. Not an exact figure!' },
+        { word:'pre-sell',    definition:'To sell something before it is released.' },
+        { word:'perk',        definition:'A small extra benefit or bonus.' },
+        { word:'smash',       definition:'To break something completely. “Smash a record” = beat it by a lot.' },
+      ],
+    },
+
   };
 /* EFCD-AUTO-START */
 /* EFCD-AUTO-END */
