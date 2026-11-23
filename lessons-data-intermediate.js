@@ -4,6 +4,7 @@ window.LEVEL_CONFIG = {
 };
 
 window.LESSONS = [
+  { slug:'gta6-launch', icon:'🎮💰🏆', badge:'⭐ Business/Gaming', badgeType:'new', title:'GTA 6: $3.8 Billion in One Day', desc:'A video game just beat Hollywood. Find out where all that money comes from, and why a trailer with almost no talking broke every record.', mins:8, date:'2026-11-23', tags:['business','tech','vocabulary','grammar'] },
   { slug:'the-midnight-chase', icon:'🚤🚤🚤', badge:'⭐ Crime', badgeType:'new', title:"The Midnight Chase: Europe's Cocaine Gateway", desc:'Ride along with Spanish customs agents hunting cocaine speedboats in the Strait of Gibraltar, because crime is exciting.', mins:8, date:'2026-09-28', tags:['crime','police','boats'] },
   { slug:'robotgames', icon:'🤖🏃💨', badge:'Tech', badgeType:'null', title:'Rise of the Robots - The Humanoid Games', desc:'China is currently hosting the 2026 Humanoid Games and robots are breaking human athletic records. Should we be entertained or worried?', mins:7, date:'2026-08-25', tags:['tech','future','vocabulary','grammar'] },
   { slug:'travel-blogger-life', icon:'🧳✍️💻', badge:'Travel/Business', badgeType:'null', title:'Full-time Travel Blogging', desc:"What's it really like to be a full-time travel blogger? And can anyone earn money from seeing the world?", mins:8, date:'2026-08-10', tags:['culture','business'] },
@@ -38,6 +39,7 @@ window.LESSONS = [
   { slug:'slicedbread', icon:'☕', badge:'Idioms', badgeType:null, title:'Common British Food Idioms', desc:'Learn phrases like spill the beans and a piece of cake.', mins:9, date:'2025-09-24', tags:['grammar','culture'] },
   { slug:null, icon:'🗣️', badge:null, badgeType:'soon', title:'Reported Speech', desc:'Master how to tell someone what another person said — he said he was coming…', mins:8, date:null },
   { slug:null, icon:'👔', badge:null, badgeType:'soon', title:'English for Job Interviews', desc:'Key vocabulary and phrases to ace your next English interview.', mins:12, date:null },
+  
 ];
 /* EFCD-AUTO-START */
 /* EFCD-AUTO-END */
