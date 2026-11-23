@@ -236,6 +236,7 @@
      'weeklydrop026':  'weekly-drop-issue-026',
      'weeklydrop027':  'weekly-drop-issue-027',
      'weeklydrop028':  'weekly-drop-issue-028',
+     'gta6-launch':  'gta6-launch-intermediate',
   };
 /* EFCD-AUTO-START */
 /* EFCD-AUTO-END */
