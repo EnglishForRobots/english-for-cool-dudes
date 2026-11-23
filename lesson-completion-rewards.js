@@ -1451,9 +1451,9 @@
       ],
     },
 
-                 'language-learning-age-of-ai-upper-intermediate': {
+                 'language-learning-age-of-ai-advanced': {
       title:   'Language Learning in the Age of AI',
-      level:   'Upper Intermediate',
+      level:   'Advanced',
       grammar: 'Indirect questions (I wonder why employers need...); verb patterns: -ing or to + verb (keep learning, decide to shut down)',
       vocab: [
         { word:'converse',           definition:'To have a conversation; to talk with someone.' },
