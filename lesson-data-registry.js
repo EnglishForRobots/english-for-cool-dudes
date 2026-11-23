@@ -6468,6 +6468,85 @@ const LESSON_DATA_REGISTRY = {
   ],
 
 },
+
+    'gta6-launch-intermediate': {
+
+  id:    'gta6-launch-intermediate',
+  title: 'GTA 6: The Biggest Entertainment Launch Ever',
+  level: 'Intermediate',
+  track: 'intermediate',
+  emoji: '🎮',
+  badge: 'Launch Legend',
+
+  vocab: [
+    { word:'launch',      definition:'The moment a new product goes on sale for the first time.',         example:'The ___ broke every sales record.',                 distractors:['estimate','perk','delay'] },
+    { word:'release',     definition:'To make a game, film or product available to the public.',          example:'The game’s ___ date is 19 November.',               distractors:['perk','surge','estimate'] },
+    { word:'revenue',     definition:'All the money a company earns from sales, before costs.',           example:'The game brings in huge ___ for Rockstar.',         distractors:['predecessor','perk','delay'] },
+    { word:'gross',       definition:'The total amount before costs. A “highest-grossing” film earns the most money.', example:'The film will ___ over $2bn in cinemas.', distractors:['hail','delay','approve'] },
+    { word:'instalment',  definition:'One part of a series. (Also: one payment in a payment plan.)',      example:'This is the latest ___ of the series.',             distractors:['predecessor','perk','surge'] },
+    { word:'franchise',   definition:'A big brand with many games, films or products.',                   example:'GTA is a huge ___ with many games.',                distractors:['perk','estimate','surge'] },
+    { word:'predecessor', definition:'The person or thing that came before.',                             example:'GTA 5 is the ___ of GTA 6.',                        distractors:['instalment','franchise','perk'] },
+    { word:'delay',       definition:'To make something happen later than planned.',                      example:'The studio may ___ the game again.',                distractors:['approve','hail','peak'] },
+    { word:'surge',       definition:'A sudden, big increase.',                                           example:'There is a ___ in traffic at midnight.',            distractors:['perk','estimate','predecessor'] },
+    { word:'peak',        definition:'To reach the highest point.',                                       example:'Traffic will ___ at midnight.',                     distractors:['delay','smash','hail'] },
+    { word:'hail',        definition:'To praise something as great.',                                     example:'Critics ___ the game as a masterpiece.',            distractors:['delay','approve','gross'] },
+    { word:'approve',     definition:'To officially say yes to something.',                               example:'China does not ___ the game for sale.',             distractors:['hail','peak','gross'] },
+    { word:'estimate',    definition:'A careful guess about a number. Not an exact figure!',              example:'These sales figures are only an ___.',              distractors:['perk','surge','launch'] },
+    { word:'pre-sell',    definition:'To sell something before it is released.',                          example:'Take-Two can ___ millions of copies.',              distractors:['approve','hail','peak'] },
+    { word:'perk',        definition:'A small extra benefit or bonus.',                                   example:'Players buy extra ___ inside the game.',            distractors:['predecessor','surge','delay'] },
+    { word:'smash',       definition:'To break something completely. “Smash a record” = beat it by a lot.', example:'GTA 6 may ___ every sales record.',              distractors:['hail','approve','estimate'] },
+  ],
+
+  grammar: {
+    topic: 'so / such … that',
+    rule:  'Use SO + adjective: "so big". Use SUCH + (a) + adjective + noun: "such a huge launch". Plural nouns have no "a": "such amazing graphics". Add THAT for the result: "so big that servers crashed".',
+    exercises: [
+      { sentence:'The launch was ___ big that servers crashed.',      answer:'so',   wrong:['such','such a','very'],   explain:'so + adjective (big).' },
+      { sentence:'It was ___ a huge launch.',                         answer:'such', wrong:['so','very','too'],        explain:'such + a + adjective + noun.' },
+      { sentence:'Fans are ___ excited that they take the day off.',  answer:'so',   wrong:['such','such an','too'],   explain:'so + adjective (excited).' },
+      { sentence:'The game has ___ amazing graphics.',                answer:'such', wrong:['so','such an','too'],     explain:'such + adjective + plural noun. No “a”!' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Countable and uncountable nouns',
+    rule:  'Countable (copies, games, players): many, fewer, a few. Uncountable (money, revenue, information, news): much, less, a little. Information, news and advice have no plural: "The news is great."',
+    exercises: [
+      { sentence:'How ___ money does the game make?',                 answer:'much',        wrong:['many','few','a few'],                 explain:'Money is uncountable: much.' },
+      { sentence:'How ___ copies did they pre-sell?',                 answer:'many',        wrong:['much','less','a little'],             explain:'Copies are countable: many.' },
+      { sentence:'That is great ___!',                                answer:'news',        wrong:['a news','newses','new'],              explain:'News is uncountable: no “a”, no plural.' },
+      { sentence:'Analysts need more ___.',                           answer:'information', wrong:['informations','an information','informative'], explain:'Information is uncountable: no -s.' },
+    ],
+  },
+
+  sentences: [
+    { words:['The','launch','was','so','big','that','servers','crashed'],               answer:'The launch was so big that servers crashed',        hint:'💥 About the traffic...' },
+    { words:['GTA','6','smashes','the','record','of','its','predecessor'],             answer:'GTA 6 smashes the record of its predecessor',       hint:'🏆 About the record...' },
+    { words:['Critics','hail','the','game','as','a','masterpiece'],                     answer:'Critics hail the game as a masterpiece',            hint:'👏 About the reviews...' },
+    { words:['Players','spend','real','money','on','cars','and','perks'],               answer:'Players spend real money on cars and perks',        hint:'🎁 About the extras...' },
+  ],
+
+  word_builder: [
+    { word:'revenue',     definition:'Money a company earns from sales' },
+    { word:'franchise',   definition:'A big brand with many games' },
+    { word:'predecessor', definition:'The one that came before' },
+    { word:'instalment',  definition:'One part of a series' },
+    { word:'surge',       definition:'A sudden, big increase' },
+    { word:'launch',      definition:'The first day a product is on sale' },
+  ],
+
+  true_false: [
+    { statement:'GTA 6 makes about $3.8bn on its first day.',                                    correct:true,  reveal:'✅ TRUE! Take-Two calls it the biggest entertainment launch in history.' },
+    { statement:'Spider-Man: Brand New Day makes more money than GTA 6 on day one.',             correct:false, reveal:'❌ FALSE! Spider-Man made $2.5bn in its whole run. GTA 6 made $3.8bn in one day.' },
+    { statement:'Take-Two pre-sold 32.5 million copies.',                                        correct:true,  reveal:'✅ TRUE! Millions of copies were sold before the release.' },
+    { statement:'GTA 6 is estimated to cost more than $1bn to make.',                            correct:true,  reveal:'✅ TRUE! That would make it the most expensive game in history.' },
+    { statement:'Fans wait 13 years after GTA 5.',                                               correct:true,  reveal:'✅ TRUE! The wait grows longer with several delays.' },
+    { statement:'The $3.8bn figure is exact.',                                                   correct:false, reveal:'❌ FALSE! It is an estimate, based on figures until the end of Thursday.' },
+    { statement:'China approves GTA 6 for sale.',                                                correct:false, reveal:'❌ FALSE! It is not approved for sale in mainland China.' },
+    { statement:'In the UK, PS5 downloads peak at 8.6 times normal levels.',                     correct:true,  reveal:'✅ TRUE! Cloudflare measured this around the launch.' },
+  ],
+
+},
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
