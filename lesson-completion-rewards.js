@@ -1451,6 +1451,30 @@
       ],
     },
 
+                 'language-learning-age-of-ai-upper-intermediate': {
+      title:   'Language Learning in the Age of AI',
+      level:   'Upper Intermediate',
+      grammar: 'Indirect questions (I wonder why employers need...); verb patterns: -ing or to + verb (keep learning, decide to shut down)',
+      vocab: [
+        { word:'converse',           definition:'To have a conversation; to talk with someone.' },
+        { word:'outdated',           definition:'Too old to be useful or modern.' },
+        { word:'niche',              definition:'A small, special area of interest with few people in it.' },
+        { word:'in decline',         definition:'Getting smaller, weaker or less popular.' },
+        { word:'advent',             definition:'The arrival of something important or new.' },
+        { word:'sustainable',        definition:'Able to continue for a long time, with enough money, people or resources.' },
+        { word:'workforce',          definition:'All the people who work for a company or in a country.' },
+        { word:'employer',           definition:'A person or company that gives people jobs.' },
+        { word:'transactional',      definition:'Only about a simple exchange, with no deeper feelings.' },
+        { word:'imply',              definition:'To suggest something without saying it directly.' },
+        { word:'shortcoming',        definition:'A weak point or flaw.' },
+        { word:'bond',               definition:'A strong emotional connection between people.' },
+        { word:'sense of belonging', definition:'The feeling that you are part of a group.' },
+        { word:'antidote',           definition:'Something that helps fight a problem.' },
+        { word:'get the job done',   definition:'To do the task well enough.' },
+        { word:'shut down',          definition:'To close a business or school for good.' },
+      ],
+    },
+
   };
 /* EFCD-AUTO-START */
 /* EFCD-AUTO-END */
