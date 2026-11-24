@@ -117,6 +117,24 @@ a{color:inherit;text-decoration:none}
 .sn{background:var(--yel);border-radius:var(--r);padding:16px;margin-bottom:12px;display:none;text-align:left;font-size:14px;font-weight:700;color:var(--pitch)}.sn.show{display:block}.sn a{display:block;text-align:center;background:var(--pitch);color:var(--yel);padding:13px;border-radius:var(--rs);font-weight:900;margin-top:10px}
 .eb{display:flex;justify-content:center;width:100%;padding:13px;margin-top:8px;border-radius:var(--rs);font-weight:900;font-size:15px;border:2px solid var(--bd-h);border-bottom:5px solid var(--bd-h);background:#fff;color:var(--ink-b)}
 .eb.p{background:var(--pitch);color:var(--yel);border-color:#070E24}.eb.s{background:var(--sky);color:#fff;border-color:var(--sky-d)}
+
+.clue{font-size:56px;text-align:center;margin-bottom:6px;animation:flt 3s infinite}
+.ch{padding:9px 12px;font-size:15px;font-weight:800;background:#fff;color:var(--ink-b);border:2px solid var(--bd-h);border-bottom:4px solid var(--bd-h);border-radius:10px}
+.ch.on{background:var(--yel);border-color:var(--yel-d)}
+.oa{min-height:56px;display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:var(--bg);border:2px dashed var(--bd-h);border-radius:var(--rs);margin-bottom:10px}
+.op{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.btn:disabled{opacity:.45}
+.tp{background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.2);border-radius:var(--r);padding:14px;color:#fff;text-align:center}
+.tp h4{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--yel);margin-bottom:8px}
+.tr{display:flex;justify-content:center;gap:6px}
+.or{width:30px;text-align:center;font-size:22px}.or:not(.on){opacity:.3}
+.tstar{font-size:28px;filter:grayscale(1) opacity(.4)}.tstar.on{filter:none;animation:beat 1.5s infinite}
+.stk{display:inline-block;background:rgba(247,201,72,.2);border:2px solid rgba(247,201,72,.5);border-radius:99px;padding:3px 12px;font-size:12px;font-weight:900;color:var(--yel);margin-bottom:8px}
+.ms{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.ms span{background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);border-radius:99px;padding:3px 10px;font-size:11px;font-weight:900;color:rgba(255,255,255,.55)}
+.ms span.on{background:var(--yel);color:var(--pitch);border-color:var(--yel-d)}
+.go.sk{background:var(--red);color:#fff;border-bottom-color:var(--red-d)}
+.ban{background:var(--yel);color:var(--pitch);border-radius:var(--rs);padding:10px 14px;font-weight:900;font-size:14px;margin:10px 0;animation:glow 1.2s 3}
 </style>
 </head>
 <body>
@@ -135,7 +153,7 @@ a{color:inherit;text-decoration:none}
 <div class="deco">🎄</div>
 <div class="tag">🎄 THE WEEKLY DROP · ISSUE 029 · ADVENT SPECIAL</div>
 <div class="h1">24 doors. 24 new words. <em>One festive English calendar.</em></div>
-<div class="sub">Behind every door: a word for your tax, business and legal English, three mini-exercises and a surprise about how Brits and Americans celebrate. Open one door a day! 🎅</div>
+<div class="sub">Behind every door: a word you will really use in tax, business and legal English, three mini-challenges (mystery word → at work → pro level) and a surprise about how Brits and Americans celebrate. Collect ornaments, keep your streak, win titles! 🎅</div>
 <div class="stats">
 <div class="st"><b>24</b><small>Doors</small></div>
 <div class="st"><b>72</b><small>Exercises</small></div>
@@ -155,7 +173,9 @@ a{color:inherit;text-decoration:none}
 <div class="pl"><span id="pl1">0 / 24 doors completed</span><span>🎄</span></div>
 </div>
 
+<div class="tp"><div class="stk" id="stk">🔥 0-day streak</div><h4>🎄 Your Advent tree</h4><div id="tree"></div><div class="ms" id="ms"></div></div>
 <div class="cal"><div class="dg" id="dg"></div></div>
+<button class="go sk" onclick="sackOpen()"><span>🎒&nbsp; Santa’s Sack: review your words</span><span>&rarr;</span></button>
 <button class="go hidden" id="claim" onclick="showEnd()"><span>🏆&nbsp; Claim your Advent badge!</span><span>&rarr;</span></button>
 </div>
 
@@ -189,129 +209,144 @@ a{color:inherit;text-decoration:none}
 window.LESSON_ID='weekly-drop-issue-029';
 window.LESSON_TITLE='The Weekly Drop - Issue 029 - The Advent Calendar';
 var LESSON_LINK='/weeklydrop029/', LESSON_LEVEL='All Levels';
-var YEAR=2026, KEY='efcd_advent_'+YEAR;
+var YEAR=2026, KEY='efcd_advent_'+YEAR+'_v2';
 
-/* ═══ DOORS: w=word, t=type, d=definition, de=German hint, x=example, f=surprise fact,
-   b/m/a = [question, [CORRECT first, wrong, wrong], feedback]. The engine shuffles the options. ═══ */
+/* ═══ DOORS ═══
+ e=ornament emoji, w=word, t=type, d=definition, de=German hint, x=example (contains w), k=clue shown the day before, f=surprise fact
+ b=[emoji clue, sentence with ___, [CORRECT, wrong, wrong]]  (beginner: mystery word, revealed AFTER the answer)
+ m=[work scenario with ___, [CORRECT, wrong, wrong], feedback]  (intermediate: at work)
+ a=[question,[CORRECT, wrong, wrong],feedback]  OR  {o:[words in correct order],fb:'...'}  (advanced: pro level)
+ The first option is always the correct one; the engine shuffles. ═══ */
 var D=[
-{e:'🎁',w:'gift',t:'noun',d:'Something you give to someone for free.',de:'Geschenk. ⚠️ Nicht „Gift“ (= poison)!',x:'Thank you for the lovely gift.',f:'Brits and Americans open presents on the morning of 25 December, not on the evening of the 24th like in Germany.',
- b:['On Christmas morning you open a ___.',['gift','poison','invoice'],'gift = Geschenk. German “Gift” is poison in English!'],
- m:['In business, a “gift” is something you give…',['for free','as payment for work','as a loan'],'A gift has no payment in return. That matters for tax!'],
- a:['“Schenkungsteuer” in English is…',['gift tax','poison tax','present tax'],'gift tax. And “inter vivos” = a gift made during someone’s life.']},
-{e:'💰',w:'bonus',t:'noun',d:'Extra money on top of your normal pay.',de:'Prämie, Sonderzahlung',x:'She got a Christmas bonus.',f:'In Britain, the staff Christmas party and a small bonus or hamper are classic festive treats from the boss.',
- b:['Extra money at Christmas is a Christmas ___.',['bonus','budget','balance'],'bonus = Prämie.'],
- m:['For tax purposes, a bonus is normally…',['taxable income','a free gift','a loan'],'Bonuses are usually taxable income (Arbeitslohn).'],
- a:['The bonus will be paid ___ the company meets its targets.',['provided that','in case of','as if'],'provided that = only if. Great for contracts!']},
-{e:'✨',w:'festive',t:'adjective',d:'Happy and decorated for a celebration.',de:'festlich',x:'The shop looks very festive.',f:'Brits call 25 December to 1 January “the festive period”. Americans say “the holidays”.',
- b:['A ___ jumper has reindeer on it.',['festive','fresh','formal'],'festive = festlich.'],
- m:['In Britain, the “festive period” means…',['Christmas to New Year','only Christmas Day','all of January'],'The days around Christmas and New Year.'],
- a:['Our office is closed over the festive period. ___ you have an urgent matter, please call.',['Should','Would','Had'],'Should you… = If you should… (formal inversion).']},
-{e:'✂️',w:'deduct',t:'verb',d:'Take an amount away from a total.',de:'abziehen, absetzen',x:'You can deduct business costs.',f:'In the UK, most gifts to clients are not tax-deductible. Small items with your logo can be an exception, but rules change: always check!',
- b:['Santa will ___ points for naughty children.',['deduct','deliver','deserve'],'deduct = abziehen.'],
- m:['Business costs are ___ from your profit before tax.',['deducted','deleted','deposited'],'deduct costs = Kosten abziehen.'],
- a:['Client gifts are only ___ if they are small.',['deductible','reductible','deductable'],'tax-deductible = steuerlich absetzbar.']},
-{e:'🧸',w:'allowance',t:'noun',d:'An amount of money you are allowed to have or receive.',de:'Freibetrag; (US) Taschengeld',x:'Everyone has a tax-free allowance.',f:'Americans say “allowance” for children’s weekly pocket money. Brits say “pocket money”.',
- b:['In the US, kids get a weekly ___ of pocket money.',['allowance','allergy','alliance'],'allowance = Taschengeld (US).'],
- m:['Your tax-free amount of income is your personal ___.',['allowance','allocation','allegiance'],'personal allowance = Grundfreibetrag.'],
- a:['A “daily subsistence allowance” pays for…',['trip expenses','a pocket-money rise','extra holiday days'],'It covers meals and costs on a business trip.']},
-{e:'🥂',w:'perk',t:'noun',d:'A small extra benefit that comes with a job.',de:'Vergünstigung, Extra',x:'Free coffee is a nice perk.',f:'In the UK, an annual staff party can be tax-exempt up to £150 per head. A very nice perk!',
- b:['A free Christmas lunch at work is a nice ___.',['perk','park','pork'],'perk = Vergünstigung.'],
- m:['A staff party is a ___: a small extra from your employer.',['perk','peak','pledge'],'perk = a job extra.'],
- a:['Employer perks can create tax. A company car is a taxable ___ in kind.',['benefit','bonus','gift'],'benefit in kind = geldwerter Vorteil.']},
-{e:'🚗',w:'benefit',t:'noun / verb',d:'An advantage; also something extra from an employer.',de:'Vorteil, Leistung',x:'A company car is a benefit.',f:'The Christmas jumper (US: “ugly sweater”) is a workplace tradition. The sillier, the better!',
- b:['Free Christmas dinner is a ___ of working here.',['benefit','border','bench'],'benefit = Vorteil.'],
- m:['A company car is a “benefit in ___”.',['kind','cash','tax'],'benefit in kind = geldwerter Vorteil. “Kind” here means Art, not Kind!'],
- a:['She benefits ___ the scheme.',['from','of','by'],'benefit FROM something.']},
-{e:'🎅',w:'season',t:'noun',d:'A time of year; a busy period in business.',de:'Jahreszeit, Saison',x:'December is the busy season.',f:'Many Americans say “Happy Holidays”. “Season’s Greetings” works for everyone.',
- b:['Christmas cards say “Season’s ___”.',['Greetings','Meetings','Readings'],'Season’s Greetings = Frohe Festtage.'],
- m:['For shops, December is the peak ___.',['season','reason','session'],'peak season = Hochsaison.'],
- a:['Shops hire ___ staff for December only.',['seasonal','seasoned','sensible'],'seasonal = Saison-. “Seasoned” = erfahren. “Sensible” = vernünftig, NOT sensibel!']},
-{e:'🦃',w:'talk turkey',t:'idiom',d:'To talk honestly and get down to business (US).',de:'Klartext reden, zur Sache kommen',x:'Let’s talk turkey about the price.',f:'A British Christmas dinner: turkey, roast potatoes, Brussels sprouts, “pigs in blankets” (sausages in bacon!) and Christmas pudding.',
- b:['On Christmas Day, many British families eat roast ___.',['turkey','tuna','tiger'],'turkey = Truthahn. And “talk turkey” is an idiom!'],
- m:['To “talk turkey” means to…',['get down to business','tell a joke','cook dinner'],'talk turkey = zur Sache kommen.'],
- a:['Enough small talk. Let’s ___ about the fee.',['talk turkey','walk turkey','speak turkey'],'Fixed idiom: talk turkey.']},
-{e:'🧾',w:'settle',t:'verb',d:'To pay a bill, or to end a dispute by agreement.',de:'begleichen; einen Vergleich schließen',x:'Please settle the invoice today.',f:'26 December is Boxing Day in the UK: a public holiday and the start of the big sales.',
- b:['Mum will ___ down with a mince pie by the fire.',['settle','sell','send'],'settle down = sich niederlassen, es sich gemütlich machen.'],
- m:['To ___ an invoice means to pay it.',['settle','sleep','solve'],'settle = begleichen. “Solve” is for puzzles.'],
- a:['The two firms ___ the dispute out of court.',['settled','repaired','solved'],'settle a dispute = sich vergleichen.']},
-{e:'⏰',w:'due',t:'adjective',d:'Expected, or to be paid on a certain date.',de:'fällig; erwartet',x:'Payment is due on Friday.',f:'At 3 p.m. on 25 December, millions of Brits watch the King’s Christmas message on TV.',
- b:['Your Christmas presents are ___ to arrive on Friday.',['due','done','dear'],'due to arrive = soll ankommen.'],
- m:['The tax return is ___ on 31 January (UK).',['due','dead','duty'],'due date = Fälligkeitstag.'],
- a:['Which sentence is correct?',['Due to the snow, the parcels are late.','Due to it snowed, the parcels are late.','Due to snow fell, the parcels are late.'],'due to + NOUN. Before a clause, use “because”.']},
-{e:'💝',w:'generous',t:'adjective',d:'Happy to give more than expected.',de:'großzügig',x:'That was a generous tip.',f:'Secret Santa: everyone buys a small gift (often £10 or $20) for a colleague drawn from a hat. Nobody knows who gave what!',
- b:['Grandma gave me £50. She is very ___!',['generous','general','genius'],'generous = großzügig.'],
- m:['A “generous” tip is…',['bigger than usual','smaller than usual','always late'],'generous = more than expected.'],
- a:['The firm made a generous ___ to charity.',['donation','donate','donor'],'a donation = eine Spende; a donor = ein Spender.']},
-{e:'🔔',w:'charity',t:'noun',d:'An organisation that helps people and is not for profit.',de:'Wohltätigkeitsorganisation',x:'She works for a charity.',f:'In the US, Salvation Army bell ringers stand outside shops with red kettles and collect donations in December.',
- b:['At Christmas many people give money to ___.',['charity','chimney','chocolate'],'charity = Wohltätigkeit.'],
- m:['A “charity” in the UK is a…',['non-profit organisation','tax office','bank'],'charity = gemeinnützige Organisation.'],
- a:['In the UK, a charity can claim 25p extra on your donation through “Gift ___”.',['Aid','Tax','Help'],'Gift Aid = UK scheme: the charity claims 25p for every £1 you give.']},
-{e:'↩️',w:'refund',t:'noun / verb',d:'Money that is paid back to you.',de:'Erstattung, zurückzahlen',x:'I want a refund, please.',f:'Returning unwanted gifts is very common after Christmas. Most shops ask for a receipt, so keep it!',
- b:['The sweater is too small. I want a ___.',['refund','refuel','refine'],'refund = Rückerstattung.'],
- m:['The tax office pays you back too much tax: a tax ___.',['refund','refuse','refill'],'tax refund = Steuererstattung.'],
- a:['She is ___ to a full refund.',['entitled','titled','allowed'],'entitled to = berechtigt zu. “Titled” = betitelt.']},
-{e:'🧾',w:'receipt',t:'noun',d:'A paper that proves you paid.',de:'Quittung, Beleg. ⚠️ Nicht „recipe“ (= Rezept)!',x:'Keep the receipt.',f:'In the US, a “gift receipt” hides the price, so the person can swap the present without any awkwardness.',
- b:['Keep the ___ in case the gift is wrong.',['receipt','recipe','reception'],'receipt = Quittung. Recipe = Rezept.'],
- m:['To claim a business expense, you need a ___.',['receipt','receiver','recipient'],'No receipt, no deduction!'],
- a:['Goods will be shipped ___ of payment.',['on receipt','at receive','by receiving'],'on receipt of = nach Erhalt von.']},
-{e:'💵',w:'tip',t:'noun / verb',d:'Extra money for good service; also a piece of advice.',de:'Trinkgeld; Tipp',x:'I left a ten-euro tip.',f:'In the US, people often give holiday tips or small gifts to cleaners, hairdressers and delivery drivers.',
- b:['Dad left a £10 ___ for the pizza driver.',['tip','top','tap'],'tip = Trinkgeld.'],
- m:['A “tip” can be extra money for a waiter, or…',['useful advice','a tax form','a gift box'],'tip = Trinkgeld OR Tipp.'],
- a:['The accountant ___ the authorities off about the fraud.',['tipped','tapped','topped'],'tip off = heimlich informieren. Whistleblower alert!']},
-{e:'🍽️',w:'bill',t:'noun',d:'A request for payment; in the US also a banknote.',de:'Rechnung; (US) Geldschein; Gesetzentwurf',x:'Could we have the bill, please?',f:'Children in the US leave milk and cookies for Santa. British kids leave a mince pie, a drink (often sherry) and a carrot for Rudolph.',
- b:['In a UK restaurant: “Could we have the ___, please?”',['bill','bell','ball'],'bill = Rechnung (UK). Americans say “check”!'],
- m:['In parliament, a “bill” is a…',['draft law','tax refund','bank note'],'bill = Gesetzentwurf. Once passed, it becomes an Act.'],
- a:['Who will ___ the bill for the staff party?',['foot','leg','hand'],'foot the bill = die Rechnung bezahlen.']},
-{e:'🥳',w:'toast',t:'noun / verb',d:'A short speech and a drink to honour someone.',de:'Trinkspruch (auch: Toast)',x:'Let’s raise a toast!',f:'Christmas crackers: you pull one with your neighbour, it bangs, and out come a paper hat, a bad joke and a tiny toy.',
- b:['At midnight we raise a glass and drink a ___.',['toast','toad','tent'],'toast = Trinkspruch.'],
- m:['To “toast” a deal means to…',['drink to it','sign it','cancel it'],'toast = auf etwas anstoßen.'],
- a:['After we sign, I will ___ a toast to the partnership.',['propose','propound','purpose'],'propose a toast = einen Toast ausbringen.']},
-{e:'🎆',w:'resolution',t:'noun',d:'A firm decision; also a formal decision of a group.',de:'Vorsatz; Beschluss',x:'My resolution is to exercise more.',f:'Scotland celebrates New Year with Hogmanay, a huge street party. At midnight everybody sings “Auld Lang Syne”.',
- b:['A New Year’s ___: “I will learn more English!”',['resolution','revolution','reception'],'resolution = guter Vorsatz.'],
- m:['In law, a board “resolution” is a formal…',['decision','dinner','delay'],'resolution = Beschluss (shareholders’ resolution = Gesellschafterbeschluss).'],
+{e:'🎅',w:'discretionary',t:'adjective',d:'Decided by the giver, not required by a rule or contract.',de:'nach eigenem Ermessen. ⚠️ Nicht „diskret“!',x:'The Christmas bonus is discretionary.',k:'A long word. It means “up to the boss”, and it is NOT “discreet”.',f:'Brits and Americans open presents on the morning of 25 December, not on the evening of the 24th like in Germany.',
+ b:['🎅🤔📜','Santa decides alone who gets a present. It is his ___ choice.',['discretionary','discreet','distinctive']],
+ m:['📞 Client: “Must I pay my staff a Christmas bonus?” You: “No. It is ___, unless the contract says otherwise.”',['discretionary','discrete','discreet'],'discretionary = nach Ermessen. “Discreet” = verschwiegen; “discrete” = getrennt.'],
+ a:{o:['The','bonus','is','paid','at','the','employer’s','sole','discretion'],fb:'at the employer’s sole discretion = nach alleinigem Ermessen des Arbeitgebers. A classic contract phrase!'}},
+{e:'🎟️',w:'voucher',t:'noun',d:'A paper or digital ticket with a fixed value that you can spend.',de:'Gutschein',x:'She gave me a gift voucher.',k:'The perfect present when you do not know what to buy. It has a cash value, but it is not cash.',f:'Secret Santa: everyone buys a small gift (often £10 or $20) for a colleague drawn from a hat. Nobody knows who gave what!',
+ b:['🎁🎟️🛍️','I can’t decide what to buy, so I’ll give a gift ___.',['voucher','receipt','voyage']],
+ m:['📧 HR to all staff: “Instead of a bonus, every employee gets a £50 ___ for the shops.”',['voucher','vendor','vacancy'],'voucher = Gutschein. In tax, a voucher can count as a benefit in kind.'],
+ a:['Which sentence is correct English?',['This voucher is valid until 31 January.','This voucher is valid to until 31 January.','This voucher is valid since 31 January.'],'valid until = gültig bis. Or: valid for 12 months.']},
+{e:'✂️',w:'deductible',t:'adjective',d:'Can be subtracted from your taxable profit.',de:'(steuerlich) absetzbar',x:'Business gifts are not always deductible.',k:'Tax advisers love it. If a cost is ___, it lowers the tax bill.',f:'In the UK, most gifts to clients are not tax-deductible. Small items with your logo can be an exception, but rules change: always check!',
+ b:['🎄🏢💶','The office Christmas tree was a business cost. It is tax-___.',['deductible','deductive','dedicated']],
+ m:['📞 Client: “Can I claim the staff party?” You: “Yes, the cost is fully ___, as long as everyone is invited.”',['deductible','deducting','deductive'],'tax-deductible = steuerlich absetzbar.'],
+ a:['Business gifts are tax-deductible ___ they cost less than £50.',['provided that','even though','in case'],'provided that = only if. Compare: unless = if not.']},
+{e:'💝',w:'ex gratia',t:'adjective / adverb',d:'Given as a favour, not because the law or a contract says you must.',de:'freiwillig, ohne Rechtspflicht (lat. „aus Gnade“)',x:'The firm made an ex gratia payment.',k:'Latin! It means “out of kindness”. Lawyers use it for money you do not have to pay.',f:'In the UK, an annual staff party can be tax-exempt up to £150 per head. A very nice perk!',
+ b:['👴💶❤️','Grandpa gave us £20 each. Nobody asked him. It was an ___ present.',['ex gratia','ex libris','ex tempore']],
+ m:['📞 Client: “The customer is angry, but we are not legally liable.” You: “Then offer an ___ payment and say clearly that it is no admission of liability.”',['ex gratia','ex officio','ex works'],'ex gratia = freiwillig, ohne Anerkennung einer Rechtspflicht. Ex officio = von Amts wegen. Ex works = ab Werk.'],
+ a:{o:['We','make','this','payment','on','an','ex','gratia','basis'],fb:'on an ex gratia basis = auf freiwilliger Basis. Perfect for settlement letters.'}},
+{e:'🏖️',w:'accrue',t:'verb',d:'To build up slowly over time, like holiday days or interest.',de:'sich ansammeln, auflaufen (Zinsen, Urlaubstage)',x:'Interest can accrue every day.',k:'Holiday days and interest both do this: they pile up quietly.',f:'Brits call 25 December to 1 January “the festive period”. Americans say “the holidays”.',
+ b:['🏖️📅➕','Your holiday days ___ month by month, so plan your Christmas break!',['accrue','accuse','achieve']],
+ m:['📞 Client: “Why does my loan keep growing?” You: “Interest ___ daily, so the amount rises until you pay.”',['accrues','accuses','arrives'],'accrue = auflaufen. Accrued interest = aufgelaufene Zinsen.'],
+ a:['“Accrued holiday pay” is money for…',['earned, unused leave','days taken last year','a paid sick note'],'It is leave you earned but did not take. Often paid in the final payslip.']},
+{e:'🧦',w:'forfeit',t:'verb',d:'To lose a right or money because you broke a rule.',de:'verwirken, verlieren',x:'You forfeit your deposit if you cancel.',k:'Break the rule and it is gone: money, a right, a game…',f:'The Christmas jumper (US: “ugly sweater”) is a workplace tradition. The sillier, the better!',
+ b:['🎅🙅🎁','Very naughty children ___ their presents. Santa takes them back!',['forfeit','forecast','forget']],
+ m:['📧 Hotel: “If you cancel after 1 December, you ___ your deposit.”',['forfeit','forgive','forbid'],'forfeit = verwirken (die Anzahlung).'],
+ a:['Which sentence is correct?',['Late filers may forfeit the right to appeal.','Late filers may forfeit from the right to appeal.','Late filers may forfeit to the right of appeal.'],'forfeit takes a direct object: no preposition.']},
+{e:'⌛',w:'lapse',t:'verb',d:'To end because a time limit has passed.',de:'verfallen, ablaufen',x:'The offer will lapse on 31 December.',k:'When time runs out, offers, rights and policies do this.',f:'Many Americans say “Happy Holidays”. “Season’s Greetings” works for everyone.',
+ b:['🎟️⌛🗑️','Hurry! Your Christmas discount will ___ at midnight.',['lapse','lap','lack']],
+ m:['📞 Client: “Can I use my allowance in January?” You: “No. Unused amounts ___ at the end of the tax year.”',['lapse','lapel','elapse'],'lapse = verfallen. Elapse = vergehen (time elapses).'],
+ a:['“The insurance has lapsed.” The policy…',['has expired','is brand new','was paid twice'],'A lapsed policy = erloschen. There is no cover!']},
+{e:'🍰',w:'pro rata',t:'adverb / adjective',d:'In proportion: a fair part of the full amount.',de:'anteilig',x:'Your bonus is paid pro rata.',k:'Latin again! Cut the cake fairly: everyone gets a part in proportion.',f:'The famous Christmas tree at Rockefeller Center in New York is lit in a TV ceremony every year.',
+ b:['🎂✂️⚖️','The cake is shared ___: the bigger the eater, the bigger the slice.',['pro rata','pro bono','per se']],
+ m:['📧 HR: “You joined on 1 October, so your Christmas bonus is paid ___: 3/12 of the full amount.”',['pro rata','pro forma','ad hoc'],'pro rata = anteilig. Pro forma = zum Schein (pro-forma invoice).'],
+ a:['Which sentence is correct?',['Her salary was reduced pro rata.','Her salary was reduced pro rata of days.','Her salary was reduced by pro rata.'],'“Pro rata” stands alone. No “of” and no “by”.']},
+{e:'🍀',w:'windfall',t:'noun',d:'Unexpected money, e.g. a lottery win or a surprise payment.',de:'unerwarteter Geldsegen',x:'The bonus was a pleasant windfall.',k:'Wind blows an apple off the tree: free fruit! What is the money version?',f:'In Britain, the staff Christmas party and a small bonus or hamper are classic festive treats from the boss.',
+ b:['🌬️🍎💰','A surprise £500 in your Christmas card: what a ___!',['windfall','windmill','windshield']],
+ m:['📞 Client: “I got €10,000 from an old aunt.” You: “A nice ___! Let me check whether it is taxable.”',['windfall','warrant','wage'],'windfall = unverhoffter Gewinn. Windfall tax = Übergewinnsteuer.'],
+ a:['A “windfall tax” is charged on…',['unexpectedly high profits','income from wind farms only','Christmas bonuses'],'Governments use it on sudden extra profits, for example of energy firms.']},
+{e:'📦',w:'surcharge',t:'noun',d:'An extra charge added to the normal price.',de:'Zuschlag, Aufpreis',x:'There is a surcharge for late delivery.',k:'It sneaks onto the invoice: an extra charge on top.',f:'26 December is Boxing Day in the UK: a public holiday and the start of the big sales.',
+ b:['📦🚚💸','Express Christmas delivery costs an extra £5 ___.',['surcharge','surface','surprise']],
+ m:['📧 Supplier: “From 1 December a fuel ___ of 3% applies to all orders.”',['surcharge','discount','refund'],'surcharge = Zuschlag. The opposite is a discount.'],
+ a:['Which sounds more professional in a letter?',['A surcharge of 5% will be applied.','We’ll slap 5% on top.','You gotta pay 5% more.'],'Passive voice and neutral words = formal letter style.']},
+{e:'💳',w:'instalment',t:'noun',d:'One of several smaller payments you make over time.',de:'Rate, Teilzahlung. ⚠️ Nicht „Installation“!',x:'I pay each instalment on time.',k:'Pay for Christmas in small pieces, month by month. (US spelling: installment.)',f:'At 3 p.m. on 25 December, millions of Brits watch the King’s Christmas message on TV.',
+ b:['🎁💳📆','Too expensive? Pay for the TV in monthly ___.',['instalments','installations','institutions']],
+ m:['📞 Client: “Can I pay the tax bill in smaller amounts?” You: “Ask the tax office for payment in ___.”',['instalments','installations','invoices'],'instalment = Rate. US spelling: installment.'],
+ a:{o:['The','balance','is','payable','in','twelve','monthly','instalments'],fb:'payable in instalments = in Raten zahlbar. Contract English!'}},
+{e:'⚖️',w:'liable',t:'adjective',d:'Legally responsible, or required by law to pay.',de:'haftbar; steuerpflichtig',x:'You are liable for the debt.',k:'A legal word: if something goes wrong, you are the one responsible.',f:'In the US, Salvation Army bell ringers stand outside shops with red kettles and collect donations in December.',
+ b:['🎅🛷💥','If the sleigh crashes, Santa is ___ for the damage.',['liable','lovely','likely']],
+ m:['📞 Client: “Do I pay tax on this?” You: “Yes. Income from abroad is ___ to tax in Germany.”',['liable','likely','eligible'],'liable to tax = steuerpflichtig. Eligible = berechtigt.'],
+ a:['Which preposition? “The directors are personally liable ___ the debts.”',['for','of','to'],'liable FOR debts, but liable TO tax / TO pay. Tricky!']},
+{e:'🙊',w:'withhold',t:'verb',d:'To keep something back; also: to take tax off a payment at source.',de:'einbehalten, zurückhalten',x:'The bank must withhold tax at source.',k:'Keep it back! Banks do it with tax, parents do it with presents.',f:'Children in the US leave milk and cookies for Santa. British kids leave a mince pie, a drink (often sherry) and a carrot for Rudolph.',
+ b:['🎄🙈🎁','Mum ___ the presents until Christmas morning.',['withholds','withdraws','without']],
+ m:['📞 Client: “Why did I receive less?” You: “The company must ___ tax from your salary and pay it to the tax office.”',['withhold','withdraw','withstand'],'withhold = einbehalten. Withholding tax = Quellensteuer.'],
+ a:['“Withholding tax” is tax that is…',['deducted at source','paid back every Christmas','charged on hidden money'],'Quellensteuer: taken off before you receive the payment.']},
+{e:'🏳️',w:'waive',t:'verb',d:'To give up a right, or not to charge a fee.',de:'verzichten auf, erlassen',x:'The bank agreed to waive the fee.',k:'A friendly legal word: you give up a right or a fee. (It sounds like a wave!)',f:'In the US, people often give holiday tips or small gifts to cleaners, hairdressers and delivery drivers.',
+ b:['🛒🚚🆓','The shop will ___ the delivery fee for Christmas orders.',['waive','wave','wake']],
+ m:['📧 Bank: “As a gesture of goodwill, we will ___ the late fee this time.”',['waive','weigh','waste'],'waive = erlassen. Waive a right = auf ein Recht verzichten. Not “wave”!'],
+ a:{o:['We','waive','all','claims','arising','from','this','agreement'],fb:'waive all claims = auf alle Ansprüche verzichten. “Arising from” = aus … entstehend.'}},
+{e:'📬',w:'overdue',t:'adjective',d:'Not paid or done by the date it was due.',de:'überfällig',x:'The invoice is two weeks overdue.',k:'Your January bills may become this: past the due date!',f:'The first Christmas card was sent in London in 1843. Today Brits send millions every year.',
+ b:['💌⏰📮','The Christmas card is ___. It arrives in January!',['overdue','overdone','overseas']],
+ m:['📧 Reminder: “Invoice 2026-14 is now 30 days ___. Please pay immediately.”',['overdue','overdone','overpaid'],'overdue = überfällig.'],
+ a:['Which sentence is correct?',['The payment is overdue by two weeks.','The payment is overdue since two weeks.','The payment is overdue for two week.'],'overdue BY two weeks, or “two weeks overdue”. Not “since”!']},
+{e:'↩️',w:'refund',t:'noun / verb',d:'Money that is paid back to you.',de:'Erstattung; zurückzahlen',x:'You can get a full refund.',k:'The sweater does not fit? Get your money back.',f:'Returning unwanted gifts is very common after Christmas. Most shops ask for a receipt, so keep it!',
+ b:['🧶😕💷','Grandma’s sweater is too small. Ask for a ___!',['refund','refuel','reform']],
+ m:['📞 Client: “I overpaid VAT.” You: “Then you can claim a ___ from the tax office.”',['refund','refrain','refusal'],'VAT refund = Umsatzsteuererstattung.'],
+ a:['She is ___ to a full refund.',['entitled','titled','allowed'],'entitled TO = berechtigt zu. “Titled” = betitelt.']},
+{e:'🧾',w:'receipt',t:'noun',d:'A paper that proves you paid.',de:'Quittung, Beleg. ⚠️ Nicht „recipe“ (= Rezept)!',x:'Keep the receipt for your records.',k:'Do not throw it away! It proves you paid. (And it is not a recipe!)',f:'In the US, a “gift receipt” hides the price, so the person can swap the present without any awkwardness.',
+ b:['🎁🧾🔄','Keep the gift ___ in case the present is wrong.',['receipt','recipe','reception']],
+ m:['📞 Client: “I lost the paper for the taxi.” You: “Without a ___ the tax office may reject the expense.”',['receipt','recipe','receiver'],'receipt = Beleg.'],
+ a:['“On receipt of payment” means…',['as soon as the money arrives','before you pay','if you never pay'],'on receipt of = nach Erhalt von. Very common in contracts.']},
+{e:'🤝',w:'settle',t:'verb',d:'To pay a bill, or to end a dispute by agreement.',de:'begleichen; sich vergleichen',x:'Please settle the invoice today.',k:'Two meanings: pay up, or end a fight with an agreement.',f:'Christmas crackers: you pull one with your neighbour, it bangs, and out come a paper hat, a bad joke and a tiny toy.',
+ b:['🎄🔥🛋️','After dinner, the whole family ___ down by the fire.',['settles','sells','sends']],
+ m:['📧 “Please ___ the outstanding balance within 14 days.”',['settle','solve','sort'],'settle a balance = Saldo begleichen. Solve = lösen (Rätsel).'],
+ a:{o:['The','case','was','settled','out','of','court'],fb:'settle out of court = sich außergerichtlich einigen.'}},
+{e:'⏳',w:'pending',t:'adjective',d:'Waiting to be decided or finished.',de:'anhängig, ausstehend. ⚠️ Nicht „Pendler“!',x:'The decision is still pending.',k:'Not yet decided. Santa’s delivery status tonight: ___.',f:'Every Christmas Eve, NORAD, a US military agency, “tracks” Santa live online. It has done so since 1955.',
+ b:['🎅📡⏳','Santa’s delivery to your house is still ___. Wait for midnight!',['pending','pendant','pointing']],
+ m:['📞 Client: “Is my tax refund approved?” You: “Not yet. The application is still ___.”',['pending','pensive','pendulum'],'pending = ausstehend, anhängig. “Pensive” = nachdenklich.'],
+ a:['“The case is pending before the court.” The case is…',['not yet decided','already closed','impossible'],'pending = anhängig.']},
+{e:'📋',w:'resolution',t:'noun',d:'A formal decision made by a group; also a firm promise to yourself.',de:'Beschluss; guter Vorsatz',x:'The board passed a resolution.',k:'On 1 January it is a promise to yourself. In the boardroom it is a formal decision.',f:'Scotland celebrates New Year with Hogmanay, a huge street party. At midnight everybody sings “Auld Lang Syne”.',
+ b:['🎆🥂✍️','At midnight: “My New Year’s ___ is to learn more English!”',['resolution','revolution','reception']],
+ m:['📝 Minutes: “The board passed a ___ to approve the budget.”',['resolution','revolution','reservation'],'resolution = Beschluss.'],
  a:['The shareholders ___ the resolution unanimously.',['passed','took','won'],'pass a resolution = einen Beschluss fassen. Unanimously = einstimmig.']},
-{e:'📜',w:'obligation',t:'noun',d:'A duty you must do by law or by promise.',de:'Verpflichtung. ⚠️ Deutsche „Obligation“ = bond (Anleihe)!',x:'You have a legal obligation to file.',f:'The first Christmas card was sent in London in 1843. Today Brits send millions every year.',
- b:['Do I have to send a card? No, it is not an ___.',['obligation','observation','occasion'],'obligation = Pflicht.'],
- m:['A legal duty is an ___.',['obligation','opposition','operation'],'obligation = Verpflichtung. A German “Obligation” is a bond!'],
- a:['Under the contract, the seller is ___ to deliver by 24 December.',['obliged','obligatory','obligating'],'be obliged to + verb = verpflichtet sein.']},
-{e:'🌙',w:'eve',t:'noun',d:'The evening or day before an event.',de:'Vorabend',x:'Christmas Eve is on 24 December.',f:'Every Christmas Eve, NORAD, a US military agency, “tracks” Santa live online. It has done so since 1955.',
- b:['The day before Christmas is Christmas ___.',['Eve','Even','Evening'],'Eve = Vorabend.'],
- m:['On the ___ of the deadline, the team worked all night.',['eve','end','even'],'on the eve of = am Vorabend von.'],
- a:['___ I known about the deadline on Christmas Eve, I would have filed earlier.',['Had','Have','Did'],'Had I known = If I had known (inversion).']},
-{e:'➡️',w:'carry forward',t:'phrasal verb',d:'To move an amount or an idea to the next period.',de:'vortragen (Verlustvortrag)',x:'The loss is carried forward.',f:'Every family member stirs the Christmas pudding and makes a wish. In some families it hides a lucky coin!',
- b:['Families ___ forward traditions from year to year.',['carry','cry','carve'],'carry forward = weitertragen. (Carve = Truthahn tranchieren!)'],
- m:['A loss that you use next year is carried ___.',['forward','forth','front'],'loss carried forward = Verlustvortrag.'],
- a:['The opposite of “carry forward” is carry ___.',['back','down','off'],'loss carryback = Verlustrücktrag.']},
-{e:'🎄',w:'net',t:'adjective',d:'The amount left after deductions.',de:'netto. ⚠️ Auch: Netz!',x:'My net salary is lower.',f:'The big Christmas tree at Rockefeller Center in New York is lit in a famous TV ceremony each year.',
- b:['On Cyber Monday we shop on the ___.',['net','nut','nest'],'the Net = das Internet.'],
- m:['___ salary is what you get after tax.',['Net','Gross','Grand'],'net = netto, gross = brutto. “Gross” can also mean disgusting!'],
- a:['Her bonus is £2,000 gross. After 40% tax, her ___ bonus is £1,200.',['net','gross','tax'],'net = after deductions.']},
-{e:'🎀',w:'wrap up',t:'phrasal verb',d:'To finish something; to cover a gift in paper.',de:'abschließen; einpacken',x:'Let’s wrap up the meeting.',f:'The advent calendar is a German idea! Now Brits love them too, with chocolate, gin, tea and even cheese behind the doors.',
- b:['We ___ gifts in shiny paper.',['wrap','rap','warp'],'wrap = einpacken (silent w).'],
- m:['To “wrap up” a meeting means to…',['finish it','start it','move it'],'wrap up = abschließen.'],
- a:['Let’s wrap ___ the year-end filings before the break.',['up','over','off'],'wrap up = abschließen. And “wrap up warm” = dress warmly!']}
+{e:'➡️',w:'carry forward',t:'phrasal verb',d:'To move an amount or an idea to the next period.',de:'vortragen (Verlustvortrag)',x:'You can carry forward the loss.',k:'Not just a tradition! Losses can do this too: they move into next year.',f:'Every family member stirs the Christmas pudding and makes a wish. In some families it hides a lucky coin!',
+ b:['👨‍👩‍👧🍮➡️','Families ___ forward traditions from year to year.',['carry','cry','carve']],
+ m:['📞 Client: “We made a loss this year.” You: “You can ___ it forward and use it against next year’s profit.”',['carry','cross','call'],'loss carried forward = Verlustvortrag.'],
+ a:['The opposite of “carry forward” is carry ___.',['back','down','off'],'loss carryback = Verlustrücktrag (to an earlier year).']},
+{e:'🥦',w:'gross',t:'adjective',d:'The total before anything is taken off.',de:'brutto. ⚠️ Auch: eklig!',x:'My gross salary is higher than my net salary.',k:'The opposite of net. In everyday English it also means “disgusting”, like cold sprouts!',f:'A British Christmas dinner: turkey, roast potatoes, Brussels sprouts, “pigs in blankets” (sausages in bacon!) and Christmas pudding.',
+ b:['🥦🤢🍽️','Cold Brussels sprouts for breakfast? How ___!',['gross','grateful','gentle']],
+ m:['📞 Client: “My payslip says €4,000.” You: “That is your ___ salary. After tax and social security you get less.”',['gross','net','grand'],'gross = brutto, net = netto.'],
+ a:['Her bonus is £2,000 gross. After 40% tax, her net bonus is…',['£1,200','£800','£1,600'],'40% of £2,000 = £800 tax. £2,000 − £800 = £1,200 net.']},
+{e:'🌙',w:'eve',t:'noun',d:'The evening or day before an event.',de:'Vorabend',x:'We opened one present on Christmas Eve.',k:'The night before the big day.',f:'On Christmas Eve, children in Britain and the US hang stockings by the fireplace for Santa to fill.',
+ b:['🌙🎄🧦','On Christmas ___, children hang up their stockings.',['Eve','Even','Evil']],
+ m:['📧 News: “On the ___ of the board meeting, the CFO resigned.”',['eve','end','even'],'on the eve of = am Vorabend von (just before something big).'],
+ a:['___ I known about the deadline, I would have filed earlier.',['Had','Have','Did'],'Had I known = If I had known (formal inversion).']},
+{e:'🎁',w:'wrap up',t:'phrasal verb',d:'To finish something; also to cover a present in paper.',de:'abschließen; einpacken',x:'Let’s wrap up the meeting.',k:'Finish it off, like a present or the year!',f:'The advent calendar is a German idea! Now Brits love them too, with chocolate, gin, tea and even cheese behind the doors.',
+ b:['🎁🎀📦','Santa’s elves ___ up the presents in shiny paper.',['wrap','rap','warp']],
+ m:['📞 “Let’s ___ the call. I will send the minutes today.”',['wrap up','warm up','wash up'],'wrap up = abschließen. Warm up = aufwärmen; wash up = abwaschen.'],
+ a:{o:['Let’s','wrap','up','the','year-end','filings','before','the','break'],fb:'wrap up = finish. Also: “wrap up warm” = dress warmly outside!'}}
 ];
 var G={};D.forEach(function(d){G[d.w]={t:d.t,d:d.d,de:d.de,ex:d.x};});
 
 /* ═══ STATE ═══ */
 var S={xp:0,combo:0,best:0};
-var P={o:[],d:{},r:0,t:0,b:0,fin:0};
+var P={o:[],d:{},r:0,t:0,b:0,fin:0,last:'',streak:0,ms:[],sk:''};
 var Q=new URLSearchParams(location.search);
 try{if(Q.has('reset'))localStorage.removeItem(KEY);var raw=localStorage.getItem(KEY);if(raw){var j=JSON.parse(raw);for(var k in j)P[k]=j[k];}}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(P));}catch(e){}}
 var $=function(i){return document.getElementById(i);};
 function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function fx(){return window.EFCD_FX||null;}
+function pad(n){return n<10?'0'+n:''+n;}
 function big(e){var d=document.createElement('div');d.className='big';d.textContent=e;document.body.appendChild(d);setTimeout(function(){d.remove();},1100);}
 function xp(n,el){S.xp+=n;$('hdr-xp').textContent=S.xp;if(el){var r=el.getBoundingClientRect(),d=document.createElement('div');d.className='xpf';d.textContent='+'+n+' XP';d.style.cssText='left:'+(r.left+r.width/2-24)+'px;top:'+(r.top-8)+'px';document.body.appendChild(d);setTimeout(function(){d.remove();},900);}}
 function hit(ok,el){P.t++;if(ok){P.r++;S.combo++;S.best=Math.max(S.best,S.combo);P.b=Math.max(P.b||0,S.best);if(S.combo===3)big('🔥');if(S.combo===6)big('🏆');try{if(fx()&&el){fx().correct(el);fx().combo(S.combo);}}catch(e){}}else{S.combo=0;try{if(fx()&&el)fx().wrong(el);}catch(e){}}}
 function confetti(x,y){var c=['#F7C948','#D62839','#2E9E5B','#6CB4EE','#fff'];for(var i=0;i<26;i++){var d=document.createElement('div');d.style.cssText='position:fixed;width:10px;height:10px;border-radius:3px;z-index:11000;pointer-events:none;left:'+(x+Math.random()*100-50)+'px;top:'+(y+Math.random()*30)+'px;background:'+c[i%5]+';animation:cf '+(.7+Math.random()*.6)+'s '+Math.random()*.3+'s ease-out both';document.body.appendChild(d);setTimeout(function(){d.remove();},1500);}}
-function toast(t){var e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(toast.h);toast.h=setTimeout(function(){e.classList.remove('show');},2200);}
-function pad(n){return n<10?'0'+n:''+n;}
+function toast(t){var e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(toast.h);toast.h=setTimeout(function(){e.classList.remove('show');},2400);}
+function dkey(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function streak(){var t=dkey(new Date()),y=dkey(new Date(Date.now()-864e5));return (P.last===t||P.last===y)?(P.streak||0):0;}
+function speak(w){var u=new SpeechSynthesisUtterance(w);u.lang='en-GB';u.rate=.85;speechSynthesis.cancel();speechSynthesis.speak(u);}
 
 /* ═══ CALENDAR ═══ */
+var MS=[[6,'🔔','Bell Ringer'],[12,'⭐','Star Gazer'],[18,'🍬','Candy Cane Boss'],[24,'🎄','Advent Champion']];
 function today(){var o=parseInt(Q.get('day'),10);if(o>=0&&o<=24)return o;var n=new Date();if(n<new Date(YEAR,11,1))return 0;if(n>=new Date(YEAR,11,25))return 24;return n.getDate();}
 function doneCount(){var c=0;for(var i=1;i<=24;i++)if((P.d[i]||0)>=3)c++;return c;}
+function tree(){
+  var rows=[1,3,4,5,5,6],k=1,dc=doneCount(),h='<div class="tstar'+(dc===24?' on':'')+'">⭐</div>';
+  rows.forEach(function(n){h+='<div class="tr">';for(var j=0;j<n;j++,k++){var dn=(P.d[k]||0)>=3;h+='<span class="or'+(dn?' on':'')+'" title="'+(dn?D[k-1].w:'Door '+k)+'">'+(dn?D[k-1].e:'●')+'</span>';}h+='</div>';});
+  $('tree').innerHTML=h;
+  $('ms').innerHTML=MS.map(function(m){return '<span class="'+(dc>=m[0]?'on':'')+'">'+m[1]+' '+m[2]+' · '+m[0]+'</span>';}).join('');
+  $('stk').textContent='🔥 '+streak()+'-day streak · '+dc+' / 24 ornaments';
+}
 function render(){
   var t=today(),h='';
   for(var i=1;i<=24;i++){
@@ -321,10 +356,16 @@ function render(){
   $('dg').innerHTML=h;
   var dc=doneCount();$('progi').style.width=Math.round(dc/24*100)+'%';$('sled').style.left=Math.max(2,Math.round(dc/24*100))+'%';
   $('pl1').textContent=dc+' / 24 doors completed';
-  $('gotxt').textContent=t===0?'The calendar opens on 1 December!':(t>=24&&dc===24?'Review any door':'Open today’s door');
+  $('gotxt').textContent=t===0?'The calendar opens on 1 December!':'Open today’s door';
   if(dc===24)$('claim').classList.remove('hidden');
+  tree();
 }
-function goToday(){var t=today();if(t===0){toast('🎅 Come back on 1 December!');return;}var n=t;for(var i=1;i<=t;i++){if((P.d[i]||0)<3){n=i;break;}}$('dg').scrollIntoView({behavior:'smooth',block:'center'});setTimeout(function(){openDoor(n);},450);}
+function goToday(){
+  var t=today();if(t===0){toast('🎅 Come back on 1 December!');return;}
+  var n=0;if((P.d[t]||0)<3)n=t;else{for(var i=1;i<=t;i++)if((P.d[i]||0)<3){n=i;break;}}
+  if(!n){toast('✅ All caught up! Come back tomorrow for the next door.');return;}
+  $('dg').scrollIntoView({behavior:'smooth',block:'center'});setTimeout(function(){openDoor(n);},450);
+}
 function openDoor(n){
   var t=today(),el=document.querySelectorAll('.door')[n-1];
   if(n>t){el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');toast('🔒 Door '+n+' opens on '+n+' December!');return;}
@@ -346,45 +387,102 @@ function tick(){
   el.innerHTML='🎁 Door '+(t+1)+' opens in <b>'+pad(Math.floor(s/3600))+':'+pad(Math.floor(s%3600/60))+':'+pad(s%60)+'</b>';
 }
 
-/* ═══ DOOR MODAL ═══ */
-var DM={n:0,s:0,just:false};
-var TI=[['🟢','Beginner'],['🔵','Intermediate'],['🟣','Advanced']],TK=['b','m','a'];
-function dm(n){DM={n:n,s:0,just:false};$('dm').classList.add('open');document.body.style.overflow='hidden';$('dm').scrollTop=0;dmDraw();}
+/* ═══ DOOR MODAL: 1 mystery word → 2 at work → 3 pro level → 4 surprise ═══ */
+var DM={n:0,s:0,just:false,ms:''};
+var LAB=['','🟢 Beginner · Mystery word','🔵 Intermediate · At work','🟣 Advanced · Pro level','🎁 Surprise!'];
+function mOpen(){$('dm').classList.add('open');document.body.style.overflow='hidden';$('dm').scrollTop=0;}
+function dm(n){DM={n:n,s:1,just:false,ms:''};mOpen();dmDraw();}
 function dmClose(){$('dm').classList.remove('open');document.body.style.overflow='';render();}
-function dmGo(){DM.s=1;dmDraw();}
 function dmN(){DM.s++;dmDraw();}
+function opsHtml(opts,fn){return '<div class="ops">'+shuf(opts.map(function(t,k){return {t:t,c:k===0};})).map(function(x){return '<button class="opt" data-c="'+(x.c?1:0)+'" onclick="'+fn+'(this)">'+x.t+'</button>';}).join('')+'</div><div class="fb" id="dfb"></div>';}
+function wordCard(d){return '<div class="wc"><small>'+d.t+'</small><h2>'+d.w+'</h2><p>'+d.d+'</p><div class="de">🇩🇪 '+d.de+'</div><p class="ex">“'+d.x+'”</p><button class="hr" onclick="speak(\''+d.w+'\')">🔊 Hear it</button></div>';}
 function dmDraw(){
-  var n=DM.n,d=D[n-1],s=DM.s,b=$('dmb');
-  var head='<div class="dmh"><span>'+d.e+'</span><div><b>Door '+n+'</b><small>'+(s===0?'Word of the day':s<4?TI[s-1][0]+' '+TI[s-1][1]:'Surprise!')+'</small></div><button class="x" onclick="dmClose()">&times;</button></div>';
+  var n=DM.n,d=D[n-1],s=DM.s,b=$('dmb'),t=today();
+  var head='<div class="dmh"><span>'+d.e+'</span><div><b>Door '+n+'</b><small>'+LAB[s]+'</small></div><button class="x" onclick="dmClose()">&times;</button></div>';
   var pips='<div class="pips">'+[1,2,3].map(function(k){return '<i class="'+(k<s?'d':k===s?'a':'')+'"></i>';}).join('')+'</div>';
-  if(s===0){
-    b.innerHTML=head+'<div class="wc"><small>'+d.t+'</small><h2>'+d.w+'</h2><p>'+d.d+'</p><div class="de">🇩🇪 '+d.de+'</div><p class="ex">“'+d.x+'”</p><button class="hr" onclick="speak(\''+d.w+'\')">🔊 Hear it</button></div>'+((P.d[n]||0)>=3?'<div class="nx">✅ Door complete. Replay for fun!</div>':'')+'<button class="btn y" onclick="dmGo()">3 quick questions →</button>';
+  DM.lock=false;
+  if(s===1){b.innerHTML=head+pips+'<div class="clue">'+d.b[0]+'</div><div class="q">'+d.b[1]+'</div>'+opsHtml(d.b[2],'dmA');return;}
+  if(s===2){b.innerHTML=head+pips+'<div class="q">'+d.m[0]+'</div>'+opsHtml(d.m[1],'dmA');return;}
+  if(s===3){
+    if(d.a.o){b.innerHTML=head+pips+'<div class="q">Tap the words in the right order.</div><div class="oa" id="oa"></div><div class="op" id="op"></div><button class="btn y" id="ock" onclick="ordCk(this)" disabled>Check ✓</button><div class="fb" id="dfb"></div>';ordInit();}
+    else b.innerHTML=head+pips+'<div class="q">'+d.a[0]+'</div>'+opsHtml(d.a[1],'dmA');
     return;
   }
-  if(s<=3){
-    var it=d[TK[s-1]],ord=shuf(it[1].map(function(t,k){return {t:t,c:k===0};}));
-    b.innerHTML=head+pips+'<div class="q">'+it[0]+'</div><div class="ops">'+ord.map(function(x){return '<button class="opt" data-c="'+(x.c?1:0)+'" onclick="dmA(this)">'+x.t+'</button>';}).join('')+'</div><div class="fb" id="dfb"></div>';
-    return;
-  }
-  var nx=n<24?'<div class="nx">👀 Next door’s word starts with “'+D[n].w.charAt(0)+'…”</div>':'<div class="nx">🎄 That’s all 24 doors!</div>';
+  var nx=t<24?'<div class="nx">👀 <b>Tomorrow’s clue:</b> '+D[t].k+'</div>':'<div class="nx">🎄 That’s all 24 doors!</div>';
   var all=doneCount()===24;
-  b.innerHTML=head+'<div class="gift"><big>🎁</big><h3>'+(DM.just?'Door complete! +20 XP':'Surprise fact!')+'</h3></div><div class="fact">🎅 '+d.f+'</div>'+nx+
+  b.innerHTML=head+'<div class="gift"><big>🎁</big><h3>'+(DM.just?'Door complete! +20 XP':'Surprise fact!')+'</h3></div><div class="fact">🎅 '+d.f+'</div>'+(DM.ms?'<div class="ban">🏅 New title: '+DM.ms+' (+50 XP)</div>':'')+nx+
+   '<div class="nx">🔥 Streak: '+streak()+' day'+(streak()===1?'':'s')+'. Come back tomorrow to keep it!</div>'+
    (all?'<button class="btn y" onclick="dmClose();showEnd()">Claim your Advent badge 🏆</button>':'<button class="btn y" onclick="dmClose()">Back to the calendar</button>');
   var r=b.getBoundingClientRect();confetti(innerWidth/2,Math.max(r.top+80,100));big('🎁');
 }
-function dmA(btn){
-  var n=DM.n,s=DM.s,ok=btn.dataset.c==='1',first=(P.d[n]||0)<s;
-  $('dmb').querySelectorAll('.opt').forEach(function(x){x.disabled=true;if(x.dataset.c==='1')x.classList.add('ok');});
-  if(!ok)btn.classList.add('no');
+function completeDoor(n){
+  xp(20);
+  var tk=dkey(new Date()),yk=dkey(new Date(Date.now()-864e5));
+  if(P.last!==tk){P.streak=(P.last===yk)?(P.streak||0)+1:1;P.last=tk;}
+  var dc=doneCount();
+  MS.forEach(function(m){if(dc>=m[0]&&P.ms.indexOf(m[0])<0){P.ms.push(m[0]);DM.ms=m[1]+' '+m[2];xp(50);}});
+}
+function dmFin(ok,btn,html){
+  var n=DM.n,s=DM.s,first=(P.d[n]||0)<s;
   if(ok&&first)xp(10,btn);
   hit(ok,btn);
   if(first)P.d[n]=s;
-  if(s===3&&first){DM.just=true;xp(20);}
+  if(s===3&&first){DM.just=true;completeDoor(n);}
   save();
   var f=$('dfb');f.className='fb show '+(ok?'r':'w');
-  f.innerHTML=(ok?'✅ ':'❌ ')+D[n-1][TK[s-1]][2]+'<button class="btn" onclick="dmN()">'+(s<3?'Next →':'Open the surprise 🎁')+'</button>';
+  f.innerHTML=(ok?'✅ ':'❌ ')+html+'<button class="btn" onclick="dmN()">'+(s<3?'Next →':'Open the surprise 🎁')+'</button>';
 }
-function speak(w){var u=new SpeechSynthesisUtterance(w);u.lang='en-GB';u.rate=.85;speechSynthesis.cancel();speechSynthesis.speak(u);}
+function dmA(btn){
+  var n=DM.n,s=DM.s,d=D[n-1],ok=btn.dataset.c==='1';
+  $('dmb').querySelectorAll('.opt').forEach(function(x){x.disabled=true;if(x.dataset.c==='1')x.classList.add('ok');});
+  if(!ok)btn.classList.add('no');
+  var html=s===1?((ok?'Yes! ':'It is “'+d.w+'”. ')+'Here is your mystery word:'+wordCard(d)):s===2?d.m[2]:d.a[2];
+  dmFin(ok,btn,html);
+}
+/* word-order game */
+function ordInit(){var it=D[DM.n-1].a;DM.pool=shuf(it.o.map(function(w){return {w:w};}));DM.ans=[];ordR();}
+function ordR(){
+  $('oa').innerHTML=DM.ans.map(function(k){return '<button class="ch on" onclick="ordU('+k+')">'+DM.pool[k].w+'</button>';}).join('');
+  $('op').innerHTML=DM.pool.map(function(p,k){return DM.ans.indexOf(k)<0?'<button class="ch" onclick="ordA('+k+')">'+p.w+'</button>':'';}).join('');
+  $('ock').disabled=DM.ans.length!==DM.pool.length;
+}
+function ordA(k){if(DM.lock)return;DM.ans.push(k);ordR();}
+function ordU(k){if(DM.lock)return;DM.ans.splice(DM.ans.indexOf(k),1);ordR();}
+function ordCk(btn){
+  var it=D[DM.n-1].a,s=DM.ans.map(function(k){return DM.pool[k].w;}).join(' '),ok=s===it.o.join(' ');
+  DM.lock=true;btn.style.display='none';
+  $('oa').style.borderColor=ok?'var(--grn)':'var(--red)';
+  dmFin(ok,btn,(ok?'':'Correct order: <b>'+it.o.join(' ')+'</b><br>')+it.fb);
+}
+
+/* ═══ SANTA’S SACK: review round from your completed doors ═══ */
+var SK={q:[],i:0,r:0,pool:[]};
+function sackOpen(){
+  var pool=[];for(var i=1;i<=24;i++)if((P.d[i]||0)>=3)pool.push(i);
+  if(pool.length<2){toast('🎒 Complete 2 doors to unlock Santa’s Sack!');return;}
+  SK={q:shuf(pool).slice(0,5),i:0,r:0,pool:pool};DM={n:0,s:0};mOpen();sackDraw();
+}
+function sackDraw(){
+  var b=$('dmb'),len=SK.q.length;
+  var head='<div class="dmh"><span>🎒</span><div><b>Santa’s Sack</b><small>Review round '+Math.min(SK.i+1,len)+' / '+len+'</small></div><button class="x" onclick="dmClose()">&times;</button></div>';
+  if(SK.i>=len){
+    var k=dkey(new Date()),bonus=(P.sk!==k&&SK.r>=3)?25:0;
+    if(bonus){xp(25);P.sk=k;save();}
+    b.innerHTML=head+'<div class="gift"><big>'+(SK.r>=4?'🏆':'🎒')+'</big><h3>'+SK.r+' / '+len+' words remembered!</h3><p>'+(bonus?'Daily bonus: +25 XP 🎁':'Come back tomorrow for a daily bonus (3+ correct).')+'</p></div><button class="btn y" onclick="sackOpen()">Play again 🔁</button><button class="btn" onclick="dmClose()">Back to the calendar</button>';
+    confetti(innerWidth/2,200);return;
+  }
+  var n=SK.q[SK.i],d=D[n-1],re=new RegExp('\\b'+d.w+'\\b','i'),sen=d.x.replace(re,'___');
+  var wrong=shuf(SK.pool.filter(function(x){return x!==n;}).map(function(x){return D[x-1].w;})).slice(0,2);
+  b.innerHTML=head+'<div class="pips">'+SK.q.map(function(_,k){return '<i class="'+(k<SK.i?'d':k===SK.i?'a':'')+'"></i>';}).join('')+'</div><div class="q">Which word fits?</div><div class="tx" style="background:var(--bg);border:2px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:12px;font-weight:700">“'+sen+'”</div>'+opsHtml([d.w].concat(wrong),'sackA');
+}
+function sackA(btn){
+  var n=SK.q[SK.i],d=D[n-1],ok=btn.dataset.c==='1';
+  $('dmb').querySelectorAll('.opt').forEach(function(x){x.disabled=true;if(x.dataset.c==='1')x.classList.add('ok');});
+  if(!ok)btn.classList.add('no');
+  if(ok){SK.r++;xp(5,btn);}hit(ok,btn);save();
+  var f=$('dfb');f.className='fb show '+(ok?'r':'w');
+  f.innerHTML=(ok?'✅ ':'❌ ')+'<b>'+d.w+'</b> = '+d.de+'<button class="btn" onclick="SK.i++;sackDraw()">'+(SK.i+1<SK.q.length?'Next →':'Finish ✓')+'</button>';
+}
 
 /* ═══ SNOW ═══ */
 (function(){
