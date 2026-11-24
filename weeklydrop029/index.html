@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+<link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+<title>🎄 Issue 029 — The Advent Calendar · The Weekly Drop</title>
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/session-mode.js"></script>
+<script src="/init-auth.js"></script>
+<style>
+:root{--pitch:#12203F;--pitch2:#2A4A8C;--sky:#6CB4EE;--sky-d:#3D8FCF;--yel:#F7C948;--yel-d:#C99A10;--red:#D62839;--red-d:#9E1B28;--grn:#2E9E5B;--grn-d:#1E7040;--bg:#EEF4FA;--ink:#33415C;--ink-b:#0E1A33;--ink-3:#8C99B0;--bd:#D3DEEC;--bd-h:#B7C7DD;--r:22px;--rs:14px}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:linear-gradient(180deg,#0C1731,#1B3260 55%,#2A4A8C) fixed;color:var(--ink);font-family:'Nunito',system-ui,sans-serif;line-height:1.5;overflow-x:hidden;-webkit-tap-highlight-color:transparent;min-height:100vh}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+a{color:inherit;text-decoration:none}
+@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+@keyframes beat{0%,100%{transform:scale(1)}30%{transform:scale(1.08)}}
+@keyframes flt{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes tick{to{transform:translateX(-50%)}}
+@keyframes bigp{0%{transform:translate(-50%,-50%) scale(0) rotate(-20deg);opacity:0}25%{transform:translate(-50%,-50%) scale(1.4) rotate(8deg);opacity:1}80%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-50%) scale(.7);opacity:0}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(247,201,72,.7)}50%{box-shadow:0 0 22px 8px rgba(247,201,72,.65)}}
+@keyframes xpf{to{opacity:0;transform:translateY(-55px) scale(1.4)}}
+@keyframes cf{to{opacity:0;transform:translateY(120px) rotate(380deg)}}
+#snow{position:fixed;inset:0;pointer-events:none;z-index:50}
+.big{position:fixed;top:44%;left:50%;font-size:min(26vw,140px);z-index:9500;pointer-events:none;animation:bigp 1.1s forwards}
+.xpf{position:fixed;font-weight:900;font-size:20px;color:var(--yel);z-index:9998;pointer-events:none;animation:xpf .85s forwards}
+.hdr{background:var(--pitch);border-bottom:3px solid var(--yel);height:58px;padding:0 16px;position:sticky;top:0;z-index:300;display:flex;align-items:center}
+.hdr-in{max-width:820px;width:100%;margin:auto;display:flex;justify-content:space-between;align-items:center}
+.logo{display:flex;align-items:center;gap:9px;color:#fff;font-weight:900;font-size:15px}
+.logo b{width:36px;height:36px;background:var(--yel);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 3px 0 var(--yel-d)}
+@media(max-width:420px){.logo span{display:none}}
+.hx{display:flex;gap:8px;align-items:center;color:var(--yel);font-weight:900;font-size:14px}
+.pill{background:rgba(247,201,72,.16);border:2px solid rgba(247,201,72,.35);border-radius:99px;padding:4px 11px}
+.ib{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.12);display:inline-flex;align-items:center;justify-content:center;font-size:17px}
+.hidden{display:none!important}
+.page{max-width:820px;margin:auto;padding:16px 12px 40px;display:flex;flex-direction:column;gap:14px;position:relative;z-index:10}
+.hero{background:radial-gradient(circle at 85% 10%,rgba(247,201,72,.3),transparent 45%),linear-gradient(150deg,#0A1330,var(--pitch) 50%,#7A1626);border-bottom:6px solid #070E24;border-radius:var(--r);padding:20px 18px;position:relative;overflow:hidden;color:#fff;animation:up .5s both}
+.hero>*{position:relative}
+.deco{position:absolute!important;right:8px;bottom:-16px;font-size:110px;opacity:.15;animation:flt 5s infinite}
+.tag{display:inline-block;background:rgba(247,201,72,.18);border:2px solid rgba(247,201,72,.45);border-radius:8px;padding:3px 11px;font-size:11px;font-weight:900;color:var(--yel);letter-spacing:1px;margin-bottom:10px}
+.h1{font-size:clamp(22px,6vw,34px);font-weight:900;line-height:1.15;letter-spacing:-1px;margin-bottom:8px}
+.h1 em{font-style:normal;color:var(--yel)}
+.sub{font-size:13.5px;font-weight:700;color:rgba(255,255,255,.85);margin-bottom:14px;max-width:560px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.st{background:rgba(255,255,255,.09);border:2px solid rgba(255,255,255,.18);border-radius:var(--rs);padding:9px 4px;text-align:center}
+.st b{display:block;font-size:clamp(14px,3.8vw,19px);color:var(--yel)}.st small{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.8px;opacity:.78}
+.tk{overflow:hidden;background:rgba(0,0,0,.28);border-radius:8px;padding:7px 0;margin-bottom:14px}
+.tk div{display:inline-flex;white-space:nowrap;animation:tick 30s linear infinite;font-size:11px;font-weight:900;color:var(--yel);letter-spacing:1.4px}
+.tk span{margin:0 16px}
+.cd{background:rgba(0,0,0,.3);border:2px dashed rgba(247,201,72,.5);border-radius:var(--rs);padding:10px;text-align:center;font-size:14px;font-weight:800;color:#fff;margin-bottom:14px}
+.cd b{color:var(--yel);font-size:20px;letter-spacing:1px}
+.go,.btn{display:flex;justify-content:center;gap:8px;width:100%;padding:15px 18px;background:var(--yel);color:var(--pitch);font-size:17px;font-weight:900;border-radius:var(--rs);border-bottom:5px solid var(--yel-d)}
+.btn{margin-top:12px;padding:14px;font-size:15px;background:var(--grn);color:#fff;border-bottom-color:var(--grn-d)}
+.btn.y{background:var(--yel);color:var(--pitch);border-bottom-color:var(--yel-d)}
+.go:active,.btn:active,.opt:active{transform:translateY(3px);border-bottom-width:2px}
+.prog{background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.25);border-radius:99px;height:22px;position:relative}
+.prog i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--grn),var(--yel));transition:width .6s}
+.prog span{position:absolute;top:-8px;left:0;font-size:22px;transition:left .6s;transform:translateX(-50%)}
+.pl{display:flex;justify-content:space-between;color:#fff;font-weight:900;font-size:13px;margin:-6px 2px 0}
+.cal{background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.2);border-radius:var(--r);padding:14px}
+.dg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(min-width:620px){.dg{grid-template-columns:repeat(6,1fr)}}
+.door{position:relative;aspect-ratio:3/4;perspective:700px;border-radius:12px;display:block;width:100%}
+.dbk{position:absolute;inset:0;border-radius:12px;background:radial-gradient(circle,#FFF6D0,var(--yel));border:2px solid var(--yel-d);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:clamp(28px,8vw,44px);line-height:1.1}
+.dbk small{font-size:11px;letter-spacing:1px}
+.dl{position:absolute;inset:0;border-radius:12px;background:var(--dc);transform-origin:left center;transition:transform .8s cubic-bezier(.3,1.3,.5,1);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:clamp(22px,6.5vw,32px);border:2px solid rgba(0,0,0,.2);border-bottom:5px solid rgba(0,0,0,.3);box-shadow:inset 0 0 0 5px rgba(255,255,255,.2)}
+.dl:after{content:"";position:absolute;right:9px;top:50%;width:9px;height:9px;border-radius:50%;background:var(--yel);box-shadow:0 1px 0 rgba(0,0,0,.3)}
+.dl i{font-style:normal;font-size:13px;margin-top:2px}
+.c0 .dl{--dc:#D62839}.c1 .dl{--dc:#2E9E5B}.c2 .dl{--dc:#2A4A8C}.c3 .dl{--dc:#B8860B}
+.door.open .dl{transform:rotateY(-118deg)}
+.door.lock .dl{filter:saturate(.3) brightness(.7)}
+.door.today .dl{animation:glow 1.3s infinite}
+.door.today:before{content:"TODAY";position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--yel);color:var(--pitch);font-size:9px;font-weight:900;letter-spacing:1px;padding:2px 7px;border-radius:99px;z-index:5}
+.door.shake{animation:shake .4s}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--pitch);color:var(--yel);border:2px solid var(--yel);padding:10px 16px;border-radius:99px;font-weight:900;font-size:14px;z-index:9800;display:none}
+.toast.show{display:block;animation:up .2s both}
+#dm{position:fixed;inset:0;background:rgba(8,14,34,.82);z-index:9000;display:none;overflow:auto;padding:16px 12px}
+#dm.open{display:block}
+.dmc{background:#fff;border-bottom:8px solid var(--bd-h);border-radius:24px;max-width:470px;margin:0 auto;padding:16px;animation:up .3s both}
+.dmh{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.dmh>span{font-size:40px}.dmh b{display:block;font-size:17px;font-weight:900;color:var(--ink-b)}.dmh small{font-size:12px;font-weight:800;color:var(--ink-3)}
+.dmh .x{margin-left:auto;width:32px;height:32px;border-radius:10px;background:var(--bg);font-weight:900;font-size:18px;color:var(--ink-3)}
+.pips{display:flex;gap:5px;margin-bottom:12px}
+.pips i{flex:1;height:6px;border-radius:9px;background:var(--bd-h)}.pips i.d{background:var(--grn)}.pips i.a{background:var(--pitch2)}
+.wc{background:var(--bg);border:2px solid var(--bd);border-radius:var(--rs);padding:14px;text-align:center}
+.wc h2{font-size:30px;color:var(--ink-b);font-weight:900}.wc small{font-size:10px;font-weight:900;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px}
+.wc p{font-size:14px;font-weight:700;margin:8px 0}.wc .ex{font-style:italic;color:var(--ink-3)}
+.de{background:#FFF3D0;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:800;color:var(--ink-b)}
+.hr{margin-top:6px;padding:9px 16px;background:var(--pitch);color:#fff;border-radius:10px;font-weight:900;font-size:13px}
+.q{font-size:clamp(15px,4vw,17px);font-weight:900;color:var(--ink-b);margin-bottom:12px;line-height:1.45}
+.ops{display:flex;flex-direction:column;gap:8px}
+.opt{padding:13px 16px;font-size:15px;font-weight:800;background:#fff;color:var(--ink-b);text-align:left;border:2px solid var(--bd-h);border-bottom:5px solid var(--bd-h);border-radius:var(--rs);transition:transform .1s}
+.opt.ok{background:var(--grn)!important;color:#fff!important;border-color:var(--grn-d)!important;animation:beat .5s}
+.opt.no{background:var(--red)!important;color:#fff!important;border-color:var(--red-d)!important;animation:shake .4s}
+.opt:disabled{cursor:default}
+.fb{display:none;margin-top:12px;padding:11px 14px;border-radius:var(--rs);font-size:13px;font-weight:800;border:2px solid;line-height:1.6}
+.fb.show{display:block;animation:up .2s both}.fb.r{background:rgba(46,158,91,.12);color:var(--grn-d);border-color:rgba(46,158,91,.4)}.fb.w{background:rgba(214,40,57,.1);color:var(--red-d);border-color:rgba(214,40,57,.35)}
+.gift{text-align:center;padding:8px 4px;animation:up .4s both}.gift big{display:block;font-size:60px;animation:flt 2.5s infinite}
+.gift h3{font-size:20px;color:var(--ink-b);margin:4px 0}.gift p{font-size:14px;font-weight:700}
+.fact{background:#FFF3D0;border:2px solid var(--yel-d);border-radius:var(--rs);padding:12px 14px;margin:10px 0;font-size:14px;font-weight:800;color:var(--ink-b);text-align:left}
+.nx{font-size:13px;font-weight:800;color:var(--pitch2);background:#E6EEFF;border-radius:var(--rs);padding:10px;margin-top:8px}
+#end{position:fixed;inset:0;background:linear-gradient(135deg,#070E24,var(--pitch));z-index:10000;display:none;overflow:auto;padding:18px;align-items:flex-start;justify-content:center}
+#end.open{display:flex}
+.ec{background:#fff;border-bottom:8px solid #070E24;border-radius:24px;padding:28px 20px;max-width:470px;width:100%;text-align:center}
+.bdg{width:130px;height:130px;margin:0 auto 12px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#B52A3A,#7A1626);border:4px solid var(--yel);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--yel);font-weight:900;font-size:11px;letter-spacing:2px;animation:beat 2s infinite}
+.bdg span{font-size:46px;line-height:1}
+.ec h2{font-size:22px;color:var(--pitch);font-weight:900}.ec>p{font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:14px}
+.xb{background:var(--pitch);border-radius:var(--r);padding:16px;margin-bottom:12px;color:var(--yel);font-weight:900}.xb b{font-size:48px;display:block;line-height:1}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}.g3 div{background:#FFF3D0;border-radius:var(--rs);padding:10px 4px;font-size:10px;font-weight:900;color:var(--ink-3);text-transform:uppercase}.g3 b{display:block;font-size:22px;color:var(--yel-d)}
+.nw{background:#E6EEFF;border-radius:var(--rs);padding:12px;font-size:13px;font-weight:800;color:var(--pitch2);margin-bottom:12px}
+.sn{background:var(--yel);border-radius:var(--r);padding:16px;margin-bottom:12px;display:none;text-align:left;font-size:14px;font-weight:700;color:var(--pitch)}.sn.show{display:block}.sn a{display:block;text-align:center;background:var(--pitch);color:var(--yel);padding:13px;border-radius:var(--rs);font-weight:900;margin-top:10px}
+.eb{display:flex;justify-content:center;width:100%;padding:13px;margin-top:8px;border-radius:var(--rs);font-weight:900;font-size:15px;border:2px solid var(--bd-h);border-bottom:5px solid var(--bd-h);background:#fff;color:var(--ink-b)}
+.eb.p{background:var(--pitch);color:var(--yel);border-color:#070E24}.eb.s{background:var(--sky);color:#fff;border-color:var(--sky-d)}
+</style>
+</head>
+<body>
+<canvas id="snow"></canvas>
+<header class="hdr"><div class="hdr-in">
+<a href="/weeklydrop/" class="logo"><b>🎄</b><span>The Weekly Drop</span></a>
+<div class="hx"><span>🔥 <span id="hdr-streak">0</span></span><span class="pill">⚡ <span id="hdr-xp">0</span> XP</span>
+<a href="/my-lessons/" class="ib hidden" id="hdr-dash" title="My Lessons">📚</a>
+<button class="ib hidden" id="hdr-signout" title="Sign out" onclick="handleSignOut()">👋</button></div>
+</div></header>
+
+<div class="toast" id="toast"></div>
+
+<div class="page">
+<div class="hero">
+<div class="deco">🎄</div>
+<div class="tag">🎄 THE WEEKLY DROP · ISSUE 029 · ADVENT SPECIAL</div>
+<div class="h1">24 doors. 24 new words. <em>One festive English calendar.</em></div>
+<div class="sub">Behind every door: a word for your tax, business and legal English, three mini-exercises and a surprise about how Brits and Americans celebrate. Open one door a day! 🎅</div>
+<div class="stats">
+<div class="st"><b>24</b><small>Doors</small></div>
+<div class="st"><b>72</b><small>Exercises</small></div>
+<div class="st"><b>3</b><small>Levels</small></div>
+<div class="st"><b>~1 min</b><small>Per door</small></div>
+</div>
+<div class="tk"><div>
+<span>1 DECEMBER = DOOR 1</span>·<span>BEGINNER · INTERMEDIATE · ADVANCED</span>·<span>OPENED DOORS STAY OPEN</span>·<span>BOXING DAY</span>·<span>SECRET SANTA</span>·<span>CHRISTMAS CRACKERS</span>·
+<span>1 DECEMBER = DOOR 1</span>·<span>BEGINNER · INTERMEDIATE · ADVANCED</span>·<span>OPENED DOORS STAY OPEN</span>·<span>BOXING DAY</span>·<span>SECRET SANTA</span>·<span>CHRISTMAS CRACKERS</span>
+</div></div>
+<div class="cd" id="cd">…</div>
+<button class="go" onclick="goToday()"><span>🎁&nbsp; <span id="gotxt">Open today’s door</span></span><span>&rarr;</span></button>
+</div>
+
+<div>
+<div class="prog"><i id="progi"></i><span id="sled">🛷</span></div>
+<div class="pl"><span id="pl1">0 / 24 doors completed</span><span>🎄</span></div>
+</div>
+
+<div class="cal"><div class="dg" id="dg"></div></div>
+<button class="go hidden" id="claim" onclick="showEnd()"><span>🏆&nbsp; Claim your Advent badge!</span><span>&rarr;</span></button>
+</div>
+
+<div id="dm"><div class="dmc" id="dmb"></div></div>
+
+<div id="end"><div class="ec">
+<div class="bdg"><span>🎄</span>ADVENT</div>
+<h2>Advent Champion</h2><p>You opened all 24 doors of The Weekly Drop Advent Calendar</p>
+<div class="xb"><b id="e-xp">+0</b>XP EARNED</div>
+<div class="g3"><div><b id="e-c">0</b>Correct</div><div><b id="e-b">0</b>Best combo</div><div><b id="e-a">0%</b>Accuracy</div></div>
+<div class="nw">🔁 Your 24 words come back in review mode. Use 3 of them in an email this week!</div>
+<div class="sn" id="sn">🎄 <b>Don’t lose this badge!</b><br>A free account saves your badges, streaks and vocabulary review.<a href="/signup/">Save my badge — FREE →</a></div>
+<button class="eb" onclick="EFCD_Share.openWorksheet(LESSON_LINK)">🖨️ Print / save worksheet</button>
+<button class="eb s" onclick="EFCD_Share.open(LESSON_LINK, window.LESSON_TITLE)">🔗 Share this lesson</button>
+<a href="/weeklydrop/" class="eb p">🟥 See all issues →</a>
+<a href="/my-lessons/" class="eb hidden" id="e-my">📚 My Lessons</a>
+<a href="/" class="eb">🏠 All courses</a>
+<button class="eb" onclick="document.getElementById('end').classList.remove('open')">← Back to my calendar</button>
+</div></div>
+
+<script src="/supabase-auth-gamified.js"></script>
+<script src="/srs-engine.js"></script>
+<script src="/xp.js"></script>
+<script src="/lesson-data-registry.js"></script>
+<script src="/lesson-completion-rewards.js"></script>
+<script src="/daily-challenges-system.js"></script>
+<script src="/share-lesson.js"></script>
+<script src="/interactions.js"></script>
+<script>
+'use strict';
+window.LESSON_ID='weekly-drop-issue-029';
+window.LESSON_TITLE='The Weekly Drop - Issue 029 - The Advent Calendar';
+var LESSON_LINK='/weeklydrop029/', LESSON_LEVEL='All Levels';
+var YEAR=2026, KEY='efcd_advent_'+YEAR;
+
+/* ═══ DOORS: w=word, t=type, d=definition, de=German hint, x=example, f=surprise fact,
+   b/m/a = [question, [CORRECT first, wrong, wrong], feedback]. The engine shuffles the options. ═══ */
+var D=[
+{e:'🎁',w:'gift',t:'noun',d:'Something you give to someone for free.',de:'Geschenk. ⚠️ Nicht „Gift“ (= poison)!',x:'Thank you for the lovely gift.',f:'Brits and Americans open presents on the morning of 25 December, not on the evening of the 24th like in Germany.',
+ b:['On Christmas morning you open a ___.',['gift','poison','invoice'],'gift = Geschenk. German “Gift” is poison in English!'],
+ m:['In business, a “gift” is something you give…',['for free','as payment for work','as a loan'],'A gift has no payment in return. That matters for tax!'],
+ a:['“Schenkungsteuer” in English is…',['gift tax','poison tax','present tax'],'gift tax. And “inter vivos” = a gift made during someone’s life.']},
+{e:'💰',w:'bonus',t:'noun',d:'Extra money on top of your normal pay.',de:'Prämie, Sonderzahlung',x:'She got a Christmas bonus.',f:'In Britain, the staff Christmas party and a small bonus or hamper are classic festive treats from the boss.',
+ b:['Extra money at Christmas is a Christmas ___.',['bonus','budget','balance'],'bonus = Prämie.'],
+ m:['For tax purposes, a bonus is normally…',['taxable income','a free gift','a loan'],'Bonuses are usually taxable income (Arbeitslohn).'],
+ a:['The bonus will be paid ___ the company meets its targets.',['provided that','in case of','as if'],'provided that = only if. Great for contracts!']},
+{e:'✨',w:'festive',t:'adjective',d:'Happy and decorated for a celebration.',de:'festlich',x:'The shop looks very festive.',f:'Brits call 25 December to 1 January “the festive period”. Americans say “the holidays”.',
+ b:['A ___ jumper has reindeer on it.',['festive','fresh','formal'],'festive = festlich.'],
+ m:['In Britain, the “festive period” means…',['Christmas to New Year','only Christmas Day','all of January'],'The days around Christmas and New Year.'],
+ a:['Our office is closed over the festive period. ___ you have an urgent matter, please call.',['Should','Would','Had'],'Should you… = If you should… (formal inversion).']},
+{e:'✂️',w:'deduct',t:'verb',d:'Take an amount away from a total.',de:'abziehen, absetzen',x:'You can deduct business costs.',f:'In the UK, most gifts to clients are not tax-deductible. Small items with your logo can be an exception, but rules change: always check!',
+ b:['Santa will ___ points for naughty children.',['deduct','deliver','deserve'],'deduct = abziehen.'],
+ m:['Business costs are ___ from your profit before tax.',['deducted','deleted','deposited'],'deduct costs = Kosten abziehen.'],
+ a:['Client gifts are only ___ if they are small.',['deductible','reductible','deductable'],'tax-deductible = steuerlich absetzbar.']},
+{e:'🧸',w:'allowance',t:'noun',d:'An amount of money you are allowed to have or receive.',de:'Freibetrag; (US) Taschengeld',x:'Everyone has a tax-free allowance.',f:'Americans say “allowance” for children’s weekly pocket money. Brits say “pocket money”.',
+ b:['In the US, kids get a weekly ___ of pocket money.',['allowance','allergy','alliance'],'allowance = Taschengeld (US).'],
+ m:['Your tax-free amount of income is your personal ___.',['allowance','allocation','allegiance'],'personal allowance = Grundfreibetrag.'],
+ a:['A “daily subsistence allowance” pays for…',['trip expenses','a pocket-money rise','extra holiday days'],'It covers meals and costs on a business trip.']},
+{e:'🥂',w:'perk',t:'noun',d:'A small extra benefit that comes with a job.',de:'Vergünstigung, Extra',x:'Free coffee is a nice perk.',f:'In the UK, an annual staff party can be tax-exempt up to £150 per head. A very nice perk!',
+ b:['A free Christmas lunch at work is a nice ___.',['perk','park','pork'],'perk = Vergünstigung.'],
+ m:['A staff party is a ___: a small extra from your employer.',['perk','peak','pledge'],'perk = a job extra.'],
+ a:['Employer perks can create tax. A company car is a taxable ___ in kind.',['benefit','bonus','gift'],'benefit in kind = geldwerter Vorteil.']},
+{e:'🚗',w:'benefit',t:'noun / verb',d:'An advantage; also something extra from an employer.',de:'Vorteil, Leistung',x:'A company car is a benefit.',f:'The Christmas jumper (US: “ugly sweater”) is a workplace tradition. The sillier, the better!',
+ b:['Free Christmas dinner is a ___ of working here.',['benefit','border','bench'],'benefit = Vorteil.'],
+ m:['A company car is a “benefit in ___”.',['kind','cash','tax'],'benefit in kind = geldwerter Vorteil. “Kind” here means Art, not Kind!'],
+ a:['She benefits ___ the scheme.',['from','of','by'],'benefit FROM something.']},
+{e:'🎅',w:'season',t:'noun',d:'A time of year; a busy period in business.',de:'Jahreszeit, Saison',x:'December is the busy season.',f:'Many Americans say “Happy Holidays”. “Season’s Greetings” works for everyone.',
+ b:['Christmas cards say “Season’s ___”.',['Greetings','Meetings','Readings'],'Season’s Greetings = Frohe Festtage.'],
+ m:['For shops, December is the peak ___.',['season','reason','session'],'peak season = Hochsaison.'],
+ a:['Shops hire ___ staff for December only.',['seasonal','seasoned','sensible'],'seasonal = Saison-. “Seasoned” = erfahren. “Sensible” = vernünftig, NOT sensibel!']},
+{e:'🦃',w:'talk turkey',t:'idiom',d:'To talk honestly and get down to business (US).',de:'Klartext reden, zur Sache kommen',x:'Let’s talk turkey about the price.',f:'A British Christmas dinner: turkey, roast potatoes, Brussels sprouts, “pigs in blankets” (sausages in bacon!) and Christmas pudding.',
+ b:['On Christmas Day, many British families eat roast ___.',['turkey','tuna','tiger'],'turkey = Truthahn. And “talk turkey” is an idiom!'],
+ m:['To “talk turkey” means to…',['get down to business','tell a joke','cook dinner'],'talk turkey = zur Sache kommen.'],
+ a:['Enough small talk. Let’s ___ about the fee.',['talk turkey','walk turkey','speak turkey'],'Fixed idiom: talk turkey.']},
+{e:'🧾',w:'settle',t:'verb',d:'To pay a bill, or to end a dispute by agreement.',de:'begleichen; einen Vergleich schließen',x:'Please settle the invoice today.',f:'26 December is Boxing Day in the UK: a public holiday and the start of the big sales.',
+ b:['Mum will ___ down with a mince pie by the fire.',['settle','sell','send'],'settle down = sich niederlassen, es sich gemütlich machen.'],
+ m:['To ___ an invoice means to pay it.',['settle','sleep','solve'],'settle = begleichen. “Solve” is for puzzles.'],
+ a:['The two firms ___ the dispute out of court.',['settled','repaired','solved'],'settle a dispute = sich vergleichen.']},
+{e:'⏰',w:'due',t:'adjective',d:'Expected, or to be paid on a certain date.',de:'fällig; erwartet',x:'Payment is due on Friday.',f:'At 3 p.m. on 25 December, millions of Brits watch the King’s Christmas message on TV.',
+ b:['Your Christmas presents are ___ to arrive on Friday.',['due','done','dear'],'due to arrive = soll ankommen.'],
+ m:['The tax return is ___ on 31 January (UK).',['due','dead','duty'],'due date = Fälligkeitstag.'],
+ a:['Which sentence is correct?',['Due to the snow, the parcels are late.','Due to it snowed, the parcels are late.','Due to snow fell, the parcels are late.'],'due to + NOUN. Before a clause, use “because”.']},
+{e:'💝',w:'generous',t:'adjective',d:'Happy to give more than expected.',de:'großzügig',x:'That was a generous tip.',f:'Secret Santa: everyone buys a small gift (often £10 or $20) for a colleague drawn from a hat. Nobody knows who gave what!',
+ b:['Grandma gave me £50. She is very ___!',['generous','general','genius'],'generous = großzügig.'],
+ m:['A “generous” tip is…',['bigger than usual','smaller than usual','always late'],'generous = more than expected.'],
+ a:['The firm made a generous ___ to charity.',['donation','donate','donor'],'a donation = eine Spende; a donor = ein Spender.']},
+{e:'🔔',w:'charity',t:'noun',d:'An organisation that helps people and is not for profit.',de:'Wohltätigkeitsorganisation',x:'She works for a charity.',f:'In the US, Salvation Army bell ringers stand outside shops with red kettles and collect donations in December.',
+ b:['At Christmas many people give money to ___.',['charity','chimney','chocolate'],'charity = Wohltätigkeit.'],
+ m:['A “charity” in the UK is a…',['non-profit organisation','tax office','bank'],'charity = gemeinnützige Organisation.'],
+ a:['In the UK, a charity can claim 25p extra on your donation through “Gift ___”.',['Aid','Tax','Help'],'Gift Aid = UK scheme: the charity claims 25p for every £1 you give.']},
+{e:'↩️',w:'refund',t:'noun / verb',d:'Money that is paid back to you.',de:'Erstattung, zurückzahlen',x:'I want a refund, please.',f:'Returning unwanted gifts is very common after Christmas. Most shops ask for a receipt, so keep it!',
+ b:['The sweater is too small. I want a ___.',['refund','refuel','refine'],'refund = Rückerstattung.'],
+ m:['The tax office pays you back too much tax: a tax ___.',['refund','refuse','refill'],'tax refund = Steuererstattung.'],
+ a:['She is ___ to a full refund.',['entitled','titled','allowed'],'entitled to = berechtigt zu. “Titled” = betitelt.']},
+{e:'🧾',w:'receipt',t:'noun',d:'A paper that proves you paid.',de:'Quittung, Beleg. ⚠️ Nicht „recipe“ (= Rezept)!',x:'Keep the receipt.',f:'In the US, a “gift receipt” hides the price, so the person can swap the present without any awkwardness.',
+ b:['Keep the ___ in case the gift is wrong.',['receipt','recipe','reception'],'receipt = Quittung. Recipe = Rezept.'],
+ m:['To claim a business expense, you need a ___.',['receipt','receiver','recipient'],'No receipt, no deduction!'],
+ a:['Goods will be shipped ___ of payment.',['on receipt','at receive','by receiving'],'on receipt of = nach Erhalt von.']},
+{e:'💵',w:'tip',t:'noun / verb',d:'Extra money for good service; also a piece of advice.',de:'Trinkgeld; Tipp',x:'I left a ten-euro tip.',f:'In the US, people often give holiday tips or small gifts to cleaners, hairdressers and delivery drivers.',
+ b:['Dad left a £10 ___ for the pizza driver.',['tip','top','tap'],'tip = Trinkgeld.'],
+ m:['A “tip” can be extra money for a waiter, or…',['useful advice','a tax form','a gift box'],'tip = Trinkgeld OR Tipp.'],
+ a:['The accountant ___ the authorities off about the fraud.',['tipped','tapped','topped'],'tip off = heimlich informieren. Whistleblower alert!']},
+{e:'🍽️',w:'bill',t:'noun',d:'A request for payment; in the US also a banknote.',de:'Rechnung; (US) Geldschein; Gesetzentwurf',x:'Could we have the bill, please?',f:'Children in the US leave milk and cookies for Santa. British kids leave a mince pie, a drink (often sherry) and a carrot for Rudolph.',
+ b:['In a UK restaurant: “Could we have the ___, please?”',['bill','bell','ball'],'bill = Rechnung (UK). Americans say “check”!'],
+ m:['In parliament, a “bill” is a…',['draft law','tax refund','bank note'],'bill = Gesetzentwurf. Once passed, it becomes an Act.'],
+ a:['Who will ___ the bill for the staff party?',['foot','leg','hand'],'foot the bill = die Rechnung bezahlen.']},
+{e:'🥳',w:'toast',t:'noun / verb',d:'A short speech and a drink to honour someone.',de:'Trinkspruch (auch: Toast)',x:'Let’s raise a toast!',f:'Christmas crackers: you pull one with your neighbour, it bangs, and out come a paper hat, a bad joke and a tiny toy.',
+ b:['At midnight we raise a glass and drink a ___.',['toast','toad','tent'],'toast = Trinkspruch.'],
+ m:['To “toast” a deal means to…',['drink to it','sign it','cancel it'],'toast = auf etwas anstoßen.'],
+ a:['After we sign, I will ___ a toast to the partnership.',['propose','propound','purpose'],'propose a toast = einen Toast ausbringen.']},
+{e:'🎆',w:'resolution',t:'noun',d:'A firm decision; also a formal decision of a group.',de:'Vorsatz; Beschluss',x:'My resolution is to exercise more.',f:'Scotland celebrates New Year with Hogmanay, a huge street party. At midnight everybody sings “Auld Lang Syne”.',
+ b:['A New Year’s ___: “I will learn more English!”',['resolution','revolution','reception'],'resolution = guter Vorsatz.'],
+ m:['In law, a board “resolution” is a formal…',['decision','dinner','delay'],'resolution = Beschluss (shareholders’ resolution = Gesellschafterbeschluss).'],
+ a:['The shareholders ___ the resolution unanimously.',['passed','took','won'],'pass a resolution = einen Beschluss fassen. Unanimously = einstimmig.']},
+{e:'📜',w:'obligation',t:'noun',d:'A duty you must do by law or by promise.',de:'Verpflichtung. ⚠️ Deutsche „Obligation“ = bond (Anleihe)!',x:'You have a legal obligation to file.',f:'The first Christmas card was sent in London in 1843. Today Brits send millions every year.',
+ b:['Do I have to send a card? No, it is not an ___.',['obligation','observation','occasion'],'obligation = Pflicht.'],
+ m:['A legal duty is an ___.',['obligation','opposition','operation'],'obligation = Verpflichtung. A German “Obligation” is a bond!'],
+ a:['Under the contract, the seller is ___ to deliver by 24 December.',['obliged','obligatory','obligating'],'be obliged to + verb = verpflichtet sein.']},
+{e:'🌙',w:'eve',t:'noun',d:'The evening or day before an event.',de:'Vorabend',x:'Christmas Eve is on 24 December.',f:'Every Christmas Eve, NORAD, a US military agency, “tracks” Santa live online. It has done so since 1955.',
+ b:['The day before Christmas is Christmas ___.',['Eve','Even','Evening'],'Eve = Vorabend.'],
+ m:['On the ___ of the deadline, the team worked all night.',['eve','end','even'],'on the eve of = am Vorabend von.'],
+ a:['___ I known about the deadline on Christmas Eve, I would have filed earlier.',['Had','Have','Did'],'Had I known = If I had known (inversion).']},
+{e:'➡️',w:'carry forward',t:'phrasal verb',d:'To move an amount or an idea to the next period.',de:'vortragen (Verlustvortrag)',x:'The loss is carried forward.',f:'Every family member stirs the Christmas pudding and makes a wish. In some families it hides a lucky coin!',
+ b:['Families ___ forward traditions from year to year.',['carry','cry','carve'],'carry forward = weitertragen. (Carve = Truthahn tranchieren!)'],
+ m:['A loss that you use next year is carried ___.',['forward','forth','front'],'loss carried forward = Verlustvortrag.'],
+ a:['The opposite of “carry forward” is carry ___.',['back','down','off'],'loss carryback = Verlustrücktrag.']},
+{e:'🎄',w:'net',t:'adjective',d:'The amount left after deductions.',de:'netto. ⚠️ Auch: Netz!',x:'My net salary is lower.',f:'The big Christmas tree at Rockefeller Center in New York is lit in a famous TV ceremony each year.',
+ b:['On Cyber Monday we shop on the ___.',['net','nut','nest'],'the Net = das Internet.'],
+ m:['___ salary is what you get after tax.',['Net','Gross','Grand'],'net = netto, gross = brutto. “Gross” can also mean disgusting!'],
+ a:['Her bonus is £2,000 gross. After 40% tax, her ___ bonus is £1,200.',['net','gross','tax'],'net = after deductions.']},
+{e:'🎀',w:'wrap up',t:'phrasal verb',d:'To finish something; to cover a gift in paper.',de:'abschließen; einpacken',x:'Let’s wrap up the meeting.',f:'The advent calendar is a German idea! Now Brits love them too, with chocolate, gin, tea and even cheese behind the doors.',
+ b:['We ___ gifts in shiny paper.',['wrap','rap','warp'],'wrap = einpacken (silent w).'],
+ m:['To “wrap up” a meeting means to…',['finish it','start it','move it'],'wrap up = abschließen.'],
+ a:['Let’s wrap ___ the year-end filings before the break.',['up','over','off'],'wrap up = abschließen. And “wrap up warm” = dress warmly!']}
+];
+var G={};D.forEach(function(d){G[d.w]={t:d.t,d:d.d,de:d.de,ex:d.x};});
+
+/* ═══ STATE ═══ */
+var S={xp:0,combo:0,best:0};
+var P={o:[],d:{},r:0,t:0,b:0,fin:0};
+var Q=new URLSearchParams(location.search);
+try{if(Q.has('reset'))localStorage.removeItem(KEY);var raw=localStorage.getItem(KEY);if(raw){var j=JSON.parse(raw);for(var k in j)P[k]=j[k];}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(P));}catch(e){}}
+var $=function(i){return document.getElementById(i);};
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function fx(){return window.EFCD_FX||null;}
+function big(e){var d=document.createElement('div');d.className='big';d.textContent=e;document.body.appendChild(d);setTimeout(function(){d.remove();},1100);}
+function xp(n,el){S.xp+=n;$('hdr-xp').textContent=S.xp;if(el){var r=el.getBoundingClientRect(),d=document.createElement('div');d.className='xpf';d.textContent='+'+n+' XP';d.style.cssText='left:'+(r.left+r.width/2-24)+'px;top:'+(r.top-8)+'px';document.body.appendChild(d);setTimeout(function(){d.remove();},900);}}
+function hit(ok,el){P.t++;if(ok){P.r++;S.combo++;S.best=Math.max(S.best,S.combo);P.b=Math.max(P.b||0,S.best);if(S.combo===3)big('🔥');if(S.combo===6)big('🏆');try{if(fx()&&el){fx().correct(el);fx().combo(S.combo);}}catch(e){}}else{S.combo=0;try{if(fx()&&el)fx().wrong(el);}catch(e){}}}
+function confetti(x,y){var c=['#F7C948','#D62839','#2E9E5B','#6CB4EE','#fff'];for(var i=0;i<26;i++){var d=document.createElement('div');d.style.cssText='position:fixed;width:10px;height:10px;border-radius:3px;z-index:11000;pointer-events:none;left:'+(x+Math.random()*100-50)+'px;top:'+(y+Math.random()*30)+'px;background:'+c[i%5]+';animation:cf '+(.7+Math.random()*.6)+'s '+Math.random()*.3+'s ease-out both';document.body.appendChild(d);setTimeout(function(){d.remove();},1500);}}
+function toast(t){var e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(toast.h);toast.h=setTimeout(function(){e.classList.remove('show');},2200);}
+function pad(n){return n<10?'0'+n:''+n;}
+
+/* ═══ CALENDAR ═══ */
+function today(){var o=parseInt(Q.get('day'),10);if(o>=0&&o<=24)return o;var n=new Date();if(n<new Date(YEAR,11,1))return 0;if(n>=new Date(YEAR,11,25))return 24;return n.getDate();}
+function doneCount(){var c=0;for(var i=1;i<=24;i++)if((P.d[i]||0)>=3)c++;return c;}
+function render(){
+  var t=today(),h='';
+  for(var i=1;i<=24;i++){
+    var op=P.o.indexOf(i)>-1,n=P.d[i]||0,lk=i>t,st=new Array(n+1).join('⭐')+new Array(4-n).join('☆');
+    h+='<button class="door c'+(i%4)+(op?' open':'')+(lk?' lock':'')+(i===t&&!op?' today':'')+'" onclick="openDoor('+i+')" aria-label="Door '+i+'"><div class="dbk">'+(op?D[i-1].e+'<small>'+st+'</small>':'')+'</div><div class="dl"><span>'+i+'</span>'+(lk?'<i>🔒</i>':'')+'</div></button>';
+  }
+  $('dg').innerHTML=h;
+  var dc=doneCount();$('progi').style.width=Math.round(dc/24*100)+'%';$('sled').style.left=Math.max(2,Math.round(dc/24*100))+'%';
+  $('pl1').textContent=dc+' / 24 doors completed';
+  $('gotxt').textContent=t===0?'The calendar opens on 1 December!':(t>=24&&dc===24?'Review any door':'Open today’s door');
+  if(dc===24)$('claim').classList.remove('hidden');
+}
+function goToday(){var t=today();if(t===0){toast('🎅 Come back on 1 December!');return;}var n=t;for(var i=1;i<=t;i++){if((P.d[i]||0)<3){n=i;break;}}$('dg').scrollIntoView({behavior:'smooth',block:'center'});setTimeout(function(){openDoor(n);},450);}
+function openDoor(n){
+  var t=today(),el=document.querySelectorAll('.door')[n-1];
+  if(n>t){el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');toast('🔒 Door '+n+' opens on '+n+' December!');return;}
+  if(P.o.indexOf(n)<0){
+    P.o.push(n);save();
+    el.querySelector('.dbk').innerHTML=D[n-1].e+'<small>☆☆☆</small>';
+    el.classList.add('open');el.classList.remove('today');
+    big(D[n-1].e);var r=el.getBoundingClientRect();confetti(r.left+r.width/2,r.top+r.height/2);xp(5);
+    setTimeout(function(){dm(n);},900);
+  }else dm(n);
+}
+function tick(){
+  var t=today(),el=$('cd');
+  if(Q.get('day')!==null){el.innerHTML='👀 Preview mode: day <b>'+t+'</b>';return;}
+  if(t>=24){el.innerHTML='🎅 <b>All 24 doors are open!</b>';return;}
+  var ms=new Date(YEAR,11,t+1)-new Date();
+  if(ms<=0){render();return;}
+  var s=Math.floor(ms/1000);
+  el.innerHTML='🎁 Door '+(t+1)+' opens in <b>'+pad(Math.floor(s/3600))+':'+pad(Math.floor(s%3600/60))+':'+pad(s%60)+'</b>';
+}
+
+/* ═══ DOOR MODAL ═══ */
+var DM={n:0,s:0,just:false};
+var TI=[['🟢','Beginner'],['🔵','Intermediate'],['🟣','Advanced']],TK=['b','m','a'];
+function dm(n){DM={n:n,s:0,just:false};$('dm').classList.add('open');document.body.style.overflow='hidden';$('dm').scrollTop=0;dmDraw();}
+function dmClose(){$('dm').classList.remove('open');document.body.style.overflow='';render();}
+function dmGo(){DM.s=1;dmDraw();}
+function dmN(){DM.s++;dmDraw();}
+function dmDraw(){
+  var n=DM.n,d=D[n-1],s=DM.s,b=$('dmb');
+  var head='<div class="dmh"><span>'+d.e+'</span><div><b>Door '+n+'</b><small>'+(s===0?'Word of the day':s<4?TI[s-1][0]+' '+TI[s-1][1]:'Surprise!')+'</small></div><button class="x" onclick="dmClose()">&times;</button></div>';
+  var pips='<div class="pips">'+[1,2,3].map(function(k){return '<i class="'+(k<s?'d':k===s?'a':'')+'"></i>';}).join('')+'</div>';
+  if(s===0){
+    b.innerHTML=head+'<div class="wc"><small>'+d.t+'</small><h2>'+d.w+'</h2><p>'+d.d+'</p><div class="de">🇩🇪 '+d.de+'</div><p class="ex">“'+d.x+'”</p><button class="hr" onclick="speak(\''+d.w+'\')">🔊 Hear it</button></div>'+((P.d[n]||0)>=3?'<div class="nx">✅ Door complete. Replay for fun!</div>':'')+'<button class="btn y" onclick="dmGo()">3 quick questions →</button>';
+    return;
+  }
+  if(s<=3){
+    var it=d[TK[s-1]],ord=shuf(it[1].map(function(t,k){return {t:t,c:k===0};}));
+    b.innerHTML=head+pips+'<div class="q">'+it[0]+'</div><div class="ops">'+ord.map(function(x){return '<button class="opt" data-c="'+(x.c?1:0)+'" onclick="dmA(this)">'+x.t+'</button>';}).join('')+'</div><div class="fb" id="dfb"></div>';
+    return;
+  }
+  var nx=n<24?'<div class="nx">👀 Next door’s word starts with “'+D[n].w.charAt(0)+'…”</div>':'<div class="nx">🎄 That’s all 24 doors!</div>';
+  var all=doneCount()===24;
+  b.innerHTML=head+'<div class="gift"><big>🎁</big><h3>'+(DM.just?'Door complete! +20 XP':'Surprise fact!')+'</h3></div><div class="fact">🎅 '+d.f+'</div>'+nx+
+   (all?'<button class="btn y" onclick="dmClose();showEnd()">Claim your Advent badge 🏆</button>':'<button class="btn y" onclick="dmClose()">Back to the calendar</button>');
+  var r=b.getBoundingClientRect();confetti(innerWidth/2,Math.max(r.top+80,100));big('🎁');
+}
+function dmA(btn){
+  var n=DM.n,s=DM.s,ok=btn.dataset.c==='1',first=(P.d[n]||0)<s;
+  $('dmb').querySelectorAll('.opt').forEach(function(x){x.disabled=true;if(x.dataset.c==='1')x.classList.add('ok');});
+  if(!ok)btn.classList.add('no');
+  if(ok&&first)xp(10,btn);
+  hit(ok,btn);
+  if(first)P.d[n]=s;
+  if(s===3&&first){DM.just=true;xp(20);}
+  save();
+  var f=$('dfb');f.className='fb show '+(ok?'r':'w');
+  f.innerHTML=(ok?'✅ ':'❌ ')+D[n-1][TK[s-1]][2]+'<button class="btn" onclick="dmN()">'+(s<3?'Next →':'Open the surprise 🎁')+'</button>';
+}
+function speak(w){var u=new SpeechSynthesisUtterance(w);u.lang='en-GB';u.rate=.85;speechSynthesis.cancel();speechSynthesis.speak(u);}
+
+/* ═══ SNOW ═══ */
+(function(){
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  var c=$('snow'),x=c.getContext('2d'),W,H,F=[];
+  function rs(){W=c.width=innerWidth;H=c.height=innerHeight;}rs();addEventListener('resize',rs);
+  for(var i=0;i<70;i++)F.push({x:Math.random()*W,y:Math.random()*H,r:1+Math.random()*3,s:.4+Math.random()*1.2,d:Math.random()*6});
+  (function f(){x.clearRect(0,0,W,H);x.fillStyle='rgba(255,255,255,.85)';
+    F.forEach(function(p){p.y+=p.s;p.d+=.02;p.x+=Math.sin(p.d)*.5;if(p.y>H){p.y=-5;p.x=Math.random()*W;}x.beginPath();x.arc(p.x,p.y,p.r,0,6.3);x.fill();});
+    requestAnimationFrame(f);})();
+})();
+
+/* ═══ COMPLETION (only when all 24 doors are done) ═══ */
+async function showEnd(){
+  var acc=P.t?Math.round(P.r/P.t*100):0;
+  $('e-xp').textContent='+'+S.xp;$('e-c').textContent=P.r;$('e-b').textContent=P.b||0;$('e-a').textContent=acc+'%';
+  $('end').classList.add('open');
+  for(var i=0;i<5;i++)(function(j){setTimeout(function(){confetti(Math.random()*innerWidth,Math.random()*innerHeight*.5);},j*250);})(i);
+  var logged=!!(window.EFCD_Auth&&EFCD_Auth.getCurrentUser&&EFCD_Auth.getCurrentUser());
+  if(logged)$('e-my').classList.remove('hidden');else setTimeout(function(){$('sn').classList.add('show');},1800);
+  if(P.fin)return;
+  P.fin=1;save();
+  var vocab=Object.keys(G).map(function(w){return {word:w,definition:G[w].d};});
+  try{if(window.EFCD_Session)await EFCD_Session.onLessonComplete({lessonId:LESSON_ID,lessonTitle:LESSON_TITLE,lessonLevel:LESSON_LEVEL,lessonLink:LESSON_LINK,badgeIcon:'🎄',badgeName:'Advent Champion',correctAnswers:P.r,totalAnswers:P.t,bestCombo:P.b||0,perfectScore:acc>=90,xp:S.xp,vocabulary:vocab});}catch(e){}
+  try{if(logged)await EFCD_Auth.completeLesson({lessonId:LESSON_ID,lessonTitle:LESSON_TITLE,lessonLevel:LESSON_LEVEL,lessonLink:LESSON_LINK,badgeIcon:'🎄',badgeName:'Advent Champion',vocabulary:vocab,perfectScore:acc>=90});}catch(e){}
+  try{if(window.DailyChallenges){var d=await DailyChallenges.updateChallengeProgress({perfectScore:acc>=90});if(d&&d.justCompleted)setTimeout(function(){DailyChallenges.showChallengeCompletionCelebration(d.challenge);},1800);localStorage.setItem('dc_last_lesson_date',new Date().toDateString());localStorage.setItem('dc_last_lesson_section','weekly-drop');}}catch(e){}
+}
+
+document.addEventListener('DOMContentLoaded',async function(){
+  render();tick();setInterval(tick,1000);
+  try{
+    if(window.efcdReady)await window.efcdReady;
+    if(window.EFCD_Auth){
+      await EFCD_Auth.initAuth();
+      var u=EFCD_Auth.getCurrentUser();
+      if(u){var st=EFCD_Auth.getUserStats();if(st){S.xp=st.xp||0;$('hdr-streak').textContent=st.streak||0;}
+        try{if(window.EFCD_XP){var bal=await EFCD_XP.getBalance();S.xp=bal.balance||0;}}catch(e){}
+        $('hdr-xp').textContent=S.xp;$('hdr-signout').classList.remove('hidden');$('hdr-dash').classList.remove('hidden');}
+    }
+  }catch(e){}
+});
+async function handleSignOut(){
+  if(window.EFCD_Auth&&EFCD_Auth.signOut)await EFCD_Auth.signOut();
+  else if(window.efcdSupabaseClient){await efcdSupabaseClient.auth.signOut();location.href='/';}
+}
+</script>
+</body>
+</html>
