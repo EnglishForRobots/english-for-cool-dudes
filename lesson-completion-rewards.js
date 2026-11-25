@@ -1475,6 +1475,38 @@
       ],
     },
 
+                'weekly-drop-issue-029': {
+      title:   'The Weekly Drop - Issue 029 - The Advent Calendar',
+      level:   'All Levels',
+      grammar: 'Prepositions of time (on Christmas Day, at Christmas); much / many / some; used to vs be used to; unless and provided that',
+      vocab: [
+        { word:'wealthy', definition:'Having a lot of money.' },
+        { word:'at Christmas', definition:'During the Christmas period.' },
+        { word:'mulled wine', definition:'Warm red wine with spices, drunk in winter.' },
+        { word:'put up', definition:'To fix something in place, such as a tree or lights.' },
+        { word:'Father Christmas', definition:'The British name for Santa Claus.' },
+        { word:'snowed under', definition:'Having far too much work to do.' },
+        { word:'icing on the cake', definition:'A nice extra on top of something already good.' },
+        { word:'bank holiday', definition:'A public holiday in the UK, when banks and most offices are closed.' },
+        { word:'deductible', definition:'Can be subtracted from your taxable profit.' },
+        { word:'stuffed', definition:'Very full after eating a lot.' },
+        { word:'sleet', definition:'Rain and snow falling together.' },
+        { word:'helping', definition:'One portion of food on your plate.' },
+        { word:'make small talk', definition:'To chat about easy, light topics.' },
+        { word:'skyline', definition:'The shape of a city’s buildings against the sky.' },
+        { word:'used to', definition:'Something you did regularly in the past but not now.' },
+        { word:'on behalf of', definition:'Representing someone else; speaking for them.' },
+        { word:'an arm and a leg', definition:'A very high price.' },
+        { word:'stocking filler', definition:'A small, cheap present that fits in a Christmas stocking.' },
+        { word:'out of office', definition:'An automatic email reply when you are away.' },
+        { word:'regift', definition:'To give an unwanted present to someone else.' },
+        { word:'pro rata', definition:'In proportion: a fair part of the full amount.' },
+        { word:'carry forward', definition:'To move an amount to the next period.' },
+        { word:'resolution', definition:'A firm promise to yourself; also a formal decision of a group.' },
+        { word:'wrap up', definition:'To finish something; also to cover a present in paper.' },
+      ],
+    },
+
   };
 /* EFCD-AUTO-START */
 /* EFCD-AUTO-END */
