@@ -238,6 +238,7 @@
      'weeklydrop028':  'weekly-drop-issue-028',
      'gta6-launch':  'gta6-launch-intermediate',
      'language-learning-ai':  'language-learning-age-of-ai-advanced',
+     'weeklydrop029':  'weekly-drop-issue-029',
   };
 /* EFCD-AUTO-START */
 /* EFCD-AUTO-END */
