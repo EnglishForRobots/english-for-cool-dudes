@@ -6626,6 +6626,92 @@ const LESSON_DATA_REGISTRY = {
   ],
 
 },
+   'weekly-drop-issue-029': {
+ 
+  id:    'weekly-drop-issue-029',
+  title: 'The Weekly Drop - Issue 029 - The Advent Calendar',
+  level: 'All Levels',
+  track: 'weekly-drop',
+  emoji: '🎄',
+  badge: 'Advent Champion',
+ 
+  vocab: [
+    { word:'wealthy', definition:'Having a lot of money.', example:'Her uncle is very ___.', distractors:['deductible','stuffed','at Christmas'] },
+    { word:'at Christmas', definition:'During the Christmas period.', example:'We eat too much ___ ___.', distractors:['used to','on behalf of','out of office'] },
+    { word:'mulled wine', definition:'Warm red wine with spices, drunk in winter.', example:'We drank ___ ___ at the market.', distractors:['sleet','helping','skyline'] },
+    { word:'put up', definition:'To fix something in place, such as a tree or lights.', example:'We ___ ___ the tree on Sunday.', distractors:['wrap up','carry forward','sleet'] },
+    { word:'Father Christmas', definition:'The British name for Santa Claus.', example:'The children wrote to ___ ___.', distractors:['skyline','stocking filler','resolution'] },
+    { word:'snowed under', definition:'Having far too much work to do.', example:'We are ___ ___ at year-end.', distractors:['an arm and a leg','icing on the cake','out of office'] },
+    { word:'icing on the cake', definition:'A nice extra on top of something already good.', example:'The free dessert was the ___ ___ ___ ___.', distractors:['snowed under','an arm and a leg','carry forward'] },
+    { word:'bank holiday', definition:'A public holiday in the UK, when banks and most offices are closed.', example:'Monday is a ___ ___.', distractors:['mulled wine','Father Christmas','sleet'] },
+    { word:'deductible', definition:'Can be subtracted from your taxable profit.', example:'Small business gifts can be ___.', distractors:['wealthy','stuffed','Father Christmas'] },
+    { word:'stuffed', definition:'Very full after eating a lot.', example:'I’m ___ after all that turkey!', distractors:['deductible','wealthy','bank holiday'] },
+    { word:'sleet', definition:'Rain and snow falling together.', example:'It started to ___ on the way home.', distractors:['helping','skyline','stocking filler'] },
+    { word:'helping', definition:'One portion of food on your plate.', example:'Can I have a second ___?', distractors:['skyline','stocking filler','resolution'] },
+    { word:'make small talk', definition:'To chat about easy, light topics.', example:'We always ___ ___ ___ at the party.', distractors:['at Christmas','used to','on behalf of'] },
+    { word:'skyline', definition:'The shape of a city’s buildings against the sky.', example:'Dresden’s ___ is beautiful at night.', distractors:['resolution','mulled wine','Father Christmas'] },
+    { word:'used to', definition:'Something you did regularly in the past but not now.', example:'I ___ ___ believe in Santa.', distractors:['on behalf of','out of office','at Christmas'] },
+    { word:'on behalf of', definition:'Representing someone else; speaking for them.', example:'I am writing ___ ___ ___ the whole team.', distractors:['out of office','at Christmas','make small talk'] },
+    { word:'an arm and a leg', definition:'A very high price.', example:'That coat cost ___ ___ ___ ___ ___.', distractors:['snowed under','icing on the cake','deductible'] },
+    { word:'stocking filler', definition:'A small, cheap present that fits in a Christmas stocking.', example:'A chocolate orange is a classic ___ ___.', distractors:['sleet','helping','skyline'] },
+    { word:'out of office', definition:'An automatic email reply when you are away.', example:'I set up my ___ ___ ___ before Christmas.', distractors:['used to','on behalf of','at Christmas'] },
+    { word:'regift', definition:'To give an unwanted present to someone else.', example:'Never ___ a present to the same person!', distractors:['helping','make small talk','skyline'] },
+    { word:'pro rata', definition:'In proportion: a fair part of the full amount.', example:'Your bonus is paid ___ ___.', distractors:['used to','on behalf of','an arm and a leg'] },
+    { word:'carry forward', definition:'To move an amount to the next period.', example:'You can ___ ___ the loss.', distractors:['wrap up','put up','wealthy'] },
+    { word:'resolution', definition:'A firm promise to yourself; also a formal decision of a group.', example:'My New Year’s ___ is to learn more English.', distractors:['Father Christmas','bank holiday','sleet'] },
+    { word:'wrap up', definition:'To finish something; also to cover a present in paper.', example:'Let’s ___ ___ the meeting.', distractors:['carry forward','put up','bank holiday'] },
+  ],
+ 
+  grammar: {
+    topic: 'Prepositions of time; much / many / some',
+    rule:  'Use ON with a specific day (on Christmas Day, on Boxing Day) and AT for the whole festive time (at Christmas). Money and turkey are uncountable: much money, some turkey. Use many with things you can count: many presents. After "one of the", use a plural noun: one of the oldest markets.',
+    exercises: [
+      { sentence:'The shops are closed ___ Christmas Day.', answer:'on', wrong:['at','in','by'], explain:'ON + a specific day: on Christmas Day.' },
+      { sentence:'We eat too much ___ Christmas.', answer:'at', wrong:['on','by','in'], explain:'AT Christmas = the whole festive time. But ON Christmas Day.' },
+      { sentence:'I spent so ___ money on presents.', answer:'much', wrong:['many','few','several'], explain:'Money is uncountable, so we say much money.' },
+      { sentence:'The Striezelmarkt is one of the oldest Christmas ___ in Germany.', answer:'markets', wrong:['market','marketplace','marketing'], explain:'one of the + plural noun: one of the oldest markets.' },
+    ],
+  },
+ 
+  grammar2: {
+    topic: 'used to vs be used to; unless and provided that',
+    rule:  'USED TO + verb = a past habit: We used to go to church. BE USED TO + -ing = familiar with something: I am used to eating late. UNLESS = if not. PROVIDED THAT = only if.',
+    exercises: [
+      { sentence:'When I was a child, we ___ go to church on Christmas Eve.', answer:'used to', wrong:['use to','were used to','are used to'], explain:'used to + verb = a past habit.' },
+      { sentence:'I am used to ___ late on Christmas Eve.', answer:'eating', wrong:['eat','ate','eaten'], explain:'be used to + -ing form.' },
+      { sentence:'You can not deduct the gift ___ it costs less than £50.', answer:'unless', wrong:['if','until','whereas'], explain:'unless = if not. You can only deduct it if it costs less than £50.' },
+      { sentence:'Gifts are tax-deductible ___ they stay under the limit.', answer:'provided that', wrong:['even though','in case','whereas'], explain:'provided that = only if.' },
+    ],
+  },
+ 
+  sentences: [
+    { words:['We','put','up','the','tree','on','Sunday'],               answer:'We put up the tree on Sunday',         hint:'🌲 About decorating...' },
+    { words:['Money','makes','the','world','go','round'],              answer:'Money makes the world go round',       hint:'💰 A famous saying...' },
+    { words:['Boxing','Day','is','a','bank','holiday'],                answer:'Boxing Day is a bank holiday',         hint:'📦 About 26 December...' },
+    { words:['I','am','stuffed','after','all','that','turkey'],        answer:'I am stuffed after all that turkey',   hint:'🦃 After dinner...' },
+  ],
+ 
+  word_builder: [
+    { word:'wealthy',    definition:'Having a lot of money' },
+    { word:'sleet',      definition:'Rain and snow together' },
+    { word:'skyline',    definition:'The shape of a city against the sky' },
+    { word:'regift',     definition:'To give an unwanted present away' },
+    { word:'deductible', definition:'Can be taken off your taxable profit' },
+    { word:'stuffed',    definition:'Very full after eating' },
+  ],
+ 
+  true_false: [
+    { statement:'Dresden’s Striezelmarkt dates back to 1434.',                         correct:true,  reveal:'✅ TRUE! It is one of the oldest Christmas markets in Germany.' },
+    { statement:'In Britain, Father Christmas is another name for Santa Claus.',       correct:true,  reveal:'✅ TRUE! Father Christmas is the traditional British name.' },
+    { statement:'In the UK, Boxing Day is a bank holiday.',                            correct:true,  reveal:'✅ TRUE! 26 December is a bank holiday, famous for sales and football.' },
+    { statement:'“Glühwein” in English is “burnt wine”.',                              correct:false, reveal:'❌ FALSE! It is mulled wine. “Burnt” would mean verbrannt!' },
+    { statement:'In English you say “on Christmas” for the whole festive time.',       correct:false, reveal:'❌ FALSE! We say AT Christmas. But ON Christmas Day.' },
+    { statement:'The Frauenkirche in Dresden was destroyed in 1945 and reopened in 2005.', correct:true, reveal:'✅ TRUE! Its dome is the heart of Dresden’s skyline.' },
+    { statement:'The UK personal tax year ends on 31 December.',                        correct:false, reveal:'❌ FALSE! It ends on 5 April.' },
+    { statement:'The advent calendar is a German idea.',                                correct:true,  reveal:'✅ TRUE! Now Brits love them too, even with cheese behind the doors!' },
+  ],
+ 
+},
    };
 
 window.LESSON_DATA_REGISTRY = LESSON_DATA_REGISTRY;
