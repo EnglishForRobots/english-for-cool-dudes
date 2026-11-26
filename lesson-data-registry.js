@@ -6626,6 +6626,85 @@ const LESSON_DATA_REGISTRY = {
   ],
 
 },
+
+    'weekly-drop-issue-029': {
+
+  id:    'weekly-drop-issue-029',
+  title: 'The Weekly Drop - Issue 029 - Everything for a Pound… Until Now',
+  level: 'All Levels',
+  track: 'weekly-drop',
+  emoji: '💷',
+  badge: 'Penny Pro - Issue 029',
+
+  vocab: [
+    { word:'administration',      definition:'When a failing company is taken over by outside experts who try to save it or sell it.', example:'The chain went into ___ in November.',                      distractors:['redundancy','turnaround','piecemeal'] },
+    { word:'administrator',       definition:'An expert who takes control of a failing company to sell it or pay its debts.',        example:'The ___ will try to sell the whole company.',               distractors:['supplier','creditor','lender'] },
+    { word:'bidder',              definition:'A person or company that offers money to buy something.',                              example:'Every ___ wants the best stores.',                          distractors:['supplier','creditor','lender'] },
+    { word:'rescue deal',         definition:'A last-minute agreement that saves a company from failing.',                           example:'The government wants a ___ ___ to save jobs.',              distractors:['high street','break up','turnaround'] },
+    { word:'lender',              definition:'A bank or company that gives money and expects it back later.',                        example:'The ___ wants its money back first.',                       distractors:['bidder','supplier','administrator'] },
+    { word:'creditor',            definition:'A person or company that is owed money.',                                              example:'The biggest ___ is owed millions.',                         distractors:['bidder','administrator','high street'] },
+    { word:'solvent',             definition:'Having enough money to pay all your debts.',                                           example:'A ___ firm can pay all its bills.',                         distractors:['piecemeal','redundancy','creditor'] },
+    { word:'redundancy',          definition:'Losing your job because the company no longer needs your position.',                   example:'Staff may get a ___ payment if they lose their jobs.',      distractors:['turnaround','administration','supplier'] },
+    { word:'turnaround',          definition:'A big change from bad results to good results.',                                       example:'After years of losses, the shop made a strong ___.',        distractors:['redundancy','squeeze','piecemeal'] },
+    { word:'squeeze',             definition:'Put a business under pressure, for example with rising costs.',                        example:'Rising costs began to ___ the chain’s profits.',            distractors:['trade','break up','supplier'] },
+    { word:'supplier',            definition:'A company that sells goods or materials to another business.',                         example:'The ___ is waiting to be paid for the goods.',              distractors:['bidder','lender','administrator'] },
+    { word:'piecemeal',           definition:'A little at a time, in separate parts.',                                               example:'The stores may be sold ___, one by one.',                   distractors:['solvent','turnaround','redundancy'] },
+    { word:'break up',            definition:'To divide a company into smaller parts, often to sell them.',                          example:'The owner may ___ ___ the chain and sell the parts.',       distractors:['squeeze','trade','turn around'] },
+    { word:'high street',         definition:'The main shopping street of a British town.',                                          example:'Many shops on the ___ ___ are closing.',                    distractors:['rescue deal','piecemeal','turnaround'] },
+    { word:'trade',               definition:'To do business, to sell goods or services (often under a name).',                      example:'Poundland will ___ under the Dealz name in Ireland.',       distractors:['squeeze','break up','supply'] },
+    { word:'hang in the balance', definition:'To be in a risky position; the result is not decided yet.',                            example:'Thousands of jobs could ___ ___ ___ ___ for weeks.',        distractors:['break up','rescue deal','high street'] },
+  ],
+
+  grammar: {
+    topic: 'Present perfect and contrast connectors',
+    rule:  'Use the present perfect (has/have + past participle) for news that matters now: "Poundland HAS GONE into administration." Use ALTHOUGH + a full clause and DESPITE + a noun. Never use "although" and "but" together. There IS + singular, there ARE + plural.',
+    exercises: [
+      { sentence:'Poundland ___ into administration.',                 answer:'has gone',  wrong:['has went','have gone','is going'],  explain:'Present perfect = has + past participle: "has gone".' },
+      { sentence:'___ the chain made a profit, it went bust.',         answer:'Although',  wrong:['Despite','However','Because'],      explain:'ALTHOUGH + a full clause (the chain made a profit).' },
+      { sentence:'___ the profit, the chain went bust.',               answer:'Despite',   wrong:['Although','But','Because'],         explain:'DESPITE + a noun (the profit).' },
+      { sentence:'There ___ 600 stores on the high street.',           answer:'are',       wrong:['is','has','be'],                    explain:'There ARE + a plural noun.' },
+    ],
+  },
+
+  grammar2: {
+    topic: 'Future with will; subject-verb agreement',
+    rule:  'Use WILL + base verb for predictions and decisions: "The administrators will look for bidders." Never add -ing or -s after will. A plural subject needs a plural verb: "Suppliers ARE waiting."',
+    exercises: [
+      { sentence:'The administrators ___ for a buyer.',                answer:'will look', wrong:['will looking','will looks','are look'],       explain:'will + base verb, no -ing and no -s.' },
+      { sentence:'Staff ___ briefings tomorrow.',                      answer:'will have', wrong:['will having','will has','have had'],          explain:'will + base verb: "will have".' },
+      { sentence:'Thousands of suppliers ___ waiting for money.',      answer:'are',       wrong:['is','be','has'],                              explain:'"Thousands of suppliers" is plural, so "are".' },
+      { sentence:'The stores ___ open until a buyer is found.',        answer:'will stay', wrong:['will staying','stays','stayed'],              explain:'will + base verb: "will stay".' },
+    ],
+  },
+
+  sentences: [
+    { words:['Poundland','has','gone','into','administration'],                          answer:'Poundland has gone into administration',              hint:'💷 About the news...' },
+    { words:['The','owner','is','also','the','main','lender'],                            answer:'The owner is also the main lender',                    hint:'🏦 About Gordon Brothers...' },
+    { words:['Administrators','will','look','for','bidders'],                              answer:'Administrators will look for bidders',                 hint:'🔎 About what comes next...' },
+    { words:['The','future','of','Poundland','hangs','in','the','balance'],               answer:'The future of Poundland hangs in the balance',         hint:'⚖️ About the outcome...' },
+  ],
+
+  word_builder: [
+    { word:'creditor',  definition:'Someone who is owed money' },
+    { word:'solvent',   definition:'Able to pay all your debts' },
+    { word:'supplier',  definition:'A company that sells goods to a shop' },
+    { word:'bidder',    definition:'Someone who offers money to buy' },
+    { word:'lender',    definition:'Someone who gives money to be paid back' },
+    { word:'piecemeal', definition:'A little at a time' },
+  ],
+
+  true_false: [
+    { statement:'Poundland has about 600 stores.',                                        correct:true,  reveal:'✅ TRUE! About 600 stores and 11,000 workers.' },
+    { statement:'Shoppers stopped going to Poundland.',                                   correct:false, reveal:'❌ FALSE! Sales were up. It was a funding and ownership problem.' },
+    { statement:'Gordon Brothers bought Poundland for £1 in 2025.',                       correct:true,  reveal:'✅ TRUE! It paid just £1 for the chain.' },
+    { statement:'Gordon Brothers is only the owner, not a lender.',                       correct:false, reveal:'❌ FALSE! It is the owner AND a lender, so it gets paid back first.' },
+    { statement:'In Ireland, Poundland trades as Dealz.',                                 correct:true,  reveal:'✅ TRUE! Same company, different brand name.' },
+    { statement:'"Redundancy" means the same as the German "Redundanz".',                 correct:false, reveal:'❌ FALSE! Redundancy = losing your job. A false friend!' },
+    { statement:'"Turnover" and "turnaround" mean the same thing.',                       correct:false, reveal:'❌ FALSE! Turnover = Umsatz. Turnaround = a big change for the better.' },
+    { statement:'All Poundland stores closed on the night of the announcement.',          correct:false, reveal:'❌ FALSE! Stores and distribution centres stay open as normal for now.' },
+  ],
+
+},
    'weekly-drop-issue-030': {
  
   id:    'weekly-drop-issue-030',
