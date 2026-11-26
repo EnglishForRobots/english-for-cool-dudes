@@ -1475,8 +1475,8 @@
       ],
     },
 
-                'weekly-drop-issue-029': {
-      title:   'The Weekly Drop - Issue 029 - The Advent Calendar',
+                'weekly-drop-issue-030': {
+      title:   'The Weekly Drop - Issue 030 - The Advent Calendar',
       level:   'All Levels',
       grammar: 'Prepositions of time (on Christmas Day, at Christmas); much / many / some; used to vs be used to; unless and provided that',
       vocab: [
