@@ -6626,10 +6626,10 @@ const LESSON_DATA_REGISTRY = {
   ],
 
 },
-   'weekly-drop-issue-029': {
+   'weekly-drop-issue-030': {
  
-  id:    'weekly-drop-issue-029',
-  title: 'The Weekly Drop - Issue 029 - The Advent Calendar',
+  id:    'weekly-drop-issue-030',
+  title: 'The Weekly Drop - Issue 030 - The Advent Calendar',
   level: 'All Levels',
   track: 'weekly-drop',
   emoji: '🎄',
