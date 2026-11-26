@@ -4,7 +4,8 @@ window.LEVEL_CONFIG = {
 };
 
 window.LESSONS = [
-    { slug:'weeklydrop028', icon:'🗳️💰', badge:'Issue 028', badgeType:'new', title:'California Says No to the Billionaire Tax', desc:"California voters rejected Prop 40, a one-time 5% tax on billionaires. Supporters say it is only round one.", mins:5, date:'2026-11-20', tags:['business','tax','finance','politics'] },
+    { slug:'weeklydrop029', icon:'💷🏬📉', badge:'Issue 029', badgeType:'new', title:'Everything for a Pound… Until Now', desc:"Poundland has gone into administration, 11,000 jobs are at risk, and the owner is also the lender. What went wrong?", mins:5, date:'2026-11-27', tags:['business','finance','news'] },
+    { slug:'weeklydrop028', icon:'🗳️💰', badge:'Issue 028', badgeType:null, title:'California Says No to the Billionaire Tax', desc:"California voters rejected Prop 40, a one-time 5% tax on billionaires. Supporters say it is only round one.", mins:5, date:'2026-11-20', tags:['business','tax','finance','politics'] },
   { slug:'weeklydrop027', icon:'🔦🥫💧', badge:'Issue 027', badgeType:null, title:'Be Ready: 72 Hours On Your Own', desc:"The UK government says: stock up for three days. Is it smart planning or scaremongering? Two experts disagree.", mins:5, date:'2026-11-13', tags:['society','safety','news'] },
     { slug:'weeklydrop026', icon:'👛🔒💳', badge:'Issue 026', badgeType:null, title:'Where Did My Money Go?', desc:"Claude can now read your bank account, but it cannot move one cent. Meet Personal Finance.", mins:5, date:'2026-11-06', tags:['ai','finance','money','tech'] },
     { slug:'weeklydrop025', icon:'🐄💸🗳️', badge:'Issue 025', badgeType:null, title:'Why Kansas Ranchers Are Turning on Trump', desc:"A cattle auction, a price nosedive and a Senate race that is now a toss-up. Why are ranchers so angry?", mins:6, date:'2026-10-30', tags:['business','finance','politics'] },
@@ -32,7 +33,7 @@ window.LESSONS = [
   { slug:'weeklydrop003', icon:'✂️🍫', badge:'Issue 003', badgeType:null, title:'Shrinkflation — Why Chocolate Is Getting Smaller!', desc:"Your Easter egg shrank — but the price didn't. Welcome to shrinkflation.", mins:5, date:'2026-04-17', tags:['business'] },
   { slug:'weeklydrop002', icon:'📉', badge:'Issue 002', badgeType:null, title:"Germany's Insolvency Wave", desc:'24,064 companies filed for insolvency in Germany in 2025. Your clients may be suffering.', mins:5, date:'2026-03-26', tags:['business'] },
   { slug:'weeklydropoil', icon:'🛢️', badge:'Issue 001', badgeType:null, title:"Iran, Oil & Prof Jiang's Predictions", desc:"The Strait of Hormuz is blocked. Brent Crude hit $120. One professor saw it all coming. Can you crack the activities?", mins:5, date:'2026-03-16', tags:['business'] },
-  { slug:null, icon:'🔒', badge:null, badgeType:'soon', title:'Issue 027 — Coming Soon', desc:'A new issue drops every week — check back soon!', mins:null, date:null },
+  { slug:null, icon:'🔒', badge:null, badgeType:'soon', title:'Issue 030 — Xmas Special - Coming Soon', desc:'A new issue drops every week — check back soon!', mins:null, date:null },
 ];
 /* EFCD-AUTO-START */
 /* EFCD-AUTO-END */
