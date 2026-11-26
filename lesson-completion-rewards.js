@@ -1475,6 +1475,30 @@
       ],
     },
 
+                 'weekly-drop-issue-029': {
+      title:   'The Weekly Drop - Issue 029 - Everything for a Pound… Until Now',
+      level:   'All Levels',
+      grammar: 'Present perfect (has gone, has traded); contrast connectors (although / despite); there is / there are and subject-verb agreement; will + base verb',
+      vocab: [
+        { word:'administration',      definition:'When a failing company is taken over by outside experts who try to save it or sell it.' },
+        { word:'administrator',       definition:'An expert who takes control of a failing company to sell it or pay its debts.' },
+        { word:'bidder',              definition:'A person or company that offers money to buy something.' },
+        { word:'rescue deal',         definition:'A last-minute agreement that saves a company from failing.' },
+        { word:'lender',              definition:'A bank or company that gives money and expects it back later.' },
+        { word:'creditor',            definition:'A person or company that is owed money.' },
+        { word:'solvent',             definition:'Having enough money to pay all your debts.' },
+        { word:'redundancy',          definition:'Losing your job because the company no longer needs your position.' },
+        { word:'turnaround',          definition:'A big change from bad results to good results.' },
+        { word:'squeeze',             definition:'Put a business under pressure, for example with rising costs.' },
+        { word:'supplier',            definition:'A company that sells goods or materials to another business.' },
+        { word:'piecemeal',           definition:'A little at a time, in separate parts.' },
+        { word:'break up',            definition:'To divide a company into smaller parts, often to sell them.' },
+        { word:'high street',         definition:'The main shopping street of a British town.' },
+        { word:'trade',               definition:'To do business, to sell goods or services (often under a name).' },
+        { word:'hang in the balance', definition:'To be in a risky position; the result is not decided yet.' },
+      ],
+    },
+
                 'weekly-drop-issue-030': {
       title:   'The Weekly Drop - Issue 030 - The Advent Calendar',
       level:   'All Levels',
